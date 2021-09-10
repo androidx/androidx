@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,128 +19,59 @@ package androidx.fragment.app;
 import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
-import android.util.Log;
 
-import androidx.lifecycle.Lifecycle;
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @SuppressLint("BanParcelableUsage")
-final class BackStackState implements Parcelable {
-    private static final String TAG = FragmentManager.TAG;
+class BackStackState implements Parcelable {
+    final List<String> mFragments;
+    final List<BackStackRecordState> mTransactions;
 
-    final int[] mOps;
-    final ArrayList<String> mFragmentWhos;
-    final int[] mOldMaxLifecycleStates;
-    final int[] mCurrentMaxLifecycleStates;
-    final int mTransition;
-    final String mName;
-    final int mIndex;
-    final int mBreadCrumbTitleRes;
-    final CharSequence mBreadCrumbTitleText;
-    final int mBreadCrumbShortTitleRes;
-    final CharSequence mBreadCrumbShortTitleText;
-    final ArrayList<String> mSharedElementSourceNames;
-    final ArrayList<String> mSharedElementTargetNames;
-    final boolean mReorderingAllowed;
-
-    public BackStackState(BackStackRecord bse) {
-        final int numOps = bse.mOps.size();
-        mOps = new int[numOps * 5];
-
-        if (!bse.mAddToBackStack) {
-            throw new IllegalStateException("Not on back stack");
-        }
-
-        mFragmentWhos = new ArrayList<>(numOps);
-        mOldMaxLifecycleStates = new int[numOps];
-        mCurrentMaxLifecycleStates = new int[numOps];
-        int pos = 0;
-        for (int opNum = 0; opNum < numOps; opNum++) {
-            final BackStackRecord.Op op = bse.mOps.get(opNum);
-            mOps[pos++] = op.mCmd;
-            mFragmentWhos.add(op.mFragment != null ? op.mFragment.mWho : null);
-            mOps[pos++] = op.mEnterAnim;
-            mOps[pos++] = op.mExitAnim;
-            mOps[pos++] = op.mPopEnterAnim;
-            mOps[pos++] = op.mPopExitAnim;
-            mOldMaxLifecycleStates[opNum] = op.mOldMaxState.ordinal();
-            mCurrentMaxLifecycleStates[opNum] = op.mCurrentMaxState.ordinal();
-        }
-        mTransition = bse.mTransition;
-        mName = bse.mName;
-        mIndex = bse.mIndex;
-        mBreadCrumbTitleRes = bse.mBreadCrumbTitleRes;
-        mBreadCrumbTitleText = bse.mBreadCrumbTitleText;
-        mBreadCrumbShortTitleRes = bse.mBreadCrumbShortTitleRes;
-        mBreadCrumbShortTitleText = bse.mBreadCrumbShortTitleText;
-        mSharedElementSourceNames = bse.mSharedElementSourceNames;
-        mSharedElementTargetNames = bse.mSharedElementTargetNames;
-        mReorderingAllowed = bse.mReorderingAllowed;
+    BackStackState(List<String> fragments,
+            List<BackStackRecordState> transactions) {
+        mFragments = fragments;
+        mTransactions = transactions;
     }
 
-    public BackStackState(Parcel in) {
-        mOps = in.createIntArray();
-        mFragmentWhos = in.createStringArrayList();
-        mOldMaxLifecycleStates = in.createIntArray();
-        mCurrentMaxLifecycleStates = in.createIntArray();
-        mTransition = in.readInt();
-        mName = in.readString();
-        mIndex = in.readInt();
-        mBreadCrumbTitleRes = in.readInt();
-        mBreadCrumbTitleText = TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(in);
-        mBreadCrumbShortTitleRes = in.readInt();
-        mBreadCrumbShortTitleText = TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(in);
-        mSharedElementSourceNames = in.createStringArrayList();
-        mSharedElementTargetNames = in.createStringArrayList();
-        mReorderingAllowed = in.readInt() != 0;
+    BackStackState(@NonNull Parcel in) {
+        mFragments = in.createStringArrayList();
+        mTransactions = in.createTypedArrayList(BackStackRecordState.CREATOR);
     }
 
-    public BackStackRecord instantiate(FragmentManager fm) {
-        BackStackRecord bse = new BackStackRecord(fm);
-        int pos = 0;
-        int num = 0;
-        while (pos < mOps.length) {
-            BackStackRecord.Op op = new BackStackRecord.Op();
-            op.mCmd = mOps[pos++];
-            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                Log.v(TAG, "Instantiate " + bse
-                        + " op #" + num + " base fragment #" + mOps[pos]);
+    @NonNull
+    List<BackStackRecord> instantiate(@NonNull FragmentManager fm,
+            Map<String, Fragment> pendingSavedFragments) {
+        // First instantiate the saved Fragments from state.
+        // These will populate the transactions we instantiate.
+        HashMap<String, Fragment> fragments = new HashMap<>(mFragments.size());
+        for (String fWho : mFragments) {
+            Fragment existingFragment = pendingSavedFragments.get(fWho);
+            if (existingFragment != null) {
+                // If the Fragment still exists, this means the saveBackStack()
+                // hasn't executed yet, so we can use the existing Fragment directly
+                fragments.put(existingFragment.mWho, existingFragment);
+                continue;
             }
-            String fWho = mFragmentWhos.get(num);
-            if (fWho != null) {
-                Fragment f = fm.findActiveFragment(fWho);
-                op.mFragment = f;
-            } else {
-                op.mFragment = null;
+            // Otherwise, retrieve any saved state, clearing it out for future calls
+            FragmentState fragmentState = fm.getFragmentStore().setSavedState(fWho, null);
+            if (fragmentState != null) {
+                Fragment fragment = fragmentState.instantiate(fm.getFragmentFactory(),
+                        fm.getHost().getContext().getClassLoader());
+                fragments.put(fragment.mWho, fragment);
             }
-            op.mOldMaxState = Lifecycle.State.values()[mOldMaxLifecycleStates[num]];
-            op.mCurrentMaxState = Lifecycle.State.values()[mCurrentMaxLifecycleStates[num]];
-            op.mEnterAnim = mOps[pos++];
-            op.mExitAnim = mOps[pos++];
-            op.mPopEnterAnim = mOps[pos++];
-            op.mPopExitAnim = mOps[pos++];
-            bse.mEnterAnim = op.mEnterAnim;
-            bse.mExitAnim = op.mExitAnim;
-            bse.mPopEnterAnim = op.mPopEnterAnim;
-            bse.mPopExitAnim = op.mPopExitAnim;
-            bse.addOp(op);
-            num++;
         }
-        bse.mTransition = mTransition;
-        bse.mName = mName;
-        bse.mIndex = mIndex;
-        bse.mAddToBackStack = true;
-        bse.mBreadCrumbTitleRes = mBreadCrumbTitleRes;
-        bse.mBreadCrumbTitleText = mBreadCrumbTitleText;
-        bse.mBreadCrumbShortTitleRes = mBreadCrumbShortTitleRes;
-        bse.mBreadCrumbShortTitleText = mBreadCrumbShortTitleText;
-        bse.mSharedElementSourceNames = mSharedElementSourceNames;
-        bse.mSharedElementTargetNames = mSharedElementTargetNames;
-        bse.mReorderingAllowed = mReorderingAllowed;
-        bse.bumpBackStackNesting(1);
-        return bse;
+
+        // Now instantiate all of the BackStackRecords
+        ArrayList<BackStackRecord> transactions = new ArrayList<>();
+        for (BackStackRecordState backStackRecordState : mTransactions) {
+            transactions.add(backStackRecordState.instantiate(fm, fragments));
+        }
+        return transactions;
     }
 
     @Override
@@ -149,33 +80,21 @@ final class BackStackState implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeIntArray(mOps);
-        dest.writeStringList(mFragmentWhos);
-        dest.writeIntArray(mOldMaxLifecycleStates);
-        dest.writeIntArray(mCurrentMaxLifecycleStates);
-        dest.writeInt(mTransition);
-        dest.writeString(mName);
-        dest.writeInt(mIndex);
-        dest.writeInt(mBreadCrumbTitleRes);
-        TextUtils.writeToParcel(mBreadCrumbTitleText, dest, 0);
-        dest.writeInt(mBreadCrumbShortTitleRes);
-        TextUtils.writeToParcel(mBreadCrumbShortTitleText, dest, 0);
-        dest.writeStringList(mSharedElementSourceNames);
-        dest.writeStringList(mSharedElementTargetNames);
-        dest.writeInt(mReorderingAllowed ? 1 : 0);
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeStringList(mFragments);
+        dest.writeTypedList(mTransactions);
     }
 
-    public static final Parcelable.Creator<BackStackState> CREATOR
-            = new Parcelable.Creator<BackStackState>() {
-        @Override
-        public BackStackState createFromParcel(Parcel in) {
-            return new BackStackState(in);
-        }
+    public static final Parcelable.Creator<BackStackState> CREATOR =
+            new Parcelable.Creator<BackStackState>() {
+                @Override
+                public BackStackState createFromParcel(Parcel in) {
+                    return new BackStackState(in);
+                }
 
-        @Override
-        public BackStackState[] newArray(int size) {
-            return new BackStackState[size];
-        }
-    };
+                @Override
+                public BackStackState[] newArray(int size) {
+                    return new BackStackState[size];
+                }
+            };
 }

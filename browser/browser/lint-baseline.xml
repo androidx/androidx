@@ -1,86 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
-        id="InlinedApi"
-        message="Field requires API level 23 (current min is 16): `android.content.pm.PackageManager#MATCH_ALL`"
-        errorLine1="        return pm.queryIntentActivities(intent, PackageManager.MATCH_ALL);"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 18 (current min is 16): `android.os.Bundle#getBinder`"
+        errorLine1="                intent.getExtras().getBinder(CustomTabsIntent.EXTRA_SESSION));"
+        errorLine2="                                   ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
-            line="388"
-            column="49"/>
+            file="src/test/java/androidx/browser/customtabs/CustomTabsIntentTest.java"
+            line="280"
+            column="36"/>
     </issue>
 
     <issue
-        id="InlinedApi"
-        message="Field requires API level 23 (current min is 16): `android.content.pm.PackageManager#MATCH_ALL`"
-        errorLine1="                PackageManager.MATCH_ALL);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 18 (current min is 16): `android.os.Bundle#getBinder`"
+        errorLine1="                intent.getExtras().getBinder(CustomTabsIntent.EXTRA_SESSION));"
+        errorLine2="                                   ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionPool.java"
-            line="245"
-            column="17"/>
+            file="src/test/java/androidx/browser/customtabs/CustomTabsIntentTest.java"
+            line="289"
+            column="36"/>
     </issue>
 
     <issue
-        id="InflateParams"
-        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
-        errorLine1="                    R.layout.browser_actions_context_menu_row, null);"
-        errorLine2="                                                               ~~~~">
+        id="NewApi"
+        message="Call requires API level 18 (current min is 16): `android.os.Bundle#getBinder`"
+        errorLine1="        assertNull(intent.getExtras().getBinder(CustomTabsIntent.EXTRA_SESSION));"
+        errorLine2="                                      ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/browser/browseractions/BrowserActionsFallbackMenuAdapter.java"
-            line="76"
-            column="64"/>
+            file="src/test/java/androidx/browser/customtabs/CustomTabsIntentTest.java"
+            line="304"
+            column="39"/>
     </issue>
 
     <issue
-        id="InflateParams"
-        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
-        errorLine1="                R.layout.browser_actions_context_menu_page, null);"
-        errorLine2="                                                            ~~~~">
+        id="NewApi"
+        message="Call requires API level 18 (current min is 16): `android.os.Bundle#getBinder`"
+        errorLine1="        assertEquals(session.getBinder(), intent.getExtras().getBinder("
+        errorLine2="                                                             ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/browser/browseractions/BrowserActionsFallbackMenuUi.java"
-            line="142"
-            column="61"/>
+            file="src/test/java/androidx/browser/customtabs/TestUtil.java"
+            line="56"
+            column="62"/>
     </issue>
 
     <issue
-        id="QueryPermissionsNeeded"
-        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
-        errorLine1="        return pm.queryIntentActivities(intent, PackageManager.MATCH_ALL);"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
-            line="388"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="QueryPermissionsNeeded"
-        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
-        errorLine1="                .queryIntentActivities(scopeResolutionIntent, PackageManager.MATCH_DEFAULT_ONLY);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionPool.java"
-            line="219"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.browser.browseractions.BrowserActionsIntent is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.browser.browseractions.BrowserActionsIntent is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                return pendingIntent.getCreatorPackage();"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
-            line="469"
+            line="470"
             column="38"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.browser.trusted.NotificationApiHelperForM is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.browser.trusted.NotificationApiHelperForM is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        return manager.getActiveNotifications();"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -90,8 +68,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.browser.trusted.NotificationApiHelperForO is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.browser.trusted.NotificationApiHelperForO is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        NotificationChannel channel = manager.getNotificationChannel(channelId);"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -101,8 +79,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.browser.trusted.NotificationApiHelperForO is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.browser.trusted.NotificationApiHelperForO is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        return channel == null || channel.getImportance() != NotificationManager.IMPORTANCE_NONE;"
         errorLine2="                                          ~~~~~~~~~~~~~">
         <location
@@ -112,8 +90,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.browser.trusted.NotificationApiHelperForO is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.browser.trusted.NotificationApiHelperForO is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        manager.createNotificationChannel(new NotificationChannel(channelId,"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -123,8 +101,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.browser.trusted.NotificationApiHelperForO is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.browser.trusted.NotificationApiHelperForO is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        manager.createNotificationChannel(new NotificationChannel(channelId,"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -134,8 +112,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.browser.trusted.NotificationApiHelperForO is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.browser.trusted.NotificationApiHelperForO is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        if (manager.getNotificationChannel(channelId).getImportance()"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -145,8 +123,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.browser.trusted.NotificationApiHelperForO is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.browser.trusted.NotificationApiHelperForO is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        if (manager.getNotificationChannel(channelId).getImportance()"
         errorLine2="                                                      ~~~~~~~~~~~~~">
         <location
@@ -156,8 +134,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.browser.trusted.NotificationApiHelperForO is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.browser.trusted.NotificationApiHelperForO is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        Notification.Builder builder = Notification.Builder.recoverBuilder(context, notification);"
         errorLine2="                                                            ~~~~~~~~~~~~~~">
         <location
@@ -167,58 +145,14 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.browser.trusted.NotificationApiHelperForO is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.browser.trusted.NotificationApiHelperForO is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        builder.setChannelId(channelId);"
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/browser/trusted/NotificationApiHelperForO.java"
             line="62"
             column="17"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This field leaks a context object"
-        errorLine1="        private final Context mAppContext;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/browser/browseractions/BrowserServiceFileProvider.java"
-            line="78"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This field leaks a context object"
-        errorLine1="        private final Context mAppContext;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/browser/browseractions/BrowserServiceFileProvider.java"
-            line="134"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This field leaks a context object"
-        errorLine1="        private final Context mAppContext;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionPool.java"
-            line="133"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/browser_actions_bg_grey` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
-        errorLine1="    android:background=&quot;@color/browser_actions_bg_grey&quot;>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/browser_actions_context_menu_page.xml"
-            line="26"
-            column="5"/>
     </issue>
 
 </issues>

@@ -16,7 +16,7 @@
 
 package androidx.car.app;
 
-import static androidx.car.app.utils.CommonUtils.TAG;
+import static androidx.car.app.utils.LogTags.TAG;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -26,7 +26,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringDef;
-import androidx.car.app.utils.CommonUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -46,8 +45,10 @@ public final class CarAppPermission {
     }
 
     /**
-     * Permission that apps can use to get access to a canvas surface. This surface can be used for
-     * drawing custom content like navigation apps can use it to draw a map.
+     * Permission that apps can use to get access to a canvas surface.
+     *
+     * <p>This surface can be used for drawing custom content like navigation apps can use it to
+     * draw a map.
      */
     public static final String ACCESS_SURFACE = "androidx.car.app.ACCESS_SURFACE";
 
@@ -55,16 +56,35 @@ public final class CarAppPermission {
      * Permission that apps can use to get access to the navigation templates of the car app
      * library.
      *
-     * <p>This permission can <b>ONLY</b> be requested by apps that declare themselves as a
-     * navigation app.
+     * <p>This permission should only be declared by apps that belong to one of the categories that
+     * allow using the navigation templates. See
+     * <a href="https://developer.android.com/training/cars/apps/navigation#access-navigation-templates">the
+     * documentation</a> for the list of such categories. An app not in one of those categories
+     * requesting this permission may be rejected upon submission to the Play Store. See
+     * {@link CarAppService} for how to declare your app's category.
      */
-    public static final String NAVIGATION_TEMPLATES =
-            "androidx.car.app.NAVIGATION_TEMPLATES";
+    public static final String NAVIGATION_TEMPLATES = "androidx.car.app.NAVIGATION_TEMPLATES";
+
+    /**
+     * Permission that apps can use to get access to templates that show a map such as
+     * {@link androidx.car.app.model.PlaceListMapTemplate}. Templates used by navigation apps that
+     * draw their own maps
+     * (e.g. {@link androidx.car.app.navigation.model.PlaceListNavigationTemplate}) don't require
+     * this permission.
+     *
+     * <p>This permission should only be declared by apps that belong to one of the categories that
+     * allow using the map templates. See
+     * <a href="https://developer.android.com/training/cars/apps/poi#access-map-template">the
+     * documentation</a> for the list of such categories. An app not in one of those categories
+     * requesting this permission may be rejected upon submission to the Play Store. See
+     * {@link CarAppService} for how to declare your app's category.
+     */
+    public static final String MAP_TEMPLATES = "androidx.car.app.MAP_TEMPLATES";
 
     /**
      * Checks that the car app has the given {@code permission} granted.
      *
-     * @throws SecurityException if the app does not have a required permission granted.
+     * @throws SecurityException if the app does not have a required permission granted
      */
     public static void checkHasPermission(@NonNull Context context, @NonNull String permission) {
         if (context.getPackageManager().checkPermission(permission, context.getPackageName())
@@ -82,19 +102,20 @@ public final class CarAppPermission {
      * <p>In contrast to {@link #checkHasPermission}, this method will validate that the app has at
      * least declared the permission requested.
      *
-     * @throws SecurityException if the app does not have the required permission declared.
+     * @throws SecurityException if the app does not have the required permission declared
      */
     public static void checkHasLibraryPermission(
             @NonNull Context context, @NonNull @LibraryPermission String permission) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG,
+                    "Checking to see if the car app requested the required library permission: "
+                            + permission);
+        }
+
         try {
             checkHasPermission(context, permission);
             return;
         } catch (SecurityException e) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG,
-                        "Checking to see if the car app requested the required library permission: "
-                                + permission);
-            }
             // Do nothing, we use a fallback for library permissions.
         }
 
@@ -111,8 +132,7 @@ public final class CarAppPermission {
                 }
             }
         } catch (NameNotFoundException e) {
-            Log.e(CommonUtils.TAG,
-                    "Package name not found on the system: " + context.getPackageName(), e);
+            Log.e(TAG, "Package name not found on the system: " + context.getPackageName(), e);
         }
         throw new SecurityException(
                 "The car app does not have a required permission: " + permission);

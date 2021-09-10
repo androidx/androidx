@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -31,18 +28,14 @@ android {
     }
 
     sourceSets {
-        main.manifest.srcFile 'src/main/AndroidManifest.xml'
-        main.java.srcDirs = ['src/main/java']
-        main.java.excludes = ['**/build/**']
-        main.java.includes = ['**/*.java']
-        main.res.srcDirs = ['src/main/res']
+        main.manifest.srcFile "src/main/AndroidManifest.xml"
+        main.java.srcDirs = ["src/main/java"]
+        main.java.excludes = ["**/build/**"]
+        main.java.includes = ["**/*.java"]
+        main.res.srcDirs = ["src/main/res"]
     }
 
     buildTypes {
-        debug {
-            testCoverageEnabled true
-        }
-
         release {
             minifyEnabled true
             shrinkResources true
@@ -56,26 +49,30 @@ android {
 
 dependencies {
     // Internal library
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.kotlinStdlib)
     implementation(project(":camera:camera-camera2"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-view"))
 
     // Android Support Library
     implementation("androidx.appcompat:appcompat:1.2.0")
-    implementation("androidx.viewpager2:viewpager2:1.0.0")
+    implementation("androidx.activity:activity-ktx:1.2.0")
+    implementation("androidx.viewpager2:viewpager2:1.1.0-alpha01")
+
+    // Guava
+    implementation(libs.guavaAndroid)
 
     // Testing framework
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
-    androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(project(":camera:camera-testing"))
-    androidTestImplementation(project(':internal-testutils-runtime'))
-    androidTestImplementation(TRUTH)
-    debugImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation(libs.truth)
+    debugImplementation(libs.testCore)
     debugImplementation("androidx.fragment:fragment-testing:1.2.5")
     // Testing resource dependency for manifest
     debugImplementation(project(":camera:camera-testing"))

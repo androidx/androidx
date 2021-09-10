@@ -53,6 +53,7 @@ import androidx.wear.watchface.complications.rendering.utils.RangedValueLayoutHe
 import androidx.wear.watchface.complications.rendering.utils.ShortTextLayoutHelper;
 import androidx.wear.watchface.complications.rendering.utils.SmallImageLayoutHelper;
 
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -129,9 +130,9 @@ class ComplicationRenderer {
     Drawable mLargeImage;
 
     // Drawables for rendering rounded images
-    private final RoundedDrawable mRoundedBackgroundDrawable = new RoundedDrawable();
-    private final RoundedDrawable mRoundedLargeImage = new RoundedDrawable();
-    private final RoundedDrawable mRoundedSmallImage = new RoundedDrawable();
+    private RoundedDrawable mRoundedBackgroundDrawable = null;
+    private RoundedDrawable mRoundedLargeImage = null;
+    private RoundedDrawable mRoundedSmallImage = null;
 
     // Text renderers
     private final TextRenderer mMainTextRenderer = new TextRenderer();
@@ -174,9 +175,9 @@ class ComplicationRenderer {
     /**
      * Initializes complication renderer.
      *
-     * @param context      Current context.
-     * @param activeStyle  Complication style to be used when in active mode.
-     * @param ambientStyle Complication style to be used when in ambient mode.
+     * @param context      Current [Context].
+     * @param activeStyle  ComplicationSlot style to be used when in active mode.
+     * @param ambientStyle ComplicationSlot style to be used when in ambient mode.
      */
     ComplicationRenderer(
             Context context, ComplicationStyle activeStyle, ComplicationStyle ambientStyle) {
@@ -208,14 +209,20 @@ class ComplicationRenderer {
     /**
      * Sets the complication data to be rendered.
      *
-     * @param data Complication data to be rendered. If this is null, nothing is drawn.
+     * @param data ComplicationSlot data to be rendered. If this is null, nothing is drawn.
+     * @param loadDrawablesAsync If true any drawables will be loaded asynchronously, otherwise
+     *     they will be loaded synchronously.
      */
-    public void setComplicationData(@Nullable ComplicationData data) {
+    public void setComplicationData(@Nullable ComplicationData data, boolean loadDrawablesAsync) {
         if (Objects.equals(mComplicationData, data)) {
             return;
         }
         if (data == null) {
             mComplicationData = null;
+            // Free unnecessary RoundedDrawables.
+            mRoundedBackgroundDrawable = null;
+            mRoundedLargeImage = null;
+            mRoundedSmallImage = null;
             return;
         }
         if (data.getType() == ComplicationData.TYPE_NO_DATA) {
@@ -234,10 +241,21 @@ class ComplicationRenderer {
             mComplicationData = data;
             mHasNoData = false;
         }
-        if (!loadDrawableIconAndImages()) {
-            invalidate();
+        if (loadDrawablesAsync) {
+            if (!loadDrawableIconAndImagesAsync()) {
+                invalidate();
+            }
+        } else {
+            loadDrawableIconAndImages();
         }
         calculateBounds();
+
+        // Based on the results of calculateBounds we know if mRoundedLargeImage or
+        // mSmallImageBounds are needed for rendering and can null the references if not required.
+        // NOTE mRoundedBackgroundDrawable has a different lifecycle which is based on the current
+        // paint mode so it doesn't make sense to clear it's reference here.
+        mRoundedLargeImage = null;
+        mRoundedSmallImage = null;
     }
 
     /**
@@ -274,7 +292,7 @@ class ComplicationRenderer {
         if (mHasNoData) {
             mHasNoData = false;
             setComplicationData(
-                    new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build());
+                    new ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).build(), true);
         }
     }
 
@@ -297,7 +315,7 @@ class ComplicationRenderer {
      * 'empty' or 'not configured', or is not active.
      *
      * @param canvas            canvas to be drawn on.
-     * @param currentTimeMillis current system time in millis since epoch.
+     * @param currentTime       current time as an {@link Instant}
      * @param inAmbientMode     true if the device is in ambient mode.
      * @param lowBitAmbient     true if the screen supports fewer bits for each color in ambient
      *                          mode.
@@ -307,7 +325,7 @@ class ComplicationRenderer {
      */
     public void draw(
             @NonNull Canvas canvas,
-            long currentTimeMillis,
+            Instant currentTime,
             boolean inAmbientMode,
             boolean lowBitAmbient,
             boolean burnInProtection,
@@ -316,10 +334,8 @@ class ComplicationRenderer {
         if (mComplicationData == null
                 || mComplicationData.getType() == ComplicationData.TYPE_EMPTY
                 || mComplicationData.getType() == ComplicationData.TYPE_NOT_CONFIGURED
-                || !mComplicationData.isActiveAt(currentTimeMillis)) {
-            return;
-        }
-        if (mBounds.isEmpty()) {
+                || !mComplicationData.isActiveAt(currentTime.toEpochMilli())
+                || mBounds.isEmpty()) {
             return;
         }
         // If in ambient mode but paint set is not usable with current ambient properties,
@@ -332,7 +348,7 @@ class ComplicationRenderer {
         // Choose the correct paint set to use
         PaintSet currentPaintSet = inAmbientMode ? mAmbientPaintSet : mActivePaintSet;
         // Update complication texts
-        updateComplicationTexts(currentTimeMillis);
+        updateComplicationTexts(currentTime.toEpochMilli());
         canvas.save();
         canvas.translate(mBounds.left, mBounds.top);
         // Draw background first
@@ -400,10 +416,15 @@ class ComplicationRenderer {
         canvas.drawRoundRect(mBackgroundBoundsF, radius, radius, paintSet.mBackgroundPaint);
         if (paintSet.mStyle.getBackgroundDrawable() != null
                 && !paintSet.isInBurnInProtectionMode()) {
+            if (mRoundedBackgroundDrawable == null) {
+                mRoundedBackgroundDrawable = new RoundedDrawable();
+            }
             mRoundedBackgroundDrawable.setDrawable(paintSet.mStyle.getBackgroundDrawable());
             mRoundedBackgroundDrawable.setRadius(radius);
             mRoundedBackgroundDrawable.setBounds(mBackgroundBounds);
             mRoundedBackgroundDrawable.draw(canvas);
+        } else {
+            mRoundedBackgroundDrawable = null;
         }
     }
 
@@ -514,6 +535,9 @@ class ComplicationRenderer {
         if (DEBUG_MODE) {
             canvas.drawRect(mSmallImageBounds, mDebugPaint);
         }
+        if (mRoundedSmallImage == null) {
+            mRoundedSmallImage = new RoundedDrawable();
+        }
         if (!paintSet.isInBurnInProtectionMode()) {
             mRoundedSmallImage.setDrawable(mSmallImage);
             if (mSmallImage == null) {
@@ -546,6 +570,9 @@ class ComplicationRenderer {
         }
         // Draw the image if not in burn in protection mode (in active mode or burn in not enabled)
         if (!paintSet.isInBurnInProtectionMode()) {
+            if (mRoundedLargeImage == null) {
+                mRoundedLargeImage = new RoundedDrawable();
+            }
             mRoundedLargeImage.setDrawable(mLargeImage);
             // Large image is always treated as photo style
             mRoundedLargeImage.setRadius(getImageBorderRadius(paintSet.mStyle, mLargeImageBounds));
@@ -701,7 +728,7 @@ class ComplicationRenderer {
      * Returns true if the data contains images. If there are, the images will be loaded
      * asynchronously and the drawable will be invalidated when loading is complete.
      */
-    private boolean loadDrawableIconAndImages() {
+    private boolean loadDrawableIconAndImagesAsync() {
         Handler handler = new Handler(Looper.getMainLooper());
         Icon icon = null;
         Icon smallImage = null;
@@ -819,6 +846,52 @@ class ComplicationRenderer {
                     handler);
         }
         return hasImage;
+    }
+
+    /** Synchronously loads any images. */
+    private void loadDrawableIconAndImages() {
+        Icon icon = null;
+        Icon smallImage = null;
+        Icon burnInProtectionSmallImage = null;
+        Icon largeImage = null;
+        Icon burnInProtectionIcon = null;
+        mIcon = null;
+        mSmallImage = null;
+        mBurnInProtectionSmallImage = null;
+        mLargeImage = null;
+        mBurnInProtectionIcon = null;
+        if (mComplicationData != null) {
+            icon = mComplicationData.hasIcon() ? mComplicationData.getIcon() : null;
+            burnInProtectionIcon = mComplicationData.hasBurnInProtectionIcon()
+                    ? mComplicationData.getBurnInProtectionIcon() : null;
+            burnInProtectionSmallImage =
+                    mComplicationData.hasBurnInProtectionSmallImage()
+                            ? mComplicationData.getBurnInProtectionSmallImage() : null;
+            smallImage =
+                    mComplicationData.hasSmallImage() ? mComplicationData.getSmallImage() : null;
+            largeImage =
+                    mComplicationData.hasLargeImage() ? mComplicationData.getLargeImage() : null;
+        }
+
+        if (icon != null) {
+            mIcon = icon.loadDrawable(mContext);
+        }
+
+        if (burnInProtectionIcon != null) {
+            mBurnInProtectionIcon = burnInProtectionIcon.loadDrawable(mContext);
+        }
+
+        if (smallImage != null) {
+            mSmallImage = smallImage.loadDrawable(mContext);
+        }
+
+        if (burnInProtectionSmallImage != null) {
+            mBurnInProtectionSmallImage = burnInProtectionSmallImage.loadDrawable(mContext);
+        }
+
+        if (largeImage != null) {
+            mLargeImage = largeImage.loadDrawable(mContext);
+        }
     }
 
     @VisibleForTesting

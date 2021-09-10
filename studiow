@@ -1,16 +1,124 @@
 #!/usr/bin/env bash
-if [ -n "$1" ]; then
-  export ANDROIDX_PROJECTS=${1^^}
-else
-  export ANDROIDX_PROJECTS=MAIN
-  echo "Supported projects sets include:"
-  echo "- MAIN for non-Compose Jetpack libraries"
-  echo "- COMPOSE for Compose and dependencies"
-  echo "- FLAN for Fragment, Lifecycle, Activity, and Navigation"
-  echo "- ALL for all libraries"
-  echo
-  echo "No project set specified, using MAIN..."
-fi
-shift
-source gradlew studio "$@"
 
+function usage() {
+  echo "Usage: studiow [--clean] [--reinstall] [<project subset>]"
+  echo
+  echo "OPTIONS"
+  echo " --clean"
+  echo "   Clear (with backup) generated files (settings, caches, etc) before launching"
+  echo
+  echo " --reinstall"
+  echo "   Remove and re-download Studio itself. Also implies --clean"
+  echo
+  echo "Project subsets:"
+  echo " m, main"
+  echo "  Open the project subset main: non-Compose Jetpack libraries"
+  echo
+  echo " c, compose"
+  echo "  Open the project subset compose"
+  echo
+  echo " f, flan"
+  echo "  Open the project subset flan: Fragment, Lifecycle, Activity, and Navigation"
+  echo
+  echo " media"
+  echo "  Open the project subset media: Media, Media2, and MediaRouter"
+  echo
+  echo " w, wear"
+  echo "  Open the project subset for Wear OS libraries"
+  echo
+  echo " a, all"
+  echo "  Open the project subset all"
+  echo
+  exit 1
+}
+
+cd "$(dirname $0)"
+
+subsetArg=""
+clean=false
+reinstall=false
+projectSubset=""
+while [ "$1" != "" ]; do
+  arg="$1"
+  shift
+  # parse options
+  if [ "$arg" == "--clean" ]; then
+    clean=true
+    continue
+  fi
+  if [ "$arg" == "--reinstall" ]; then
+    clean=true
+    reinstall=true
+    continue
+  fi
+  # parse arguments
+  subsetArg="$arg"
+  newSubset=""
+  if [ "$subsetArg" == "m" -o "$subsetArg" == "main" ]; then
+    newSubset=main
+  fi
+  if [ "$subsetArg" == "c" -o "$subsetArg" == "compose" ]; then
+    newSubset=compose
+  fi
+  if [ "$subsetArg" == "f" -o "$subsetArg" == "flan" ]; then
+    newSubset=flan
+  fi
+  if [ "$subsetArg" == "media" ]; then
+    newSubset=media
+  fi
+  if [ "$subsetArg" == "w" -o "$subsetArg" == "wear" ]; then
+    newSubset=wear
+  fi
+  if [ "$subsetArg" == "a" -o "$subsetArg" == "all" ]; then
+    newSubset=all
+  fi
+  if [ "$newSubset" == "" ]; then
+    echo "Unrecognized argument: '$subsetArg'"
+    usage
+  fi
+  if [ "$projectSubset" != "" ]; then
+    echo "Unrecognized argument '$subsetArg', cannot specify project subset more than once"
+    usage
+  fi
+  projectSubset=$newSubset
+done
+
+if [ "$projectSubset" == "" ]; then
+  echo "Project subset is required"
+  usage
+fi
+
+export ANDROIDX_PROJECTS=$projectSubset
+
+# ensures the nonexistence of a file or directory, and makes a backup
+function remove() {
+  path="$1"
+  backup="$(dirname $path)/studio-backup/$(basename $path)"
+  if [ -e "$path" ]; then
+    echo "Moving $path to $backup"
+    rm "$backup" -rf
+    mkdir -p "$(dirname $backup)"
+    mv "$path" "$backup"
+  fi
+}
+
+if [ "$reinstall" == "true" ]; then
+  # remove Studio itself so Gradle will re-download it
+  rm studio -rf
+fi
+
+if [ "$clean" == "true" ]; then
+  # remove studio-specific caches
+
+  # make backups of files that users might have customized
+  remove ~/.AndroidStudioAndroidX
+  remove ~/.AndroidStudioAndroidXPlayground
+  remove ~/.android
+  # delete (without backup) files that users won't have customized
+  git clean -fdX .idea/
+  # remove gradle caches too and build
+  ./cleanBuild.sh -y studio
+else
+  # ask gradle to launch studio
+  ./gradlew :studio
+fi

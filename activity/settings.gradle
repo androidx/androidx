@@ -20,7 +20,9 @@ apply from: "../playground-common/playground-include-settings.gradle"
 setupPlayground(this, "..")
 selectProjectsFromAndroidX({ name ->
     if (name.startsWith(":activity")) return true
-    if (name.startsWith(":internal-testutils-runtime")) return true
+    if (name == ":annotation:annotation-sampled") return true
+    if (name == ":internal-testutils-runtime") return true
+    if (isNeededForComposePlayground(name)) return true
     return false
 })
 

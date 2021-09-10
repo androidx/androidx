@@ -21,12 +21,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
@@ -36,7 +36,7 @@ fun observeUserSample() {
     @Composable
     fun observeUser(userId: Int): User? {
         val user = remember(userId) { mutableStateOf<User?>(null) }
-        onCommit(userId) {
+        DisposableEffect(userId) {
             val subscription = UserAPI.subscribeToUser(userId) {
                 user.value = it
             }
@@ -139,9 +139,9 @@ fun DerivedStateSample() {
     }
 
     @Composable fun Example() {
-        var a by mutableStateOf(0)
-        var b by mutableStateOf(0)
-        val sum = derivedStateOf { a + b }
+        var a by remember { mutableStateOf(0) }
+        var b by remember { mutableStateOf(0) }
+        val sum = remember { derivedStateOf { a + b } }
         // Changing either a or b will cause CountDisplay to recompose but not trigger Example
         // to recompose.
         CountDisplay(sum)

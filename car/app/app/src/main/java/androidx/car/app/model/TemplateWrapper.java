@@ -24,6 +24,8 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,22 +38,24 @@ import java.util.UUID;
  * <p>This is what is sent to the host, so that the host can determine whether the template is a new
  * template (e.g. a step counts toward the task limit), or an existing template update (e.g. a
  * refresh that does not count towards the task limit), by checking whether the ID have changed.
+ *
+ * <p><strong>This class is for use by host implementations and not by apps.</strong>
  */
+@CarProtocol
 public final class TemplateWrapper {
     @Keep
+    @Nullable
     private Template mTemplate;
     @Keep
+    @Nullable
     private String mId;
     @Keep
     private List<TemplateInfo> mTemplateInfoForScreenStack = new ArrayList<>();
 
-    /** The current step in a task that the template is in. For internal, host-side use only. */
+    /** The current step in a task that the template is in. */
     private int mCurrentTaskStep;
 
-    /**
-     * Whether the template wrapper is a refresh of the current template. For internal, host-side
-     * use only.
-     */
+    /** Whether the template wrapper is a refresh of the current template. */
     private boolean mIsRefresh;
 
     /**
@@ -64,17 +68,13 @@ public final class TemplateWrapper {
     @NonNull
     public static TemplateWrapper wrap(@NonNull Template template) {
         // Assign a random ID to the template. This should be unique so that the host knows the
-        // template
-        // is a new step. We are not using hashCode() here as we might override template's hash
-        // codes in
-        // the future.
+        // template is a new step. We are not using hashCode() here as we might override
+        // template's hash codes in the future.
         //
         // Note: There is a chance of collision here, in which case the host will reset the
         // task step to the value of a previous template that has the colliding ID. The chance of
-        // this
-        // happening should be negligible given we are dealing with a very small number of
-        // templates in
-        // the stack.
+        // this happening should be negligible given we are dealing with a very small number of
+        // templates in the stack.
         return wrap(template, createRandomId());
     }
 
@@ -82,14 +82,12 @@ public final class TemplateWrapper {
      * Creates a {@link TemplateWrapper} instance with the given {@link Template} and ID.
      *
      * <p>The ID is primarily used to inform the host that the given {@link Template} shares the
-     * same
-     * ID as a previously sent {@link Template}, even though their contents differ. In such
-     * cases, the
-     * host will reset the task step to where the previous {@link Template} was.
+     * same ID as a previously sent {@link Template}, even though their contents differ. In such
+     * cases, the host will reset the task step to where the previous {@link Template} was.
      *
-     * <p>For example, the client sends Template A (task step 1), then move forwards a screen and
-     * sends Template B (task step 2). Now the client pops the screen and sends Template C. By
-     * assigning the ID of Template A to Template C, the client library informs the host that it
+     * <p>For example, the client sends template A (task step 1), then move forwards a screen and
+     * sends template B (task step 2). Now the client pops the screen and sends template C. By
+     * assigning the ID of template A to template C, the client library informs the host that it
      * is a back operation and the task step should be set to 1 again.
      */
     @NonNull
@@ -100,13 +98,17 @@ public final class TemplateWrapper {
     /** Returns the wrapped {@link Template}. */
     @NonNull
     public Template getTemplate() {
+        // Intentionally kept as non-null because the library creates these classes internally after
+        // the app returns a non-null template, a null-value should not be expected here.
         return requireNonNull(mTemplate);
     }
 
     /** Returns the ID associated with the wrapped {@link Template}. */
     @NonNull
     public String getId() {
-        return mId;
+        // Intentionally kept as non-null because the library creates these classes internally after
+        // the app returns a non-null template, a null-value should not be expected here.
+        return requireNonNull(mId);
     }
 
     /**
@@ -119,7 +121,7 @@ public final class TemplateWrapper {
     @RestrictTo(LIBRARY)
     public void setTemplateInfosForScreenStack(
             @NonNull List<TemplateInfo> templateInfoForScreenStack) {
-        this.mTemplateInfoForScreenStack = templateInfoForScreenStack;
+        mTemplateInfoForScreenStack = templateInfoForScreenStack;
     }
 
     /**
@@ -127,31 +129,26 @@ public final class TemplateWrapper {
      * screen stack managed by the screen manager.
      *
      * <p>The return values are in order, where position 0 is the top of the stack, and position
-     * n is
-     * the bottom of the stack given n screens on the stack.
+     * n is the bottom of the stack given n screens on the stack.
      */
-    @Nullable
+    @NonNull
     public List<TemplateInfo> getTemplateInfosForScreenStack() {
-        return mTemplateInfoForScreenStack;
+        return CollectionUtils.emptyIfNull(mTemplateInfoForScreenStack);
     }
 
-    /**
-     * Retrieves the current task step that the template is in. For internal, host-side use only.
-     */
+    /** Retrieves the current task step that the template is in. */
     public int getCurrentTaskStep() {
         return mCurrentTaskStep;
     }
 
-    /**
-     * Sets the current task step that the template is in. For internal, host-side use only.
-     */
+    /** Sets the current task step that the template is in. */
     public void setCurrentTaskStep(int currentTaskStep) {
-        this.mCurrentTaskStep = currentTaskStep;
+        mCurrentTaskStep = currentTaskStep;
     }
 
     /** Sets whether the template is a refresh of the current template. */
     public void setRefresh(boolean isRefresh) {
-        this.mIsRefresh = isRefresh;
+        mIsRefresh = isRefresh;
     }
 
     /** Returns {@code true} if the template is a refresh for the previous template. */
@@ -159,20 +156,14 @@ public final class TemplateWrapper {
         return mIsRefresh;
     }
 
-    /**
-     * Updates the {@link Template} this {@link TemplateWrapper} instance wraps. For internal,
-     * host-side use only.
-     */
+    /** Updates the {@link Template} this {@link TemplateWrapper} instance wraps. */
     public void setTemplate(@NonNull Template template) {
-        this.mTemplate = template;
+        mTemplate = template;
     }
 
-    /**
-     * Updates the ID associated with the wrapped {@link Template}. For internal, host-side use
-     * only.
-     */
+    /** Updates the ID associated with the wrapped {@link Template}. */
     public void setId(@NonNull String id) {
-        this.mId = id;
+        mId = id;
     }
 
     /** Creates a copy of the given {@link TemplateWrapper}. */
@@ -195,8 +186,8 @@ public final class TemplateWrapper {
     }
 
     private TemplateWrapper(Template template, String id) {
-        this.mTemplate = template;
-        this.mId = id;
+        mTemplate = template;
+        mId = id;
     }
 
     private TemplateWrapper() {

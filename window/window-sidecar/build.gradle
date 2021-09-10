@@ -24,19 +24,13 @@ plugins {
     id("com.android.library")
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 16
-    }
-}
-
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
 }
 
 androidx {
     name = "Jetpack WindowManager library Sidecar"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_AND_RELEASE // Only to generate per-project-zips
     runApiTasks = new RunApiTasks.Yes("Need to track API surface but should never publish")
     mavenGroup = LibraryGroups.WINDOW
     mavenVersion = LibraryVersions.WINDOW_SIDECAR

@@ -16,11 +16,8 @@
 
 package androidx.benchmark.integration.macrobenchmark.target
 
-import android.app.Activity
-import android.os.Build
 import android.os.Bundle
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 
 class TrivialStartupActivity : AppCompatActivity() {
@@ -30,18 +27,5 @@ class TrivialStartupActivity : AppCompatActivity() {
 
         val notice = findViewById<TextView>(R.id.txtNotice)
         notice.setText(R.string.app_notice)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            KitkatActivityCompat.reportFullyDrawn(this)
-        }
-    }
-}
-
-/**
- * Wrapper avoids UnsafeApiCall lint
- */
-@RequiresApi(19)
-object KitkatActivityCompat {
-    fun reportFullyDrawn(activity: Activity) {
-        activity.reportFullyDrawn()
     }
 }

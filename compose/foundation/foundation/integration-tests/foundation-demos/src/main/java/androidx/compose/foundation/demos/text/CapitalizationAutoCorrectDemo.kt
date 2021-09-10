@@ -16,28 +16,30 @@
 
 package androidx.compose.foundation.demos.text
 
-import androidx.compose.foundation.ScrollableColumn
-import androidx.compose.foundation.layout.defaultMinSizeConstraints
-import androidx.compose.foundation.text.CoreTextField
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.InternalTextApi
-import androidx.compose.ui.text.SoftwareKeyboardController
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalTextApi::class)
-private val ImeOptionsList = listOf(
+private val KeyboardOptionsList = listOf(
     ImeOptionsData(
-        imeOptions = ImeOptions(
+        keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,
             capitalization = KeyboardCapitalization.Characters
         ),
@@ -45,28 +47,28 @@ private val ImeOptionsList = listOf(
         name = "Capitalize Characters"
     ),
     ImeOptionsData(
-        imeOptions = ImeOptions(
+        keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,
             capitalization = KeyboardCapitalization.Words
         ),
         name = "Capitalize Words"
     ),
     ImeOptionsData(
-        imeOptions = ImeOptions(
+        keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,
             capitalization = KeyboardCapitalization.Sentences
         ),
         name = "Capitalize Sentences"
     ),
     ImeOptionsData(
-        imeOptions = ImeOptions(
+        keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,
             autoCorrect = true
         ),
         name = "AutoCorrect On"
     ),
     ImeOptionsData(
-        imeOptions = ImeOptions(
+        keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,
             autoCorrect = false
         ),
@@ -74,35 +76,30 @@ private val ImeOptionsList = listOf(
     )
 )
 
-@OptIn(ExperimentalTextApi::class)
 @Composable
 fun CapitalizationAutoCorrectDemo() {
-    ScrollableColumn {
-        for (data in ImeOptionsList) {
-            TagLine(tag = "${data.name}")
+    LazyColumn {
+        items(KeyboardOptionsList) { data ->
+            TagLine(tag = data.name)
             MyTextField(data)
         }
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-@OptIn(
-    ExperimentalTextApi::class,
-    InternalTextApi::class
-)
 private fun MyTextField(data: ImeOptionsData) {
-    val controller = remember { mutableStateOf<SoftwareKeyboardController?>(null) }
-    val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    CoreTextField(
-        modifier = demoTextFieldModifiers.defaultMinSizeConstraints(100.dp),
-        value = state.value,
-        imeOptions = data.imeOptions,
-        onValueChange = { state.value = it },
+    var state by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue())
+    }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    BasicTextField(
+        modifier = demoTextFieldModifiers.defaultMinSize(100.dp),
+        value = state,
+        keyboardOptions = data.keyboardOptions,
+        keyboardActions = KeyboardActions { keyboardController?.hide() },
+        onValueChange = { state = it },
         textStyle = TextStyle(fontSize = fontSize8),
-        onTextInputStarted = { controller.value = it },
-        onImeActionPerformed = {
-            controller.value?.hideSoftwareKeyboard()
-        },
-        cursorColor = Color.Red
+        cursorBrush = SolidColor(Color.Red)
     )
 }

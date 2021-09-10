@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
-import androidx.compose.ui.semantics.hidden
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
@@ -34,46 +33,6 @@ class AssertsTest {
 
     @get:Rule
     val rule = createComposeRule()
-
-    @Test
-    fun assertIsNotHidden_forVisibleElement_isOk() {
-        rule.setContent {
-            BoundaryNode { testTag = "test" }
-        }
-
-        rule.onNodeWithTag("test")
-            .assertIsNotHidden()
-    }
-
-    @Test(expected = AssertionError::class)
-    fun assertIsNotHidden_forHiddenElement_throwsError() {
-        rule.setContent {
-            BoundaryNode { testTag = "test"; hidden() }
-        }
-
-        rule.onNodeWithTag("test")
-            .assertIsNotHidden()
-    }
-
-    @Test
-    fun assertIsHidden_forHiddenElement_isOk() {
-        rule.setContent {
-            BoundaryNode { testTag = "test"; hidden() }
-        }
-
-        rule.onNodeWithTag("test")
-            .assertIsHidden()
-    }
-
-    @Test(expected = AssertionError::class)
-    fun assertIsHidden_forNotHiddenElement_throwsError() {
-        rule.setContent {
-            BoundaryNode { testTag = "test" }
-        }
-
-        rule.onNodeWithTag("test")
-            .assertIsHidden()
-    }
 
     @Test
     fun assertIsOn_forCheckedElement_isOk() {

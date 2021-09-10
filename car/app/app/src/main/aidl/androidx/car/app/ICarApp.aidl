@@ -61,12 +61,12 @@ oneway interface ICarApp {
   void getManager(in String type, IOnDoneCallback callback) = 8;
 
   /**
-   * Requests the version string of the library used for building the app.
+   * Requests information of the application (min API level, target API level, etc.).
    */
-  void getCarAppVersion(IOnDoneCallback callback) = 9;
+  void getAppInfo(IOnDoneCallback callback) = 9;
 
   /**
-   * Sends host information to the app.
+   * Sends host information and negotiated API level to the app.
    */
   void onHandshakeCompleted(in Bundleable handshakeInfo, IOnDoneCallback callback) = 10;
 }

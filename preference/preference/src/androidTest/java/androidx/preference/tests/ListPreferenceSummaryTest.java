@@ -69,6 +69,7 @@ public class ListPreferenceSummaryTest {
         assertTrue(preference.getSummary() instanceof String);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     @UiThreadTest
     public void styledSummary() {

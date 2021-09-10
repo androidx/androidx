@@ -26,6 +26,7 @@ import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
 import androidx.compose.foundation.gestures.awaitVerticalDragOrCancellation
 import androidx.compose.foundation.gestures.awaitVerticalTouchSlopOrCancellation
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.gestures.drag
@@ -48,16 +49,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.gesture.ExperimentalPointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import kotlin.math.roundToInt
 
-@OptIn(ExperimentalPointerInput::class)
 @Composable
 @Sampled
 fun AwaitHorizontalDragOrCancellationSample() {
@@ -69,29 +70,29 @@ fun AwaitHorizontalDragOrCancellationSample() {
             .onSizeChanged { width = it.width.toFloat() }
     ) {
         Box(
-            Modifier.offset({ offsetX.value }, { offsetY.value })
+            Modifier.offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
                 .fillMaxHeight()
                 .width(50.dp)
                 .background(Color.Blue)
-                .pointerInput {
+                .pointerInput(Unit) {
                     forEachGesture {
-                        handlePointerInput {
+                        awaitPointerEventScope {
                             val down = awaitFirstDown()
                             var change =
                                 awaitHorizontalTouchSlopOrCancellation(down.id) { change, over ->
                                     val originalX = offsetX.value
                                     val newValue =
                                         (originalX + over).coerceIn(0f, width - 50.dp.toPx())
-                                    change.consumePositionChange(newValue - originalX, 0f)
+                                    change.consumePositionChange()
                                     offsetX.value = newValue
                                 }
-                            while (change != null && change.current.down) {
+                            while (change != null && change.pressed) {
                                 change = awaitHorizontalDragOrCancellation(change.id)
-                                if (change != null && change.current.down) {
+                                if (change != null && change.pressed) {
                                     val originalX = offsetX.value
                                     val newValue = (originalX + change.positionChange().x)
                                         .coerceIn(0f, width - 50.dp.toPx())
-                                    change.consumePositionChange(newValue - originalX, 0f)
+                                    change.consumePositionChange()
                                     offsetX.value = newValue
                                 }
                             }
@@ -102,7 +103,6 @@ fun AwaitHorizontalDragOrCancellationSample() {
     }
 }
 
-@OptIn(ExperimentalPointerInput::class)
 @Composable
 @Sampled
 fun HorizontalDragSample() {
@@ -114,20 +114,20 @@ fun HorizontalDragSample() {
             .onSizeChanged { width = it.width.toFloat() }
     ) {
         Box(
-            Modifier.offset({ offsetX.value }, { offsetY.value })
+            Modifier.offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
                 .fillMaxHeight()
                 .width(50.dp)
                 .background(Color.Blue)
-                .pointerInput {
+                .pointerInput(Unit) {
                     forEachGesture {
-                        handlePointerInput {
+                        awaitPointerEventScope {
                             val down = awaitFirstDown()
                             val change =
                                 awaitHorizontalTouchSlopOrCancellation(down.id) { change, over ->
                                     val originalX = offsetX.value
                                     val newValue =
                                         (originalX + over).coerceIn(0f, width - 50.dp.toPx())
-                                    change.consumePositionChange(newValue - originalX, 0f)
+                                    change.consumePositionChange()
                                     offsetX.value = newValue
                                 }
                             if (change != null) {
@@ -135,7 +135,7 @@ fun HorizontalDragSample() {
                                     val originalX = offsetX.value
                                     val newValue = (originalX + it.positionChange().x)
                                         .coerceIn(0f, width - 50.dp.toPx())
-                                    it.consumePositionChange(newValue - originalX, 0f)
+                                    it.consumePositionChange()
                                     offsetX.value = newValue
                                 }
                             }
@@ -146,7 +146,6 @@ fun HorizontalDragSample() {
     }
 }
 
-@OptIn(ExperimentalPointerInput::class)
 @Composable
 @Sampled
 fun DetectHorizontalDragGesturesSample() {
@@ -158,15 +157,14 @@ fun DetectHorizontalDragGesturesSample() {
             .onSizeChanged { width = it.width.toFloat() }
     ) {
         Box(
-            Modifier.offset({ offsetX.value }, { offsetY.value })
+            Modifier.offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
                 .fillMaxHeight()
                 .width(50.dp)
                 .background(Color.Blue)
-                .pointerInput {
-                    detectHorizontalDragGestures { change, dragAmount ->
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures { _, dragAmount ->
                         val originalX = offsetX.value
                         val newValue = (originalX + dragAmount).coerceIn(0f, width - 50.dp.toPx())
-                        change.consumePositionChange(newValue - originalX, 0f)
                         offsetX.value = newValue
                     }
                 }
@@ -174,7 +172,6 @@ fun DetectHorizontalDragGesturesSample() {
     }
 }
 
-@OptIn(ExperimentalPointerInput::class)
 @Composable
 @Sampled
 fun AwaitVerticalDragOrCancellationSample() {
@@ -186,29 +183,29 @@ fun AwaitVerticalDragOrCancellationSample() {
             .onSizeChanged { height = it.height.toFloat() }
     ) {
         Box(
-            Modifier.offset({ offsetX.value }, { offsetY.value })
+            Modifier.offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
                 .fillMaxWidth()
                 .height(50.dp)
                 .background(Color.Blue)
-                .pointerInput {
+                .pointerInput(Unit) {
                     forEachGesture {
-                        handlePointerInput {
+                        awaitPointerEventScope {
                             val down = awaitFirstDown()
                             var change =
                                 awaitVerticalTouchSlopOrCancellation(down.id) { change, over ->
                                     val originalY = offsetY.value
                                     val newValue = (originalY + over)
                                         .coerceIn(0f, height - 50.dp.toPx())
-                                    change.consumePositionChange(0f, newValue - originalY)
+                                    change.consumePositionChange()
                                     offsetY.value = newValue
                                 }
-                            while (change != null && change.current.down) {
+                            while (change != null && change.pressed) {
                                 change = awaitVerticalDragOrCancellation(change.id)
-                                if (change != null && change.current.down) {
+                                if (change != null && change.pressed) {
                                     val originalY = offsetY.value
                                     val newValue = (originalY + change.positionChange().y)
                                         .coerceIn(0f, height - 50.dp.toPx())
-                                    change.consumePositionChange(newValue - originalY, 0f)
+                                    change.consumePositionChange()
                                     offsetY.value = newValue
                                 }
                             }
@@ -219,7 +216,6 @@ fun AwaitVerticalDragOrCancellationSample() {
     }
 }
 
-@OptIn(ExperimentalPointerInput::class)
 @Composable
 @Sampled
 fun VerticalDragSample() {
@@ -231,20 +227,20 @@ fun VerticalDragSample() {
             .onSizeChanged { height = it.height.toFloat() }
     ) {
         Box(
-            Modifier.offset({ offsetX.value }, { offsetY.value })
+            Modifier.offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
                 .fillMaxWidth()
                 .height(50.dp)
                 .background(Color.Blue)
-                .pointerInput {
+                .pointerInput(Unit) {
                     forEachGesture {
-                        handlePointerInput {
+                        awaitPointerEventScope {
                             val down = awaitFirstDown()
                             val change =
                                 awaitVerticalTouchSlopOrCancellation(down.id) { change, over ->
                                     val originalY = offsetY.value
                                     val newValue = (originalY + over)
                                         .coerceIn(0f, height - 50.dp.toPx())
-                                    change.consumePositionChange(0f, newValue - originalY)
+                                    change.consumePositionChange()
                                     offsetY.value = newValue
                                 }
                             if (change != null) {
@@ -252,7 +248,7 @@ fun VerticalDragSample() {
                                     val originalY = offsetY.value
                                     val newValue = (originalY + it.positionChange().y)
                                         .coerceIn(0f, height - 50.dp.toPx())
-                                    it.consumePositionChange(newValue - originalY, 0f)
+                                    it.consumePositionChange()
                                     offsetY.value = newValue
                                 }
                             }
@@ -263,7 +259,6 @@ fun VerticalDragSample() {
     }
 }
 
-@OptIn(ExperimentalPointerInput::class)
 @Composable
 @Sampled
 fun DetectVerticalDragGesturesSample() {
@@ -275,15 +270,14 @@ fun DetectVerticalDragGesturesSample() {
             .onSizeChanged { height = it.height.toFloat() }
     ) {
         Box(
-            Modifier.offset({ offsetX.value }, { offsetY.value })
+            Modifier.offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
                 .fillMaxWidth()
                 .height(50.dp)
                 .background(Color.Blue)
-                .pointerInput {
-                    detectVerticalDragGestures { change, dragAmount ->
+                .pointerInput(Unit) {
+                    detectVerticalDragGestures { _, dragAmount ->
                         val originalY = offsetY.value
                         val newValue = (originalY + dragAmount).coerceIn(0f, height - 50.dp.toPx())
-                        change.consumePositionChange(0f, newValue - originalY)
                         offsetY.value = newValue
                     }
                 }
@@ -291,7 +285,6 @@ fun DetectVerticalDragGesturesSample() {
     }
 }
 
-@OptIn(ExperimentalPointerInput::class)
 @Composable
 @Sampled
 fun AwaitDragOrCancellationSample() {
@@ -303,12 +296,12 @@ fun AwaitDragOrCancellationSample() {
             .onSizeChanged { size = it.toSize() }
     ) {
         Box(
-            Modifier.offset({ offsetX.value }, { offsetY.value })
+            Modifier.offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
                 .size(50.dp)
                 .background(Color.Blue)
-                .pointerInput {
+                .pointerInput(Unit) {
                     forEachGesture {
-                        handlePointerInput {
+                        awaitPointerEventScope {
                             val down = awaitFirstDown()
                             var change = awaitTouchSlopOrCancellation(down.id) { change, over ->
                                 val original = Offset(offsetX.value, offsetY.value)
@@ -317,26 +310,20 @@ fun AwaitDragOrCancellationSample() {
                                     x = summed.x.coerceIn(0f, size.width - 50.dp.toPx()),
                                     y = summed.y.coerceIn(0f, size.height - 50.dp.toPx())
                                 )
-                                change.consumePositionChange(
-                                    consumedDx = newValue.x - original.x,
-                                    consumedDy = newValue.y - original.y
-                                )
+                                change.consumePositionChange()
                                 offsetX.value = newValue.x
                                 offsetY.value = newValue.y
                             }
-                            while (change != null && change.current.down) {
+                            while (change != null && change.pressed) {
                                 change = awaitDragOrCancellation(change.id)
-                                if (change != null && change.current.down) {
+                                if (change != null && change.pressed) {
                                     val original = Offset(offsetX.value, offsetY.value)
                                     val summed = original + change.positionChange()
                                     val newValue = Offset(
                                         x = summed.x.coerceIn(0f, size.width - 50.dp.toPx()),
                                         y = summed.y.coerceIn(0f, size.height - 50.dp.toPx())
                                     )
-                                    change.consumePositionChange(
-                                        consumedDx = newValue.x - original.x,
-                                        consumedDy = newValue.y - original.y
-                                    )
+                                    change.consumePositionChange()
                                     offsetX.value = newValue.x
                                     offsetY.value = newValue.y
                                 }
@@ -348,7 +335,6 @@ fun AwaitDragOrCancellationSample() {
     }
 }
 
-@OptIn(ExperimentalPointerInput::class)
 @Composable
 @Sampled
 fun DragSample() {
@@ -360,12 +346,12 @@ fun DragSample() {
             .onSizeChanged { size = it.toSize() }
     ) {
         Box(
-            Modifier.offset({ offsetX.value }, { offsetY.value })
+            Modifier.offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
                 .size(50.dp)
                 .background(Color.Blue)
-                .pointerInput {
+                .pointerInput(Unit) {
                     forEachGesture {
-                        handlePointerInput {
+                        awaitPointerEventScope {
                             val down = awaitFirstDown()
                             val change = awaitTouchSlopOrCancellation(down.id) { change, over ->
                                 val original = Offset(offsetX.value, offsetY.value)
@@ -374,10 +360,7 @@ fun DragSample() {
                                     x = summed.x.coerceIn(0f, size.width - 50.dp.toPx()),
                                     y = summed.y.coerceIn(0f, size.height - 50.dp.toPx())
                                 )
-                                change.consumePositionChange(
-                                    consumedDx = newValue.x - original.x,
-                                    consumedDy = newValue.y - original.y
-                                )
+                                change.consumePositionChange()
                                 offsetX.value = newValue.x
                                 offsetY.value = newValue.y
                             }
@@ -389,10 +372,7 @@ fun DragSample() {
                                         x = summed.x.coerceIn(0f, size.width - 50.dp.toPx()),
                                         y = summed.y.coerceIn(0f, size.height - 50.dp.toPx())
                                     )
-                                    it.consumePositionChange(
-                                        consumedDx = newValue.x - original.x,
-                                        consumedDy = newValue.y - original.y
-                                    )
+                                    it.consumePositionChange()
                                     offsetX.value = newValue.x
                                     offsetY.value = newValue.y
                                 }
@@ -404,7 +384,6 @@ fun DragSample() {
     }
 }
 
-@OptIn(ExperimentalPointerInput::class)
 @Composable
 @Sampled
 fun DetectDragGesturesSample() {
@@ -416,20 +395,46 @@ fun DetectDragGesturesSample() {
             .onSizeChanged { size = it.toSize() }
     ) {
         Box(
-            Modifier.offset({ offsetX.value }, { offsetY.value })
+            Modifier.offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
                 .size(50.dp)
                 .background(Color.Blue)
-                .pointerInput {
-                    detectDragGestures { change, dragAmount ->
+                .pointerInput(Unit) {
+                    detectDragGestures { _, dragAmount ->
                         val original = Offset(offsetX.value, offsetY.value)
                         val summed = original + dragAmount
                         val newValue = Offset(
                             x = summed.x.coerceIn(0f, size.width - 50.dp.toPx()),
                             y = summed.y.coerceIn(0f, size.height - 50.dp.toPx())
                         )
-                        change.consumePositionChange(
-                            consumedDx = newValue.x - original.x,
-                            consumedDy = newValue.y - original.y
+                        offsetX.value = newValue.x
+                        offsetY.value = newValue.y
+                    }
+                }
+        )
+    }
+}
+
+@Composable
+@Sampled
+fun DetectDragWithLongPressGesturesSample() {
+    val offsetX = remember { mutableStateOf(0f) }
+    val offsetY = remember { mutableStateOf(0f) }
+    var size by remember { mutableStateOf(Size.Zero) }
+    Box(
+        Modifier.fillMaxSize()
+            .onSizeChanged { size = it.toSize() }
+    ) {
+        Box(
+            Modifier.offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
+                .size(50.dp)
+                .background(Color.Blue)
+                .pointerInput(Unit) {
+                    detectDragGesturesAfterLongPress { _, dragAmount ->
+                        val original = Offset(offsetX.value, offsetY.value)
+                        val summed = original + dragAmount
+                        val newValue = Offset(
+                            x = summed.x.coerceIn(0f, size.width - 50.dp.toPx()),
+                            y = summed.y.coerceIn(0f, size.height - 50.dp.toPx())
                         )
                         offsetX.value = newValue.x
                         offsetY.value = newValue.y

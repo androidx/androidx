@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -22,20 +21,12 @@ plugins {
     id("androidx.benchmark")
 }
 
-android {
-    defaultConfig {
-        // 18 needed for UI automator dependency, via benchmark-perfetto
-        minSdkVersion 18
-    }
-}
-
 dependencies {
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
-    androidTestImplementation(project(":benchmark:benchmark-perfetto"))
     androidTestImplementation(project(":tracing:tracing-ktx"))
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinStdlib)
 }

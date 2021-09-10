@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"পাসওয়ার্ড ব্যবহার করুন"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"পিন, প্যাটার্ন অথবা পাসওয়ার্ড সেট করা নেই।"</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"এই ডিভাইসে পিন, প্যাটার্ন বা পাসওয়ার্ড ব্যবহার করা যাবে না।"</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"ফিঙ্গারপ্রিন্ট আইকন"</string>
 </resources>

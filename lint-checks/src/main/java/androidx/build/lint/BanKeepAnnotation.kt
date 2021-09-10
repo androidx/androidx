@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.build.lint
 
-import com.android.tools.lint.detector.api.AnnotationUsageType
+import com.android.tools.lint.client.api.UElementHandler
 
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
@@ -25,36 +27,27 @@ import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
-import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UAnnotation
-import org.jetbrains.uast.UElement
 
 class BanKeepAnnotation : Detector(), Detector.UastScanner {
 
-    override fun applicableAnnotations(): List<String>? {
-        return listOf(
-            "android.support.annotation.Keep",
-            "androidx.annotation.Keep"
-        )
+    override fun getApplicableUastTypes() = listOf(UAnnotation::class.java)
+
+    override fun createUastHandler(context: JavaContext): UElementHandler {
+        return AnnotationChecker(context)
     }
 
-    override fun visitAnnotationUsage(
-        context: JavaContext,
-        usage: UElement,
-        type: AnnotationUsageType,
-        annotation: UAnnotation,
-        qualifiedName: String,
-        method: PsiMethod?,
-        annotations: List<UAnnotation>,
-        allMemberAnnotations: List<UAnnotation>,
-        allClassAnnotations: List<UAnnotation>,
-        allPackageAnnotations: List<UAnnotation>
-    ) {
-        context.report(
-            ISSUE, annotation, context.getNameLocation(annotation),
-            "Uses @Keep" +
-                " annotation"
-        )
+    private inner class AnnotationChecker(val context: JavaContext) : UElementHandler() {
+        override fun visitAnnotation(node: UAnnotation) {
+            if (node.qualifiedName == "androidx.annotation.Keep" ||
+                node.qualifiedName == "android.support.annotation.keep"
+            ) {
+                context.report(
+                    ISSUE, node, context.getNameLocation(node),
+                    "Uses @Keep annotation"
+                )
+            }
+        }
     }
 
     companion object {

@@ -152,13 +152,13 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
                 // views after our onTransitionEnd callback.
                 // We need to make sure this listener gets the onTransitionEnd callback last to
                 // ensure that exiting views are made visible once the Transition is complete.
-                transition.removeListener(this);
-                transition.addListener(this);
+                Api19Impl.removeListener(transition, this);
+                Api19Impl.addListener(transition, this);
             }
 
             @Override
             public void onTransitionEnd(Transition transition) {
-                transition.removeListener(this);
+                Api19Impl.removeListener(transition, this);
                 fragmentView.setVisibility(View.GONE);
                 final int numViews = exitingViews.size();
                 for (int i = 0; i < numViews; i++) {
@@ -238,7 +238,7 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
 
             @Override
             public void onTransitionEnd(Transition transition) {
-                transition.removeListener(this);
+                Api19Impl.removeListener(transition, this);
             }
 
             @Override
@@ -358,4 +358,18 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
         }
     }
 
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() { }
+
+        static void addListener(@NonNull Transition transition,
+                @NonNull Transition.TransitionListener listener) {
+            transition.addListener(listener);
+        }
+
+        static void removeListener(@NonNull Transition transition,
+                @NonNull Transition.TransitionListener listener) {
+            transition.removeListener(listener);
+        }
+    }
 }

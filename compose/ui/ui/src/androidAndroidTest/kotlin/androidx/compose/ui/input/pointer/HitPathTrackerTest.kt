@@ -16,16 +16,48 @@
 
 package androidx.compose.ui.input.pointer
 
+import android.view.MotionEvent.ACTION_HOVER_ENTER
+import android.view.MotionEvent.ACTION_HOVER_EXIT
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.autofill.Autofill
+import androidx.compose.ui.autofill.AutofillTree
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.RenderEffect
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.node.InternalCoreApi
+import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.LayoutNodeDrawScope
+import androidx.compose.ui.node.OwnedLayer
+import androidx.compose.ui.node.Owner
+import androidx.compose.ui.node.OwnerSnapshotObserver
+import androidx.compose.ui.node.RootForTest
+import androidx.compose.ui.platform.AccessibilityManager
+import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.TextToolbar
+import androidx.compose.ui.platform.ViewConfiguration
+import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.milliseconds
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.toOffset
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,10 +67,13 @@ import org.junit.runner.RunWith
 class HitPathTrackerTest {
 
     private lateinit var hitPathTracker: HitPathTracker
+    private val layoutNode = LayoutNode(0, 0, 100, 100).also {
+        it.attach(MockOwner())
+    }
 
     @Before
     fun setup() {
-        hitPathTracker = HitPathTracker()
+        hitPathTracker = HitPathTracker(layoutNode.outerLayoutNodeWrapper)
     }
 
     @Test
@@ -198,28 +233,6 @@ class HitPathTrackerTest {
     }
 
     @Test
-    fun addHitPath_1NodeAdded_initHandlerCalledWithValidCustomMessageDispatcher() {
-        val pif = PointerInputFilterMock()
-
-        hitPathTracker.addHitPath(PointerId(3), listOf(pif))
-
-        assertThat(pif.log.getOnInitLog()).hasSize(1)
-    }
-
-    @Test
-    fun addHitPath_3NodesAdded_allInitHandlersCalledWithValidCustomMessageDispatcher() {
-        val pifParent = PointerInputFilterMock()
-        val pifMiddle = PointerInputFilterMock()
-        val pifChild = PointerInputFilterMock()
-
-        hitPathTracker.addHitPath(PointerId(3), listOf(pifParent, pifMiddle, pifChild))
-
-        assertThat(pifParent.log.getOnInitLog()).hasSize(1)
-        assertThat(pifMiddle.log.getOnInitLog()).hasSize(1)
-        assertThat(pifChild.log.getOnInitLog()).hasSize(1)
-    }
-
-    @Test
     fun dispatchChanges_noNodes_doesNotCrash() {
         hitPathTracker.dispatchChanges(internalPointerEventOf(down(0)))
     }
@@ -304,7 +317,7 @@ class HitPathTrackerTest {
         hitPathTracker.addHitPath(PointerId(3), listOf(pif1, pif2))
         hitPathTracker.addHitPath(PointerId(5), listOf(pif3, pif4))
         val event1 = down(3)
-        val event2 = down(5).moveTo(10.milliseconds, 7f, 9f)
+        val event2 = down(5).moveTo(10, 7f, 9f)
 
         hitPathTracker.dispatchChanges(
             internalPointerEventOf(event1, event2)
@@ -356,7 +369,7 @@ class HitPathTrackerTest {
         hitPathTracker.addHitPath(PointerId(3), listOf(parent, child1))
         hitPathTracker.addHitPath(PointerId(5), listOf(parent, child2))
         val event1 = down(3)
-        val event2 = down(5).moveTo(10.milliseconds, 7f, 9f)
+        val event2 = down(5).moveTo(10, 7f, 9f)
 
         hitPathTracker.dispatchChanges(
             internalPointerEventOf(event1, event2)
@@ -433,7 +446,7 @@ class HitPathTrackerTest {
         hitPathTracker.addHitPath(PointerId(3), listOf(child1, child2))
         hitPathTracker.addHitPath(PointerId(5), listOf(child1, child2))
         val event1 = down(3)
-        val event2 = down(5).moveTo(10.milliseconds, 7f, 9f)
+        val event2 = down(5).moveTo(10, 7f, 9f)
 
         hitPathTracker.dispatchChanges(
             internalPointerEventOf(event1, event2)
@@ -466,10 +479,12 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_noNodes_nothingChanges() {
-        val (result, _) = hitPathTracker.dispatchChanges(internalPointerEventOf(down(5)))
+        val internalPointerEvent = internalPointerEventOf(down(5))
+
+        hitPathTracker.dispatchChanges(internalPointerEvent)
 
         PointerInputChangeSubject
-            .assertThat(result.changes.values.first())
+            .assertThat(internalPointerEvent.changes.values.first())
             .isStructurallyEqualTo(down(5))
     }
 
@@ -486,10 +501,12 @@ class HitPathTrackerTest {
 
         hitPathTracker.addHitPath(PointerId(13), listOf(pif1))
 
-        val (result, _) = hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
+        val internalPointerEvent = internalPointerEventOf(down(13))
+
+        hitPathTracker.dispatchChanges(internalPointerEvent)
 
         PointerInputChangeSubject
-            .assertThat(result.changes.values.first())
+            .assertThat(internalPointerEvent.changes.values.first())
             .isStructurallyEqualTo(down(13).apply { consumeDownChange() })
     }
 
@@ -498,15 +515,9 @@ class HitPathTrackerTest {
         val log = mutableListOf<LogEntry>()
         val pif1 = PointerInputFilterMock(
             log = log,
-            pointerEventHandler = { pointerEvent, pass, _ ->
+            pointerEventHandler = { pointerEvent, _, _ ->
                 pointerEvent.changes.map {
-                    val yConsume =
-                        when (pass) {
-                            PointerEventPass.Initial -> 1f
-                            PointerEventPass.Main -> 6f
-                            else -> 0f
-                        }
-                    it.consumePositionChange(0f, yConsume)
+                    it.consumePositionChange()
                 }
                 pointerEvent.changes
             }
@@ -514,15 +525,9 @@ class HitPathTrackerTest {
 
         val pif2 = PointerInputFilterMock(
             log = log,
-            pointerEventHandler = { pointerEvent, pass, _ ->
+            pointerEventHandler = { pointerEvent, _, _ ->
                 pointerEvent.changes.map {
-                    val yConsume =
-                        when (pass) {
-                            PointerEventPass.Initial -> 2f
-                            PointerEventPass.Main -> 5f
-                            else -> 0f
-                        }
-                    it.consumePositionChange(0f, yConsume)
+                    it.consumePositionChange()
                 }
                 pointerEvent.changes
             }
@@ -530,25 +535,22 @@ class HitPathTrackerTest {
 
         val pif3 = PointerInputFilterMock(
             log = log,
-            pointerEventHandler = { pointerEvent, pass, _ ->
+            pointerEventHandler = { pointerEvent, _, _ ->
                 pointerEvent.changes.map {
-                    val yConsume =
-                        when (pass) {
-                            PointerEventPass.Initial -> 3f
-                            PointerEventPass.Main -> 4f
-                            else -> 0f
-                        }
-                    it.consumePositionChange(0f, yConsume)
+                    it.consumePositionChange()
                 }
                 pointerEvent.changes
             }
         )
 
         hitPathTracker.addHitPath(PointerId(13), listOf(pif1, pif2, pif3))
-        val actualChange = down(13).moveTo(10.milliseconds, 0f, 0f)
+        val actualChange = down(13).moveTo(10, 0f, 0f)
         val expectedChange = actualChange.deepCopy()
+        val consumedExpectedChange = actualChange.deepCopy().apply { consumePositionChange() }
 
-        val (result, _) = hitPathTracker.dispatchChanges(internalPointerEventOf(actualChange))
+        val internalPointerEvent = internalPointerEventOf(actualChange)
+
+        hitPathTracker.dispatchChanges(internalPointerEvent)
 
         val log1 = log.getOnPointerEventLog()
             .filter { it.pass == PointerEventPass.Initial || it.pass == PointerEventPass.Main }
@@ -564,7 +566,7 @@ class HitPathTrackerTest {
             .assertThat(log1[1].pointerEvent)
             .isStructurallyEqualTo(
                 pointerEventOf(
-                    expectedChange.apply { consumePositionChange(0f, 1f) }
+                    consumedExpectedChange
                 )
             )
         assertThat(log1[1].pass).isEqualTo(PointerEventPass.Initial)
@@ -574,7 +576,7 @@ class HitPathTrackerTest {
             .assertThat(log1[2].pointerEvent)
             .isStructurallyEqualTo(
                 pointerEventOf(
-                    expectedChange.apply { consumePositionChange(0f, 2f) }
+                    consumedExpectedChange
                 )
             )
         assertThat(log1[2].pass).isEqualTo(PointerEventPass.Initial)
@@ -584,7 +586,7 @@ class HitPathTrackerTest {
             .assertThat(log1[3].pointerEvent)
             .isStructurallyEqualTo(
                 pointerEventOf(
-                    expectedChange.apply { consumePositionChange(0f, 3f) }
+                    consumedExpectedChange
                 )
             )
         assertThat(log1[3].pass).isEqualTo(PointerEventPass.Main)
@@ -594,7 +596,7 @@ class HitPathTrackerTest {
             .assertThat(log1[4].pointerEvent)
             .isStructurallyEqualTo(
                 pointerEventOf(
-                    expectedChange.apply { consumePositionChange(0f, 4f) }
+                    consumedExpectedChange
                 )
             )
         assertThat(log1[4].pass).isEqualTo(PointerEventPass.Main)
@@ -604,15 +606,15 @@ class HitPathTrackerTest {
             .assertThat(log1[5].pointerEvent)
             .isStructurallyEqualTo(
                 pointerEventOf(
-                    expectedChange.apply { consumePositionChange(0f, 5f) }
+                    consumedExpectedChange
                 )
             )
         assertThat(log1[5].pass).isEqualTo(PointerEventPass.Main)
 
         PointerInputChangeSubject
-            .assertThat(result.changes.values.first())
+            .assertThat(internalPointerEvent.changes.values.first())
             .isStructurallyEqualTo(
-                expectedChange.apply { consumePositionChange(0f, 6f) }
+                consumedExpectedChange
             )
     }
 
@@ -622,15 +624,9 @@ class HitPathTrackerTest {
         val pif1 = PointerInputFilterMock(
             log = log,
             pointerEventHandler =
-                { pointerEvent, pass, _ ->
+                { pointerEvent, _, _ ->
                     pointerEvent.changes.map {
-                        val yConsume =
-                            when (pass) {
-                                PointerEventPass.Initial -> 1f
-                                PointerEventPass.Main -> 4f
-                                else -> 0f
-                            }
-                        it.consumePositionChange(0f, yConsume)
+                        it.consumePositionChange()
                     }
                     pointerEvent.changes
                 }
@@ -638,15 +634,9 @@ class HitPathTrackerTest {
         val pif2 = PointerInputFilterMock(
             log = log,
             pointerEventHandler =
-                { pointerEvent, pass, _ ->
+                { pointerEvent, _, _ ->
                     pointerEvent.changes.map {
-                        val yConsume =
-                            when (pass) {
-                                PointerEventPass.Initial -> 2f
-                                PointerEventPass.Main -> 3f
-                                else -> 0f
-                            }
-                        it.consumePositionChange(0f, yConsume)
+                        it.consumePositionChange()
                     }
                     pointerEvent.changes
                 }
@@ -654,15 +644,9 @@ class HitPathTrackerTest {
         val pif3 = PointerInputFilterMock(
             log = log,
             pointerEventHandler =
-                { pointerEvent, pass, _ ->
+                { pointerEvent, _, _ ->
                     pointerEvent.changes.map {
-                        val yConsume =
-                            when (pass) {
-                                PointerEventPass.Initial -> -1f
-                                PointerEventPass.Main -> -4f
-                                else -> 0f
-                            }
-                        it.consumePositionChange(0f, yConsume)
+                        it.consumeAllChanges()
                     }
                     pointerEvent.changes
                 }
@@ -670,29 +654,25 @@ class HitPathTrackerTest {
         val pif4 = PointerInputFilterMock(
             log = log,
             pointerEventHandler =
-                { pointerEvent, pass, _ ->
+                { pointerEvent, _, _ ->
                     pointerEvent.changes.map {
-                        val yConsume =
-                            when (pass) {
-                                PointerEventPass.Initial -> -2f
-                                PointerEventPass.Main -> -3f
-                                else -> 0f
-                            }
-                        it.consumePositionChange(0f, yConsume)
+                        it.consumeAllChanges()
                     }
                     pointerEvent.changes
                 }
         )
         hitPathTracker.addHitPath(PointerId(3), listOf(pif1, pif2))
         hitPathTracker.addHitPath(PointerId(5), listOf(pif3, pif4))
-        val actualEvent1 = down(3).moveTo(10.milliseconds, 0f, 0f)
-        val actualEvent2 = down(5).moveTo(10.milliseconds, 0f, 0f)
+        val actualEvent1 = down(3).moveTo(10, 0f, 30f)
+        val actualEvent2 = down(5).moveTo(10, 0f, 30f)
         val expectedEvent1 = actualEvent1.deepCopy()
         val expectedEvent2 = actualEvent2.deepCopy()
+        val consumedExpectedEvent1 = expectedEvent1.deepCopy().apply { consumePositionChange() }
+        val consumedExpectedEvent2 = expectedEvent2.deepCopy().apply { consumePositionChange() }
 
-        val (result, _) = hitPathTracker.dispatchChanges(
-            internalPointerEventOf(actualEvent1, actualEvent2)
-        )
+        val internalPointerEvent = internalPointerEventOf(actualEvent1, actualEvent2)
+
+        hitPathTracker.dispatchChanges(internalPointerEvent)
 
         val log1 = log.getOnPointerEventLog()
             .filter { it.pass == PointerEventPass.Initial || it.pass == PointerEventPass.Main }
@@ -713,7 +693,7 @@ class HitPathTrackerTest {
             .assertThat(log1[1].pointerEvent)
             .isStructurallyEqualTo(
                 pointerEventOf(
-                    expectedEvent1.apply { consumePositionChange(0f, 1f) }
+                    consumedExpectedEvent1
                 )
             )
         assertThat(log1[1].pass).isEqualTo(PointerEventPass.Initial)
@@ -723,7 +703,7 @@ class HitPathTrackerTest {
             .assertThat(log1[2].pointerEvent)
             .isStructurallyEqualTo(
                 pointerEventOf(
-                    expectedEvent1.apply { consumePositionChange(0f, 2f) }
+                    consumedExpectedEvent1
                 )
             )
         assertThat(log1[2].pass).isEqualTo(PointerEventPass.Main)
@@ -733,7 +713,7 @@ class HitPathTrackerTest {
             .assertThat(log1[3].pointerEvent)
             .isStructurallyEqualTo(
                 pointerEventOf(
-                    expectedEvent1.apply { consumePositionChange(0f, 3f) }
+                    consumedExpectedEvent1
                 )
             )
         assertThat(log1[3].pass).isEqualTo(PointerEventPass.Main)
@@ -749,7 +729,7 @@ class HitPathTrackerTest {
             .assertThat(log2[1].pointerEvent)
             .isStructurallyEqualTo(
                 pointerEventOf(
-                    expectedEvent2.apply { consumePositionChange(0f, -1f) }
+                    consumedExpectedEvent2
                 )
             )
         assertThat(log2[1].pass).isEqualTo(PointerEventPass.Initial)
@@ -759,7 +739,7 @@ class HitPathTrackerTest {
             .assertThat(log2[2].pointerEvent)
             .isStructurallyEqualTo(
                 pointerEventOf(
-                    expectedEvent2.apply { consumePositionChange(0f, -2f) }
+                    consumedExpectedEvent2
                 )
             )
         assertThat(log2[2].pass).isEqualTo(PointerEventPass.Main)
@@ -769,21 +749,21 @@ class HitPathTrackerTest {
             .assertThat(log2[3].pointerEvent)
             .isStructurallyEqualTo(
                 pointerEventOf(
-                    expectedEvent2.apply { consumePositionChange(0f, -3f) }
+                    consumedExpectedEvent2
                 )
             )
         assertThat(log2[3].pass).isEqualTo(PointerEventPass.Main)
 
-        assertThat(result.changes).hasSize(2)
+        assertThat(internalPointerEvent.changes).hasSize(2)
         PointerInputChangeSubject
-            .assertThat(result.changes[actualEvent1.id])
+            .assertThat(internalPointerEvent.changes[actualEvent1.id])
             .isStructurallyEqualTo(
-                expectedEvent1.apply { consumePositionChange(0f, 4f) }
+                consumedExpectedEvent1
             )
         PointerInputChangeSubject
-            .assertThat(result.changes[actualEvent2.id])
+            .assertThat(internalPointerEvent.changes[actualEvent2.id])
             .isStructurallyEqualTo(
-                expectedEvent2.apply { consumePositionChange(0f, -4f) }
+                consumedExpectedEvent2
             )
     }
 
@@ -793,18 +773,9 @@ class HitPathTrackerTest {
         val parent = PointerInputFilterMock(
             log = log,
             pointerEventHandler =
-                { pointerEvent, pass, _ ->
+                { pointerEvent, _, _ ->
                     pointerEvent.changes.map {
-                        val yConsume =
-                            when (pass) {
-                                PointerEventPass.Initial -> 1f
-                                PointerEventPass.Main -> 10f
-                                else -> 0f
-                            }
-                        it.consumePositionChange(
-                            0f,
-                            yConsume
-                        )
+                        it.consumePositionChange()
                     }
                     pointerEvent.changes
                 }
@@ -813,18 +784,9 @@ class HitPathTrackerTest {
         val child1 = PointerInputFilterMock(
             log = log,
             pointerEventHandler =
-                { pointerEvent, pass, _ ->
+                { pointerEvent, _, _ ->
                     pointerEvent.changes.map {
-                        val yConsume =
-                            when (pass) {
-                                PointerEventPass.Initial -> 2f
-                                PointerEventPass.Main -> 20f
-                                else -> 0f
-                            }
-                        it.consumePositionChange(
-                            0f,
-                            yConsume
-                        )
+                        it.consumePositionChange()
                     }
                     pointerEvent.changes
                 }
@@ -833,18 +795,9 @@ class HitPathTrackerTest {
         val child2 = PointerInputFilterMock(
             log = log,
             pointerEventHandler =
-                { pointerEvent, pass, _ ->
+                { pointerEvent, _, _ ->
                     pointerEvent.changes.map {
-                        val yConsume =
-                            when (pass) {
-                                PointerEventPass.Initial -> 4f
-                                PointerEventPass.Main -> 40f
-                                else -> 0f
-                            }
-                        it.consumePositionChange(
-                            0f,
-                            yConsume
-                        )
+                        it.consumePositionChange()
                     }
                     pointerEvent.changes
                 }
@@ -852,14 +805,16 @@ class HitPathTrackerTest {
 
         hitPathTracker.addHitPath(PointerId(3), listOf(parent, child1))
         hitPathTracker.addHitPath(PointerId(5), listOf(parent, child2))
-        val actualEvent1 = down(3).moveTo(10.milliseconds, 0f, 0f)
-        val actualEvent2 = down(5).moveTo(10.milliseconds, 0f, 0f)
+        val actualEvent1 = down(3).moveTo(10, 0f, 30f)
+        val actualEvent2 = down(5).moveTo(10, 0f, 30f)
         val expectedEvent1 = actualEvent1.deepCopy()
         val expectedEvent2 = actualEvent2.deepCopy()
+        val consumedEvent1 = expectedEvent1.deepCopy().apply { consumePositionChange() }
+        val consumedEvent2 = expectedEvent2.deepCopy().apply { consumePositionChange() }
 
-        val (result, _) = hitPathTracker.dispatchChanges(
-            internalPointerEventOf(actualEvent1, actualEvent2)
-        )
+        val internalPointerEvent = internalPointerEventOf(actualEvent1, actualEvent2)
+
+        hitPathTracker.dispatchChanges(internalPointerEvent)
 
         val log1 = log.getOnPointerEventLog()
             .filter { it.pass == PointerEventPass.Initial || it.pass == PointerEventPass.Main }
@@ -874,9 +829,7 @@ class HitPathTrackerTest {
         PointerEventSubject
             .assertThat(log1[1].pointerEvent)
             .isStructurallyEqualTo(
-                pointerEventOf(
-                    expectedEvent1.apply { consumePositionChange(0f, 1f) }
-                )
+                pointerEventOf(consumedEvent1)
             )
         assertThat(log1[1].pass).isEqualTo(PointerEventPass.Initial)
 
@@ -884,9 +837,7 @@ class HitPathTrackerTest {
         PointerEventSubject
             .assertThat(log1[2].pointerEvent)
             .isStructurallyEqualTo(
-                pointerEventOf(
-                    expectedEvent1.apply { consumePositionChange(0f, 2f) }
-                )
+                pointerEventOf(consumedEvent1)
             )
         assertThat(log1[2].pass).isEqualTo(PointerEventPass.Main)
 
@@ -894,9 +845,7 @@ class HitPathTrackerTest {
         PointerEventSubject
             .assertThat(log1[3].pointerEvent)
             .isStructurallyEqualTo(
-                pointerEventOf(
-                    expectedEvent2.apply { consumePositionChange(0f, 1f) }
-                )
+                pointerEventOf(consumedEvent2)
             )
         assertThat(log1[3].pass).isEqualTo(PointerEventPass.Initial)
 
@@ -904,9 +853,7 @@ class HitPathTrackerTest {
         PointerEventSubject
             .assertThat(log1[4].pointerEvent)
             .isStructurallyEqualTo(
-                pointerEventOf(
-                    expectedEvent2.apply { consumePositionChange(0f, 4f) }
-                )
+                pointerEventOf(consumedEvent2)
             )
         assertThat(log1[4].pass).isEqualTo(PointerEventPass.Main)
 
@@ -914,24 +861,18 @@ class HitPathTrackerTest {
         PointerEventSubject
             .assertThat(log1[5].pointerEvent)
             .isStructurallyEqualTo(
-                pointerEventOf(
-                    expectedEvent1.apply { consumePositionChange(0f, 20f) },
-                    expectedEvent2.apply { consumePositionChange(0f, 40f) }
-                )
+                pointerEventOf(consumedEvent1, consumedEvent2)
             )
         assertThat(log1[5].pass).isEqualTo(PointerEventPass.Main)
 
-        assertThat(result.changes).hasSize(2)
+        assertThat(internalPointerEvent.changes).hasSize(2)
         PointerInputChangeSubject
-            .assertThat(result.changes[actualEvent1.id])
-            .isStructurallyEqualTo(
-                expectedEvent1.apply { consumePositionChange(0f, 10f) }
-            )
+            .assertThat(internalPointerEvent.changes[actualEvent1.id])
+            .isStructurallyEqualTo(consumedEvent1)
+
         PointerInputChangeSubject
-            .assertThat(result.changes[actualEvent2.id])
-            .isStructurallyEqualTo(
-                expectedEvent2.apply { consumePositionChange(0f, 10f) }
-            )
+            .assertThat(internalPointerEvent.changes[actualEvent2.id])
+            .isStructurallyEqualTo(consumedEvent2)
     }
 
     @Test
@@ -940,18 +881,9 @@ class HitPathTrackerTest {
         val child1 = PointerInputFilterMock(
             log = log,
             pointerEventHandler =
-                { pointerEvent, pass, _ ->
+                { pointerEvent, _, _ ->
                     pointerEvent.changes.map {
-                        val yConsume =
-                            when (pass) {
-                                PointerEventPass.Initial -> 1f
-                                PointerEventPass.Main -> 4f
-                                else -> 0f
-                            }
-                        it.consumePositionChange(
-                            0f,
-                            yConsume
-                        )
+                        it.consumePositionChange()
                     }
                     pointerEvent.changes
                 }
@@ -959,18 +891,9 @@ class HitPathTrackerTest {
         val child2 = PointerInputFilterMock(
             log = log,
             pointerEventHandler =
-                { pointerEvent, pass, _ ->
+                { pointerEvent, _, _ ->
                     pointerEvent.changes.map {
-                        val yConsume =
-                            when (pass) {
-                                PointerEventPass.Initial -> 2f
-                                PointerEventPass.Main -> 3f
-                                else -> 0f
-                            }
-                        it.consumePositionChange(
-                            0f,
-                            yConsume
-                        )
+                        it.consumePositionChange()
                     }
                     pointerEvent.changes
                 }
@@ -978,14 +901,16 @@ class HitPathTrackerTest {
 
         hitPathTracker.addHitPath(PointerId(3), listOf(child1, child2))
         hitPathTracker.addHitPath(PointerId(5), listOf(child1, child2))
-        val actualEvent1 = down(3).moveTo(10.milliseconds, 0f, 0f)
-        val actualEvent2 = down(5).moveTo(10.milliseconds, 0f, 0f)
+        val actualEvent1 = down(3).moveTo(10, 0f, 0f)
+        val actualEvent2 = down(5).moveTo(10, 0f, 0f)
         val expectedEvent1 = actualEvent1.deepCopy()
         val expectedEvent2 = actualEvent2.deepCopy()
+        val consumedEvent1 = expectedEvent1.deepCopy().apply { consumePositionChange() }
+        val consumedEvent2 = expectedEvent2.deepCopy().apply { consumePositionChange() }
 
-        val (result, _) = hitPathTracker.dispatchChanges(
-            internalPointerEventOf(actualEvent1, actualEvent2)
-        )
+        val internalPointerEvent = internalPointerEventOf(actualEvent1, actualEvent2)
+
+        hitPathTracker.dispatchChanges(internalPointerEvent)
 
         val log1 = log.getOnPointerEventLog()
             .filter { it.pass == PointerEventPass.Initial || it.pass == PointerEventPass.Main }
@@ -1001,8 +926,8 @@ class HitPathTrackerTest {
             .assertThat(log1[1].pointerEvent)
             .isStructurallyEqualTo(
                 pointerEventOf(
-                    expectedEvent1.apply { consumePositionChange(0f, 1f) },
-                    expectedEvent2.apply { consumePositionChange(0f, 1f) }
+                    consumedEvent1,
+                    consumedEvent2
                 )
             )
         assertThat(log1[1].pass).isEqualTo(PointerEventPass.Initial)
@@ -1012,8 +937,8 @@ class HitPathTrackerTest {
             .assertThat(log1[2].pointerEvent)
             .isStructurallyEqualTo(
                 pointerEventOf(
-                    expectedEvent1.apply { consumePositionChange(0f, 2f) },
-                    expectedEvent2.apply { consumePositionChange(0f, 2f) }
+                    consumedEvent1,
+                    consumedEvent2
                 )
             )
         assertThat(log1[2].pass).isEqualTo(PointerEventPass.Main)
@@ -1023,22 +948,22 @@ class HitPathTrackerTest {
             .assertThat(log1[3].pointerEvent)
             .isStructurallyEqualTo(
                 pointerEventOf(
-                    expectedEvent1.apply { consumePositionChange(0f, 3f) },
-                    expectedEvent2.apply { consumePositionChange(0f, 3f) }
+                    consumedEvent1,
+                    consumedEvent2
                 )
             )
         assertThat(log1[3].pass).isEqualTo(PointerEventPass.Main)
 
-        assertThat(result.changes).hasSize(2)
+        assertThat(internalPointerEvent.changes).hasSize(2)
         PointerInputChangeSubject
-            .assertThat(result.changes[actualEvent1.id])
+            .assertThat(internalPointerEvent.changes[actualEvent1.id])
             .isStructurallyEqualTo(
-                expectedEvent1.apply { consumePositionChange(0f, 4f) }
+                consumedEvent1
             )
         PointerInputChangeSubject
-            .assertThat(result.changes[actualEvent2.id])
+            .assertThat(internalPointerEvent.changes[actualEvent2.id])
             .isStructurallyEqualTo(
-                expectedEvent2.apply { consumePositionChange(0f, 4f) }
+                consumedEvent2
             )
     }
 
@@ -2535,11 +2460,9 @@ class HitPathTrackerTest {
         val middle: PointerInputFilter = PointerInputFilterMock()
         val leaf: PointerInputFilter = PointerInputFilterMock()
 
-        val pointerId = PointerId(3)
-
         hitPathTracker.addHitPath(PointerId(3), listOf(root, middle, leaf))
 
-        hitPathTracker.removeHitPath(pointerId)
+        hitPathTracker.dispatchChanges(internalPointerEventOf(down(3).up(1L)))
 
         val expectedRoot = NodeParent()
 
@@ -2556,11 +2479,12 @@ class HitPathTrackerTest {
         val leaf: PointerInputFilter = PointerInputFilterMock()
 
         val pointerId1 = PointerId(3)
-        val pointerId2 = PointerId(99)
 
         hitPathTracker.addHitPath(pointerId1, listOf(root, middle, leaf))
 
-        hitPathTracker.removeHitPath(pointerId2)
+        hitPathTracker.dispatchChanges(
+            internalPointerEventOf(down(99).up(1L), down(3))
+        )
 
         val expectedRoot = NodeParent().apply {
             children.add(
@@ -2608,7 +2532,9 @@ class HitPathTrackerTest {
         hitPathTracker.addHitPath(pointerId1, listOf(root1, middle1, leaf1))
         hitPathTracker.addHitPath(pointerId2, listOf(root2, middle2, leaf2))
 
-        hitPathTracker.removeHitPath(pointerId2)
+        hitPathTracker.dispatchChanges(
+            internalPointerEventOf(down(5).up(1L), down(3))
+        )
 
         val expectedRoot = NodeParent().apply {
             children.add(
@@ -2646,7 +2572,9 @@ class HitPathTrackerTest {
         hitPathTracker.addHitPath(pointerId1, listOf(root, middle, leaf))
         hitPathTracker.addHitPath(pointerId2, listOf(root, middle, leaf))
 
-        hitPathTracker.removeHitPath(pointerId1)
+        hitPathTracker.dispatchChanges(
+            internalPointerEventOf(down(3).up(1L), down(5))
+        )
 
         val expectedRoot = NodeParent().apply {
             children.add(
@@ -2684,7 +2612,9 @@ class HitPathTrackerTest {
         hitPathTracker.addHitPath(pointerId1, listOf(root, middle, leaf))
         hitPathTracker.addHitPath(pointerId2, listOf(root, middle))
 
-        hitPathTracker.removeHitPath(pointerId1)
+        hitPathTracker.dispatchChanges(
+            internalPointerEventOf(down(3).up(1L), down(5))
+        )
 
         val expectedRoot = NodeParent().apply {
             children.add(
@@ -2717,7 +2647,9 @@ class HitPathTrackerTest {
         hitPathTracker.addHitPath(pointerId1, listOf(root, middle, leaf))
         hitPathTracker.addHitPath(pointerId2, listOf(root, middle))
 
-        hitPathTracker.removeHitPath(pointerId2)
+        hitPathTracker.dispatchChanges(
+            internalPointerEventOf(down(5).up(1L), down(3))
+        )
 
         val expectedRoot = NodeParent().apply {
             children.add(
@@ -2755,7 +2687,9 @@ class HitPathTrackerTest {
         hitPathTracker.addHitPath(pointerId1, listOf(root, middle, leaf))
         hitPathTracker.addHitPath(pointerId2, listOf(root))
 
-        hitPathTracker.removeHitPath(pointerId1)
+        hitPathTracker.dispatchChanges(
+            internalPointerEventOf(down(3).up(1L), down(5))
+        )
 
         val expectedRoot = NodeParent().apply {
             children.add(
@@ -2783,7 +2717,9 @@ class HitPathTrackerTest {
         hitPathTracker.addHitPath(pointerId1, listOf(root, middle, leaf))
         hitPathTracker.addHitPath(pointerId2, listOf(root))
 
-        hitPathTracker.removeHitPath(pointerId2)
+        hitPathTracker.dispatchChanges(
+            internalPointerEventOf(down(5).up(1L), down(3))
+        )
 
         val expectedRoot = NodeParent().apply {
             children.add(
@@ -2951,238 +2887,15 @@ class HitPathTrackerTest {
         assertThat(areEqual(hitPathTracker.root, NodeParent())).isTrue()
     }
 
-    @Test
-    fun dispatchCustomEvent_1NodeItDispatches_nothingReceivesDispatch() {
-
-        // Arrange
-
-        lateinit var dispatcher: CustomEventDispatcher
-
-        val pif = PointerInputFilterMock(
-            initHandler = { dispatcher = it }
-        )
-
-        hitPathTracker.addHitPath(PointerId(3), listOf(pif))
-
-        val event = TestCustomEvent("test")
-
-        // Act
-
-        dispatcher.dispatchCustomEvent(event)
-
-        // Assert
-
-        assertThat(pif.log.getOnCustomEventLog()).hasSize(0)
-    }
-
-    @Test
-    fun dispatchCustomEvent_1Path3NodesParentDispatches_dispatchCorrect() {
-        dispatchCustomEvent_1Path3Nodes_dispatchCorrect(DispatchingPif.Parent)
-    }
-
-    @Test
-    fun dispatchCustomEvent_1Path3NodesMiddleDispatches_dispatchCorrect() {
-        dispatchCustomEvent_1Path3Nodes_dispatchCorrect(DispatchingPif.Middle)
-    }
-
-    @Test
-    fun dispatchCustomEvent_1Path3NodesChildDispatches_dispatchCorrect() {
-        dispatchCustomEvent_1Path3Nodes_dispatchCorrect(DispatchingPif.Child)
-    }
-
     private enum class DispatchingPif {
         Parent, Middle, Child
-    }
-
-    private fun dispatchCustomEvent_1Path3Nodes_dispatchCorrect(
-        dispatchingPif: DispatchingPif
-    ) {
-        // Arrange
-
-        lateinit var dispatcher: CustomEventDispatcher
-        lateinit var parentPif: PointerInputFilter
-        lateinit var middlePif: PointerInputFilter
-        lateinit var childPif: PointerInputFilter
-
-        lateinit var seniorPif: PointerInputFilter
-        lateinit var juniorPif: PointerInputFilter
-        val dispatcherInitHandler: (CustomEventDispatcher) -> Unit = { dispatcher = it }
-
-        val log = mutableListOf<LogEntry>()
-
-        when (dispatchingPif) {
-            DispatchingPif.Parent -> {
-                parentPif = PointerInputFilterMock(
-                    log,
-                    initHandler = dispatcherInitHandler
-                )
-                middlePif = PointerInputFilterMock(log)
-                seniorPif = middlePif
-                childPif = PointerInputFilterMock(log)
-                juniorPif = childPif
-            }
-            DispatchingPif.Middle -> {
-                parentPif = PointerInputFilterMock(log)
-                seniorPif = parentPif
-                middlePif = PointerInputFilterMock(
-                    log,
-                    initHandler = dispatcherInitHandler
-                )
-                childPif = PointerInputFilterMock(log)
-                juniorPif = childPif
-            }
-            DispatchingPif.Child -> {
-                parentPif = PointerInputFilterMock(log)
-                seniorPif = parentPif
-                middlePif = PointerInputFilterMock(log)
-                juniorPif = middlePif
-                childPif = PointerInputFilterMock(
-                    log,
-                    initHandler = dispatcherInitHandler
-                )
-            }
-        }
-
-        hitPathTracker.addHitPath(PointerId(3), listOf(parentPif, middlePif, childPif))
-
-        val event = TestCustomEvent("test")
-
-        // Act
-
-        dispatcher.dispatchCustomEvent(event)
-
-        // Assert
-
-        val log1 = log.getOnCustomEventLog()
-
-        assertThat(log1).hasSize(6)
-
-        assertThat(log1[0].pointerInputFilter).isEqualTo(seniorPif)
-        assertThat(log1[0].pass).isEqualTo(PointerEventPass.Initial)
-        assertThat(log1[1].pointerInputFilter).isEqualTo(juniorPif)
-        assertThat(log1[1].pass).isEqualTo(PointerEventPass.Initial)
-        assertThat(log1[2].pointerInputFilter).isEqualTo(juniorPif)
-        assertThat(log1[2].pass).isEqualTo(PointerEventPass.Main)
-        assertThat(log1[3].pointerInputFilter).isEqualTo(seniorPif)
-        assertThat(log1[3].pass).isEqualTo(PointerEventPass.Main)
-        assertThat(log1[4].pointerInputFilter).isEqualTo(seniorPif)
-        assertThat(log1[4].pass).isEqualTo(PointerEventPass.Final)
-        assertThat(log1[5].pointerInputFilter).isEqualTo(juniorPif)
-        assertThat(log1[5].pass).isEqualTo(PointerEventPass.Final)
-    }
-
-    @Test
-    fun dispatchCustomEvent_1Parent2ChildrenParentDispatches_dispatchCorrect() {
-
-        lateinit var dispatcher: CustomEventDispatcher
-
-        val log = mutableListOf<LogEntry>()
-
-        val parentPin = PointerInputFilterMock(
-            log,
-            initHandler = { dispatcher = it }
-        )
-        val childPin1 = PointerInputFilterMock(log)
-        val childPin2 = PointerInputFilterMock(log)
-
-        hitPathTracker.addHitPath(PointerId(3), listOf(parentPin, childPin1))
-        hitPathTracker.addHitPath(PointerId(4), listOf(parentPin, childPin2))
-
-        val event = TestCustomEvent("test")
-
-        // Act
-
-        dispatcher.dispatchCustomEvent(event)
-
-        // Assert
-
-        val log1 = log.getOnCustomEventLog()
-
-        assertThat(log1).hasSize(6)
-
-        assertThat(log1[0].pointerInputFilter).isEqualTo(childPin1)
-        assertThat(log1[0].pass).isEqualTo(PointerEventPass.Initial)
-        assertThat(log1[1].pointerInputFilter).isEqualTo(childPin1)
-        assertThat(log1[1].pass).isEqualTo(PointerEventPass.Main)
-        assertThat(log1[2].pointerInputFilter).isEqualTo(childPin2)
-        assertThat(log1[2].pass).isEqualTo(PointerEventPass.Initial)
-        assertThat(log1[3].pointerInputFilter).isEqualTo(childPin2)
-        assertThat(log1[3].pass).isEqualTo(PointerEventPass.Main)
-
-        assertThat(log1[4].pointerInputFilter).isEqualTo(childPin1)
-        assertThat(log1[4].pass).isEqualTo(PointerEventPass.Final)
-        assertThat(log1[5].pointerInputFilter).isEqualTo(childPin2)
-        assertThat(log1[5].pass).isEqualTo(PointerEventPass.Final)
-    }
-
-    @Test
-    fun dispatchCustomEvent_1Parent2ChildrenChild1Dispatches_dispatchCorrect() {
-        dispatchCustomEvent_1Parent2ChildrenChildDispatches_dispatchCorrect(
-            true
-        )
-    }
-
-    @Test
-    fun dispatchCustomEvent_1Parent2ChildrenChild2Dispatches_dispatchCorrect() {
-        dispatchCustomEvent_1Parent2ChildrenChildDispatches_dispatchCorrect(
-            false
-        )
-    }
-
-    private fun dispatchCustomEvent_1Parent2ChildrenChildDispatches_dispatchCorrect(
-        firstChildDispatches: Boolean
-    ) {
-        // Arrange
-
-        val log = mutableListOf<LogEntry>()
-
-        val parentPif = PointerInputFilterMock(log)
-        lateinit var childPif1: PointerInputFilter
-        lateinit var childPif2: PointerInputFilter
-
-        lateinit var dispatcher: CustomEventDispatcher
-        val initHandler: (CustomEventDispatcher) -> Unit = { dispatcher = it }
-
-        if (firstChildDispatches) {
-            childPif1 = PointerInputFilterMock(
-                log,
-                initHandler = initHandler
-            )
-            childPif2 = PointerInputFilterMock(log)
-        } else {
-            childPif1 = PointerInputFilterMock(log)
-            childPif2 = PointerInputFilterMock(
-                log,
-                initHandler = initHandler
-            )
-        }
-
-        hitPathTracker.addHitPath(PointerId(3), listOf(parentPif, childPif1))
-        hitPathTracker.addHitPath(PointerId(4), listOf(parentPif, childPif2))
-
-        val event = TestCustomEvent("test")
-
-        // Act
-
-        dispatcher.dispatchCustomEvent(event)
-
-        val log1 = log.getOnCustomEventLog()
-
-        assertThat(log1).hasSize(3)
-
-        assertThat(log1[0].pointerInputFilter).isEqualTo(parentPif)
-        assertThat(log1[0].pass).isEqualTo(PointerEventPass.Initial)
-        assertThat(log1[1].pointerInputFilter).isEqualTo(parentPif)
-        assertThat(log1[1].pass).isEqualTo(PointerEventPass.Main)
-        assertThat(log1[2].pointerInputFilter).isEqualTo(parentPif)
-        assertThat(log1[2].pass).isEqualTo(PointerEventPass.Final)
     }
 
     // Tests related to reporting whether or not a pointer input filter was dispatched to.
 
     @Test
     fun dispatchChanges_noNodes_reportsWasDispatchedToNothing() {
-        val (_, hitSomething) = hitPathTracker.dispatchChanges(internalPointerEventOf(down(0)))
+        val hitSomething = hitPathTracker.dispatchChanges(internalPointerEventOf(down(0)))
         assertThat(hitSomething).isFalse()
     }
 
@@ -3191,7 +2904,7 @@ class HitPathTrackerTest {
         val pif = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(13), listOf(pif))
 
-        val (_, hitSomething) = hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
+        val hitSomething = hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
 
         assertThat(hitSomething).isTrue()
     }
@@ -3201,252 +2914,12 @@ class HitPathTrackerTest {
         val pif = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(13), listOf(pif))
 
-        val (_, hitSomething) = hitPathTracker.dispatchChanges(internalPointerEventOf(down(69)))
+        val hitSomething = hitPathTracker.dispatchChanges(internalPointerEventOf(down(69)))
 
         assertThat(hitSomething).isFalse()
     }
 
     // Tests related to retaining and releasing hit paths.
-
-    /**
-     * Verifies that if a hit path is added and retained, when it is removed, it is not actually
-     * removed.
-     */
-    @Test
-    fun removeHitPath_idRetained_nodeIsRetained() {
-        lateinit var dispatcher: CustomEventDispatcher
-        val pif = PointerInputFilterMock(
-            initHandler = { dispatcher = it }
-        )
-        hitPathTracker.addHitPath(PointerId(13), listOf(pif))
-        dispatcher.retainHitPaths(setOf(PointerId(13)))
-
-        hitPathTracker.removeHitPath(PointerId(13))
-
-        val expectedRoot = NodeParent().apply {
-            children.add(
-                Node(pif).apply {
-                    pointerIds.add(PointerId(13))
-                }
-            )
-        }
-
-        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
-    }
-
-    /**
-     * Verifies that if there are 2 branching hit paths, 1 is retained, and both are removed, the
-     * 1 that was retained remains.
-     */
-    @Test
-    fun removeHitPath_2Branches1RetainedBothRemoved_retainedBranchRemains() {
-        lateinit var dispatcher: CustomEventDispatcher
-        val parentPif = PointerInputFilterMock()
-        val childPif1 = PointerInputFilterMock()
-        val childPif2 = PointerInputFilterMock(
-            initHandler = { dispatcher = it }
-        )
-
-        hitPathTracker.addHitPath(PointerId(1), listOf(parentPif, childPif1))
-        hitPathTracker.addHitPath(PointerId(2), listOf(parentPif, childPif2))
-        dispatcher.retainHitPaths(setOf(PointerId(1)))
-
-        hitPathTracker.removeHitPath(PointerId(1))
-        hitPathTracker.removeHitPath(PointerId(2))
-
-        val expectedRoot = NodeParent().apply {
-            children.add(
-                Node(parentPif).apply {
-                    pointerIds.add(PointerId(1))
-                    children.add(
-                        Node(childPif1).apply {
-                            pointerIds.add(PointerId(1))
-                        }
-                    )
-                }
-            )
-        }
-
-        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
-    }
-
-    /**
-     * Verifies that if there are 2 branching hit paths, both are retained, and both are removed,
-     * that both remain.
-     */
-    @Test
-    fun removeHitPath_2Branches2RetainedBothRemoved_bothBranchesRemain() {
-        lateinit var dispatcher: CustomEventDispatcher
-        val parentPif = PointerInputFilterMock(
-            initHandler = { dispatcher = it }
-        )
-        val childPif1 = PointerInputFilterMock()
-        val childPif2 = PointerInputFilterMock()
-
-        hitPathTracker.addHitPath(PointerId(1), listOf(parentPif, childPif1))
-        hitPathTracker.addHitPath(PointerId(2), listOf(parentPif, childPif2))
-        dispatcher.retainHitPaths(setOf(PointerId(1), PointerId(2)))
-
-        hitPathTracker.removeHitPath(PointerId(1))
-        hitPathTracker.removeHitPath(PointerId(2))
-
-        val expectedRoot = NodeParent().apply {
-            children.add(
-                Node(parentPif).apply {
-                    pointerIds.addAll(listOf(PointerId(1), PointerId(2)))
-                    children.add(
-                        Node(childPif1).apply {
-                            pointerIds.add(PointerId(1))
-                        }
-                    )
-                    children.add(
-                        Node(childPif2).apply {
-                            pointerIds.add(PointerId(2))
-                        }
-                    )
-                }
-            )
-        }
-
-        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
-    }
-
-    /**
-     * Verifies that if a hit path is retained, then removed, then released, it is removed.
-     */
-    @Test
-    fun releasePointerId_idRetainedAndPathRemoved_nodeIsRemoved() {
-        lateinit var dispatcher: CustomEventDispatcher
-        val pif = PointerInputFilterMock(
-            initHandler = { dispatcher = it }
-        )
-        hitPathTracker.addHitPath(PointerId(13), listOf(pif))
-        dispatcher.retainHitPaths(setOf(PointerId(13)))
-        hitPathTracker.removeHitPath(PointerId(13))
-
-        dispatcher.releaseHitPaths(setOf(PointerId(13)))
-
-        assertThat(areEqual(hitPathTracker.root, NodeParent())).isTrue()
-    }
-
-    /**
-     * Verifies that if there are 2 hit paths, both are retained, both are removed, and
-     * then 1 is released, the other retained branch remains.
-     */
-    @Test
-    fun releasePointerId_2Branches2RetainedBothRemoved1Released_correctBranchRemains() {
-        lateinit var dispatcher: CustomEventDispatcher
-        val parentPif = PointerInputFilterMock(
-            initHandler = { dispatcher = it }
-        )
-        val childPif1 = PointerInputFilterMock()
-        val childPif2 = PointerInputFilterMock()
-
-        hitPathTracker.addHitPath(PointerId(1), listOf(parentPif, childPif1))
-        hitPathTracker.addHitPath(PointerId(2), listOf(parentPif, childPif2))
-        dispatcher.retainHitPaths(setOf(PointerId(1), PointerId(2)))
-
-        hitPathTracker.removeHitPath(PointerId(1))
-        hitPathTracker.removeHitPath(PointerId(2))
-
-        dispatcher.releaseHitPaths(setOf(PointerId(1)))
-
-        val expectedRoot = NodeParent().apply {
-            children.add(
-                Node(parentPif).apply {
-                    pointerIds.add(PointerId(2))
-                    children.add(
-                        Node(childPif2).apply {
-                            pointerIds.add(PointerId(2))
-                        }
-                    )
-                }
-            )
-        }
-
-        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
-    }
-
-    /**
-     * Verifies that if there are 2 hit paths, 1 is retained, they are both removed, and
-     * then the one that was retained is released, that no branches remain.
-     */
-    @Test
-    fun releasePointerId_2Branches1RetainedBothRemoved1Released_noBranchesRemain() {
-        lateinit var dispatcher: CustomEventDispatcher
-        val parentPif = PointerInputFilterMock()
-        val childPif1 = PointerInputFilterMock(
-            initHandler = { dispatcher = it }
-        )
-        val childPif2 = PointerInputFilterMock()
-
-        hitPathTracker.addHitPath(PointerId(1), listOf(parentPif, childPif1))
-        hitPathTracker.addHitPath(PointerId(2), listOf(parentPif, childPif2))
-        dispatcher.retainHitPaths(setOf(PointerId(1)))
-
-        hitPathTracker.removeHitPath(PointerId(1))
-        hitPathTracker.removeHitPath(PointerId(2))
-
-        dispatcher.releaseHitPaths(setOf(PointerId(1)))
-
-        assertThat(areEqual(hitPathTracker.root, NodeParent())).isTrue()
-    }
-
-    /**
-     * Verifies that if a hit path is retained and then released (without it ever actually being
-     * removed) then the hit path remains.
-     */
-    @Test
-    fun releasePointerId_idRetainedButPathNotRemoved_pathNotRemoved() {
-        lateinit var dispatcher: CustomEventDispatcher
-        val pif = PointerInputFilterMock(
-            initHandler = { dispatcher = it }
-        )
-        hitPathTracker.addHitPath(PointerId(13), listOf(pif))
-        dispatcher.retainHitPaths(setOf(PointerId(13)))
-
-        dispatcher.releaseHitPaths(setOf(PointerId(13)))
-
-        val expectedRoot = NodeParent().apply {
-            children.add(
-                Node(pif).apply {
-                    pointerIds.add(PointerId(13))
-                }
-            )
-        }
-
-        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
-    }
-
-    /**
-     * Verifies that if a hit path is retained, and then removed, and a dispatch of a
-     * custom event occurs, it will be dispatched to the retained path.
-     */
-    @Test
-    fun dispatchCustomEvent_idRetainedAndPathRemoved_customEventReachesNode() {
-        val log = mutableListOf<LogEntry>()
-        lateinit var dispatcher: CustomEventDispatcher
-        val pif = PointerInputFilterMock(
-            log,
-            initHandler = { dispatcher = it }
-        )
-        val pif2 = PointerInputFilterMock(log)
-        hitPathTracker.addHitPath(PointerId(13), listOf(pif, pif2))
-        dispatcher.retainHitPaths(setOf(PointerId(13)))
-        hitPathTracker.removeHitPath(PointerId(13))
-        val event = TestCustomEvent("87483")
-
-        dispatcher.dispatchCustomEvent(event)
-
-        val log1 = log.getOnCustomEventLog()
-        assertThat(log1).hasSize(3)
-        assertThat(log1[0].pointerInputFilter).isEqualTo(pif2)
-        assertThat(log1[0].pass).isEqualTo(PointerEventPass.Initial)
-        assertThat(log1[1].pointerInputFilter).isEqualTo(pif2)
-        assertThat(log1[1].pass).isEqualTo(PointerEventPass.Main)
-        assertThat(log1[2].pointerInputFilter).isEqualTo(pif2)
-        assertThat(log1[2].pass).isEqualTo(PointerEventPass.Final)
-    }
 
     @Test
     fun dispatchChanges_pifRemovesSelfDuringInitial_noPassesReceivedAfterwards() {
@@ -3660,8 +3133,8 @@ class HitPathTrackerTest {
         val child = PointerInputFilterMock(log)
         hitPathTracker.addHitPath(PointerId(13), listOf(parent, pif, child))
 
-        val actual = internalPointerEventOf(down(13, 120.milliseconds, 1.0f, 1.0f))
-        val expected = pointerEventOf(down(13, 120.milliseconds, 1.0f, 1.0f))
+        val actual = internalPointerEventOf(down(13, 120, 1.0f, 1.0f))
+        val expected = pointerEventOf(down(13, 120, 1.0f, 1.0f))
 
         hitPathTracker.dispatchChanges(actual)
 
@@ -3684,194 +3157,342 @@ class HitPathTrackerTest {
     }
 
     @Test
-    fun dispatchCustomMessage_pifRemovesSelfDuringInitial_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.Initial
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovesSelfDuringMain_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.Main
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovesSelfDuringFinal_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.Final
-        )
-    }
-
-    private fun dispatchCustomMessage_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-        removalPass: PointerEventPass
-    ) {
-
+    fun addHitPath_hoverMove_noChange() {
         val log = mutableListOf<LogEntry>()
-
-        lateinit var dispatcher: CustomEventDispatcher
-
-        val layoutCoordinates = LayoutCoordinatesStub(true)
-
-        val dispatchingPif = PointerInputFilterMock(
-            log,
-            initHandler = { dispatcher = it }
+        val parentLayoutCoordinates = LayoutCoordinatesStub(true)
+        val pif1: PointerInputFilter = PointerInputFilterMock(
+            log = log,
+            layoutCoordinates = parentLayoutCoordinates
         )
-        val receivingPif = PointerInputFilterMock(
-            log,
-            onCustomEvent = { _, pointerEventPass ->
-                if (pointerEventPass == removalPass) {
-                    layoutCoordinates.isAttached = false
+        val pif2: PointerInputFilter = PointerInputFilterMock(
+            log = log,
+            layoutCoordinates = parentLayoutCoordinates
+        )
+        val pif3: PointerInputFilter = PointerInputFilterMock(
+            log = log,
+            layoutCoordinates = parentLayoutCoordinates
+        )
+        val pointerId = PointerId(0)
+
+        hitPathTracker.addHitPath(pointerId, listOf(pif1, pif2, pif3))
+
+        val expectedRoot = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId)
+                    children.add(
+                        Node(pif2).apply {
+                            pointerIds.add(pointerId)
+                            children.add(
+                                Node(pif3).apply {
+                                    pointerIds.add(pointerId)
+                                }
+                            )
+                        }
+                    )
                 }
-            },
-            layoutCoordinates = layoutCoordinates
+            )
+        }
+
+        hitPathTracker.dispatchChanges(hoverInternalPointerEvent())
+
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+
+        assertHoverEvent(
+            log,
+            pif1 to PointerEventType.Enter,
+            pif2 to PointerEventType.Enter,
+            pif3 to PointerEventType.Enter,
         )
 
-        hitPathTracker.addHitPath(PointerId(13), listOf(dispatchingPif, receivingPif))
+        log.clear()
 
-        dispatcher.dispatchCustomEvent(object : CustomEvent {})
+        hitPathTracker.addHitPath(pointerId, listOf(pif1, pif2, pif3))
 
-        val log1 = log.getOnCustomEventLog().filter { it.pointerInputFilter == receivingPif }
-        val count = removalPass.ordinal + 1
-        assertThat(log1).hasSize(count)
-        PointerEventPass.values().forEachIndexed { index, pass ->
-            if (index < count) {
-                assertThat(log1[index].pass).isEqualTo(pass)
+        hitPathTracker.dispatchChanges(hoverInternalPointerEvent())
+
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+
+        assertHoverEvent(
+            log,
+            pif1 to PointerEventType.Move,
+            pif2 to PointerEventType.Move,
+            pif3 to PointerEventType.Move,
+        )
+    }
+
+    private fun assertHoverEvent(
+        log: List<LogEntry>,
+        vararg filterAndTypes: Pair<PointerInputFilter, PointerEventType>
+    ) {
+        assertThat(log).hasSize(filterAndTypes.size * 3)
+        log.forEachIndexed { index, logEntry ->
+            val pass = when {
+                index < filterAndTypes.size -> PointerEventPass.Initial
+                index < filterAndTypes.size * 2 -> PointerEventPass.Main
+                else -> PointerEventPass.Final
             }
+            val filterIndex = when {
+                index < filterAndTypes.size -> index
+                index < filterAndTypes.size * 2 -> filterAndTypes.size * 2 - index - 1
+                else -> index - (filterAndTypes.size * 2)
+            }
+
+            val (filter, type) = filterAndTypes[filterIndex]
+
+            assertOnPointerEventEntry(logEntry, "LogEntry[$index]", pass, type, filter)
         }
     }
 
-    @Test
-    fun dispatchCustomMessage_pifRemovedByParentDuringInitial_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.Initial
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovedByParentDuringMain_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.Main
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovedByParentDuringFinal_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.Final
-        )
-    }
-
-    private fun dispatchCustomMessage_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-        removalPass: PointerEventPass
+    private fun assertOnPointerEventEntry(
+        logEntry: LogEntry,
+        message: String,
+        pass: PointerEventPass,
+        pointerEventType: PointerEventType,
+        pointerInputFilter: PointerInputFilter
     ) {
-        lateinit var dispatcher: CustomEventDispatcher
+        assertThat(logEntry).isInstanceOf(OnPointerEventEntry::class.java)
+        logEntry as OnPointerEventEntry
+        assertWithMessage(message).that(logEntry.pass).isEqualTo(pass)
+        assertWithMessage(message).that(logEntry.pointerEvent.type).isEqualTo(pointerEventType)
+        assertWithMessage(message).that(logEntry.pointerInputFilter).isEqualTo(pointerInputFilter)
+    }
 
+    @Test
+    fun addHitPath_hoverMove_enterExit() {
         val log = mutableListOf<LogEntry>()
-
-        val layoutCoordinates = LayoutCoordinatesStub(true)
-
-        val dispatchingPif = PointerInputFilterMock(
-            log,
-            initHandler = { dispatcher = it }
-        )
-        val parentPif = PointerInputFilterMock(
-            log,
-            onCustomEvent = { _, pointerEventPass ->
-                if (pointerEventPass == removalPass) {
-                    layoutCoordinates.isAttached = false
-                }
-            }
-        )
-        val childPif = PointerInputFilterMock(
-            log,
+        val layoutCoordinates = layoutNode.outerLayoutNodeWrapper
+        val pif1: PointerInputFilter = PointerInputFilterMock(
+            log = log,
             layoutCoordinates = layoutCoordinates
         )
-
-        hitPathTracker.addHitPath(PointerId(13), listOf(dispatchingPif, parentPif, childPif))
-
-        dispatcher.dispatchCustomEvent(object : CustomEvent {})
-
-        val log1 = log.getOnCustomEventLog().filter { it.pointerInputFilter == childPif }
-        val count =
-            when (removalPass) {
-                PointerEventPass.Initial -> 0
-                PointerEventPass.Main -> 2
-                PointerEventPass.Final -> 2
-            }
-        assertThat(log1).hasSize(count)
-        PointerEventPass.values().forEachIndexed { index, pass ->
-            if (index < count) {
-                assertThat(log1[index].pass).isEqualTo(pass)
-            }
-        }
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovedByChildDuringInitial_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.Initial
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovedByChildDuringMain_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.Main
-        )
-    }
-
-    @Test
-    fun dispatchCustomMessage_pifRemovedByChildDuringFinal_noPassesReceivedAfterwards() {
-        dispatchCustomMessage_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.Final
-        )
-    }
-
-    private fun dispatchCustomMessage_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-        removalPass: PointerEventPass
-    ) {
-        lateinit var dispatcher: CustomEventDispatcher
-
-        val log = mutableListOf<LogEntry>()
-
-        val layoutCoordinates = LayoutCoordinatesStub(true)
-
-        val dispatchingPif = PointerInputFilterMock(
-            log,
-            initHandler = { dispatcher = it }
-        )
-        val parentPif = PointerInputFilterMock(
-            log,
+        val pif2: PointerInputFilter = PointerInputFilterMock(
+            log = log,
             layoutCoordinates = layoutCoordinates
         )
-        val childPif = PointerInputFilterMock(
+        val pif3: PointerInputFilter = PointerInputFilterMock(
+            log = log,
+            layoutCoordinates = layoutCoordinates
+        )
+        val pointerId = PointerId(0)
+
+        hitPathTracker.addHitPath(pointerId, listOf(pif1, pif2))
+
+        hitPathTracker.dispatchChanges(hoverInternalPointerEvent())
+
+        assertHoverEvent(
             log,
-            onCustomEvent = { _, pointerEventPass ->
-                if (pointerEventPass == removalPass) {
-                    layoutCoordinates.isAttached = false
-                }
-            }
+            pif1 to PointerEventType.Enter,
+            pif2 to PointerEventType.Enter
         )
 
-        hitPathTracker.addHitPath(PointerId(13), listOf(dispatchingPif, parentPif, childPif))
+        log.clear()
 
-        dispatcher.dispatchCustomEvent(object : CustomEvent {})
+        hitPathTracker.addHitPath(pointerId, listOf(pif1, pif3))
 
-        val log1 = log.getOnCustomEventLog().filter { it.pointerInputFilter == parentPif }
-        val count =
-            when (removalPass) {
-                PointerEventPass.Initial -> 1
-                PointerEventPass.Main -> 1
-                PointerEventPass.Final -> 3
-            }
-        assertThat(log1).hasSize(count)
-        PointerEventPass.values().forEachIndexed { index, pass ->
-            if (index < count) {
-                assertThat(log1[index].pass).isEqualTo(pass)
-            }
+        val expectedRoot = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId)
+                    children.add(
+                        Node(pif2).apply {
+                            pointerIds.add(pointerId)
+                        }
+                    )
+                    children.add(
+                        Node(pif3).apply {
+                            pointerIds.add(pointerId)
+                        }
+                    )
+                }
+            )
         }
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+
+        hitPathTracker.dispatchChanges(hoverInternalPointerEvent())
+
+        // These have some that appear out of order because of the different branches
+        assertThat(log).hasSize(9)
+        assertOnPointerEventEntry(
+            log[0], "LogEntry[0]", PointerEventPass.Initial, PointerEventType.Move, pif1
+        )
+        assertOnPointerEventEntry(
+            log[1], "LogEntry[1]", PointerEventPass.Initial, PointerEventType.Exit, pif2
+        )
+        assertOnPointerEventEntry(
+            log[2], "LogEntry[2]", PointerEventPass.Main, PointerEventType.Exit, pif2
+        )
+        assertOnPointerEventEntry(
+            log[3], "LogEntry[3]", PointerEventPass.Initial, PointerEventType.Enter, pif3
+        )
+        assertOnPointerEventEntry(
+            log[4], "LogEntry[3]", PointerEventPass.Main, PointerEventType.Enter, pif3
+        )
+        assertOnPointerEventEntry(
+            log[5], "LogEntry[5]", PointerEventPass.Main, PointerEventType.Move, pif1
+        )
+        assertOnPointerEventEntry(
+            log[6], "LogEntry[6]", PointerEventPass.Final, PointerEventType.Move, pif1
+        )
+        assertOnPointerEventEntry(
+            log[7], "LogEntry[7]", PointerEventPass.Final, PointerEventType.Exit, pif2
+        )
+        assertOnPointerEventEntry(
+            log[8], "LogEntry[8]", PointerEventPass.Final, PointerEventType.Enter, pif3
+        )
+
+        val expectedAfterDispatch = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId)
+                    children.add(
+                        Node(pif3).apply {
+                            pointerIds.add(pointerId)
+                        }
+                    )
+                }
+            )
+        }
+        assertThat(areEqual(hitPathTracker.root, expectedAfterDispatch)).isTrue()
+    }
+
+    @Test
+    fun addHitPath_hoverExit() {
+        val log = mutableListOf<LogEntry>()
+        val layoutCoordinates = layoutNode.outerLayoutNodeWrapper
+        val pif1: PointerInputFilter = PointerInputFilterMock(
+            log = log,
+            layoutCoordinates = layoutCoordinates
+        )
+        val pif2: PointerInputFilter = PointerInputFilterMock(
+            log = log,
+            layoutCoordinates = layoutCoordinates
+        )
+        val pif3: PointerInputFilter = PointerInputFilterMock(
+            log = log,
+            layoutCoordinates = layoutCoordinates
+        )
+        val pointerId = PointerId(0)
+
+        hitPathTracker.addHitPath(pointerId, listOf(pif1, pif2, pif3))
+
+        hitPathTracker.dispatchChanges(hoverInternalPointerEvent())
+
+        log.clear()
+
+        hitPathTracker.addHitPath(pointerId, listOf())
+
+        val expectedRoot = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId)
+                    children.add(
+                        Node(pif2).apply {
+                            pointerIds.add(pointerId)
+                            children.add(
+                                Node(pif3).apply {
+                                    pointerIds.add(pointerId)
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+
+        hitPathTracker.dispatchChanges(hoverInternalPointerEvent(ACTION_HOVER_EXIT))
+
+        assertHoverEvent(
+            log,
+            pif1 to PointerEventType.Exit,
+            pif2 to PointerEventType.Exit,
+            pif3 to PointerEventType.Exit,
+        )
+
+        val expectedAfterDispatch = NodeParent()
+        assertThat(areEqual(hitPathTracker.root, expectedAfterDispatch)).isTrue()
+    }
+
+    @Test
+    fun dispatchChangesClearsStaleIds() {
+        val layoutCoordinates = LayoutCoordinatesStub(isAttached = true)
+        val pif1: PointerInputFilter = PointerInputFilterMock(
+            layoutCoordinates = layoutCoordinates
+        )
+        val pif2: PointerInputFilter = PointerInputFilterMock(
+            layoutCoordinates = layoutCoordinates
+        )
+        val pif3: PointerInputFilter = PointerInputFilterMock(
+            layoutCoordinates = layoutCoordinates
+        )
+        val pointerId = PointerId(0)
+
+        hitPathTracker.addHitPath(pointerId, listOf(pif1, pif2, pif3))
+
+        val expectedRoot = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId)
+                    children.add(
+                        Node(pif2).apply {
+                            pointerIds.add(pointerId)
+                            children.add(
+                                Node(pif3).apply {
+                                    pointerIds.add(pointerId)
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+
+        hitPathTracker.dispatchChanges(hoverInternalPointerEvent(ACTION_HOVER_ENTER))
+
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+
+        hitPathTracker.dispatchChanges(internalPointerEventOf(down(5)))
+
+        val expectedAfterDispatch = NodeParent()
+        assertThat(areEqual(hitPathTracker.root, expectedAfterDispatch)).isTrue()
+    }
+
+    @Test
+    fun dispatchChangesClearsStaleIdsPartialHit() {
+        val parentLayoutCoordinates = LayoutCoordinatesStub(true)
+        val pif1: PointerInputFilter = PointerInputFilterMock(
+            layoutCoordinates = parentLayoutCoordinates
+        )
+        val pif2: PointerInputFilter = PointerInputFilterMock(
+            layoutCoordinates = parentLayoutCoordinates
+        )
+        val pif3: PointerInputFilter = PointerInputFilterMock(
+            layoutCoordinates = parentLayoutCoordinates
+        )
+        val pointerId1 = PointerId(0)
+        val pointerId2 = PointerId(5)
+
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3))
+        hitPathTracker.addHitPath(pointerId2, listOf(pif1, pif2))
+
+        hitPathTracker.dispatchChanges(internalPointerEventOf(down(5)))
+
+        val expectedAfterDispatch = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId2)
+                    children.add(
+                        Node(pif2).apply {
+                            pointerIds.add(pointerId2)
+                        }
+                    )
+                }
+            )
+        }
+        assertThat(areEqual(hitPathTracker.root, expectedAfterDispatch)).isTrue()
     }
 
     private fun areEqual(actualNode: NodeParent, expectedNode: NodeParent): Boolean {
@@ -3880,7 +3501,7 @@ class HitPathTrackerTest {
         if (actualNode.children.size != expectedNode.children.size) {
             return false
         }
-        for (child in actualNode.children) {
+        actualNode.children.forEach { child ->
             check = check && expectedNode.children.any {
                 areEqual(child, it)
             }
@@ -3908,7 +3529,7 @@ class HitPathTrackerTest {
         if (actualNode.children.size != expectedNode.children.size) {
             return false
         }
-        for (child in actualNode.children) {
+        actualNode.children.forEach { child ->
             check = check && expectedNode.children.any {
                 areEqual(child, it)
             }
@@ -3917,8 +3538,6 @@ class HitPathTrackerTest {
         return check
     }
 }
-
-internal data class TestCustomEvent(val value: String) : CustomEvent
 
 class LayoutCoordinatesStub(
     override var isAttached: Boolean = true
@@ -3932,31 +3551,178 @@ class LayoutCoordinatesStub(
     override val providedAlignmentLines: Set<AlignmentLine>
         get() = TODO("not implemented")
 
+    override val parentLayoutCoordinates: LayoutCoordinates?
+        get() = null
     override val parentCoordinates: LayoutCoordinates?
-        get() = TODO("not implemented")
+        get() = null
 
-    override fun globalToLocal(global: Offset): Offset {
+    override fun windowToLocal(relativeToWindow: Offset): Offset = relativeToWindow
+
+    override fun localToWindow(relativeToLocal: Offset): Offset = relativeToLocal
+
+    override fun localToRoot(relativeToLocal: Offset): Offset = relativeToLocal
+
+    override fun localPositionOf(
+        sourceCoordinates: LayoutCoordinates,
+        relativeToSource: Offset
+    ): Offset = relativeToSource
+
+    override fun localBoundingBoxOf(
+        sourceCoordinates: LayoutCoordinates,
+        clipBounds: Boolean
+    ): Rect {
+        TODO("Not yet implemented")
+    }
+
+    override fun get(alignmentLine: AlignmentLine): Int {
         TODO("not implemented")
     }
+}
 
-    override fun localToGlobal(local: Offset): Offset {
-        assertThat(isAttached).isTrue()
-        return local + additionalOffset
+@OptIn(InternalCoreApi::class)
+private class MockOwner(
+    val position: IntOffset = IntOffset.Zero,
+    override val root: LayoutNode = LayoutNode()
+) : Owner {
+    val onRequestMeasureParams = mutableListOf<LayoutNode>()
+    val onAttachParams = mutableListOf<LayoutNode>()
+    val onDetachParams = mutableListOf<LayoutNode>()
+    var layoutChangeCount = 0
+
+    override val rootForTest: RootForTest
+        get() = TODO("Not yet implemented")
+    override val hapticFeedBack: HapticFeedback
+        get() = TODO("Not yet implemented")
+    override val clipboardManager: ClipboardManager
+        get() = TODO("Not yet implemented")
+    override val accessibilityManager: AccessibilityManager
+        get() = TODO("Not yet implemented")
+    override val textToolbar: TextToolbar
+        get() = TODO("Not yet implemented")
+    @OptIn(ExperimentalComposeUiApi::class)
+    override val autofillTree: AutofillTree
+        get() = TODO("Not yet implemented")
+    @OptIn(ExperimentalComposeUiApi::class)
+    override val autofill: Autofill?
+        get() = TODO("Not yet implemented")
+    override val density: Density
+        get() = Density(1f)
+    override val textInputService: TextInputService
+        get() = TODO("Not yet implemented")
+    override val focusManager: FocusManager
+        get() = TODO("Not yet implemented")
+    override val windowInfo: WindowInfo
+        get() = TODO("Not yet implemented")
+    override val fontLoader: Font.ResourceLoader
+        get() = TODO("Not yet implemented")
+    override val layoutDirection: LayoutDirection
+        get() = LayoutDirection.Ltr
+    override var showLayoutBounds: Boolean = false
+    override val snapshotObserver = OwnerSnapshotObserver { it.invoke() }
+
+    override fun onRequestMeasure(layoutNode: LayoutNode) {
+        onRequestMeasureParams += layoutNode
+        layoutNode.layoutState = LayoutNode.LayoutState.NeedsRemeasure
     }
 
-    override fun localToRoot(local: Offset): Offset {
-        TODO("not implemented")
+    override fun onRequestRelayout(layoutNode: LayoutNode) {
+        layoutNode.layoutState = LayoutNode.LayoutState.NeedsRelayout
     }
 
-    override fun childToLocal(child: LayoutCoordinates, childLocal: Offset): Offset {
-        TODO("not implemented")
+    override fun onAttach(node: LayoutNode) {
+        onAttachParams += node
     }
 
-    override fun childBoundingBox(child: LayoutCoordinates): Rect {
-        TODO("not implemented")
+    override fun onDetach(node: LayoutNode) {
+        onDetachParams += node
     }
 
-    override fun get(line: AlignmentLine): Int {
-        TODO("not implemented")
+    override fun calculatePositionInWindow(localPosition: Offset): Offset =
+        localPosition + position.toOffset()
+
+    override fun calculateLocalPosition(positionInWindow: Offset): Offset =
+        positionInWindow - position.toOffset()
+
+    override fun requestFocus(): Boolean = false
+
+    override fun measureAndLayout() {
     }
+
+    override fun createLayer(
+        drawBlock: (Canvas) -> Unit,
+        invalidateParentLayer: () -> Unit
+    ): OwnedLayer {
+        return object : OwnedLayer {
+            override val layerId: Long
+                get() = 0
+
+            @OptIn(ExperimentalComposeUiApi::class)
+            @get:OptIn(ExperimentalComposeUiApi::class)
+            override val ownerViewId: Long
+                get() = 0
+
+            override fun updateLayerProperties(
+                scaleX: Float,
+                scaleY: Float,
+                alpha: Float,
+                translationX: Float,
+                translationY: Float,
+                shadowElevation: Float,
+                rotationX: Float,
+                rotationY: Float,
+                rotationZ: Float,
+                cameraDistance: Float,
+                transformOrigin: TransformOrigin,
+                shape: Shape,
+                clip: Boolean,
+                renderEffect: RenderEffect?,
+                layoutDirection: LayoutDirection,
+                density: Density
+            ) {
+            }
+
+            override fun isInLayer(position: Offset) = true
+
+            override fun move(position: IntOffset) {
+            }
+
+            override fun resize(size: IntSize) {
+            }
+
+            override fun drawLayer(canvas: Canvas) {
+                drawBlock(canvas)
+            }
+
+            override fun updateDisplayList() {
+            }
+
+            override fun invalidate() {
+            }
+
+            override fun destroy() {
+            }
+
+            override fun mapBounds(rect: MutableRect, inverse: Boolean) {
+            }
+
+            override fun mapOffset(point: Offset, inverse: Boolean) = point
+        }
+    }
+
+    override fun onSemanticsChange() {
+    }
+
+    override fun onLayoutChange(layoutNode: LayoutNode) {
+        layoutChangeCount++
+    }
+
+    override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {
+        TODO("Not yet implemented")
+    }
+
+    override var measureIteration: Long = 0
+    override val viewConfiguration: ViewConfiguration
+        get() = TODO("Not yet implemented")
+
+    override val sharedDrawScope = LayoutNodeDrawScope()
 }

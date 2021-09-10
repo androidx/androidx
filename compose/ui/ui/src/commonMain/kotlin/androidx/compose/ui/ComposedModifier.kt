@@ -17,7 +17,6 @@
 package androidx.compose.ui
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeCompilerApi
 import androidx.compose.runtime.Composer
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.InspectorValueInfo
@@ -55,8 +54,7 @@ private class ComposedModifier(
  * You almost certainly do not need to call this function directly.
  */
 @Suppress("ModifierFactoryExtensionFunction")
-@OptIn(ComposeCompilerApi::class)
-fun Composer<*>.materialize(modifier: Modifier): Modifier {
+fun Composer.materialize(modifier: Modifier): Modifier {
     if (modifier.all { it !is ComposedModifier }) return modifier
 
     // This is a fake composable function that invokes the compose runtime directly so that it
@@ -71,7 +69,7 @@ fun Composer<*>.materialize(modifier: Modifier): Modifier {
         acc.then(
             if (element is ComposedModifier) {
                 @kotlin.Suppress("UNCHECKED_CAST")
-                val factory = element.factory as Modifier.(Composer<*>, Int) -> Modifier
+                val factory = element.factory as Modifier.(Composer, Int) -> Modifier
                 val composedMod = factory(Modifier, this, 0)
                 materialize(composedMod)
             } else element

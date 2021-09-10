@@ -15,10 +15,4 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.navigation.fragment.ktx">
-    <application>
-        <activity android:name="androidx.navigation.fragment.TestActivity" />
-        <activity android:name="androidx.navigation.fragment.NavGraphActivity" />
-    </application>
-</manifest>
+<manifest package="androidx.navigation.fragment.ktx"/>

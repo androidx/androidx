@@ -21,7 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.NonNull;
 
 /**
- * Container class for information about the host the service is connected to.
+ * Container class for information about the host the app is connected to.
  *
  * <p>Apps can use this information to determine how they will respond to the host. For example, a
  * host which is not recognized could receive a message screen while an authorized host could
@@ -29,26 +29,37 @@ import androidx.annotation.NonNull;
  *
  * <p>The package name and uid can used to query the system package manager for a signature or to
  * determine if the host has a system signature.
+ *
+ * <p>The host API level can be used to adjust the models exchanged with the host to those valid
+ * for the specific host version the app is connected to.
  */
-public class HostInfo {
+public final class HostInfo {
     @NonNull
     private final String mPackageName;
     private final int mUid;
 
-    /** Constructs an instance of the HostInfo from the required package name and uid. */
+    /**
+     * Constructs an instance of the HostInfo from the required package name, UID and API level.
+     */
     public HostInfo(@NonNull String packageName, int uid) {
-        this.mPackageName = requireNonNull(packageName);
-        this.mUid = uid;
+        mPackageName = requireNonNull(packageName);
+        mUid = uid;
     }
 
-    /** Retrieves the package name of the host. */
+    /** Returns the package name of the host. */
     @NonNull
     public String getPackageName() {
         return mPackageName;
     }
 
-    /** Retrieves the uid of the host. */
+    /** Returns the UID of the host. */
     public int getUid() {
         return mUid;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return mPackageName + ", uid: " + mUid;
     }
 }

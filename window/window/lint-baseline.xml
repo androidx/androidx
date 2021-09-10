@@ -1,202 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
-        id="PrivateApi"
-        message="Accessing internal APIs via reflection is not supported and may not work on all devices or in the future"
-        errorLine1="            Class&lt;?> displayInfoClass = Class.forName(&quot;android.view.DisplayInfo&quot;);"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `java.util.Collection#removeIf`"
+        errorLine1="            consumers.removeIf { it.callback == callback }"
+        errorLine2="                      ~~~~~~~~">
         <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="351"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
-        errorLine1="            bounds = new Rect((Rect) getBoundsMethod.invoke(windowConfig));"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="138"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
-        errorLine1="                bounds.set((Rect) getAppBounds.invoke(windowConfig));"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="172"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
-        errorLine1="                bounds.set((Rect) getAppBounds.invoke(windowConfig));"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="175"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
-        errorLine1="            getDisplayInfoMethod.invoke(display, displayInfo);"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="359"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.window.WindowBoundsHelper is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                    activity.getSystemService(android.view.WindowManager.class);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="113"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.window.WindowBoundsHelper is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="            if (activity.isInMultiWindowMode()) {"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="170"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.window.WindowBoundsHelper is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
-        errorLine1="        currentDisplay.getRealSize(realDisplaySize);"
-        errorLine2="                       ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="187"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.window.WindowBoundsHelper is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="        if (!activity.isInMultiWindowMode()) {"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="189"
+            file="src/androidTest/java/androidx/window/WindowInfoRepoImpTest.kt"
+            line="115"
             column="23"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.window.WindowBoundsHelper is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="                &amp;&amp; !activity.isInMultiWindowMode()) {"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `android.view.WindowManager#getCurrentWindowMetrics`"
+        errorLine1="            val windowMetricsBounds = activity.windowManager.currentWindowMetrics.bounds"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="205"
-            column="30"/>
+            file="src/androidTest/java/androidx/window/WindowMetricsCalculatorCompatTest.kt"
+            line="112"
+            column="62"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.window.WindowBoundsHelper is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="                if (bounds.left == displayCutout.getSafeInsetLeft()) {"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `android.view.WindowMetrics#getBounds`"
+        errorLine1="            val windowMetricsBounds = activity.windowManager.currentWindowMetrics.bounds"
+        errorLine2="                                                                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="212"
-            column="50"/>
+            file="src/androidTest/java/androidx/window/WindowMetricsCalculatorCompatTest.kt"
+            line="112"
+            column="83"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.window.WindowBoundsHelper is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="                if (realDisplaySize.x - bounds.right == displayCutout.getSafeInsetRight()) {"
-        errorLine2="                                                                      ~~~~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `android.view.WindowManager#getMaximumWindowMetrics`"
+        errorLine1="            val windowMetricsBounds = activity.windowManager.maximumWindowMetrics.bounds"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="216"
-            column="71"/>
+            file="src/androidTest/java/androidx/window/WindowMetricsCalculatorCompatTest.kt"
+            line="186"
+            column="62"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.window.WindowBoundsHelper is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="                    bounds.right += displayCutout.getSafeInsetRight();"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `android.view.WindowMetrics#getBounds`"
+        errorLine1="            val windowMetricsBounds = activity.windowManager.maximumWindowMetrics.bounds"
+        errorLine2="                                                                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="217"
-            column="51"/>
+            file="src/androidTest/java/androidx/window/WindowMetricsCalculatorCompatTest.kt"
+            line="186"
+            column="83"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.window.WindowBoundsHelper is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="                if (bounds.top == displayCutout.getSafeInsetTop()) {"
-        errorLine2="                                                ~~~~~~~~~~~~~~~">
+        id="SyntheticAccessor"
+        message="Access to `private` method `toggleState` of class `Companion` requires synthetic accessor"
+        errorLine1="        lock.withLock { state = toggleState(state) }"
+        errorLine2="                                ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="220"
-            column="49"/>
+            file="src/testUtil/java/androidx/window/SwitchOnUnregisterExtensionInterfaceCompat.kt"
+            line="52"
+            column="33"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.window.WindowBoundsHelper is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="                if (realDisplaySize.y - bounds.bottom == displayCutout.getSafeInsetBottom()) {"
-        errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~">
+        id="SyntheticAccessor"
+        message="Access to `private` method `toggleState` of class `Companion` requires synthetic accessor"
+        errorLine1="        lock.withLock { state = toggleState(state) }"
+        errorLine2="                                ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="224"
-            column="72"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.window.WindowBoundsHelper is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="                    bounds.bottom += displayCutout.getSafeInsetBottom();"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="225"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.window.WindowBoundsHelper is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="        if (!activity.isInMultiWindowMode()) {"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="254"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.window.WindowBoundsHelper is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
-        errorLine1="            display.getRealSize(size);"
-        errorLine2="                    ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/window/WindowBoundsHelper.java"
-            line="306"
-            column="21"/>
+            file="src/testUtil/java/androidx/window/SwitchOnUnregisterExtensionInterfaceCompat.kt"
+            line="52"
+            column="33"/>
     </issue>
 
 </issues>

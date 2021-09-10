@@ -191,6 +191,7 @@ public class SelectionTest {
         assertTrue(err, mSelection.contains(id));
     }
 
+    @SuppressWarnings("unchecked")
     public static <E> Set<E> newSet(E... elements) {
         HashSet<E> set = new HashSet<>(elements.length);
         Collections.addAll(set, elements);

@@ -20,11 +20,11 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import static java.util.Objects.requireNonNull;
 
+import android.text.Spanned;
 import android.text.style.CharacterStyle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.model.CarText.SpanWrapper;
 
 import java.util.List;
 
@@ -39,13 +39,17 @@ public final class ModelUtils {
      * Checks whether all non-browsable rows have attached at least one {@link DistanceSpan} in
      * either the title or secondary text.
      *
-     * @throws IllegalArgumentException if any non-browsable row does not have a
-     *                                  {@link DistanceSpan} instance.
+     * @throws IllegalArgumentException if the input list contains any non-Row instances, or if any
+     *                                  non-browsable row does not have a {@link DistanceSpan}
+     *                                  instance
      */
-    public static void validateAllNonBrowsableRowsHaveDistance(@NonNull List<Object> rows) {
+    public static void validateAllNonBrowsableRowsHaveDistance(@NonNull List<Item> rows) {
         int spanSetCount = 0;
         int nonBrowsableRowCount = 0;
-        for (Object rowObj : rows) {
+        for (Item rowObj : rows) {
+            if (!(rowObj instanceof Row)) {
+                throw new IllegalArgumentException("Item in the list is not a Row");
+            }
             Row row = (Row) rowObj;
 
             if (!row.isBrowsable()) {
@@ -68,18 +72,21 @@ public final class ModelUtils {
      * Checks whether all rows have attached at least one {@link DurationSpan} or
      * {@link DistanceSpan }in either the title or secondary text.
      *
-     * @throws IllegalArgumentException if any non-browsable row does not have either a {@link
-     *                                  DurationSpan} or {@link DistanceSpan} instance.
+     * @throws IllegalArgumentException if the input list contains any non-Row instances, or if any
+     *                                  non-browsable row does not have either a {@link
+     *                                  DurationSpan} or {@link DistanceSpan} instance
      */
-    public static void validateAllRowsHaveDistanceOrDuration(@NonNull List<Object> rows) {
-        for (Object rowObj : rows) {
+    public static void validateAllRowsHaveDistanceOrDuration(@NonNull List<Item> rows) {
+        for (Item rowObj : rows) {
+            if (!(rowObj instanceof Row)) {
+                throw new IllegalArgumentException("Item in the list is not a Row");
+            }
             Row row = (Row) rowObj;
             if (!(checkRowHasSpanType(row, DistanceSpan.class)
                     || checkRowHasSpanType(row, DurationSpan.class))) {
                 throw new IllegalArgumentException(
                         "All rows must have either a distance or duration span attached to either"
-                                + " its title or"
-                                + " texts");
+                                + " its title or texts");
             }
         }
     }
@@ -87,11 +94,14 @@ public final class ModelUtils {
     /**
      * Checks whether all rows have only small-sized images if they are set.
      *
-     * @throws IllegalArgumentException if an image set in any rows is using {@link
-     *                                  Row#IMAGE_TYPE_LARGE}.
+     * @throws IllegalArgumentException if the input list contains any non-Row instances, or if an
+     *                                  image set in any rows is using {@link Row#IMAGE_TYPE_LARGE}
      */
-    public static void validateAllRowsHaveOnlySmallImages(@NonNull List<Object> rows) {
-        for (Object rowObj : rows) {
+    public static void validateAllRowsHaveOnlySmallImages(@NonNull List<Item> rows) {
+        for (Item rowObj : rows) {
+            if (!(rowObj instanceof Row)) {
+                throw new IllegalArgumentException("Item in the list is not a Row");
+            }
             Row row = (Row) rowObj;
             if (row.getImage() != null && row.getRowImageType() == Row.IMAGE_TYPE_LARGE) {
                 throw new IllegalArgumentException("Rows must only use small-sized images");
@@ -102,18 +112,27 @@ public final class ModelUtils {
     /**
      * Checks whether any rows have both a marker and an image.
      *
-     * @throws IllegalArgumentException if both a marker and an image are set in a row.
+     * @throws IllegalArgumentException if the input list contains any non-Row instances, or if
+     *                                  both a marker and an image are set in a row
      */
-    public static void validateNoRowsHaveBothMarkersAndImages(@NonNull List<Object> rows) {
-        for (Object rowObj : rows) {
+    public static void validateNoRowsHaveBothMarkersAndImages(@NonNull List<Item> rows) {
+        for (Item rowObj : rows) {
+            if (!(rowObj instanceof Row)) {
+                throw new IllegalArgumentException("Item in the list is not a Row");
+            }
             Row row = (Row) rowObj;
 
-            boolean hasImage = row.getImage() != null;
-            Place place = row.getMetadata().getPlace();
-            boolean hasMarker = place != null && place.getMarker() != null;
 
-            if (hasImage && hasMarker) {
-                throw new IllegalArgumentException("Rows can't have both a marker and an image");
+            Metadata metadata = row.getMetadata();
+            if (metadata != null) {
+                boolean hasImage = row.getImage() != null;
+                Place place = metadata.getPlace();
+                boolean hasMarker = place != null && place.getMarker() != null;
+
+                if (hasImage && hasMarker) {
+                    throw new IllegalArgumentException(
+                            "Rows can't have both a marker and an image");
+                }
             }
         }
     }
@@ -122,7 +141,7 @@ public final class ModelUtils {
      * Returns {@code true} if the given row has a span of the given type, {@code false} otherwise.
      */
     private static boolean checkRowHasSpanType(Row row, Class<? extends CharacterStyle> spanType) {
-        CarText title = row.getTitle();
+        CarText title = requireNonNull(row.getTitle());
         if (checkCarTextHasSpanType(title, spanType)) {
             return true;
         }
@@ -147,16 +166,14 @@ public final class ModelUtils {
         if (carText.isEmpty()) {
             return false;
         }
-        String text = requireNonNull(carText.getText());
-
-        List<SpanWrapper> spans = carText.getSpans();
-        for (int i = 0; i < spans.size(); i++) {
-            SpanWrapper wrapper = spans.get(i);
-            Object spanObj = wrapper.span;
-            if (spanType.isInstance(spanObj)
-                    && wrapper.start >= 0
-                    && wrapper.start != wrapper.end
-                    && wrapper.start < text.length()) {
+        Spanned spanned = (Spanned) carText.toCharSequence();
+        for (Object span : spanned.getSpans(0, spanned.length(), Object.class)) {
+            int start = spanned.getSpanStart(span);
+            int end = spanned.getSpanEnd(span);
+            if (spanType.isInstance(span)
+                    && start >= 0
+                    && start != end
+                    && start < spanned.length()) {
                 return true;
             }
         }

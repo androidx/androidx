@@ -129,6 +129,7 @@ public class AsyncListUtilActivity extends Activity {
                             }
                         }
 
+                        @SuppressWarnings("CatchAndPrintStackTrace")
                         private void sleep() {
                             try {
                                 Thread.sleep(DELAY_MS);

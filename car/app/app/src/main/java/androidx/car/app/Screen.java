@@ -17,7 +17,7 @@
 package androidx.car.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.car.app.utils.CommonUtils.TAG;
+import static androidx.car.app.utils.LogTags.TAG;
 
 import static java.util.Objects.requireNonNull;
 
@@ -54,18 +54,12 @@ import androidx.lifecycle.LifecycleRegistry;
 // actually cleaning any held resources in that method.
 @SuppressWarnings("NotCloseable")
 public abstract class Screen implements LifecycleOwner {
-    /**
-     * A marker to use with {@link ScreenManager#popTo} when it should pop all the way to the root
-     * screen in the stack.
-     */
-    public static final String ROOT = "ROOT";
-
     private final CarContext mCarContext;
 
     @SuppressWarnings({"assignment.type.incompatible", "argument.type.incompatible"})
     private final LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
 
-    private OnScreenResultCallback mOnScreenResultCallback = (obj) -> {
+    private OnScreenResultListener mOnScreenResultListener = (obj) -> {
     };
 
     @Nullable
@@ -89,7 +83,7 @@ public abstract class Screen implements LifecycleOwner {
     private boolean mUseLastTemplateId;
 
     protected Screen(@NonNull CarContext carContext) {
-        this.mCarContext = requireNonNull(carContext);
+        mCarContext = requireNonNull(carContext);
     }
 
     /**
@@ -105,7 +99,7 @@ public abstract class Screen implements LifecycleOwner {
      * <p>To avoid race conditions with calls to {@link #onGetTemplate} you should call this method
      * with the main thread.
      *
-     * @throws HostException if the remote call fails.
+     * @throws HostException if the remote call fails
      */
     public final void invalidate() {
         if (getLifecycle().getCurrentState().isAtLeast(State.STARTED)) {
@@ -126,7 +120,7 @@ public abstract class Screen implements LifecycleOwner {
     }
 
     /**
-     * Sets the {@code result} that will be sent to the {@link OnScreenResultCallback} that was
+     * Sets the {@code result} that will be sent to the {@link OnScreenResultListener} that was
      * given when pushing this screen onto the stack using {@link ScreenManager#pushForResult}.
      *
      * <p>Only the final {@code result} set will be sent.
@@ -134,11 +128,22 @@ public abstract class Screen implements LifecycleOwner {
      * <p>The {@code result} will be propagated when this screen is being destroyed. This can be due
      * to being removed from the stack or explicitly calling {@link #finish}.
      *
-     * @param result the value to send to the {@link OnScreenResultCallback} that was given when
+     * @param result the value to send to the {@link OnScreenResultListener} that was given when
      *               pushing this screen onto the stack using {@link ScreenManager#pushForResult}
      */
     public void setResult(@Nullable Object result) {
-        this.mResult = result;
+        mResult = result;
+    }
+
+    /**
+     * Returns the result set via {@link #setResult}, or {@code null} if none is set.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Nullable
+    public Object getResultInternal() {
+        return mResult;
     }
 
     /**
@@ -150,7 +155,7 @@ public abstract class Screen implements LifecycleOwner {
      * ScreenManager#popTo}.
      */
     public void setMarker(@Nullable String marker) {
-        this.mMarker = marker;
+        mMarker = marker;
     }
 
     /**
@@ -185,6 +190,9 @@ public abstract class Screen implements LifecycleOwner {
      *   <dd>The screen is in the process of being pushed to the screen stack, it is valid, but
      *       contents from it are not yet visible in the car screen. You should get a callback to
      *       {@link #onGetTemplate} at a point after this call.
+     *       This is where you can make decision on whether this {@link Screen} is still
+     *       relevant, and if you choose to not return a {@link Template} from this
+     *       {@link Screen} call {@link #finish()}.
      *   <dt>{@link Event#ON_START}
      *   <dd>The template returned from this screen is visible in the car screen.
      *   <dt>{@link Event#ON_RESUME}
@@ -223,7 +231,6 @@ public abstract class Screen implements LifecycleOwner {
         return mCarContext.getCarService(ScreenManager.class);
     }
 
-    // TODO(rampara): Replace code tags with link on submission of notification module
     /**
      * Returns the {@link Template} to present in the car screen.
      *
@@ -251,12 +258,13 @@ public abstract class Screen implements LifecycleOwner {
      *   <li>{@link androidx.car.app.model.MessageTemplate}
      * </ul>
      *
-     * If the 5 template quota is exhausted and the app attempts to send a new template, the host
-     * will display an error message to the user. Note that this limit applies to the number of
-     * templates, and not the number of screen instances in the stack. For example, if while in
-     * screen A an app sends 2 templates, and then pushes screen B, it can now send 3 more
-     * templates. Alternatively, if each screen is structured to send a single template, then the
-     * app can push 5 {@link Screen} instances onto the {@link ScreenManager} stack.
+     * <p><b>If the 5 template quota is exhausted and the app attempts to send a new template, the
+     * host will display an error message to the user before closing the app.</b> Note that this
+     * limit applies to the number of templates, and not the number of screen instances in the
+     * stack. For example, if while in screen A an app sends 2 templates, and then pushes screen
+     * B, it can now send 3 more templates. Alternatively, if each screen is structured to send a
+     * single template, then the app can push 5 {@link Screen} instances onto the
+     * {@link ScreenManager} stack.
      *
      * <p>There are special cases to these restrictions: template refreshes, back and reset
      * operations.
@@ -301,14 +309,14 @@ public abstract class Screen implements LifecycleOwner {
      * an app to begin a new task flow from notifications, and it holds true even if an app is
      * already bound and in the foreground.
      *
-     * <p>See {@code androidx.car.app.notification.CarAppExtender} for details on notifications.
+     * <p>See {@link androidx.car.app.notification.CarAppExtender} for details on notifications.
      */
     @NonNull
     public abstract Template onGetTemplate();
 
-    /** Sets a {@link OnScreenResultCallback} for this {@link Screen}. */
-    void setOnResultCallback(OnScreenResultCallback onScreenResultCallback) {
-        this.mOnScreenResultCallback = onScreenResultCallback;
+    /** Sets a {@link OnScreenResultListener} for this {@link Screen}. */
+    void setOnScreenResultListener(OnScreenResultListener onScreenResultListener) {
+        mOnScreenResultListener = onScreenResultListener;
     }
 
     /**
@@ -318,11 +326,17 @@ public abstract class Screen implements LifecycleOwner {
      */
     @RestrictTo(LIBRARY_GROUP)
     // Restrict to testing library
-    void dispatchLifecycleEvent(Event event) {
+    public void dispatchLifecycleEvent(@NonNull Event event) {
         ThreadUtils.runOnMain(
                 () -> {
+                    State currentState = mLifecycleRegistry.getCurrentState();
+                    // Avoid handling further events if the screen is already marked as destroyed.
+                    if (!currentState.isAtLeast(State.INITIALIZED)) {
+                        return;
+                    }
+
                     if (event == Event.ON_DESTROY) {
-                        mOnScreenResultCallback.onScreenResult(mResult);
+                        mOnScreenResultListener.onScreenResult(mResult);
                     }
 
                     mLifecycleRegistry.handleLifecycleEvent(event);
@@ -334,8 +348,7 @@ public abstract class Screen implements LifecycleOwner {
      * wrapped in a {@link TemplateWrapper}.
      *
      * <p>The {@link TemplateWrapper} attaches a unique ID to the wrapped template, which is used
-     * for
-     * implementing flow restrictions. The host keeps track of these IDs to detect push, pop, or
+     * for implementing flow restrictions. The host keeps track of these IDs to detect push, pop, or
      * refresh operations and handle the different cases accordingly. For example, when more than
      * a max limit of templates are pushed, the host may return an error.
      *
@@ -360,7 +373,9 @@ public abstract class Screen implements LifecycleOwner {
 
         mTemplateWrapper = wrapper;
 
-        Log.d(TAG, "Returning " + template + " from screen " + this);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Returning " + template + " from screen " + this);
+        }
         return wrapper;
     }
 
@@ -378,12 +393,14 @@ public abstract class Screen implements LifecycleOwner {
         if (mTemplateWrapper == null) {
             mTemplateWrapper = TemplateWrapper.wrap(onGetTemplate());
         }
-        return new TemplateInfo(mTemplateWrapper.getTemplate(), mTemplateWrapper.getId());
+        return new TemplateInfo(mTemplateWrapper.getTemplate().getClass(),
+                mTemplateWrapper.getId());
     }
 
     @NonNull
     private static TemplateInfo getLastTemplateInfo(TemplateWrapper lastTemplateWrapper) {
-        return new TemplateInfo(lastTemplateWrapper.getTemplate(), lastTemplateWrapper.getId());
+        return new TemplateInfo(lastTemplateWrapper.getTemplate().getClass(),
+                lastTemplateWrapper.getId());
     }
 
     /**
@@ -395,6 +412,6 @@ public abstract class Screen implements LifecycleOwner {
      * reset the task step to that point in time.
      */
     void setUseLastTemplateId(boolean useLastTemplateId) {
-        this.mUseLastTemplateId = useLastTemplateId;
+        mUseLastTemplateId = useLastTemplateId;
     }
 }

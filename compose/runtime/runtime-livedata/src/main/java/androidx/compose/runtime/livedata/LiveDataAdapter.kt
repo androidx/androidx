@@ -17,11 +17,11 @@
 package androidx.compose.runtime.livedata
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.AmbientLifecycleOwner
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
@@ -37,9 +37,8 @@ import androidx.lifecycle.Observer
  *
  * @sample androidx.compose.runtime.livedata.samples.LiveDataSample
  */
-@Suppress("NOTHING_TO_INLINE")
 @Composable
-inline fun <T> LiveData<T>.observeAsState(): State<T?> = observeAsState(value)
+fun <T> LiveData<T>.observeAsState(): State<T?> = observeAsState(value)
 
 /**
  * Starts observing this [LiveData] and represents its values via [State]. Every time there would
@@ -53,9 +52,9 @@ inline fun <T> LiveData<T>.observeAsState(): State<T?> = observeAsState(value)
  */
 @Composable
 fun <R, T : R> LiveData<T>.observeAsState(initial: R): State<R> {
-    val lifecycleOwner = AmbientLifecycleOwner.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val state = remember { mutableStateOf(initial) }
-    onCommit(this, lifecycleOwner) {
+    DisposableEffect(this, lifecycleOwner) {
         val observer = Observer<T> { state.value = it }
         observe(lifecycleOwner, observer)
         onDispose { removeObserver(observer) }

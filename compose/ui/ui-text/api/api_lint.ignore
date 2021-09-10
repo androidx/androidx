@@ -1,8 +1,4 @@
 // Baseline format: 1.0
-AutoBoxing: androidx.compose.ui.text.FractionTtsAnnotation#FractionTtsAnnotation(long, long, Long) parameter #2:
-    Must avoid boxed primitives (`java.lang.Long`)
-
-
 BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#append(String):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.append(String)
 BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#append(androidx.compose.ui.text.AnnotatedString):
@@ -23,24 +19,20 @@ BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#pushTtsAnnotat
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.pushTtsAnnotation(androidx.compose.ui.text.TtsAnnotation)
 BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#toAnnotatedString():
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.toAnnotatedString()
-BuilderSetStyle: androidx.compose.ui.text.AnnotatedString.Builder#toString():
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.text.AnnotatedString.Builder.toString()
 
 
 GetterOnBuilder: androidx.compose.ui.text.AnnotatedString.Builder#getLength():
     Getter should be on the built object, not the builder: method androidx.compose.ui.text.AnnotatedString.Builder.getLength()
 
 
-KotlinOperator: androidx.compose.ui.text.font.FontListFontFamily#contains(androidx.compose.ui.text.font.Font):
-    Note that adding the `operator` keyword would allow calling this method using operator syntax
-
-
 MissingBuildMethod: androidx.compose.ui.text.AnnotatedString.Builder:
     androidx.compose.ui.text.AnnotatedString.Builder does not declare a `build()` method, but builder classes are expected to
 
 
-MissingNullability: androidx.compose.ui.text.style.BaselineShift#toString-impl(float):
-    Missing nullability on method `toString-impl` return
+NullableCollection: androidx.compose.ui.text.SpanStyle#getLocaleList():
+    Return type of method androidx.compose.ui.text.SpanStyle.getLocaleList() is a nullable collection (`androidx.compose.ui.text.intl.LocaleList`); must be non-null
+NullableCollection: androidx.compose.ui.text.TextStyle#getLocaleList():
+    Return type of method androidx.compose.ui.text.TextStyle.getLocaleList() is a nullable collection (`androidx.compose.ui.text.intl.LocaleList`); must be non-null
 
 
 SetterReturnsThis: androidx.compose.ui.text.AnnotatedString.Builder#addStringAnnotation(String, String, int, int):

@@ -81,9 +81,9 @@ public final class CameraCaptureCallbacks {
         }
 
         @Override
-        public void onCaptureCompleted(@NonNull CameraCaptureResult result) {
+        public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
             for (CameraCaptureCallback callback : mCallbacks) {
-                callback.onCaptureCompleted(result);
+                callback.onCaptureCompleted(cameraCaptureResult);
             }
         }
 

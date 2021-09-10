@@ -9,25 +9,27 @@ public class SettingsDirections private constructor() {
   private data class Main(
     public val enterReason: String = "DEFAULT"
   ) : NavDirections {
-    public override fun getActionId(): Int = R.id.main
+    public override val actionId: Int = R.id.main
 
-    public override fun getArguments(): Bundle {
-      val result = Bundle()
-      result.putString("enterReason", this.enterReason)
-      return result
-    }
+    public override val arguments: Bundle
+      get() {
+        val result = Bundle()
+        result.putString("enterReason", this.enterReason)
+        return result
+      }
   }
 
   private data class Exit(
     public val exitReason: String = "DEFAULT"
   ) : NavDirections {
-    public override fun getActionId(): Int = R.id.exit
+    public override val actionId: Int = R.id.exit
 
-    public override fun getArguments(): Bundle {
-      val result = Bundle()
-      result.putString("exitReason", this.exitReason)
-      return result
-    }
+    public override val arguments: Bundle
+      get() {
+        val result = Bundle()
+        result.putString("exitReason", this.exitReason)
+        return result
+      }
   }
 
   public companion object {

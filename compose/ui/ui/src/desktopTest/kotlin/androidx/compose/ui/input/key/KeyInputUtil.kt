@@ -28,17 +28,21 @@ private object DummyComponent : Component()
  * The [KeyEvent] is usually created by the system. This function creates an instance of
  * [KeyEvent] that can be used in tests.
  */
-@OptIn(ExperimentalKeyInput::class)
-fun keyEvent(key: Key, keyEventType: KeyEventType): KeyEvent {
+fun keyEvent(key: Key, keyEventType: KeyEventType, modifiers: Int = 0): KeyEvent {
     val action = when (keyEventType) {
         KeyEventType.KeyDown -> KEY_PRESSED
         KeyEventType.KeyUp -> KEY_RELEASED
-        KeyEventType.Unknown -> error("Unknown key event type")
+        else -> error("Unknown key event type")
     }
-    return KeyEventDesktop(
+    return KeyEvent(
         KeyEventAwt(
-            DummyComponent, action, 0L, 0, key.keyCode,
-            KeyEventAwt.getKeyText(key.keyCode)[0]
+            DummyComponent,
+            action,
+            0L,
+            modifiers,
+            key.nativeKeyCode,
+            KeyEventAwt.getKeyText(key.nativeKeyCode)[0],
+            key.nativeKeyLocation
         )
     )
 }
@@ -46,12 +50,16 @@ fun keyEvent(key: Key, keyEventType: KeyEventType): KeyEvent {
 /**
  * Creates [KeyEvent] of Unknown type. It wraps KEY_TYPED AWTs KeyEvent
  */
-@OptIn(ExperimentalKeyInput::class)
 fun keyTypedEvent(key: Key): KeyEvent {
-    return KeyEventDesktop(
+    return KeyEvent(
         KeyEventAwt(
-            DummyComponent, KEY_TYPED, 0L, 0, VK_UNDEFINED,
-            KeyEventAwt.getKeyText(key.keyCode)[0]
+            DummyComponent,
+            KEY_TYPED,
+            0L,
+            0,
+            VK_UNDEFINED,
+            KeyEventAwt.getKeyText(key.nativeKeyCode)[0],
+            java.awt.event.KeyEvent.KEY_LOCATION_UNKNOWN
         )
     )
 }

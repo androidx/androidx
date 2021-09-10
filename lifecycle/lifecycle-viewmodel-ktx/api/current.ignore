@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+RemovedClass: androidx.lifecycle.ViewModelLazy:
+    Removed class androidx.lifecycle.ViewModelLazy
+RemovedClass: androidx.lifecycle.ViewModelProviderKt:
+    Removed class androidx.lifecycle.ViewModelProviderKt
+RemovedClass: androidx.lifecycle.ViewTreeViewModelKt:
+    Removed class androidx.lifecycle.ViewTreeViewModelKt

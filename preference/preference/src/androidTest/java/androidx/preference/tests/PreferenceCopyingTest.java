@@ -41,7 +41,6 @@ import androidx.preference.tests.helpers.PreferenceTestHelperActivity;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -55,9 +54,10 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class PreferenceCopyingTest {
 
+    @SuppressWarnings("deprecation")
     @Rule
-    public ActivityTestRule<PreferenceTestHelperActivity> mActivityRule =
-            new ActivityTestRule<>(PreferenceTestHelperActivity.class);
+    public androidx.test.rule.ActivityTestRule<PreferenceTestHelperActivity> mActivityRule =
+            new androidx.test.rule.ActivityTestRule<>(PreferenceTestHelperActivity.class);
 
     private static final String COPY_BUTTON = "Copy";
     private static final String PREFERENCE_1 = "Preference 1";

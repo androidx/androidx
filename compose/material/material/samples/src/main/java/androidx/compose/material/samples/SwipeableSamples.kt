@@ -20,8 +20,8 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.preferredSize
-import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.Text
@@ -30,11 +30,13 @@ import androidx.compose.material.swipeable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.AmbientDensity
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
 
 @Sampled
 @Composable
@@ -46,12 +48,12 @@ fun SwipeableSample() {
     val squareSize = 50.dp
 
     val swipeableState = rememberSwipeableState("A")
-    val sizePx = with(AmbientDensity.current) { (width - squareSize).toPx() }
+    val sizePx = with(LocalDensity.current) { (width - squareSize).toPx() }
     val anchors = mapOf(0f to "A", sizePx / 2 to "B", sizePx to "C")
 
     Box(
         modifier = Modifier
-            .preferredWidth(width)
+            .width(width)
             .swipeable(
                 state = swipeableState,
                 anchors = anchors,
@@ -62,12 +64,12 @@ fun SwipeableSample() {
     ) {
         Box(
             Modifier
-                .offset(x = { swipeableState.offset.value })
-                .preferredSize(squareSize)
+                .offset { IntOffset(swipeableState.offset.value.roundToInt(), 0) }
+                .size(squareSize)
                 .background(Color.Red),
             contentAlignment = Alignment.Center
         ) {
-            Text(swipeableState.value, color = Color.White, fontSize = 24.sp)
+            Text(swipeableState.currentValue, color = Color.White, fontSize = 24.sp)
         }
     }
 }

@@ -21,7 +21,6 @@ import android.graphics.drawable.Icon;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.List;
@@ -46,26 +45,5 @@ public class LongRangeUserStyleSettingWireFormat extends UserStyleSettingWireFor
             int defaultOptionIndex,
             @NonNull List<Integer> affectsLayers) {
         super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers);
-    }
-
-    /**
-     * Wire format for
-     * {@link androidx.wear.watchface.style.LongRangeUserStyleSetting.LongRangeOption}.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @VersionedParcelize
-    public static class LongRangeOptionWireFormat extends OptionWireFormat {
-        /* The value for this option. Must be within the range [minimumValue .. maximumValue]. */
-        @ParcelField(2)
-        public long mValue;
-
-        LongRangeOptionWireFormat() {}
-
-        public LongRangeOptionWireFormat(@NonNull String id, long value) {
-            super(id);
-            this.mValue = value;
-        }
     }
 }

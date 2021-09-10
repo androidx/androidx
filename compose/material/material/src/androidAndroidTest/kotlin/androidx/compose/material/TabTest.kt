@@ -18,10 +18,11 @@ package androidx.compose.material
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.preferredHeight
-import androidx.compose.material.TabConstants.defaultTabIndicatorOffset
+import androidx.compose.foundation.layout.height
+import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.samples.LeadingIconTabs
 import androidx.compose.material.samples.ScrollingTextTabs
 import androidx.compose.material.samples.TextTabs
 import androidx.compose.runtime.Composable
@@ -29,21 +30,31 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsEqualTo
-import androidx.compose.ui.test.assertIsEqualTo
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertPositionInRootIsEqualTo
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
@@ -80,6 +91,100 @@ class TabTest {
     }
 
     @Test
+    fun defaultSemantics() {
+        rule.setMaterialContent {
+            TabRow(0) {
+                Tab(
+                    text = { Text("Text") },
+                    modifier = Modifier.testTag("tab"),
+                    selected = true,
+                    onClick = {}
+                )
+            }
+        }
+
+        rule.onNodeWithTag("tab")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
+            .assertIsSelected()
+            .assertIsEnabled()
+            .assertHasClickAction()
+
+        rule.onNodeWithTag("tab")
+            .onParent()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.SelectableGroup))
+    }
+
+    @Test
+    fun disabledSemantics() {
+        rule.setMaterialContent {
+            Box {
+                Tab(
+                    enabled = false,
+                    text = { Text("Text") },
+                    modifier = Modifier.testTag("tab"),
+                    selected = true,
+                    onClick = {}
+                )
+            }
+        }
+
+        rule.onNodeWithTag("tab")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
+            .assertIsSelected()
+            .assertIsNotEnabled()
+            .assertHasClickAction()
+    }
+
+    @OptIn(ExperimentalMaterialApi::class)
+    @Test
+    fun leadingIconTab_defaultSemantics() {
+        rule.setMaterialContent {
+            TabRow(0) {
+                LeadingIconTab(
+                    text = { Text("Text") },
+                    icon = { Icon(icon, null) },
+                    modifier = Modifier.testTag("leadingIconTab"),
+                    selected = true,
+                    onClick = {}
+                )
+            }
+        }
+
+        rule.onNodeWithTag("leadingIconTab")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
+            .assertIsSelected()
+            .assertIsEnabled()
+            .assertHasClickAction()
+
+        rule.onNodeWithTag("leadingIconTab")
+            .onParent()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.SelectableGroup))
+    }
+
+    @OptIn(ExperimentalMaterialApi::class)
+    @Test
+    fun leadingIconTab_disabledSemantics() {
+        rule.setMaterialContent {
+            Box {
+                LeadingIconTab(
+                    enabled = false,
+                    text = { Text("Text") },
+                    icon = { Icon(icon, null) },
+                    modifier = Modifier.testTag("leadingIconTab"),
+                    selected = true,
+                    onClick = {}
+                )
+            }
+        }
+
+        rule.onNodeWithTag("leadingIconTab")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
+            .assertIsSelected()
+            .assertIsNotEnabled()
+            .assertHasClickAction()
+    }
+
+    @Test
     fun textTab_height() {
         rule
             .setMaterialContentForSizeAssertions {
@@ -92,7 +197,7 @@ class TabTest {
     fun iconTab_height() {
         rule
             .setMaterialContentForSizeAssertions {
-                Tab(icon = { Icon(icon) }, selected = true, onClick = {})
+                Tab(icon = { Icon(icon, null) }, selected = true, onClick = {})
             }
             .assertHeightIsEqualTo(ExpectedSmallTabHeight)
     }
@@ -104,13 +209,30 @@ class TabTest {
                 Surface {
                     Tab(
                         text = { Text("Text and Icon") },
-                        icon = { Icon(icon) },
+                        icon = { Icon(icon, null) },
                         selected = true,
                         onClick = {}
                     )
                 }
             }
             .assertHeightIsEqualTo(ExpectedLargeTabHeight)
+    }
+
+    @OptIn(ExperimentalMaterialApi::class)
+    @Test
+    fun leadingIconTab_height() {
+        rule
+            .setMaterialContentForSizeAssertions {
+                Surface {
+                    LeadingIconTab(
+                        text = { Text("Text") },
+                        icon = { Icon(icon, null) },
+                        selected = true,
+                        onClick = {}
+                    )
+                }
+            }
+            .assertHeightIsEqualTo(ExpectedSmallTabHeight)
     }
 
     @Test
@@ -124,9 +246,9 @@ class TabTest {
             val indicator = @Composable { tabPositions: List<TabPosition> ->
                 Box(
                     Modifier
-                        .defaultTabIndicatorOffset(tabPositions[state])
+                        .tabIndicatorOffset(tabPositions[state])
                         .fillMaxWidth()
-                        .preferredHeight(indicatorHeight)
+                        .height(indicatorHeight)
                         .background(color = Color.Red)
                         .testTag("indicator")
                 )
@@ -150,7 +272,7 @@ class TabTest {
 
         val tabRowBounds = rule.onNodeWithTag("tabRow").getUnclippedBoundsInRoot()
 
-        rule.onNodeWithTag("indicator")
+        rule.onNodeWithTag("indicator", true)
             .assertPositionInRootIsEqualTo(
                 expectedLeft = 0.dp,
                 expectedTop = tabRowBounds.height - indicatorHeight
@@ -161,7 +283,7 @@ class TabTest {
 
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
-        rule.onNodeWithTag("indicator")
+        rule.onNodeWithTag("indicator", true)
             .assertPositionInRootIsEqualTo(
                 expectedLeft = (tabRowBounds.width / 2),
                 expectedTop = tabRowBounds.height - indicatorHeight
@@ -169,7 +291,43 @@ class TabTest {
     }
 
     @Test
-    fun singleLineTab_textBaseline() {
+    fun fixedTabRow_dividerHeight() {
+        rule.setMaterialContent {
+            val titles = listOf("TAB 1", "TAB 2")
+            val tabRowHeight = 100.dp
+
+            val divider = @Composable { TabRowDefaults.Divider(Modifier.testTag("divider")) }
+
+            Box(Modifier.testTag("tabRow")) {
+                TabRow(
+                    modifier = Modifier.height(tabRowHeight),
+                    selectedTabIndex = 0,
+                    divider = divider
+                ) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            modifier = Modifier.height(tabRowHeight),
+                            text = { Text(title) },
+                            selected = index == 0,
+                            onClick = {}
+                        )
+                    }
+                }
+            }
+        }
+
+        val tabRowBounds = rule.onNodeWithTag("tabRow").getBoundsInRoot()
+
+        rule.onNodeWithTag("divider", true)
+            .assertPositionInRootIsEqualTo(
+                expectedLeft = 0.dp,
+                expectedTop = tabRowBounds.height - TabRowDefaults.DividerThickness
+            )
+            .assertHeightIsEqualTo(TabRowDefaults.DividerThickness)
+    }
+
+    @Test
+    fun singleLineTab_textPosition() {
         rule.setMaterialContent {
             var state by remember { mutableStateOf(0) }
             val titles = listOf("TAB")
@@ -192,19 +350,11 @@ class TabTest {
             }
         }
 
-        val expectedBaseline = 18.dp
-        val indicatorHeight = 2.dp
-        val expectedBaselineDistance = expectedBaseline + indicatorHeight
-
         val tabRowBounds = rule.onNodeWithTag("tabRow").getUnclippedBoundsInRoot()
         val textBounds =
             rule.onNodeWithTag("text", useUnmergedTree = true).getUnclippedBoundsInRoot()
-        val textBaselinePos =
-            rule.onNodeWithTag("text", useUnmergedTree = true).getLastBaselinePosition()
-
-        val baselinePositionY = textBounds.top + textBaselinePos
-        val expectedPositionY = tabRowBounds.height - expectedBaselineDistance
-        baselinePositionY.assertIsEqualTo(expectedPositionY, "baseline y-position")
+        val expectedPositionY = (tabRowBounds.height - textBounds.height) / 2
+        textBounds.top.assertIsEqualTo(expectedPositionY, "text bounds top y-position")
     }
 
     @Test
@@ -223,7 +373,7 @@ class TabTest {
                             text = {
                                 Text(title, Modifier.testTag("text"))
                             },
-                            icon = { Icon(Icons.Filled.Favorite) },
+                            icon = { Icon(Icons.Filled.Favorite, null) },
                             selected = state == index,
                             onClick = { state = index }
                         )
@@ -248,7 +398,7 @@ class TabTest {
     }
 
     @Test
-    fun twoLineTab_textBaseline() {
+    fun twoLineTab_textPosition() {
         rule.setMaterialContent {
             var state by remember { mutableStateOf(0) }
             val titles = listOf("Two line \n text")
@@ -271,20 +421,53 @@ class TabTest {
             }
         }
 
-        val expectedBaseline = 10.dp
-        val indicatorHeight = 2.dp
-
         val tabRowBounds = rule.onNodeWithTag("tabRow").getUnclippedBoundsInRoot()
         val textBounds =
             rule.onNodeWithTag("text", useUnmergedTree = true).getUnclippedBoundsInRoot()
-        val textBaselinePos =
-            rule.onNodeWithTag("text", useUnmergedTree = true).getLastBaselinePosition()
 
-        val expectedBaselineDistance = expectedBaseline + indicatorHeight
+        val expectedPositionY = (tabRowBounds.height - textBounds.height) / 2
+        textBounds.top.assertIsEqualTo(expectedPositionY, "text bounds top y-position")
+    }
 
-        val baselinePositionY = textBounds.top + textBaselinePos
-        val expectedPositionY = (tabRowBounds.height - expectedBaselineDistance)
-        baselinePositionY.assertIsEqualTo(expectedPositionY, "baseline y-position")
+    @OptIn(ExperimentalMaterialApi::class)
+    @Test
+    fun LeadingIconTab_textAndIconPosition() {
+        rule.setMaterialContent {
+            Box {
+                TabRow(
+                    modifier = Modifier.testTag("tabRow"),
+                    selectedTabIndex = 0
+                ) {
+                    LeadingIconTab(
+                        text = {
+                            Text("TAB", Modifier.testTag("text"))
+                        },
+                        icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) },
+                        selected = true,
+                        onClick = {}
+                    )
+                }
+            }
+        }
+
+        val tabRowBounds =
+            rule.onNodeWithTag("tabRow", useUnmergedTree = true).getUnclippedBoundsInRoot()
+
+        val textBounds =
+            rule.onNodeWithTag("text", useUnmergedTree = true).getUnclippedBoundsInRoot()
+
+        val textDistanceFromIcon = 8.dp
+
+        val iconBounds =
+            rule.onNodeWithTag("icon", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        textBounds.left.assertIsEqualTo(
+            iconBounds.right + textDistanceFromIcon,
+            "textBounds left-position"
+        )
+
+        val iconOffset =
+            (tabRowBounds.width - iconBounds.width - textBounds.width - textDistanceFromIcon) / 2
+        iconBounds.left.assertIsEqualTo(iconOffset, "iconBounds left-position")
     }
 
     @Test
@@ -299,9 +482,9 @@ class TabTest {
             val indicator = @Composable { tabPositions: List<TabPosition> ->
                 Box(
                     Modifier
-                        .defaultTabIndicatorOffset(tabPositions[state])
+                        .tabIndicatorOffset(tabPositions[state])
                         .fillMaxWidth()
-                        .preferredHeight(indicatorHeight)
+                        .height(indicatorHeight)
                         .background(color = Color.Red)
                         .testTag("indicator")
                 )
@@ -327,10 +510,10 @@ class TabTest {
         val tabRowBounds = rule.onNodeWithTag("tabRow").getUnclippedBoundsInRoot()
 
         // Indicator should be placed in the bottom left of the first tab
-        rule.onNodeWithTag("indicator")
+        rule.onNodeWithTag("indicator", true)
             .assertPositionInRootIsEqualTo(
                 // Tabs in a scrollable tab row are offset 52.dp from each end
-                expectedLeft = TabConstants.DefaultScrollableTabRowPadding,
+                expectedLeft = TabRowDefaults.ScrollableTabRowPadding,
                 expectedTop = tabRowBounds.height - indicatorHeight
             )
 
@@ -339,11 +522,47 @@ class TabTest {
 
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
-        rule.onNodeWithTag("indicator")
+        rule.onNodeWithTag("indicator", true)
             .assertPositionInRootIsEqualTo(
-                expectedLeft = TabConstants.DefaultScrollableTabRowPadding + minimumTabWidth,
+                expectedLeft = TabRowDefaults.ScrollableTabRowPadding + minimumTabWidth,
                 expectedTop = tabRowBounds.height - indicatorHeight
             )
+    }
+
+    @Test
+    fun scrollableTabRow_dividerHeight() {
+        rule.setMaterialContent {
+            val titles = listOf("TAB 1", "TAB 2")
+            val tabRowHeight = 100.dp
+
+            val divider = @Composable { TabRowDefaults.Divider(Modifier.testTag("divider")) }
+
+            Box(Modifier.testTag("tabRow")) {
+                ScrollableTabRow(
+                    modifier = Modifier.height(tabRowHeight),
+                    selectedTabIndex = 0,
+                    divider = divider
+                ) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            modifier = Modifier.height(tabRowHeight),
+                            text = { Text(title) },
+                            selected = index == 0,
+                            onClick = {}
+                        )
+                    }
+                }
+            }
+        }
+
+        val tabRowBounds = rule.onNodeWithTag("tabRow").getBoundsInRoot()
+
+        rule.onNodeWithTag("divider", true)
+            .assertPositionInRootIsEqualTo(
+                expectedLeft = 0.dp,
+                expectedTop = tabRowBounds.height - TabRowDefaults.DividerThickness,
+            )
+            .assertHeightIsEqualTo(TabRowDefaults.DividerThickness)
     }
 
     @Test
@@ -393,6 +612,52 @@ class TabTest {
     }
 
     @Test
+    fun fixedLeadingIconTabRow_initialTabSelected() {
+        rule
+            .setMaterialContent {
+                LeadingIconTabs()
+            }
+
+        // Only the first tab should be selected
+        rule.onAllNodes(isSelectable())
+            .assertCountEquals(3)
+            .apply {
+                get(0).assertIsSelected()
+                get(1).assertIsNotSelected()
+                get(2).assertIsNotSelected()
+            }
+    }
+
+    @Test
+    fun LeadingIconTabRow_selectNewTab() {
+        rule
+            .setMaterialContent {
+                LeadingIconTabs()
+            }
+
+        // Only the first tab should be selected
+        rule.onAllNodes(isSelectable())
+            .assertCountEquals(3)
+            .apply {
+                get(0).assertIsSelected()
+                get(1).assertIsNotSelected()
+                get(2).assertIsNotSelected()
+            }
+
+        // Click the last tab
+        rule.onAllNodes(isSelectable())[2].performClick()
+
+        // Now only the last tab should be selected
+        rule.onAllNodes(isSelectable())
+            .assertCountEquals(3)
+            .apply {
+                get(0).assertIsNotSelected()
+                get(1).assertIsNotSelected()
+                get(2).assertIsSelected()
+            }
+    }
+
+    @Test
     fun scrollableTabRow_initialTabSelected() {
         rule
             .setMaterialContent {
@@ -407,6 +672,33 @@ class TabTest {
                 (1..9).forEach {
                     get(it).assertIsNotSelected()
                 }
+            }
+    }
+
+    @Test
+    fun scrollableTabRow_offScreenTabInitiallySelected() {
+        rule
+            .setMaterialContent {
+                var state by remember { mutableStateOf(9) }
+                val titles = List(10) { "Tab ${it + 1}" }
+                ScrollableTabRow(selectedTabIndex = state) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            text = { Text(title) },
+                            selected = state == index,
+                            onClick = { state = index }
+                        )
+                    }
+                }
+            }
+
+        rule.onAllNodes(isSelectable())
+            .assertCountEquals(10)
+            .apply {
+                // The last tab should be selected and displayed (scrolled to)
+                get(9)
+                    .assertIsSelected()
+                    .assertIsDisplayed()
             }
     }
 
@@ -443,13 +735,111 @@ class TabTest {
     }
 
     @Test
+    fun tabRowIndicator_animatesWidthChange() {
+        rule.mainClock.autoAdvance = false
+
+        rule.setMaterialContent {
+            var state by remember { mutableStateOf(0) }
+            val titles = listOf("TAB 1", "TAB 2", "TAB 3 WITH LOTS OF TEXT")
+
+            val indicator = @Composable { tabPositions: List<TabPosition> ->
+                TabRowDefaults.Indicator(
+                    Modifier.tabIndicatorOffset(tabPositions[state])
+                        .testTag("indicator")
+                )
+            }
+
+            Box {
+                ScrollableTabRow(
+                    selectedTabIndex = state,
+                    indicator = indicator
+                ) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            text = { Text(title) },
+                            selected = state == index,
+                            onClick = { state = index }
+                        )
+                    }
+                }
+            }
+        }
+
+        val initialWidth = rule.onNodeWithTag("indicator").getUnclippedBoundsInRoot().width
+
+        // Click the third tab, which is wider than the first
+        rule.onAllNodes(isSelectable())[2].performClick()
+
+        // Ensure animation starts
+        rule.mainClock.advanceTimeBy(50)
+
+        val midAnimationWidth = rule.onNodeWithTag("indicator").getUnclippedBoundsInRoot().width
+        assertThat(initialWidth).isLessThan(midAnimationWidth)
+
+        // Allow animation to complete
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        val finalWidth = rule.onNodeWithTag("indicator").getUnclippedBoundsInRoot().width
+        assertThat(midAnimationWidth).isLessThan(finalWidth)
+    }
+
+    @Test
     fun testInspectorValue() {
         val pos = TabPosition(10.0.dp, 200.0.dp)
         rule.setContent {
-            val modifier = Modifier.defaultTabIndicatorOffset(pos) as InspectableValue
-            assertThat(modifier.nameFallback).isEqualTo("defaultTabIndicatorOffset")
+            val modifier = Modifier.tabIndicatorOffset(pos) as InspectableValue
+            assertThat(modifier.nameFallback).isEqualTo("tabIndicatorOffset")
             assertThat(modifier.valueOverride).isEqualTo(pos)
             assertThat(modifier.inspectableElements.asIterable()).isEmpty()
+        }
+    }
+
+    @Test
+    fun disabled_noClicks() {
+        var clicks = 0
+        rule.setMaterialContent {
+            Box {
+                Tab(
+                    enabled = false,
+                    text = { Text("Text") },
+                    modifier = Modifier.testTag("tab"),
+                    selected = true,
+                    onClick = { clicks++ }
+                )
+            }
+        }
+
+        rule.onNodeWithTag("tab")
+            .performClick()
+
+        rule.runOnIdle {
+            assertThat(clicks).isEqualTo(0)
+        }
+    }
+
+    @OptIn(ExperimentalMaterialApi::class)
+    @Test
+    fun leadingIconTab_disabled_noClicks() {
+        var clicks = 0
+        rule.setMaterialContent {
+            Box {
+                LeadingIconTab(
+                    enabled = false,
+                    text = { Text("Text") },
+                    icon = { Icon(icon, null) },
+                    modifier = Modifier.testTag("tab"),
+                    selected = true,
+                    onClick = { clicks++ }
+                )
+            }
+        }
+
+        rule.onNodeWithTag("tab")
+            .performClick()
+
+        rule.runOnIdle {
+            assertThat(clicks).isEqualTo(0)
         }
     }
 }

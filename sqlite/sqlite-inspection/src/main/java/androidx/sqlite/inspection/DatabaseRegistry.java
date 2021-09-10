@@ -98,7 +98,7 @@ class DatabaseRegistry {
     /**
      * Should be called when the inspection code detects a database being open operation.
      * <p> Note that the method should be called before any code has a chance to close the
-     * database, so e.g. in an {@link androidx.inspection.InspectorEnvironment.ExitHook#onExit}
+     * database, so e.g. in an {@link androidx.inspection.ArtTooling.ExitHook#onExit}
      * before the return value is released.
      * Thread-safe.
      */
@@ -251,28 +251,31 @@ class DatabaseRegistry {
      * Thread-safe
      */
     @Nullable
-    SQLiteDatabase acquireReference(int databaseId) {
+    SQLiteDatabase getConnection(int databaseId) {
         synchronized (mLock) {
-            return acquireReferenceImpl(databaseId);
+            return getConnectionImpl(databaseId);
         }
     }
 
     @GuardedBy("mLock")
-    private SQLiteDatabase acquireReferenceImpl(int databaseId) {
+    private SQLiteDatabase getConnectionImpl(int databaseId) {
         KeepOpenReference keepOpenReference = mKeepOpenReferences.get(databaseId);
         if (keepOpenReference != null) {
             return keepOpenReference.mDatabase;
         }
 
         final Set<SQLiteDatabase> references = mDatabases.get(databaseId);
-        if (references != null) {
-            for (SQLiteDatabase reference : references) {
-                if (reference.isOpen()) {
-                    return reference;
-                }
+        if (references == null) return null;
+
+        // tries to find an open reference preferring write-enabled over read-only
+        SQLiteDatabase readOnlyReference = null;
+        for (SQLiteDatabase reference : references) {
+            if (reference.isOpen()) {
+                if (!reference.isReadOnly()) return reference; // write-enabled was found: return it
+                readOnlyReference = reference; // remember the read-only reference but keep looking
             }
         }
-        return null;
+        return readOnlyReference; // or null if we did not find an open reference
     }
 
     @GuardedBy("mLock")
@@ -308,7 +311,7 @@ class DatabaseRegistry {
         }
 
         // Try secure a keep-open reference
-        SQLiteDatabase reference = acquireReferenceImpl(id);
+        SQLiteDatabase reference = getConnectionImpl(id);
         if (reference != null) {
             mKeepOpenReferences.put(id, new KeepOpenReference(reference));
         }

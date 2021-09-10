@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Ввести пароль"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Не заданы PIN-код, пароль или графический ключ."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"На этом устройстве не поддерживаются PIN-код, графический ключ и пароль."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Значок отпечатка пальца"</string>
 </resources>

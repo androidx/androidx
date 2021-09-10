@@ -33,7 +33,11 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
 /**
- * Entry point for using [Material Icons](https://material.io/resources/icons) in Compose.
+ * <a href="https://material.io/design/iconography/system-icons.html" class="external" target="_blank">Material Design system icons</a>
+ * as seen on
+ * <a href="https://fonts.google.com/icons" class="external" target="_blank">Google Fonts</a>.
+ *
+ * ![Iconography image](https://developer.android.com/images/reference/androidx/compose/material/icons/iconography.png)
  *
  * There are five distinct icon themes: [Filled], [Outlined], [Rounded], [TwoTone], and [Sharp].
  * Each theme contains the same icons, but with a distinct visual style. You should typically
@@ -52,6 +56,11 @@ import androidx.compose.ui.unit.dp
  * and provides layout size matching the icon.
  *
  * @sample androidx.compose.material.icons.samples.DrawIcon
+ *
+ * Note that only the most commonly used icons are provided by default. You can add a dependency on
+ * androidx.compose.material:material-icons-extended to access every icon, but note that due to
+ * the very large size of this dependency you should make sure to use R8 / ProGuard to remove
+ * unused icons from your application.
  */
 object Icons {
     /**

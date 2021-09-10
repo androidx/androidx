@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Koristite zaporku"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Nisu postavljeni PIN, uzorak ni zaporka."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Ovaj uređaj ne podržava PIN, uzorak ili zaporku."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Ikona otiska prsta"</string>
 </resources>

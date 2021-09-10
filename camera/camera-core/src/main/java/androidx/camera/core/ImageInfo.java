@@ -19,6 +19,7 @@ package androidx.camera.core;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.TagBundle;
+import androidx.camera.core.impl.utils.ExifData;
 
 /** Metadata for an image. */
 public interface ImageInfo {
@@ -64,4 +65,12 @@ public interface ImageInfo {
      */
     // TODO(b/122806727) Need to correctly set EXIF in JPEG images
     int getRotationDegrees();
+
+    /**
+     * Adds any stored EXIF information in this ImageInfo into the provided ExifData builder.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    void populateExifData(@NonNull ExifData.Builder exifBuilder);
 }

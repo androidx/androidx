@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.colorspace.ColorModel
 import androidx.compose.ui.graphics.colorspace.ColorSpace
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.graphics.colorspace.ColorSpaces.ColorSpacesArray
+import androidx.compose.ui.graphics.colorspace.ColorSpaces.SrgbTransferParameters
 import androidx.compose.ui.graphics.colorspace.Connector
 import androidx.compose.ui.graphics.colorspace.Illuminant
 import androidx.compose.ui.graphics.colorspace.RenderIntent
@@ -32,7 +33,6 @@ import androidx.compose.ui.graphics.colorspace.connect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -434,12 +434,12 @@ class ColorSpaceTest {
 
         assertSame(ColorSpaces.Srgb, connector.source)
         assertSame(ColorSpaces.DciP3, connector.destination)
-        assertSame(RenderIntent.Perceptual, connector.renderIntent)
+        assertEquals(RenderIntent.Perceptual, connector.renderIntent)
 
         connector = ColorSpaces.Srgb.connect(ColorSpaces.Srgb)
 
         assertSame(connector.destination, connector.source)
-        assertSame(RenderIntent.Relative, connector.renderIntent)
+        assertEquals(RenderIntent.Relative, connector.renderIntent)
 
         connector = ColorSpaces.DciP3.connect()
         assertSame(ColorSpaces.Srgb, connector.destination)
@@ -534,7 +534,7 @@ class ColorSpaceTest {
         val connector = ColorSpaces.Srgb.connect(ColorSpaces.Srgb)
 
         assertSame(connector.source, connector.destination)
-        assertSame(RenderIntent.Relative, connector.renderIntent)
+        assertEquals(RenderIntent.Relative, connector.renderIntent)
 
         val source = floatArrayOf(0.11112f, 0.22227f, 0.444448f)
 
@@ -721,7 +721,7 @@ class ColorSpaceTest {
         assertNotNull(colorSpace.transferParameters)
 
         colorSpace = ColorSpaces.ExtendedSrgb
-        assertNull(colorSpace.transferParameters)
+        assertSame(SrgbTransferParameters, colorSpace.transferParameters)
     }
 
     @Test

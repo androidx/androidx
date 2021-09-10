@@ -16,465 +16,78 @@
 
 package androidx.compose.animation
 
-import androidx.compose.animation.core.AnimationEndReason
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationState
-import androidx.compose.animation.core.AnimationVector
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.AnimationVector4D
-import androidx.compose.animation.core.SpringSpec
-import androidx.compose.animation.core.TwoWayConverter
-import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.animateTo
-import androidx.compose.animation.core.isFinished
+import androidx.compose.animation.core.animateValueAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.onCommit
+import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.AmbientAnimationClock
-import androidx.compose.ui.unit.Bounds
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.Position
-import androidx.compose.ui.unit.dp
-
-internal const val DpVisibilityThreshold = 0.1f
-internal const val PxVisibilityThreshold = 0.5f
-
-// Dp-based visibility threshold
-private val DpVisibilityThreshold4D = AnimationVector4D(
-    DpVisibilityThreshold,
-    DpVisibilityThreshold,
-    DpVisibilityThreshold,
-    DpVisibilityThreshold
-)
-
-// Px-based visibility threshold
-private val PxVisibilityThreshold4D = AnimationVector4D(
-    PxVisibilityThreshold,
-    PxVisibilityThreshold,
-    PxVisibilityThreshold,
-    PxVisibilityThreshold
-)
-
-private val defaultAnimation = SpringSpec<Float>()
 
 /**
- * Fire-and-forget animation [Composable] for [Float]. Once such an animation is created, it will be
- * positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
- * course of the animation, simply supply a different [target] to the [Composable].
+ * Fire-and-forget animation function for [Color]. This Composable function is overloaded for
+ * different parameter types such as [Dp], [Float], [Int], [Size], [Offset],
+ * etc. When the provided [targetValue] is changed, the animation will run automatically. If there
+ * is already an animation in-flight when [targetValue] changes, the on-going animation will adjust
+ * course to animate towards the new target value.
  *
- * Note, [animateTo] is for simple animations that cannot be canceled. For cancellable animations
- * see [animatedFloat].
+ * [animateColorAsState] returns a [State] object. The value of the state object will
+ * continuously be updated by the animation until the animation finishes.
  *
- * @sample androidx.compose.animation.samples.VisibilityTransitionSample
+ * Note, [animateColorAsState] cannot be canceled/stopped without removing this composable function
+ * from the tree. See [Animatable][androidx.compose.animation.Animatable] for cancelable animations.
  *
- * @param target Target value of the animation
- * @param animSpec The animation that will be used to change the value through time. [SpringSpec]
- *                 will be used by default.
- * @param visibilityThreshold An optional threshold for deciding when the animation value is
- *                            considered close enough to the target.
- * @param endListener An optional end listener to get notified when the animation is finished.
+ * @sample androidx.compose.animation.samples.ColorAnimationSample
+ *
+ * @param targetValue Target value of the animation
+ * @param animationSpec The animation that will be used to change the value through time,
+ *                      [spring] by default
+ * @param finishedListener An optional listener to get notified when the animation is finished.
  */
 @Composable
-fun animate(
-    target: Float,
-    animSpec: AnimationSpec<Float> = defaultAnimation,
-    visibilityThreshold: Float = 0.01f,
-    endListener: ((Float) -> Unit)? = null
-): Float {
-    val resolvedAnimSpec =
-        if (animSpec === defaultAnimation) {
-            remember(visibilityThreshold) { SpringSpec(visibilityThreshold = visibilityThreshold) }
-        } else {
-            animSpec
-        }
-    var animationState: AnimationState<Float, AnimationVector1D> by remember {
-        mutableStateOf(AnimationState(target))
+fun animateColorAsState(
+    targetValue: Color,
+    animationSpec: AnimationSpec<Color> = colorDefaultSpring,
+    finishedListener: ((Color) -> Unit)? = null
+): State<Color> {
+    val converter = remember(targetValue.colorSpace) {
+        (Color.VectorConverter)(targetValue.colorSpace)
     }
-
-    val currentEndListener by rememberUpdatedState(endListener)
-    LaunchedEffect(target, animSpec) {
-        animationState.animateTo(
-            target,
-            resolvedAnimSpec,
-            // If the previous animation was interrupted (i.e. not finished), make it sequential.
-            !animationState.isFinished
-        )
-        currentEndListener?.invoke(animationState.value)
-    }
-    return animationState.value
-}
-
-/**
- * Fire-and-forget animation [Composable] for [Color]. Once such an animation is created, it will be
- * positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
- * course of the animation, simply supply a different [target] to the [Composable].
- *
- * Note, [animateTo] is for simple animations that cannot be canceled. For cancellable animations
- * see [animatedColor].
- *
- * @sample androidx.compose.animation.samples.ColorTransitionSample
- *
- * @param target Target value of the animation
- * @param animSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
- * @param endListener An optional end listener to get notified when the animation is finished.
- */
-@Composable
-fun animate(
-    target: Color,
-    animSpec: AnimationSpec<Color> = remember { SpringSpec() },
-    endListener: ((Color) -> Unit)? = null
-): Color {
-    val converter = remember(target.colorSpace) { (Color.VectorConverter)(target.colorSpace) }
-    return animate(target, converter, animSpec, endListener = endListener)
-}
-
-/**
- * Fire-and-forget animation [Composable] for [Dp]. Once such an animation is created, it will be
- * positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
- * course of the animation, simply supply a different [target] to the [Composable].
- *
- * Note, [animateTo] is for simple animations that cannot be canceled. For cancellable animations
- * see [animatedValue].
- *
- * @sample androidx.compose.animation.samples.DpAnimationSample
- *
- * @param target Target value of the animation
- * @param animSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
- * @param endListener An optional end listener to get notified when the animation is finished.
- */
-@Composable
-fun animate(
-    target: Dp,
-    animSpec: AnimationSpec<Dp> = remember {
-        SpringSpec(visibilityThreshold = DpVisibilityThreshold.dp)
-    },
-    endListener: ((Dp) -> Unit)? = null
-): Dp {
-    return animate(target, Dp.VectorConverter, animSpec, endListener = endListener)
-}
-
-/**
- * Fire-and-forget animation [Composable] for [Position]. Once such an animation is created, it will
- * be positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
- * course of the animation, simply supply a different [target] to the [Composable].
- *
- * Note, [animateTo] is for simple animations that cannot be canceled. For cancellable animations
- * see [animatedValue].
- *
- *     val position : Position = animate(
- *         if (selected) Position(0.dp, 0.dp) else Position(20.dp, 20.dp))
- *
- * @param target Target value of the animation
- * @param animSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
- * @param endListener An optional end listener to get notified when the animation is finished.
- */
-@Composable
-fun animate(
-    target: Position,
-    animSpec: AnimationSpec<Position> = remember {
-        SpringSpec(
-            visibilityThreshold = Position(DpVisibilityThreshold.dp, DpVisibilityThreshold.dp)
-        )
-    },
-    endListener: ((Position) -> Unit)? = null
-): Position {
-    return animate(
-        target, Position.VectorConverter, animSpec, endListener = endListener
+    return animateValueAsState(
+        targetValue, converter, animationSpec, finishedListener = finishedListener
     )
 }
 
-/**
- * Fire-and-forget animation [Composable] for [Size]. Once such an animation is created, it will be
- * positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
- * course of the animation, simply supply a different [target] to the [Composable].
- *
- * Note, [animateTo] is for simple animations that cannot be canceled. For cancellable animations
- * see [animatedValue].
- *
- *     val size : Size = animate(
- *         if (selected) Size(20f, 20f) else Size(10f, 10f))
- *
- * @param target Target value of the animation
- * @param animSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
- * @param endListener An optional end listener to get notified when the animation is finished.
- */
-@Composable
-fun animate(
-    target: Size,
-    animSpec: AnimationSpec<Size> = remember {
-        SpringSpec(visibilityThreshold = Size(PxVisibilityThreshold, PxVisibilityThreshold))
-    },
-    endListener: ((Size) -> Unit)? = null
-): Size {
-    return animate(target, Size.VectorConverter, animSpec, endListener = endListener)
-}
+private val colorDefaultSpring = spring<Color>()
 
 /**
- * Fire-and-forget animation [Composable] for [Bounds]. Once such an animation is created, it will be
- * positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
- * course of the animation, simply supply a different [target] to the [Composable].
+ * This [Animatable] function creates a Color value holder that automatically
+ * animates its value when the value is changed via [animateTo]. [Animatable] supports value
+ * change during an ongoing value change animation. When that happens, a new animation will
+ * transition [Animatable] from its current value (i.e. value at the point of interruption) to the
+ * new target. This ensures that the value change is *always* continuous using [animateTo]. If
+ * [spring] animation (i.e. default animation) is used with [animateTo], the velocity change will
+ * be guaranteed to be continuous as well.
  *
- * Note, [animateTo] is for simple animations that cannot be canceled. For cancellable animations
- * see [animatedValue].
+ * Unlike [AnimationState], [Animatable] ensures mutual exclusiveness on its animation. To
+ * do so, when a new animation is started via [animateTo] (or [animateDecay]), any ongoing
+ * animation job will be cancelled via a
+ * [CancellationException][kotlinx.coroutines.CancellationException].
  *
- *    val bounds : Bounds = animate(
- *        if (collapsed) Bounds(0.dp, 0.dp, 10.dp, 20.dp) else Bounds(0.dp, 0.dp, 100.dp, 200.dp))
+ * [Animatable] also supports animating data types other than [Color], such as Floats and generic
+ * types. See [androidx.compose.animation.core.Animatable] for other variants.
  *
- * @param target Target value of the animation
- * @param animSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
- * @param endListener An optional end listener to get notified when the animation is finished.
+ * @sample androidx.compose.animation.samples.AnimatableColor
+ *
+ * @param initialValue initial value of the [Animatable]
  */
-@Composable
-fun animate(
-    target: Bounds,
-    animSpec: AnimationSpec<Bounds> = remember {
-        SpringSpec(
-            visibilityThreshold = Bounds.VectorConverter.convertFromVector
-            (DpVisibilityThreshold4D)
-        )
-    },
-    endListener: ((Bounds) -> Unit)? = null
-): Bounds {
-    return animate(
-        target,
-        Bounds.VectorConverter,
-        animSpec,
-        endListener = endListener
-    )
-}
-
-/**
- * Fire-and-forget animation [Composable] for [Offset]. Once such an animation is created, it
- * will be positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
- * course of the animation, simply supply a different [target] to the [Composable].
- *
- * Note, [animateTo] is for simple animations that cannot be canceled. For cancellable animations
- * see [animatedValue].
- *
- * @sample androidx.compose.animation.samples.AnimateOffsetSample
- *
- * @param target Target value of the animation
- * @param animSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
- * @param endListener An optional end listener to get notified when the animation is finished.
- */
-@Composable
-fun animate(
-    target: Offset,
-    animSpec: AnimationSpec<Offset> = remember {
-        SpringSpec(visibilityThreshold = Offset(PxVisibilityThreshold, PxVisibilityThreshold))
-    },
-    endListener: ((Offset) -> Unit)? = null
-): Offset {
-    return animate(
-        target, Offset.VectorConverter, animSpec, endListener = endListener
-    )
-}
-
-/**
- * Fire-and-forget animation [Composable] for [Rect]. Once such an animation is created, it will
- * be positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
- * course of the animation, simply supply a different [target] to the [Composable].
- *
- * Note, [animateTo] is for simple animations that cannot be canceled. For cancellable animations
- * see [animatedValue].
- *
- *    val bounds : Rect = animate(
- *        if (enabled) Rect(0f, 0f, 100f, 100f) else Rect(8f, 8f, 80f, 80f))
- *
- * @param target Target value of the animation
- * @param animSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
- * @param endListener An optional end listener to get notified when the animation is finished.
- */
-@Composable
-fun animate(
-    target: Rect,
-    animSpec: AnimationSpec<Rect> = remember {
-        SpringSpec(
-            visibilityThreshold =
-                Rect.VectorConverter.convertFromVector(PxVisibilityThreshold4D)
-        )
-    },
-    endListener: ((Rect) -> Unit)? = null
-): Rect {
-    return animate(
-        target, Rect.VectorConverter, animSpec, endListener = endListener
-    )
-}
-
-/**
- * Fire-and-forget animation [Composable] for [Int]. Once such an animation is created, it
- * will be positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
- * course of the animation, simply supply a different [target] to the [Composable].
- *
- * Note, [animateTo] is for simple animations that cannot be canceled. For cancellable animations
- * see [animatedValue].
- *
- * @param target Target value of the animation
- * @param animSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
- * @param endListener An optional end listener to get notified when the animation is finished.
- */
-@Composable
-fun animate(
-    target: Int,
-    animSpec: AnimationSpec<Int> = remember {
-        SpringSpec(visibilityThreshold = 1)
-    },
-    endListener: ((Int) -> Unit)? = null
-): Int {
-    return animate(
-        target, Int.VectorConverter, animSpec, endListener = endListener
-    )
-}
-
-/**
- * Fire-and-forget animation [Composable] for [IntOffset]. Once such an animation is created, it
- * will be positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
- * course of the animation, simply supply a different [target] to the [Composable].
- *
- * Note, [animateTo] is for simple animations that cannot be canceled. For cancellable animations
- * see [animatedValue].
- *
- * @sample androidx.compose.animation.samples.AnimateOffsetSample
- *
- * @param target Target value of the animation
- * @param animSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
- * @param endListener An optional end listener to get notified when the animation is finished.
- */
-@Composable
-fun animate(
-    target: IntOffset,
-    animSpec: AnimationSpec<IntOffset> = remember {
-        SpringSpec(visibilityThreshold = IntOffset(1, 1))
-    },
-    endListener: ((IntOffset) -> Unit)? = null
-): IntOffset {
-    return animate(
-        target, IntOffset.VectorConverter, animSpec, endListener = endListener
-    )
-}
-
-/**
- * Fire-and-forget animation [Composable] for [IntSize]. Once such an animation is created, it
- * will be positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
- * course of the animation, simply supply a different [target] to the [Composable].
- *
- * Note, [animateTo] is for simple animations that cannot be canceled. For cancellable animations
- * see [animatedValue].
- *
- * @param target Target value of the animation
- * @param animSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
- * @param endListener An optional end listener to get notified when the animation is finished.
- */
-@Composable
-fun animate(
-    target: IntSize,
-    animSpec: AnimationSpec<IntSize> = remember {
-        SpringSpec(visibilityThreshold = IntSize(1, 1))
-    },
-    endListener: ((IntSize) -> Unit)? = null
-): IntSize {
-    return animate(
-        target, IntSize.VectorConverter, animSpec, endListener = endListener
-    )
-}
-
-/**
- * Fire-and-forget animation [Composable] for [AnimationVector]. Once such an animation is created,
- * it will be positionally memoized, like other @[Composable]s. To trigger the animation, or alter
- * the course of the animation, simply supply a different [target] to the [Composable].
- *
- * Note, [animateTo] is for simple animations that cannot be canceled. For cancellable animations
- * see [animatedValue].
- *
- * @param target Target value of the animation
- * @param animSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
- * @param visibilityThreshold An optional threshold to define when the animation value can be
- *                            considered close enough to the target to end the animation.
- * @param endListener An optional end listener to get notified when the animation is finished.
- */
-@Composable
-fun <T : AnimationVector> animate(
-    target: T,
-    animSpec: AnimationSpec<T> = remember {
-        SpringSpec(visibilityThreshold = visibilityThreshold)
-    },
-    visibilityThreshold: T? = null,
-    endListener: ((T) -> Unit)? = null
-): T {
-    return animate(
-        target,
-        remember { TwoWayConverter<T, T>({ it }, { it }) },
-        animSpec,
-        endListener = endListener
-    )
-}
-
-/**
- * Fire-and-forget animation [Composable] for any value. Once such an animation is created, it
- * will be positionally memoized, like other @[Composable]s. To trigger the animation, or alter
- * the course of the animation, simply supply a different [target] to the [Composable].
- *
- * Note, [animateTo] is for simple animations that cannot be canceled. For cancellable animations
- * see [animatedValue].
- *
- * @sample androidx.compose.animation.samples.ArbitraryValueTypeTransitionSample
- *
- *     data class MySize(val width: Dp, val height: Dp)
- *
- * @param target Target value of the animation
- * @param animSpec The animation that will be used to change the value through time. Physics
- *                    animation will be used by default.
- * @param visibilityThreshold An optional threshold to define when the animation value can be
- *                            considered close enough to the target to end the animation.
- * @param endListener An optional end listener to get notified when the animation is finished.
- */
-@Composable
-fun <T, V : AnimationVector> animate(
-    target: T,
-    converter: TwoWayConverter<T, V>,
-    animSpec: AnimationSpec<T> = remember {
-        SpringSpec(visibilityThreshold = visibilityThreshold)
-    },
-    visibilityThreshold: T? = null,
-    endListener: ((T) -> Unit)? = null
-): T {
-    val clock = AmbientAnimationClock.current.asDisposableClock()
-    val anim = remember(clock, converter) {
-        AnimatedValueModel(target, converter, clock, visibilityThreshold)
-    }
-    // TODO: Support changing animation while keeping the same target
-    onCommit(target) {
-        if (endListener != null) {
-            anim.animateTo(target, animSpec) { reason, value ->
-                if (reason == AnimationEndReason.TargetReached) {
-                    endListener.invoke(value)
-                }
-            }
-        } else {
-            anim.animateTo(target, animSpec)
-        }
-    }
-    return anim.value
-}
+fun Animatable(initialValue: Color): Animatable<Color, AnimationVector4D> =
+    Animatable(initialValue, (Color.VectorConverter)(initialValue.colorSpace))

@@ -7,7 +7,7 @@ that enables composition of higher level components.
 
 [Release notes](https://developer.android.com/jetpack/androidx/releases/activity)
 
-[Browse source](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/activity/)
+[Browse source](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/activity/)
 
 [Reference documentation](https://developer.android.com/reference/androidx/classes.html)
 

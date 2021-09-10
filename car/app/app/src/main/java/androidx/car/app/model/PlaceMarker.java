@@ -18,11 +18,14 @@ package androidx.car.app.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import static java.util.Objects.requireNonNull;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarColorConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
 
@@ -31,7 +34,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 
 /** Describes how a place is to be displayed on a map. */
-public class PlaceMarker {
+@CarProtocol
+public final class PlaceMarker {
     /**
      * Describes the type of image a marker icon represents.
      *
@@ -46,18 +50,24 @@ public class PlaceMarker {
     /**
      * Represents a marker icon.
      *
-     * <p>Icons always have a tint applied to them.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 64 x 64 dp bounding box. If necessary, the icon will be scaled down while
+     * preserving its aspect ratio.
+     *
+     * <p>A tint color is expected to be provided via {@link CarIcon.Builder#setTint}. Otherwise, a
+     * default tint color as determined by the host will be applied.
      */
     public static final int TYPE_ICON = 0;
 
     /**
      * Represents a marker image.
      *
-     * <p>No background will be applied.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 72 x 72 dp bounding box. If necessary, the icon will be scaled down while
+     * preserving its aspect ratio.
      */
     public static final int TYPE_IMAGE = 1;
 
-    private static final PlaceMarker DEFAULT_INSTANCE = PlaceMarker.builder().build();
     private static final int MAX_LABEL_LENGTH = 3;
 
     @Keep
@@ -74,31 +84,7 @@ public class PlaceMarker {
     private final int mIconType;
 
     /**
-     * Returns an instance of {@link PlaceMarker} that uses the default values of the attributes
-     * specified through a {@link Builder}.
-     */
-    @NonNull
-    public static PlaceMarker getDefault() {
-        return DEFAULT_INSTANCE;
-    }
-
-    /**
-     * Returns a {@link Builder} for a {@link PlaceMarker}.
-     */
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /**
-     * Returns {@code true} if {@code marker} is a default marker, {@code false} otherwise.
-     */
-    public static boolean isDefaultMarker(@Nullable PlaceMarker marker) {
-        return marker != null && marker.getIcon() == null && marker.getLabel() == null;
-    }
-
-    /**
-     * Returns the {@link CarIcon} associated with this marker.
+     * Returns the {@link CarIcon} associated with this marker or {@code null} if not set.
      */
     @Nullable
     public CarIcon getIcon() {
@@ -114,11 +100,11 @@ public class PlaceMarker {
     }
 
     /**
-     * If set, the text that should be rendered as the marker's content, {@code null} otherwise.
+     * Returns the text that should be rendered as the marker's content or {@code null} if one
+     * is not set.
      *
      * <p>Note that a {@link PlaceMarker} can only display either an icon or a text label. If
-     * both are
-     * set, then {@link #getIcon()} will take precedence.
+     * both are set, then {@link #getIcon()} will take precedence.
      */
     @Nullable
     public CarText getLabel() {
@@ -166,7 +152,7 @@ public class PlaceMarker {
                 && mIconType == otherMarker.mIconType;
     }
 
-    private PlaceMarker(@NonNull Builder builder) {
+    PlaceMarker(@NonNull Builder builder) {
         mIcon = builder.mIcon;
         mIconType = builder.mIconType;
         mLabel = builder.mLabel;
@@ -184,66 +170,66 @@ public class PlaceMarker {
     /** A builder of {@link PlaceMarker}. */
     public static final class Builder {
         @Nullable
-        private CarIcon mIcon;
+        CarIcon mIcon;
         @Nullable
-        private CarText mLabel;
+        CarText mLabel;
         @Nullable
-        private CarColor mColor;
+        CarColor mColor;
         @MarkerIconType
-        private int mIconType = TYPE_ICON;
+        int mIconType = TYPE_ICON;
 
         /**
-         * Sets the icon to display in the marker, or {@code null} to not display one.
+         * Sets the icon to display in the marker.
+         *
+         * <p>Unless set with this method, the marker will not have an icon.
          *
          * <p>If a label is specified with {@link #setLabel}, the icon will take precedence over it.
          *
          * <h4>Icon Sizing Guidance</h4>
          *
-         * <ul>
-         *   <li>For {@link #TYPE_IMAGE}, the provided image should be 36 x 36 dp. The host
-         *       applies 4 dp rounded corners before the icon is rendered on either the map or
-         *       the list.
-         *   <li>For {@link #TYPE_ICON}, the provided icon should be 32 x 32 dp and have its tint
-         *       value set via {@link CarIcon.Builder#setTint}. Otherwise, a default tint color as
-         *       determined by the host will be applied.
-         * </ul>
-         *
-         * <p>If the size of the provided icon exceeds the size requirements described above in
-         * either one of the dimensions, it will be scaled down and centered inside the bounding
-         * box while preserving the aspect ratio.
+         * If the input icon's size exceeds the sizing requirements for the given icon type in
+         * either one of the dimensions, it will be scaled down to be centered inside the
+         * bounding box while preserving its aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
          *
-         * @param icon     the {@link CarIcon} to display inside the marker.
-         * @param iconType one of {@link #TYPE_ICON} or {@link #TYPE_IMAGE}.
+         * @param icon     the {@link CarIcon} to display inside the marker
+         * @param iconType one of {@link #TYPE_ICON} or {@link #TYPE_IMAGE}
+         * @throws NullPointerException if the {@code icon} is {@code null}
          */
         @NonNull
-        public Builder setIcon(@Nullable CarIcon icon, @MarkerIconType int iconType) {
-            CarIconConstraints.DEFAULT.validateOrThrow(icon);
-            this.mIcon = icon;
-            this.mIconType = iconType;
+        public Builder setIcon(@NonNull CarIcon icon, @MarkerIconType int iconType) {
+            CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(icon));
+            mIcon = icon;
+            mIconType = iconType;
             return this;
         }
 
         /**
          * Sets the text that should be displayed as the marker's content.
          *
+         * <p>Unless set with this method, the marker will not have a label.
+         *
          * <p>If an icon is specified with {@link #setIcon}, the icon will take precedence.
+         *
+         * <p>Spans are not supported in the input string and will be ignored.
          *
          * @param label the text to display inside of the marker. The string must have a maximum
          *              size of 3 characters. Set to {@code null} to let the host choose a
-         *              labelling scheme (for example, using a sequence of numbers).
+         *              labelling scheme (for example, using a sequence of numbers)
+         * @throws NullPointerException if the {@code label} is {@code null}
+         * @see CarText
          */
         @NonNull
-        public Builder setLabel(@Nullable CharSequence label) {
-            if (label != null && label.length() > MAX_LABEL_LENGTH) {
+        public Builder setLabel(@NonNull CharSequence label) {
+            if (requireNonNull(label).length() > MAX_LABEL_LENGTH) {
                 throw new IllegalArgumentException(
                         "Marker label cannot contain more than " + MAX_LABEL_LENGTH
                                 + " characters");
             }
 
-            this.mLabel = label == null ? null : CarText.create(label);
+            mLabel = CarText.create(label);
             return this;
         }
 
@@ -256,22 +242,23 @@ public class PlaceMarker {
          *   <li>When the {@link PlaceMarker} is displayed on the map, the pin enclosing the icon or
          *       label will be painted using the given color.
          *   <li>When the {@link PlaceMarker} is displayed on the list, the color will be applied
-         *       if the content is a label. A label rendered inside a map's pin cannot be color
+         *       if the content is a label. A label rendered inside a map's pin cannot be colored
          *       and will always use the default color as chosen by the host.
          * </ul>
          *
-         * <p>When this is set to {@code null}, the host will use a default color. The host may also
-         * ignore this color and use the default instead if the color does not pass the contrast
-         * requirements.
+         * <p>Unless set with this method, the host will use a default color for the marker.
+         *
+         * <p>The host may  ignore this color and use the default instead if the color does not
+         * pass the contrast requirements.
          *
          * <p>A color cannot be set if the marker's icon type is of {@link #TYPE_IMAGE}.
+         *
+         * @throws NullPointerException if the {@code color} is {@code null}
          */
         @NonNull
-        public Builder setColor(@Nullable CarColor color) {
-            if (color != null) {
-                CarColorConstraints.UNCONSTRAINED.validateOrThrow(color);
-            }
-            this.mColor = color;
+        public Builder setColor(@NonNull CarColor color) {
+            CarColorConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(color));
+            mColor = color;
             return this;
         }
 
@@ -279,7 +266,7 @@ public class PlaceMarker {
          * Constructs the {@link PlaceMarker} defined by this builder.
          *
          * @throws IllegalStateException if the icon is of the type {@link #TYPE_IMAGE} and a a
-         *                               color is set.
+         *                               color is set
          */
         @NonNull
         public PlaceMarker build() {
@@ -290,7 +277,8 @@ public class PlaceMarker {
             return new PlaceMarker(this);
         }
 
-        private Builder() {
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

@@ -54,6 +54,7 @@ import org.mockito.stubbing.Answer;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unchecked")
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
@@ -133,8 +134,6 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
 
         sendKey(KeyEvent.KEYCODE_BACK);
         PollingCheck.waitFor(new PollingCheck.ActivityStop(activity));
-        verify(first, timeout(ON_DESTROY_TIMEOUT).times(1)).onDestroy();
-        assertTrue(activity.isDestroyed());
     }
 
     @Test
@@ -371,7 +370,6 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
 
         sendKey(KeyEvent.KEYCODE_BACK);
         PollingCheck.waitFor(new PollingCheck.ActivityStop(activity));
-        verify(first, timeout(ON_DESTROY_TIMEOUT).times(1)).onDestroy();
     }
 
     @Test

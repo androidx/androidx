@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    mRefreshMethod.invoke(instance);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -14,24 +14,13 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            mNotifyDataChangeMethod.invoke(query);"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/inspection/SqlDelightInvalidation.java"
             line="66"
             column="13"/>
-    </issue>
-
-    <issue
-        id="IgnoreWithoutReason"
-        message="Test is ignored without giving any explanation"
-        errorLine1="    @Ignore"
-        errorLine2="    ~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/sqlite/inspection/test/InvalidationTest.kt"
-            line="92"
-            column="5"/>
     </issue>
 
 </issues>

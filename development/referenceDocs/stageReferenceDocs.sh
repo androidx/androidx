@@ -44,12 +44,10 @@ printf "=================================================================== \n"
 
 # Remove directories we never publish
 rm en -rf
-rm reference/android -rf
 rm reference/java -rf
 rm reference/org -rf
 rm reference/hierarchy.html
 rm reference/kotlin/org -rf
-rm reference/kotlin/android -rf
 
 # Move package list into the correct location
 mv reference/kotlin/package-list reference/kotlin/androidx/package-list 
@@ -70,9 +68,9 @@ printf "============================ STEP 4 =============================== \n"
 printf "== Generate the language switcher \n"
 printf "=================================================================== \n"
 
-# The switcher script still requires python2 to run correctly
 cd reference
-python2 ./../../../switcher.py --work androidx
+python3 ./../../../switcher.py --work androidx
+python3 ./../../../switcher.py --work support
 
 printf "============================ STEP 5 =============================== \n"
 printf "== Run the following command to copy the docs into Google3 \n"

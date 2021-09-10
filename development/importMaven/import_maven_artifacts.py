@@ -33,6 +33,11 @@ ALLOW_BINTRAY_HELP = '''
   E.g. https://dl.bintray.com/kotlin/kotlin-dev/ and https://dl.bintray.com/kotlin/kotlinx/
 '''
 
+ALLOW_JETBRAINS_DEV_HELP = '''
+  Whether or not to allow artifacts to be fetched from Jetbrains' dev repository
+  E.g. https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev
+'''
+
 if sys.version_info[0] < 3: raise Exception("Python 2 is not supported by this script. If your system python calls python 2 after python 2 end-of-life on Jan 1 2020, you should probably change it.")
 
 def main():
@@ -45,8 +50,10 @@ def main():
     parser.add_argument('-n', '--name', help=NAME_HELP,
                         required=True, dest='name')
     parser.add_argument('-mb', '--metalava-build-id', help=METALAVA_BUILD_ID_HELP,
-                        required=False, dest='matalava_build_id')
+                        required=False, dest='metalava_build_id')
     parser.add_argument('-ab', '--allow-bintray', help=ALLOW_BINTRAY_HELP,
+                        required=False, action='store_true')
+    parser.add_argument('-ajd', '--allow-jetbrains-dev', help=ALLOW_JETBRAINS_DEV_HELP,
                         required=False, action='store_true')
     parse_result = parser.parse_args()
     artifact_name = parse_result.name
@@ -55,11 +62,13 @@ def main():
     # Add -Dorg.gradle.debug=true to debug or --stacktrace to see the stack trace
     command = './gradlew --build-file build.gradle.kts -PartifactName=%s' % (
         artifact_name)
-    matalava_build_id = parse_result.matalava_build_id
-    if (matalava_build_id):
-      command = command + ' -PmetalavaBuildId=%s' % (matalava_build_id)
+    metalava_build_id = parse_result.metalava_build_id
+    if (metalava_build_id):
+      command = command + ' -PmetalavaBuildId=%s' % (metalava_build_id)
     if (parse_result.allow_bintray):
       command = command + ' -PallowBintray'
+    if (parse_result.allow_jetbrains_dev):
+      command = command + ' -PallowJetbrainsDev'
 
     process = subprocess.Popen(command,
                                shell=True,

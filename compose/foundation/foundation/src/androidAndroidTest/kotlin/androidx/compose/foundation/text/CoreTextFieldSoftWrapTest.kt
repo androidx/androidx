@@ -16,20 +16,14 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.layout.width
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.AmbientDensity
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.ResourceFont
-import androidx.compose.ui.text.font.asFontFamily
-import androidx.compose.ui.text.font.test.R
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -43,14 +37,9 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(InternalTextApi::class)
 class CoreTextFieldSoftWrapTest {
 
-    private val fontFamily = ResourceFont(
-        resId = R.font.sample_font,
-        weight = FontWeight.Normal,
-        style = FontStyle.Normal
-    ).asFontFamily()
+    private val fontFamily = TEST_FONT_FAMILY
 
     @get:Rule
     val rule = createComposeRule()
@@ -67,14 +56,14 @@ class CoreTextFieldSoftWrapTest {
         var width: Int? = null
 
         rule.setContent {
-            Providers(AmbientDensity provides density) {
+            CompositionLocalProvider(LocalDensity provides density) {
                 CoreTextField(
                     value = TextFieldValue(string),
                     onValueChange = {},
                     textStyle = textStyle,
                     softWrap = false,
                     onTextLayout = { textLayout = it },
-                    modifier = Modifier.width(composableWidth)
+                    modifier = Modifier.requiredWidth(composableWidth)
                         .onGloballyPositioned {
                             width = it.size.width
                         }
@@ -82,10 +71,12 @@ class CoreTextFieldSoftWrapTest {
             }
         }
 
+        rule.waitUntil { width != null }
+
         with(density) {
             assertThat(textLayout).isNotNull()
             assertThat(width).isNotNull()
-            assertThat(width).isEqualTo(composableWidth.toIntPx())
+            assertThat(width).isEqualTo(composableWidth.roundToPx())
             assertThat(textLayout?.lineCount).isEqualTo(1)
         }
     }
@@ -102,14 +93,14 @@ class CoreTextFieldSoftWrapTest {
         var width: Int? = null
 
         rule.setContent {
-            Providers(AmbientDensity provides density) {
+            CompositionLocalProvider(LocalDensity provides density) {
                 CoreTextField(
                     value = TextFieldValue(string),
                     onValueChange = {},
                     textStyle = textStyle,
                     softWrap = true,
                     onTextLayout = { textLayout = it },
-                    modifier = Modifier.width(composableWidth)
+                    modifier = Modifier.requiredWidth(composableWidth)
                         .onGloballyPositioned {
                             width = it.size.width
                         }
@@ -117,10 +108,12 @@ class CoreTextFieldSoftWrapTest {
             }
         }
 
+        rule.waitUntil { width != null }
+
         with(density) {
             assertThat(textLayout).isNotNull()
             assertThat(width).isNotNull()
-            assertThat(width).isEqualTo(composableWidth.toIntPx())
+            assertThat(width).isEqualTo(composableWidth.roundToPx())
             // each character has the same width as composable width
             // therefore the string.length is the line count
             assertThat(textLayout?.lineCount).isEqualTo(string.length)

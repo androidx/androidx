@@ -1,0 +1,89 @@
+row {
+  contents {
+    text {
+      text {
+        value: "This"
+      }
+      font_style {
+        color {
+          argb: 0xFFFF0000
+        }
+      }
+      max_lines: {
+        value: 1000
+      }
+    }
+  }
+  contents {
+    spacer {
+      width {
+        linear_dimension {
+          value: 10
+        }
+      }
+    }
+  }
+  contents {
+    text {
+      text {
+        value: "Is"
+      }
+      font_style {
+        color {
+          argb: 0xFF00FF00
+        }
+      }
+      max_lines: {
+        value: 1000
+      }
+    }
+  }
+  contents {
+    spacer {
+      width {
+        linear_dimension {
+          value: 20
+        }
+      }
+    }
+  }
+  contents {
+    text {
+      text {
+        value: "A"
+      }
+      font_style {
+        color {
+          argb: 0xFF0000FF
+        }
+      }
+      max_lines: {
+        value: 1000
+      }
+    }
+  }
+  contents {
+    spacer {
+      width {
+        linear_dimension {
+          value: 30
+        }
+      }
+    }
+  }
+  contents {
+    text {
+      text {
+        value: "Test"
+      }
+      font_style {
+        color {
+          argb: 0xFF00FFFF
+        }
+      }
+      max_lines: {
+        value: 1000
+      }
+    }
+  }
+}

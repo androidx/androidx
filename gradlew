@@ -29,7 +29,7 @@ if [ -n "$DIST_DIR" ]; then
 
     #Set the initial heap size to match the max heap size,
     #by replacing a string like "-Xmx1g" with one like "-Xms1g -Xmx1g"
-    MAX_MEM=16g
+    MAX_MEM=24g
     ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s/-Xmx\([^ ]*\)/-Xms$MAX_MEM -Xmx$MAX_MEM/")"
 
     # tell Gradle where to put a heap dump on failure
@@ -44,6 +44,8 @@ unset ANDROID_BUILD_TOP
 # ----------------------------------------------------------------------------
 
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+
+JAVA_OPTS="$JAVA_OPTS -Dkotlin.incremental.compilation=true" # b/188565660
 
 APP_NAME="Gradle"
 APP_BASE_NAME=`basename "$0"`
@@ -222,15 +224,97 @@ if [ "$TMPDIR" != "" ]; then
   TMPDIR_ARG="-Djava.io.tmpdir=$TMPDIR"
 fi
 
-function tryToDiagnosePossibleDaemonFailure() {
-  # copy daemon logs
-  if [ -n "$GRADLE_USER_HOME" ]; then
-    if [ -n "$DIST_DIR" ]; then
-      cp -r "$GRADLE_USER_HOME/daemon" "$DIST_DIR/gradle-daemon"
-      cp ./hs_err* $DIST_DIR/ 2>/dev/null || true
-    fi
+if [[ " ${@} " =~ " --clean " ]]; then
+  cleanCaches=true
+else
+  cleanCaches=false
+fi
+
+# Expand some arguments
+for compact in "--ci" "--strict" "--clean"; do
+  if [ "$compact" == "--ci" ]; then
+    expanded="--strict\
+     --stacktrace\
+     -Pandroidx.summarizeStderr\
+     -Pandroidx.enableAffectedModuleDetection\
+     --no-watch-fs"
   fi
+  if [ "$compact" == "--strict" ]; then
+    expanded="-Pandroidx.allWarningsAsErrors\
+     -Pandroidx.validateNoUnrecognizedMessages\
+     -Pandroidx.verifyUpToDate\
+     --no-watch-fs\
+     --no-daemon\
+     --offline"
+  fi
+  if [ "$compact" == "--clean" ]; then
+    expanded="" # we parsed the argument above but we still have to remove it to avoid confusing Gradle
+  fi
+
+  # check whether this particular compat argument was passed (and therefore needs expansion)
+  if [[ " ${@} " =~ " $compact " ]]; then
+    # Expand an individual argument
+    # Start by making a copy of our list of arguments and iterating through the copy
+    for arg in "$@"; do
+      # Remove this argument from our list of arguments.
+      # By the time we've completed this loop, we will have removed the original copy of
+      # each argument, and potentially re-added a new copy or an expansion of each.
+      shift
+      # Determine whether to expand this argument
+      if [ "$arg" == "$compact" ]; then
+        # Add the expansion to our arguments
+        set -- "$@" $expanded
+        if [ "$expanded" != "" ]; then
+          echo "gradlew expanded '$compact' into '$expanded'"
+          echo
+        fi
+        # We avoid re-adding this argument itself back into the list for two reasons:
+        # 1. This argument might not be directly understood by Gradle
+        # 2. We want to enforce that all behaviors enabled by this flag can be toggled independently,
+        # so we don't want it to be easy to inadvertently check for the presence of this flag
+        # specifically
+      else
+        # Add this argument back into our arguments
+        set -- "$@" "$arg"
+      fi
+    done
+  fi
+done
+
+function removeCaches() {
+  rm -rf $SCRIPT_PATH/.gradle
+  rm -rf $SCRIPT_PATH/buildSrc/.gradle
+  rm -f  $SCRIPT_PATH/local.properties
+  if [ "$GRADLE_USER_HOME" != "" ]; then
+    rm -rf "$GRADLE_USER_HOME"
+  else
+    rm -rf ~/.gradle
+  fi
+  # AGP should (also) do this automatically (b/170640263)
+  rm -rf $SCRIPT_PATH/appsearch/appsearch/.cxx
+  rm -rf $SCRIPT_PATH/appsearch/local-backend/.cxx
+  rm -rf $SCRIPT_PATH/appsearch/local-storage/.cxx
+  rm -rf $OUT_DIR
 }
+
+if [ "$cleanCaches" == true ]; then
+  echo "IF ./gradlew --clean FIXES YOUR BUILD; OPEN A BUG."
+  echo "In nearly all cases, it should not be necessary to run a clean build."
+  echo
+  echo "You may be more interested in running:"
+  echo
+  echo "  ./development/diagnose-build-failure/diagnose-build-failure.sh $*"
+  echo
+  echo "which attempts to diagnose more details about build failures."
+  echo
+  echo "Removing caches"
+  # one case where it is convenient to have a clean build is for double-checking that a build failure isn't due to an incremental build failure
+  # another case where it is convenient to have a clean build is for performance testing
+  # another case where it is convenient to have a clean build is when you're modifying the build and may have introduced some errors but haven't shared your changes yet (at which point you should have fixed the errors)
+  echo
+
+  removeCaches
+fi
 
 function runGradle() {
   processOutput=false
@@ -245,28 +329,35 @@ function runGradle() {
   else
     wrapper=""
   fi
-  if $wrapper "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG "$ORG_GRADLE_JVMARGS" "$@"; then
+
+  PROJECT_CACHE_DIR_ARGUMENT="--project-cache-dir $OUT_DIR/gradle-project-cache"
+  if $wrapper "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG $PROJECT_CACHE_DIR_ARGUMENT "$ORG_GRADLE_JVMARGS" "$@"; then
     return 0
   else
-    tryToDiagnosePossibleDaemonFailure
     # Print AndroidX-specific help message if build fails
     # Have to do this build-failure detection in gradlew rather than in build.gradle
     # so that this message still prints even if buildSrc itself fails
     echo
-    echo See also development/diagnose-build-failure for help with build failures in this project.
+    echo For help with unexpected failures, see development/diagnose-build-failure/README.md
+    echo
     return 1
   fi
 }
 
 if [[ " ${@} " =~ " -PdisallowExecution " ]]; then
-  echo "Passing '-PdisallowExecution' directly is forbidden. Did you mean -PverifyUpToDate ?"
+  echo "Passing '-PdisallowExecution' directly is forbidden. Did you mean -Pandroidx.verifyUpToDate ?"
   echo "See TaskUpToDateValidator.java for more information"
   exit 1
 fi
 
-runGradle "$@"
-# Check whether we were given the "-PverifyUpToDate" argument
 if [[ " ${@} " =~ " -PverifyUpToDate " ]]; then
+  echo "-PverifyUpToDate has been renamed to -Pandroidx.verifyUpToDate"
+  exit 1
+fi
+
+runGradle "$@"
+# Check whether we were given the "-Pandroidx.verifyUpToDate" argument
+if [[ " ${@} " =~ " -Pandroidx.verifyUpToDate " ]]; then
   # Re-run Gradle, and find all tasks that are unexpectly out of date
   if ! runGradle "$@" -PdisallowExecution --continue; then
     echo >&2

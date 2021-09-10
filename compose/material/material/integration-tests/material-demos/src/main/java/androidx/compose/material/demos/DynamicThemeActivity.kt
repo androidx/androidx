@@ -18,15 +18,16 @@ package androidx.compose.material.demos
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredHeight
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomAppBar
@@ -39,17 +40,17 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.dp
-import kotlin.math.round
+import kotlinx.coroutines.flow.collect
 
 /**
  * Demo activity that animates the primary, secondary, and background colours in the [MaterialTheme]
@@ -84,30 +85,39 @@ class DynamicThemeActivity : ComponentActivity() {
 
 private typealias ScrollFraction = MutableState<Float>
 
+private val LazyListState.scrollOffset: Float get() {
+    val total = layoutInfo.totalItemsCount
+    if (total == 0 || layoutInfo.visibleItemsInfo.isEmpty()) {
+        return 0f
+    } else {
+        val itemSize = layoutInfo.visibleItemsInfo.first().size
+        val currentOffset = firstVisibleItemIndex * itemSize +
+            firstVisibleItemScrollOffset
+        return (currentOffset.toFloat() / (total * itemSize)).coerceIn(0f, 1f)
+    }
+}
+
 @Composable
 private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: Colors) {
     MaterialTheme(palette) {
-        val scrollState = rememberScrollState()
-        val fraction =
-            round((scrollState.value / scrollState.maxValue) * 100) / 100
-        remember(fraction) { scrollFraction.value = fraction }
+        val state = rememberLazyListState()
+        LaunchedEffect(state) {
+            snapshotFlow { state.scrollOffset }.collect {
+                scrollFraction.value = it
+            }
+        }
         Scaffold(
             topBar = { TopAppBar({ Text("Scroll down!") }) },
             bottomBar = { BottomAppBar(cutoutShape = CircleShape) {} },
             floatingActionButton = { Fab(scrollFraction) },
             floatingActionButtonPosition = FabPosition.Center,
             isFloatingActionButtonDocked = true,
-            bodyContent = { innerPadding ->
-                ScrollableColumn(
-                    scrollState = scrollState,
-                    content = {
-                        Column(Modifier.padding(innerPadding)) {
-                            repeat(20) { index ->
-                                Card(index)
-                            }
-                        }
+            content = { innerPadding ->
+                LazyColumn(state = state, contentPadding = innerPadding) {
+                    items(20) {
+                        Card(it)
                     }
-                )
+                }
             }
         )
     }
@@ -130,7 +140,7 @@ private fun Card(index: Int) {
     // colour from the Material theme to work out text colour, so we end up doing a
     // large amount of work here when the top level theme changes
     Box(
-        Modifier.padding(25.dp).fillMaxWidth().preferredHeight(150.dp)
+        Modifier.padding(25.dp).fillMaxWidth().height(150.dp)
             .background(shapeColor, RoundedCornerShape(10.dp)),
         contentAlignment = Alignment.Center
     ) {
@@ -139,7 +149,7 @@ private fun Card(index: Int) {
 }
 
 private fun interpolateTheme(fraction: Float): Colors {
-    val interpolatedFraction = FastOutSlowInEasing(fraction)
+    val interpolatedFraction = FastOutSlowInEasing.transform(fraction)
 
     val primary = lerp(Color(0xFF6200EE), Color(0xFF303030), interpolatedFraction)
     val secondary = lerp(Color(0xFF03DAC6), Color(0xFFBB86FC), interpolatedFraction)

@@ -21,54 +21,50 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.util.Objects;
 
 /** Represents a geographical location and additional information on how to display it. */
-public class Place {
+@CarProtocol
+public final class Place {
     @Keep
     @Nullable
-    private final LatLng mLatLng;
+    private final CarLocation mLocation;
     @Keep
     @Nullable
     private final PlaceMarker mMarker;
 
     /**
-     * Create a builder for a {@link Place} instance.
+     * Returns the {@link PlaceMarker} object associated with this place or {@code null} if one
+     * is not set.
      *
-     * @param latLng the geographical location associated with the place.
-     * @throws NullPointerException if {@code latLng} is {@code null}.
+     * @see Builder#setMarker(PlaceMarker)
      */
-    @NonNull
-    public static Builder builder(@NonNull LatLng latLng) {
-        return new Builder(requireNonNull(latLng));
-    }
-
-    /** Returns a {@link Builder} instance with the same data as this {@link Place} instance. */
-    @NonNull
-    public Builder newBuilder() {
-        return new Builder(this);
-    }
-
     @Nullable
     public PlaceMarker getMarker() {
         return mMarker;
     }
 
+    /**
+     * Returns the {@link CarLocation} instance associated with this place.
+     *
+     * @see Builder#Builder(CarLocation)
+     */
     @NonNull
-    public LatLng getLatLng() {
-        return requireNonNull(mLatLng);
+    public CarLocation getLocation() {
+        return requireNonNull(mLocation);
     }
 
     @Override
     @NonNull
     public String toString() {
-        return "[ latlng: " + mLatLng + ", marker: " + mMarker + "]";
+        return "[ location: " + mLocation + ", marker: " + mMarker + "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mLatLng, mMarker);
+        return Objects.hash(mLocation, mMarker);
     }
 
     @Override
@@ -81,58 +77,59 @@ public class Place {
         }
         Place otherPlace = (Place) other;
 
-        return Objects.equals(mLatLng, otherPlace.mLatLng) && Objects.equals(mMarker,
+        return Objects.equals(mLocation, otherPlace.mLocation) && Objects.equals(mMarker,
                 otherPlace.mMarker);
     }
 
-    private Place(Builder builder) {
-        mLatLng = builder.mLatLng;
+    Place(Builder builder) {
+        mLocation = builder.mLocation;
         mMarker = builder.mMarker;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Place() {
-        mLatLng = null;
+        mLocation = null;
         mMarker = null;
     }
 
     /** A builder of {@link Place}. */
     public static final class Builder {
-        private LatLng mLatLng;
+        CarLocation mLocation;
         @Nullable
-        private PlaceMarker mMarker;
-
-        private Builder(LatLng latLng) {
-            this.mLatLng = latLng;
-        }
-
-        private Builder(Place place) {
-            mLatLng = requireNonNull(place.mLatLng);
-            mMarker = place.mMarker;
-        }
+        PlaceMarker mMarker;
 
         /**
-         * Sets the geographical location associated with this place.
+         * Returns a builder instance for a {@link CarLocation}.
          *
-         * @throws NullPointerException if {@code latLng} is {@code null}.
+         * @param location the geographical location associated with the place
+         * @throws NullPointerException if {@code location} is {@code null}
          */
-        @NonNull
-        public Builder setLatLng(@NonNull LatLng latLng) {
-            this.mLatLng = requireNonNull(latLng);
-            return this;
+        public Builder(@NonNull CarLocation location) {
+            mLocation = Objects.requireNonNull(location);
         }
 
         /**
          * Sets the {@link PlaceMarker} that specifies how this place is to be displayed on a
-         * map, or
-         * {@code null} to not display a marker for this place.
+         * map.
          *
-         * <p>By default and unless otherwise set in this method, a marker will not be displayed.
+         * <p>Unless set with this method, the place will not have a marker.
+         *
+         * @throws NullPointerException if {@code marker} is {@code null}
          */
         @NonNull
-        public Builder setMarker(@Nullable PlaceMarker marker) {
-            this.mMarker = marker;
+        public Builder setMarker(@NonNull PlaceMarker marker) {
+            mMarker = requireNonNull(marker);
             return this;
+        }
+
+        /**
+         * Returns a {@link Builder} instance with the same data as the given {@link Place}
+         * instance.
+         */
+        public Builder(@NonNull Place place) {
+            requireNonNull(place);
+            mLocation = place.getLocation();
+            mMarker = place.getMarker();
         }
 
         /** Constructs the {@link Place} defined by this builder. */

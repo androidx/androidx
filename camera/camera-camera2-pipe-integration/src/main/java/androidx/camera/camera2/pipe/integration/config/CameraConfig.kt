@@ -22,37 +22,69 @@ import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInternalAdapter
+import androidx.camera.camera2.pipe.integration.compat.Camera2CameraControlCompat
+import androidx.camera.camera2.pipe.integration.compat.EvCompCompat
+import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
+import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
+import androidx.camera.camera2.pipe.integration.impl.CameraProperties
+import androidx.camera.camera2.pipe.integration.impl.EvCompControl
+import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
+import androidx.camera.camera2.pipe.integration.impl.ZoomControl
+import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
+import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
+import androidx.camera.core.impl.CameraThreadConfig
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asCoroutineDispatcher
 import javax.inject.Scope
 
 @Scope
 annotation class CameraScope
 
 /** Dependency bindings for adapting an individual [CameraInternal] instance to [CameraPipe] */
+@OptIn(ExperimentalCamera2Interop::class)
 @Module(
+    includes = [
+        ZoomCompat.Bindings::class,
+        ZoomControl.Bindings::class,
+        EvCompCompat.Bindings::class,
+        EvCompControl.Bindings::class,
+        Camera2CameraControl.Bindings::class,
+        Camera2CameraControlCompat.Bindings::class,
+    ],
     subcomponents = [UseCaseCameraComponent::class]
 )
 abstract class CameraModule {
     companion object {
+
         @CameraScope
         @Provides
-        fun provideCameraCoroutineScope(cameraConfig: CameraConfig): CoroutineScope {
-            // TODO: Dispatchers.Default is the standard kotlin coroutine executor for background
-            //   work, but we may want to pass something in.
-            return CoroutineScope(
-                Job() +
-                    Dispatchers.Default +
-                    CoroutineName("CXCP-Camera-${cameraConfig.cameraId.value}")
+        fun provideUseCaseThreads(
+            cameraConfig: CameraConfig,
+            cameraThreadConfig: CameraThreadConfig
+        ): UseCaseThreads {
+
+            val executor = cameraThreadConfig.cameraExecutor
+            val dispatcher = cameraThreadConfig.cameraExecutor.asCoroutineDispatcher()
+
+            val cameraScope = CoroutineScope(
+                SupervisorJob() +
+                    dispatcher +
+                    CoroutineName("CXCP-UseCase-${cameraConfig.cameraId.value}")
+            )
+
+            return UseCaseThreads(
+                cameraScope,
+                executor,
+                dispatcher
             )
         }
 
@@ -60,6 +92,9 @@ abstract class CameraModule {
         fun provideCameraMetadata(cameraPipe: CameraPipe, config: CameraConfig): CameraMetadata =
             cameraPipe.cameras().awaitMetadata(config.cameraId)
     }
+
+    @Binds
+    abstract fun bindCameraProperties(impl: CameraPipeCameraProperties): CameraProperties
 
     @Binds
     abstract fun bindCameraInternal(adapter: CameraInternalAdapter): CameraInternal

@@ -193,9 +193,10 @@ package androidx.fragment.app {
   }
 
   public final class FragmentContainerView extends android.widget.FrameLayout {
-    ctor public FragmentContainerView(android.content.Context);
-    ctor public FragmentContainerView(android.content.Context, android.util.AttributeSet?);
-    ctor public FragmentContainerView(android.content.Context, android.util.AttributeSet?, int);
+    ctor public FragmentContainerView(android.content.Context context);
+    ctor public FragmentContainerView(android.content.Context context, android.util.AttributeSet? attrs, optional int defStyleAttr);
+    ctor public FragmentContainerView(android.content.Context context, android.util.AttributeSet? attrs);
+    method public <F extends androidx.fragment.app.Fragment> F! getFragment();
   }
 
   public class FragmentController {
@@ -236,11 +237,11 @@ package androidx.fragment.app {
     method @Deprecated public void restoreAllState(android.os.Parcelable?, java.util.List<androidx.fragment.app.Fragment!>?);
     method @Deprecated public void restoreAllState(android.os.Parcelable?, androidx.fragment.app.FragmentManagerNonConfig?);
     method @Deprecated public void restoreLoaderNonConfig(androidx.collection.SimpleArrayMap<java.lang.String!,androidx.loader.app.LoaderManager!>!);
-    method public void restoreSaveState(android.os.Parcelable?);
+    method @Deprecated public void restoreSaveState(android.os.Parcelable?);
     method @Deprecated public androidx.collection.SimpleArrayMap<java.lang.String!,androidx.loader.app.LoaderManager!>? retainLoaderNonConfig();
     method @Deprecated public androidx.fragment.app.FragmentManagerNonConfig? retainNestedNonConfig();
     method @Deprecated public java.util.List<androidx.fragment.app.Fragment!>? retainNonConfig();
-    method public android.os.Parcelable? saveAllState();
+    method @Deprecated public android.os.Parcelable? saveAllState();
   }
 
   public class FragmentFactory {
@@ -272,6 +273,7 @@ package androidx.fragment.app {
     method public void addFragmentOnAttachListener(androidx.fragment.app.FragmentOnAttachListener);
     method public void addOnBackStackChangedListener(androidx.fragment.app.FragmentManager.OnBackStackChangedListener);
     method public androidx.fragment.app.FragmentTransaction beginTransaction();
+    method public void clearBackStack(String);
     method public final void clearFragmentResult(String);
     method public final void clearFragmentResultListener(String);
     method public void dump(String, java.io.FileDescriptor?, java.io.PrintWriter, String![]?);
@@ -286,6 +288,7 @@ package androidx.fragment.app {
     method public androidx.fragment.app.FragmentFactory getFragmentFactory();
     method public java.util.List<androidx.fragment.app.Fragment!> getFragments();
     method public androidx.fragment.app.Fragment? getPrimaryNavigationFragment();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy? getStrictModePolicy();
     method public boolean isDestroyed();
     method public boolean isStateSaved();
     method public void popBackStack();
@@ -298,10 +301,13 @@ package androidx.fragment.app {
     method public void registerFragmentLifecycleCallbacks(androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks, boolean);
     method public void removeFragmentOnAttachListener(androidx.fragment.app.FragmentOnAttachListener);
     method public void removeOnBackStackChangedListener(androidx.fragment.app.FragmentManager.OnBackStackChangedListener);
+    method public void restoreBackStack(String);
+    method public void saveBackStack(String);
     method public androidx.fragment.app.Fragment.SavedState? saveFragmentInstanceState(androidx.fragment.app.Fragment);
     method public void setFragmentFactory(androidx.fragment.app.FragmentFactory);
     method public final void setFragmentResult(String, android.os.Bundle);
     method public final void setFragmentResultListener(String, androidx.lifecycle.LifecycleOwner, androidx.fragment.app.FragmentResultListener);
+    method public void setStrictModePolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy?);
     method public void unregisterFragmentLifecycleCallbacks(androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks);
     field public static final int POP_BACK_STACK_INCLUSIVE = 1; // 0x1
   }
@@ -426,6 +432,8 @@ package androidx.fragment.app {
     field public static final int TRANSIT_EXIT_MASK = 8192; // 0x2000
     field public static final int TRANSIT_FRAGMENT_CLOSE = 8194; // 0x2002
     field public static final int TRANSIT_FRAGMENT_FADE = 4099; // 0x1003
+    field public static final int TRANSIT_FRAGMENT_MATCH_ACTIVITY_CLOSE = 8197; // 0x2005
+    field public static final int TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN = 4100; // 0x1004
     field public static final int TRANSIT_FRAGMENT_OPEN = 4097; // 0x1001
     field public static final int TRANSIT_NONE = 0; // 0x0
     field public static final int TRANSIT_UNSET = -1; // 0xffffffff
@@ -444,6 +452,91 @@ package androidx.fragment.app {
     method public void setListShown(boolean);
     method public void setListShownNoAnimation(boolean);
     method public void setSelection(int);
+  }
+
+}
+
+package androidx.fragment.app.strictmode {
+
+  public final class FragmentReuseViolation extends androidx.fragment.app.strictmode.Violation {
+    method public String getPreviousFragmentId();
+    property public final String previousFragmentId;
+  }
+
+  public final class FragmentStrictMode {
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy getDefaultPolicy();
+    method @VisibleForTesting public void onPolicyViolation(androidx.fragment.app.strictmode.Violation violation);
+    method public void setDefaultPolicy(androidx.fragment.app.strictmode.FragmentStrictMode.Policy defaultPolicy);
+    property public final androidx.fragment.app.strictmode.FragmentStrictMode.Policy defaultPolicy;
+    field public static final androidx.fragment.app.strictmode.FragmentStrictMode INSTANCE;
+  }
+
+  public static fun interface FragmentStrictMode.OnViolationListener {
+    method public void onViolation(androidx.fragment.app.strictmode.Violation violation);
+  }
+
+  public static final class FragmentStrictMode.Policy {
+    field public static final androidx.fragment.app.strictmode.FragmentStrictMode.Policy LAX;
+  }
+
+  public static final class FragmentStrictMode.Policy.Builder {
+    ctor public FragmentStrictMode.Policy.Builder();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder allowViolation(Class<? extends androidx.fragment.app.Fragment> fragmentClass, Class<? extends androidx.fragment.app.strictmode.Violation> violationClass);
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy build();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectFragmentReuse();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectFragmentTagUsage();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectRetainInstanceUsage();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectSetUserVisibleHint();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectTargetFragmentUsage();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder detectWrongFragmentContainer();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyDeath();
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyListener(androidx.fragment.app.strictmode.FragmentStrictMode.OnViolationListener listener);
+    method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy.Builder penaltyLog();
+  }
+
+  public final class FragmentTagUsageViolation extends androidx.fragment.app.strictmode.Violation {
+    method public android.view.ViewGroup? getParentContainer();
+    property public final android.view.ViewGroup? parentContainer;
+  }
+
+  public final class GetRetainInstanceUsageViolation extends androidx.fragment.app.strictmode.RetainInstanceUsageViolation {
+  }
+
+  public final class GetTargetFragmentRequestCodeUsageViolation extends androidx.fragment.app.strictmode.TargetFragmentUsageViolation {
+  }
+
+  public final class GetTargetFragmentUsageViolation extends androidx.fragment.app.strictmode.TargetFragmentUsageViolation {
+  }
+
+  public abstract class RetainInstanceUsageViolation extends androidx.fragment.app.strictmode.Violation {
+  }
+
+  public final class SetRetainInstanceUsageViolation extends androidx.fragment.app.strictmode.RetainInstanceUsageViolation {
+  }
+
+  public final class SetTargetFragmentUsageViolation extends androidx.fragment.app.strictmode.TargetFragmentUsageViolation {
+    method public int getRequestCode();
+    method public androidx.fragment.app.Fragment getTargetFragment();
+    property public final int requestCode;
+    property public final androidx.fragment.app.Fragment targetFragment;
+  }
+
+  public final class SetUserVisibleHintViolation extends androidx.fragment.app.strictmode.Violation {
+    method public boolean isVisibleToUser();
+    property public final boolean isVisibleToUser;
+  }
+
+  public abstract class TargetFragmentUsageViolation extends androidx.fragment.app.strictmode.Violation {
+  }
+
+  public abstract class Violation extends java.lang.RuntimeException {
+    method public final androidx.fragment.app.Fragment getFragment();
+    property public final androidx.fragment.app.Fragment fragment;
+  }
+
+  public final class WrongFragmentContainerViolation extends androidx.fragment.app.strictmode.Violation {
+    method public android.view.ViewGroup getContainer();
+    property public final android.view.ViewGroup container;
   }
 
 }

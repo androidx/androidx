@@ -38,15 +38,14 @@ class ShaderTest {
         val imageBitmap = ImageBitmap(100, 100)
         imageBitmap.drawInto {
             drawRect(
-                brush = LinearGradient(
+                brush = Brush.linearGradient(
                     0.0f to Color.Red,
                     0.5f to Color.Red,
                     0.5f to Color.Blue,
                     1.0f to Color.Blue,
-                    startX = 0.0f,
-                    startY = 0.0f,
-                    endX = 0.0f,
-                    endY = 100f
+                    start = Offset.Zero,
+                    end = Offset(0.0f, 100f),
+                    tileMode = TileMode.Clamp
                 )
             )
         }
@@ -68,14 +67,14 @@ class ShaderTest {
 
         imageBitmap.drawInto {
             drawCircle(
-                brush = RadialGradient(
+                brush = Brush.radialGradient(
                     0.0f to Color.Red,
                     0.5f to Color.Red,
                     0.5f to Color.Blue,
                     1.0f to Color.Blue,
-                    centerX = 50f,
-                    centerY = 50f,
-                    radius = 50f
+                    center = Offset(50f, 50f),
+                    radius = 50f,
+                    tileMode = TileMode.Clamp
                 )
             )
         }
@@ -100,12 +99,12 @@ class ShaderTest {
         val center = Offset(50f, 50f)
         imageBitmap.drawInto {
             drawRect(
-                brush = SweepGradient(
+                brush = Brush.sweepGradient(
                     0.0f to Color.Red,
                     0.5f to Color.Red,
                     0.5f to Color.Blue,
                     1.0f to Color.Blue,
-                    center = center,
+                    center = center
                 )
             )
         }
@@ -119,6 +118,83 @@ class ShaderTest {
         assertEquals(Color.Blue, pixelMap[centerX * 2 - 5, centerY - 5])
         assertEquals(Color.Red, pixelMap[5, centerY + 5])
         assertEquals(Color.Blue, pixelMap[5, centerY - 5])
+    }
+
+    @Test
+    fun testLinearGradientIntrinsicSize() {
+        assertEquals(
+            Size(100f, 200f),
+            Brush.linearGradient(
+                listOf(Color.Red, Color.Blue),
+                start = Offset(200f, 100f),
+                end = Offset(300f, 300f)
+            ).intrinsicSize
+        )
+    }
+
+    @Test
+    fun testLinearGradientNegativePosition() {
+        assertEquals(
+            Size(100f, 200f),
+            Brush.linearGradient(
+                listOf(Color.Red, Color.Blue),
+                start = Offset(200f, 100f),
+                end = Offset(100f, -100f)
+            ).intrinsicSize
+        )
+    }
+
+    @Test
+    fun testLinearGradientInfiniteWidth() {
+        assertEquals(
+            Size(Float.NaN, 200f),
+            Brush.linearGradient(
+                listOf(Color.Red, Color.Blue),
+                start = Offset(Float.POSITIVE_INFINITY, 100f),
+                end = Offset(Float.POSITIVE_INFINITY, 300f)
+            ).intrinsicSize
+        )
+    }
+
+    @Test
+    fun testLinearGradientInfiniteHeight() {
+        assertEquals(
+            Size(100f, Float.NaN),
+            Brush.linearGradient(
+                listOf(Color.Red, Color.Blue),
+                start = Offset(100f, 0f),
+                end = Offset(200f, Float.POSITIVE_INFINITY)
+            ).intrinsicSize
+        )
+    }
+
+    @Test
+    fun testSweepGradientIntrinsicSize() {
+        // Sweep gradients do not have an intrinsic size as they sweep/fill the geometry they are
+        // drawn with
+        assertEquals(
+            Size.Unspecified,
+            Brush.sweepGradient(listOf(Color.Red, Color.Blue)).intrinsicSize
+        )
+    }
+
+    @Test
+    fun testRadialGradientIntrinsicSize() {
+        assertEquals(
+            Size(100f, 100f),
+            Brush.radialGradient(
+                listOf(Color.Red, Color.Blue),
+                radius = 50f
+            ).intrinsicSize
+        )
+    }
+
+    @Test
+    fun testRadialGradientInfiniteSize() {
+        assertEquals(
+            Size.Unspecified,
+            Brush.radialGradient(listOf(Color.Red, Color.Blue)).intrinsicSize
+        )
     }
 
     private fun ImageBitmap.drawInto(

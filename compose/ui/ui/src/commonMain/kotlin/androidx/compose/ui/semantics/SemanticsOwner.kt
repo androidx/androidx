@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.semantics
 
-import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.util.fastForEach
 
@@ -24,8 +23,7 @@ import androidx.compose.ui.util.fastForEach
  * Owns [SemanticsNode] objects and notifies listeners of changes to the
  * semantics tree
  */
-@OptIn(ExperimentalLayoutNodeApi::class)
-class SemanticsOwner(val rootNode: LayoutNode) {
+class SemanticsOwner internal constructor(private val rootNode: LayoutNode) {
     /**
      * The root node of the semantics tree.  Does not contain any unmerged data.
      * May contain merged data.
@@ -46,7 +44,7 @@ class SemanticsOwner(val rootNode: LayoutNode) {
  * list.
  */
 fun SemanticsOwner.getAllSemanticsNodes(mergingEnabled: Boolean): List<SemanticsNode> {
-    return getAllSemanticsNodesToMap(mergingEnabled).values.toList()
+    return getAllSemanticsNodesToMap(useUnmergedTree = !mergingEnabled).values.toList()
 }
 
 /**

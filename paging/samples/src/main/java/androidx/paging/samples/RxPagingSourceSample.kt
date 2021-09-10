@@ -19,6 +19,7 @@
 package androidx.paging.samples
 
 import androidx.annotation.Sampled
+import androidx.paging.PagingState
 import androidx.paging.rxjava2.RxPagingSource
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -31,6 +32,7 @@ private class RxBackendService {
         val prev: String,
         val next: String
     )
+
     @Suppress("UNUSED_PARAMETER")
     fun searchUsers(searchTerm: String, pageKey: String?): Single<RemoteResult> {
         throw NotImplementedError()
@@ -70,6 +72,10 @@ fun rxPagingSourceSample() {
                         else -> throw e
                     }
                 }
+        }
+
+        override fun getRefreshKey(state: PagingState<String, Item>): String? {
+            return state.anchorPosition?.let { state.closestItemToPosition(it)?.id }
         }
     }
 }

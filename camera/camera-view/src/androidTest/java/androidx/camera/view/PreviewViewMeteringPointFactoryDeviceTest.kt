@@ -33,7 +33,7 @@ import org.junit.runners.Parameterized
  */
 @SmallTest
 @RunWith(Parameterized::class)
-class PreviewViewMeteringPointFactoryDeviceTest(
+public class PreviewViewMeteringPointFactoryDeviceTest(
     private val cropRect: Rect,
     private val rotationDegrees: Int,
     private val surfaceSize: Size,
@@ -45,7 +45,7 @@ class PreviewViewMeteringPointFactoryDeviceTest(
     private val expectedMeteringPoint: PointF
 ) {
 
-    companion object {
+    public companion object {
 
         private const val FRONT_CAMERA = true
         private const val BACK_CAMERA = false
@@ -73,7 +73,7 @@ class PreviewViewMeteringPointFactoryDeviceTest(
 
         @JvmStatic
         @Parameterized.Parameters
-        fun data(): Collection<Array<Any>> {
+        public fun data(): Collection<Array<Any>> {
 
             return listOf(
                 // Device in sensor orientation without crop rect.
@@ -195,7 +195,7 @@ class PreviewViewMeteringPointFactoryDeviceTest(
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
     @Test
-    fun verifyMeteringPoint() {
+    public fun verifyMeteringPoint() {
         // Arrange.
         val previewTransformation = PreviewTransformation()
         previewTransformation.scaleType = scaleType

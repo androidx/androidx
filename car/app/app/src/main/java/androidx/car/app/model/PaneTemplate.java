@@ -16,7 +16,7 @@
 
 package androidx.car.app.model;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_PANE;
@@ -26,7 +26,8 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.model.constraints.CarTextConstraints;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -41,12 +42,12 @@ import java.util.Objects;
  * previous one if:
  *
  * <ul>
- *   <li>The template title has not changed, and
- *   <li>The previous template is in a loading state (see {@link Pane.Builder#setLoading}, or the
- *       number of rows and the string contents (title, texts, not counting spans) of each row
- *       between the previous and new {@link Pane}s have not changed.
+ *   <li>The previous template is in a loading state (see {@link Pane.Builder#setLoading}, or
+ *   <li>The template title has not changed, and the number of rows and the title (not counting
+ *       spans) of each row between the previous and new {@link Pane}s have not changed.
  * </ul>
  */
+@CarProtocol
 public final class PaneTemplate implements Template {
     @Keep
     @Nullable
@@ -62,33 +63,44 @@ public final class PaneTemplate implements Template {
     private final ActionStrip mActionStrip;
 
     /**
-     * Constructs a new builder of {@link PaneTemplate}.
+     * Returns the title of the template or {@code null} if not set.
      *
-     * @throws NullPointerException if {@code pane} is {@code null}
+     * @see Builder#setTitle(CharSequence)
      */
-    @NonNull
-    public static Builder builder(@NonNull Pane pane) {
-        return new Builder(requireNonNull(pane));
-    }
-
     @Nullable
     public CarText getTitle() {
         return mTitle;
     }
 
+    /**
+     * Returns the {@link Action} that is set to be displayed in the header of the template, or
+     * {@code null} if not set.
+     *
+     * @see Builder#setHeaderAction(Action)
+     */
     @Nullable
     public Action getHeaderAction() {
         return mHeaderAction;
     }
 
-    @NonNull
-    public Pane getPane() {
-        return requireNonNull(mPane);
-    }
-
+    /**
+     * Returns the {@link ActionStrip} for this template or {@code null} if not set.
+     *
+     * @see Builder#setActionStrip(ActionStrip)
+     */
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
+    }
+
+    /**
+     * Returns the {@link Pane} to display in the template.
+     *
+     * @see Builder#Builder(Pane)
+     */
+    @NonNull
+    public Pane getPane() {
+        return requireNonNull(mPane);
     }
 
     @NonNull
@@ -118,7 +130,7 @@ public final class PaneTemplate implements Template {
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
     }
 
-    private PaneTemplate(Builder builder) {
+    PaneTemplate(Builder builder) {
         mTitle = builder.mTitle;
         mPane = builder.mPane;
         mHeaderAction = builder.mHeaderAction;
@@ -136,78 +148,72 @@ public final class PaneTemplate implements Template {
     /** A builder of {@link PaneTemplate}. */
     public static final class Builder {
         @Nullable
-        private CarText mTitle;
-        private Pane mPane;
+        CarText mTitle;
+        Pane mPane;
         @Nullable
-        private Action mHeaderAction;
+        Action mHeaderAction;
         @Nullable
-        private ActionStrip mActionStrip;
-
-        private Builder(Pane pane) {
-            this.mPane = pane;
-        }
+        ActionStrip mActionStrip;
 
         /**
-         * Sets the {@link CharSequence} to show as the template's title, or {@code null} to not
-         * show a
-         * title.
+         * Sets the title of the template.
+         *
+         * <p>Unless set with this method, the template will not have a title.
+         *
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
+         *
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} contains unsupported spans
+         * @see CarText
          */
         @NonNull
-        public Builder setTitle(@Nullable CharSequence title) {
-            this.mTitle = title == null ? null : CarText.create(title);
+        public Builder setTitle(@NonNull CharSequence title) {
+            mTitle = CarText.create(requireNonNull(title));
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
         }
 
         /**
-         * Sets the {@link Action} that will be displayed in the header of the template, or
-         * {@code null}
-         * to not display an action.
+         * Sets the {@link Action} that will be displayed in the header of the template.
+         *
+         * <p>Unless set with this method, the template will not have a header action.
          *
          * <h4>Requirements</h4>
          *
-         * This template only supports either either one of {@link Action#APP_ICON} and {@link
-         * Action#BACK} as a header {@link Action}.
+         * This template only supports either one of {@link Action#APP_ICON} and
+         * {@link Action#BACK} as a header {@link Action}.
          *
          * @throws IllegalArgumentException if {@code headerAction} does not meet the template's
-         *                                  requirements.
+         *                                  requirements
+         * @throws NullPointerException     if {@code headerAction} is {@code null}
          */
         @NonNull
-        public Builder setHeaderAction(@Nullable Action headerAction) {
+        public Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
-                    headerAction == null ? Collections.emptyList()
-                            : Collections.singletonList(headerAction));
-            this.mHeaderAction = headerAction;
-            return this;
-        }
-
-        /**
-         * Sets the {@link Pane} to display in the template.
-         *
-         * @throws NullPointerException if {@code pane} is {@code null}.
-         */
-        @NonNull
-        public Builder setPane(@NonNull Pane pane) {
-            this.mPane = requireNonNull(pane);
+                    Collections.singletonList(requireNonNull(headerAction)));
+            mHeaderAction = headerAction;
             return this;
         }
 
         /**
          * Sets the {@link ActionStrip} for this template.
          *
+         * <p>Unless set with this method, the template will not have an action strip.
+         *
          * <h4>Requirements</h4>
          *
          * This template allows up to 2 {@link Action}s in its {@link ActionStrip}. Of the 2 allowed
          * {@link Action}s, one of them can contain a title as set via
-         * {@link Action.Builder#setTitle}.
-         * Otherwise, only {@link Action}s with icons are allowed.
+         * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
          *
-         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements.
+         * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
+         * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
-        public Builder setActionStrip(@Nullable ActionStrip actionStrip) {
-            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(
-                    actionStrip == null ? Collections.emptyList() : actionStrip.getActions());
-            this.mActionStrip = actionStrip;
+        public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
+            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
+            mActionStrip = actionStrip;
             return this;
         }
 
@@ -216,23 +222,28 @@ public final class PaneTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * This template allows up to 2 {@link Row}s and 2 {@link Action}s in the {@link Pane}.
-         * The host
+         * The number of items in the {@link ItemList} should be smaller or equal than the limit
+         * provided by
+         * {@link androidx.car.app.constraints.ConstraintManager#CONTENT_LIMIT_TYPE_PANE}. The host
          * will ignore any rows over that limit. Each {@link Row}s can add up to 2 lines of texts
-         * via
-         * {@link Row.Builder#addText} and cannot contain either a {@link Toggle} or a {@link
+         * via {@link Row.Builder#addText} and cannot contain either a {@link Toggle} or a {@link
          * OnClickListener}.
+         *
+         * <p>Up to 2 {@link Action}s are allowed in the {@link Pane}. Each action's title color
+         * can be customized with {@link ForegroundCarColorSpan} instances. Any other span is not
+         * supported.
          *
          * <p>Either a header {@link Action} or title must be set on the template.
          *
-         * @throws IllegalArgumentException if the {@link Pane} does not meet the requirements.
+         * @throws IllegalArgumentException if the {@link Pane} does not meet the requirements
          * @throws IllegalStateException    if the template does not have either a title or header
-         *                                  {@link
-         *                                  Action} set.
+         *                                  {@link Action} set
+         * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
         @NonNull
         public PaneTemplate build() {
             ROW_LIST_CONSTRAINTS_PANE.validateOrThrow(mPane);
+            ACTIONS_CONSTRAINTS_BODY.validateOrThrow(mPane.getActions());
 
             if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {
                 throw new IllegalStateException("Either the title or header action must be set");
@@ -241,11 +252,13 @@ public final class PaneTemplate implements Template {
             return new PaneTemplate(this);
         }
 
-        /** @hide */
-        @RestrictTo(LIBRARY)
-        @NonNull
-        public PaneTemplate buildForTesting() {
-            return new PaneTemplate(this);
+        /**
+         * Returns a new instance of a @link Builder}.
+         *
+         * @throws NullPointerException if {@code pane} is {@code null}
+         */
+        public Builder(@NonNull Pane pane) {
+            mPane = pane;
         }
     }
 }

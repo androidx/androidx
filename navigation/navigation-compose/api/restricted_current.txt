@@ -4,41 +4,43 @@ package androidx.navigation.compose {
   @androidx.navigation.Navigator.Name("composable") public final class ComposeNavigator extends androidx.navigation.Navigator<androidx.navigation.compose.ComposeNavigator.Destination> {
     ctor public ComposeNavigator();
     method public androidx.navigation.compose.ComposeNavigator.Destination createDestination();
-    method public androidx.navigation.NavDestination? navigate(androidx.navigation.compose.ComposeNavigator.Destination destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
-    method public boolean popBackStack();
   }
 
   @androidx.navigation.NavDestination.ClassType(Composable::class) public static final class ComposeNavigator.Destination extends androidx.navigation.NavDestination {
     ctor public ComposeNavigator.Destination(androidx.navigation.compose.ComposeNavigator navigator, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
   }
 
-  public final class NamedNavArgument {
+  public final class DialogHostKt {
+    method @androidx.compose.runtime.Composable public static void DialogHost(androidx.navigation.compose.DialogNavigator dialogNavigator);
   }
 
-  public final class NamedNavArgumentKt {
-    method @androidx.navigation.NavDestinationDsl public static androidx.navigation.compose.NamedNavArgument navArgument(String name, kotlin.jvm.functions.Function1<? super androidx.navigation.NavArgumentBuilder,kotlin.Unit> builder);
+  @androidx.navigation.Navigator.Name("dialog") public final class DialogNavigator extends androidx.navigation.Navigator<androidx.navigation.compose.DialogNavigator.Destination> {
+    ctor public DialogNavigator();
+    method public androidx.navigation.compose.DialogNavigator.Destination createDestination();
+  }
+
+  @androidx.navigation.NavDestination.ClassType(Composable::class) public static final class DialogNavigator.Destination extends androidx.navigation.NavDestination implements androidx.navigation.FloatingWindow {
+    ctor public DialogNavigator.Destination(androidx.navigation.compose.DialogNavigator navigator, optional androidx.compose.ui.window.DialogProperties dialogProperties, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
+  }
+
+  public final class NavBackStackEntryProviderKt {
+    method @androidx.compose.runtime.Composable public static void LocalOwnersProvider(androidx.navigation.NavBackStackEntry, androidx.compose.runtime.saveable.SaveableStateHolder saveableStateHolder, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   public final class NavGraphBuilderKt {
-    method public static void composable(androidx.navigation.NavGraphBuilder, String route, optional java.util.List<androidx.navigation.compose.NamedNavArgument> arguments, optional java.util.List<androidx.navigation.NavDeepLink> deepLinks, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
-    method public static void navigation(androidx.navigation.NavGraphBuilder, String startDestination, String route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method public static void composable(androidx.navigation.NavGraphBuilder, String route, optional java.util.List<androidx.navigation.NamedNavArgument> arguments, optional java.util.List<androidx.navigation.NavDeepLink> deepLinks, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
+    method public static void dialog(androidx.navigation.NavGraphBuilder, String route, optional java.util.List<androidx.navigation.NamedNavArgument> arguments, optional java.util.List<androidx.navigation.NavDeepLink> deepLinks, optional androidx.compose.ui.window.DialogProperties dialogProperties, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
+    method public static void navigation(androidx.navigation.NavGraphBuilder, String startDestination, String route, optional java.util.List<androidx.navigation.NamedNavArgument> arguments, optional java.util.List<androidx.navigation.NavDeepLink> deepLinks, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
   }
 
   public final class NavHostControllerKt {
-    method public static androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, String startDestination, optional String? route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.navigation.NavBackStackEntry> currentBackStackEntryAsState(androidx.navigation.NavController);
-    method public static void navigate(androidx.navigation.NavController, String route, optional kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> builder);
     method @androidx.compose.runtime.Composable public static androidx.navigation.NavHostController rememberNavController();
-    field public static final String KEY_ROUTE = "android-support-nav:controller:route";
   }
 
   public final class NavHostKt {
-    method @androidx.compose.runtime.Composable public static void NavHost(androidx.navigation.NavHostController navController, String startDestination, optional String? route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
-    method @androidx.compose.runtime.Composable public static void NavHost(androidx.navigation.NavHostController navController, androidx.navigation.NavGraph graph);
-  }
-
-  public final class NavOptionsBuilderKt {
-    method public static void popUpTo(androidx.navigation.NavOptionsBuilder, String route, kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
+    method @androidx.compose.runtime.Composable public static void NavHost(androidx.navigation.NavHostController navController, String startDestination, optional androidx.compose.ui.Modifier modifier, optional String? route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method @androidx.compose.runtime.Composable public static void NavHost(androidx.navigation.NavHostController navController, androidx.navigation.NavGraph graph, optional androidx.compose.ui.Modifier modifier);
   }
 
 }

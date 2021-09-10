@@ -22,7 +22,7 @@ import androidx.annotation.NonNull;
  * A report of failed capture for a single image capture.
  *
  */
-public final class CameraCaptureFailure {
+public class CameraCaptureFailure {
 
     private final Reason mReason;
 

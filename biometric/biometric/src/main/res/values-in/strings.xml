@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Gunakan sandi"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Tidak ada PIN, pola, atau sandi yang disetel."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Perangkat ini tidak mendukung PIN, pola, atau sandi."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Ikon sidik jari"</string>
 </resources>

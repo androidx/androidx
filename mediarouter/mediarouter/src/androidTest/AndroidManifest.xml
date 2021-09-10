@@ -21,8 +21,9 @@
         <activity
             android:name="androidx.mediarouter.app.MediaRouteChooserDialogTestActivity"
             android:label="MediaRouteChooserDialogTestActivity"
+            android:exported="true"
             android:theme="@style/Theme.AppCompat" />
-
+        <activity android:name="androidx.mediarouter.media.MediaRouter2TestActivity" />
         <service
             android:name="androidx.mediarouter.media.StubMediaRouteProviderService"
             android:exported="true">
@@ -32,14 +33,16 @@
             </intent-filter>
         </service>
 
-        <receiver android:name="androidx.media.session.MediaButtonReceiver">
+        <receiver android:name="androidx.media.session.MediaButtonReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
             </intent-filter>
         </receiver>
 
         <service android:name="androidx.mediarouter.media.MediaRouteProviderServiceTest$MediaRouteProviderServiceImpl"
-                 android:enabled="true">
+            android:exported="true"
+            android:enabled="true">
             <intent-filter>
                 <action android:name="aandroid.media.MediaRouteProviderService"/>
             </intent-filter>

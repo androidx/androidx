@@ -17,9 +17,9 @@
 package androidx.compose.runtime.rxjava3
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
@@ -45,6 +45,7 @@ import io.reactivex.rxjava3.plugins.RxJavaPlugins
  * @param initial The initial value for the returned [State] which will be asynchronously updated
  * with the real one once we receive it from the stream
  */
+@Suppress("UPPER_BOUND_VIOLATED_BASED_ON_JAVA_ANNOTATIONS")
 @Composable
 fun <R, T : R> Observable<T>.subscribeAsState(initial: R): State<R> =
     asState(initial) { subscribe(it) }
@@ -65,6 +66,7 @@ fun <R, T : R> Observable<T>.subscribeAsState(initial: R): State<R> =
  * @param initial The initial value for the returned [State] which will be asynchronously updated
  * with the real one once we receive it from the stream
  */
+@Suppress("UPPER_BOUND_VIOLATED_BASED_ON_JAVA_ANNOTATIONS")
 @Composable
 fun <R, T : R> Flowable<T>.subscribeAsState(initial: R): State<R> =
     asState(initial) { subscribe(it) }
@@ -85,6 +87,7 @@ fun <R, T : R> Flowable<T>.subscribeAsState(initial: R): State<R> =
  * @param initial The initial value for the returned [State] which will be asynchronously updated
  * with the real one once we receive it from the stream
  */
+@Suppress("UPPER_BOUND_VIOLATED_BASED_ON_JAVA_ANNOTATIONS")
 @Composable
 fun <R, T : R> Single<T>.subscribeAsState(initial: R): State<R> =
     asState(initial) { subscribe(it) }
@@ -132,7 +135,7 @@ private inline fun <T, S> S.asState(
     crossinline subscribe: S.((T) -> Unit) -> Disposable
 ): State<T> {
     val state = remember { mutableStateOf(initial) }
-    onCommit(this) {
+    DisposableEffect(this) {
         val disposable = subscribe {
             state.value = it
         }

@@ -16,28 +16,34 @@
 
 package androidx.car.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 /** Exceptions that happen on calls to the host. */
-// Developers can catch this exception so keeping it.
-public class HostException extends RuntimeException {
-    /** @hide */
-    @RestrictTo(LIBRARY)
+public final class HostException extends RuntimeException {
+    /**
+     * Creates an instance of {@link HostException} with the given {@code message}.
+     *
+     * @param message the exception message
+     */
     public HostException(@NonNull String message) {
         super(message);
     }
 
-    /** @hide */
-    @RestrictTo(LIBRARY)
+    /**
+     * Creates an instance of {@link HostException} with the given {@code message}.
+     *
+     * @param message the exception message
+     * @param cause   the originating cause of the exception
+     */
     public HostException(@NonNull String message, @NonNull Throwable cause) {
         super(message, cause);
     }
 
-    /** @hide */
-    @RestrictTo(LIBRARY)
+    /**
+     * Creates an instance of {@link HostException} with the given {@code cause}.
+     *
+     * @param cause the originating cause of the exception
+     */
     public HostException(@NonNull Throwable cause) {
         super(cause);
     }

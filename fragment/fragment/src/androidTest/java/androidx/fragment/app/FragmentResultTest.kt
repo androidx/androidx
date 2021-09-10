@@ -16,7 +16,10 @@
 
 package androidx.fragment.app
 
+import android.app.Activity
 import android.os.Bundle
+import android.os.Parcelable
+import androidx.activity.result.ActivityResult
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.core.app.ActivityScenario
@@ -380,6 +383,54 @@ class FragmentResultTest {
                 .isEqualTo("resultGood")
         }
     }
+
+    @Test
+    fun testReplaceResultWithParcelableOnRecreation() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            var fm = withActivity {
+                setContentView(R.layout.simple_container)
+                supportFragmentManager
+            }
+            var fragment1 = ParcelableResultFragment()
+
+            fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment1, "fragment1")
+                .commit()
+            executePendingTransactions()
+
+            val fragment2 = StrictFragment()
+
+            fm.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment2)
+                .addToBackStack(null)
+                .commit()
+            executePendingTransactions()
+
+            val resultBundle = Bundle()
+            val expectedResult = ActivityResult(Activity.RESULT_OK, null)
+            resultBundle.putParcelable("bundleKey", expectedResult)
+
+            fm.setFragmentResult("requestKey", resultBundle)
+
+            assertWithMessage("The result is not set")
+                .that(fragment1.actualResult)
+                .isNull()
+
+            recreate()
+
+            fm = withActivity { supportFragmentManager }
+
+            withActivity {
+                fm.popBackStackImmediate()
+            }
+
+            fragment1 = fm.findFragmentByTag("fragment1") as ParcelableResultFragment
+
+            assertWithMessage("The result is incorrect")
+                .that(fragment1.actualResult)
+                .isEqualTo(expectedResult)
+        }
+    }
 }
 
 class ResultFragment : StrictFragment() {
@@ -433,5 +484,19 @@ class ChildResultFragment : StrictFragment() {
             putString("bundleKey", "resultGood")
         }
         parentFragmentManager.setFragmentResult("requestKey", resultBundle)
+    }
+}
+
+class ParcelableResultFragment : StrictFragment() {
+    var actualResult: Parcelable? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        parentFragmentManager.setFragmentResultListener(
+            "requestKey", this,
+            FragmentResultListener
+            { _, bundle -> actualResult = bundle.getParcelable<ActivityResult>("bundleKey") }
+        )
     }
 }

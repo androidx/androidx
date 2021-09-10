@@ -17,19 +17,20 @@
 package androidx.camera.core.internal;
 
 import android.graphics.Rect;
+import android.graphics.SurfaceTexture;
 import android.util.Size;
+import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalCameraFilter;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
+import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraConfig;
@@ -42,6 +43,8 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -72,6 +75,8 @@ public final class CameraUseCaseAdapter implements Camera {
 
     private final CameraId mId;
 
+    // This includes app provided use cases and the extra placeholder use cases (mExtraUseCases)
+    // created by CameraX.
     @GuardedBy("mLock")
     private final List<UseCase> mUseCases = new ArrayList<>();
 
@@ -94,6 +99,10 @@ public final class CameraUseCaseAdapter implements Camera {
     // This holds the cached Interop config from CameraControlInternal.
     @GuardedBy("mLock")
     private Config mInteropConfig = null;
+
+    // The extra placeholder use cases created by CameraX to make sure the camera can work normally.
+    @GuardedBy("mLock")
+    private List<UseCase> mExtraUseCases = new ArrayList<>();
 
     /**
      * Create a new {@link CameraUseCaseAdapter} instance.
@@ -173,7 +182,6 @@ public final class CameraUseCaseAdapter implements Camera {
      * @throws CameraException Thrown if the combination of newly added UseCases and the
      *                         currently added UseCases exceed the capability of the camera.
      */
-    @UseExperimental(markerClass = androidx.camera.core.ExperimentalUseCaseGroup.class)
     public void addUseCases(@NonNull Collection<UseCase> useCases) throws CameraException {
         synchronized (mLock) {
             List<UseCase> newUseCases = new ArrayList<>();
@@ -186,18 +194,56 @@ public final class CameraUseCaseAdapter implements Camera {
                 }
             }
 
+            List<UseCase> allUseCases = new ArrayList<>(mUseCases);
+            List<UseCase> requiredExtraUseCases = Collections.emptyList();
+            List<UseCase> removedExtraUseCases = Collections.emptyList();
+
+            if (isCoexistingPreviewImageCaptureRequired()) {
+                // Collects all use cases that will be finally bound by the application
+                allUseCases.removeAll(mExtraUseCases);
+                allUseCases.addAll(newUseCases);
+
+                // Calculates the required extra use cases according to the use cases finally bound
+                // by the application and the existing extra use cases.
+                requiredExtraUseCases = calculateRequiredExtraUseCases(allUseCases,
+                        new ArrayList<>(mExtraUseCases));
+
+                // Calculates the new added extra use cases
+                List<UseCase> addedExtraUseCases = new ArrayList<>(requiredExtraUseCases);
+                addedExtraUseCases.removeAll(mExtraUseCases);
+
+                // Adds the new added extra use cases to the newUseCases list
+                newUseCases.addAll(addedExtraUseCases);
+
+                // Calculates the removed extra use cases
+                removedExtraUseCases = new ArrayList<>(mExtraUseCases);
+                removedExtraUseCases.removeAll(requiredExtraUseCases);
+            }
+
             Map<UseCase, ConfigPair> configs = getConfigs(newUseCases,
                     mCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory);
 
             Map<UseCase, Size> suggestedResolutionsMap;
             try {
+                // Removes the unnecessary extra use cases and then checks whether all uses cases
+                // including all the use cases finally bound by the application and the needed
+                // extra use cases can be supported by guaranteed supported configurations tables.
+                List<UseCase> boundUseCases = new ArrayList<>(mUseCases);
+                boundUseCases.removeAll(removedExtraUseCases);
                 suggestedResolutionsMap =
                         calculateSuggestedResolutions(mCameraInternal.getCameraInfoInternal(),
-                                newUseCases, mUseCases, configs);
+                                newUseCases, boundUseCases, configs);
             } catch (IllegalArgumentException e) {
                 throw new CameraException(e.getMessage());
             }
             updateViewPort(suggestedResolutionsMap, useCases);
+
+            // Saves the updated extra use cases set after confirming the use case combination
+            // can be supported.
+            mExtraUseCases = requiredExtraUseCases;
+
+            // Detaches the unnecessary existing extra use cases
+            detachUnnecessaryUseCases(removedExtraUseCases);
 
             // At this point the binding will succeed since all the calculations are done
             // Do all attaching related work
@@ -209,8 +255,11 @@ public final class CameraUseCaseAdapter implements Camera {
                         Preconditions.checkNotNull(suggestedResolutionsMap.get(useCase)));
             }
 
+            // The added use cases will include the app provided use cases and the new added extra
+            // use cases.
             mUseCases.addAll(newUseCases);
             if (mAttached) {
+                notifyAttachedUseCasesChange(mUseCases);
                 mCameraInternal.attachUseCases(newUseCases);
             }
 
@@ -226,17 +275,26 @@ public final class CameraUseCaseAdapter implements Camera {
      */
     public void removeUseCases(@NonNull Collection<UseCase> useCases) {
         synchronized (mLock) {
-            mCameraInternal.detachUseCases(useCases);
+            detachUnnecessaryUseCases(new ArrayList<>(useCases));
 
-            for (UseCase useCase : useCases) {
-                if (mUseCases.contains(useCase)) {
-                    useCase.onDetach(mCameraInternal);
-                } else {
-                    Logger.e(TAG, "Attempting to detach non-attached UseCase: " + useCase);
+            // Calls addUseCases() function to calculate and add extra use cases if coexisting
+            // Preview and ImageCapture are required.
+            if (isCoexistingPreviewImageCaptureRequired()) {
+                // The useCases might include extra use cases when unbinding all use cases.
+                // Removes the unbound extra use cases from mExtraUseCases.
+                mExtraUseCases.removeAll(useCases);
+
+                try {
+                    // Calls addUseCases with empty list to add required extra fake use case.
+                    addUseCases(Collections.emptyList());
+                } catch (CameraException e) {
+                    // This should not happen because the extra fake use case should be only
+                    // added to replace the removed one which the use case combination can be
+                    // supported.
+                    throw new IllegalArgumentException("Failed to add extra fake Preview or "
+                            + "ImageCapture use case!");
                 }
             }
-
-            mUseCases.removeAll(useCases);
         }
     }
 
@@ -265,6 +323,7 @@ public final class CameraUseCaseAdapter implements Camera {
         synchronized (mLock) {
             if (!mAttached) {
                 mCameraInternal.attachUseCases(mUseCases);
+                notifyAttachedUseCasesChange(mUseCases);
                 restoreInteropConfig();
 
                 // Notify to update the use case's active state because it may be cleared if the
@@ -288,8 +347,8 @@ public final class CameraUseCaseAdapter implements Camera {
     public void detachUseCases() {
         synchronized (mLock) {
             if (mAttached) {
-                cacheInteropConfig();
                 mCameraInternal.detachUseCases(new ArrayList<>(mUseCases));
+                cacheInteropConfig();
                 mAttached = false;
             }
         }
@@ -344,7 +403,8 @@ public final class CameraUseCaseAdapter implements Camera {
                 ConfigPair configPair = configPairMap.get(useCase);
                 // Combine with default configuration.
                 UseCaseConfig<?> combinedUseCaseConfig =
-                        useCase.mergeConfigs(configPair.mExtendedConfig, configPair.mCameraConfig);
+                        useCase.mergeConfigs(cameraInfoInternal, configPair.mExtendedConfig,
+                                configPair.mCameraConfig);
                 configToUseCaseMap.put(combinedUseCaseConfig, useCase);
             }
 
@@ -361,7 +421,6 @@ public final class CameraUseCaseAdapter implements Camera {
         return suggestedResolutions;
     }
 
-    @UseExperimental(markerClass = androidx.camera.core.ExperimentalUseCaseGroup.class)
     private void updateViewPort(@NonNull Map<UseCase, Size> suggestedResolutionsMap,
             @NonNull Collection<UseCase> useCases) {
         synchronized (mLock) {
@@ -487,63 +546,178 @@ public final class CameraUseCaseAdapter implements Camera {
     }
 
     @Override
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
-    public void setExtendedConfig(@Nullable CameraConfig cameraConfig) throws CameraException {
+    public void setExtendedConfig(@Nullable CameraConfig cameraConfig) {
         synchronized (mLock) {
-            CameraConfig newCameraConfig = cameraConfig == null ? CameraConfigs.emptyConfig() :
-                    cameraConfig;
-            // Check for new camera
-            CameraFilter cameraFilter = newCameraConfig.getCameraFilter();
-            CameraSelector cameraSelector =
-                    new CameraSelector.Builder().addCameraFilter(cameraFilter).build();
-            CameraInternal cameraInternal = cameraSelector.select(mCameraInternals);
-
-            Map<UseCase, ConfigPair> configs = getConfigs(mUseCases,
-                    newCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory);
-
-            // Calculate the config
-            Map<UseCase, Size> suggestedResolutionsMap;
-            try {
-                suggestedResolutionsMap =
-                        calculateSuggestedResolutions(cameraInternal.getCameraInfoInternal(),
-                                mUseCases,
-                                Collections.emptyList(),
-                                configs);
-            } catch (IllegalArgumentException e) {
-                // It can fail because of the suggested resolution
-                // It can fail because the merged configs are no good
-                throw new CameraException(e.getMessage());
+            if (cameraConfig == null) {
+                cameraConfig = CameraConfigs.emptyConfig();
             }
 
-            updateViewPort(suggestedResolutionsMap, mUseCases);
-
-            if (mAttached) {
-                mCameraInternal.detachUseCases(mUseCases);
+            if (!mUseCases.isEmpty() && !mCameraConfig.getCompatibilityId().equals(
+                    cameraConfig.getCompatibilityId())) {
+                throw new IllegalStateException(
+                        "Need to unbind all use cases before binding with extension enabled");
             }
 
-            for (UseCase useCase : mUseCases) {
-                useCase.onDetach(mCameraInternal);
-            }
+            mCameraConfig = cameraConfig;
 
-            for (UseCase useCase : mUseCases) {
-                ConfigPair configPair = configs.get(useCase);
-                useCase.onAttach(cameraInternal, configPair.mExtendedConfig,
-                        configPair.mCameraConfig);
-                useCase.updateSuggestedResolution(
-                        Preconditions.checkNotNull(suggestedResolutionsMap.get(useCase)));
-            }
-
-            if (mAttached) {
-                cameraInternal.attachUseCases(mUseCases);
-            }
-
-            for (UseCase useCase : mUseCases) {
-                useCase.notifyState();
-            }
-
-            mCameraInternal = cameraInternal;
-            // Update the config map now that the setting has succeeded
-            mCameraConfig = newCameraConfig;
+            //Configure the CameraInternal as well so that it can get SessionProcessor.
+            mCameraInternal.setExtendedConfig(mCameraConfig);
         }
+    }
+
+    /**
+     * Notify the attached use cases change to the listener
+     */
+    private void notifyAttachedUseCasesChange(@NonNull List<UseCase> useCases) {
+        CameraXExecutors.mainThreadExecutor().execute(() -> {
+            for (UseCase useCase : useCases) {
+                Consumer<Collection<UseCase>> attachedUseCasesUpdateListener =
+                        useCase.getCurrentConfig().getAttachedUseCasesUpdateListener(null);
+
+                if (attachedUseCasesUpdateListener != null) {
+                    attachedUseCasesUpdateListener.accept(Collections.unmodifiableList(useCases));
+                }
+            }
+        });
+    }
+
+    /**
+     * Calculates the new required extra use cases according to the use cases bound by the
+     * application and the existing extra use cases.
+     *
+     * @param boundUseCases The use cases bound by the application.
+     * @param extraUseCases The originally existing extra use cases.
+     * @return new required extra use cases
+     */
+    @NonNull
+    private List<UseCase> calculateRequiredExtraUseCases(@NonNull List<UseCase> boundUseCases,
+            @NonNull List<UseCase> extraUseCases) {
+        List<UseCase> requiredExtraUseCases = new ArrayList<>(extraUseCases);
+        boolean isExtraPreviewRequired = isExtraPreviewRequired(boundUseCases);
+        boolean isExtraImageCaptureRequired = isExtraImageCaptureRequired(
+                boundUseCases);
+        UseCase existingExtraPreview = null;
+        UseCase existingExtraImageCapture = null;
+
+        for (UseCase useCase : extraUseCases) {
+            if (isPreview(useCase)) {
+                existingExtraPreview = useCase;
+            } else if (isImageCapture(useCase)) {
+                existingExtraImageCapture = useCase;
+            }
+        }
+
+        if (isExtraPreviewRequired && existingExtraPreview == null) {
+            requiredExtraUseCases.add(createExtraPreview());
+        } else if (!isExtraPreviewRequired && existingExtraPreview != null) {
+            requiredExtraUseCases.remove(existingExtraPreview);
+        }
+
+        if (isExtraImageCaptureRequired && existingExtraImageCapture == null) {
+            requiredExtraUseCases.add(createExtraImageCapture());
+        } else if (!isExtraImageCaptureRequired && existingExtraImageCapture != null) {
+            requiredExtraUseCases.remove(existingExtraImageCapture);
+        }
+
+        return requiredExtraUseCases;
+    }
+
+    /**
+     * Detaches unnecessary use cases from camera.
+     */
+    private void detachUnnecessaryUseCases(@NonNull List<UseCase> unnecessaryUseCases) {
+        synchronized (mLock) {
+            if (!unnecessaryUseCases.isEmpty()) {
+                mCameraInternal.detachUseCases(unnecessaryUseCases);
+
+                for (UseCase useCase : unnecessaryUseCases) {
+                    if (mUseCases.contains(useCase)) {
+                        useCase.onDetach(mCameraInternal);
+                    } else {
+                        Logger.e(TAG, "Attempting to detach non-attached UseCase: " + useCase);
+                    }
+                }
+
+                mUseCases.removeAll(unnecessaryUseCases);
+            }
+        }
+    }
+
+    private boolean isCoexistingPreviewImageCaptureRequired() {
+        synchronized (mLock) {
+            return mCameraConfig.getUseCaseCombinationRequiredRule()
+                    == CameraConfig.REQUIRED_RULE_COEXISTING_PREVIEW_AND_IMAGE_CAPTURE;
+        }
+    }
+
+    /**
+     * Returns true if the input use case list contains a {@link ImageCapture} but does not
+     * contain an {@link Preview}.
+     */
+    private boolean isExtraPreviewRequired(@NonNull List<UseCase> useCases) {
+        boolean hasPreview = false;
+        boolean hasImageCapture = false;
+
+        for (UseCase useCase : useCases) {
+            if (isPreview(useCase)) {
+                hasPreview = true;
+            } else if (isImageCapture(useCase)) {
+                hasImageCapture = true;
+            }
+        }
+
+        return hasImageCapture && !hasPreview;
+    }
+
+    /**
+     * Returns true if the input use case list contains a {@link Preview} but does not contain an
+     * {@link ImageCapture}.
+     */
+    private boolean isExtraImageCaptureRequired(@NonNull List<UseCase> useCases) {
+        boolean hasPreview = false;
+        boolean hasImageCapture = false;
+
+        for (UseCase useCase : useCases) {
+            if (isPreview(useCase)) {
+                hasPreview = true;
+            } else if (isImageCapture(useCase)) {
+                hasImageCapture = true;
+            }
+        }
+
+        return hasPreview && !hasImageCapture;
+    }
+
+    private boolean isPreview(UseCase useCase) {
+        return useCase instanceof Preview;
+    }
+
+    private boolean isImageCapture(UseCase useCase) {
+        return useCase instanceof ImageCapture;
+    }
+
+    private Preview createExtraPreview() {
+        Preview preview = new Preview.Builder().setTargetName("Preview-Extra").build();
+
+        // Sets a SurfaceProvider to provide the needed surface and release it
+        preview.setSurfaceProvider((surfaceRequest) -> {
+            SurfaceTexture surfaceTexture = new SurfaceTexture(0);
+            surfaceTexture.setDefaultBufferSize(surfaceRequest.getResolution().getWidth(),
+                    surfaceRequest.getResolution().getHeight());
+            surfaceTexture.detachFromGLContext();
+            Surface surface = new Surface(surfaceTexture);
+            surfaceRequest.provideSurface(surface,
+                    CameraXExecutors.directExecutor(),
+                    (surfaceResponse) -> {
+                        surface.release();
+                        surfaceTexture.release();
+                    });
+        });
+
+        return preview;
+    }
+
+    private ImageCapture createExtraImageCapture() {
+        return new ImageCapture.Builder().setTargetName("ImageCapture-Extra").build();
     }
 }

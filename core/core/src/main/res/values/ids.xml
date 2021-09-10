@@ -30,6 +30,10 @@
     <item name="tag_accessibility_clickable_spans" type="id"/>
     <item name="tag_accessibility_actions" type="id"/>
     <item name="tag_state_description" type="id"/>
+    <item name="tag_on_receive_content_listener" type="id"/>
+    <item name="tag_on_receive_content_mime_types" type="id"/>
+    <item name="tag_window_insets_animation_callback" type="id"/>
+    <item name="tag_on_apply_window_listener" type="id"/>
     <item name="accessibility_custom_action_0" type="id"/>
     <item name="accessibility_custom_action_1" type="id"/>
     <item name="accessibility_custom_action_2" type="id"/>

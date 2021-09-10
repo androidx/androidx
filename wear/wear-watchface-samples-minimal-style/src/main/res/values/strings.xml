@@ -1,0 +1,11 @@
+<resources>
+  <string name="app_name">Minimal Style</string>
+  <string name="configuration_title">Configuration</string>
+    <string name="style_change">Change</string>
+  <string name="style_header">Time Style</string>
+    <string name="time_style_name">Time</string>
+  <string name="time_style_description">How the time is displayed on the watch face</string>
+  <string name="time_style_minimal_name">Minimal</string>
+  <string name="time_style_seconds_name">Seconds</string>
+  <string name="time_style_bold_name">Bold</string>
+</resources>

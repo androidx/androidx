@@ -18,11 +18,11 @@ package androidx.compose.ui.test
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.testutils.expectError
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -48,8 +48,8 @@ class TextActionsTest {
     @Composable
     @OptIn(ExperimentalFoundationApi::class)
     fun TextFieldUi(
-        imeAction: ImeAction = ImeAction.Unspecified,
-        onImeActionPerformed: (ImeAction) -> Unit = {},
+        imeAction: ImeAction = ImeAction.Default,
+        keyboardActions: KeyboardActions = KeyboardActions.Default,
         textCallback: (String) -> Unit = {}
     ) {
         val state = remember { mutableStateOf("") }
@@ -57,7 +57,7 @@ class TextActionsTest {
             modifier = Modifier.testTag(fieldTag),
             value = state.value,
             keyboardOptions = KeyboardOptions(imeAction = imeAction),
-            onImeActionPerformed = onImeActionPerformed,
+            keyboardActions = keyboardActions,
             onValueChange = {
                 state.value = it
                 textCallback(it)
@@ -82,7 +82,7 @@ class TextActionsTest {
         }
 
         rule.onNodeWithTag(fieldTag)
-            .performTextClearance(alreadyHasFocus = true)
+            .performTextClearance()
 
         rule.runOnIdle {
             assertThat(lastSeenText).isEqualTo("")
@@ -102,7 +102,7 @@ class TextActionsTest {
             .performTextInput("Hello ")
 
         rule.onNodeWithTag(fieldTag)
-            .performTextInput("world!", alreadyHasFocus = true)
+            .performTextInput("world!")
 
         rule.runOnIdle {
             assertThat(lastSeenText).isEqualTo("Hello world!")
@@ -125,22 +125,10 @@ class TextActionsTest {
         // Thread.sleep(3000)
 
         rule.onNodeWithTag(fieldTag)
-            .performTextInput(" world!", alreadyHasFocus = true)
+            .performTextInput(" world!")
 
         rule.runOnIdle {
             assertThat(lastSeenText).isEqualTo("Hello world!")
-        }
-    }
-
-    @Test
-    fun sendText_noFocus_fail() {
-        rule.setContent {
-            TextFieldUi()
-        }
-
-        expectError<IllegalStateException> {
-            rule.onNodeWithTag(fieldTag)
-                .performTextInput("Hello!", alreadyHasFocus = true)
         }
     }
 
@@ -161,7 +149,7 @@ class TextActionsTest {
         }
 
         rule.onNodeWithTag(fieldTag)
-            .performTextReplacement("world", alreadyHasFocus = true)
+            .performTextReplacement("world")
 
         rule.runOnIdle {
             assertThat(lastSeenText).isEqualTo("world")
@@ -170,33 +158,33 @@ class TextActionsTest {
 
     @Test
     fun sendImeAction_search() {
-        var actionPerformed: ImeAction = ImeAction.Unspecified
+        var actionPerformed = false
         rule.setContent {
             TextFieldUi(
                 imeAction = ImeAction.Search,
-                onImeActionPerformed = { actionPerformed = it }
+                keyboardActions = KeyboardActions(onSearch = { actionPerformed = true })
             )
         }
-        assertThat(actionPerformed).isEqualTo(ImeAction.Unspecified)
+        assertThat(actionPerformed).isFalse()
 
         rule.onNodeWithTag(fieldTag)
             .performImeAction()
 
         rule.runOnIdle {
-            assertThat(actionPerformed).isEqualTo(ImeAction.Search)
+            assertThat(actionPerformed).isTrue()
         }
     }
 
     @Test
     fun sendImeAction_actionNotDefined_shouldFail() {
-        var actionPerformed: ImeAction = ImeAction.Unspecified
+        var actionPerformed = false
         rule.setContent {
             TextFieldUi(
-                imeAction = ImeAction.Unspecified,
-                onImeActionPerformed = { actionPerformed = it }
+                imeAction = ImeAction.Default,
+                keyboardActions = KeyboardActions { actionPerformed = true }
             )
         }
-        assertThat(actionPerformed).isEqualTo(ImeAction.Unspecified)
+        assertThat(actionPerformed).isFalse()
 
         expectErrorMessageStartsWith(
             "" +

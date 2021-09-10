@@ -21,7 +21,10 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.Action.ActionType;
+import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,30 +43,27 @@ import java.util.Set;
  * <p>See the documentation of individual {@link Template}s on restrictions around what actions are
  * supported.
  */
-public class ActionStrip {
+@CarProtocol
+public final class ActionStrip {
     @Keep
-    private final List<Object> mActions;
-
-    /** Constructs a new builder of {@link ActionStrip}. */
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
+    private final List<Action> mActions;
 
     /**
-     * Returns the list of {@link Action}'s.
+     * Returns the list of {@link Action}s in the strip.
+     *
+     * @see Builder#addAction(Action)
      */
     @NonNull
-    public List<Object> getActions() {
-        return mActions;
+    public List<Action> getActions() {
+        return CollectionUtils.emptyIfNull(mActions);
     }
 
     /**
-     * Returns the {@link Action} associated with the input {@code actionType}, or {@code null} if
-     * no matching {@link Action} is found.
+     * Returns the first {@link Action} associated with the input {@code actionType} or {@code
+     * null} if no matching {@link Action} is found.
      */
     @Nullable
-    public Action getActionOfType(@ActionType int actionType) {
+    public Action getFirstActionOfType(@ActionType int actionType) {
         for (Object object : mActions) {
             if (object instanceof Action) {
                 Action action = (Action) object;
@@ -100,8 +100,8 @@ public class ActionStrip {
         return Objects.equals(mActions, otherActionStrip.mActions);
     }
 
-    private ActionStrip(Builder builder) {
-        mActions = builder.mActions;
+    ActionStrip(Builder builder) {
+        mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -111,16 +111,21 @@ public class ActionStrip {
 
     /** A builder of {@link ActionStrip}. */
     public static final class Builder {
-        private final List<Object> mActions = new ArrayList<>();
-        private final Set<Integer> mAddedActionTypes = new HashSet<>();
+        final List<Action> mActions = new ArrayList<>();
+        final Set<Integer> mAddedActionTypes = new HashSet<>();
 
         /**
          * Adds an {@link Action} to the list.
          *
-         * @throws IllegalArgumentException if the background color of the action is specified.
-         * @throws IllegalArgumentException if {@code action} is a standard action and an action of
-         *                                  the same type has already been added.
-         * @throws NullPointerException     if {@code action} is {@code null}.
+         * <p>Background colors are not supported on an action inside an {@link ActionStrip}.
+         *
+         * <p>Spans are not supported in the title of the action and will be ignored.
+         *
+         * @throws IllegalArgumentException if the background color of the action is specified,
+         *                                  or if {@code action} is a standard action and an
+         *                                  action of the same type has already been added, of if
+         *                                  the {@code action}'s title contains unsupported spans.
+         * @throws NullPointerException     if {@code action} is {@code null}
          */
         @NonNull
         public Builder addAction(@NonNull Action action) {
@@ -134,26 +139,20 @@ public class ActionStrip {
                 throw new IllegalArgumentException(
                         "Action strip actions don't support background colors");
             }
+            CarText title = action.getTitle();
+            if (title != null) {
+                CarTextConstraints.CONSERVATIVE.validateOrThrow(title);
+            }
+
             mAddedActionTypes.add(actionType);
             mActions.add(action);
             return this;
         }
 
         /**
-         * Clears any actions that may have been added with {@link #addAction(Action)} up to this
-         * point.
-         */
-        @NonNull
-        public Builder clearActions() {
-            mActions.clear();
-            mAddedActionTypes.clear();
-            return this;
-        }
-
-        /**
          * Constructs the {@link ActionStrip} defined by this builder.
          *
-         * @throws IllegalStateException if the action strip is empty.
+         * @throws IllegalStateException if the action strip is empty
          */
         @NonNull
         public ActionStrip build() {
@@ -161,6 +160,10 @@ public class ActionStrip {
                 throw new IllegalStateException("Action strip must contain at least one action");
             }
             return new ActionStrip(this);
+        }
+
+        /** Creates an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

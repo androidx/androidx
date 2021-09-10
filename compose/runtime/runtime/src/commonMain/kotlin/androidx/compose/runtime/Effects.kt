@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,203 +14,469 @@
  * limitations under the License.
  */
 
-@file:Suppress("unused")
 package androidx.compose.runtime
 
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlin.coroutines.EmptyCoroutineContext
+
 /**
- * A CommitScope represents an object that executes some code and has a cleanup in the context of the Composition lifecycle.
- * It has an "onDispose" operation to cleanup anything that it created whenever it leaves the composition.
+ * Schedule [effect] to run when the current composition completes successfully and applies
+ * changes. [SideEffect] can be used to apply side effects to objects managed by the
+ * composition that are not backed by [snapshots][androidx.compose.runtime.snapshots.Snapshot] so
+ * as not to leave those objects in an inconsistent state if the current composition operation
+ * fails.
+ *
+ * [effect] will always be run on the composition's apply dispatcher and appliers are never run
+ * concurrent with themselves, one another, applying changes to the composition tree, or running
+ * [RememberObserver] event callbacks. [SideEffect]s are always run after [RememberObserver]
+ * event callbacks.
+ *
+ * A [SideEffect] runs after **every** recomposition. To launch an ongoing task spanning
+ * potentially many recompositions, see [LaunchedEffect]. To manage an event subscription or other
+ * object lifecycle, see [DisposableEffect].
  */
-interface CommitScope {
-    /**
-     * Provide a lambda which will be executed as this CommitScope leaves the composition. It will be executed only once. Use this to
-     * schedule cleanup for anything that you construct during the CommitScope's creation.
-     *
-     * @param callback A callback to be executed when this CommitScope leaves the composition.
-     */
-    fun onDispose(callback: () -> Unit)
+@Composable
+@NonRestartableComposable
+@OptIn(InternalComposeApi::class)
+fun SideEffect(
+    effect: () -> Unit
+) {
+    currentComposer.recordSideEffect(effect)
 }
 
 /**
- * For convenience, this is just an empty lambda that we will call on CommitScopes where the user has not defined an
- * onDispose. Saving this into a constant saves us an allocation on every initialization
+ * Receiver scope for [DisposableEffect] that offers the [onDispose] clause that should be
+ * the last statement in any call to [DisposableEffect].
  */
-private val emptyDispose: () -> Unit = {}
-private val emptyCommit: CommitScope.() -> Unit = {}
+class DisposableEffectScope {
+    /**
+     * Provide [onDisposeEffect] to the [DisposableEffect] to run when it leaves the composition
+     * or its key changes.
+     */
+    inline fun onDispose(
+        crossinline onDisposeEffect: () -> Unit
+    ): DisposableEffectResult = object : DisposableEffectResult {
+        override fun dispose() {
+            onDisposeEffect()
+        }
+    }
+}
+
+interface DisposableEffectResult {
+    fun dispose()
+}
+
+private val InternalDisposableEffectScope = DisposableEffectScope()
+
+private class DisposableEffectImpl(
+    private val effect: DisposableEffectScope.() -> DisposableEffectResult
+) : RememberObserver {
+    private var onDispose: DisposableEffectResult? = null
+
+    override fun onRemembered() {
+        onDispose = InternalDisposableEffectScope.effect()
+    }
+
+    override fun onForgotten() {
+        onDispose?.dispose()
+        onDispose = null
+    }
+
+    override fun onAbandoned() {
+        // Nothing to do as [onRemembered] was not called.
+    }
+}
+
+private const val DisposableEffectNoParamError =
+    "DisposableEffect must provide one or more 'key' parameters that define the identity of " +
+        "the DisposableEffect and determine when its previous effect should be disposed and " +
+        "a new effect started for the new key."
+
+private const val LaunchedEffectNoParamError =
+    "LaunchedEffect must provide one or more 'key' parameters that define the identity of " +
+        "the LaunchedEffect and determine when its previous effect coroutine should be cancelled " +
+        "and a new effect launched for the new key."
+
+/**
+ * A side effect of composition that must be reversed or cleaned up if the [DisposableEffect]
+ * leaves the composition.
+ *
+ * It is an error to call [DisposableEffect] without at least one `key` parameter.
+ */
+// This deprecated-error function shadows the varargs overload so that the varargs version
+// is not used without key parameters.
+@Composable
+@NonRestartableComposable
+@Suppress("DeprecatedCallableAddReplaceWith", "UNUSED_PARAMETER")
+@Deprecated(DisposableEffectNoParamError, level = DeprecationLevel.ERROR)
+fun DisposableEffect(
+    effect: DisposableEffectScope.() -> DisposableEffectResult
+): Unit = error(DisposableEffectNoParamError)
+
+/**
+ * A side effect of composition that must run for any new unique value of [key1] and must be
+ * reversed or cleaned up if [key1] changes or if the [DisposableEffect] leaves the composition.
+ *
+ * A [DisposableEffect]'s _key_ is a value that defines the identity of the
+ * [DisposableEffect]. If a key changes, the [DisposableEffect] must
+ * [dispose][DisposableEffectScope.onDispose] its current [effect] and reset by calling [effect]
+ * again. Examples of keys include:
+ *
+ * * Observable objects that the effect subscribes to
+ * * Unique request parameters to an operation that must cancel and retry if those parameters change
+ *
+ * [DisposableEffect] may be used to initialize or subscribe to a key and reinitialize
+ * when a different key is provided, performing cleanup for the old operation before
+ * initializing the new. For example:
+ *
+ * @sample androidx.compose.runtime.samples.disposableEffectSample
+ *
+ * A [DisposableEffect] **must** include an [onDispose][DisposableEffectScope.onDispose] clause
+ * as the final statement in its [effect] block. If your operation does not require disposal
+ * it might be a [SideEffect] instead, or a [LaunchedEffect] if it launches a coroutine that should
+ * be managed by the composition.
+ *
+ * There is guaranteed to be one call to [dispose][DisposableEffectScope.onDispose] for every call
+ * to [effect]. Both [effect] and [dispose][DisposableEffectScope.onDispose] will always be run
+ * on the composition's apply dispatcher and appliers are never run concurrent with themselves,
+ * one another, applying changes to the composition tree, or running [RememberObserver] event
+ * callbacks.
+ */
+@Composable
+@NonRestartableComposable
+fun DisposableEffect(
+    key1: Any?,
+    effect: DisposableEffectScope.() -> DisposableEffectResult
+) {
+    remember(key1) { DisposableEffectImpl(effect) }
+}
+
+/**
+ * A side effect of composition that must run for any new unique value of [key1] or [key2]
+ * and must be reversed or cleaned up if [key1] or [key2] changes, or if the
+ * [DisposableEffect] leaves the composition.
+ *
+ * A [DisposableEffect]'s _key_ is a value that defines the identity of the
+ * [DisposableEffect]. If a key changes, the [DisposableEffect] must
+ * [dispose][DisposableEffectScope.onDispose] its current [effect] and reset by calling [effect]
+ * again. Examples of keys include:
+ *
+ * * Observable objects that the effect subscribes to
+ * * Unique request parameters to an operation that must cancel and retry if those parameters change
+ *
+ * [DisposableEffect] may be used to initialize or subscribe to a key and reinitialize
+ * when a different key is provided, performing cleanup for the old operation before
+ * initializing the new. For example:
+ *
+ * @sample androidx.compose.runtime.samples.disposableEffectSample
+ *
+ * A [DisposableEffect] **must** include an [onDispose][DisposableEffectScope.onDispose] clause
+ * as the final statement in its [effect] block. If your operation does not require disposal
+ * it might be a [SideEffect] instead, or a [LaunchedEffect] if it launches a coroutine that should
+ * be managed by the composition.
+ *
+ * There is guaranteed to be one call to [dispose][DisposableEffectScope.onDispose] for every call
+ * to [effect]. Both [effect] and [dispose][DisposableEffectScope.onDispose] will always be run
+ * on the composition's apply dispatcher and appliers are never run concurrent with themselves,
+ * one another, applying changes to the composition tree, or running [RememberObserver]
+ * event callbacks.
+ */
+@Composable
+@NonRestartableComposable
+fun DisposableEffect(
+    key1: Any?,
+    key2: Any?,
+    effect: DisposableEffectScope.() -> DisposableEffectResult
+) {
+    remember(key1, key2) { DisposableEffectImpl(effect) }
+}
+
+/**
+ * A side effect of composition that must run for any new unique value of [key1], [key2]
+ * or [key3] and must be reversed or cleaned up if [key1], [key2] or [key3]
+ * changes, or if the [DisposableEffect] leaves the composition.
+ *
+ * A [DisposableEffect]'s _key_ is a value that defines the identity of the
+ * [DisposableEffect]. If a key changes, the [DisposableEffect] must
+ * [dispose][DisposableEffectScope.onDispose] its current [effect] and reset by calling [effect]
+ * again. Examples of keys include:
+ *
+ * * Observable objects that the effect subscribes to
+ * * Unique request parameters to an operation that must cancel and retry if those parameters change
+ *
+ * [DisposableEffect] may be used to initialize or subscribe to a key and reinitialize
+ * when a different key is provided, performing cleanup for the old operation before
+ * initializing the new. For example:
+ *
+ * @sample androidx.compose.runtime.samples.disposableEffectSample
+ *
+ * A [DisposableEffect] **must** include an [onDispose][DisposableEffectScope.onDispose] clause
+ * as the final statement in its [effect] block. If your operation does not require disposal
+ * it might be a [SideEffect] instead, or a [LaunchedEffect] if it launches a coroutine that should
+ * be managed by the composition.
+ *
+ * There is guaranteed to be one call to [dispose][DisposableEffectScope.onDispose] for every call
+ * to [effect]. Both [effect] and [dispose][DisposableEffectScope.onDispose] will always be run
+ * on the composition's apply dispatcher and appliers are never run concurrent with themselves,
+ * one another, applying changes to the composition tree, or running [RememberObserver] event
+ * callbacks.
+ */
+@Composable
+@NonRestartableComposable
+fun DisposableEffect(
+    key1: Any?,
+    key2: Any?,
+    key3: Any?,
+    effect: DisposableEffectScope.() -> DisposableEffectResult
+) {
+    remember(key1, key2, key3) { DisposableEffectImpl(effect) }
+}
+
+/**
+ * A side effect of composition that must run for any new unique value of [keys] and must
+ * be reversed or cleaned up if any [keys] change or if the [DisposableEffect] leaves the
+ * composition.
+ *
+ * A [DisposableEffect]'s _key_ is a value that defines the identity of the
+ * [DisposableEffect]. If a key changes, the [DisposableEffect] must
+ * [dispose][DisposableEffectScope.onDispose] its current [effect] and reset by calling [effect]
+ * again. Examples of keys include:
+ *
+ * * Observable objects that the effect subscribes to
+ * * Unique request parameters to an operation that must cancel and retry if those parameters change
+ *
+ * [DisposableEffect] may be used to initialize or subscribe to a key and reinitialize
+ * when a different key is provided, performing cleanup for the old operation before
+ * initializing the new. For example:
+ *
+ * @sample androidx.compose.runtime.samples.disposableEffectSample
+ *
+ * A [DisposableEffect] **must** include an [onDispose][DisposableEffectScope.onDispose] clause
+ * as the final statement in its [effect] block. If your operation does not require disposal
+ * it might be a [SideEffect] instead, or a [LaunchedEffect] if it launches a coroutine that should
+ * be managed by the composition.
+ *
+ * There is guaranteed to be one call to [dispose][DisposableEffectScope.onDispose] for every call
+ * to [effect]. Both [effect] and [dispose][DisposableEffectScope.onDispose] will always be run
+ * on the composition's apply dispatcher and appliers are never run concurrent with themselves,
+ * one another, applying changes to the composition tree, or running [RememberObserver] event
+ * callbacks.
+ */
+@Composable
+@NonRestartableComposable
+@Suppress("ArrayReturn")
+fun DisposableEffect(
+    vararg keys: Any?,
+    effect: DisposableEffectScope.() -> DisposableEffectResult
+) {
+    remember(*keys) { DisposableEffectImpl(effect) }
+}
+
+internal class LaunchedEffectImpl(
+    parentCoroutineContext: CoroutineContext,
+    private val task: suspend CoroutineScope.() -> Unit
+) : RememberObserver {
+    private val scope = CoroutineScope(parentCoroutineContext)
+    private var job: Job? = null
+
+    override fun onRemembered() {
+        job?.cancel("Old job was still running!")
+        job = scope.launch(block = task)
+    }
+
+    override fun onForgotten() {
+        job?.cancel()
+        job = null
+    }
+
+    override fun onAbandoned() {
+        job?.cancel()
+        job = null
+    }
+}
+
+/**
+ * When [LaunchedEffect] enters the composition it will launch [block] into the composition's
+ * [CoroutineContext]. The coroutine will be [cancelled][Job.cancel] when the [LaunchedEffect]
+ * leaves the composition.
+ *
+ * It is an error to call [LaunchedEffect] without at least one `key` parameter.
+ */
+// This deprecated-error function shadows the varargs overload so that the varargs version
+// is not used without key parameters.
+@Deprecated(LaunchedEffectNoParamError, level = DeprecationLevel.ERROR)
+@Suppress("DeprecatedCallableAddReplaceWith", "UNUSED_PARAMETER")
+@Composable
+fun LaunchedEffect(
+    block: suspend CoroutineScope.() -> Unit
+): Unit = error(LaunchedEffectNoParamError)
+
+/**
+ * When [LaunchedEffect] enters the composition it will launch [block] into the composition's
+ * [CoroutineContext]. The coroutine will be [cancelled][Job.cancel] and **re-launched** when
+ * [LaunchedEffect] is recomposed with a different [key1]. The coroutine will be
+ * [cancelled][Job.cancel] when the [LaunchedEffect] leaves the composition.
+ *
+ * This function should **not** be used to (re-)launch ongoing tasks in response to callback
+ * events by way of storing callback data in [MutableState] passed to [key1]. Instead, see
+ * [rememberCoroutineScope] to obtain a [CoroutineScope] that may be used to launch ongoing jobs
+ * scoped to the composition in response to event callbacks.
+ */
+@Composable
+@NonRestartableComposable
+@OptIn(InternalComposeApi::class)
+fun LaunchedEffect(
+    key1: Any?,
+    block: suspend CoroutineScope.() -> Unit
+) {
+    val applyContext = currentComposer.applyCoroutineContext
+    remember(key1) { LaunchedEffectImpl(applyContext, block) }
+}
+
+/**
+ * When [LaunchedEffect] enters the composition it will launch [block] into the composition's
+ * [CoroutineContext]. The coroutine will be [cancelled][Job.cancel] and **re-launched** when
+ * [LaunchedEffect] is recomposed with a different [key1] or [key2]. The coroutine will be
+ * [cancelled][Job.cancel] when the [LaunchedEffect] leaves the composition.
+ *
+ * This function should **not** be used to (re-)launch ongoing tasks in response to callback
+ * events by way of storing callback data in [MutableState] passed to [key]. Instead, see
+ * [rememberCoroutineScope] to obtain a [CoroutineScope] that may be used to launch ongoing jobs
+ * scoped to the composition in response to event callbacks.
+ */
+@Composable
+@NonRestartableComposable
+@OptIn(InternalComposeApi::class)
+fun LaunchedEffect(
+    key1: Any?,
+    key2: Any?,
+    block: suspend CoroutineScope.() -> Unit
+) {
+    val applyContext = currentComposer.applyCoroutineContext
+    remember(key1, key2) { LaunchedEffectImpl(applyContext, block) }
+}
+
+/**
+ * When [LaunchedEffect] enters the composition it will launch [block] into the composition's
+ * [CoroutineContext]. The coroutine will be [cancelled][Job.cancel] and **re-launched** when
+ * [LaunchedEffect] is recomposed with a different [key1], [key2] or [key3].
+ * The coroutine will be [cancelled][Job.cancel] when the [LaunchedEffect] leaves the composition.
+ *
+ * This function should **not** be used to (re-)launch ongoing tasks in response to callback
+ * events by way of storing callback data in [MutableState] passed to [key]. Instead, see
+ * [rememberCoroutineScope] to obtain a [CoroutineScope] that may be used to launch ongoing jobs
+ * scoped to the composition in response to event callbacks.
+ */
+@Composable
+@NonRestartableComposable
+@OptIn(InternalComposeApi::class)
+fun LaunchedEffect(
+    key1: Any?,
+    key2: Any?,
+    key3: Any?,
+    block: suspend CoroutineScope.() -> Unit
+) {
+    val applyContext = currentComposer.applyCoroutineContext
+    remember(key1, key2, key3) { LaunchedEffectImpl(applyContext, block) }
+}
+
+/**
+ * When [LaunchedEffect] enters the composition it will launch [block] into the composition's
+ * [CoroutineContext]. The coroutine will be [cancelled][Job.cancel] and **re-launched** when
+ * [LaunchedEffect] is recomposed with any different [keys]. The coroutine will be
+ * [cancelled][Job.cancel] when the [LaunchedEffect] leaves the composition.
+ *
+ * This function should **not** be used to (re-)launch ongoing tasks in response to callback
+ * events by way of storing callback data in [MutableState] passed to [key]. Instead, see
+ * [rememberCoroutineScope] to obtain a [CoroutineScope] that may be used to launch ongoing jobs
+ * scoped to the composition in response to event callbacks.
+ */
+@Composable
+@NonRestartableComposable
+@Suppress("ArrayReturn")
+@OptIn(InternalComposeApi::class)
+fun LaunchedEffect(
+    vararg keys: Any?,
+    block: suspend CoroutineScope.() -> Unit
+) {
+    val applyContext = currentComposer.applyCoroutineContext
+    remember(*keys) { LaunchedEffectImpl(applyContext, block) }
+}
 
 @PublishedApi
-internal class PreCommitScopeImpl(
-    internal val onCommit: CommitScope.() -> Unit
-) : CommitScope, CompositionLifecycleObserver {
-    internal var disposeCallback = emptyDispose
+internal class CompositionScopedCoroutineScopeCanceller(
+    val coroutineScope: CoroutineScope
+) : RememberObserver {
+    override fun onRemembered() {
+        // Nothing to do
+    }
 
-    override fun onDispose(callback: () -> Unit) {
-        require(disposeCallback === emptyDispose) {
-            "onDispose(...) should only be called once"
+    override fun onForgotten() {
+        coroutineScope.cancel()
+    }
+
+    override fun onAbandoned() {
+        coroutineScope.cancel()
+    }
+}
+
+@PublishedApi
+@OptIn(InternalComposeApi::class)
+internal fun createCompositionCoroutineScope(
+    coroutineContext: CoroutineContext,
+    composer: Composer
+) = if (coroutineContext[Job] != null) {
+    CoroutineScope(
+        Job().apply {
+            completeExceptionally(
+                IllegalArgumentException(
+                    "CoroutineContext supplied to " +
+                        "rememberCoroutineScope may not include a parent job"
+                )
+            )
         }
-        disposeCallback = callback
+    )
+} else {
+    val applyContext = composer.applyCoroutineContext
+    CoroutineScope(applyContext + Job(applyContext[Job]) + coroutineContext)
+}
+
+/**
+ * Return a [CoroutineScope] bound to this point in the composition using the optional
+ * [CoroutineContext] provided by [getContext]. [getContext] will only be called once and the same
+ * [CoroutineScope] instance will be returned across recompositions.
+ *
+ * This scope will be [cancelled][CoroutineScope.cancel] when this call leaves the composition.
+ * The [CoroutineContext] returned by [getContext] may not contain a [Job] as this scope is
+ * considered to be a child of the composition.
+ *
+ * The default dispatcher of this scope if one is not provided by the context returned by
+ * [getContext] will be the applying dispatcher of the composition's [Recomposer].
+ *
+ * Use this scope to launch jobs in response to callback events such as clicks or other user
+ * interaction where the response to that event needs to unfold over time and be cancelled if the
+ * composable managing that process leaves the composition. Jobs should never be launched into
+ * **any** coroutine scope as a side effect of composition itself. For scoped ongoing jobs
+ * initiated by composition, see [LaunchedEffect].
+ *
+ * This function will not throw if preconditions are not met, as composable functions do not yet
+ * fully support exceptions. Instead the returned scope's [CoroutineScope.coroutineContext] will
+ * contain a failed [Job] with the associated exception and will not be capable of launching
+ * child jobs.
+ */
+@Composable
+inline fun rememberCoroutineScope(
+    getContext: @DisallowComposableCalls () -> CoroutineContext = { EmptyCoroutineContext }
+): CoroutineScope {
+    val composer = currentComposer
+    val wrapper = remember {
+        CompositionScopedCoroutineScopeCanceller(
+            createCompositionCoroutineScope(getContext(), composer)
+        )
     }
-
-    override fun onEnter() {
-        onCommit(this)
-    }
-
-    override fun onLeave() {
-        disposeCallback()
-    }
-}
-
-/**
- * An effect used to observe the lifecycle of the composition. The [callback] will execute once initially after the first composition
- * is applied, and then will not fire again. The [callback] will get executed with a receiver scope that has an
- * [onDispose][CommitScope.onDispose] method which can be used to schedule a callback to be executed once whenever the effect leaves
- * the composition
- *
- * The `onActive` effect is essentially a convenience effect for `onCommit(true) { ... }`.
- *
- * @param callback The lambda to execute when the composition commits for the first time and becomes active.
- *
- * @see [onCommit]
- * @see [onDispose]
- */
-@Suppress("ComposableNaming")
-@Composable
-fun onActive(callback: CommitScope.() -> Unit) {
-    remember { PreCommitScopeImpl(callback) }
-}
-
-/**
- * An effect used to schedule work to be done when the effect leaves the composition.
- *
- * The `onDispose` effect is essentially a convenience effect for `onPreCommit(true) { onDispose { ... } }`.
- *
- * @param callback The lambda to be executed when the effect leaves the composition.
- *
- * @see [onCommit]
- * @see [onActive]
- */
-@Suppress("ComposableNaming")
-@Composable
-fun onDispose(callback: () -> Unit) {
-    remember { PreCommitScopeImpl(emptyCommit).also { it.disposeCallback = callback } }
-}
-
-/**
- * The onCommit effect is a lifecycle effect that will execute [callback] every time the composition commits. It is useful for
- * executing code in lock-step with composition that has side-effects. The [callback] will get executed with a receiver scope that has an
- * [onDispose][CommitScope.onDispose] method which can be used to schedule a callback to schedule code that cleans up the code in the
- * callback.
- *
- * @param callback The lambda to be executed when the effect is committed to the composition.
- *
- * @see [onDispose]
- * @see [onActive]
- */
-@Suppress("NOTHING_TO_INLINE", "ComposableNaming")
-@OptIn(ComposeCompilerApi::class)
-@Composable
-inline fun onCommit(noinline callback: CommitScope.() -> Unit) {
-    currentComposer.changed(PreCommitScopeImpl(callback))
-}
-
-/**
- * The onCommit effect is a lifecycle effect that will execute [callback] every time the inputs to the effect have changed. It is useful for
- * executing code in lock-step with composition that has side-effects that are based on the inputs. The [callback] will get executed with a
- * receiver scope that has an [onDispose][CommitScope.onDispose] method which can be used to schedule a callback to schedule code that
- * cleans up the code in the callback.
- *
- * @param v1 The input which will be compared across compositions to determine if [callback] will get executed.
- * @param callback The lambda to be executed when the effect is committed to the composition.
- *
- * @see [onDispose]
- * @see [onActive]
- */
-@Suppress("ComposableNaming")
-@Composable
-/*inline*/ fun </*reified*/ V1> onCommit(
-    v1: V1,
-    /*noinline*/
-    callback: CommitScope.() -> Unit
-) {
-    remember(v1) { PreCommitScopeImpl(callback) }
-}
-
-/**
- * The onCommit effect is a lifecycle effect that will execute [callback] every time the inputs to the effect have changed. It is useful for
- * executing code in lock-step with composition that has side-effects that are based on the inputs. The [callback] will get executed with a
- * receiver scope that has an [onDispose][CommitScope.onDispose] method which can be used to schedule a callback to schedule code that
- * cleans up the code in the callback.
- *
- * @param v1 An input value which will be compared across compositions to determine if [callback] will get executed.
- * @param v2 An input value which will be compared across compositions to determine if [callback] will get executed.
- * @param callback The lambda to be executed when the effect is committed to the composition.
- *
- * @see [onDispose]
- * @see [onActive]
- */
-@Suppress("ComposableNaming")
-@Composable
-/*inline*/ fun </*reified*/ V1, /*reified*/ V2> onCommit(
-    v1: V1,
-    v2: V2,
-    /*noinline*/
-    callback: CommitScope.() -> Unit
-) {
-    remember(v1, v2) { PreCommitScopeImpl(callback) }
-}
-
-/**
- * The onCommit effect is a lifecycle effect that will execute [callback] every time the inputs to the effect have changed. It is useful for
- * executing code in lock-step with composition that has side-effects that are based on the inputs. The [callback] will get executed with a
- * receiver scope that has an [onDispose][CommitScope.onDispose] method which can be used to schedule a callback to schedule code that
- * cleans up the code in the callback.
- *
- * @param inputs A set of inputs which will be compared across compositions to determine if [callback] will get executed.
- * @param callback The lambda to be executed when the effect is committed to the composition.
- *
- * @see [onDispose]
- * @see [onActive]
- */
-@Suppress("ComposableNaming")
-@Composable
-fun onCommit(vararg inputs: Any?, callback: CommitScope.() -> Unit) {
-    remember(*inputs) { PreCommitScopeImpl(callback) }
-}
-
-/**
- * The model effect is an alias to the `memo` effect, but the semantics behind how it is used are different from
- * memoization, so we provide new named functions for the different use cases.
- *
- * In the case of memoization, the "inputs" of the calculation should be provided for correctness, implying if the
- * inputs have not changed, the cached result and executing the calculation again would produce semantically identical
- * results.
- *
- * In the case of "model", we are actually *intentionally* under-specifying the inputs of the calculation to cause an
- * object to be cached across compositions. In this case, the calculation function is *not* a pure function of the inputs,
- * and instead we are relying on the "incorrect" memoization to produce state that survives across compositions.
- *
- * Because these usages are so contradictory to one another, we provide a `model` alias for `memo` that is expected to
- * be used in these cases instead of `memo`.
- */
-
-/**
- * An Effect to get the nearest invalidation lambda to the current point of composition. This can be used to
- * trigger an invalidation on the composition locally to cause a recompose.
- */
-@Composable
-val invalidate: () -> Unit get() {
-    val scope = currentComposer.currentRecomposeScope ?: error("no recompose scope found")
-    scope.used = true
-    return { scope.invalidate() }
-}
-
-/**
- * An Effect to construct a CompositionReference at the current point of composition. This can be used
- * to run a separate composition in the context of the current one, preserving ambients and propagating
- * invalidations. When this call leaves the composition, the reference is invalidated.
- */
-@Composable
-@OptIn(ComposeCompilerApi::class)
-fun compositionReference(): CompositionReference {
-    return currentComposer.buildReference()
+    return wrapper.coroutineScope
 }

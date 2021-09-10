@@ -65,6 +65,7 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 
+@SuppressWarnings("unchecked")
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class AlertDialogCursorTest {

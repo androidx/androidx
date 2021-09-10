@@ -10,7 +10,12 @@ The Android team has been exploring how we could make it easier to develop libra
 
 You can start contributing to any of the following library groups from GitHub:
   - [Activity](https://developer.android.com/guide/components/activities/intro-activities)
+  - [Biometric](https://developer.android.com/training/sign-in/biometric-auth)
+  - [Compose Compiler](https://developer.android.com/jetpack/androidx/releases/compose-compiler)
+  - [Compose Runtime](https://developer.android.com/jetpack/androidx/releases/compose-runtime)
+  - [DataStore](https://developer.android.com/topic/libraries/architecture/datastore)
   - [Fragment](https://developer.android.com/guide/components/fragments)
+  - [Lifecycle](https://developer.android.com/topic/libraries/architecture/lifecycle)
   - [Navigation](https://developer.android.com/guide/navigation)
   - [Paging](https://developer.android.com/topic/libraries/architecture/paging)
   - [Room](https://developer.android.com/topic/libraries/architecture/room)
@@ -45,14 +50,19 @@ The list of folders that can be contributed to, using the GitHub repository are:
 ```
 androidx
   -- activity
+  -- biometric
+  -- compose/compiler
+  -- compose/runtime
+  -- datastore
   -- fragment
+  -- lifecycle
   -- navigation
   -- paging
   -- room
   -- work
 ```
 
-**Note:** For other projects, you will still need to use the Gerrit workflow used by the Android Open Source Project (AOSP). For more information, please look at the [README](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:README.md).
+**Note:** For other projects, you will still need to use the Gerrit workflow used by the Android Open Source Project (AOSP). For more information, please look at the [README](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:README.md).
 
 Fork the [androidx/androidx](https://github.com/androidx/androidx) repository.
 
@@ -120,7 +130,7 @@ Once your changes look good, you can push them to your fork of the repository. N
 ./gradlew updateApi
 ```
 
-If you are adding new APIs, then you might **additionally need to update** [LibraryVersions.kt](https://github.com/androidx/androidx/blob/androidx-master-dev/buildSrc/src/main/kotlin/androidx/build/LibraryVersions.kt) as well, before running the updateApi task. This is **relevant when the library’s API is frozen** (betas, rc’s and stable versions). For alpha versions, you don’t have to update this file.
+If you are adding new APIs, then you might **additionally need to update** [LibraryVersions.kt](https://github.com/androidx/androidx/blob/androidx-main/buildSrc/src/main/kotlin/androidx/build/LibraryVersions.kt) as well, before running the updateApi task. This is **relevant when the library’s API is frozen** (betas, rc’s and stable versions). For alpha versions, you don’t have to update this file.
 
 This helps the AndroidX project keep track of API changes and avoid inadvertently adding APIs or introduce backwards incompatible changes.
 
@@ -153,17 +163,17 @@ Fixes: b/<bugId> if applicable
 
 ### The Pull Request Workflow
 
-AndroidX is primarily developed in [AOSP](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev). This flow simply mirrors pull requests from GitHub into Gerrit, For all intents and purposes, AOSP is the **single** **source of truth**, all changes will be merged in Gerrit and mirrored back to GitHub.
+AndroidX is primarily developed in [AOSP](https://android.googlesource.com/platform/frameworks/support/+/androidx-main). This flow simply mirrors pull requests from GitHub into Gerrit, For all intents and purposes, AOSP is the **single** **source of truth**, all changes will be merged in Gerrit and mirrored back to GitHub.
 
 Here is what a typical pull request workflow looks like:
 
-1.  Create a GitHub pull request from **your forked repository** to the androidx-master-dev branch on GitHub.
+1.  Create a GitHub pull request from **your forked repository** to the androidx-main branch on GitHub.
 2.  Sign the Contributor’s License Agreement at https://cla.developers.google.com/ to get @googlebot to give you the `cla: yes` label.
 3.  Your PR will be reviewed using the GitHub pull request flow. You can address the comments / suggestions in your forked repository and update the pull request as normal.
 4.  Once the changes look good, a Googler will Approve your pull request on GitHub.
 5.  Your PR will be **tested using GitHub workflows**. You can monitor these GitHub workflows by using the Actions tab in your forked repository.
 6.  Once your **pull request has been approved** by a Googler, it will also be **mirrored to AOSP Gerrit**. You can find the link to Gerrit under the status check, `import/copybara` left by `@copybara-service`, by clicking details.
-7.  Once **all** the checks in **Gerrit and GitHub** pass, your change will get merged in androidx-master-dev in AOSP and mirrored back to androidx-master-dev in GitHub. Congratulations, your change landed in AOSP!
+7.  Once **all** the checks in **Gerrit and GitHub** pass, your change will get merged in androidx-main in AOSP and mirrored back to androidx-main in GitHub. Congratulations, your change landed in AOSP!
 8.  Currently, your pull request will not get automatically closed when your changes are merged. So you will have to close the pull request manually. We are working on improving the workflow to address this.
 
 ### Running into problems?

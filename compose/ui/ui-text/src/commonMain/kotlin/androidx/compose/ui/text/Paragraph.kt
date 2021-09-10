@@ -134,23 +134,6 @@ interface Paragraph {
     fun getLineEnd(lineIndex: Int, visibleEnd: Boolean = false): Int
 
     /**
-     * Returns the end of visible offset of the given line.
-     *
-     * If no ellipsis happens on the given line, this returns the line end offset with excluding
-     * trailing whitespaces.
-     * If ellipsis happens on the given line, this returns the offset that ellipsis started, i.e.
-     * the exclusive not ellipsized last character.
-     * @param lineIndex a 0 based line index
-     * @return an exclusive line end offset that is visible on the display
-     * @see getLineEnd
-     */
-    @Deprecated(
-        "This function will be removed.",
-        replaceWith = ReplaceWith("getLineEnd(lineIndex, true)", "androidx.compose.ui.text")
-    )
-    fun getLineVisibleEnd(lineIndex: Int): Int
-
-    /**
      * Returns true if ellipsis happens on the given line, otherwise returns false
      *
      * @param lineIndex a 0 based line index
@@ -238,7 +221,7 @@ interface Paragraph {
     /**
      * Returns the TextRange of the word at the given character offset. Characters not
      * part of a word, such as spaces, symbols, and punctuation, have word breaks
-     * on both sides. In such cases, this method will return TextRange(offset, offset+1).
+     * on both sides. In such cases, this method will return TextRange(offset, offset).
      * Word boundaries are defined more precisely in Unicode Standard Annex #29
      * http://www.unicode.org/reports/tr29/#Word_Boundaries
      */

@@ -19,10 +19,15 @@ package androidx.compose.ui.draw
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.AtLeastSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
@@ -30,9 +35,13 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.InspectableValue
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -40,6 +49,8 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -266,6 +277,32 @@ class DrawModifierTest {
         }
     }
 
+    @Test
+    fun testCacheInvalidatedAfterLayoutDirectionChange() {
+        var layoutDirection by mutableStateOf(LayoutDirection.Ltr)
+        var realLayoutDirection: LayoutDirection? = null
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                AtLeastSize(
+                    size = 10,
+                    modifier = Modifier.drawWithCache {
+                        realLayoutDirection = layoutDirection
+                        onDrawBehind {}
+                    }
+                ) { }
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(LayoutDirection.Ltr, realLayoutDirection)
+            layoutDirection = LayoutDirection.Rtl
+        }
+
+        rule.runOnIdle {
+            assertEquals(LayoutDirection.Rtl, realLayoutDirection)
+        }
+    }
+
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testCacheInvalidatedWithHelperModifier() {
@@ -307,6 +344,63 @@ class DrawModifierTest {
                 assertEquals(Color.Blue.toArgb(), getPixel(1, 1))
                 assertEquals(Color.Blue.toArgb(), getPixel(width - 2, height - 2))
             }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testGraphicsLayerCacheInvalidatedAfterStateChange() {
+        // Verify that a state change within the cache block does
+        // require the cache block to be invalidated if a graphicsLayer is also
+        // configured on the composable and the state parameter is configured elsewhere
+        val boxTag = "boxTag"
+        val clickTag = "clickTag"
+
+        var cacheBuildCount = 0
+
+        rule.setContent {
+            val flag = remember { mutableStateOf(false) }
+            Column {
+                AtLeastSize(
+                    size = 50,
+                    modifier = Modifier.testTag(boxTag)
+                        .graphicsLayer()
+                        .drawWithCache {
+                            // State read of flag
+                            val color = if (flag.value) Color.Red else Color.Blue
+                            cacheBuildCount++
+
+                            onDrawBehind {
+                                drawRect(color)
+                            }
+                        }
+                )
+
+                Box(
+                    Modifier.testTag(clickTag)
+                        .size(20.dp)
+                        .clickable {
+                            flag.value = !flag.value
+                        }
+                )
+            }
+        }
+
+        rule.onNodeWithTag(boxTag).apply {
+            // Verify that the cache lambda was invoked once
+            assertEquals(1, cacheBuildCount)
+            captureToImage().assertPixels { Color.Blue }
+        }
+
+        rule.onNodeWithTag(clickTag).performClick()
+
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(boxTag).apply {
+            // Verify the cache lambda was invoked again and the
+            // rect is drawn with the updated color
+            assertEquals(2, cacheBuildCount)
+            captureToImage().assertPixels { Color.Red }
         }
     }
 
@@ -454,6 +548,84 @@ class DrawModifierTest {
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable())
                 .containsExactly("onDraw")
+        }
+    }
+
+    @Test
+    fun recompositionWithTheSameDrawBehindLambdaIsNotTriggeringRedraw() {
+        val recompositionCounter = mutableStateOf(0)
+        var redrawCounter = 0
+        val drawBlock: DrawScope.() -> Unit = {
+            redrawCounter++
+        }
+        rule.setContent {
+            recompositionCounter.value
+            Layout({}, modifier = Modifier.drawBehind(drawBlock)) { _, _ ->
+                layout(100, 100) {}
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(redrawCounter).isEqualTo(1)
+            recompositionCounter.value = 1
+        }
+
+        rule.runOnIdle {
+            assertThat(redrawCounter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun recompositionWithTheSameDrawWithContentLambdaIsNotTriggeringRedraw() {
+        val recompositionCounter = mutableStateOf(0)
+        var redrawCounter = 0
+        val drawBlock: ContentDrawScope.() -> Unit = {
+            redrawCounter++
+        }
+        rule.setContent {
+            recompositionCounter.value
+            Layout({}, modifier = Modifier.drawWithContent(drawBlock)) { _, _ ->
+                layout(100, 100) {}
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(redrawCounter).isEqualTo(1)
+            recompositionCounter.value = 1
+        }
+
+        rule.runOnIdle {
+            assertThat(redrawCounter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun recompositionWithTheSameDrawWithCacheLambdaIsNotTriggeringRedraw() {
+        val recompositionCounter = mutableStateOf(0)
+        var cacheRebuildCounter = 0
+        var redrawCounter = 0
+        val drawBlock: CacheDrawScope.() -> DrawResult = {
+            cacheRebuildCounter++
+            onDrawBehind {
+                redrawCounter++
+            }
+        }
+        rule.setContent {
+            recompositionCounter.value
+            Layout({}, modifier = Modifier.drawWithCache(drawBlock)) { _, _ ->
+                layout(100, 100) {}
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(cacheRebuildCounter).isEqualTo(1)
+            assertThat(redrawCounter).isEqualTo(1)
+            recompositionCounter.value = 1
+        }
+
+        rule.runOnIdle {
+            assertThat(cacheRebuildCounter).isEqualTo(1)
+            assertThat(redrawCounter).isEqualTo(1)
         }
     }
 

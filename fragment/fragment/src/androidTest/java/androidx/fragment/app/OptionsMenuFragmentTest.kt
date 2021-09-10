@@ -24,13 +24,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -42,7 +46,7 @@ class OptionsMenuFragmentTest {
     @Test
     fun fragmentWithOptionsMenu() {
         activityRule.setContentView(R.layout.simple_container)
-        val fragment = OptionsMenuFragment()
+        val fragment = MenuFragment()
         val fm = activityRule.activity.supportFragmentManager
         fm.beginTransaction()
             .add(R.id.fragmentContainer, fragment)
@@ -53,6 +57,43 @@ class OptionsMenuFragmentTest {
             .that(fragment.hasOptionsMenu()).isTrue()
         assertWithMessage("Child fragments should not have an options menu")
             .that(fragment.mChildFragmentManager.checkForMenus()).isFalse()
+    }
+
+    @LargeTest
+    @Test
+    fun setMenuVisibilityShowHide() {
+        with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+            val fm = withActivity { supportFragmentManager }
+
+            val fragment = MenuFragment()
+
+            withActivity {
+                fm.beginTransaction()
+                    .add(R.id.fragmentContainer, fragment)
+                    .commitNow()
+            }
+
+            assertWithMessage("Fragment should have an options menu")
+                .that(fragment.hasOptionsMenu()).isTrue()
+
+            withActivity {
+                fm.beginTransaction()
+                    .hide(fragment)
+                    .commitNow()
+            }
+
+            fragment.onCreateOptionsMenuCountDownLatch = CountDownLatch(1)
+
+            withActivity {
+                fm.beginTransaction()
+                    .show(fragment)
+                    .commitNow()
+            }
+
+            assertWithMessage("conCreateOptions menu was not called")
+                .that(fragment.onCreateOptionsMenuCountDownLatch.await(1000, TimeUnit.MILLISECONDS))
+                .isTrue()
+        }
     }
 
     @Test
@@ -112,6 +153,30 @@ class OptionsMenuFragmentTest {
     }
 
     @Test
+    fun childFragmentWithPrepareOptionsMenuParentMenuVisibilityFalse() {
+        activityRule.setContentView(R.layout.simple_container)
+        val parent = ParentOptionsMenuFragment()
+        val fm = activityRule.activity.supportFragmentManager
+
+        parent.setMenuVisibility(false)
+        fm.beginTransaction()
+            .add(R.id.fragmentContainer, parent, "parent")
+            .commit()
+        activityRule.executePendingTransactions()
+
+        assertWithMessage("Fragment should not have an options menu")
+            .that(parent.hasOptionsMenu()).isFalse()
+        assertWithMessage("Child fragment should have an options menu")
+            .that(parent.childFragmentManager.checkForMenus()).isTrue()
+
+        activityRule.runOnUiThread {
+            assertWithMessage("child fragment onCreateOptions menu was not called")
+                .that(parent.childFragment.onPrepareOptionsMenuCountDownLatch.count)
+                .isEqualTo(1)
+        }
+    }
+
+    @Test
     fun parentAndChildFragmentWithOptionsMenu() {
         activityRule.setContentView(R.layout.simple_container)
         val parent = ParentOptionsMenuFragment(true)
@@ -165,7 +230,7 @@ class OptionsMenuFragmentTest {
         activityRule.executePendingTransactions()
 
         parent.childFragmentManager.beginTransaction()
-            .add(R.id.fragmentContainer2, OptionsMenuFragment())
+            .add(R.id.fragmentContainer2, MenuFragment())
             .commit()
         activityRule.executePendingTransactions()
 
@@ -175,8 +240,9 @@ class OptionsMenuFragmentTest {
             .that(parent.mChildFragmentManager.checkForMenus()).isTrue()
     }
 
-    class OptionsMenuFragment : StrictViewFragment(R.layout.fragment_a) {
-        val onCreateOptionsMenuCountDownLatch = CountDownLatch(1)
+    class MenuFragment : StrictViewFragment(R.layout.fragment_a) {
+        var onCreateOptionsMenuCountDownLatch = CountDownLatch(1)
+        val onPrepareOptionsMenuCountDownLatch = CountDownLatch(1)
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -188,12 +254,17 @@ class OptionsMenuFragmentTest {
             onCreateOptionsMenuCountDownLatch.countDown()
             inflater.inflate(R.menu.example_menu, menu)
         }
+
+        override fun onPrepareOptionsMenu(menu: Menu) {
+            super.onPrepareOptionsMenu(menu)
+            onPrepareOptionsMenuCountDownLatch.countDown()
+        }
     }
 
     class ParentOptionsMenuFragment(
         val createMenu: Boolean = false
     ) : StrictViewFragment(R.layout.double_container) {
-        val childFragment = OptionsMenuFragment()
+        val childFragment = MenuFragment()
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)

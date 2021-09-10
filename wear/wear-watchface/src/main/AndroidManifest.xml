@@ -15,14 +15,45 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="androidx.wear.watchface">
+  <queries>
+    <intent>
+      <!-- Needed to have visibility on complication data sources installed on the device. -->
+      <action
+          android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+    </intent>
+    <intent>
+      <!-- Needed to have visibility on launcher items to handle app shortcuts in complications. -->
+      <action android:name="android.intent.action.MAIN" />
+      <category android:name="android.intent.category.LAUNCHER" />
+    </intent>
+  </queries>
   <application>
     <uses-library android:name="com.google.android.wearable" android:required="false" />
     <service
-        android:name="androidx.wear.watchface.control.WatchFaceControlService">
+        android:name="androidx.wear.watchface.control.WatchFaceControlService"
+        android:enabled="@bool/watch_face_instance_service_enabled"
+        android:exported="true"
+        android:permission="com.google.android.wearable.permission.BIND_WATCH_FACE_CONTROL">
       <meta-data android:name="androidx.wear.watchface.api_version" android:value="3" />
       <intent-filter>
         <action android:name="com.google.android.wearable.action.WATCH_FACE_CONTROL"/>
       </intent-filter>
     </service>
+
+    <!--
+      Used to configure complications. Applications can remove this using:
+      <activity
+	  android:name="androidx.wear.watchface.ComplicationHelperActivity"
+	  tools:node="remove" />
+      in their manifest if they do not support complications and want to allow
+      R8 to remove the code associated with this activity. If the activity is
+      remove while it is needed, this may lead to a runtime exception of type
+      android.content.ActivityNotFoundException.
+    -->
+    <activity
+	android:name="androidx.wear.watchface.ComplicationHelperActivity"
+	android:exported="false"
+    android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+
   </application>
 </manifest>

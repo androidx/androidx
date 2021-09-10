@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.util.annotation.FloatRange
+import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * Draws [shape] with a solid [color] behind the content.
@@ -62,12 +62,14 @@ fun Modifier.background(
  *
  * @param brush brush to paint background with
  * @param shape desired shape of the background
- * @param alpha Opacity to be applied to the [brush]
+ * @param alpha Opacity to be applied to the [brush], with `0` being completely transparent and
+ * `1` being completely opaque. The value must be between `0` and `1`.
  */
 fun Modifier.background(
     brush: Brush,
     shape: Shape = RectangleShape,
-    @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f
+    /*@FloatRange(from = 0.0, to = 1.0)*/
+    alpha: Float = 1.0f
 ) = this.then(
     Background(
         brush = brush,
@@ -92,6 +94,7 @@ private class Background constructor(
 
     // naive cache outline calculation if size is the same
     private var lastSize: Size? = null
+    private var lastLayoutDirection: LayoutDirection? = null
     private var lastOutline: Outline? = null
 
     override fun ContentDrawScope.draw() {
@@ -111,10 +114,10 @@ private class Background constructor(
 
     private fun ContentDrawScope.drawOutline() {
         val outline =
-            if (size == lastSize) {
+            if (size == lastSize && layoutDirection == lastLayoutDirection) {
                 lastOutline!!
             } else {
-                shape.createOutline(size, this)
+                shape.createOutline(size, layoutDirection, this)
             }
         color?.let { drawOutline(outline, color = color) }
         brush?.let { drawOutline(outline, brush = brush, alpha = alpha) }

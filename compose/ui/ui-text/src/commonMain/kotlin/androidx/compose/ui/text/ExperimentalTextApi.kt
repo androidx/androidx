@@ -16,13 +16,5 @@
 
 package androidx.compose.ui.text
 
-@RequiresOptIn(
-    level = RequiresOptIn.Level.ERROR,
-    message = "This is an experimental text API that may change without warning."
-)
-@Target(
-    AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY
-)
+@RequiresOptIn("This API is experimental and is likely to change in the future.")
 annotation class ExperimentalTextApi

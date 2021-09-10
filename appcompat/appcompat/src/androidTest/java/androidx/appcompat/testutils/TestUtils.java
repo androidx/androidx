@@ -16,6 +16,7 @@
 
 package androidx.appcompat.testutils;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -445,5 +446,20 @@ public class TestUtils {
      */
     public interface Predicate<T> {
         boolean test(T t);
+    }
+
+    /**
+     * Asserts that the contents of two character sequences are equal, but does not consider their
+     * types. This is useful for comparing a String expected to a CharSequence actual.
+     *
+     * @param expected expected value
+     * @param actual actual value
+     */
+    public static void assertContentEquals(@Nullable CharSequence expected,
+            @Nullable CharSequence actual) {
+        assertEquals(
+                expected != null ? expected.toString() : null,
+                actual != null ? actual.toString() : null
+        );
     }
 }

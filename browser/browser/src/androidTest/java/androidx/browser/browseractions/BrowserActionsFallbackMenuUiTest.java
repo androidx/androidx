@@ -31,7 +31,6 @@ import androidx.browser.customtabs.EnableComponentsTestRule;
 import androidx.browser.customtabs.TestActivity;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
 import androidx.testutils.PollingCheck;
 
 import org.junit.Before;
@@ -45,6 +44,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings("deprecation")
 /** Unit tests for {@link BrowserActionsFallbackMenuUi}. */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -53,8 +53,8 @@ public class BrowserActionsFallbackMenuUiTest {
     private static final String CUSTOM_ITEM_TITLE_1 = "Open url";
     private static final String CUSTOM_ITEM_TITLE_2 = "Share url";
     @Rule
-    public final ActivityTestRule<TestActivity> mActivityTestRule =
-            new ActivityTestRule<>(TestActivity.class);
+    public final androidx.test.rule.ActivityTestRule<TestActivity> mActivityTestRule =
+            new androidx.test.rule.ActivityTestRule<>(TestActivity.class);
 
     @Rule
     public final EnableComponentsTestRule mEnableComponents = new EnableComponentsTestRule(

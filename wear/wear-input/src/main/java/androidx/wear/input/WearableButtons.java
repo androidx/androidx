@@ -25,12 +25,16 @@ import android.provider.Settings;
 import android.view.Surface;
 import android.view.WindowManager;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
 import com.google.android.wearable.input.WearableInputDevice;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /** Class containing helpers for managing wearable buttons. */
 public final class WearableButtons {
@@ -55,94 +59,130 @@ public final class WearableButtons {
         sButtonsProvider = provider;
     }
 
+    /** @hide */
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({
+            LOC_UNKNOWN,
+            LOC_EAST,
+            LOC_ENE,
+            LOC_NE,
+            LOC_NNE,
+            LOC_NORTH,
+            LOC_NNW,
+            LOC_NW,
+            LOC_WNW,
+            LOC_WEST,
+            LOC_WSW,
+            LOC_SW,
+            LOC_SSW,
+            LOC_SOUTH,
+            LOC_SSE,
+            LOC_SE,
+            LOC_ESE,
+            LOC_TOP_RIGHT,
+            LOC_TOP_CENTER,
+            LOC_TOP_LEFT,
+            LOC_LEFT_TOP,
+            LOC_LEFT_CENTER,
+            LOC_LEFT_BOTTOM,
+            LOC_BOTTOM_LEFT,
+            LOC_BOTTOM_CENTER,
+            LOC_BOTTOM_RIGHT,
+            LOC_RIGHT_BOTTOM,
+            LOC_RIGHT_CENTER,
+            LOC_RIGHT_TOP
+    })
+    public @interface ButtonLocation {}
+
     /** Represents that the location zone is unknown. */
-    @VisibleForTesting static final int LOC_UNKNOWN = -1;
+    public static final int LOC_UNKNOWN = -1;
 
     /** Represents the east position on a round device. */
-    @VisibleForTesting static final int LOC_EAST = 0;
+    public static final int LOC_EAST = 0;
 
     /** Represents the east-northeast position on a round device. */
-    @VisibleForTesting static final int LOC_ENE = 1;
+    public static final int LOC_ENE = 1;
 
     /** Represents the northeast position on a round device. */
-    @VisibleForTesting static final int LOC_NE = 2;
+    public static final int LOC_NE = 2;
 
     /** Represents the north-northeast position on a round device. */
-    @VisibleForTesting static final int LOC_NNE = 3;
+    public static final int LOC_NNE = 3;
 
     /** Represents the north position on a round device. */
-    @VisibleForTesting static final int LOC_NORTH = 4;
+    public static final int LOC_NORTH = 4;
 
     /** Represents the north-northwest position on a round device. */
-    @VisibleForTesting static final int LOC_NNW = 5;
+    public static final int LOC_NNW = 5;
 
     /** Represents the northwest position on a round device. */
-    @VisibleForTesting static final int LOC_NW = 6;
+    public static final int LOC_NW = 6;
 
     /** Represents the west-northwest position on a round device. */
-    @VisibleForTesting static final int LOC_WNW = 7;
+    public static final int LOC_WNW = 7;
 
     /** Represents the west position on a round device. */
-    @VisibleForTesting static final int LOC_WEST = 8;
+    public static final int LOC_WEST = 8;
 
     /** Represents the west-southwest position on a round device. */
-    @VisibleForTesting static final int LOC_WSW = 9;
+    public static final int LOC_WSW = 9;
 
     /** Represents the southwest position on a round device. */
-    @VisibleForTesting static final int LOC_SW = 10;
+    public static final int LOC_SW = 10;
 
     /** Represents the south-southwest position on a round device. */
-    @VisibleForTesting static final int LOC_SSW = 11;
+    public static final int LOC_SSW = 11;
 
     /** Represents the south position on a round device. */
-    @VisibleForTesting static final int LOC_SOUTH = 12;
+    public static final int LOC_SOUTH = 12;
 
     /** Represents the south-southeast position on a round device. */
-    @VisibleForTesting static final int LOC_SSE = 13;
+    public static final int LOC_SSE = 13;
 
     /** Represents the southeast position on a round device. */
-    @VisibleForTesting static final int LOC_SE = 14;
+    public static final int LOC_SE = 14;
 
     /** Represents the east-southeast position on a round device. */
-    @VisibleForTesting static final int LOC_ESE = 15;
+    public static final int LOC_ESE = 15;
 
     private static final int LOC_ROUND_COUNT = 16;
 
     /** Represents the right third of the top side on a square device. */
-    @VisibleForTesting static final int LOC_TOP_RIGHT = 100;
+    public static final int LOC_TOP_RIGHT = 100;
 
     /** Represents the center third of the top side on a square device. */
-    @VisibleForTesting static final int LOC_TOP_CENTER = 101;
+    public static final int LOC_TOP_CENTER = 101;
 
     /** Represents the left third of the top side on a square device. */
-    @VisibleForTesting static final int LOC_TOP_LEFT = 102;
+    public static final int LOC_TOP_LEFT = 102;
 
     /** Represents the top third of the left side on a square device. */
-    @VisibleForTesting static final int LOC_LEFT_TOP = 103;
+    public static final int LOC_LEFT_TOP = 103;
 
     /** Represents the center third of the left side on a square device. */
-    @VisibleForTesting static final int LOC_LEFT_CENTER = 104;
+    public static final int LOC_LEFT_CENTER = 104;
 
     /** Represents the bottom third of the left side on a square device. */
-    @VisibleForTesting static final int LOC_LEFT_BOTTOM = 105;
+    public static final int LOC_LEFT_BOTTOM = 105;
 
     /** Represents the left third of the bottom side on a square device. */
-    @VisibleForTesting static final int LOC_BOTTOM_LEFT = 106;
+    public static final int LOC_BOTTOM_LEFT = 106;
 
     /** Represents the center third of the bottom side on a square device. */
-    @VisibleForTesting static final int LOC_BOTTOM_CENTER = 107;
+    public static final int LOC_BOTTOM_CENTER = 107;
 
     /** Represents the right third of the bottom side on a square device. */
-    @VisibleForTesting static final int LOC_BOTTOM_RIGHT = 108;
+    public static final int LOC_BOTTOM_RIGHT = 108;
 
     /** Represents the bottom third of the right side on a square device. */
-    @VisibleForTesting static final int LOC_RIGHT_BOTTOM = 109;
+    public static final int LOC_RIGHT_BOTTOM = 109;
 
     /** Represents the center third of the right side on a square device. */
-    @VisibleForTesting static final int LOC_RIGHT_CENTER = 110;
+    public static final int LOC_RIGHT_CENTER = 110;
 
     /** Represents the top third of the right side on a square device. */
-    @VisibleForTesting static final int LOC_RIGHT_TOP = 111;
+    public static final int LOC_RIGHT_TOP = 111;
 
     /**
      * Key used with the bundle returned by {@link #getButtonInfo}} to retrieve the x coordinate of
@@ -266,7 +306,8 @@ public final class WearableButtons {
     }
 
     @VisibleForTesting
-    static RotateDrawable getButtonIconFromLocationZone(Context context, int locationZone) {
+    static RotateDrawable getButtonIconFromLocationZone(
+            Context context, @ButtonLocation int locationZone) {
         // To save memory for assets, we are using 4 icons to represent the 20+ possible
         // configurations.  These 4 base icons can be rotated to fit any configuration needed.
         // id is the drawable id for the base icon
@@ -431,7 +472,7 @@ public final class WearableButtons {
      * quadrant system with the top right quadrant being 0, incrementing the index by 1 going
      * counter-clockwise around.
      */
-    private static int getQuadrantIndex(int locationZone) {
+    private static int getQuadrantIndex(@ButtonLocation int locationZone) {
         switch (locationZone) {
             case LOC_ENE:
             case LOC_NE:
@@ -467,7 +508,8 @@ public final class WearableButtons {
      * @return The string id to use to represent this button zone
      */
     @VisibleForTesting
-    static int getFriendlyLocationZoneStringId(int locationZone, int buttonsInQuadrantCount) {
+    static int getFriendlyLocationZoneStringId(
+            @ButtonLocation int locationZone, int buttonsInQuadrantCount) {
         if (buttonsInQuadrantCount == 2) {
             switch (locationZone) {
                 case LOC_ENE:
@@ -681,7 +723,7 @@ public final class WearableButtons {
          * method. The intended use is to help developers attach a friendly String to the button
          * location. This value is LOC_UNKNOWN if the information is not available.
          */
-        private final int mLocationZone;
+        @ButtonLocation private final int mLocationZone;
 
         /**
          * Gets the keycode this {@code ButtonInfo} provides information for.
@@ -703,14 +745,14 @@ public final class WearableButtons {
         }
 
         /** The location zone of the button (e.g. LOC_EAST) */
-        public int getLocationZone() {
+        @ButtonLocation public int getLocationZone() {
             return mLocationZone;
         }
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @VisibleForTesting
-        public ButtonInfo(int keycode, float x, float y, int locationZone) {
+        public ButtonInfo(int keycode, float x, float y, @ButtonLocation int locationZone) {
             this.mKeycode = keycode;
             this.mX = x;
             this.mY = y;

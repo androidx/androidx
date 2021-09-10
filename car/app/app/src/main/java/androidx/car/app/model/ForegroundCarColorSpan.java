@@ -16,19 +16,14 @@
 
 package androidx.car.app.model;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
 import static java.util.Objects.requireNonNull;
 
-import android.text.TextPaint;
-import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarColorConstraints;
 
 import java.util.Objects;
@@ -46,46 +41,39 @@ import java.util.Objects;
  *
  * <p>The host may ignore the color specified in the {@link ForegroundCarColorSpan} and instead use
  * a default color unless support for {@link ForegroundCarColorSpan} is explicitly documented in the
- * API that takes the string. The host may use a default color if the color in the span does not
- * pass the contrast requirements.
+ * API that takes the string. Depending on contrast requirements, capabilities of the vehicle
+ * screens, or other factors, the color may also be ignored by the host or overridden by the
+ * vehicle system.
  *
  * @see CarColor
  * @see ForegroundColorSpan
  */
-public class ForegroundCarColorSpan extends CharacterStyle {
+@CarProtocol
+public final class ForegroundCarColorSpan extends CarSpan {
     @Keep
     private final CarColor mCarColor;
-
-    @NonNull
-    public CarColor getColor() {
-        return mCarColor;
-    }
 
     /**
      * Creates a {@link ForegroundColorSpan} from a {@link CarColor}.
      *
-     * <p>Custom colors created with {@link CarColor#createCustom} are not supported in text spans.
+     * <p>Custom colors created with {@link CarColor#createCustom} are not supported in text
+     * spans unless explicitly documented otherwise in the API that takes the string.
      *
-     * @throws IllegalArgumentException if {@code carColor} contains a custom color.
-     * @throws NullPointerException     if {@code carColor} is {@code null}.
+     * @throws IllegalArgumentException if {@code carColor} contains a custom color
+     * @throws NullPointerException     if {@code carColor} is {@code null}
      */
     @NonNull
     public static ForegroundCarColorSpan create(@NonNull CarColor carColor) {
-        CarColorConstraints.STANDARD_ONLY.validateOrThrow(carColor);
+        // TODO(b/183750545): Create CarTextConstraints and check allowed spans in all places
+        //  that take CharSequence or CarText
+        CarColorConstraints.UNCONSTRAINED.validateOrThrow(carColor);
         return new ForegroundCarColorSpan(requireNonNull(carColor));
     }
 
-    /** @hide */
-    @RestrictTo(LIBRARY)
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    /** Returns the {@link CarColor} associated with this span. */
     @NonNull
-    public static ForegroundCarColorSpan createForTesting(@NonNull CarColor carColor) {
-        return new ForegroundCarColorSpan(carColor);
-    }
-
-    @Override
-    public void updateDrawState(@NonNull TextPaint paint) {
-        // Not relevant.
+    public CarColor getColor() {
+        return mCarColor;
     }
 
     @Override
@@ -113,7 +101,7 @@ public class ForegroundCarColorSpan extends CharacterStyle {
     }
 
     private ForegroundCarColorSpan(CarColor carColor) {
-        this.mCarColor = carColor;
+        mCarColor = carColor;
     }
 
     private ForegroundCarColorSpan() {

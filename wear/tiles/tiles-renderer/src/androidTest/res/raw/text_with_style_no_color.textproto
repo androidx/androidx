@@ -1,0 +1,13 @@
+spannable {
+  multiline_alignment {
+    value: HORIZONTAL_ALIGN_START
+  }
+  spans {
+    text {
+      text {
+        value: "Hello World"
+      }
+    }
+  }
+}
+

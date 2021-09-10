@@ -17,15 +17,15 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.text.InternalFoundationTextApi
+import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.TestFontResourceLoader
+import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextDelegate
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.asFontFamily
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -34,19 +34,18 @@ import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(InternalTextApi::class)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class TextFieldSelectionDelegateTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
-    private val fontFamily = BASIC_MEASURE_FONT.asFontFamily()
+    private val fontFamily = TEST_FONT_FAMILY
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val defaultDensity = Density(density = 1f)
     private val resourceLoader = TestFontResourceLoader(context)
@@ -68,14 +67,13 @@ class TextFieldSelectionDelegateTest {
             rawStartOffset = 2,
             rawEndOffset = 2,
             previousSelection = null,
-            previousHandlesCrossed = false,
             isStartHandle = true,
-            wordBasedSelection = true
+            adjustment = SelectionAdjustment.Word
         )
 
         // Assert.
-        Truth.assertThat(range.start).isEqualTo(0)
-        Truth.assertThat(range.end).isEqualTo("hello".length)
+        assertThat(range.start).isEqualTo(0)
+        assertThat(range.end).isEqualTo("hello".length)
     }
 
     @Test
@@ -95,14 +93,13 @@ class TextFieldSelectionDelegateTest {
             rawStartOffset = 5,
             rawEndOffset = 5,
             previousSelection = null,
-            previousHandlesCrossed = false,
             isStartHandle = true,
-            wordBasedSelection = true
+            adjustment = SelectionAdjustment.Word
         )
 
         // Assert.
-        Truth.assertThat(range.start).isEqualTo(text.indexOf("\u05D3"))
-        Truth.assertThat(range.end).isEqualTo(text.indexOf("\u05D5") + 1)
+        assertThat(range.start).isEqualTo(text.indexOf("\u05D3"))
+        assertThat(range.end).isEqualTo(text.indexOf("\u05D5") + 1)
     }
 
     @Test
@@ -125,14 +122,13 @@ class TextFieldSelectionDelegateTest {
             rawStartOffset = rawStartOffset,
             rawEndOffset = rawEndOffset,
             previousSelection = null,
-            previousHandlesCrossed = false,
             isStartHandle = true,
-            wordBasedSelection = true
+            adjustment = SelectionAdjustment.Word
         )
 
         // Assert.
-        Truth.assertThat(range.start).isEqualTo(0)
-        Truth.assertThat(range.end).isEqualTo(text.length)
+        assertThat(range.start).isEqualTo(0)
+        assertThat(range.end).isEqualTo(text.length)
     }
 
     @Test
@@ -155,14 +151,13 @@ class TextFieldSelectionDelegateTest {
             rawStartOffset = rawStartOffset,
             rawEndOffset = rawEndOffset,
             previousSelection = null,
-            previousHandlesCrossed = false,
             isStartHandle = true,
-            wordBasedSelection = true
+            adjustment = SelectionAdjustment.Word
         )
 
         // Assert.
-        Truth.assertThat(range.start).isEqualTo(text.length)
-        Truth.assertThat(range.end).isEqualTo(0)
+        assertThat(range.start).isEqualTo(text.length)
+        assertThat(range.end).isEqualTo(0)
     }
 
     @Test
@@ -185,15 +180,14 @@ class TextFieldSelectionDelegateTest {
             textLayoutResult = textLayoutResult,
             rawStartOffset = startOffset,
             rawEndOffset = endOffset,
-            previousSelection = TextRange(0, 0),
-            previousHandlesCrossed = false,
+            previousSelection = null,
             isStartHandle = true,
-            wordBasedSelection = false
+            adjustment = SelectionAdjustment.None
         )
 
         // Assert.
-        Truth.assertThat(range.start).isEqualTo(startOffset)
-        Truth.assertThat(range.end).isEqualTo(endOffset)
+        assertThat(range.start).isEqualTo(startOffset)
+        assertThat(range.end).isEqualTo(endOffset)
     }
 
     @Test
@@ -216,15 +210,14 @@ class TextFieldSelectionDelegateTest {
             textLayoutResult = textLayoutResult,
             rawStartOffset = startOffset,
             rawEndOffset = endOffset,
-            previousSelection = TextRange(0, 0),
-            previousHandlesCrossed = false,
+            previousSelection = null,
             isStartHandle = true,
-            wordBasedSelection = false
+            adjustment = SelectionAdjustment.Character
         )
 
         // Assert.
-        Truth.assertThat(range.start).isEqualTo(startOffset)
-        Truth.assertThat(range.end).isEqualTo(endOffset)
+        assertThat(range.start).isEqualTo(startOffset)
+        assertThat(range.end).isEqualTo(endOffset)
     }
 
     @Test
@@ -249,15 +242,14 @@ class TextFieldSelectionDelegateTest {
             textLayoutResult = textLayoutResult,
             rawStartOffset = startOffset,
             rawEndOffset = endOffset,
-            previousSelection = TextRange(0, 0),
-            previousHandlesCrossed = false,
+            previousSelection = null,
             isStartHandle = true,
-            wordBasedSelection = false
+            adjustment = SelectionAdjustment.Character
         )
 
         // Assert.
-        Truth.assertThat(range.start).isEqualTo(startOffset)
-        Truth.assertThat(range.end).isEqualTo(endOffset)
+        assertThat(range.start).isEqualTo(startOffset)
+        assertThat(range.end).isEqualTo(endOffset)
     }
 
     @Test
@@ -280,15 +272,14 @@ class TextFieldSelectionDelegateTest {
             textLayoutResult = textLayoutResult,
             rawStartOffset = startOffset,
             rawEndOffset = endOffset,
-            previousSelection = TextRange(0, 0),
-            previousHandlesCrossed = false,
+            previousSelection = null,
             isStartHandle = true,
-            wordBasedSelection = false
+            adjustment = SelectionAdjustment.Character
         )
 
         // Assert.
-        Truth.assertThat(range.start).isEqualTo(startOffset)
-        Truth.assertThat(range.end).isEqualTo(endOffset)
+        assertThat(range.start).isEqualTo(startOffset)
+        assertThat(range.end).isEqualTo(endOffset)
     }
 
     @Test
@@ -311,15 +302,14 @@ class TextFieldSelectionDelegateTest {
             textLayoutResult = textLayoutResult,
             rawStartOffset = startOffset,
             rawEndOffset = endOffset,
-            previousSelection = TextRange(0, 0),
-            previousHandlesCrossed = false,
+            previousSelection = null,
             isStartHandle = true,
-            wordBasedSelection = false
+            adjustment = SelectionAdjustment.Character
         )
 
         // Assert.
-        Truth.assertThat(range.start).isEqualTo(startOffset)
-        Truth.assertThat(range.end).isEqualTo(endOffset)
+        assertThat(range.start).isEqualTo(startOffset)
+        assertThat(range.end).isEqualTo(endOffset)
     }
 
     @Test
@@ -344,17 +334,43 @@ class TextFieldSelectionDelegateTest {
             textLayoutResult = textLayoutResult,
             rawStartOffset = startOffset,
             rawEndOffset = endOffset,
-            previousSelection = TextRange(0, 0),
-            previousHandlesCrossed = false,
+            previousSelection = null,
             isStartHandle = true,
-            wordBasedSelection = false
+            adjustment = SelectionAdjustment.Character,
         )
 
         // Assert.
-        Truth.assertThat(range.start).isEqualTo(startOffset)
-        Truth.assertThat(range.end).isEqualTo(endOffset)
+        assertThat(range.start).isEqualTo(startOffset)
+        assertThat(range.end).isEqualTo(endOffset)
     }
 
+    @Test
+    fun getTextFieldSelection_empty_string() {
+        val text = ""
+        val fontSize = 20.sp
+
+        val textLayoutResult = simpleTextLayout(
+            text = text,
+            fontSize = fontSize,
+            density = defaultDensity
+        )
+
+        // Act.
+        val range = getTextFieldSelection(
+            textLayoutResult = textLayoutResult,
+            rawStartOffset = 0,
+            rawEndOffset = 0,
+            previousSelection = null,
+            isStartHandle = true,
+            adjustment = SelectionAdjustment.Word
+        )
+
+        // Assert.
+        assertThat(range.start).isEqualTo(0)
+        assertThat(range.end).isEqualTo(0)
+    }
+
+    @OptIn(InternalFoundationTextApi::class)
     private fun simpleTextLayout(
         text: String = "",
         fontSize: TextUnit = TextUnit.Unspecified,

@@ -16,7 +16,12 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888;
+import static androidx.camera.core.ImageYuvToRgbConverter.applyPixelShiftForYUV;
+import static androidx.camera.core.ImageYuvToRgbConverter.convertYUVToRGB;
+
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -26,7 +31,6 @@ import androidx.core.os.OperationCanceledException;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Abstract Analyzer that wraps around {@link ImageAnalysis.Analyzer} and implements
@@ -37,21 +41,62 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImageAvailableListener {
 
+    private static final String TAG = "ImageAnalysisAnalyzer";
+
     // Member variables from ImageAnalysis.
     @GuardedBy("mAnalyzerLock")
     private ImageAnalysis.Analyzer mSubscribedAnalyzer;
     private volatile int mRelativeRotation;
+    @ImageAnalysis.OutputImageFormat
+    private volatile int mOutputImageFormat = ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888;
+    private volatile boolean mOnePixelShiftEnabled;
     @GuardedBy("mAnalyzerLock")
     private Executor mUserExecutor;
 
+    @GuardedBy("mAnalyzerLock")
+    @Nullable
+    private ImageReaderProxy mRGBImageReaderProxy;
+
+    // Lock that synchronizes the access to mSubscribedAnalyzer/mUserExecutor to prevent mismatch.
     private final Object mAnalyzerLock = new Object();
 
-    // Flag that reflects the state of ImageAnalysis.
-    private AtomicBoolean mIsClosed;
+    // Flag that reflects the attaching state of the holding ImageAnalysis object.
+    protected boolean mIsAttached = true;
 
-    ImageAnalysisAbstractAnalyzer() {
-        mIsClosed = new AtomicBoolean(false);
+    @Override
+    public void onImageAvailable(@NonNull ImageReaderProxy imageReaderProxy) {
+        try {
+            ImageProxy imageProxy = acquireImage(imageReaderProxy);
+            if (imageProxy != null) {
+                onValidImageAvailable(imageProxy);
+            }
+        } catch (IllegalStateException e) {
+            // This happens if image is not closed in STRATEGY_BLOCK_PRODUCER mode. Catch the
+            // exception and fail with an error log.
+            // TODO(b/175851631): it may also happen when STRATEGY_KEEP_ONLY_LATEST not closing
+            //  the cached image properly. We are unclear why it happens but catching the
+            //  exception should improve the situation by not crashing.
+            Logger.e(TAG, "Failed to acquire image.", e);
+        }
     }
+
+    /**
+     * Implemented by children to acquireImage via {@link ImageReaderProxy#acquireLatestImage()} or
+     * {@link ImageReaderProxy#acquireNextImage()}.
+     */
+    @Nullable
+    abstract ImageProxy acquireImage(@NonNull ImageReaderProxy imageReaderProxy);
+
+    /**
+     * Called when a new valid {@link ImageProxy} becomes available via
+     * {@link ImageReaderProxy.OnImageAvailableListener}.
+     */
+    abstract void onValidImageAvailable(@NonNull ImageProxy imageProxy);
+
+    /**
+     * Called by {@link ImageAnalysis} to release cached images.
+     */
+    abstract void clearCache();
 
     /**
      * Analyzes a {@link ImageProxy} using the wrapped {@link ImageAnalysis.Analyzer}.
@@ -63,39 +108,53 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
      *
      * @return The future which will complete once analysis has finished or it failed.
      */
-    ListenableFuture<Void> analyzeImage(ImageProxy imageProxy) {
+    ListenableFuture<Void> analyzeImage(@NonNull ImageProxy imageProxy) {
         Executor executor;
         ImageAnalysis.Analyzer analyzer;
+        ImageReaderProxy rgbImageReaderProxy;
         synchronized (mAnalyzerLock) {
             executor = mUserExecutor;
             analyzer = mSubscribedAnalyzer;
+            rgbImageReaderProxy = mRGBImageReaderProxy;
         }
 
         ListenableFuture<Void> future;
 
-        if (analyzer != null && executor != null) {
+        if (analyzer != null && executor != null && mIsAttached) {
+            final ImageProxy rgbImageProxy =
+                    (mOutputImageFormat == OUTPUT_IMAGE_FORMAT_RGBA_8888
+                            && rgbImageReaderProxy != null)
+                            ? convertYUVToRGB(
+                                    imageProxy, rgbImageReaderProxy, mOnePixelShiftEnabled)
+                            : null;
+            if (mOutputImageFormat == ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888
+                    && mOnePixelShiftEnabled) {
+                applyPixelShiftForYUV(imageProxy);
+            }
+
             // When the analyzer exists and ImageAnalysis is active.
             future = CallbackToFutureAdapter.getFuture(
-                    completer ->  {
+                    completer -> {
                         executor.execute(() -> {
-                            if (!isClosed()) {
+                            if (mIsAttached) {
                                 ImageInfo imageInfo = ImmutableImageInfo.create(
                                         imageProxy.getImageInfo().getTagBundle(),
                                         imageProxy.getImageInfo().getTimestamp(),
                                         mRelativeRotation);
 
-                                analyzer.analyze(new SettableImageProxy(imageProxy, imageInfo));
+                                analyzer.analyze(new SettableImageProxy(rgbImageProxy == null
+                                        ? imageProxy : rgbImageProxy, imageInfo));
                                 completer.set(null);
                             } else {
-                                completer.setException(new OperationCanceledException("Closed "
-                                        + "before analysis"));
+                                completer.setException(new OperationCanceledException(
+                                        "ImageAnalysis is detached"));
                             }
                         });
-                    return "analyzeImage";
+                        return "analyzeImage";
                     });
         } else {
-            future = Futures.immediateFailedFuture(new OperationCanceledException("No analyzer "
-                    + "or executor currently set."));
+            future = Futures.immediateFailedFuture(new OperationCanceledException(
+                    "No analyzer or executor currently set."));
         }
 
         return future;
@@ -105,9 +164,26 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
         mRelativeRotation = relativeRotation;
     }
 
+    void setOutputImageFormat(@ImageAnalysis.OutputImageFormat int outputImageFormat) {
+        mOutputImageFormat = outputImageFormat;
+    }
+
+    void setOnePixelShiftEnabled(boolean onePixelShiftEnabled) {
+        mOnePixelShiftEnabled = onePixelShiftEnabled;
+    }
+
+    void setRGBImageReaderProxy(@NonNull ImageReaderProxy rgbImageReaderProxy) {
+        synchronized (mAnalyzerLock) {
+            mRGBImageReaderProxy = rgbImageReaderProxy;
+        }
+    }
+
     void setAnalyzer(@Nullable Executor userExecutor,
             @Nullable ImageAnalysis.Analyzer subscribedAnalyzer) {
         synchronized (mAnalyzerLock) {
+            if (subscribedAnalyzer == null) {
+                clearCache();
+            }
             mSubscribedAnalyzer = subscribedAnalyzer;
             mUserExecutor = userExecutor;
         }
@@ -116,19 +192,15 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
     /**
      * Initialize the callback.
      */
-    void open() {
-        mIsClosed.set(false);
+    void attach() {
+        mIsAttached = true;
     }
 
     /**
      * Closes the callback so that it will stop posting to analyzer.
      */
-    void close() {
-        mIsClosed.set(true);
+    void detach() {
+        mIsAttached = false;
+        clearCache();
     }
-
-    boolean isClosed() {
-        return mIsClosed.get();
-    }
-
 }

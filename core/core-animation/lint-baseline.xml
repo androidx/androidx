@@ -1,108 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
-        id="InlinedApi"
-        message="Field requires API level 23 (current min is 14): `android.R.attr#fraction`"
-        errorLine1="            android.R.attr.valueType, android.R.attr.fraction"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR_EXTRA_TENSION = 1;"
+        errorLine2="                                                                                ~">
         <location
             file="src/main/java/androidx/core/animation/AndroidResources.java"
-            line="79"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 21 (current min is 14): `android.R.attr#pathData`"
-        errorLine1="            android.R.attr.propertyName, android.R.attr.pathData,"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/AndroidResources.java"
-            line="86"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 21 (current min is 14): `android.R.attr#propertyXName`"
-        errorLine1="            android.R.attr.propertyXName, android.R.attr.propertyYName,"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/AndroidResources.java"
-            line="87"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 21 (current min is 14): `android.R.attr#propertyYName`"
-        errorLine1="            android.R.attr.propertyXName, android.R.attr.propertyYName,"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/AndroidResources.java"
-            line="87"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 21 (current min is 14): `android.R.attr#controlX1`"
-        errorLine1="            android.R.attr.controlX1, android.R.attr.controlY1,"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/AndroidResources.java"
-            line="94"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 21 (current min is 14): `android.R.attr#controlY1`"
-        errorLine1="            android.R.attr.controlX1, android.R.attr.controlY1,"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/AndroidResources.java"
-            line="94"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 21 (current min is 14): `android.R.attr#controlX2`"
-        errorLine1="            android.R.attr.controlX2, android.R.attr.controlY2,"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/AndroidResources.java"
-            line="95"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 21 (current min is 14): `android.R.attr#controlY2`"
-        errorLine1="            android.R.attr.controlX2, android.R.attr.controlY2,"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/AndroidResources.java"
-            line="95"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 21 (current min is 14): `android.R.attr#pathData`"
-        errorLine1="            android.R.attr.pathData"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/AndroidResources.java"
-            line="96"
-            column="13"/>
+            line="29"
+            column="81"/>
     </issue>
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                        Object value = convertBack(mGetter.invoke(target));"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -113,7 +25,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                Object value = convertBack(mGetter.invoke(target));"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -124,7 +36,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                mSetter.invoke(target, mTmpValueArray);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -135,7 +47,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                mSetter.invoke(target, mTmpValueArray);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -146,7 +58,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    mSetter.invoke(target, mTmpValueArray);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -157,7 +69,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    mSetter.invoke(target, boxedValues);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -168,112 +80,13 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    mSetter.invoke(target, boxedValues);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="1485"
+            line="1486"
             column="21"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.core.animation.PathUtils is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="            return path.approximate(precision);"
-        errorLine2="                        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/PathUtils.java"
-            line="34"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="Recycle"
-        message="This animation should be started with `#start()`"
-        errorLine1="            keyframes[0] = (IntKeyframe) Keyframe.ofInt(0f);"
-        errorLine2="                                                  ~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/KeyframeSet.java"
-            line="73"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="Recycle"
-        message="This animation should be started with `#start()`"
-        errorLine1="            keyframes[1] = (IntKeyframe) Keyframe.ofInt(1f, values[0]);"
-        errorLine2="                                                  ~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/KeyframeSet.java"
-            line="74"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="Recycle"
-        message="This animation should be started with `#start()`"
-        errorLine1="            keyframes[0] = (IntKeyframe) Keyframe.ofInt(0f, values[0]);"
-        errorLine2="                                                  ~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/KeyframeSet.java"
-            line="76"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="Recycle"
-        message="This animation should be started with `#start()`"
-        errorLine1="                        (IntKeyframe) Keyframe.ofInt((float) i / (numKeyframes - 1), values[i]);"
-        errorLine2="                                               ~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/KeyframeSet.java"
-            line="79"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="Recycle"
-        message="This animation should be started with `#start()`"
-        errorLine1="            keyframes[0] = (FloatKeyframe) Keyframe.ofFloat(0f);"
-        errorLine2="                                                    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/KeyframeSet.java"
-            line="90"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="Recycle"
-        message="This animation should be started with `#start()`"
-        errorLine1="            keyframes[1] = (FloatKeyframe) Keyframe.ofFloat(1f, values[0]);"
-        errorLine2="                                                    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/KeyframeSet.java"
-            line="91"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="Recycle"
-        message="This animation should be started with `#start()`"
-        errorLine1="            keyframes[0] = (FloatKeyframe) Keyframe.ofFloat(0f, values[0]);"
-        errorLine2="                                                    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/KeyframeSet.java"
-            line="96"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="Recycle"
-        message="This animation should be started with `#start()`"
-        errorLine1="                        Keyframe.ofFloat((float) i / (numKeyframes - 1), values[i]);"
-        errorLine2="                                 ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/animation/KeyframeSet.java"
-            line="99"
-            column="34"/>
     </issue>
 
     <issue
@@ -288,7 +101,8 @@
         <location
             file="src/main/java/androidx/core/animation/ValueAnimator.java"
             line="493"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue

@@ -17,64 +17,74 @@
 package androidx.compose.ui.text.input
 
 /**
- * Enums used for indicating IME action.
- *
- * @see <https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_MASK_ACTION>
+ * Signals the keyboard what type of action should be displayed. It is not guaranteed if
+ * the keyboard will show the requested action.
  */
-enum class ImeAction {
-    /**
-     * An IME action used to represent that any IME action is associated.
-     *
-     * @see <https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_UNSPECIFIED>
-     */
-    Unspecified,
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
+inline class ImeAction internal constructor(@Suppress("unused") private val value: Int) {
 
-    /**
-     * An IME action used to represent that no IME action is available in editor.
-     *
-     * @see <https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_NONE>
-     */
-    NoAction,
+    override fun toString(): String {
+        return when (this) {
+            None -> "None"
+            Default -> "Default"
+            Go -> "Go"
+            Search -> "Search"
+            Send -> "Send"
+            Previous -> "Previous"
+            Next -> "Next"
+            Done -> "Done"
+            else -> "Invalid"
+        }
+    }
 
-    /**
-     * An IME action used to represent that the "enter" key works as "go" action.
-     *
-     * @see <https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_GO>
-     */
-    Go,
+    companion object {
+        /**
+         * Use the platform and keyboard defaults and let the keyboard to decide the action. The
+         * keyboards will mostly show one of [Done] or [None] actions based on the single/multi
+         * line configuration.
+         */
+        val Default: ImeAction = ImeAction(1)
 
-    /**
-     * An IME action used to represent that the "enter" key works as "search" action.
-     *
-     * @see <https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_SEARCH>
-     */
-    Search,
+        /**
+         * Represents that no action is expected from the keyboard. Keyboard might choose to show an
+         * action which mostly will be newline, however this action is not carried into the app via
+         * any [Keyboard Action][androidx.compose.foundation.text.KeyboardAction].
+         */
+        val None: ImeAction = ImeAction(0)
 
-    /**
-     * An IME action used to represent that the "enter" key works as "send" action.
-     *
-     * @see <https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_SEND>
-     */
-    Send,
+        /**
+         * Represents that the user would like to go to the target of the text in the input i.e.
+         * visiting a URL.
+         */
+        val Go: ImeAction = ImeAction(2)
 
-    /**
-     * An IME action used to represent that the "enter" key works as "previous" action.
-     *
-     * @see <https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_PREVIOUS>
-     */
-    Previous,
+        /**
+         * Represents that the user wants to execute a search, i.e. web search query.
+         */
+        val Search: ImeAction = ImeAction(3)
 
-    /**
-     * An IME action used to represent that the "enter" key works as "next" action.
-     *
-     * https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_NEXT
-     */
-    Next,
+        /**
+         * Represents that the user wants to send the text in the input, i.e. an SMS.
+         */
+        val Send: ImeAction = ImeAction(4)
 
-    /**
-     * An IME action used to represent that the "enter" key works as "done" action.
-     *
-     * @see <https://developer.android.com/reference/android/view/inputmethod/EditorInfo.html#IME_ACTION_DONE>
-     */
-    Done
+        /**
+         * Represents that the user wants to return to the previous input i.e. going back to the
+         * previous field in a form.
+         */
+        val Previous: ImeAction = ImeAction(5)
+
+        /**
+         * Represents that the user is done with the current input, and wants to move to the next
+         * one i.e. moving to the next field in a form.
+         */
+        val Next: ImeAction = ImeAction(6)
+
+        /**
+         * Represents that the user is done providing input to a group of inputs. Some
+         * kind of finalization behavior should now take place i.e. the field was the last element in
+         * a group and the data input is finalized.
+         */
+        val Done: ImeAction = ImeAction(7)
+    }
 }

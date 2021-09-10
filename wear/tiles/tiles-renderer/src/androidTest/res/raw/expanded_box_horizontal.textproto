@@ -1,0 +1,45 @@
+# Check that a box that is expanded does so correctly
+# Use a box at the top level.
+#
+# This is a pretty common paradigm; tiles will use boxes at the top level to
+# allow the positioning of multiple elements without them affecting the
+# placement of each other. If this is done incorrectly though, it can lead to
+# the inner box not expanding properly.
+box {
+  horizontal_alignment {
+    value: HORIZONTAL_ALIGN_CENTER
+  }
+  vertical_alignment {
+    value: VERTICAL_ALIGN_CENTER
+  }
+  width {
+    expanded_dimension {}
+  }
+  height {
+    expanded_dimension {}
+  }
+  contents {
+    box {
+      horizontal_alignment {
+        value: HORIZONTAL_ALIGN_START
+      }
+      modifiers {
+        background {
+          color {
+            argb: 0xFFFF0000
+          }
+        }
+      }
+      width {
+        expanded_dimension {}
+      }
+      contents {
+        text {
+          text {
+            value: "Hello World"
+          }
+        }
+      }
+    }
+  }
+}

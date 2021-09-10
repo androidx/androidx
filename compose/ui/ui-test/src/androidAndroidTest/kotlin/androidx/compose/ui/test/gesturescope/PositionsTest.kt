@@ -16,12 +16,15 @@
 
 package androidx.compose.ui.test.gesturescope
 
-import androidx.compose.foundation.ScrollableColumn
-import androidx.compose.foundation.ScrollableRow
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.AmbientDensity
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.bottom
 import androidx.compose.ui.test.bottomCenter
@@ -32,8 +35,8 @@ import androidx.compose.ui.test.centerLeft
 import androidx.compose.ui.test.centerRight
 import androidx.compose.ui.test.centerX
 import androidx.compose.ui.test.centerY
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.height
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.left
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.percentOffset
@@ -43,10 +46,10 @@ import androidx.compose.ui.test.top
 import androidx.compose.ui.test.topCenter
 import androidx.compose.ui.test.topLeft
 import androidx.compose.ui.test.topRight
-import androidx.compose.ui.test.width
-import androidx.test.filters.MediumTest
 import androidx.compose.ui.test.util.ClickableTestBox
 import androidx.compose.ui.test.util.ClickableTestBox.defaultTag
+import androidx.compose.ui.test.width
+import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -61,6 +64,7 @@ class PositionsTest {
     fun testCornersEdgesAndCenter() {
         rule.setContent { ClickableTestBox(width = 3f, height = 100f) }
 
+        @Suppress("DEPRECATION")
         rule.onNodeWithTag(defaultTag).performGesture {
             assertThat(width).isEqualTo(3)
             assertThat(height).isEqualTo(100)
@@ -89,6 +93,7 @@ class PositionsTest {
     fun testRelativeOffset() {
         rule.setContent { ClickableTestBox() }
 
+        @Suppress("DEPRECATION")
         rule.onNodeWithTag(defaultTag).performGesture {
             assertThat(percentOffset(.1f, .1f)).isEqualTo(Offset(10f, 10f))
             assertThat(percentOffset(-.2f, 0f)).isEqualTo(Offset(-20f, 0f))
@@ -120,19 +125,27 @@ class PositionsTest {
 
     private fun testPositionsInViewport(isVertical: Boolean, reverseScrollDirection: Boolean) {
         rule.setContent {
-            with(AmbientDensity.current) {
+            with(LocalDensity.current) {
                 if (isVertical) {
-                    ScrollableColumn(
-                        Modifier.size(100.toDp(), 100.toDp()).testTag("viewport"),
-                        reverseScrollDirection = reverseScrollDirection
+                    Column(
+                        Modifier.requiredSize(100.toDp())
+                            .testTag("viewport")
+                            .verticalScroll(
+                                rememberScrollState(),
+                                reverseScrolling = reverseScrollDirection
+                            )
                     ) {
                         ClickableTestBox(width = 200f, height = 200f)
                         ClickableTestBox(width = 200f, height = 200f)
                     }
                 } else {
-                    ScrollableRow(
-                        Modifier.size(100.toDp(), 100.toDp()).testTag("viewport"),
-                        reverseScrollDirection = reverseScrollDirection
+                    Row(
+                        Modifier.requiredSize(100.toDp())
+                            .testTag("viewport")
+                            .horizontalScroll(
+                                rememberScrollState(),
+                                reverseScrolling = reverseScrollDirection
+                            )
                     ) {
                         ClickableTestBox(width = 200f, height = 200f)
                         ClickableTestBox(width = 200f, height = 200f)
@@ -141,6 +154,7 @@ class PositionsTest {
             }
         }
 
+        @Suppress("DEPRECATION")
         rule.onNodeWithTag("viewport").performGesture {
             assertThat(width).isEqualTo(100)
             assertThat(height).isEqualTo(100)

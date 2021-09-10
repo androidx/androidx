@@ -19,6 +19,9 @@ import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
+import androidx.annotation.RequiresApi;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +34,7 @@ class PathUtils {
 
     static float[] createKeyFrameData(Path path, float precision) {
         if (Build.VERSION.SDK_INT >= 26) {
-            return path.approximate(precision);
+            return Api26Impl.approximate(path, precision);
         } else {
             // Measure the total length the whole path.
             final PathMeasure measureForTotalLength = new PathMeasure(path, false);
@@ -162,4 +165,15 @@ class PathUtils {
         data.add(y);
     }
 
+    @RequiresApi(26)
+    static class Api26Impl {
+        private Api26Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static float[] approximate(Path path, float acceptableError) {
+            return path.approximate(acceptableError);
+        }
+    }
 }

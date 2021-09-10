@@ -17,12 +17,18 @@
 package androidx.room.integration.testapp.vo;
 
 import androidx.room.Entity;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 /**
  * The toys of a pet.
  */
-@Entity
+@Entity(
+        indices = @Index(
+                value = "mName",
+                unique = true
+        )
+)
 public class Toy {
     @PrimaryKey(autoGenerate = true)
     private int mId;

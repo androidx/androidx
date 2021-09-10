@@ -17,7 +17,6 @@
 package androidx.hilt.work
 
 import androidx.hilt.ClassNames
-import androidx.hilt.assisted.AssistedFactoryGenerator
 import androidx.hilt.ext.S
 import androidx.hilt.ext.T
 import androidx.hilt.ext.addGeneratedAnnotation
@@ -46,40 +45,27 @@ import javax.lang.model.element.Modifier
  * ```
  * and
  * ```
- * public final class $_AssistedFactory extends WorkerAssistedFactory<$> {
+ * @AssistedFactory
+ * public interface $_AssistedFactory extends WorkerAssistedFactory<$> {
  *
- *   private final Provider<Dep1> dep1;
- *   private final Provider<Dep2> dep2;
- *   ...
- *
- *   @Inject
- *   $_AssistedFactory(Provider<Dep1> dep1, Provider<Dep2> dep2, ...) {
- *     this.dep1 = dep1;
- *     this.dep2 = dep2;
- *     ...
- *   }
- *
- *   @Override
- *   @NonNull
- *   public $ create(@NonNull Context context, @NonNull WorkerParameter params) {
- *     return new $(context, params, dep1.get(), dep2.get());
- *   }
  * }
  * ```
  */
 internal class WorkerGenerator(
     private val processingEnv: ProcessingEnvironment,
-    private val injectedWorker: WorkerInjectElements
+    private val injectedWorker: WorkerElements
 ) {
     fun generate() {
-        AssistedFactoryGenerator(
-            processingEnv = processingEnv,
-            productClassName = injectedWorker.className,
-            factoryClassName = injectedWorker.factoryClassName,
-            factorySuperTypeName = injectedWorker.factorySuperTypeName,
-            originatingElement = injectedWorker.typeElement,
-            dependencyRequests = injectedWorker.dependencyRequests
-        ).generate()
+        val assistedFactoryTypeSpec = TypeSpec.interfaceBuilder(injectedWorker.factoryClassName)
+            .addOriginatingElement(injectedWorker.typeElement)
+            .addGeneratedAnnotation(processingEnv.elementUtils, processingEnv.sourceVersion)
+            .addAnnotation(ClassNames.ASSISTED_FACTORY)
+            .addModifiers(Modifier.PUBLIC)
+            .addSuperinterface(injectedWorker.factorySuperTypeName)
+            .build()
+        JavaFile.builder(injectedWorker.factoryClassName.packageName(), assistedFactoryTypeSpec)
+            .build()
+            .writeTo(processingEnv.filer)
 
         val hiltModuleTypeSpec = TypeSpec.interfaceBuilder(injectedWorker.moduleClassName)
             .addOriginatingElement(injectedWorker.typeElement)

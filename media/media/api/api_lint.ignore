@@ -11,8 +11,6 @@ ActionValue: android.support.v4.media.MediaDescriptionCompat#EXTRA_BT_FOLDER_TYP
     Inconsistent extra value; expected `android.support.v4.media.extra.BT_FOLDER_TYPE`, was `android.media.extra.BT_FOLDER_TYPE`
 ActionValue: android.support.v4.media.MediaDescriptionCompat#EXTRA_DOWNLOAD_STATUS:
     Inconsistent extra value; expected `android.support.v4.media.extra.DOWNLOAD_STATUS`, was `android.media.extra.DOWNLOAD_STATUS`
-ActionValue: android.support.v4.media.session.MediaControllerCompat.TransportControls#EXTRA_LEGACY_STREAM_TYPE:
-    Inconsistent extra value; expected `android.support.v4.media.session.extra.LEGACY_STREAM_TYPE`, was `android.media.session.extra.LEGACY_STREAM_TYPE`
 ActionValue: androidx.media.MediaBrowserServiceCompat.BrowserRoot#EXTRA_OFFLINE:
     Inconsistent extra value; expected `androidx.media.extra.OFFLINE`, was `android.service.media.extra.OFFLINE`
 ActionValue: androidx.media.MediaBrowserServiceCompat.BrowserRoot#EXTRA_RECENT:
@@ -503,8 +501,6 @@ MissingNullability: android.support.v4.media.session.PlaybackStateCompat.Builder
     Missing nullability on method `setActiveQueueItemId` return
 MissingNullability: android.support.v4.media.session.PlaybackStateCompat.Builder#setBufferedPosition(long):
     Missing nullability on method `setBufferedPosition` return
-MissingNullability: android.support.v4.media.session.PlaybackStateCompat.Builder#setErrorMessage(CharSequence) parameter #0:
-    Missing nullability on parameter `errorMessage` in method `setErrorMessage`
 MissingNullability: android.support.v4.media.session.PlaybackStateCompat.Builder#setErrorMessage(int, CharSequence):
     Missing nullability on method `setErrorMessage` return
 MissingNullability: android.support.v4.media.session.PlaybackStateCompat.Builder#setErrorMessage(int, CharSequence) parameter #1:
@@ -581,10 +577,6 @@ MissingNullability: androidx.media.MediaBrowserServiceCompat.BrowserRoot#getExtr
     Missing nullability on method `getExtras` return
 MissingNullability: androidx.media.MediaBrowserServiceCompat.BrowserRoot#getRootId():
     Missing nullability on method `getRootId` return
-MissingNullability: androidx.media.MediaBrowserServiceCompat.Result#sendError(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `extras` in method `sendError`
-MissingNullability: androidx.media.MediaBrowserServiceCompat.Result#sendProgressUpdate(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `extras` in method `sendProgressUpdate`
 MissingNullability: androidx.media.VolumeProviderCompat#getVolumeProvider():
     Missing nullability on method `getVolumeProvider` return
 MissingNullability: androidx.media.VolumeProviderCompat#setCallback(androidx.media.VolumeProviderCompat.Callback) parameter #0:
@@ -643,6 +635,14 @@ MutableBareField: android.support.v4.media.session.ParcelableVolumeInfo#maxVolum
     Bare field maxVolume must be marked final, or moved behind accessors if mutable
 MutableBareField: android.support.v4.media.session.ParcelableVolumeInfo#volumeType:
     Bare field volumeType must be marked final, or moved behind accessors if mutable
+
+
+NullableCollection: android.support.v4.media.MediaBrowserCompat#getExtras():
+    Return type of method android.support.v4.media.MediaBrowserCompat.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: android.support.v4.media.MediaDescriptionCompat#getExtras():
+    Return type of method android.support.v4.media.MediaDescriptionCompat.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: android.support.v4.media.session.PlaybackStateCompat#getExtras():
+    Return type of method android.support.v4.media.session.PlaybackStateCompat.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
 
 
 ParcelConstructor: android.support.v4.media.session.ParcelableVolumeInfo#ParcelableVolumeInfo(android.os.Parcel):

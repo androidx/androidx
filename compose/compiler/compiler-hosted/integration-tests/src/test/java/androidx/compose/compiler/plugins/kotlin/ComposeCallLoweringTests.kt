@@ -16,6 +16,7 @@
 
 package androidx.compose.compiler.plugins.kotlin
 
+import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -24,10 +25,11 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.reflect.KClass
 
-@RunWith(ComposeRobolectricTestRunner::class)
+@RunWith(RobolectricTestRunner::class)
 @Config(
     manifest = Config.NONE,
     minSdk = 23,
@@ -179,13 +181,13 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
             """
             import androidx.compose.runtime.*
 
-            @Composable val foo get() = 123
+            val foo @Composable get() = 123
 
             class A {
-                @Composable val bar get() = 123
+                val bar @Composable get() = 123
             }
 
-            @Composable val A.bam get() = 123
+            val A.bam @Composable get() = 123
 
             @Composable fun Foo() {
             }
@@ -260,13 +262,13 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
     fun testPropertyValues(): Unit = ensureSetup {
         compose(
             """
-            @Composable val foo get() = "123"
+            val foo @Composable get() = "123"
 
             class A {
-                @Composable val bar get() = "123"
+                val bar @Composable get() = "123"
             }
 
-            @Composable val A.bam get() = "123"
+            val A.bam @Composable get() = "123"
 
             @Composable
             fun App() {
@@ -324,11 +326,11 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
             """
                 import androidx.compose.runtime.*
 
-                val x = ambientOf<Int> { 123 }
+                val x = compositionLocalOf<Int> { 123 }
 
                 @Composable
                 fun test() {
-                    Providers(x provides 456) {
+                    CompositionLocalProvider(x provides 456) {
 
                     }
                 }
@@ -357,14 +359,14 @@ class ComposeCallLoweringTests : AbstractLoweringTests() {
 
                 class Density
 
-                val DensityAmbient = ambientOf<Density>()
+                val LocalDensity = compositionLocalOf<Density>()
 
                 @Composable
-                fun ambientDensity() = DensityAmbient.current
+                fun compositionLocalDensity() = LocalDensity.current
 
                 @Composable
                 fun WithDensity(block: @Composable DensityScope.() -> Unit) {
-                    DensityScope(ambientDensity()).block()
+                    DensityScope(compositionLocalDensity()).block()
                 }
             """
         )
@@ -1132,6 +1134,25 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
+    fun testInlineClassesAsDefaultParameters(): Unit = ensureSetup {
+        compose(
+            """
+                inline class Positive(val int: Int) {
+                  init { require(int > 0) }
+                }
+
+                @Composable fun Check(positive: Positive = Positive(1)) {
+                  positive.int
+                }
+            """,
+            "Check()",
+            noParameters
+        ).then {
+            // Everything is fine if we get here without an exception.
+        }
+    }
+
+    @Test
     fun testRangeForLoop(): Unit = ensureSetup {
         codegen(
             """
@@ -1158,7 +1179,7 @@ fun <T> B(foo: T, bar: String) { }
                 a++
                 val c = remember { mutableStateOf(0) }
                 val d = remember(c.value) { b++; b }
-                val recompose = invalidate
+                val scope = currentRecomposeScope
                 Button(
                   text=listOf(a, b, c.value, d).joinToString(", "),
                   onClick={ c.value += 1 },
@@ -1166,7 +1187,7 @@ fun <T> B(foo: T, bar: String) { }
                 )
                 Button(
                   text="Recompose",
-                  onClick={ recompose() },
+                  onClick={ scope.invalidate() },
                   id=43
                 )
             }
@@ -1402,21 +1423,21 @@ fun <T> B(foo: T, bar: String) { }
     }
 
     @Test
-    fun testAmbientConsumedFromDefaultParameter(): Unit = ensureSetup {
+    fun testCompositionLocalConsumedFromDefaultParameter(): Unit = ensureSetup {
         val initialText = "no text"
         val helloWorld = "Hello World!"
         compose(
             """
-            val TextAmbient = ambientOf { "$initialText" }
+            val LocalText = compositionLocalOf { "$initialText" }
 
             @Composable
             fun Main() {
                 var text = remember { mutableStateOf("$initialText") }
-                Providers(TextAmbient provides text.value) {
+                CompositionLocalProvider(LocalText provides text.value) {
                     LinearLayout {
-                        ConsumesAmbientFromDefaultParameter()
+                        ConsumesCompositionLocalFromDefaultParameter()
                         Button(
-                            text = "Change ambient value",
+                            text = "Change CompositionLocal value",
                             onClick={ text.value = "$helloWorld" },
                             id=101
                         )
@@ -1425,7 +1446,7 @@ fun <T> B(foo: T, bar: String) { }
             }
 
             @Composable
-            fun ConsumesAmbientFromDefaultParameter(text: String = TextAmbient.current) {
+            fun ConsumesCompositionLocalFromDefaultParameter(text: String = LocalText.current) {
                 TextView(text = text, id = 42)
             }
         """,
@@ -1887,8 +1908,6 @@ fun <T> B(foo: T, bar: String) { }
     fun testEffects1(): Unit = ensureSetup {
         compose(
             """
-                import androidx.compose.androidview.adapters.*
-
                 @Composable
                 fun Counter() {
                     var count = remember { mutableStateOf(0) }
@@ -1919,8 +1938,6 @@ fun <T> B(foo: T, bar: String) { }
     fun testEffects2(): Unit = ensureSetup {
         compose(
             """
-                import androidx.compose.androidview.adapters.*
-
                 @Composable
                 fun Counter() {
                     var count = remember { mutableStateOf(0) }
@@ -1953,8 +1970,6 @@ fun <T> B(foo: T, bar: String) { }
         val log = StringBuilder()
         compose(
             """
-                import androidx.compose.androidview.adapters.*
-
                 @Composable
                 fun Counter(log: StringBuilder) {
                     var count = remember { mutableStateOf(0) }
@@ -1997,8 +2012,6 @@ fun <T> B(foo: T, bar: String) { }
         val log = StringBuilder()
         compose(
             """
-                import androidx.compose.androidview.adapters.*
-
                 @Composable
                 fun printer(log: StringBuilder, str: String) {
                     onCommit {
@@ -2727,6 +2740,9 @@ fun <T> B(foo: T, bar: String) { }
         }
     }
 }
+
+@Suppress("UNCHECKED_CAST")
+fun View.getComposedSet(tagId: Int): Set<String>? = getTag(tagId) as? Set<String>
 
 private val noParameters = { emptyMap<String, String>() }
 

@@ -19,6 +19,7 @@ package androidx.compose.ui.unit
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import kotlin.math.roundToInt
 
 /**
@@ -37,7 +38,7 @@ private data class DensityImpl(
 ) : Density
 
 /**
- * A density of the screen. Used for the conversions between [Dp], [Px], [Int] and [TextUnit].
+ * A density of the screen. Used for the conversions between pixels, [Dp], [Int] and [TextUnit].
  *
  * @sample androidx.compose.ui.unit.samples.WithDensitySample
  */
@@ -66,7 +67,7 @@ interface Density {
      * Convert [Dp] to [Int] by rounding
      */
     @Stable
-    fun Dp.toIntPx(): Int {
+    fun Dp.roundToPx(): Int {
         val px = toPx()
         return if (px.isInfinite()) Constraints.Infinity else px.roundToInt()
     }
@@ -75,7 +76,7 @@ interface Density {
      * Convert [Dp] to Sp. Sp is used for font size, etc.
      */
     @Stable
-    fun Dp.toSp(): TextUnit = TextUnit.Sp(value / fontScale)
+    fun Dp.toSp(): TextUnit = (value / fontScale).sp
 
     /**
      * Convert Sp to pixels. Pixels are used to paint to Canvas.
@@ -91,7 +92,7 @@ interface Density {
      * Convert Sp to [Int] by rounding
      */
     @Stable
-    fun TextUnit.toIntPx(): Int = toPx().roundToInt()
+    fun TextUnit.roundToPx(): Int = toPx().roundToInt()
 
     /**
      * Convert Sp to [Dp].
@@ -124,10 +125,10 @@ interface Density {
     fun Float.toSp(): TextUnit = (this / (fontScale * density)).sp
 
     /**
-     * Convert a [Bounds] to a [Rect].
+     * Convert a [DpRect] to a [Rect].
      */
     @Stable
-    fun Bounds.toRect(): Rect {
+    fun DpRect.toRect(): Rect {
         return Rect(
             left.toPx(),
             top.toPx(),
@@ -135,4 +136,16 @@ interface Density {
             bottom.toPx()
         )
     }
+
+    /**
+     * Convert a [DpSize] to a [Size].
+     */
+    @Stable
+    fun DpSize.toSize(): Size = Size(width.toPx(), height.toPx())
+
+    /**
+     * Convert a [Size] to a [DpSize].
+     */
+    @Stable
+    fun Size.toDpSize(): DpSize = DpSize(width.toDp(), height.toDp())
 }

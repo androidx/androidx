@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
  * to switch to the framework's implementation.  See the framework SDK
  * documentation for a class overview.
  */
-@SuppressWarnings("deprecation") /* AsyncTask */
+@SuppressWarnings({"deprecation", "ObjectToString"}) /* AsyncTask */
 public abstract class AsyncTaskLoader<D> extends Loader<D> {
     private static final String TAG = "AsyncTaskLoader";
     private static final boolean DEBUG = false;

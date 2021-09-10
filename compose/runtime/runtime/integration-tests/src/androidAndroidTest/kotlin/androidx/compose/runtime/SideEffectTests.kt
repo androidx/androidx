@@ -17,8 +17,6 @@
 package androidx.compose.runtime
 
 import android.view.Choreographer
-import androidx.compose.runtime.dispatch.MonotonicFrameClock
-import androidx.compose.runtime.dispatch.withFrameNanos
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlinx.coroutines.channels.Channel
@@ -32,6 +30,7 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 @Suppress("UNUSED_VARIABLE")
 @MediumTest
@@ -49,7 +48,7 @@ class SideEffectTests : BaseComposeTest() {
     fun testSideEffectsRunInOrder() {
         val results = mutableListOf<Int>()
         var resultsAtComposition: List<Int>? = null
-        var recompose: (() -> Unit)? = null
+        var scope: RecomposeScope? = null
         compose {
             SideEffect {
                 results += 1
@@ -58,14 +57,14 @@ class SideEffectTests : BaseComposeTest() {
                 results += 2
             }
             resultsAtComposition = results.toList()
-            recompose = invalidate
+            scope = currentRecomposeScope
         }.then {
             assertEquals(listOf(1, 2), results, "side effects were applied")
             assertEquals(
                 emptyList(), resultsAtComposition,
                 "side effects weren't applied until after composition"
             )
-            recompose?.invoke() ?: error("missing recompose function")
+            scope?.invalidate() ?: error("missing recompose function")
         }.then {
             assertEquals(listOf(1, 2, 1, 2), results, "side effects applied a second time")
         }
@@ -77,16 +76,20 @@ class SideEffectTests : BaseComposeTest() {
      */
     @Test
     fun testSideEffectsRunAfterLifecycleObservers() {
-        class MyObserver : CompositionLifecycleObserver {
+        class MyObserver : RememberObserver {
             var isPresent: Boolean = false
                 private set
 
-            override fun onEnter() {
+            override fun onRemembered() {
                 isPresent = true
             }
 
-            override fun onLeave() {
+            override fun onForgotten() {
                 isPresent = false
+            }
+
+            override fun onAbandoned() {
+                fail("Unexpected call to onAbandoned")
             }
         }
 
@@ -221,9 +224,9 @@ class SideEffectTests : BaseComposeTest() {
                     "DisposableEffect:b2",
                     "DisposableEffect:b1",
                     "recompose",
+                    "onDispose:b1",
                     "onDispose:b2",
                     "onDispose:a2",
-                    "onDispose:b1",
                     "onDispose:a1",
                     "DisposableEffect:a1",
                     "DisposableEffect:b1"
@@ -237,13 +240,13 @@ class SideEffectTests : BaseComposeTest() {
     fun testDisposableEffectKeyChange() {
         var x = 0
         var key = 123
-        lateinit var recompose: () -> Unit
+        lateinit var scope: RecomposeScope
 
         val logHistory = mutableListOf<String>()
         fun log(x: String) = logHistory.add(x)
 
         compose {
-            recompose = invalidate
+            scope = currentRecomposeScope
             DisposableEffect(key) {
                 val y = x++
                 log("DisposableEffect:$y")
@@ -253,7 +256,7 @@ class SideEffectTests : BaseComposeTest() {
             }
         }.then { _ ->
             log("recompose")
-            recompose()
+            scope.invalidate()
         }.then { _ ->
             assertEquals(
                 listOf(
@@ -264,7 +267,7 @@ class SideEffectTests : BaseComposeTest() {
             )
             log("recompose (key -> 345)")
             key = 345
-            recompose()
+            scope.invalidate()
         }.then { _ ->
             assertEquals(
                 listOf(
@@ -295,10 +298,10 @@ class SideEffectTests : BaseComposeTest() {
             }
         }.then {
             assertEquals(1, counter)
-            ch.offer(Unit)
+            ch.trySend(Unit)
         }.then {
             assertEquals(2, counter)
-            ch.offer(Unit)
+            ch.trySend(Unit)
         }.then {
             assertEquals(3, counter)
         }
@@ -314,10 +317,11 @@ class SideEffectTests : BaseComposeTest() {
                     awaitFrameTime = it
                 }
             }
-            onCommit(true) {
+            DisposableEffect(true) {
                 Choreographer.getInstance().postFrameCallback { frameTimeNanos ->
                     choreographerTime = frameTimeNanos
                 }
+                onDispose { }
             }
         }.then {
             assertNotEquals(choreographerTime, Long.MIN_VALUE, "Choreographer callback never ran")
@@ -347,7 +351,7 @@ class SideEffectTests : BaseComposeTest() {
         }
     }
 
-    @OptIn(ExperimentalComposeApi::class)
+    @OptIn(InternalComposeApi::class)
     @Test
     fun testCoroutineScopesHaveCorrectFrameClock() {
         var recomposerClock: MonotonicFrameClock? = null
@@ -401,10 +405,10 @@ class SideEffectTests : BaseComposeTest() {
         }.then {
             myComposableArg = "world"
         }.then {
-            val offerSucceeded = pleaseSend.offer(Unit)
+            val offerSucceeded = pleaseSend.trySend(Unit).isSuccess
             assertTrue(offerSucceeded, "task wasn't awaiting send signal")
         }.then {
-            val receivedResult = output.poll()
+            val receivedResult = output.tryReceive().getOrNull()
             assertEquals("world", receivedResult)
         }
     }

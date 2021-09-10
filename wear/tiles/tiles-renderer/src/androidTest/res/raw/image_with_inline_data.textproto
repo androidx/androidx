@@ -1,0 +1,15 @@
+image {
+  resource_id {
+    value: "inline"
+  }
+  width {
+    linear_dimension {
+      value: 16
+    }
+  }
+  height {
+    linear_dimension {
+      value: 16
+    }
+  }
+}

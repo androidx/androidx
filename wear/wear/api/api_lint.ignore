@@ -21,26 +21,10 @@ ForbiddenSuperClass: androidx.wear.activity.ConfirmationActivity:
     ConfirmationActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 
 
-HiddenSuperclass: androidx.wear.widget.SwipeDismissController:
-    Public class androidx.wear.widget.SwipeDismissController stripped of unavailable superclass androidx.wear.widget.DismissController
-
-
-MissingGetterMatchingBuilder: androidx.wear.ongoingactivity.OngoingActivity.Builder#setAnimatedIcon(android.graphics.drawable.Icon):
-    androidx.wear.ongoingactivity.OngoingActivity does not declare a `getAnimatedIcon()` method matching method androidx.wear.ongoingactivity.OngoingActivity.Builder.setAnimatedIcon(android.graphics.drawable.Icon)
-MissingGetterMatchingBuilder: androidx.wear.ongoingactivity.OngoingActivity.Builder#setAnimatedIcon(int):
-    androidx.wear.ongoingactivity.OngoingActivity does not declare a `getAnimatedIcon()` method matching method androidx.wear.ongoingactivity.OngoingActivity.Builder.setAnimatedIcon(int)
-MissingGetterMatchingBuilder: androidx.wear.ongoingactivity.OngoingActivity.Builder#setStaticIcon(android.graphics.drawable.Icon):
-    androidx.wear.ongoingactivity.OngoingActivity does not declare a `getStaticIcon()` method matching method androidx.wear.ongoingactivity.OngoingActivity.Builder.setStaticIcon(android.graphics.drawable.Icon)
-MissingGetterMatchingBuilder: androidx.wear.ongoingactivity.OngoingActivity.Builder#setStaticIcon(int):
-    androidx.wear.ongoingactivity.OngoingActivity does not declare a `getStaticIcon()` method matching method androidx.wear.ongoingactivity.OngoingActivity.Builder.setStaticIcon(int)
-MissingGetterMatchingBuilder: androidx.wear.ongoingactivity.OngoingActivity.Builder#setStatus(androidx.wear.ongoingactivity.OngoingActivityStatus):
-    androidx.wear.ongoingactivity.OngoingActivity does not declare a `getStatus()` method matching method androidx.wear.ongoingactivity.OngoingActivity.Builder.setStatus(androidx.wear.ongoingactivity.OngoingActivityStatus)
-MissingGetterMatchingBuilder: androidx.wear.ongoingactivity.OngoingActivity.Builder#setTouchIntent(android.app.PendingIntent):
-    androidx.wear.ongoingactivity.OngoingActivity does not declare a `getTouchIntent()` method matching method androidx.wear.ongoingactivity.OngoingActivity.Builder.setTouchIntent(android.app.PendingIntent)
-MissingGetterMatchingBuilder: androidx.wear.ongoingactivity.OngoingActivity.Builder#setLocusId(androidx.core.content.LocusIdCompat):
-    androidx.wear.ongoingactivity.OngoingActivity does not declare a `getLocusId()` method matching method androidx.wear.ongoingactivity.OngoingActivity.Builder.setLocusId(androidx.core.content.LocusIdCompat)
-MissingGetterMatchingBuilder: androidx.wear.ongoingactivity.OngoingActivity.Builder#setOngoingActivityId(int):
-    androidx.wear.ongoingactivity.OngoingActivity does not declare a `getOngoingActivityId()` method matching method androidx.wear.ongoingactivity.OngoingActivity.Builder.setOngoingActivityId(int)
+GetterSetterNames: androidx.wear.widget.drawer.WearableDrawerView#setIsAutoPeekEnabled(boolean):
+    Symmetric method for `isAutoPeekEnabled` must be named `setAutoPeekEnabled`; was `setIsAutoPeekEnabled`
+GetterSetterNames: androidx.wear.widget.drawer.WearableDrawerView#setIsLocked(boolean):
+    Symmetric method for `isLocked` must be named `setLocked`; was `setIsLocked`
 
 
 MissingNullability: androidx.wear.activity.ConfirmationActivity#onCreate(android.os.Bundle) parameter #0:

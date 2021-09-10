@@ -1,7 +1,4 @@
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
-import androidx.build.AndroidXExtension
 import androidx.build.Publish
 
 plugins {
@@ -10,36 +7,32 @@ plugins {
 }
 
 android {
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
-    }
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 }
 
 dependencies {
     api(project(":lifecycle:lifecycle-common"))
+
     api("androidx.arch.core:core-common:2.1.0")
     // necessary for IJ to resolve dependencies.
     api("androidx.annotation:annotation:1.1.0")
     implementation("androidx.arch.core:core-runtime:2.1.0")
 
-    testImplementation(JUNIT)
-    testImplementation(MOCKITO_CORE)
+    testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore)
 
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
 }
 
 androidx {
-    name 'Android Lifecycle Runtime'
+    name "Android Lifecycle Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup LibraryGroups.LIFECYCLE
-    inceptionYear '2017'
+    inceptionYear "2017"
     description "Android Lifecycle Runtime"
 }

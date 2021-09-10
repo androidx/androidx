@@ -23,18 +23,25 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalExposureCompensation;
+import androidx.camera.core.CameraState;
 import androidx.camera.core.ExposureState;
+import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.ZoomState;
+import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
+import androidx.camera.core.impl.Quirk;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.internal.ImmutableZoomState;
+import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -49,9 +56,17 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private final int mLensFacing;
     private final boolean mHasFlashUnit = true;
     private MutableLiveData<Integer> mTorchState = new MutableLiveData<>(TorchState.OFF);
-
     private final MutableLiveData<ZoomState> mZoomLiveData;
+    private MutableLiveData<CameraState> mCameraStateLiveData;
     private String mImplementationType = IMPLEMENTATION_TYPE_FAKE;
+
+    // Leave uninitialized to support camera-core:1.0.0 dependencies.
+    // Can be initialized during class init once there are no more pinned dependencies on
+    // camera-core:1.0.0
+    private CamcorderProfileProvider mCamcorderProfileProvider;
+
+    @NonNull
+    private final List<Quirk> mCameraQuirks = new ArrayList<>();
 
     public FakeCameraInfoInternal() {
         this(/*sensorRotation=*/ 0, /*lensFacing=*/ CameraSelector.LENS_FACING_BACK);
@@ -123,7 +138,6 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     @NonNull
     @Override
-    @ExperimentalExposureCompensation
     public ExposureState getExposureState() {
         return new ExposureState() {
             @Override
@@ -152,8 +166,25 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     @NonNull
     @Override
+    public LiveData<CameraState> getCameraState() {
+        if (mCameraStateLiveData == null) {
+            mCameraStateLiveData = new MutableLiveData<>(
+                    CameraState.create(CameraState.Type.CLOSED));
+        }
+        return mCameraStateLiveData;
+    }
+
+    @NonNull
+    @Override
     public String getImplementationType() {
         return mImplementationType;
+    }
+
+    @NonNull
+    @Override
+    public CamcorderProfileProvider getCamcorderProfileProvider() {
+        return mCamcorderProfileProvider == null ? CamcorderProfileProvider.EMPTY :
+                mCamcorderProfileProvider;
     }
 
     @Override
@@ -167,10 +198,32 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         throw new UnsupportedOperationException("Not Implemented");
     }
 
+    @NonNull
+    @Override
+    public Quirks getCameraQuirks() {
+        return new Quirks(mCameraQuirks);
+    }
+
+    @Override
+    public boolean isFocusMeteringSupported(@NonNull FocusMeteringAction action) {
+        return false;
+    }
+
+    /** Adds a quirk to the list of this camera's quirks. */
+    public void addCameraQuirk(@NonNull final Quirk quirk) {
+        mCameraQuirks.add(quirk);
+    }
+
     /**
      * Set the implementation type for testing
      */
     public void setImplementationType(@NonNull @ImplementationType String implementationType) {
         mImplementationType = implementationType;
+    }
+
+    /** Set the CamcorderProfileProvider for testing */
+    public void setCamcorderProfileProvider(
+            @NonNull CamcorderProfileProvider camcorderProfileProvider) {
+        mCamcorderProfileProvider = Preconditions.checkNotNull(camcorderProfileProvider);
     }
 }

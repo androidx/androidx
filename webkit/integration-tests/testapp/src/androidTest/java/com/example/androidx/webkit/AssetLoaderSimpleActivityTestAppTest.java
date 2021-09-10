@@ -16,28 +16,34 @@
 
 package com.example.androidx.webkit;
 
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Integeration test for AssetLoaderSimpleActivity demo activity.
+ * Integration test for {@link AssetLoaderSimpleActivity}.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public final class AssetLoaderSimpleActivityTestAppTest {
 
     @Rule
-    public IntegrationActivityTestRule<AssetLoaderSimpleActivity> mRule =
-            new IntegrationActivityTestRule<>(AssetLoaderSimpleActivity.class,
-                    R.id.webview_asset_loader_webview);
+    public ActivityScenarioRule<AssetLoaderSimpleActivity> mRule =
+            new ActivityScenarioRule<>(AssetLoaderSimpleActivity.class);
+
+    @Before
+    public void setUp() {
+        WebkitTestHelpers.enableJavaScript(R.id.webview_asset_loader_webview);
+    }
 
     @Test
     public void testAssetLoaderSimpleActivity() {
-        mRule.assertHtmlElementContainsText(R.id.webview_asset_loader_webview, "assets_success_msg",
-                "Successfully loaded html from assets!");
+        WebkitTestHelpers.assertHtmlElementContainsText(R.id.webview_asset_loader_webview,
+                "assets_success_msg", "Successfully loaded html from assets!");
     }
 }

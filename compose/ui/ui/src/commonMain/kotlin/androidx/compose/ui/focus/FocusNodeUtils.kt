@@ -18,21 +18,19 @@ package androidx.compose.ui.focus
 
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
-import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.ModifiedFocusNode
 import androidx.compose.ui.util.fastForEach
 
-internal val FOCUS_TAG = "Compose Focus"
+internal const val FocusTag = "Compose Focus"
 
-@OptIn(ExperimentalLayoutNodeApi::class)
-internal fun LayoutNode.focusableChildren2(): List<ModifiedFocusNode> {
-    val focusableChildren = mutableListOf<ModifiedFocusNode>()
+// TODO(b/152051577): Measure the performance of findFocusableChildren().
+//  Consider caching the children.
+internal fun LayoutNode.findFocusableChildren(focusableChildren: MutableList<ModifiedFocusNode>) {
     // TODO(b/152529395): Write a test for LayoutNode.focusableChildren(). We were calling the wrong
     //  function on [LayoutNodeWrapper] but no test caught this.
     outerLayoutNodeWrapper.findNextFocusWrapper()?.let { focusableChildren.add(it) }
-        ?: children.fastForEach { layout -> focusableChildren.addAll(layout.focusableChildren2()) }
-    return focusableChildren
+        ?: children.fastForEach { it.findFocusableChildren(focusableChildren) }
 }
 
 // TODO(b/144126759): For now we always return the first focusable child. We might want to
@@ -43,9 +41,6 @@ internal fun LayoutNode.focusableChildren2(): List<ModifiedFocusNode> {
  *
  * @param queue a mutable list used as a queue for breadth-first search.
  */
-@OptIn(
-    ExperimentalLayoutNodeApi::class
-)
 internal fun LayoutNode.searchChildrenForFocusNode(
     queue: MutableVector<LayoutNode> = mutableVectorOf()
 ): ModifiedFocusNode? {

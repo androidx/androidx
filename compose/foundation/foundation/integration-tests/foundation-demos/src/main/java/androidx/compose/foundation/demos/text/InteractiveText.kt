@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.demos.text
 
-import androidx.compose.foundation.ClickableText
-import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -32,7 +32,7 @@ fun InteractiveTextDemo() {
 @Composable
 fun TextOnClick() {
     val clickedOffset = remember { mutableStateOf(-1) }
-    ScrollableColumn {
+    Column {
         Text("Clicked Offset: ${clickedOffset.value}")
         ClickableText(
             text = AnnotatedString("Click Me")

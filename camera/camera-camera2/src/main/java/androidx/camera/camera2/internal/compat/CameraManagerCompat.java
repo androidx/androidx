@@ -29,6 +29,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
 
 import java.util.Map;
@@ -68,16 +69,18 @@ public final class CameraManagerCompat {
     @NonNull
     public static CameraManagerCompat from(@NonNull Context context,
             @NonNull Handler compatHandler) {
-        if (Build.VERSION.SDK_INT >= 29) {
-            return new CameraManagerCompat(new CameraManagerCompatApi29Impl(context));
-        } else if (Build.VERSION.SDK_INT >= 28) {
-            // Can use Executor directly on API 28+
-            return new CameraManagerCompat(CameraManagerCompatApi28Impl.create(context));
-        }
+        return new CameraManagerCompat(CameraManagerCompatImpl.from(context, compatHandler));
+    }
 
-        // Pass compat handler to implementation.
-        return new CameraManagerCompat(CameraManagerCompatBaseImpl.create(context,
-                compatHandler));
+    /**
+     * Get a {@link CameraManagerCompat} instance from a provided {@link CameraManagerCompatImpl}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    @NonNull
+    public static CameraManagerCompat from(@NonNull final CameraManagerCompatImpl impl) {
+        return new CameraManagerCompat(impl);
     }
 
     /**
@@ -214,8 +217,14 @@ public final class CameraManagerCompat {
         return mImpl.getCameraManager();
     }
 
-    interface CameraManagerCompatImpl {
+    /** Provides backwards compatibility to {@link CameraManager} features. */
+    public interface CameraManagerCompatImpl {
 
+        /**
+         * Return the list of currently connected camera devices by identifier, including cameras
+         * that may be in use by other camera API clients.
+         */
+        @NonNull
         String[] getCameraIdList() throws CameraAccessExceptionCompat;
 
         void registerAvailabilityCallback(
@@ -236,6 +245,28 @@ public final class CameraManagerCompat {
 
         @NonNull
         CameraManager getCameraManager();
+
+        /**
+         * Returns a {@link CameraManagerCompatImpl} instance depending on the API level
+         *
+         * @param context       Context used to retrieve the {@link CameraManager}.
+         * @param compatHandler {@link Handler} used for all APIs taking an {@link Executor}
+         *                      argument on lower API levels. If the API level does not support
+         *                      directly executing on an Executor, it will first be posted to
+         *                      this handler and the executor will be called from there.
+         */
+        @NonNull
+        static CameraManagerCompatImpl from(@NonNull Context context,
+                @NonNull Handler compatHandler) {
+            if (Build.VERSION.SDK_INT >= 29) {
+                return new CameraManagerCompatApi29Impl(context);
+            } else if (Build.VERSION.SDK_INT >= 28) {
+                // Can use Executor directly on API 28+
+                return CameraManagerCompatApi28Impl.create(context);
+            }
+            // Pass compat handler to implementation.
+            return CameraManagerCompatBaseImpl.create(context, compatHandler);
+        }
     }
 
     static final class AvailabilityCallbackExecutorWrapper extends
@@ -269,7 +300,7 @@ public final class CameraManagerCompat {
                     mExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
-                            mWrappedCallback.onCameraAccessPrioritiesChanged();
+                            ApiCompat.Api29Impl.onCameraAccessPrioritiesChanged(mWrappedCallback);
                         }
                     });
                 }

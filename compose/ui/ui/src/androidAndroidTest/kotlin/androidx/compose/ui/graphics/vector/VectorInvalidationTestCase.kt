@@ -25,15 +25,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.AmbientDensity
-import androidx.compose.ui.res.loadVectorResource
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.test.R
-import java.util.concurrent.CountDownLatch
 
-class VectorInvalidationTestCase(var latch: CountDownLatch) {
+class VectorInvalidationTestCase() {
 
     // Lazily initialize state as it needs to be constructed in the composition
     private var vectorState: MutableState<Int>? = null
+
+    internal var measured: Boolean = false
 
     /**
      * Queries the size of the underlying vector image to draw
@@ -46,17 +47,15 @@ class VectorInvalidationTestCase(var latch: CountDownLatch) {
         val state = remember { mutableStateOf(R.drawable.ic_triangle2) }
         vectorState = state
 
-        val imageVector = loadVectorResource(state.value)
-        with(AmbientDensity.current) {
-            imageVector.resource.resource?.let {
-                val width = it.defaultWidth
-                vectorSize = width.toIntPx()
-                AtLeastSize(
-                    size = width.toIntPx(),
-                    modifier = WhiteBackground.paint(rememberVectorPainter(it))
-                ) {
-                    latch.countDown()
-                }
+        val imageVector = painterResource(state.value)
+        with(LocalDensity.current) {
+            val width = imageVector.intrinsicSize.width.toInt()
+            vectorSize = width
+            AtLeastSize(
+                size = width,
+                modifier = WhiteBackground.paint(imageVector)
+            ) {
+                measured = true
             }
         }
     }

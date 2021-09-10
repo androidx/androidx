@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
@@ -25,14 +24,15 @@ plugins {
 }
 
 dependencies {
-    api("androidx.core:core:1.3.0")
+    api("androidx.core:core:1.6.0")
+    implementation("androidx.annotation:annotation:1.2.0")
     implementation("androidx.collection:collection:1.1.0")
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation project(':internal-testutils-runtime')
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(project(":internal-testutils-runtime"))
     annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
 }
 
@@ -43,11 +43,11 @@ android {
     sourceSets {
         main.java.srcDirs += [
         ]
-        main.res.srcDirs += 'src/main/res-public'
+        main.res.srcDirs += "src/main/res-public"
     }
 
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 }
 

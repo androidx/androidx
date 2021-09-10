@@ -24,7 +24,7 @@ import org.mockito.Mockito.mock
 /**
  * A dynamic install manager used for testing.
  */
-class AndroidTestDynamicInstallManager(
+public class AndroidTestDynamicInstallManager(
     context: Context,
-    val splitInstallManager: SplitInstallManager = mock(SplitInstallManager::class.java)
+    public val splitInstallManager: SplitInstallManager = mock(SplitInstallManager::class.java)
 ) : DynamicInstallManager(context, splitInstallManager)

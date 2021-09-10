@@ -17,19 +17,19 @@
 package androidx.transition;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public abstract class BaseTest {
-
+    @SuppressWarnings("deprecation")
     @Rule
-    public final ActivityTestRule<TransitionActivity> rule;
+    public final androidx.test.rule.ActivityTestRule<TransitionActivity> rule;
 
+    @SuppressWarnings("deprecation")
     BaseTest() {
-        rule = new ActivityTestRule<>(TransitionActivity.class);
+        rule = new androidx.test.rule.ActivityTestRule<>(TransitionActivity.class);
     }
 
 }

@@ -21,6 +21,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.google.common.util.concurrent.ListenableFuture
+import io.reactivex.Single
 
 @Dao
 interface UserDao {
@@ -35,4 +37,10 @@ interface UserDao {
     // in both Java and Kotlin samples.
     @Query("DELETE FROM users WHERE label = :query")
     fun deleteByQuery(query: String)
+
+    suspend fun lastUpdated(): Long
+
+    fun lastUpdatedFuture(): ListenableFuture<Long>
+
+    fun lastUpdatedSingle(): Single<Long>
 }

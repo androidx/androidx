@@ -22,11 +22,8 @@ import android.os.Binder;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleService;
-import androidx.lifecycle.OnLifecycleEvent;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class TestService extends LifecycleService {
@@ -37,14 +34,11 @@ public class TestService extends LifecycleService {
     private final IBinder mBinder = new Binder();
 
     public TestService() {
-        getLifecycle().addObserver(new LifecycleObserver() {
-            @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
-            public void anyEvent(LifecycleOwner owner, Lifecycle.Event event) {
-                Context context = (TestService) owner;
-                Intent intent = new Intent(ACTION_LOG_EVENT);
-                intent.putExtra(EXTRA_KEY_EVENT, event);
-                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-            }
+        getLifecycle().addObserver((LifecycleEventObserver) (source, event) -> {
+            Context context = (TestService) source;
+            Intent intent = new Intent(ACTION_LOG_EVENT);
+            intent.putExtra(EXTRA_KEY_EVENT, event);
+            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         });
     }
 

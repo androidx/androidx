@@ -1,0 +1,163 @@
+// Signature format: 4.0
+package androidx.security.identity {
+
+  public class AccessControlProfile {
+  }
+
+  public static final class AccessControlProfile.Builder {
+    ctor public AccessControlProfile.Builder(androidx.security.identity.AccessControlProfileId);
+    method public androidx.security.identity.AccessControlProfile build();
+    method public androidx.security.identity.AccessControlProfile.Builder setReaderCertificate(java.security.cert.X509Certificate);
+    method public androidx.security.identity.AccessControlProfile.Builder setUserAuthenticationRequired(boolean);
+    method public androidx.security.identity.AccessControlProfile.Builder setUserAuthenticationTimeout(long);
+  }
+
+  public class AccessControlProfileId {
+    ctor public AccessControlProfileId(int);
+    method public int getId();
+  }
+
+  public class AlreadyPersonalizedException extends androidx.security.identity.IdentityCredentialException {
+    ctor public AlreadyPersonalizedException(String);
+    ctor public AlreadyPersonalizedException(String, Throwable);
+  }
+
+  public class CipherSuiteNotSupportedException extends androidx.security.identity.IdentityCredentialException {
+    ctor public CipherSuiteNotSupportedException(String);
+    ctor public CipherSuiteNotSupportedException(String, Throwable);
+  }
+
+  public class DocTypeNotSupportedException extends androidx.security.identity.IdentityCredentialException {
+    ctor public DocTypeNotSupportedException(String);
+    ctor public DocTypeNotSupportedException(String, Throwable);
+  }
+
+  public class EphemeralPublicKeyNotFoundException extends androidx.security.identity.IdentityCredentialException {
+    ctor public EphemeralPublicKeyNotFoundException(String);
+    ctor public EphemeralPublicKeyNotFoundException(String, Throwable);
+  }
+
+  public abstract class IdentityCredential {
+    method public abstract java.security.KeyPair createEphemeralKeyPair();
+    method public abstract byte[] decryptMessageFromReader(byte[]) throws androidx.security.identity.MessageDecryptionException;
+    method public byte[] delete(byte[]);
+    method public abstract byte[] encryptMessageToReader(byte[]);
+    method public abstract java.util.Collection<java.security.cert.X509Certificate!> getAuthKeysNeedingCertification();
+    method public abstract int[] getAuthenticationDataUsageCount();
+    method public abstract java.util.Collection<java.security.cert.X509Certificate!> getCredentialKeyCertificateChain();
+    method public abstract androidx.biometric.BiometricPrompt.CryptoObject? getCryptoObject();
+    method public abstract androidx.security.identity.ResultData getEntries(byte[]?, java.util.Map<java.lang.String!,java.util.Collection<java.lang.String!>!>, byte[]?) throws androidx.security.identity.EphemeralPublicKeyNotFoundException, androidx.security.identity.InvalidReaderSignatureException, androidx.security.identity.InvalidRequestMessageException, androidx.security.identity.NoAuthenticationKeyAvailableException;
+    method public byte[] proveOwnership(byte[]);
+    method public abstract void setAllowUsingExhaustedKeys(boolean);
+    method public void setAllowUsingExpiredKeys(boolean);
+    method public abstract void setAvailableAuthenticationKeys(int, int);
+    method public abstract void setReaderEphemeralPublicKey(java.security.PublicKey) throws java.security.InvalidKeyException;
+    method public abstract void setSessionTranscript(byte[]);
+    method @Deprecated public abstract void storeStaticAuthenticationData(java.security.cert.X509Certificate, byte[]) throws androidx.security.identity.UnknownAuthenticationKeyException;
+    method public void storeStaticAuthenticationData(java.security.cert.X509Certificate, android.icu.util.Calendar, byte[]) throws androidx.security.identity.UnknownAuthenticationKeyException;
+    method public byte[] update(androidx.security.identity.PersonalizationData);
+  }
+
+  public class IdentityCredentialException extends java.lang.Exception {
+    ctor public IdentityCredentialException(String);
+    ctor public IdentityCredentialException(String, Throwable);
+  }
+
+  public abstract class IdentityCredentialStore {
+    method public abstract androidx.security.identity.WritableIdentityCredential createCredential(String, String) throws androidx.security.identity.AlreadyPersonalizedException, androidx.security.identity.DocTypeNotSupportedException;
+    method @Deprecated public abstract byte[]? deleteCredentialByName(String);
+    method public androidx.security.identity.IdentityCredentialStoreCapabilities getCapabilities();
+    method public abstract androidx.security.identity.IdentityCredential? getCredentialByName(String, int) throws androidx.security.identity.CipherSuiteNotSupportedException;
+    method public static androidx.security.identity.IdentityCredentialStore getDirectAccessInstance(android.content.Context);
+    method public static androidx.security.identity.IdentityCredentialStore? getHardwareInstance(android.content.Context);
+    method public static androidx.security.identity.IdentityCredentialStore getInstance(android.content.Context);
+    method public static androidx.security.identity.IdentityCredentialStore getSoftwareInstance(android.content.Context);
+    method @Deprecated public abstract String![] getSupportedDocTypes();
+    method public static boolean isDirectAccessSupported(android.content.Context);
+    field public static final int CIPHERSUITE_ECDHE_HKDF_ECDSA_WITH_AES_256_GCM_SHA256 = 1; // 0x1
+  }
+
+  public class IdentityCredentialStoreCapabilities {
+    method public int getFeatureVersion();
+    method public java.util.Set<java.lang.String!> getSupportedDocTypes();
+    method public boolean isDeleteSupported();
+    method public boolean isDirectAccess();
+    method public boolean isHardwareBacked();
+    method public boolean isProveOwnershipSupported();
+    method public boolean isStaticAuthenticationDataExpirationSupported();
+    method public boolean isUpdateSupported();
+    field public static final int FEATURE_VERSION_202009 = 202009; // 0x31519
+    field public static final int FEATURE_VERSION_202101 = 202101; // 0x31575
+  }
+
+  public class InvalidReaderSignatureException extends androidx.security.identity.IdentityCredentialException {
+    ctor public InvalidReaderSignatureException(String);
+    ctor public InvalidReaderSignatureException(String, Throwable);
+  }
+
+  public class InvalidRequestMessageException extends androidx.security.identity.IdentityCredentialException {
+    ctor public InvalidRequestMessageException(String);
+    ctor public InvalidRequestMessageException(String, Throwable);
+  }
+
+  public class MessageDecryptionException extends androidx.security.identity.IdentityCredentialException {
+    ctor public MessageDecryptionException(String);
+    ctor public MessageDecryptionException(String, Throwable);
+  }
+
+  public class NoAuthenticationKeyAvailableException extends androidx.security.identity.IdentityCredentialException {
+    ctor public NoAuthenticationKeyAvailableException(String);
+    ctor public NoAuthenticationKeyAvailableException(String, Throwable);
+  }
+
+  public class PersonalizationData {
+  }
+
+  public static final class PersonalizationData.Builder {
+    ctor public PersonalizationData.Builder();
+    method public androidx.security.identity.PersonalizationData.Builder addAccessControlProfile(androidx.security.identity.AccessControlProfile);
+    method public androidx.security.identity.PersonalizationData build();
+    method public androidx.security.identity.PersonalizationData.Builder putEntry(String, String, java.util.Collection<androidx.security.identity.AccessControlProfileId!>, byte[]);
+    method public androidx.security.identity.PersonalizationData.Builder putEntryBoolean(String, String, java.util.Collection<androidx.security.identity.AccessControlProfileId!>, boolean);
+    method public androidx.security.identity.PersonalizationData.Builder putEntryBytestring(String, String, java.util.Collection<androidx.security.identity.AccessControlProfileId!>, byte[]);
+    method public androidx.security.identity.PersonalizationData.Builder putEntryCalendar(String, String, java.util.Collection<androidx.security.identity.AccessControlProfileId!>, android.icu.util.Calendar);
+    method public androidx.security.identity.PersonalizationData.Builder putEntryInteger(String, String, java.util.Collection<androidx.security.identity.AccessControlProfileId!>, long);
+    method public androidx.security.identity.PersonalizationData.Builder putEntryString(String, String, java.util.Collection<androidx.security.identity.AccessControlProfileId!>, String);
+  }
+
+  public abstract class ResultData {
+    method public abstract byte[] getAuthenticatedData();
+    method public abstract byte[]? getEcdsaSignature();
+    method public abstract byte[]? getEntry(String, String);
+    method public boolean getEntryBoolean(String, String);
+    method public byte[]? getEntryBytestring(String, String);
+    method public android.icu.util.Calendar? getEntryCalendar(String, String);
+    method public long getEntryInteger(String, String);
+    method public abstract java.util.Collection<java.lang.String!>? getEntryNames(String);
+    method public String? getEntryString(String, String);
+    method public abstract byte[]? getMessageAuthenticationCode();
+    method public abstract java.util.Collection<java.lang.String!> getNamespaces();
+    method public abstract java.util.Collection<java.lang.String!>? getRetrievedEntryNames(String);
+    method public abstract byte[] getStaticAuthenticationData();
+    method public abstract int getStatus(String, String);
+    field public static final int STATUS_NOT_IN_REQUEST_MESSAGE = 3; // 0x3
+    field public static final int STATUS_NOT_REQUESTED = 2; // 0x2
+    field public static final int STATUS_NO_ACCESS_CONTROL_PROFILES = 6; // 0x6
+    field public static final int STATUS_NO_SUCH_ENTRY = 1; // 0x1
+    field public static final int STATUS_OK = 0; // 0x0
+    field public static final int STATUS_READER_AUTHENTICATION_FAILED = 5; // 0x5
+    field public static final int STATUS_USER_AUTHENTICATION_FAILED = 4; // 0x4
+  }
+
+  public class UnknownAuthenticationKeyException extends androidx.security.identity.IdentityCredentialException {
+    ctor public UnknownAuthenticationKeyException(String);
+    ctor public UnknownAuthenticationKeyException(String, Throwable);
+  }
+
+  public abstract class WritableIdentityCredential {
+    method public abstract java.util.Collection<java.security.cert.X509Certificate!> getCredentialKeyCertificateChain(byte[]);
+    method public abstract byte[] personalize(androidx.security.identity.PersonalizationData);
+  }
+
+}
+

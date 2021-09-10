@@ -37,8 +37,12 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Background thread which is destructed after certain period after all pending activities are
  * finished.
+ *
+ * @deprecated Not being used by any cross library, and should not be used, internal
+ * implementation detail.
  * @hide
  */
+@Deprecated
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class SelfDestructiveThread {
     private final Object mLock = new Object();
@@ -134,7 +138,7 @@ public class SelfDestructiveThread {
      */
     @SuppressWarnings("deprecation")
     public <T> void postAndReply(final Callable<T> callable, final ReplyCallback<T> reply) {
-        final Handler callingHandler = new Handler();
+        final Handler calleeHandler = CalleeHandler.create();
         post(new Runnable() {
             @Override
             public void run() {
@@ -145,7 +149,7 @@ public class SelfDestructiveThread {
                     t = null;
                 }
                 final T result = t;
-                callingHandler.post(new Runnable() {
+                calleeHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         reply.onReply(result);

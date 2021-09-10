@@ -25,12 +25,16 @@ import kotlin.contracts.contract
  * both sorting and uniqueness.
  */
 @OptIn(ExperimentalContracts::class)
-internal class IdentityArraySet<T : Any> {
-    @PublishedApi
-    internal var size = 0
+internal class IdentityArraySet<T : Any> : Set<T> {
+    override var size = 0
 
     @PublishedApi
     internal var values: Array<Any?> = arrayOfNulls(16)
+
+    /**
+     * Returns true if the set contains [element]
+     */
+    override operator fun contains(element: T) = find(element) >= 0
 
     /**
      * Return the item at the given [index].
@@ -105,9 +109,19 @@ internal class IdentityArraySet<T : Any> {
     }
 
     /**
+     * Return true if the set is empty.
+     */
+    override fun isEmpty() = size == 0
+
+    /**
+     * Returns true if the set is not empty.
+     */
+    fun isNotEmpty() = size > 0
+
+    /**
      * Remove [value] from the set.
      */
-    fun remove(value: T) {
+    fun remove(value: T): Boolean {
         val index = find(value)
         if (index >= 0) {
             if (index < size - 1) {
@@ -120,7 +134,9 @@ internal class IdentityArraySet<T : Any> {
             }
             size--
             values[size] = null
+            return true
         }
+        return false
     }
 
     /**
@@ -199,5 +215,20 @@ internal class IdentityArraySet<T : Any> {
 
         // We should insert at the end
         return -(size + 1)
+    }
+
+    /**
+     * Return true if all elements of [elements] are in the set.
+     */
+    override fun containsAll(elements: Collection<T>) = elements.all { contains(it) }
+
+    /**
+     * Return an iterator for the set.
+     */
+    @Suppress("UNCHECKED_CAST")
+    override fun iterator(): Iterator<T> = object : Iterator<T> {
+        var index = 0
+        override fun hasNext(): Boolean = index < size
+        override fun next(): T = this@IdentityArraySet.values[index++] as T
     }
 }

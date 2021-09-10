@@ -19,11 +19,9 @@ package androidx.compose.ui.viewinterop
 import android.view.KeyEvent
 import android.view.View
 import android.widget.EditText
-import androidx.activity.ComponentActivity
-import androidx.compose.ui.focus.ExperimentalFocus
-import androidx.compose.ui.platform.AmbientView
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.text.InternalTextApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -32,11 +30,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
-@OptIn(ExperimentalFocus::class, InternalTextApi::class)
 @RunWith(AndroidJUnit4::class)
 class EditTextInteropTest {
     @get:Rule
-    val rule = createAndroidComposeRule<ComponentActivity>()
+    val rule = createAndroidComposeRule<TestActivity>()
 
     @Test
     fun hardwareKeyInEmbeddedView() {
@@ -44,7 +41,7 @@ class EditTextInteropTest {
         lateinit var editText: EditText
         lateinit var ownerView: View
         rule.setContent {
-            ownerView = AmbientView.current
+            ownerView = LocalView.current
             AndroidView({
                 EditText(it).apply { width = 500; editText = this }
             })

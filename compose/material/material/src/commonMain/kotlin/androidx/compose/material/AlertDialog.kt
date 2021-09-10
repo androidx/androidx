@@ -16,17 +16,13 @@
 
 package androidx.compose.material
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.ExperimentalLayout
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.MainAxisAlignment
-import androidx.compose.foundation.layout.SizeMode
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,106 +31,17 @@ import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.math.max
 
-/**
- * Alert dialog is a [Dialog] which interrupts the user with urgent information, details or actions.
- *
- * The dialog will position its buttons based on the available space. By default it will try to
- * place them horizontally next to each other and fallback to horizontal placement if not enough
- * space is available. There is also another version of this composable that has a slot for buttons
- * to provide custom buttons layout.
- *
- * Sample of dialog:
- * @sample androidx.compose.material.samples.AlertDialogSample
- *
- * @param onDismissRequest Executes when the user tries to dismiss the Dialog by clicking outside
- * or pressing the back button. This is not called when the dismiss button is clicked.
- * @param confirmButton A button which is meant to confirm a proposed action, thus resolving
- * what triggered the dialog. The dialog does not set up any events for this button so they need
- * to be set up by the caller.
- * @param modifier Modifier to be applied to the layout of the dialog.
- * @param dismissButton A button which is meant to dismiss the dialog. The dialog does not set up
- * any events for this button so they need to be set up by the caller.
- * @param title The title of the Dialog which should specify the purpose of the Dialog. The title
- * is not mandatory, because there may be sufficient information inside the [text]. Provided text
- * style will be [Typography.h6].
- * @param text The text which presents the details regarding the Dialog's purpose. Provided text
- * style will be [Typography.body1].
- * @param shape Defines the Dialog's shape
- * @param backgroundColor The background color of the dialog.
- * @param contentColor The preferred content color provided by this dialog to its children.
- * @param properties Typically platform specific properties to further configure the dialog.
- */
 @Composable
-fun AlertDialog(
-    onDismissRequest: () -> Unit,
-    confirmButton: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    dismissButton: @Composable (() -> Unit)? = null,
-    title: @Composable (() -> Unit)? = null,
-    text: @Composable (() -> Unit)? = null,
-    shape: Shape = MaterialTheme.shapes.medium,
-    backgroundColor: Color = MaterialTheme.colors.surface,
-    contentColor: Color = contentColorFor(backgroundColor),
-    properties: DialogProperties? = null
-) {
-    AlertDialog(
-        onDismissRequest = onDismissRequest,
-        buttons = {
-            // TODO: move the modifiers to FlowRow when it supports a modifier parameter
-            Box(Modifier.fillMaxWidth().padding(all = 8.dp)) {
-                @OptIn(ExperimentalLayout::class)
-                FlowRow(
-                    mainAxisSize = SizeMode.Expand,
-                    mainAxisAlignment = MainAxisAlignment.End,
-                    mainAxisSpacing = 8.dp,
-                    crossAxisSpacing = 12.dp
-                ) {
-                    dismissButton?.invoke()
-                    confirmButton()
-                }
-            }
-        },
-        modifier = modifier,
-        title = title,
-        text = text,
-        shape = shape,
-        backgroundColor = backgroundColor,
-        contentColor = contentColor,
-        properties = properties
-    )
-}
-
-/**
- * Alert dialog is a [Dialog] which interrupts the user with urgent information, details or actions.
- *
- * This function can be used to fully customize the button area, e.g. with:
- *
- * @sample androidx.compose.material.samples.CustomAlertDialogSample
- *
- * @param onDismissRequest Executes when the user tries to dismiss the Dialog by clicking outside
- * or pressing the back button. This is not called when the dismiss button is clicked.
- * @param buttons Function that emits the layout with the buttons.
- * @param modifier Modifier to be applied to the layout of the dialog.
- * @param title The title of the Dialog which should specify the purpose of the Dialog. The title
- * is not mandatory, because there may be sufficient information inside the [text]. Provided text
- * style will be [Typography.h6].
- * @param text The text which presents the details regarding the Dialog's purpose. Provided text
- * style will be [Typography.body1].
- * @param shape Defines the Dialog's shape.
- * @param backgroundColor The background color of the dialog.
- * @param contentColor The preferred content color provided by this dialog to its children.
- * @param properties Typically platform specific properties to further configure the dialog.
- */
-@Composable
-fun AlertDialog(
-    onDismissRequest: () -> Unit,
+internal fun AlertDialogContent(
     buttons: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     title: (@Composable () -> Unit)? = null,
@@ -142,39 +49,35 @@ fun AlertDialog(
     shape: Shape = MaterialTheme.shapes.medium,
     backgroundColor: Color = MaterialTheme.colors.surface,
     contentColor: Color = contentColorFor(backgroundColor),
-    properties: DialogProperties? = null
 ) {
-    Dialog(
-        onDismissRequest = onDismissRequest,
-        properties = properties
+    Surface(
+        modifier = modifier,
+        shape = shape,
+        color = backgroundColor,
+        contentColor = contentColor
     ) {
-        Surface(
-            modifier = modifier,
-            shape = shape,
-            color = backgroundColor,
-            contentColor = contentColor
-        ) {
-            Column {
-                AlertDialogBaselineLayout(
-                    title = title?.let {
-                        @Composable {
-                            Providers(AmbientContentAlpha provides ContentAlpha.high) {
-                                val textStyle = MaterialTheme.typography.subtitle1
-                                ProvideTextStyle(textStyle, title)
-                            }
-                        }
-                    },
-                    text = text?.let {
-                        @Composable {
-                            Providers(AmbientContentAlpha provides ContentAlpha.medium) {
-                                val textStyle = MaterialTheme.typography.body2
-                                ProvideTextStyle(textStyle, text)
-                            }
+        Column {
+            AlertDialogBaselineLayout(
+                title = title?.let {
+                    @Composable {
+                        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
+                            val textStyle = MaterialTheme.typography.subtitle1
+                            ProvideTextStyle(textStyle, title)
                         }
                     }
-                )
-                buttons()
-            }
+                },
+                text = text?.let {
+                    @Composable {
+                        CompositionLocalProvider(
+                            LocalContentAlpha provides ContentAlpha.medium
+                        ) {
+                            val textStyle = MaterialTheme.typography.body2
+                            ProvideTextStyle(textStyle, text)
+                        }
+                    }
+                }
+            )
+            buttons()
         }
     }
 }
@@ -187,22 +90,25 @@ fun AlertDialog(
  * edge of their layouts instead as a best effort implementation.
  */
 @Composable
-private fun ColumnScope.AlertDialogBaselineLayout(
+internal fun ColumnScope.AlertDialogBaselineLayout(
     title: @Composable (() -> Unit)?,
     text: @Composable (() -> Unit)?
 ) {
-    Layout({
-        title?.let { title ->
-            Box(TitlePadding.layoutId("title").align(Alignment.Start)) {
-                title()
+    Layout(
+        {
+            title?.let { title ->
+                Box(TitlePadding.layoutId("title").align(Alignment.Start)) {
+                    title()
+                }
             }
-        }
-        text?.let { text ->
-            Box(TextPadding.layoutId("text").align(Alignment.Start)) {
-                text()
+            text?.let { text ->
+                Box(TextPadding.layoutId("text").align(Alignment.Start)) {
+                    text()
+                }
             }
-        }
-    }) { measurables, constraints ->
+        },
+        Modifier.weight(1f, false)
+    ) { measurables, constraints ->
         // Measure with loose constraints for height as we don't want the text to take up more
         // space than it needs
         val titlePlaceable = measurables.firstOrNull { it.layoutId == "title" }?.measure(
@@ -221,7 +127,7 @@ private fun ColumnScope.AlertDialogBaselineLayout(
             if (baseline == AlignmentLine.Unspecified) null else baseline
         } ?: 0
 
-        val titleOffset = TitleBaselineDistanceFromTop.toIntPx()
+        val titleOffset = TitleBaselineDistanceFromTop.roundToPx()
 
         // Place the title so that its first baseline is titleOffset from the top
         val titlePositionY = titleOffset - firstTitleBaseline
@@ -231,9 +137,9 @@ private fun ColumnScope.AlertDialogBaselineLayout(
         } ?: 0
 
         val textOffset = if (titlePlaceable == null) {
-            TextBaselineDistanceFromTop.toIntPx()
+            TextBaselineDistanceFromTop.roundToPx()
         } else {
-            TextBaselineDistanceFromTitle.toIntPx()
+            TextBaselineDistanceFromTitle.roundToPx()
         }
 
         // Combined height of title and spacing above
@@ -270,6 +176,105 @@ private fun ColumnScope.AlertDialogBaselineLayout(
         layout(layoutWidth, layoutHeight) {
             titlePlaceable?.place(0, titlePositionY)
             textPlaceable?.place(0, textPositionY)
+        }
+    }
+}
+
+/**
+ * Simple clone of FlowRow that arranges its children in a horizontal flow with limited
+ * customization.
+ */
+@Composable
+internal fun AlertDialogFlowRow(
+    mainAxisSpacing: Dp,
+    crossAxisSpacing: Dp,
+    content: @Composable () -> Unit
+) {
+    Layout(content) { measurables, constraints ->
+        val sequences = mutableListOf<List<Placeable>>()
+        val crossAxisSizes = mutableListOf<Int>()
+        val crossAxisPositions = mutableListOf<Int>()
+
+        var mainAxisSpace = 0
+        var crossAxisSpace = 0
+
+        val currentSequence = mutableListOf<Placeable>()
+        var currentMainAxisSize = 0
+        var currentCrossAxisSize = 0
+
+        val childConstraints = Constraints(maxWidth = constraints.maxWidth)
+
+        // Return whether the placeable can be added to the current sequence.
+        fun canAddToCurrentSequence(placeable: Placeable) =
+            currentSequence.isEmpty() || currentMainAxisSize + mainAxisSpacing.roundToPx() +
+                placeable.width <= constraints.maxWidth
+
+        // Store current sequence information and start a new sequence.
+        fun startNewSequence() {
+            if (sequences.isNotEmpty()) {
+                crossAxisSpace += crossAxisSpacing.roundToPx()
+            }
+            sequences += currentSequence.toList()
+            crossAxisSizes += currentCrossAxisSize
+            crossAxisPositions += crossAxisSpace
+
+            crossAxisSpace += currentCrossAxisSize
+            mainAxisSpace = max(mainAxisSpace, currentMainAxisSize)
+
+            currentSequence.clear()
+            currentMainAxisSize = 0
+            currentCrossAxisSize = 0
+        }
+
+        for (measurable in measurables) {
+            // Ask the child for its preferred size.
+            val placeable = measurable.measure(childConstraints)
+
+            // Start a new sequence if there is not enough space.
+            if (!canAddToCurrentSequence(placeable)) startNewSequence()
+
+            // Add the child to the current sequence.
+            if (currentSequence.isNotEmpty()) {
+                currentMainAxisSize += mainAxisSpacing.roundToPx()
+            }
+            currentSequence.add(placeable)
+            currentMainAxisSize += placeable.width
+            currentCrossAxisSize = max(currentCrossAxisSize, placeable.height)
+        }
+
+        if (currentSequence.isNotEmpty()) startNewSequence()
+
+        val mainAxisLayoutSize = if (constraints.maxWidth != Constraints.Infinity) {
+            constraints.maxWidth
+        } else {
+            max(mainAxisSpace, constraints.minWidth)
+        }
+        val crossAxisLayoutSize = max(crossAxisSpace, constraints.minHeight)
+
+        val layoutWidth = mainAxisLayoutSize
+
+        val layoutHeight = crossAxisLayoutSize
+
+        layout(layoutWidth, layoutHeight) {
+            sequences.fastForEachIndexed { i, placeables ->
+                val childrenMainAxisSizes = IntArray(placeables.size) { j ->
+                    placeables[j].width +
+                        if (j < placeables.lastIndex) mainAxisSpacing.roundToPx() else 0
+                }
+                val arrangement = Arrangement.Bottom
+                // TODO(soboleva): rtl support
+                // Handle vertical direction
+                val mainAxisPositions = IntArray(childrenMainAxisSizes.size) { 0 }
+                with(arrangement) {
+                    arrange(mainAxisLayoutSize, childrenMainAxisSizes, mainAxisPositions)
+                }
+                placeables.fastForEachIndexed { j, placeable ->
+                    placeable.place(
+                        x = mainAxisPositions[j],
+                        y = crossAxisPositions[i]
+                    )
+                }
+            }
         }
     }
 }

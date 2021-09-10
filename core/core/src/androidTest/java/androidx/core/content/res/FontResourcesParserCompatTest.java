@@ -155,6 +155,7 @@ public class FontResourcesParserCompatTest {
                 request.getProviderAuthority());
         assertEquals("androidx.core.test", request.getProviderPackage());
         assertEquals("singleFontFamily", request.getQuery());
+        assertEquals("serif", providerEntry.getSystemFontFamilyName());
     }
 
     @Test

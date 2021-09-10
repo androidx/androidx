@@ -1,0 +1,39 @@
+// Baseline format: 1.0
+ChangedType: androidx.navigation.NavArgument#getType():
+    Method androidx.navigation.NavArgument.getType has changed return type from androidx.navigation.NavType<?> to androidx.navigation.NavType<java.lang.Object>
+ChangedType: androidx.navigation.NavDestination#getArguments():
+    Method androidx.navigation.NavDestination.getArguments has changed return type from java.util.Map<java.lang.String!,androidx.navigation.NavArgument!> to java.util.Map<java.lang.String,androidx.navigation.NavArgument>
+ChangedType: androidx.navigation.NavDestination.ClassType#value():
+    Method androidx.navigation.NavDestination.ClassType.value has changed return type from Class<?> to kotlin.reflect.KClass<?>
+ChangedType: androidx.navigation.NavGraph#iterator():
+    Method androidx.navigation.NavGraph.iterator has changed return type from java.util.Iterator<androidx.navigation.NavDestination!> to java.util.Iterator<androidx.navigation.NavDestination>
+ChangedType: androidx.navigation.NavType#BoolArrayType:
+    Field androidx.navigation.NavType.BoolArrayType has changed type from androidx.navigation.NavType<boolean[]!> to androidx.navigation.NavType<boolean[]>
+ChangedType: androidx.navigation.NavType#BoolType:
+    Field androidx.navigation.NavType.BoolType has changed type from androidx.navigation.NavType<java.lang.Boolean!> to androidx.navigation.NavType<java.lang.Boolean>
+ChangedType: androidx.navigation.NavType#FloatArrayType:
+    Field androidx.navigation.NavType.FloatArrayType has changed type from androidx.navigation.NavType<float[]!> to androidx.navigation.NavType<float[]>
+ChangedType: androidx.navigation.NavType#FloatType:
+    Field androidx.navigation.NavType.FloatType has changed type from androidx.navigation.NavType<java.lang.Float!> to androidx.navigation.NavType<java.lang.Float>
+ChangedType: androidx.navigation.NavType#IntArrayType:
+    Field androidx.navigation.NavType.IntArrayType has changed type from androidx.navigation.NavType<int[]!> to androidx.navigation.NavType<int[]>
+ChangedType: androidx.navigation.NavType#IntType:
+    Field androidx.navigation.NavType.IntType has changed type from androidx.navigation.NavType<java.lang.Integer!> to androidx.navigation.NavType<java.lang.Integer>
+ChangedType: androidx.navigation.NavType#LongArrayType:
+    Field androidx.navigation.NavType.LongArrayType has changed type from androidx.navigation.NavType<long[]!> to androidx.navigation.NavType<long[]>
+ChangedType: androidx.navigation.NavType#LongType:
+    Field androidx.navigation.NavType.LongType has changed type from androidx.navigation.NavType<java.lang.Long!> to androidx.navigation.NavType<java.lang.Long>
+ChangedType: androidx.navigation.NavType#ReferenceType:
+    Field androidx.navigation.NavType.ReferenceType has changed type from androidx.navigation.NavType<java.lang.Integer!> to androidx.navigation.NavType<java.lang.Integer>
+ChangedType: androidx.navigation.NavType#StringArrayType:
+    Field androidx.navigation.NavType.StringArrayType has changed type from androidx.navigation.NavType<java.lang.String![]!> to androidx.navigation.NavType<java.lang.String[]>
+ChangedType: androidx.navigation.NavType#StringType:
+    Field androidx.navigation.NavType.StringType has changed type from androidx.navigation.NavType<java.lang.String!> to androidx.navigation.NavType<java.lang.String>
+
+
+InvalidNullConversion: androidx.navigation.NavType#parseValue(String):
+    Attempted to remove @NonNull annotation from method androidx.navigation.NavType.parseValue(String)
+InvalidNullConversion: androidx.navigation.NavType.ParcelableType#parseValue(String):
+    Attempted to remove @NonNull annotation from method androidx.navigation.NavType.ParcelableType.parseValue(String)
+InvalidNullConversion: androidx.navigation.NavType.SerializableType#put(android.os.Bundle, String, D) parameter #2:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter value in androidx.navigation.NavType.SerializableType.put(android.os.Bundle bundle, String key, D value)

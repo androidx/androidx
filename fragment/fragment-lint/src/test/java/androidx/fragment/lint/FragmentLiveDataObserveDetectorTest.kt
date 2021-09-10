@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:Suppress("UnstableApiUsage")
+
 package androidx.fragment.lint
 
 import androidx.fragment.lint.stubs.LIVEDATA_STUBS
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
+import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue

@@ -23,9 +23,10 @@ import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-@RunWith(ComposeRobolectricTestRunner::class)
+@RunWith(RobolectricTestRunner::class)
 @Config(
     manifest = Config.NONE,
     minSdk = 23,
@@ -38,7 +39,7 @@ class LiveLiteralCodegenTests : AbstractLoweringTests() {
         configuration.put(ComposeConfiguration.LIVE_LITERALS_ENABLED_KEY, true)
     }
 
-    @Ignore
+    @Ignore("Live literals are currently disabled by default")
     @Test
     fun testBasicFunctionality(): Unit = ensureSetup {
         compose(
@@ -60,7 +61,7 @@ class LiveLiteralCodegenTests : AbstractLoweringTests() {
         }
     }
 
-    @Ignore
+    @Ignore("Live literals are currently disabled by default")
     @Test
     fun testObjectFieldsLoweredToStaticFields(): Unit = ensureSetup {
         validateBytecode(

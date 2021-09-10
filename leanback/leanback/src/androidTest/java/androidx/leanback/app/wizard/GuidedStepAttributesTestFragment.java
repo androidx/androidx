@@ -31,7 +31,7 @@ public class GuidedStepAttributesTestFragment extends GuidedStepFragment {
         }
     }
 
-    static HashMap<Long, Callback> sCallbacks = new HashMap();
+    static HashMap<Long, Callback> sCallbacks = new HashMap<>();
     public static GuidanceStylist.Guidance GUIDANCE = null;
     public static List<GuidedAction> ACTION_LIST = null;
     public static long LAST_CLICKED_ACTION_ID = -1;

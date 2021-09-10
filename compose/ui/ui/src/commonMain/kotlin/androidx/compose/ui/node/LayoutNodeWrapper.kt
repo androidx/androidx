@@ -18,40 +18,47 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.FocusOrder
 import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.findFocusableChildren
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isFinite
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.GraphicsLayerScope
-import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
+import androidx.compose.ui.input.nestedscroll.NestedScrollDelegatingWrapper
 import androidx.compose.ui.input.pointer.PointerInputFilter
+import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.layout.globalPosition
+import androidx.compose.ui.layout.VerticalAlignmentLine
+import androidx.compose.ui.layout.findRoot
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.semantics.SemanticsWrapper
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.minus
 import androidx.compose.ui.unit.plus
-import androidx.compose.ui.unit.toOffset
-import androidx.compose.ui.util.annotation.CallSuper
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Measurable and Placeable type that has a position.
  */
-@OptIn(ExperimentalLayoutNodeApi::class)
 internal abstract class LayoutNodeWrapper(
     internal val layoutNode: LayoutNode
 ) : Placeable(), Measurable, LayoutCoordinates, OwnerScope, (Canvas) -> Unit {
-    internal open val wrapped: LayoutNodeWrapper? = null
+    internal open val wrapped: LayoutNodeWrapper? get() = null
     internal var wrappedBy: LayoutNodeWrapper? = null
 
     /**
@@ -66,32 +73,87 @@ internal abstract class LayoutNodeWrapper(
 
     private var isClipping: Boolean = false
 
-    private var layerBlock: (GraphicsLayerScope.() -> Unit)? = null
+    protected var layerBlock: (GraphicsLayerScope.() -> Unit)? = null
+        private set
+    private var layerDensity: Density = layoutNode.density
+    private var layerLayoutDirection: LayoutDirection = layoutNode.layoutDirection
+
+    private var lastLayerAlpha: Float = 0.8f
+    fun isTransparent(): Boolean {
+        if (layer != null && lastLayerAlpha <= 0f) return true
+        return this.wrappedBy?.isTransparent() ?: return false
+    }
 
     private var _isAttached = false
-    override val isAttached: Boolean
+    final override val isAttached: Boolean
         get() {
             if (_isAttached) {
-                require(layoutNode.isAttached())
+                require(layoutNode.isAttached)
             }
             return _isAttached
         }
 
     private var _measureResult: MeasureResult? = null
-    open var measureResult: MeasureResult
+    var measureResult: MeasureResult
         get() = _measureResult ?: error(UnmeasuredError)
         internal set(value) {
-            if (value.width != _measureResult?.width || value.height != _measureResult?.height) {
-                val layer = layer
-                if (layer != null) {
-                    layer.resize(IntSize(value.width, value.height))
-                } else {
-                    wrappedBy?.invalidateLayer()
+            val old = _measureResult
+            if (value !== old) {
+                _measureResult = value
+                if (old == null || value.width != old.width || value.height != old.height) {
+                    onMeasureResultChanged(value.width, value.height)
+                }
+                // We do not simply compare against old.alignmentLines in case this is a
+                // MutableStateMap and the same instance might be passed.
+                if ((!oldAlignmentLines.isNullOrEmpty() || value.alignmentLines.isNotEmpty()) &&
+                    value.alignmentLines != oldAlignmentLines
+                ) {
+                    if (wrapped?.layoutNode == layoutNode) {
+                        layoutNode.parent?.onAlignmentsChanged()
+                        // We might need to request remeasure or relayout for the parent in
+                        // case they ask for the lines so we are the query owner, without
+                        // marking dirty our alignment lines (because only the modifier's changed).
+                        if (layoutNode.alignmentLines.usedDuringParentMeasurement) {
+                            layoutNode.parent?.requestRemeasure()
+                        } else if (layoutNode.alignmentLines.usedDuringParentLayout) {
+                            layoutNode.parent?.requestRelayout()
+                        }
+                    } else {
+                        // It means we are an InnerPlaceable.
+                        layoutNode.onAlignmentsChanged()
+                    }
+                    layoutNode.alignmentLines.dirty = true
+
+                    val oldLines = oldAlignmentLines
+                        ?: (mutableMapOf<AlignmentLine, Int>().also { oldAlignmentLines = it })
+                    oldLines.clear()
+                    oldLines.putAll(value.alignmentLines)
                 }
             }
-            _measureResult = value
-            measuredSize = IntSize(measureResult.width, measureResult.height)
         }
+
+    private val hasMeasureResult: Boolean
+        get() = _measureResult != null
+
+    private var oldAlignmentLines: MutableMap<AlignmentLine, Int>? = null
+
+    override val providedAlignmentLines: Set<AlignmentLine>
+        get() = _measureResult?.alignmentLines?.keys ?: emptySet()
+
+    /**
+     * Called when the width or height of [measureResult] change. The object instance pointed to
+     * by [measureResult] may or may not have changed.
+     */
+    protected open fun onMeasureResultChanged(width: Int, height: Int) {
+        val layer = layer
+        if (layer != null) {
+            layer.resize(IntSize(width, height))
+        } else {
+            wrappedBy?.invalidateLayer()
+        }
+        layoutNode.owner?.onLayoutChange(layoutNode)
+        measuredSize = IntSize(width, height)
+    }
 
     var position: IntOffset = IntOffset.Zero
         private set
@@ -99,69 +161,67 @@ internal abstract class LayoutNodeWrapper(
     var zIndex: Float = 0f
         protected set
 
-    override val parentCoordinates: LayoutCoordinates?
+    final override val parentLayoutCoordinates: LayoutCoordinates?
         get() {
             check(isAttached) { ExpectAttachedLayoutCoordinates }
             return layoutNode.outerLayoutNodeWrapper.wrappedBy
         }
+
+    final override val parentCoordinates: LayoutCoordinates?
+        get() {
+            check(isAttached) { ExpectAttachedLayoutCoordinates }
+            return wrappedBy?.getWrappedByCoordinates()
+        }
+
+    protected open fun getWrappedByCoordinates(): LayoutCoordinates? {
+        return wrappedBy?.getWrappedByCoordinates()
+    }
 
     // True when the wrapper is running its own placing block to obtain the position of the
     // wrapped, but is not interested in the position of the wrapped of the wrapped.
     var isShallowPlacing = false
 
     private var _rectCache: MutableRect? = null
-    private val rectCache: MutableRect get() = _rectCache ?: MutableRect(0f, 0f, 0f, 0f).also {
-        _rectCache = it
-    }
+    protected val rectCache: MutableRect
+        get() = _rectCache ?: MutableRect(0f, 0f, 0f, 0f).also {
+            _rectCache = it
+        }
 
     private val snapshotObserver get() = layoutNode.requireOwner().snapshotObserver
 
-    // TODO (njawad): This cache matrix is not thread safe
-    private var _matrixCache: Matrix? = null
-    private val matrixCache: Matrix
-        get() = _matrixCache ?: Matrix().also { _matrixCache = it }
-
-    /**
-     * Whether a pointer that is relative to the device screen is in the bounds of this
-     * LayoutNodeWrapper.
-     */
-    fun isGlobalPointerInBounds(globalPointerPosition: Offset): Boolean {
-        // TODO(shepshapard): Right now globalToLocal has to traverse the tree all the way back up
-        //  so calling this is expensive.  Would be nice to cache data such that this is cheap.
-        val localPointerPosition = globalToLocal(globalPointerPosition)
-        return localPointerPosition.x >= 0 &&
-            localPointerPosition.x < measuredSize.width &&
-            localPointerPosition.y >= 0 &&
-            localPointerPosition.y < measuredSize.height
-    }
-
-    /**
-     * Measures the modified child.
-     */
-    abstract fun performMeasure(constraints: Constraints): Placeable
-
-    /**
-     * Measures the modified child.
-     */
-    final override fun measure(constraints: Constraints): Placeable {
+    protected inline fun performingMeasure(
+        constraints: Constraints,
+        block: () -> Placeable
+    ): Placeable {
         measurementConstraints = constraints
-        val result = performMeasure(constraints)
+        val result = block()
         layer?.resize(measuredSize)
         return result
+    }
+
+    abstract fun calculateAlignmentLine(alignmentLine: AlignmentLine): Int
+
+    final override fun get(alignmentLine: AlignmentLine): Int {
+        if (!hasMeasureResult) return AlignmentLine.Unspecified
+        val measuredPosition = calculateAlignmentLine(alignmentLine)
+        if (measuredPosition == AlignmentLine.Unspecified) return AlignmentLine.Unspecified
+        return measuredPosition + if (alignmentLine is VerticalAlignmentLine) {
+            apparentToRealOffset.x
+        } else {
+            apparentToRealOffset.y
+        }
     }
 
     /**
      * Places the modified child.
      */
-    @CallSuper
+    /*@CallSuper*/
     override fun placeAt(
         position: IntOffset,
         zIndex: Float,
         layerBlock: (GraphicsLayerScope.() -> Unit)?
     ) {
-        if (wrappedBy?.isShallowPlacing != true) {
-            onLayerBlockUpdated(layerBlock)
-        }
+        onLayerBlockUpdated(layerBlock)
         if (this.position != position) {
             this.position = position
             val layer = layer
@@ -170,6 +230,12 @@ internal abstract class LayoutNodeWrapper(
             } else {
                 wrappedBy?.invalidateLayer()
             }
+            if (wrapped?.layoutNode != layoutNode) {
+                layoutNode.onAlignmentsChanged()
+            } else {
+                layoutNode.parent?.onAlignmentsChanged()
+            }
+            layoutNode.owner?.onLayoutChange(layoutNode)
         }
         this.zIndex = zIndex
     }
@@ -193,12 +259,9 @@ internal abstract class LayoutNodeWrapper(
     protected abstract fun performDraw(canvas: Canvas)
 
     // implementation of draw block passed to the OwnedLayer
-    @ExperimentalLayoutNodeApi
+    @Suppress("LiftReturnOrAssignment")
     override fun invoke(canvas: Canvas) {
         if (layoutNode.isPlaced) {
-            require(layoutNode.layoutState == LayoutNode.LayoutState.Ready) {
-                "Layer is redrawn for LayoutNode in state ${layoutNode.layoutState} [$layoutNode]"
-            }
             snapshotObserver.observeReads(this, onCommitAffectingLayer) {
                 performDraw(canvas)
             }
@@ -212,8 +275,11 @@ internal abstract class LayoutNodeWrapper(
     }
 
     fun onLayerBlockUpdated(layerBlock: (GraphicsLayerScope.() -> Unit)?) {
-        val blockHasBeenChanged = this.layerBlock !== layerBlock
+        val layerInvalidated = this.layerBlock !== layerBlock || layerDensity != layoutNode
+            .density || layerLayoutDirection != layoutNode.layoutDirection
         this.layerBlock = layerBlock
+        this.layerDensity = layoutNode.density
+        this.layerLayoutDirection = layoutNode.layoutDirection
         if (isAttached && layerBlock != null) {
             if (layer == null) {
                 layer = layoutNode.requireOwner().createLayer(
@@ -224,17 +290,22 @@ internal abstract class LayoutNodeWrapper(
                     move(position)
                 }
                 updateLayerParameters()
+                layoutNode.innerLayerWrapperIsDirty = true
                 invalidateParentLayer()
-            } else if (blockHasBeenChanged) {
+            } else if (layerInvalidated) {
                 updateLayerParameters()
             }
         } else {
             layer?.let {
                 it.destroy()
-
+                layoutNode.innerLayerWrapperIsDirty = true
                 invalidateParentLayer()
+                if (isAttached) {
+                    layoutNode.owner?.onLayoutChange(layoutNode)
+                }
             }
             layer = null
+            lastLayerDrawingWasSkipped = false
         }
     }
 
@@ -243,6 +314,7 @@ internal abstract class LayoutNodeWrapper(
         if (layer != null) {
             val layerBlock = requireNotNull(layerBlock)
             graphicsLayerScope.reset()
+            graphicsLayerScope.graphicsDensity = layoutNode.density
             snapshotObserver.observeReads(this, onCommitAffectingLayerParams) {
                 layerBlock.invoke(graphicsLayerScope)
             }
@@ -259,12 +331,17 @@ internal abstract class LayoutNodeWrapper(
                 cameraDistance = graphicsLayerScope.cameraDistance,
                 transformOrigin = graphicsLayerScope.transformOrigin,
                 shape = graphicsLayerScope.shape,
-                clip = graphicsLayerScope.clip
+                clip = graphicsLayerScope.clip,
+                renderEffect = graphicsLayerScope.renderEffect,
+                layoutDirection = layoutNode.layoutDirection,
+                density = layoutNode.density
             )
             isClipping = graphicsLayerScope.clip
         } else {
             require(layerBlock == null)
         }
+        lastLayerAlpha = graphicsLayerScope.alpha
+        layoutNode.owner?.onLayoutChange(layoutNode)
     }
 
     private val invalidateParentLayer: () -> Unit = {
@@ -284,55 +361,119 @@ internal abstract class LayoutNodeWrapper(
     override val isValid: Boolean
         get() = layer != null
 
+    val minimumTouchTargetSize: Size
+        get() = with(layerDensity) { layoutNode.viewConfiguration.minimumTouchTargetSize.toSize() }
+
     /**
      * Executes a hit test on any appropriate type associated with this [LayoutNodeWrapper].
      *
-     * Override appropriately to either add a [PointerInputFilter] to [hitPointerInputFilters] or
+     * Override appropriately to either add a [HitTestResult] to [hitTestResult] or
      * to pass the execution on.
      *
-     * @param pointerPositionRelativeToScreen The tested pointer position, which is relative to
-     * the device screen.
-     * @param hitPointerInputFilters The collection that the hit [PointerInputFilter]s will be
-     * added to if hit.
+     * @param pointerPosition The tested pointer position, which is relative to
+     * the [LayoutNodeWrapper].
+     * @param hitTestResult The parent [HitTestResult] that any hit should be added to.
      */
     abstract fun hitTest(
-        pointerPositionRelativeToScreen: Offset,
-        hitPointerInputFilters: MutableList<PointerInputFilter>
+        pointerPosition: Offset,
+        hitTestResult: HitTestResult<PointerInputFilter>,
+        isTouchEvent: Boolean
     )
 
-    override fun childToLocal(child: LayoutCoordinates, childLocal: Offset): Offset {
+    abstract fun hitTestSemantics(
+        pointerPosition: Offset,
+        hitSemanticsWrappers: HitTestResult<SemanticsWrapper>
+    )
+
+    override fun windowToLocal(relativeToWindow: Offset): Offset {
         check(isAttached) { ExpectAttachedLayoutCoordinates }
-        check(child.isAttached) { "Child $child is not attached!" }
-        var wrapper = child as LayoutNodeWrapper
-        var position = childLocal
-        while (wrapper !== this) {
+        val root = findRoot()
+        val positionInRoot = layoutNode.requireOwner()
+            .calculateLocalPosition(relativeToWindow) - root.positionInRoot()
+        return localPositionOf(root, positionInRoot)
+    }
+
+    override fun localToWindow(relativeToLocal: Offset): Offset {
+        val positionInRoot = localToRoot(relativeToLocal)
+        val owner = layoutNode.requireOwner()
+        return owner.calculatePositionInWindow(positionInRoot)
+    }
+
+    override fun localPositionOf(
+        sourceCoordinates: LayoutCoordinates,
+        relativeToSource: Offset
+    ): Offset {
+        val layoutNodeWrapper = sourceCoordinates as LayoutNodeWrapper
+        val commonAncestor = findCommonAncestor(sourceCoordinates)
+
+        var position = relativeToSource
+        var wrapper = layoutNodeWrapper
+        while (wrapper !== commonAncestor) {
             position = wrapper.toParentPosition(position)
-
-            val parent = wrapper.wrappedBy
-            check(parent != null) {
-                "childToLocal: child parameter is not a child of the LayoutCoordinates"
-            }
-            wrapper = parent
+            wrapper = wrapper.wrappedBy!!
         }
-        return position
+
+        return ancestorToLocal(commonAncestor, position)
     }
 
-    override fun globalToLocal(global: Offset): Offset {
+    override fun localBoundingBoxOf(
+        sourceCoordinates: LayoutCoordinates,
+        clipBounds: Boolean
+    ): Rect {
         check(isAttached) { ExpectAttachedLayoutCoordinates }
-        val wrapper = wrappedBy ?: return fromParentPosition(
-            global - layoutNode.requireOwner().calculatePosition().toOffset()
-        )
-        return fromParentPosition(wrapper.globalToLocal(global))
+        check(sourceCoordinates.isAttached) {
+            "LayoutCoordinates $sourceCoordinates is not attached!"
+        }
+        val layoutNodeWrapper = sourceCoordinates as LayoutNodeWrapper
+        val commonAncestor = findCommonAncestor(sourceCoordinates)
+
+        val bounds = rectCache
+        bounds.left = 0f
+        bounds.top = 0f
+        bounds.right = sourceCoordinates.size.width.toFloat()
+        bounds.bottom = sourceCoordinates.size.height.toFloat()
+
+        var wrapper = layoutNodeWrapper
+        while (wrapper !== commonAncestor) {
+            wrapper.rectInParent(bounds, clipBounds)
+            if (bounds.isEmpty) {
+                return Rect.Zero
+            }
+
+            wrapper = wrapper.wrappedBy!!
+        }
+
+        ancestorToLocal(commonAncestor, bounds, clipBounds)
+        return bounds.toRect()
     }
 
-    override fun localToGlobal(local: Offset): Offset {
-        return localToRoot(local) + layoutNode.requireOwner().calculatePosition()
+    private fun ancestorToLocal(ancestor: LayoutNodeWrapper, offset: Offset): Offset {
+        if (ancestor === this) {
+            return offset
+        }
+        val wrappedBy = wrappedBy
+        if (wrappedBy == null || ancestor == wrappedBy) {
+            return fromParentPosition(offset)
+        }
+        return fromParentPosition(wrappedBy.ancestorToLocal(ancestor, offset))
     }
 
-    override fun localToRoot(local: Offset): Offset {
+    private fun ancestorToLocal(
+        ancestor: LayoutNodeWrapper,
+        rect: MutableRect,
+        clipBounds: Boolean
+    ) {
+        if (ancestor === this) {
+            return
+        }
+        wrappedBy?.ancestorToLocal(ancestor, rect, clipBounds)
+        return fromParentRect(rect, clipBounds)
+    }
+
+    override fun localToRoot(relativeToLocal: Offset): Offset {
         check(isAttached) { ExpectAttachedLayoutCoordinates }
         var wrapper: LayoutNodeWrapper? = this
-        var position = local
+        var position = relativeToLocal
         while (wrapper != null) {
             position = wrapper.toParentPosition(position)
             wrapper = wrapper.wrappedBy
@@ -340,36 +481,33 @@ internal abstract class LayoutNodeWrapper(
         return position
     }
 
+    protected inline fun withPositionTranslation(canvas: Canvas, block: (Canvas) -> Unit) {
+        val x = position.x.toFloat()
+        val y = position.y.toFloat()
+        canvas.translate(x, y)
+        block(canvas)
+        canvas.translate(-x, -y)
+    }
+
     /**
      * Converts [position] in the local coordinate system to a [Offset] in the
-     * [parentCoordinates] coordinate system.
+     * [parentLayoutCoordinates] coordinate system.
      */
     open fun toParentPosition(position: Offset): Offset {
         val layer = layer
-        val targetPosition = if (layer == null) {
-            position
-        } else {
-            val matrix = matrixCache
-            matrix.map(position)
-        }
+        val targetPosition = layer?.mapOffset(position, inverse = false) ?: position
         return targetPosition + this.position
     }
 
     /**
-     * Converts [position] in the [parentCoordinates] coordinate system to a [Offset] in the
+     * Converts [position] in the [parentLayoutCoordinates] coordinate system to a [Offset] in the
      * local coordinate system.
      */
     open fun fromParentPosition(position: Offset): Offset {
+        val relativeToWrapperPosition = position - this.position
         val layer = layer
-        val targetPosition = if (layer == null) {
-            position
-        } else {
-            val inverse = matrixCache
-            layer.getMatrix(inverse)
-            inverse.invert()
-            inverse.map(position)
-        }
-        return targetPosition - this.position
+        return layer?.mapOffset(relativeToWrapperPosition, inverse = true)
+            ?: relativeToWrapperPosition
     }
 
     protected fun drawBorder(canvas: Canvas, paint: Paint) {
@@ -414,26 +552,37 @@ internal abstract class LayoutNodeWrapper(
         // which layer contained this one, but all layers in this modifier chain will be invalidated
         // in onModifierChanged(). Therefore the only possible layer that won't automatically be
         // invalidated is the parent's layer. We'll invalidate it here:
-        @OptIn(ExperimentalLayoutNodeApi::class)
         layoutNode.parent?.invalidateLayer()
     }
 
     /**
      * Modifies bounds to be in the parent LayoutNodeWrapper's coordinates, including clipping,
-     * scaling, etc.
+     * if [clipBounds] is true. If [clipToMinimumTouchTargetSize] is true and the layer clips,
+     * then the clip bounds are extended to allow minimum touch target extended area.
      */
-    protected open fun rectInParent(bounds: MutableRect) {
+    internal fun rectInParent(
+        bounds: MutableRect,
+        clipBounds: Boolean,
+        clipToMinimumTouchTargetSize: Boolean = false
+    ) {
         val layer = layer
         if (layer != null) {
             if (isClipping) {
-                bounds.intersect(0f, 0f, size.width.toFloat(), size.height.toFloat())
+                if (clipToMinimumTouchTargetSize) {
+                    val minTouch = minimumTouchTargetSize
+                    val horz = minTouch.width / 2f
+                    val vert = minTouch.height / 2f
+                    bounds.intersect(
+                        -horz, -vert, size.width.toFloat() + horz, size.height.toFloat() + vert
+                    )
+                } else if (clipBounds) {
+                    bounds.intersect(0f, 0f, size.width.toFloat(), size.height.toFloat())
+                }
                 if (bounds.isEmpty) {
                     return
                 }
             }
-            val matrix = matrixCache
-            layer.getMatrix(matrix)
-            matrix.map(bounds)
+            layer.mapBounds(bounds, inverse = false)
         }
 
         val x = position.x
@@ -445,48 +594,63 @@ internal abstract class LayoutNodeWrapper(
         bounds.bottom += y
     }
 
-    override fun childBoundingBox(child: LayoutCoordinates): Rect {
-        check(isAttached) { ExpectAttachedLayoutCoordinates }
-        check(child.isAttached) { "Child $child is not attached!" }
-        val bounds = rectCache
-        bounds.left = 0f
-        bounds.top = 0f
-        bounds.right = child.size.width.toFloat()
-        bounds.bottom = child.size.height.toFloat()
-        var wrapper = child as LayoutNodeWrapper
-        while (wrapper !== this) {
-            wrapper.rectInParent(bounds)
-            if (bounds.isEmpty) {
-                return Rect.Zero
-            }
+    /**
+     * Modifies bounds in the parent's coordinates to be in this LayoutNodeWrapper's
+     * coordinates, including clipping, if [clipBounds] is true.
+     */
+    private fun fromParentRect(bounds: MutableRect, clipBounds: Boolean) {
+        val x = position.x
+        bounds.left -= x
+        bounds.right -= x
 
-            val parent = wrapper.wrappedBy
-            check(parent != null) {
-                "childToLocal: child parameter is not a child of the LayoutCoordinates"
+        val y = position.y
+        bounds.top -= y
+        bounds.bottom -= y
+
+        val layer = layer
+        if (layer != null) {
+            layer.mapBounds(bounds, inverse = true)
+            if (isClipping && clipBounds) {
+                bounds.intersect(0f, 0f, size.width.toFloat(), size.height.toFloat())
+                if (bounds.isEmpty) {
+                    return
+                }
             }
-            wrapper = parent
         }
-        return bounds.toRect()
     }
 
-    protected fun withinLayerBounds(pointerPositionRelativeToScreen: Offset): Boolean {
+    protected fun withinLayerBounds(pointerPosition: Offset, isTouchEvent: Boolean): Boolean {
+        if (!pointerPosition.isFinite) {
+            return false
+        }
+        val layer = layer
         if (layer != null && isClipping) {
-            val l = globalPosition.x
-            val t = globalPosition.y
-            val r = l + width
-            val b = t + height
-
-            val localBoundsRelativeToScreen = Rect(l, t, r, b)
-            if (!localBoundsRelativeToScreen.contains(pointerPositionRelativeToScreen)) {
-                // If we should clip pointer input hit testing to our bounds, and the pointer is
-                // not in our bounds, then return false now.
-                return false
+            if (isTouchEvent) {
+                val minimumTouchTargetSize = minimumTouchTargetSize
+                if (!minimumTouchTargetSize.isEmpty()) {
+                    val offsetFromEdge = offsetFromEdge(pointerPosition)
+                    val minTouchTargetSize = with(layerDensity) {
+                        layoutNode.viewConfiguration.minimumTouchTargetSize.toSize()
+                    }
+                    return offsetFromEdge.x <= minTouchTargetSize.width / 2f &&
+                        offsetFromEdge.y <= minTouchTargetSize.height / 2f
+                }
             }
+            return layer.isInLayer(pointerPosition)
         }
 
-        // If we are here, either we aren't clipping to bounds or we are and the pointer was in
-        // bounds.
+        // If we are here, we aren't clipping or there is no layer
         return true
+    }
+
+    /**
+     * Whether a pointer that is relative to the [LayoutNodeWrapper] is in the bounds of this
+     * LayoutNodeWrapper.
+     */
+    protected fun isPointerInBounds(pointerPosition: Offset): Boolean {
+        val x = pointerPosition.x
+        val y = pointerPosition.y
+        return x >= 0f && y >= 0f && x < measuredWidth && y < measuredHeight
     }
 
     /**
@@ -502,14 +666,40 @@ internal abstract class LayoutNodeWrapper(
     }
 
     /**
+     * Returns the first [NestedScrollDelegatingWrapper] in the wrapper list that wraps this
+     * [LayoutNodeWrapper].
+     *
+     * Note: This method tried to find [NestedScrollDelegatingWrapper] in the
+     * modifiers before the one wrapped with this [LayoutNodeWrapper] and goes up the hierarchy of
+     * [LayoutNode]s if needed.
+     */
+    abstract fun findPreviousNestedScrollWrapper(): NestedScrollDelegatingWrapper?
+
+    /**
+     * Returns the first [NestedScrollDelegatingWrapper] in the wrapper list that is wrapped by this
+     * [LayoutNodeWrapper].
+     *
+     * Note: This method only goes to the modifiers that follow the one wrapped by
+     * this [LayoutNodeWrapper], it doesn't to the children [LayoutNode]s.
+     */
+    abstract fun findNextNestedScrollWrapper(): NestedScrollDelegatingWrapper?
+
+    /**
      * Returns the first [focus node][ModifiedFocusNode] in the wrapper list that wraps this
      * [LayoutNodeWrapper].
+     *
+     * Note: This method tried to find [NestedScrollDelegatingWrapper] in the
+     * modifiers before the one wrapped with this [LayoutNodeWrapper] and goes up the hierarchy of
+     * [LayoutNode]s if needed.
      */
     abstract fun findPreviousFocusWrapper(): ModifiedFocusNode?
 
     /**
      * Returns the next [focus node][ModifiedFocusNode] in the wrapper list that is wrapped by
      * this [LayoutNodeWrapper].
+     *
+     * Note: This method only goes to the modifiers that follow the one wrapped by
+     * this [LayoutNodeWrapper], it doesn't to the children [LayoutNode]s.
      */
     abstract fun findNextFocusWrapper(): ModifiedFocusNode?
 
@@ -524,8 +714,36 @@ internal abstract class LayoutNodeWrapper(
      * that wraps it. The focus state change must be propagated to the parents until we reach
      * another [focus node][ModifiedFocusNode].
      */
-    @OptIn(ExperimentalFocus::class)
-    abstract fun propagateFocusStateChange(focusState: FocusState)
+    open fun propagateFocusEvent(focusState: FocusState) {
+        wrappedBy?.propagateFocusEvent(focusState)
+    }
+
+    /**
+     * Search up the component tree for any parent/parents that have specified a custom focus order.
+     * Allowing parents higher up the hierarchy to overwrite the focus order specified by their
+     * children.
+     */
+    open fun populateFocusOrder(focusOrder: FocusOrder) {
+        wrappedBy?.populateFocusOrder(focusOrder)
+    }
+
+    /**
+     * Send a request to bring a portion of this item into view. The portion that has to be
+     * brought into view is specified as a rectangle where the coordinates are in the local
+     * coordinates of that layoutNodeWrapper. This request is sent up the hierarchy to all parents
+     * that have a [RelocationModifier][androidx.compose.ui.layout.RelocationModifier].
+     */
+    open suspend fun propagateRelocationRequest(rect: Rect) {
+        val parent = wrappedBy ?: return
+
+        // Translate this layoutNodeWrapper to the coordinate system of the parent.
+        val boundingBoxInParentCoordinates = parent.localBoundingBoxOf(this, false)
+
+        // Translate the rect to parent coordinates
+        val rectInParentBounds = rect.translate(boundingBoxInParentCoordinates.topLeft)
+
+        parent.propagateRelocationRequest(rectInParentBounds)
+    }
 
     /**
      * Find the first ancestor that is a [ModifiedFocusNode].
@@ -576,12 +794,19 @@ internal abstract class LayoutNodeWrapper(
     /**
      * Returns the first [ModifiedKeyInputNode] in the wrapper list that wraps this
      * [LayoutNodeWrapper].
+     *
+     * Note: This method tried to find [NestedScrollDelegatingWrapper] in the
+     * modifiers before the one wrapped with this [LayoutNodeWrapper] and goes up the hierarchy of
+     * [LayoutNode]s if needed.
      */
     abstract fun findPreviousKeyInputWrapper(): ModifiedKeyInputNode?
 
     /**
      * Returns the next [ModifiedKeyInputNode] in the wrapper list that is wrapped by this
      * [LayoutNodeWrapper].
+     *
+     * Note: This method only goes to the modifiers that follow the one wrapped by
+     * this [LayoutNodeWrapper], it doesn't to the children [LayoutNode]s.
      */
     abstract fun findNextKeyInputWrapper(): ModifiedKeyInputNode?
 
@@ -597,6 +822,73 @@ internal abstract class LayoutNodeWrapper(
      */
     open fun onModifierChanged() {
         layer?.invalidate()
+    }
+
+    internal fun findCommonAncestor(other: LayoutNodeWrapper): LayoutNodeWrapper {
+        var ancestor1 = other.layoutNode
+        var ancestor2 = layoutNode
+        if (ancestor1 === ancestor2) {
+            // They are on the same node, but we don't know which is the deeper of the two
+            val tooFar = layoutNode.outerLayoutNodeWrapper
+            var tryMe = this
+            while (tryMe !== tooFar && tryMe !== other) {
+                tryMe = tryMe.wrappedBy!!
+            }
+            if (tryMe === other) {
+                return other
+            }
+            return this
+        }
+
+        while (ancestor1.depth > ancestor2.depth) {
+            ancestor1 = ancestor1.parent!!
+        }
+
+        while (ancestor2.depth > ancestor1.depth) {
+            ancestor2 = ancestor2.parent!!
+        }
+
+        while (ancestor1 !== ancestor2) {
+            val parent1 = ancestor1.parent
+            val parent2 = ancestor2.parent
+            if (parent1 == null || parent2 == null) {
+                throw IllegalArgumentException("layouts are not part of the same hierarchy")
+            }
+            ancestor1 = parent1
+            ancestor2 = parent2
+        }
+
+        return when {
+            ancestor2 === layoutNode -> this
+            ancestor1 === other.layoutNode -> other
+            else -> ancestor1.innerLayoutNodeWrapper
+        }
+    }
+
+    // TODO(b/152051577): Measure the performance of focusableChildren.
+    //  Consider caching the children.
+    fun focusableChildren(): List<ModifiedFocusNode> {
+        // Check the modifier chain that this focus node is part of. If it has a focus modifier,
+        // that means you have found the only focusable child for this node.
+        val focusableChild = wrapped?.findNextFocusWrapper()
+        // findChildFocusNodeInWrapperChain()
+        if (focusableChild != null) {
+            return listOf(focusableChild)
+        }
+
+        // Go through all your children and find the first focusable node from each child.
+        val focusableChildren = mutableListOf<ModifiedFocusNode>()
+        layoutNode.children.fastForEach { it.findFocusableChildren(focusableChildren) }
+        return focusableChildren
+    }
+
+    protected fun offsetFromEdge(pointerPosition: Offset): Offset {
+        val x = pointerPosition.x
+        val horizontal = maxOf(0f, if (x < 0) -x else x - measuredWidth)
+        val y = pointerPosition.y
+        val vertical = maxOf(0f, if (y < 0) -y else y - measuredHeight)
+
+        return Offset(horizontal, vertical)
     }
 
     internal companion object {

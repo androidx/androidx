@@ -19,32 +19,26 @@ package androidx.compose.ui.draw
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.util.annotation.FloatRange
 
 /**
  * Draw content with modified alpha that may be less than 1.
  *
- * Usage of this API renders this composable into a separate graphics layer
+ * Usage of this API renders this composable into a separate graphics layer.
+ * Note when an alpha less than 1.0f is provided, contents are implicitly clipped
+ * to their bounds. This is because an intermediate compositing layer is created to
+ * render contents into first before being drawn into the destination with the desired alpha.
+ * This layer is sized to the bounds of the composable this modifier is configured on, and contents
+ * outside of these bounds are omitted.
+ *
  * @see graphicsLayer
  *
  * Example usage:
  * @sample androidx.compose.ui.samples.AlphaSample
  *
- * @param alpha the fraction of children's alpha value.
+ * @param alpha the fraction of children's alpha value and must be between `0` and `1`, inclusive.
  */
 @Stable
 fun Modifier.alpha(
-    @FloatRange(from = 0.0, to = 1.0) alpha: Float
+    /*@FloatRange(from = 0.0, to = 1.0)*/
+    alpha: Float
 ) = if (alpha != 1.0f) graphicsLayer(alpha = alpha, clip = true) else this
-
-/**
- * Draw content with modified alpha that may be less than 1.
- *
- * @param opacity the fraction of children's alpha value.
- */
-@Deprecated(
-    "Use alpha instead",
-    ReplaceWith("alpha(opacity)", "androidx.compose.ui.draw")
-)
-@Stable
-fun Modifier.drawOpacity(@FloatRange(from = 0.0, to = 1.0) opacity: Float) = alpha(opacity)

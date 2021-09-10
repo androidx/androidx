@@ -2,7 +2,6 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -12,30 +11,44 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api(project(":leanback:leanback"))
-    api("androidx.paging:paging-runtime:3.0.0-alpha09")
+    api("androidx.leanback:leanback:1.1.0-beta01")
+    api("androidx.paging:paging-runtime:3.0.0")
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    // To avoid manifest merger warnings due to duplicate package names
+    // It can be removed if leanback library is updated to a newer version
+    implementation("androidx.vectordrawable:vectordrawable-animated:1.1.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(project(":internal-testutils-espresso"))
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation(project(":internal-testutils-ktx"))
-    androidTestImplementation(project(":internal-testutils-paging"))
-    androidTestImplementation(KOTLIN_TEST)
-    androidTestImplementation(KOTLIN_COROUTINES_TEST)
+    // internal-testutils-paging uses latest version of paging-common which is getting pulled in
+    // by gradle when leanback runs. But leanback uses paging-runtime:3.0.0. The version discrepancy
+    // between paging-common and paging-runtime will cause errors. `Exclude` prevents pulling in
+    // paging-common from internal-testutils-paging and uses the 3.0.0 version provided by leanback.
+    androidTestImplementation(project(":internal-testutils-paging")){
+        exclude group: "androidx.paging"
+    }
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
-    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
 }
 
 android {
     defaultConfig {
         minSdkVersion 21
+    }
+    lintOptions {
+        // Bug in Android Lint 7.0.0-alpha15 b/187419330
+        disable("MissingLeanbackLauncher", "ImpliedTouchscreenHardware", "MissingLeanbackSupport")
     }
 }
 

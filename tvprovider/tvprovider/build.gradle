@@ -1,0 +1,33 @@
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.core:core:1.1.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.mockitoCore)
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+}
+
+androidx {
+    name = "Android Support TV Provider"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.TVPROVIDER
+    inceptionYear = "2017"
+    description = "Android Support Library for TV Provider"
+    failOnDeprecationWarnings = false
+}

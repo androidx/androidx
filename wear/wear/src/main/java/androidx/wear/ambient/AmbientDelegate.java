@@ -51,7 +51,7 @@ final class AmbientDelegate {
          * method. If they do not, an exception will be thrown.</em>
          *
          * @param ambientDetails bundle containing information about the display being used.
-         *                      It includes information about low-bit color and burn-in protection.
+         *                       It includes information about low-bit color and burn-in protection.
          */
         void onEnterAmbient(Bundle ambientDetails);
 
@@ -81,15 +81,15 @@ final class AmbientDelegate {
     }
 
     AmbientDelegate(@Nullable Activity activity,
-                           @NonNull WearableControllerProvider wearableControllerProvider,
-                           @NonNull AmbientCallback callback) {
+            @NonNull WearableControllerProvider wearableControllerProvider,
+            @NonNull AmbientCallback callback) {
         mActivity = new WeakReference<>(activity);
         mCallback = callback;
         mWearableControllerProvider = wearableControllerProvider;
     }
 
     /**
-     * Receives and handles the onCreate call from the associated {@link AmbientMode}
+     * Receives and handles the onCreate call from the associated {@link AmbientModeSupport}
      */
     void onCreate() {
         Activity activity = mActivity.get();
@@ -103,7 +103,7 @@ final class AmbientDelegate {
     }
 
     /**
-     * Receives and handles the onResume call from the associated {@link AmbientMode}
+     * Receives and handles the onResume call from the associated {@link AmbientModeSupport}
      */
     void onResume() {
         if (mWearableController != null) {
@@ -112,7 +112,7 @@ final class AmbientDelegate {
     }
 
     /**
-     * Receives and handles the onPause call from the associated {@link AmbientMode}
+     * Receives and handles the onPause call from the associated {@link AmbientModeSupport}
      */
     void onPause() {
         if (mWearableController != null) {
@@ -121,7 +121,7 @@ final class AmbientDelegate {
     }
 
     /**
-     * Receives and handles the onStop call from the associated {@link AmbientMode}
+     * Receives and handles the onStop call from the associated {@link AmbientModeSupport}
      */
     void onStop() {
         if (mWearableController != null) {
@@ -130,7 +130,7 @@ final class AmbientDelegate {
     }
 
     /**
-     * Receives and handles the onDestroy call from the associated {@link AmbientMode}
+     * Receives and handles the onDestroy call from the associated {@link AmbientModeSupport}
      */
     void onDestroy() {
         if (mWearableController != null) {
@@ -152,6 +152,18 @@ final class AmbientDelegate {
     public void setAmbientOffloadEnabled(boolean enabled) {
         if (mWearableController != null) {
             mWearableController.setAmbientOffloadEnabled(enabled);
+        }
+    }
+
+    /**
+     * Sets whether this activity's task should be moved to the front when the system exits
+     * ambient mode. If true, the activity's task may be moved to the front if it was the last
+     * activity to be running when ambient started, depending on how much time the system spent
+     * in ambient mode.
+     */
+    public void setAutoResumeEnabled(boolean enabled) {
+        if (mWearableController != null) {
+            mWearableController.setAutoResumeEnabled(enabled);
         }
     }
 

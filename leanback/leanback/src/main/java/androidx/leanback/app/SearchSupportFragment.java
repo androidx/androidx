@@ -235,6 +235,8 @@ public class SearchSupportFragment extends Fragment {
         }
     };
 
+    boolean mSpeechRecognizerEnabled;
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
@@ -365,7 +367,11 @@ public class SearchSupportFragment extends Fragment {
                 if (mRowsSupportFragment != null && mRowsSupportFragment.getView() != null
                         && mRowsSupportFragment.getView().hasFocus()) {
                     if (direction == View.FOCUS_UP) {
-                        return mSearchBar.findViewById(R.id.lb_search_bar_speech_orb);
+                        if (mSpeechRecognizerEnabled) {
+                            return mSearchBar.findViewById(R.id.lb_search_bar_speech_orb);
+                        } else {
+                            return mSearchBar;
+                        }
                     }
                 } else if (mSearchBar.hasFocus() && direction == View.FOCUS_DOWN) {
                     if (mRowsSupportFragment.getView() != null
@@ -376,6 +382,15 @@ public class SearchSupportFragment extends Fragment {
                 return null;
             }
         });
+
+        if (!isSpeechRecognizerAvailable()) {
+            if (mSearchBar.hasFocus()) {
+                mSearchBar.findViewById(R.id.lb_search_text_editor).requestFocus();
+            }
+            mSearchBar.findViewById(R.id.lb_search_bar_speech_orb).setFocusable(false);
+        } else {
+            mSpeechRecognizerEnabled = true;
+        }
         return root;
     }
 
@@ -397,9 +412,9 @@ public class SearchSupportFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mIsPaused = false;
-        if (mSpeechRecognitionCallback == null && null == mSpeechRecognizer) {
-            mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(
-                    getContext());
+        if (mSpeechRecognitionCallback == null && null == mSpeechRecognizer
+                && mSpeechRecognizerEnabled) {
+            mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
             mSearchBar.setSpeechRecognizer(mSpeechRecognizer);
         }
         if (mPendingStartRecognitionWhenPaused) {
@@ -416,6 +431,13 @@ public class SearchSupportFragment extends Fragment {
         releaseRecognizer();
         mIsPaused = true;
         super.onPause();
+    }
+
+    @Override
+    public void onDestroyView() {
+        mSearchBar = null;
+        mRowsSupportFragment = null;
+        super.onDestroyView();
     }
 
     @Override
@@ -752,6 +774,10 @@ public class SearchSupportFragment extends Fragment {
 
     private void setSearchQuery(String query) {
         mSearchBar.setSearchQuery(query);
+    }
+
+    boolean isSpeechRecognizerAvailable() {
+        return SpeechRecognizer.isRecognitionAvailable(getContext());
     }
 
     static class ExternalQuery {

@@ -16,23 +16,24 @@
 
 package androidx.compose.material
 
-import androidx.compose.animation.core.AnimationConstants.Infinite
 import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.FloatPropKey
-import androidx.compose.animation.core.IntPropKey
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateValue
+import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
-import androidx.compose.animation.core.repeatable
-import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.transition
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
-import androidx.compose.material.ProgressIndicatorConstants.DefaultIndicatorBackgroundOpacity
+import androidx.compose.material.ProgressIndicatorDefaults.IndicatorBackgroundOpacity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -40,20 +41,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.AmbientDensity
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.annotation.FloatRange
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.max
 
 /**
- * A determinate linear progress indicator that represents progress by drawing a horizontal line.
+ * Determinate <a href="https://material.io/components/progress-indicators#linear-progress-indicators" class="external" target="_blank">Material Design linear progress indicator</a>.
+ *
+ * Progress indicators express an unspecified wait time or display the length of a process.
+ *
+ * ![Linear progress indicator image](https://developer.android.com/images/reference/androidx/compose/material/linear-progress-indicator.png)
  *
  * By default there is no animation between [progress] values. You can use
- * [ProgressIndicatorConstants.DefaultProgressAnimationSpec] as the default recommended
+ * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended
  * [AnimationSpec] when animating progress, such as in the following example:
  *
  * @sample androidx.compose.material.samples.LinearProgressIndicatorSample
@@ -66,25 +70,30 @@ import kotlin.math.max
  */
 @Composable
 fun LinearProgressIndicator(
-    @FloatRange(from = 0.0, to = 1.0) progress: Float,
+    /*@FloatRange(from = 0.0, to = 1.0)*/
+    progress: Float,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
-    backgroundColor: Color = color.copy(alpha = DefaultIndicatorBackgroundOpacity)
+    backgroundColor: Color = color.copy(alpha = IndicatorBackgroundOpacity)
 ) {
     Canvas(
         modifier
             .progressSemantics(progress)
-            .preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)
+            .size(LinearIndicatorWidth, LinearIndicatorHeight)
+            .focusable()
     ) {
-        val strokeWidth = ProgressIndicatorConstants.DefaultStrokeWidth.toPx()
+        val strokeWidth = size.height
         drawLinearIndicatorBackground(backgroundColor, strokeWidth)
         drawLinearIndicator(0f, progress, color, strokeWidth)
     }
 }
 
 /**
- * An indeterminate linear progress indicator that represents continual progress without a defined
- * start or end point.
+ * Indeterminate <a href="https://material.io/components/progress-indicators#linear-progress-indicators" class="external" target="_blank">Material Design linear progress indicator</a>.
+ *
+ * Progress indicators express an unspecified wait time or display the length of a process.
+ *
+ * ![Linear progress indicator image](https://developer.android.com/images/reference/androidx/compose/material/linear-progress-indicator.png)
  *
  * @param color The color of the progress indicator.
  * @param backgroundColor The color of the background behind the indicator, visible when the
@@ -94,23 +103,63 @@ fun LinearProgressIndicator(
 fun LinearProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
-    backgroundColor: Color = color.copy(alpha = DefaultIndicatorBackgroundOpacity)
+    backgroundColor: Color = color.copy(alpha = IndicatorBackgroundOpacity)
 ) {
-    val state = transition(
-        definition = LinearIndeterminateTransition,
-        initState = 0,
-        toState = 1
+    val infiniteTransition = rememberInfiniteTransition()
+    // Fractional position of the 'head' and 'tail' of the two lines drawn. I.e if the head is 0.8
+    // and the tail is 0.2, there is a line drawn from between 20% along to 80% along the total
+    // width.
+    val firstLineHead by infiniteTransition.animateFloat(
+        0f,
+        1f,
+        infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = LinearAnimationDuration
+                0f at FirstLineHeadDelay with FirstLineHeadEasing
+                1f at FirstLineHeadDuration + FirstLineHeadDelay
+            }
+        )
+    )
+    val firstLineTail by infiniteTransition.animateFloat(
+        0f,
+        1f,
+        infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = LinearAnimationDuration
+                0f at FirstLineTailDelay with FirstLineTailEasing
+                1f at FirstLineTailDuration + FirstLineTailDelay
+            }
+        )
+    )
+    val secondLineHead by infiniteTransition.animateFloat(
+        0f,
+        1f,
+        infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = LinearAnimationDuration
+                0f at SecondLineHeadDelay with SecondLineHeadEasing
+                1f at SecondLineHeadDuration + SecondLineHeadDelay
+            }
+        )
+    )
+    val secondLineTail by infiniteTransition.animateFloat(
+        0f,
+        1f,
+        infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = LinearAnimationDuration
+                0f at SecondLineTailDelay with SecondLineTailEasing
+                1f at SecondLineTailDuration + SecondLineTailDelay
+            }
+        )
     )
     Canvas(
         modifier
             .progressSemantics()
-            .preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)
+            .size(LinearIndicatorWidth, LinearIndicatorHeight)
+            .focusable()
     ) {
-        val firstLineHead = state[FirstLineHeadProp]
-        val firstLineTail = state[FirstLineTailProp]
-        val secondLineHead = state[SecondLineHeadProp]
-        val secondLineTail = state[SecondLineTailProp]
-        val strokeWidth = ProgressIndicatorConstants.DefaultStrokeWidth.toPx()
+        val strokeWidth = size.height
         drawLinearIndicatorBackground(backgroundColor, strokeWidth)
         if (firstLineHead - firstLineTail > 0) {
             drawLinearIndicator(
@@ -156,11 +205,14 @@ private fun DrawScope.drawLinearIndicatorBackground(
 ) = drawLinearIndicator(0f, 1f, color, strokeWidth)
 
 /**
- * A determinate circular progress indicator that represents progress by drawing an arc ranging from
- * 0 to 360 degrees.
+ * Determinate <a href="https://material.io/components/progress-indicators#circular-progress-indicators" class="external" target="_blank">Material Design circular progress indicator</a>.
+ *
+ * Progress indicators express an unspecified wait time or display the length of a process.
+ *
+ * ![Circular progress indicator image](https://developer.android.com/images/reference/androidx/compose/material/circular-progress-indicator.png)
  *
  * By default there is no animation between [progress] values. You can use
- * [ProgressIndicatorConstants.DefaultProgressAnimationSpec] as the default recommended
+ * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended
  * [AnimationSpec] when animating progress, such as in the following example:
  *
  * @sample androidx.compose.material.samples.CircularProgressIndicatorSample
@@ -172,18 +224,20 @@ private fun DrawScope.drawLinearIndicatorBackground(
  */
 @Composable
 fun CircularProgressIndicator(
-    @FloatRange(from = 0.0, to = 1.0) progress: Float,
+    /*@FloatRange(from = 0.0, to = 1.0)*/
+    progress: Float,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
-    strokeWidth: Dp = ProgressIndicatorConstants.DefaultStrokeWidth
+    strokeWidth: Dp = ProgressIndicatorDefaults.StrokeWidth
 ) {
-    val stroke = with(AmbientDensity.current) {
+    val stroke = with(LocalDensity.current) {
         Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Butt)
     }
     Canvas(
         modifier
             .progressSemantics(progress)
-            .preferredSize(CircularIndicatorDiameter)
+            .size(CircularIndicatorDiameter)
+            .focusable()
     ) {
         // Start at 12 O'clock
         val startAngle = 270f
@@ -193,8 +247,11 @@ fun CircularProgressIndicator(
 }
 
 /**
- * An indeterminate circular progress indicator that represents continual progress without a defined
- * start or end point.
+ * Indeterminate <a href="https://material.io/components/progress-indicators#circular-progress-indicators" class="external" target="_blank">Material Design circular progress indicator</a>.
+ *
+ * Progress indicators express an unspecified wait time or display the length of a process.
+ *
+ * ![Circular progress indicator image](https://developer.android.com/images/reference/androidx/compose/material/circular-progress-indicator.png)
  *
  * @param color The color of the progress indicator.
  * @param strokeWidth The stroke width for the progress indicator.
@@ -203,35 +260,75 @@ fun CircularProgressIndicator(
 fun CircularProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
-    strokeWidth: Dp = ProgressIndicatorConstants.DefaultStrokeWidth
+    strokeWidth: Dp = ProgressIndicatorDefaults.StrokeWidth
 ) {
-    val stroke = with(AmbientDensity.current) {
+    val stroke = with(LocalDensity.current) {
         Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Square)
     }
-    val state = transition(
-        definition = CircularIndeterminateTransition,
-        initState = 0,
-        toState = 1
+
+    val transition = rememberInfiniteTransition()
+    // The current rotation around the circle, so we know where to start the rotation from
+    val currentRotation by transition.animateValue(
+        0,
+        RotationsPerCycle,
+        Int.VectorConverter,
+        infiniteRepeatable(
+            animation = tween(
+                durationMillis = RotationDuration * RotationsPerCycle,
+                easing = LinearEasing
+            )
+        )
+    )
+    // How far forward (degrees) the base point should be from the start point
+    val baseRotation by transition.animateFloat(
+        0f,
+        BaseRotationAngle,
+        infiniteRepeatable(
+            animation = tween(
+                durationMillis = RotationDuration,
+                easing = LinearEasing
+            )
+        )
+    )
+    // How far forward (degrees) both the head and tail should be from the base point
+    val endAngle by transition.animateFloat(
+        0f,
+        JumpRotationAngle,
+        infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
+                0f at 0 with CircularEasing
+                JumpRotationAngle at HeadAndTailAnimationDuration
+            }
+        )
+    )
+
+    val startAngle by transition.animateFloat(
+        0f,
+        JumpRotationAngle,
+        infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
+                0f at HeadAndTailDelayDuration with CircularEasing
+                JumpRotationAngle at durationMillis
+            }
+        )
     )
     Canvas(
         modifier
             .progressSemantics()
-            .preferredSize(CircularIndicatorDiameter)
+            .size(CircularIndicatorDiameter)
+            .focusable()
     ) {
-        val currentRotation = state[IterationProp]
-        val baseRotation = state[BaseRotationProp]
 
         val currentRotationAngleOffset = (currentRotation * RotationAngleOffset) % 360f
 
-        var startAngle = state[TailRotationProp]
-        val endAngle = state[HeadRotationProp]
         // How long a line to draw using the start angle as a reference point
         val sweep = abs(endAngle - startAngle)
 
         // Offset by the constant offset and the per rotation offset
-        startAngle += StartAngleOffset + currentRotationAngleOffset
-        startAngle += baseRotation
-        drawIndeterminateCircularIndicator(startAngle, strokeWidth, sweep, color, stroke)
+        val offset = StartAngleOffset + currentRotationAngleOffset + baseRotation
+        drawIndeterminateCircularIndicator(startAngle + offset, strokeWidth, sweep, color, stroke)
     }
 }
 
@@ -259,7 +356,7 @@ private fun DrawScope.drawCircularIndicator(
 /**
  * Contains the default values used for [LinearProgressIndicator] and [CircularProgressIndicator].
  */
-object ProgressIndicatorConstants {
+object ProgressIndicatorDefaults {
     /**
      * Default stroke width for [CircularProgressIndicator], and default height for
      * [LinearProgressIndicator].
@@ -267,19 +364,19 @@ object ProgressIndicatorConstants {
      * This can be customized with the `strokeWidth` parameter on [CircularProgressIndicator],
      * and by passing a layout modifier setting the height for [LinearProgressIndicator].
      */
-    val DefaultStrokeWidth = 4.dp
+    val StrokeWidth = 4.dp
 
     /**
      * The default opacity applied to the indicator color to create the background color in a
      * [LinearProgressIndicator].
      */
-    const val DefaultIndicatorBackgroundOpacity = 0.24f
+    const val IndicatorBackgroundOpacity = 0.24f
 
     /**
      * The default [AnimationSpec] that should be used when animating between progress in a
      * determinate progress indicator.
      */
-    val DefaultProgressAnimationSpec = SpringSpec(
+    val ProgressAnimationSpec = SpringSpec(
         dampingRatio = Spring.DampingRatioNoBouncy,
         stiffness = Spring.StiffnessVeryLow,
         // The default threshold is 0.01, or 1% of the overall progress range, which is quite
@@ -322,7 +419,7 @@ private fun DrawScope.drawIndeterminateCircularIndicator(
 // LinearProgressIndicator Material specs
 // TODO: there are currently 3 fixed widths in Android, should this be flexible? Material says
 // the width should be 240dp here.
-private val LinearIndicatorHeight = ProgressIndicatorConstants.DefaultStrokeWidth
+private val LinearIndicatorHeight = ProgressIndicatorDefaults.StrokeWidth
 private val LinearIndicatorWidth = 240.dp
 
 // CircularProgressIndicator Material specs
@@ -332,13 +429,6 @@ private val CircularIndicatorDiameter = 40.dp
 // Indeterminate linear indicator transition specs
 // Total duration for one cycle
 private const val LinearAnimationDuration = 1800
-
-// Fractional position of the 'head' and 'tail' of the two lines drawn. I.e if the head is 0.8 and
-// the tail is 0.2, there is a line drawn from between 20% along to 80% along the total width
-private val FirstLineHeadProp = FloatPropKey()
-private val FirstLineTailProp = FloatPropKey()
-private val SecondLineHeadProp = FloatPropKey()
-private val SecondLineTailProp = FloatPropKey()
 
 // Duration of the head and tail animations for both lines
 private const val FirstLineHeadDuration = 750
@@ -357,62 +447,12 @@ private val FirstLineTailEasing = CubicBezierEasing(0.4f, 0f, 1f, 1f)
 private val SecondLineHeadEasing = CubicBezierEasing(0f, 0f, 0.65f, 1f)
 private val SecondLineTailEasing = CubicBezierEasing(0.1f, 0f, 0.45f, 1f)
 
-private val LinearIndeterminateTransition = transitionDefinition<Int> {
-    state(0) {
-        this[FirstLineHeadProp] = 0f
-        this[FirstLineTailProp] = 0f
-        this[SecondLineHeadProp] = 0f
-        this[SecondLineTailProp] = 0f
-    }
-
-    state(1) {
-        this[FirstLineHeadProp] = 1f
-        this[FirstLineTailProp] = 1f
-        this[SecondLineHeadProp] = 1f
-        this[SecondLineTailProp] = 1f
-    }
-
-    transition(fromState = 0, toState = 1) {
-        FirstLineHeadProp using repeatable(
-            iterations = Infinite,
-            animation = keyframes {
-                durationMillis = LinearAnimationDuration
-                0f at FirstLineHeadDelay with FirstLineHeadEasing
-                1f at FirstLineHeadDuration + FirstLineHeadDelay
-            }
-        )
-        FirstLineTailProp using repeatable(
-            iterations = Infinite,
-            animation = keyframes {
-                durationMillis = LinearAnimationDuration
-                0f at FirstLineTailDelay with FirstLineTailEasing
-                1f at FirstLineTailDuration + FirstLineTailDelay
-            }
-        )
-        SecondLineHeadProp using repeatable(
-            iterations = Infinite,
-            animation = keyframes {
-                durationMillis = LinearAnimationDuration
-                0f at SecondLineHeadDelay with SecondLineHeadEasing
-                1f at SecondLineHeadDuration + SecondLineHeadDelay
-            }
-        )
-        SecondLineTailProp using repeatable(
-            iterations = Infinite,
-            animation = keyframes {
-                durationMillis = LinearAnimationDuration
-                0f at SecondLineTailDelay with SecondLineTailEasing
-                1f at SecondLineTailDuration + SecondLineTailDelay
-            }
-        )
-    }
-}
-
 // Indeterminate circular indicator transition specs
 
 // The animation comprises of 5 rotations around the circle forming a 5 pointed star.
 // After the 5th rotation, we are back at the beginning of the circle.
 private const val RotationsPerCycle = 5
+
 // Each rotation is 1 and 1/3 seconds, but 1332ms divides more evenly
 private const val RotationDuration = 1332
 
@@ -435,62 +475,5 @@ private const val RotationAngleOffset = (BaseRotationAngle + JumpRotationAngle) 
 private const val HeadAndTailAnimationDuration = (RotationDuration * 0.5).toInt()
 private const val HeadAndTailDelayDuration = HeadAndTailAnimationDuration
 
-// The current rotation around the circle, so we know where to start the rotation from
-private val IterationProp = IntPropKey()
-// How far forward (degrees) the base point should be from the start point
-private val BaseRotationProp = FloatPropKey()
-// How far forward (degrees) both the head and tail should be from the base point
-private val HeadRotationProp = FloatPropKey()
-private val TailRotationProp = FloatPropKey()
-
 // The easing for the head and tail jump
 private val CircularEasing = CubicBezierEasing(0.4f, 0f, 0.2f, 1f)
-
-private val CircularIndeterminateTransition = transitionDefinition<Int> {
-    state(0) {
-        this[IterationProp] = 0
-        this[BaseRotationProp] = 0f
-        this[HeadRotationProp] = 0f
-        this[TailRotationProp] = 0f
-    }
-
-    state(1) {
-        this[IterationProp] = RotationsPerCycle
-        this[BaseRotationProp] = BaseRotationAngle
-        this[HeadRotationProp] = JumpRotationAngle
-        this[TailRotationProp] = JumpRotationAngle
-    }
-
-    transition(fromState = 0, toState = 1) {
-        IterationProp using repeatable(
-            iterations = Infinite,
-            animation = tween(
-                durationMillis = RotationDuration * RotationsPerCycle,
-                easing = LinearEasing
-            )
-        )
-        BaseRotationProp using repeatable(
-            iterations = Infinite,
-            animation = tween(
-                durationMillis = RotationDuration,
-                easing = LinearEasing
-            )
-        )
-        HeadRotationProp using repeatable(
-            iterations = Infinite,
-            animation = keyframes {
-                durationMillis = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
-                0f at 0 with CircularEasing
-                JumpRotationAngle at HeadAndTailAnimationDuration
-            }
-        )
-        TailRotationProp using repeatable(
-            iterations = Infinite,
-            animation = keyframes {
-                durationMillis = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
-                0f at HeadAndTailDelayDuration with CircularEasing
-                JumpRotationAngle at durationMillis
-            }
-        )
-    }
-}

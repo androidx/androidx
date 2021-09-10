@@ -20,13 +20,11 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.paging.LoadState
 import androidx.paging.LoadState.Error
-import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType
-import androidx.paging.PagedList
 import androidx.paging.integration.testapp.R
 import androidx.paging.integration.testapp.v3.StateItemAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -48,10 +46,9 @@ class PagedListSampleActivity : AppCompatActivity() {
         )
 
         @Suppress("DEPRECATION")
-        viewModel.livePagedList.observe(
-            this,
-            Observer<PagedList<Item>> { pagingAdapter.submitList(it) }
-        )
+        viewModel.livePagedList.observe(this) { pagedList ->
+            pagingAdapter.submitList(pagedList)
+        }
 
         setupLoadStateButtons(viewModel, pagingAdapter)
 
@@ -79,7 +76,7 @@ class PagedListSampleActivity : AppCompatActivity() {
                     button.text = if (state.endOfPaginationReached) "Refresh" else "Done"
                     button.isEnabled = state.endOfPaginationReached
                 }
-                is Loading -> {
+                Loading -> {
                     button.text = "Loading"
                     button.isEnabled = false
                 }

@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import kotlin.math.max
 
 /**
@@ -215,9 +216,9 @@ class MultiParagraph(
         this.didExceedMaxLines = didExceedMaxLines
         this.paragraphInfoList = paragraphInfoList
         this.width = width
-        this.placeholderRects = paragraphInfoList.flatMap { paragraphInfo ->
+        this.placeholderRects = paragraphInfoList.fastFlatMap { paragraphInfo ->
             with(paragraphInfo) {
-                paragraph.placeholderRects.map { it?.toGlobal() }
+                paragraph.placeholderRects.fastMap { it?.toGlobal() }
             }
         }.let {
             // When paragraphs get ellipsized, the size of this list will be smaller than
@@ -258,9 +259,9 @@ class MultiParagraph(
         val paragraphIndex = findParagraphByIndex(paragraphInfoList, start)
         val path = Path()
 
-        paragraphInfoList.drop(paragraphIndex)
-            .takeWhile { it.startIndex < end }
-            .filterNot { it.startIndex == it.endIndex }
+        paragraphInfoList.fastDrop(paragraphIndex)
+            .fastTakeWhile { it.startIndex < end }
+            .fastFilterNot { it.startIndex == it.endIndex }
             .fastForEach {
                 with(it) {
                     path.addPath(
@@ -423,9 +424,13 @@ class MultiParagraph(
      * http://www.unicode.org/reports/tr29/#Word_Boundaries
      */
     fun getWordBoundary(offset: Int): TextRange {
-        requireIndexInRange(offset)
+        requireIndexInRangeInclusiveEnd(offset)
 
-        val paragraphIndex = findParagraphByIndex(paragraphInfoList, offset)
+        val paragraphIndex = if (offset == annotatedString.length) {
+            paragraphInfoList.lastIndex
+        } else {
+            findParagraphByIndex(paragraphInfoList, offset)
+        }
 
         return with(paragraphInfoList[paragraphIndex]) {
             paragraph.getWordBoundary(offset.toLocalIndex()).toGlobal()
@@ -561,29 +566,6 @@ class MultiParagraph(
 
         return with(paragraphInfoList[paragraphIndex]) {
             paragraph.getLineEnd(lineIndex.toLocalLineIndex(), visibleEnd).toGlobalIndex()
-        }
-    }
-
-    /**
-     * Returns the end of visible offset of the given line.
-     *
-     * If no ellipsis happens on the given line, this returns the line end offset with excluding
-     * trailing whitespaces.
-     * If ellipsis happens on the given line, this returns the offset that ellipsis started, i.e.
-     * the exclusive not ellipsized last character.
-     * @param lineIndex a 0 based line index
-     * @return an exclusive line end offset that is visible on the display
-     * @see getLineEnd
-     */
-    @Deprecated(
-        "This function will be removed.",
-        replaceWith = ReplaceWith("getLineEnd(lineIndex, true)", "androidx.compose.ui.text")
-    )
-    fun getLineVisibleEnd(lineIndex: Int): Int {
-        requireLineIndexInRange(lineIndex)
-        val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
-        return with(paragraphInfoList[paragraphIndex]) {
-            paragraph.getLineEnd(lineIndex.toLocalLineIndex(), true).toGlobalIndex()
         }
     }
 

@@ -23,20 +23,20 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.samples.NavigateButton
 
 @Composable
 fun NavSingleTopDemo() {
     val navController = rememberNavController()
-    val query = savedInstanceState { "" }
+    val query = rememberSaveable { mutableStateOf("") }
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
         TextField(
             value = query.value,

@@ -15,23 +15,18 @@
  */
 package androidx.datastore.core
 
+import androidx.annotation.GuardedBy
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.completeWith
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
@@ -44,9 +39,20 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
 import java.lang.IllegalStateException
-import java.util.concurrent.atomic.AtomicReference
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 
-private class DataAndHash<T>(val value: T, val hashCode: Int) {
+/**
+ * Represents the current state of the DataStore.
+ */
+private sealed class State<T>
+
+private object UnInitialized : State<Any>()
+
+/**
+ * A read from disk has succeeded, value represents the current on disk state.
+ */
+private class Data<T>(val value: T, val hashCode: Int) : State<T>() {
     fun checkHashCode() {
         check(value.hashCode() == hashCode) {
             "Data in DataStore was mutated but DataStore is only compatible with Immutable types."
@@ -55,9 +61,18 @@ private class DataAndHash<T>(val value: T, val hashCode: Int) {
 }
 
 /**
+ * A read from disk has failed. ReadException is the exception that was thrown.
+ */
+private class ReadException<T>(val readException: Throwable) : State<T>()
+
+/**
+ * The scope has been cancelled. This DataStore cannot process any new reads or writes.
+ */
+private class Final<T>(val finalException: Throwable) : State<T>()
+
+/**
  * Single process implementation of DataStore. This is NOT multi-process safe.
  */
-@OptIn(ExperimentalCoroutinesApi::class, ObsoleteCoroutinesApi::class, FlowPreview::class)
 internal class SingleProcessDataStore<T>(
     private val produceFile: () -> File,
     private val serializer: Serializer<T>,
@@ -74,55 +89,111 @@ internal class SingleProcessDataStore<T>(
 ) : DataStore<T> {
 
     override val data: Flow<T> = flow {
-        val curChannel = downstreamChannel()
-        actor.offer(Message.Read(curChannel))
-        emitAll(curChannel.asFlow().map { it.value })
+        /**
+         * If downstream flow is UnInitialized, no data has been read yet, we need to trigger a new
+         * read then start emitting values once we have seen a new value (or exception).
+         *
+         * If downstream flow has a ReadException, there was an exception last time we tried to read
+         * data. We need to trigger a new read then start emitting values once we have seen a new
+         * value (or exception).
+         *
+         * If downstream flow has Data, we should just start emitting from downstream flow.
+         *
+         * If Downstream flow is Final, the scope has been cancelled so the data store is no
+         * longer usable. We should just propagate this exception.
+         *
+         * State always starts at null. null can transition to ReadException, Data or
+         * Final. ReadException can transition to another ReadException, Data or Final.
+         * Data can transition to another Data or Final. Final will not change.
+         */
+
+        val currentDownStreamFlowState = downstreamFlow.value
+
+        if (currentDownStreamFlowState !is Data) {
+            // We need to send a read request because we don't have data yet.
+            actor.offer(Message.Read(currentDownStreamFlowState))
+        }
+
+        emitAll(
+            downstreamFlow.dropWhile {
+                if (currentDownStreamFlowState is Data<T> ||
+                    currentDownStreamFlowState is Final<T>
+                ) {
+                    // We don't need to drop any Data or Final values.
+                    false
+                } else {
+                    // we need to drop the last seen state since it was either an exception or
+                    // wasn't yet initialized. Since we sent a message to actor, we *will* see a
+                    // new value.
+                    it === currentDownStreamFlowState
+                }
+            }.map {
+                when (it) {
+                    is ReadException<T> -> throw it.readException
+                    is Final<T> -> throw it.finalException
+                    is Data<T> -> it.value
+                    is UnInitialized -> error(
+                        "This is a bug in DataStore. Please file a bug at: " +
+                            "https://issuetracker.google.com/issues/new?" +
+                            "component=907884&template=1466542"
+                    )
+                }
+            }
+        )
     }
 
     override suspend fun updateData(transform: suspend (t: T) -> T): T {
+        /**
+         * The states here are the same as the states for reads. Additionally we send an ack that
+         * the actor *must* respond to (even if it is cancelled).
+         */
         val ack = CompletableDeferred<T>()
-        val dataChannel = downstreamChannel()
-        val updateMsg = Message.Update<T>(transform, ack, dataChannel)
+        val currentDownStreamFlowState = downstreamFlow.value
 
-        actor.send(updateMsg)
+        val updateMsg =
+            Message.Update(transform, ack, currentDownStreamFlowState, coroutineContext)
 
-        // If no read has succeeded yet, we need to wait on the result of the next read so we can
-        // bubble exceptions up to the caller. Read exceptions are not bubbled up through ack.
-        if (dataChannel.valueOrNull == null) {
-            dataChannel.asFlow().first()
-        }
+        actor.offer(updateMsg)
 
-        // Wait with same scope as the actor, so we're not waiting on a cancelled actor.
-        return withContext(scope.coroutineContext) { ack.await() }
+        return ack.await()
     }
 
     private val SCRATCH_SUFFIX = ".tmp"
 
-    private val file: File by lazy { produceFile() }
+    private val file: File by lazy {
+        val file = produceFile()
 
-    /**
-     * The external facing channel. The data flow emits the values from this channel.
-     *
-     * Once the read has completed successfully, downStreamChannel.get().value is the same as the
-     * current on disk data. If the read fails, downStreamChannel will be closed with that cause,
-     * and a new instance will be set in its place.
-     */
-    private val downstreamChannel: AtomicReference<ConflatedBroadcastChannel<DataAndHash<T>>> =
-        AtomicReference(ConflatedBroadcastChannel())
+        file.absolutePath.let {
+            synchronized(activeFilesLock) {
+                check(!activeFiles.contains(it)) {
+                    "There are multiple DataStores active for the same file: $file. You should " +
+                        "either maintain your DataStore as a singleton or confirm that there is " +
+                        "no two DataStore's active on the same file (by confirming that the scope" +
+                        " is cancelled)."
+                }
+                activeFiles.add(it)
+            }
+        }
+
+        file
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private val downstreamFlow = MutableStateFlow(UnInitialized as State<T>)
 
     private var initTasks: List<suspend (api: InitializerApi<T>) -> Unit>? =
         initTasksList.toList()
 
     /** The actions for the actor. */
     private sealed class Message<T> {
-        abstract val dataChannel: ConflatedBroadcastChannel<DataAndHash<T>>
+        abstract val lastState: State<T>?
 
         /**
          * Represents a read operation. If the data is already cached, this is a no-op. If data
          * has not been cached, it triggers a new read to the specified dataChannel.
          */
         class Read<T>(
-            override val dataChannel: ConflatedBroadcastChannel<DataAndHash<T>>
+            override val lastState: State<T>?
         ) : Message<T>()
 
         /** Represents an update operation. */
@@ -132,59 +203,120 @@ internal class SingleProcessDataStore<T>(
              * Used to signal (un)successful completion of the update to the caller.
              */
             val ack: CompletableDeferred<T>,
-            override val dataChannel: ConflatedBroadcastChannel<DataAndHash<T>>
+            override val lastState: State<T>?,
+            val callerContext: CoroutineContext
         ) : Message<T>()
     }
 
-    /**
-     * Consumes messages. All state changes should happen within actor.
-     */
-    private val actor: SendChannel<Message<T>> = scope.actor(
-        capacity = UNLIMITED
-    ) {
-        try {
-            messageConsumer@ for (msg in channel) {
-                if (msg.dataChannel.isClosedForSend) {
-                    // The message was sent with an old, now closed, dataChannel. This means that
-                    // our read failed.
-                    continue@messageConsumer
-                }
+    private val actor = SimpleActor<Message<T>>(
+        scope = scope,
+        onComplete = {
+            it?.let {
+                downstreamFlow.value = Final(it)
+            }
+            // We expect it to always be non-null but we will leave the alternative as a no-op
+            // just in case.
 
-                try {
-                    readAndInitOnce(msg.dataChannel)
-                } catch (ex: Throwable) {
-                    resetDataChannel(ex)
-                    continue@messageConsumer
-                }
-
-                // We have successfully read data and sent it to downstreamChannel.
-
-                if (msg is Message.Update) {
-                    msg.ack.completeWith(
-                        runCatching {
-                            transformAndWrite(msg.transform, downstreamChannel())
-                        }
+            synchronized(activeFilesLock) {
+                activeFiles.remove(file.absolutePath)
+            }
+        },
+        onUndeliveredElement = { msg, ex ->
+            if (msg is Message.Update) {
+                // TODO(rohitsat): should we instead use scope.ensureActive() to get the original
+                //  cancellation cause? Should we instead have something like
+                //  UndeliveredElementException?
+                msg.ack.completeExceptionally(
+                    ex ?: CancellationException(
+                        "DataStore scope was cancelled before updateData could complete"
                     )
+                )
+            }
+        }
+    ) { msg ->
+        when (msg) {
+            is Message.Read -> {
+                handleRead(msg)
+            }
+            is Message.Update -> {
+                handleUpdate(msg)
+            }
+        }
+    }
+
+    private suspend fun handleRead(read: Message.Read<T>) {
+        when (val currentState = downstreamFlow.value) {
+            is Data -> {
+                // We already have data so just return...
+            }
+            is ReadException -> {
+                if (currentState === read.lastState) {
+                    readAndInitOrPropagateFailure()
+                }
+
+                // Someone else beat us but also failed. The collector has already
+                // been signalled so we don't need to do anything.
+            }
+            UnInitialized -> {
+                readAndInitOrPropagateFailure()
+            }
+            is Final -> error("Can't read in final state.") // won't happen
+        }
+    }
+
+    private suspend fun handleUpdate(update: Message.Update<T>) {
+        // All branches of this *must* complete ack either successfully or exceptionally.
+        // We must *not* throw an exception, just propagate it to the ack.
+        update.ack.completeWith(
+            runCatching {
+
+                when (val currentState = downstreamFlow.value) {
+                    is Data -> {
+                        // We are already initialized, we just need to perform the update
+                        transformAndWrite(update.transform, update.callerContext)
+                    }
+                    is ReadException, is UnInitialized -> {
+                        if (currentState === update.lastState) {
+                            // we need to try to read again
+                            readAndInitOrPropagateAndThrowFailure()
+
+                            // We've successfully read, now we need to perform the update
+                            transformAndWrite(update.transform, update.callerContext)
+                        } else {
+                            // Someone else beat us to read but also failed. We just need to
+                            // signal the writer that is waiting on ack.
+                            // This cast is safe because we can't be in the UnInitialized
+                            // state if the state has changed.
+                            throw (currentState as ReadException).readException
+                        }
+                    }
+
+                    is Final -> throw currentState.finalException // won't happen
                 }
             }
-        } finally {
-            // The scope has been cancelled. Cancel downstream in case there are any collectors
-            // still active.
-            downstreamChannel().cancel()
+        )
+    }
+
+    private suspend fun readAndInitOrPropagateAndThrowFailure() {
+        try {
+            readAndInit()
+        } catch (throwable: Throwable) {
+            downstreamFlow.value = ReadException(throwable)
+            throw throwable
         }
     }
 
-    private fun resetDataChannel(ex: Throwable) {
-        val failedDataChannel = downstreamChannel.getAndSet(ConflatedBroadcastChannel())
-
-        failedDataChannel.close(ex)
+    private suspend fun readAndInitOrPropagateFailure() {
+        try {
+            readAndInit()
+        } catch (throwable: Throwable) {
+            downstreamFlow.value = ReadException(throwable)
+        }
     }
 
-    private suspend fun readAndInitOnce(dataChannel: ConflatedBroadcastChannel<DataAndHash<T>>) {
-        if (dataChannel.valueOrNull != null) {
-            // If we already have cached data, we don't try to read it again.
-            return
-        }
+    private suspend fun readAndInit() {
+        // This should only be called if we don't already have cached data.
+        check(downstreamFlow.value == UnInitialized || downstreamFlow.value is ReadException)
 
         val updateLock = Mutex()
         var initData = readDataOrHandleCorruption()
@@ -219,7 +351,7 @@ internal class SingleProcessDataStore<T>(
             initializationComplete = true
         }
 
-        dataChannel.offer(DataAndHash(initData, initData.hashCode()))
+        downstreamFlow.value = Data(initData, initData.hashCode())
     }
 
     private suspend fun readDataOrHandleCorruption(): T {
@@ -256,20 +388,18 @@ internal class SingleProcessDataStore<T>(
         }
     }
 
+    // downstreamFlow.value must be successfully set to data before calling this
     private suspend fun transformAndWrite(
         transform: suspend (t: T) -> T,
-        /**
-         * This is the channel that contains the data that will be used for the transformation.
-         * It *must* already have a value -- otherwise this will throw IllegalStateException.
-         * Once the transformation is completed and data is durably persisted to disk, and the new
-         * value will be offered to this channel.
-         */
-        updateDataChannel: ConflatedBroadcastChannel<DataAndHash<T>>
+        callerContext: CoroutineContext
     ): T {
-        val curDataAndHash = updateDataChannel.value
+        // value is not null or an exception because we must have the value set by now so this cast
+        // is safe.
+        val curDataAndHash = downstreamFlow.value as Data<T>
         curDataAndHash.checkHashCode()
+
         val curData = curDataAndHash.value
-        val newData = transform(curData)
+        val newData = withContext(callerContext) { transform(curData) }
 
         // Check that curData has not changed...
         curDataAndHash.checkHashCode()
@@ -278,7 +408,7 @@ internal class SingleProcessDataStore<T>(
             curData
         } else {
             writeData(newData)
-            updateDataChannel.offer(DataAndHash(newData, newData.hashCode()))
+            downstreamFlow.value = Data(newData, newData.hashCode())
             newData
         }
     }
@@ -287,7 +417,7 @@ internal class SingleProcessDataStore<T>(
      * Internal only to prevent creation of synthetic accessor function. Do not call this from
      * outside this class.
      */
-    internal fun writeData(newData: T) {
+    internal suspend fun writeData(newData: T) {
         file.createParentDirectories()
 
         val scratchFile = File(file.absolutePath + SCRATCH_SUFFIX)
@@ -351,9 +481,16 @@ internal class SingleProcessDataStore<T>(
         }
     }
 
-    // Convenience function:
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun downstreamChannel(): ConflatedBroadcastChannel<DataAndHash<T>> {
-        return downstreamChannel.get()
+    internal companion object {
+        /**
+         * Active files should contain the absolute path for which there are currently active
+         * DataStores. A DataStore is active until the scope it was created with has been
+         * cancelled. Files aren't added to this list until the first read/write because the file
+         * path is computed asynchronously.
+         */
+        @GuardedBy("activeFilesLock")
+        internal val activeFiles = mutableSetOf<String>()
+
+        internal val activeFilesLock = Any()
     }
 }

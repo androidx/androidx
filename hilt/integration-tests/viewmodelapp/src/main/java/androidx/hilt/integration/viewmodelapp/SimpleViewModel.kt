@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.hilt.integration.viewmodelapp
 
-import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @Suppress("UNUSED_PARAMETER")
-class SimpleViewModel @ViewModelInject constructor(
+@HiltViewModel
+class SimpleViewModel @Inject constructor(
     mngr: MyManager,
     savedState: SavedStateHandle
 ) : ViewModel() {

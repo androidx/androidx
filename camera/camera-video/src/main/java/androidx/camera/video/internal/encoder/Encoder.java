@@ -19,8 +19,8 @@ package androidx.camera.video.internal.encoder;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.camera.video.internal.BufferProvider;
 
-import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
 
 /**
@@ -68,6 +68,11 @@ public interface Encoder {
      *
      * <p>Once the encoder is released, it cannot be used anymore. Any other method call after
      * the encoder is released will get {@link IllegalStateException}.
+     *
+     * <p>If this encoder takes {@link SurfaceInput}, this method will release all the
+     * {@link Surface}s updated via {@link SurfaceInput#setOnSurfaceUpdateListener}. So this
+     * method should only be called when the frame producer is finished with the surface which
+     * may be the current surface or one of the obsolete surfaces.
      */
     void release();
 
@@ -79,6 +84,13 @@ public interface Encoder {
      */
     void setEncoderCallback(@NonNull EncoderCallback encoderCallback, @NonNull Executor executor);
 
+    /**
+     * Request a key frame.
+     *
+     * <p>Only take effect when the encoder is a video encoder and encoder is started.
+     */
+    void requestKeyFrame();
+
     /** The encoder's input. */
     interface EncoderInput {
     }
@@ -87,8 +99,12 @@ public interface Encoder {
      * A SurfaceInput provides a {@link Surface} as the interface to receive video raw data.
      *
      * <p>SurfaceInput is only available for video encoder. It has to set
-     * {@link #setOnSurfaceUpdateListener} to obtain the {@link Surface} update. It is the caller's
-     * responsibility to release the updated {@link Surface}.
+     * {@link #setOnSurfaceUpdateListener} to obtain the {@link Surface} update. A new surface
+     * instance may be updated after there is already an updated surface. For Encoder, it is safe
+     * and recommended to release the old surface by the surface receiver via
+     * {@link Surface#release()} since the old surface is no longer used by Encoder. For the
+     * latest surface, the receiver should rely on {@link Encoder#release()} to release it. After
+     * {@link Encoder#release()} is called, all updated surfaces will be released.
      */
     interface SurfaceInput extends EncoderInput {
 
@@ -108,18 +124,13 @@ public interface Encoder {
         }
     }
 
-    /** A ByteBufferInput provides {@link #putByteBuffer} method to send raw data. */
-    interface ByteBufferInput extends EncoderInput {
-
-        /**
-         * Puts an input raw {@link ByteBuffer} to the encoder.
-         *
-         * <p>The input {@code ByteBuffer} must be put when encoder is in started and not paused
-         * state, otherwise the {@code ByteBuffer} will be dropped directly. Then the encoded data
-         * will be sent via {@link EncoderCallback#onEncodedData} callback.
-         *
-         * @param byteBuffer the input byte buffer
-         */
-        void putByteBuffer(@NonNull ByteBuffer byteBuffer);
+    /**
+     * A ByteBufferInput is a {@link BufferProvider} implementation and provides
+     * {@link InputBuffer} to write input data to the encoder.
+     *
+     * @see BufferProvider
+     * @see InputBuffer
+     */
+    interface ByteBufferInput extends EncoderInput, BufferProvider<InputBuffer> {
     }
 }

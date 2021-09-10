@@ -19,20 +19,18 @@ package androidx.compose.ui.window
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
-import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.node.Owner
+import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.enforce
-import androidx.compose.ui.unit.hasFixedHeight
-import androidx.compose.ui.unit.hasFixedWidth
+import androidx.compose.ui.unit.constrain
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Root
 import androidx.test.espresso.assertion.ViewAssertions
@@ -69,7 +67,7 @@ internal class PopupLayoutMatcher(val testTag: String) : TypeSafeMatcher<Root>()
     }
 }
 
-internal class ActivityWithFlagSecure : ComponentActivity() {
+internal class ActivityWithFlagSecure : TestActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -91,14 +89,15 @@ internal fun SimpleContainer(
     content: @Composable () -> Unit
 ) {
     Layout(content, modifier) { measurables, incomingConstraints ->
-        val containerConstraints = Constraints()
-            .copy(
-                width?.toIntPx() ?: 0,
-                width?.toIntPx() ?: Constraints.Infinity,
-                height?.toIntPx() ?: 0,
-                height?.toIntPx() ?: Constraints.Infinity
+        val containerConstraints = incomingConstraints
+            .constrain(
+                Constraints().copy(
+                    width?.roundToPx() ?: 0,
+                    width?.roundToPx() ?: Constraints.Infinity,
+                    height?.roundToPx() ?: 0,
+                    height?.roundToPx() ?: Constraints.Infinity
+                )
             )
-            .enforce(incomingConstraints)
         val childConstraints = containerConstraints.copy(minWidth = 0, minHeight = 0)
         var placeable: Placeable? = null
         val containerWidth = if (

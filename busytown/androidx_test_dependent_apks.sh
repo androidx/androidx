@@ -5,10 +5,8 @@ echo "Starting $0 at $(date)"
 
 cd "$(dirname $0)"
 
-impl/build.sh --no-daemon buildTestApks \
-    -Pandroidx.enableAffectedModuleDetection \
+impl/build.sh buildTestApks \
     -Pandroidx.dependentProjects \
-    -Pandroidx.coverageEnabled=true \
-    -Pandroidx.allWarningsAsErrors --offline "$@"
+    "$@"
 
 echo "Completing $0 at $(date)"

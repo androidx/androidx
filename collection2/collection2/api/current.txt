@@ -1,0 +1,22 @@
+// Signature format: 4.0
+package androidx.collection {
+
+  public class ArrayMap<K, V> implements java.util.Map<K,V> {
+    ctor public ArrayMap();
+    ctor public ArrayMap(int);
+    ctor public ArrayMap(SimpleArrayMap<K,V>);
+    method public boolean containsAll(java.util.Collection<?>);
+    method public boolean containsKey(Object?);
+    method public boolean containsValue(Object);
+    method public java.util.Set<java.util.Map.Entry<K!,V!>!> entrySet();
+    method public V? get(Object);
+    method public java.util.Set<K!> keySet();
+    method public void putAll(java.util.Map<? extends K,? extends V>);
+    method public V? remove(Object);
+    method public boolean removeAll(java.util.Collection<?>);
+    method public boolean retainAll(java.util.Collection<?>);
+    method public java.util.Collection<V!> values();
+  }
+
+}
+

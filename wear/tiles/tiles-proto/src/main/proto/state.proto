@@ -1,0 +1,13 @@
+// State of a tile.
+syntax = "proto3";
+
+package androidx.wear.tiles.proto;
+
+option java_package = "androidx.wear.tiles.proto";
+option java_outer_classname = "StateProto";
+
+// State information.
+message State {
+  // The ID of the clickable that was last clicked.
+  string last_clickable_id = 1;
+}

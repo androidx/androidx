@@ -15,13 +15,16 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
+    id("AndroidXComposePlugin")
 }
+
+apply(from: "../../camera-view/dependencies.gradle")
 
 android {
     defaultConfig {
@@ -32,11 +35,11 @@ android {
     }
 
     sourceSets {
-        main.manifest.srcFile 'src/main/AndroidManifest.xml'
-        main.java.srcDirs = ['src/main/java']
-        main.java.excludes = ['**/build/**']
-        main.java.includes = ['**/*.java']
-        main.res.srcDirs = ['src/main/res']
+        main.manifest.srcFile "src/main/AndroidManifest.xml"
+        main.java.srcDirs = ["src/main/java"]
+        main.java.excludes = ["**/build/**"]
+        main.java.includes = ["**/*.java"]
+        main.res.srcDirs = ["src/main/res"]
     }
 
     buildTypes {
@@ -44,40 +47,61 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"),
-                    'proguard-rules.pro')
+                    "proguard-rules.pro")
         }
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 }
 
 dependencies {
     // Internal library
-    implementation(project(":camera:camera-camera2"))
-    implementation(project(":camera:camera-lifecycle"))
-    implementation(project(":lifecycle:lifecycle-runtime"))
+    implementation("androidx.camera:camera-camera2:${VIEW_ATOMIC_GROUP_PINNED_VER}")
+    implementation("androidx.camera:camera-lifecycle:${VIEW_ATOMIC_GROUP_PINNED_VER}")
+    implementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
     implementation(project(":camera:camera-view"))
-    implementation(GUAVA_ANDROID)
+    implementation(libs.guavaAndroid)
+    implementation("androidx.exifinterface:exifinterface:1.3.2")
+    // old version of common-java8 conflicts with newer version, because both have
+    // DefaultLifecycleEventObserver.
+    // Outside of androidx this is resolved via constraint added to lifecycle-common,
+    // but it doesn't work in androidx.
+    implementation(project(":lifecycle:lifecycle-common-java8"))
+    compileOnly(libs.kotlinCompiler)
 
     // Lifecycle and LiveData
     implementation("androidx.lifecycle:lifecycle-livedata:2.2.0")
 
     // Android Support Library
-    implementation("androidx.appcompat:appcompat:1.1.0")
+    implementation("androidx.appcompat:appcompat:1.3.0")
+
+    // Compose UI
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
+    implementation(project(":compose:runtime:runtime"))
+    implementation("androidx.compose.ui:ui:1.0.0-rc02")
+    implementation("androidx.compose.material:material:1.0.0-rc02")
+    implementation("androidx.compose.ui:ui-tooling:1.0.0-rc02")
+    implementation("androidx.activity:activity-compose:1.3.0-beta02")
 
     // Testing framework
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(project(":camera:camera-testing"))
-    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
-    androidTestImplementation(project(":lifecycle:lifecycle-runtime"))
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
     androidTestImplementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
-    androidTestImplementation(TRUTH)
-    debugImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(libs.truth)
+    debugImplementation(libs.testCore)
     debugImplementation("androidx.fragment:fragment-testing:1.2.3")
-    // Testing resource dependency for manifest
-    debugImplementation(project(":camera:camera-testing"))
+    // camera-testing added as 'implementation' dependency to include camera-testing activity in APK
+    debugImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in camera-core project dependency which will
+        // override pinned dependency.
+        exclude(group:"androidx.camera", module:"camera-core")
+    }
 }
-

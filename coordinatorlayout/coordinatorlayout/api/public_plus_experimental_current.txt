@@ -21,7 +21,7 @@ package androidx.coordinatorlayout.widget {
     method public void onMeasureChild(android.view.View!, int, int, int, int);
     method public void onNestedPreScroll(android.view.View!, int, int, int[]!, int);
     method public void onNestedScroll(android.view.View!, int, int, int, int, int);
-    method public void onNestedScroll(android.view.View, int, int, int, int, @androidx.core.view.ViewCompat.NestedScrollType int, int[]);
+    method public void onNestedScroll(android.view.View, int, int, int, int, int, int[]);
     method public void onNestedScrollAccepted(android.view.View!, android.view.View!, int, int);
     method public boolean onStartNestedScroll(android.view.View!, android.view.View!, int, int);
     method public void onStopNestedScroll(android.view.View!, int);
@@ -54,19 +54,19 @@ package androidx.coordinatorlayout.widget {
     method public boolean onNestedFling(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, float, float, boolean);
     method public boolean onNestedPreFling(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, float, float);
     method @Deprecated public void onNestedPreScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, int, int, int[]);
-    method public void onNestedPreScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, int, int, int[], @androidx.core.view.ViewCompat.NestedScrollType int);
+    method public void onNestedPreScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, int, int, int[], int);
     method @Deprecated public void onNestedScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, int, int, int, int);
-    method @Deprecated public void onNestedScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, int, int, int, int, @androidx.core.view.ViewCompat.NestedScrollType int);
-    method public void onNestedScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, int, int, int, int, @androidx.core.view.ViewCompat.NestedScrollType int, int[]);
-    method @Deprecated public void onNestedScrollAccepted(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, android.view.View, @androidx.core.view.ViewCompat.ScrollAxis int);
-    method public void onNestedScrollAccepted(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, android.view.View, @androidx.core.view.ViewCompat.ScrollAxis int, @androidx.core.view.ViewCompat.NestedScrollType int);
+    method @Deprecated public void onNestedScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, int, int, int, int, int);
+    method public void onNestedScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, int, int, int, int, int, int[]);
+    method @Deprecated public void onNestedScrollAccepted(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, android.view.View, int);
+    method public void onNestedScrollAccepted(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, android.view.View, int, int);
     method public boolean onRequestChildRectangleOnScreen(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.graphics.Rect, boolean);
     method public void onRestoreInstanceState(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.os.Parcelable);
     method public android.os.Parcelable? onSaveInstanceState(androidx.coordinatorlayout.widget.CoordinatorLayout, V);
-    method @Deprecated public boolean onStartNestedScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, android.view.View, @androidx.core.view.ViewCompat.ScrollAxis int);
-    method public boolean onStartNestedScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, android.view.View, @androidx.core.view.ViewCompat.ScrollAxis int, @androidx.core.view.ViewCompat.NestedScrollType int);
+    method @Deprecated public boolean onStartNestedScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, android.view.View, int);
+    method public boolean onStartNestedScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, android.view.View, int, int);
     method @Deprecated public void onStopNestedScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View);
-    method public void onStopNestedScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, @androidx.core.view.ViewCompat.NestedScrollType int);
+    method public void onStopNestedScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, int);
     method public boolean onTouchEvent(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.MotionEvent);
     method public static void setTag(android.view.View, Object?);
   }

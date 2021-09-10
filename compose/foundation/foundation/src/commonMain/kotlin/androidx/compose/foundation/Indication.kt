@@ -16,11 +16,13 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLifecycleObserver
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.staticAmbientOf
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.Modifier
@@ -29,133 +31,148 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.debugInspectorInfo
 
 /**
- * Generic interface to define visual effects when certain interaction happens. Examples might
- * be showing some press indication, such as material ripples or define custom decoration when
- * item is dragged.
+ * Indication represents visual effects that occur when certain interactions happens. For
+ * example: showing a ripple effect when a component is pressed, or a highlight when a component
+ * is focused.
  *
- * This interface is factory-like and required to produce [IndicationInstance] on demand for
- * [indication] modifier.
+ * An instance of Indication is a factory that is required to produce [IndicationInstance]s on
+ * demand for each component that uses an [indication] modifier using [rememberUpdatedInstance].
  *
- * If you want to override default behaviour for [indication] for the whole subtree, consider
- * creating object of this factory and providing it in [AmbientIndication].
+ * Indication is typically provided throughout the hierarchy through [LocalIndication] - you can
+ * provide a custom Indication to [LocalIndication] to change the default [Indication] used for
+ * components such as [clickable].
  */
 @Stable
 interface Indication {
 
     /**
-     * Function to create new [IndicationInstance] on demand. Typically this will be called by
-     * [indication] modified to spawn new instances when added to modified element.
+     * [remember]s a new [IndicationInstance], and updates its state based on [Interaction]s
+     * emitted via [interactionSource] . Typically this will be called by [indication],
+     * so one [IndicationInstance] will be used for one component that draws [Indication], such
+     * as a button.
+     *
+     * Implementations of this function should observe [Interaction]s using [interactionSource],
+     * using them to launch animations / state changes inside [IndicationInstance] that will
+     * then be reflected inside [IndicationInstance.drawIndication].
+     *
+     * @param interactionSource the [InteractionSource] representing the stream of
+     * [Interaction]s the returned [IndicationInstance] should represent
+     * @return an [IndicationInstance] that represents the stream of [Interaction]s emitted by
+     * [interactionSource]
      */
-    fun createInstance(): IndicationInstance
+    @Composable
+    fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance
 }
 
 /**
- * Generic interface to define the instance if the [Indication] to draw visual effects when certain
- * interaction happens.
+ * IndicationInstance is a specific instance of an [Indication] that draws visual effects on
+ * certain interactions, such as press or focus.
  *
- * Indication can be stateful or stateless, and they expected to be created  by [Indication] and
- * used in-place and not reused between different [indication] modifiers.
+ * IndicationInstances can be stateful or stateless, and are created by
+ * [Indication.rememberUpdatedInstance] - they should be used in-place and not re-used between
+ * different [indication] modifiers.
  */
 interface IndicationInstance {
 
     /**
-     * Method to draw visual effects based on [InteractionState].
+     * Draws visual effects for the current interactions present on this component.
      *
-     * Usually, in this method indication reads [InteractionState] to observe its value and draw
-     * any visuals to reflect this state. Refer to the [Interaction] to see what states are
-     * possible and draw visual effects when [InteractionState] contains them.
+     * Typically this function will read state within this instance that is mutated by
+     * [Indication.rememberUpdatedInstance]. This allows [IndicationInstance] to just read state
+     * and draw visual effects, and not actually change any state itself.
      *
      * This method MUST call [ContentDrawScope.drawContent] at some point in order to draw the
-     * rest of the UI tree below indication.
-     *
-     * @param interactionState state of the parent of this indication
+     * component itself underneath any indication. Typically this is called at the beginning, so
+     * that indication can be drawn as an overlay on top.
      */
-    fun ContentDrawScope.drawIndication(interactionState: InteractionState)
-
-    /**
-     * Callback which is called when this [IndicationInstance] disappears
-     * from composition and should free any allocated resources / stop on-going animations / etc
-     */
-    fun onDispose() {}
+    fun ContentDrawScope.drawIndication()
 }
 
 /**
- * Show visual indicator for an [InteractionState].
+ * Draws visual effects for this component when interactions occur.
  *
  * @sample androidx.compose.foundation.samples.IndicationSample
  *
- * @param interactionState state for indication to indicate against. This state is updates by
- * modifier such as [clickable].
- * @param indication indication to be drawn. If `null`, there will be no indication shown
+ * @param interactionSource [InteractionSource] that will be used by [indication] to draw
+ * visual effects - this [InteractionSource] represents the stream of [Interaction]s for this
+ * component.
+ * @param indication [Indication] used to draw visual effects. If `null`, no visual effects will
+ * be shown for this component.
  */
 fun Modifier.indication(
-    interactionState: InteractionState,
-    indication: Indication? = null
+    interactionSource: InteractionSource,
+    indication: Indication?
 ) = composed(
     factory = {
         val resolvedIndication = indication ?: NoIndication
-        remember(interactionState, resolvedIndication) {
-            IndicationModifier(interactionState, resolvedIndication.createInstance())
+        val instance = resolvedIndication.rememberUpdatedInstance(interactionSource)
+        remember(instance) {
+            IndicationModifier(instance)
         }
     },
     inspectorInfo = debugInspectorInfo {
         name = "indication"
         properties["indication"] = indication
-        properties["interactionState"] = interactionState
+        properties["interactionSource"] = interactionSource
     }
 )
 
 /**
- * Ambient to provide [IndicationInstance] to draw visual indication for press and other events.
+ * CompositionLocal that provides an [Indication] through the hierarchy. This [Indication] will
+ * be used by default to draw visual effects for interactions such as press and drag in components
+ * such as [clickable].
  *
- * By default there will be [DefaultDebugIndication] created.
+ * By default this will provide [DefaultDebugIndication].
  */
-// TODO : temporary made it to be lambda, fix when b/157150564 is fixed
-val AmbientIndication = staticAmbientOf<@Composable () -> Indication> { { DefaultDebugIndication } }
+val LocalIndication = staticCompositionLocalOf<Indication> {
+    DefaultDebugIndication
+}
 
 private object NoIndication : Indication {
     private object NoIndicationInstance : IndicationInstance {
-        override fun ContentDrawScope.drawIndication(interactionState: InteractionState) {
+        override fun ContentDrawScope.drawIndication() {
             drawContent()
         }
     }
 
-    override fun createInstance(): IndicationInstance = NoIndicationInstance
+    @Composable
+    override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
+        return NoIndicationInstance
+    }
 }
 
 /**
- * Simple default [Indication] that show visual effect when tap occurs.
+ * Simple default [Indication] that draws a rectangular overlay when pressed.
  */
 private object DefaultDebugIndication : Indication {
 
-    private object DefaultDebugIndicationInstance : IndicationInstance {
-        override fun ContentDrawScope.drawIndication(interactionState: InteractionState) {
+    private class DefaultDebugIndicationInstance(
+        private val isPressed: State<Boolean>
+    ) : IndicationInstance {
+        override fun ContentDrawScope.drawIndication() {
             drawContent()
-            if (interactionState.contains(Interaction.Pressed)) {
+            if (isPressed.value) {
                 drawRect(color = Color.Black.copy(alpha = 0.3f), size = size)
             }
         }
     }
 
-    override fun createInstance(): IndicationInstance {
-        return DefaultDebugIndicationInstance
+    @Composable
+    override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
+        val isPressed = interactionSource.collectIsPressedAsState()
+        return remember(interactionSource) {
+            DefaultDebugIndicationInstance(isPressed)
+        }
     }
 }
 
 private class IndicationModifier(
-    val interactionState: InteractionState,
     val indicationInstance: IndicationInstance
-) : CompositionLifecycleObserver, DrawModifier {
+) : DrawModifier {
 
     override fun ContentDrawScope.draw() {
         with(indicationInstance) {
-            drawIndication(interactionState)
+            drawIndication()
         }
-    }
-
-    override fun onEnter() {}
-
-    override fun onLeave() {
-        indicationInstance.onDispose()
     }
 }

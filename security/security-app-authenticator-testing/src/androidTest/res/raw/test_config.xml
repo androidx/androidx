@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2020 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<app-authenticator>
+    <expected-identity>
+        <package name="com.bank.app">
+            <cert-digest> fb5dbd3c669af9fc236c6991e6387b7f11ff0590997f22d0f5c74ff40e04fca8
+            </cert-digest>
+        </package>
+        <package name="com.social.app">
+            <cert-digest>6a8b96e278e58f62cfe3584022cec1d0527fcb85a9e5d2e1694eb0405be5b599
+            </cert-digest>
+            <cert-digest>d78405f761ff6236cc9b570347a570aba0c62a129a3ac30c831c64d09ad95469
+            </cert-digest>
+        </package>
+    </expected-identity>
+    <permission name="androidx.security.app.authenticator.TEST_PERMISSION">
+        <all-packages>
+            <cert-digest>fb5dbd3c669af9fc236c6991e6387b7f11ff0590997f22d0f5c74ff40e04fca8
+            </cert-digest>
+            <cert-digest>681b0e56a796350c08647352a4db800cc44b2adc8f4c72fa350bd05d4d50264d
+            </cert-digest>
+        </all-packages>
+        <package name="com.android.app1">
+            <cert-digest>Fb5dbd3c669af9fc236c6991e6387b7f11ff0590997f22d0f5c74ff40e04fca8
+            </cert-digest>
+        </package>
+        <package name="com.android.app2">
+            <cert-digest>6a8b96e278e58f62cfe3584022cec1d0527fcb85a9e5d2e1694eb0405be5b599
+            </cert-digest>
+            <cert-digest>d78405f761ff6236cc9b570347a570aba0c62a129a3ac30c831c64d09ad95469
+            </cert-digest>
+        </package>
+    </permission>
+</app-authenticator>

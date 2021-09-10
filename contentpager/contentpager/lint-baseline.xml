@@ -1,53 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
-        id="InlinedApi"
-        message="Field requires API level 26 (current min is 14): `android.content.ContentResolver#EXTRA_HONORED_ARGS`"
-        errorLine1="    public static final String EXTRA_HONORED_ARGS = ContentResolver.EXTRA_HONORED_ARGS;"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.database.AbstractCursor#setExtras`"
+        errorLine1="        c.setExtras(extras);"
+        errorLine2="          ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/contentpager/content/ContentPager.java"
-            line="180"
-            column="53"/>
+            file="src/androidTest/java/androidx/contentpager/content/TestContentProvider.java"
+            line="245"
+            column="11"/>
     </issue>
 
     <issue
-        id="InlinedApi"
-        message="Field requires API level 26 (current min is 14): `android.content.ContentResolver#EXTRA_TOTAL_COUNT`"
-        errorLine1="    public static final String EXTRA_TOTAL_COUNT = ContentResolver.EXTRA_TOTAL_COUNT;"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 15 (current min is 14): `new android.database.CursorWindow`"
+        errorLine1="            setWindow(new CursorWindow(&quot;stevie&quot;));"
+        errorLine2="                      ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/contentpager/content/ContentPager.java"
-            line="183"
-            column="52"/>
+            file="src/androidTest/java/androidx/contentpager/content/TestContentProvider.java"
+            line="377"
+            column="23"/>
     </issue>
 
     <issue
-        id="InlinedApi"
-        message="Field requires API level 26 (current min is 14): `android.content.ContentResolver#QUERY_ARG_OFFSET`"
-        errorLine1="    public static final String QUERY_ARG_OFFSET = ContentResolver.QUERY_ARG_OFFSET;"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `android.database.AbstractCursor#setExtras`"
+        errorLine1="        cursor.setExtras(extras);"
+        errorLine2="               ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/contentpager/content/ContentPager.java"
-            line="186"
-            column="51"/>
+            file="src/androidTest/java/androidx/contentpager/content/TestQueryCallback.java"
+            line="51"
+            column="16"/>
     </issue>
 
     <issue
-        id="InlinedApi"
-        message="Field requires API level 26 (current min is 14): `android.content.ContentResolver#QUERY_ARG_LIMIT`"
-        errorLine1="    public static final String QUERY_ARG_LIMIT = ContentResolver.QUERY_ARG_LIMIT;"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/contentpager/content/ContentPager.java"
-            line="189"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.contentpager.content.ContentPager is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.contentpager.content.ContentPager is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            extras = extras.deepCopy();"
         errorLine2="                            ~~~~~~~~">
         <location
@@ -57,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.contentpager.content.Query is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.contentpager.content.Query is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return resolver.query("
         errorLine2="                            ~~~~~">
         <location
@@ -68,8 +57,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.contentpager.content.Query is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.contentpager.content.Query is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return resolver.query("
         errorLine2="                            ~~~~~">
         <location
@@ -79,8 +68,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.contentpager.content.Query is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.contentpager.content.Query is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            if (mCancellationSignal != null &amp;&amp; !mCancellationSignal.isCanceled()) {"
         errorLine2="                                                                    ~~~~~~~~~~">
         <location
@@ -90,25 +79,14 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.contentpager.content.Query is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.contentpager.content.Query is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mCancellationSignal.cancel();"
         errorLine2="                                    ~~~~~~">
         <location
             file="src/main/java/androidx/contentpager/content/Query.java"
             line="149"
             column="37"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This `Loader` class should be static or leaks might occur (anonymous android.content.CursorLoader)"
-        errorLine1="                return new android.content.CursorLoader(mContext) {"
-        errorLine2="                       ^">
-        <location
-            file="src/main/java/androidx/contentpager/content/LoaderQueryRunner.java"
-            line="61"
-            column="24"/>
     </issue>
 
     <issue

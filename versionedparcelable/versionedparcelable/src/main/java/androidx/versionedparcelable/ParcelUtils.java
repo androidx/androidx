@@ -35,6 +35,7 @@ import java.util.List;
  */
 public class ParcelUtils {
 
+    @NonNull
     private static final String INNER_BUNDLE_KEY = "a";
 
     private ParcelUtils() { }
@@ -44,7 +45,8 @@ public class ParcelUtils {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static Parcelable toParcelable(VersionedParcelable obj) {
+    @NonNull
+    public static Parcelable toParcelable(@Nullable VersionedParcelable obj) {
         return new ParcelImpl(obj);
     }
 
@@ -54,7 +56,10 @@ public class ParcelUtils {
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @SuppressWarnings("TypeParameterUnusedInFormals")
-    public static <T extends VersionedParcelable> T fromParcelable(Parcelable p) {
+    @Nullable
+    public static <T extends VersionedParcelable> T fromParcelable(
+            @NonNull Parcelable p
+    ) {
         if (!(p instanceof ParcelImpl)) {
             throw new IllegalArgumentException("Invalid parcel");
         }
@@ -66,7 +71,10 @@ public class ParcelUtils {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static void toOutputStream(VersionedParcelable obj, OutputStream output) {
+    public static void toOutputStream(
+            @Nullable VersionedParcelable obj,
+            @NonNull OutputStream output
+    ) {
         VersionedParcelStream stream = new VersionedParcelStream(null, output);
         stream.writeVersionedParcelable(obj);
         stream.closeField();
@@ -78,7 +86,8 @@ public class ParcelUtils {
      */
     @SuppressWarnings("TypeParameterUnusedInFormals")
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static <T extends VersionedParcelable> T fromInputStream(InputStream input) {
+    @Nullable
+    public static <T extends VersionedParcelable> T fromInputStream(@NonNull InputStream input) {
         VersionedParcelStream stream = new VersionedParcelStream(input, null);
         return stream.readVersionedParcelable();
     }
@@ -89,11 +98,12 @@ public class ParcelUtils {
     public static void putVersionedParcelable(@NonNull Bundle b, @NonNull String key,
             @Nullable VersionedParcelable obj) {
         if (obj == null) {
-            return;
+            b.putParcelable(key, null);
+        } else {
+            Bundle innerBundle = new Bundle();
+            innerBundle.putParcelable(INNER_BUNDLE_KEY, toParcelable(obj));
+            b.putParcelable(key, innerBundle);
         }
-        Bundle innerBundle = new Bundle();
-        innerBundle.putParcelable(INNER_BUNDLE_KEY, toParcelable(obj));
-        b.putParcelable(key, innerBundle);
     }
 
     /**
@@ -135,12 +145,14 @@ public class ParcelUtils {
     /**
      * Get a list of VersionedParcelable from a Bundle.
      *
-     * Returns null if the bundle isn't present or ClassLoader issues occur.
+     * Returns an empty list if the bundle isn't present or ClassLoader issues occur.
      */
     @SuppressWarnings({"TypeParameterUnusedInFormals","unchecked"})
-    @Nullable
+    @NonNull
     public static <T extends VersionedParcelable> List<T> getVersionedParcelableList(
-            Bundle bundle, String key) {
+            @NonNull Bundle bundle,
+            @Nullable String key
+    ) {
         List<T> resultList = new ArrayList<>();
         try {
             Bundle innerBundle = bundle.getParcelable(key);
@@ -150,10 +162,9 @@ public class ParcelUtils {
             for (Parcelable parcelable : parcelableArrayList) {
                 resultList.add((T) fromParcelable(parcelable));
             }
-            return resultList;
         } catch (RuntimeException e) {
-            // There may be new classes or such in the bundle, make sure not to crash the caller.
+            resultList.clear();
         }
-        return null;
+        return resultList;
     }
 }

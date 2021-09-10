@@ -31,7 +31,6 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.cachedIn
 import androidx.paging.map
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -56,7 +55,6 @@ fun cachedInSample() {
             .cachedIn(viewModelScope)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     class MyActivity : AppCompatActivity() {
         val pagingAdapter = MyPagingAdapter()
 

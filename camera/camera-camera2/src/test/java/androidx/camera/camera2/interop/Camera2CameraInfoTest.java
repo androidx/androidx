@@ -24,7 +24,8 @@ import static org.mockito.Mockito.when;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.Camera2CameraInfoImpl;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -35,10 +36,15 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-@UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
+        instrumentedPackages = { "androidx.camera.camera2.interop",
+                "androidx.camera.camera2.internal" })
+@OptIn(markerClass = ExperimentalCamera2Interop.class)
 public final class Camera2CameraInfoTest {
 
     @Test
@@ -85,4 +91,18 @@ public final class Camera2CameraInfoTest {
         CameraInfoInternal wrongCameraInfo = mock(CameraInfoInternal.class);
         Camera2CameraInfo.from(wrongCameraInfo);
     }
+
+    @Config(minSdk = 28)
+    @RequiresApi(28)
+    @Test
+    public void canGetCameraCharacteristicsMap_fromCamera2CameraInfo() {
+        Camera2CameraInfoImpl impl = mock(Camera2CameraInfoImpl.class);
+        Map<String, CameraCharacteristics> characteristicsMap = new HashMap<>();
+        when(impl.getCameraCharacteristicsMap()).thenReturn(characteristicsMap);
+        Camera2CameraInfo camera2CameraInfo = new Camera2CameraInfo(impl);
+
+        Map<String, CameraCharacteristics> map = camera2CameraInfo.getCameraCharacteristicsMap();
+        assertThat(map).isSameInstanceAs(characteristicsMap);
+    }
+
 }

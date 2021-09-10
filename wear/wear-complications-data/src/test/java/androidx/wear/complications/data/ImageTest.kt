@@ -46,11 +46,4 @@ public class ImageTest {
         assertThat(image.type).isEqualTo(SmallImageType.PHOTO)
         assertThat(image.ambientImage).isEqualTo(ambientIcon)
     }
-
-    @Test
-    public fun backgroundImage() {
-        val icon = Icon.createWithContentUri("icon")
-        val image = PhotoImage.Builder(icon).build()
-        assertThat(image.image).isEqualTo(icon)
-    }
 }

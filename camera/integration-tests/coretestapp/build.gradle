@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -53,10 +53,6 @@ android {
 
     externalNativeBuild {
         cmake {
-            // AGP doesn't allow us to use project.buildDir (or subdirs) for CMake's generated
-            // build files (ninja build files, CMakeCache.txt, etc.). Use a staging directory that
-            // lives alongside the project's buildDir.
-            buildStagingDirectory "${project.buildDir}/../nativeBuildStaging"
             path "src/main/cpp/CMakeLists.txt"
             version "3.10.2"
         }
@@ -69,40 +65,49 @@ dependencies {
     implementation(project(":camera:camera-camera2-pipe-integration"))
     implementation(project(":camera:camera-core"))
     implementation(project(":camera:camera-lifecycle"))
-    implementation(project(":appcompat:appcompat"))
-    implementation(project(":activity:activity"))
-    implementation(project(":fragment:fragment"))
-    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation(project(":camera:camera-video"))
+    // Needed because AGP enforces same version between main and androidTest classpaths
+    implementation(project(":concurrent:concurrent-futures"))
 
     // Android Support Library
-    api(CONSTRAINT_LAYOUT, { transitive = true })
-    implementation(GUAVA_ANDROID)
-    implementation(ESPRESSO_IDLING_RESOURCE)
+    api(libs.constraintLayout)
+    implementation(libs.guavaAndroid)
+    implementation(libs.espressoIdlingResource)
+    implementation("androidx.appcompat:appcompat:1.3.0")
+    // MLKit library: Barcode scanner
+    implementation(libs.mlkitBarcode, excludes.mlkit)
 
     // 3P library
-    debugImplementation(LEAKCANARY)
+    debugImplementation(libs.leakcanary)
     // Testing resource dependency for manifest
     debugImplementation(project(":camera:camera-testing"))
 
     // Testing framework
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(ESPRESSO_IDLING_RESOURCE)
-    androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
-    androidTestImplementation(LEAKCANARY)
-    androidTestImplementation(LEAKCANARY_INSTRUMENTATION)
-    androidTestImplementation(TRUTH)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.espressoIdlingResource)
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.kotlinCoroutinesAndroid)
+    androidTestImplementation(libs.leakcanary)
+    androidTestImplementation(libs.leakcanaryInstrumentation)
+    androidTestImplementation(libs.truth)
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(project(":concurrent:concurrent-futures"))
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
-    androidTestImplementation(project(':internal-testutils-runtime'))
+    androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
 
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
+}

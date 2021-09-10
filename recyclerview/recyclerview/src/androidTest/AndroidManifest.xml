@@ -17,7 +17,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.v7.recyclerview.test">
 
-    <application android:supportsRtl="true">
+    <application android:name="androidx.multidex.MultiDexApplication" android:supportsRtl="true">
         <activity android:name="androidx.recyclerview.test.RecyclerViewTestActivity"/>
         <activity android:name="androidx.recyclerview.widget.TestActivity"/>
         <activity android:name="androidx.recyclerview.widget.TestContentViewActivity"/>

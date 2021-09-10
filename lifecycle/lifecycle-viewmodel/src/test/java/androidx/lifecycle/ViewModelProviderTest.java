@@ -106,6 +106,7 @@ public class ViewModelProviderTest {
             }
         };
         ViewModelProvider.KeyedFactory keyed = new ViewModelProvider.KeyedFactory() {
+            @SuppressWarnings("unchecked")
             @NonNull
             @Override
             public <T extends ViewModel> T create(@NonNull String key,

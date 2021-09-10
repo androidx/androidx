@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # Copyright 2019 - The Android Open Source Project
 #
@@ -45,7 +45,7 @@ java_ref_root = os.getcwd()
 kotlin_ref_root = os.path.join(java_ref_root, "kotlin")
 root = os.path.split(java_ref_root)[1]
 if root != "reference":
-  print ("You must cd to the refocs reference/ root directoy")
+  print("You must cd to the refocs reference/ root directory")
   sys.exit()
 
 
@@ -62,10 +62,12 @@ def insert_stub(doc, java, both):
   stubs = stubs+1
 
   if verbose:
-    print "File: ", stubs, doc
+    # Print everything.
+    print("File: ", stubs, doc)
   else:
+    # Print just the file name on the current line.
     fn  = os.path.split(doc)
-    print "File: ", stubs, fn[1], "\r",
+    print("File: ", stubs, fn[1], end="\r")
 
   if (java):
       java_stubs = java_stubs + 1
@@ -117,7 +119,7 @@ def scan_files(stem):
   solo = 0
   both = 0
 
-  print "*** PASS1 (Java) ***"
+  print("*** PASS1 (Java) ***")
   maxed_out = False
   for root, dirs, files in os.walk(java_source_abs_path):
       if maxed_out:
@@ -127,7 +129,7 @@ def scan_files(stem):
         ext = ext[1]
         if not ext:
           # this catches package-lists with no extension
-          print "***", os.path.join(root, file_)
+          print("***", os.path.join(root, file_))
         elif ext != ".html":
           # filter out png, yaml, etc
           continue
@@ -147,23 +149,23 @@ def scan_files(stem):
           else:
             # no kotlin content
             if (show_solo):
-              print "solo: ", doc
+              print("solo: ", doc)
             insert_stub(doc, True, False)
             solo = solo+1
 
           if max_stubs>0 and stubs>=max_stubs:
             print
-            print "max java stubs: ", max_stubs
+            print("max java stubs: ", max_stubs)
             maxed_out = True;
             break
-
-  print "Java+Kotlin:", both, "Only Java:", solo
-  print
+  print("")
+  print("Java+Kotlin:", both, "Only Java:", solo)
+  print("")
 
 
   # PASS 2
   # Loop over kotlin content, create stubs for Kotlin-only APIs
-  print "*** PASS2 (Kotlin) ***"
+  print("*** PASS2 (Kotlin) ***")
   solo = 0
   both = 0
   maxed_out = False
@@ -176,7 +178,7 @@ def scan_files(stem):
         ext = ext[1]
         if not ext:
           # this catches package-lists with no extension
-          print "***", os.path.join(root, file_)
+          print("***", os.path.join(root, file_))
         elif ext != ".html":
           # filter out png, yaml, etc
           continue
@@ -197,21 +199,19 @@ def scan_files(stem):
             # no java content
             # create the kotlin stub file
             if (show_solo):
-              print "solo: ", doc
+              print("solo: ", doc)
             insert_stub(doc , False, False)
             solo = solo+1
 
           if (max_stubs>0 and stubs>=max_stubs):
             print
-            print "max koltin stubs: ", max_stubs
+            print("max koltin stubs: ", max_stubs)
             maxed_out = True;
             break
 
-
-  print "Java+Kotlin:", both, "Only Kotlin:", solo
-  print
-  print "Java: ", java_stubs, " Kotlin: ", kotlin_stubs, "Total: ", java_stubs + kotlin_stubs
-
+  print("")
+  print("Java+Kotlin:", both, "Only Kotlin:", solo)
+  print("Java: ", java_stubs, " Kotlin: ", kotlin_stubs, "Total: ", java_stubs + kotlin_stubs)
 
 def main(argv):
 
@@ -223,53 +223,54 @@ def main(argv):
   try:
     opts, args = getopt.getopt(argv,"",["work","verbose","solo","max="])
   except getopt.GetoptError:
-    print 'USAGE: switcher --work --verbose --solo --max=<max_stubs> platform|androidx|support|chrome'
+    print('USAGE: switcher --work --verbose --solo --max=<max_stubs> platform|androidx|support|chrome')
     sys.exit(2)
 
   for opt, arg in opts:
     if opt == '--work':
        work = True
     elif opt == "--verbose":
-       print "verbose"
+       print("verbose")
        verbose = True
     elif opt == "--solo":
-       print "verbose"
+       print("verbose")
        show_solo = True
     elif opt == "--max":
        max_stubs = int(arg)
-       print "max ", max_stubs
+       print("max ", max_stubs)
 
   if len(args)>0:
     source = args[0]
     if source == "platform":
       stem = "android"
       print
-      print "*** PLATFORM PAGES ***"
-      print "======================"
+      print("*** PLATFORM PAGES ***")
+      print("======================")
 
     elif source == "androidx":
       stem = "androidx"
       print
-      print "*** ANDROIDX SUPPORT LIBRARY PAGES ***"
-      print "======================================"
+      print("*** ANDROIDX SUPPORT LIBRARY PAGES ***")
+      print("======================================")
 
     elif source == "support":
       stem = "android/support/v4/media"
       print
-      print "*** ANDROIDX SUPPORT LIBRARY PAGES ***"
-      print "======================================"
+      print("*** ANDROIDX SUPPORT LIBRARY PAGES ***")
+      print("======================================")
 
     elif source == "chrome":
       stem = "org/chromium/support_lib_boundary"
       print
-      print "*** ANDROIDX CHROMIUM PAGES ***"
-      print "==============================="
+      print("*** ANDROIDX CHROMIUM PAGES ***")
+      print("===============================")
 
   if (len(stem)>0):
     scan_files(stem)
-    print " *** DONE ***"
+    print("")
+    print(" *** DONE ***")
   else:
-      print 'You must specify one of: platform|androidx|support|chrome'
+      print('You must specify one of: platform|androidx|support|chrome')
 
 
 

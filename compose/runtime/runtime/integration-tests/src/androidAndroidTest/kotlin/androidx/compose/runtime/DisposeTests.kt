@@ -16,10 +16,10 @@
 
 package androidx.compose.runtime
 
+import android.view.View
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import junit.framework.TestCase
-import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,27 +27,29 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class DisposeTests : BaseComposeTest() {
-    @After
-    fun teardown() {
-        clearRoots()
-    }
-
     @get:Rule
     override val activityRule = makeTestActivityRule()
+
+    private val NeverEqualObject = object {
+        override fun equals(other: Any?): Boolean {
+            return false
+        }
+    }
 
     @Test
     fun testDisposeComposition() {
         val log = mutableListOf<String>()
 
-        @OptIn(ExperimentalComposeApi::class)
-        val composable = @Composable @ComposableContract(tracked = false) {
-            onCommit {
+        lateinit var recomposeScope: RecomposeScope
+        val composable = @Composable {
+            recomposeScope = currentRecomposeScope
+            DisposableEffect(NeverEqualObject) {
                 log.add("onCommit")
                 onDispose {
                     log.add("onCommitDispose")
                 }
             }
-            onActive {
+            DisposableEffect(Unit) {
                 log.add("onActive")
                 onDispose {
                     log.add("onActiveDispose")
@@ -61,21 +63,19 @@ class DisposeTests : BaseComposeTest() {
             TestCase.assertEquals(expected, log.joinToString())
         }
 
-        var composition: Composition? = null
-
         assertLog("onCommit, onActive") {
-            composition = activity.show(composable)
+            activity.show(composable)
             activity.waitForAFrame()
         }
 
         assertLog("onCommitDispose, onCommit") {
-            activity.show(composable)
+            recomposeScope.invalidate()
             activity.waitForAFrame()
         }
 
         assertLog("onActiveDispose, onCommitDispose") {
             activity.uiThread {
-                composition?.dispose()
+                activity.setContentView(View(activity))
             }
             activity.waitForAFrame()
         }

@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.graphics
 
-import androidx.compose.ui.util.annotation.FloatRange
+import androidx.compose.ui.unit.Density
 
 /**
  * Default camera distance for all layers
@@ -28,7 +28,7 @@ const val DefaultCameraDistance = 8.0f
  * ([scaleX], [scaleY]), rotation ([rotationX], [rotationY], [rotationZ]), opacity ([alpha]), shadow
  * ([shadowElevation], [shape]), and clipping ([clip], [shape]).
  */
-interface GraphicsLayerScope {
+interface GraphicsLayerScope : Density {
     /**
      * The horizontal scale of the drawn area. Default value is `1`.
      */
@@ -42,9 +42,10 @@ interface GraphicsLayerScope {
     /**
      * The alpha of the drawn area. Setting this to something other than `1`
      * will cause the drawn contents to be translucent and setting it to `0` will
-     * cause it to be fully invisible. Default value is `1`.
+     * cause it to be fully invisible. Default value is `1` and the range is between
+     * `0` and `1`.
      */
-    @setparam:FloatRange(from = 0.0, to = 1.0)
+    /*@setparam:FloatRange(from = 0.0, to = 1.0)*/
     var alpha: Float
 
     /**
@@ -59,27 +60,31 @@ interface GraphicsLayerScope {
 
     /**
      * Sets the elevation for the shadow in pixels. With the [shadowElevation] > 0f and
-     * [shape] set, a shadow is produced. Default value is `0
+     * [shape] set, a shadow is produced. Default value is `0` and the value must not be
+     * negative.
+     *
+     * Note that if you provide a non-zero [shadowElevation] and if the passed [shape] is concave the
+     * shadow will not be drawn on Android versions less than 10.
      */
-    @setparam:FloatRange(from = 0.0, to = 3.4e38 /* POSITIVE_INFINITY */)
+    /*@setparam:FloatRange(from = 0.0)*/
     var shadowElevation: Float
 
     /**
-     * The rotation of the contents around the horizontal axis in degrees. Default value is `0
+     * The rotation, in degrees, of the contents around the horizontal axis in degrees. Default
+     * value is `0`.
      */
-    @setparam:FloatRange(from = 0.0, to = 360.0)
     var rotationX: Float
 
     /**
-     * The rotation of the contents around the vertical axis in degrees. Default value is `0
+     * The rotation, in degrees, of the contents around the vertical axis in degrees. Default
+     * value is `0`.
      */
-    @setparam:FloatRange(from = 0.0, to = 360.0)
     var rotationY: Float
 
     /**
-     * The rotation of the contents around the Z axis in degrees. Default value is `0
+     * The rotation, in degrees, of the contents around the Z axis in degrees. Default value is
+     * `0`.
      */
-    @setparam:FloatRange(from = 0.0, to = 360.0)
     var rotationZ: Float
 
     /**
@@ -103,7 +108,7 @@ interface GraphicsLayerScope {
      * The distance is expressed in pixels and must always be positive.
      * Default value is [DefaultCameraDistance]
      */
-    @setparam:FloatRange(from = 0.0, to = 3.4e38 /* POSITIVE_INFINITY */)
+    /*@setparam:FloatRange(from = 0.0)*/
     var cameraDistance: Float
 
     /**
@@ -126,7 +131,22 @@ interface GraphicsLayerScope {
      * Set to `true` to clip the content to the [shape].
      * Default value is `false`
      */
+    @Suppress("GetterSetterNames")
+    @get:Suppress("GetterSetterNames")
     var clip: Boolean
+
+    /**
+     * Configure the [RenderEffect] to apply to this [GraphicsLayerScope].
+     * This will apply a visual effect to the results of the [GraphicsLayerScope] before it is
+     * drawn. For example if [BlurEffect] is provided, the contents will be drawn in a separate
+     * layer, then this layer will be blurred when this [GraphicsLayerScope] is drawn.
+     *
+     * Note this parameter is only supported on Android 12
+     * and above. Attempts to use this Modifier on older Android versions will be ignored.
+     */
+    var renderEffect: RenderEffect?
+        get() = null
+        set(_) {}
 }
 
 /**
@@ -149,6 +169,16 @@ internal class ReusableGraphicsLayerScope : GraphicsLayerScope {
     override var shape: Shape = RectangleShape
     override var clip: Boolean = false
 
+    internal var graphicsDensity: Density = Density(1.0f)
+
+    override val density: Float
+        get() = graphicsDensity.density
+
+    override val fontScale: Float
+        get() = graphicsDensity.fontScale
+
+    override var renderEffect: RenderEffect? = null
+
     fun reset() {
         scaleX = 1f
         scaleY = 1f
@@ -163,5 +193,6 @@ internal class ReusableGraphicsLayerScope : GraphicsLayerScope {
         transformOrigin = TransformOrigin.Center
         shape = RectangleShape
         clip = false
+        renderEffect = null
     }
 }

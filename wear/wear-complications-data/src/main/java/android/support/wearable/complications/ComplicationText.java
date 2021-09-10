@@ -53,8 +53,11 @@ import java.util.concurrent.TimeUnit;
  * one of the provided builders: {@link TimeDifferenceBuilder} or {@link TimeFormatBuilder}.
  *
  * <p>Note this class is not thread safe.</p>
+ *
+ * @hide
  */
 @SuppressLint("BanParcelableUsage")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ComplicationText implements Parcelable, TimeDependentText {
 
     /** @hide */
@@ -324,6 +327,17 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
         }
 
         out.writeBundle(bundle);
+    }
+
+    /**
+     * Returns the time-dependent part of the complication text.
+     *
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public TimeDependentText getTimeDependentText() {
+        return mTimeDependentText;
     }
 
     /**

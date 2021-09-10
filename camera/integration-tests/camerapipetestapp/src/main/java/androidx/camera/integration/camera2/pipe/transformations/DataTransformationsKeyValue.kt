@@ -69,7 +69,7 @@ object DataTransformationsKeyValue {
     private fun typeTransformation(key: CameraMetadataKey, keyData: Any?): String? {
         return when (keyData) {
             is Number -> keyData.toString()
-            is Boolean -> keyData.toString().toUpperCase()
+            is Boolean -> keyData.toString().uppercase()
             else -> nullOrInvalid(
                 key,
                 keyData

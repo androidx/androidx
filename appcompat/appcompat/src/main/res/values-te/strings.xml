@@ -19,7 +19,7 @@
     <string name="abc_action_mode_done" msgid="4692188335987374352">"పూర్తయింది"</string>
     <string name="abc_action_bar_home_description" msgid="5976598919945601918">"హోమ్‌కు నావిగేట్ చేస్తుంది"</string>
     <string name="abc_action_bar_up_description" msgid="8388173803310557296">"పైకి నావిగేట్ చేస్తుంది"</string>
-    <string name="abc_action_menu_overflow_description" msgid="3937310113216875497">"మరిన్ని ఎంపికలు"</string>
+    <string name="abc_action_menu_overflow_description" msgid="3937310113216875497">"మరిన్ని ఆప్షన్‌లు"</string>
     <string name="abc_toolbar_collapse_description" msgid="1656852541809559762">"కుదిస్తుంది"</string>
     <string name="abc_searchview_description_search" msgid="3417662926640357176">"సెర్చ్"</string>
     <string name="abc_search_hint" msgid="7208076849092622260">"వెతకండి…"</string>

@@ -41,6 +41,14 @@ GetterOnBuilder: androidx.appcompat.app.AlertDialog.Builder#getContext():
     Getter should be on the built object, not the builder: method androidx.appcompat.app.AlertDialog.Builder.getContext()
 
 
+GetterSetterNames: androidx.appcompat.view.ActionMode#getTitleOptionalHint():
+    Symmetric method for `setTitleOptionalHint` must be named `isTitleOptionalHint`; was `getTitleOptionalHint`
+GetterSetterNames: androidx.appcompat.widget.SwitchCompat#getShowText():
+    Symmetric method for `setShowText` must be named `isShowText`; was `getShowText`
+GetterSetterNames: androidx.appcompat.widget.SwitchCompat#getSplitTrack():
+    Symmetric method for `setSplitTrack` must be named `isSplitTrack`; was `getSplitTrack`
+
+
 ListenerLast: androidx.appcompat.app.AlertDialog.Builder#setCursor(android.database.Cursor, android.content.DialogInterface.OnClickListener, String) parameter #2:
     Listeners should always be at end of argument list (method `setCursor`)
 
@@ -51,24 +59,12 @@ MissingBuildMethod: androidx.appcompat.app.AlertDialog.Builder:
 
 MissingNullability: androidx.appcompat.app.ActionBar#addOnMenuVisibilityListener(androidx.appcompat.app.ActionBar.OnMenuVisibilityListener) parameter #0:
     Missing nullability on parameter `listener` in method `addOnMenuVisibilityListener`
-MissingNullability: androidx.appcompat.app.ActionBar#addTab(androidx.appcompat.app.ActionBar.Tab) parameter #0:
-    Missing nullability on parameter `tab` in method `addTab`
-MissingNullability: androidx.appcompat.app.ActionBar#addTab(androidx.appcompat.app.ActionBar.Tab, boolean) parameter #0:
-    Missing nullability on parameter `tab` in method `addTab`
-MissingNullability: androidx.appcompat.app.ActionBar#addTab(androidx.appcompat.app.ActionBar.Tab, int) parameter #0:
-    Missing nullability on parameter `tab` in method `addTab`
-MissingNullability: androidx.appcompat.app.ActionBar#addTab(androidx.appcompat.app.ActionBar.Tab, int, boolean) parameter #0:
-    Missing nullability on parameter `tab` in method `addTab`
 MissingNullability: androidx.appcompat.app.ActionBar#getCustomView():
     Missing nullability on method `getCustomView` return
 MissingNullability: androidx.appcompat.app.ActionBar#getThemedContext():
     Missing nullability on method `getThemedContext` return
 MissingNullability: androidx.appcompat.app.ActionBar#removeOnMenuVisibilityListener(androidx.appcompat.app.ActionBar.OnMenuVisibilityListener) parameter #0:
     Missing nullability on parameter `listener` in method `removeOnMenuVisibilityListener`
-MissingNullability: androidx.appcompat.app.ActionBar#removeTab(androidx.appcompat.app.ActionBar.Tab) parameter #0:
-    Missing nullability on parameter `tab` in method `removeTab`
-MissingNullability: androidx.appcompat.app.ActionBar#selectTab(androidx.appcompat.app.ActionBar.Tab) parameter #0:
-    Missing nullability on parameter `tab` in method `selectTab`
 MissingNullability: androidx.appcompat.app.ActionBar#setCustomView(android.view.View) parameter #0:
     Missing nullability on parameter `view` in method `setCustomView`
 MissingNullability: androidx.appcompat.app.ActionBar#setCustomView(android.view.View, androidx.appcompat.app.ActionBar.LayoutParams) parameter #0:
@@ -77,10 +73,6 @@ MissingNullability: androidx.appcompat.app.ActionBar#setCustomView(android.view.
     Missing nullability on parameter `layoutParams` in method `setCustomView`
 MissingNullability: androidx.appcompat.app.ActionBar#setIcon(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `icon` in method `setIcon`
-MissingNullability: androidx.appcompat.app.ActionBar#setListNavigationCallbacks(android.widget.SpinnerAdapter, androidx.appcompat.app.ActionBar.OnNavigationListener) parameter #0:
-    Missing nullability on parameter `adapter` in method `setListNavigationCallbacks`
-MissingNullability: androidx.appcompat.app.ActionBar#setListNavigationCallbacks(android.widget.SpinnerAdapter, androidx.appcompat.app.ActionBar.OnNavigationListener) parameter #1:
-    Missing nullability on parameter `callback` in method `setListNavigationCallbacks`
 MissingNullability: androidx.appcompat.app.ActionBar#setLogo(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `logo` in method `setLogo`
 MissingNullability: androidx.appcompat.app.ActionBar#setSplitBackgroundDrawable(android.graphics.drawable.Drawable) parameter #0:
@@ -407,8 +399,6 @@ MissingNullability: androidx.appcompat.app.AppCompatDelegate#addContentView(andr
     Missing nullability on parameter `v` in method `addContentView`
 MissingNullability: androidx.appcompat.app.AppCompatDelegate#addContentView(android.view.View, android.view.ViewGroup.LayoutParams) parameter #1:
     Missing nullability on parameter `lp` in method `addContentView`
-MissingNullability: androidx.appcompat.app.AppCompatDelegate#attachBaseContext(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `attachBaseContext`
 MissingNullability: androidx.appcompat.app.AppCompatDelegate#createView(android.view.View, String, android.content.Context, android.util.AttributeSet):
     Missing nullability on method `createView` return
 MissingNullability: androidx.appcompat.app.AppCompatDelegate#createView(android.view.View, String, android.content.Context, android.util.AttributeSet) parameter #1:
@@ -623,8 +613,6 @@ MissingNullability: androidx.appcompat.widget.AppCompatAutoCompleteTextView#onCr
     Missing nullability on method `onCreateInputConnection` return
 MissingNullability: androidx.appcompat.widget.AppCompatAutoCompleteTextView#onCreateInputConnection(android.view.inputmethod.EditorInfo) parameter #0:
     Missing nullability on parameter `outAttrs` in method `onCreateInputConnection`
-MissingNullability: androidx.appcompat.widget.AppCompatAutoCompleteTextView#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
-    Missing nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`
 MissingNullability: androidx.appcompat.widget.AppCompatAutoCompleteTextView#setTextAppearance(android.content.Context, int) parameter #0:
     Missing nullability on parameter `context` in method `setTextAppearance`
 MissingNullability: androidx.appcompat.widget.AppCompatButton#onInitializeAccessibilityEvent(android.view.accessibility.AccessibilityEvent) parameter #0:
@@ -633,26 +621,10 @@ MissingNullability: androidx.appcompat.widget.AppCompatButton#onInitializeAccess
     Missing nullability on parameter `info` in method `onInitializeAccessibilityNodeInfo`
 MissingNullability: androidx.appcompat.widget.AppCompatButton#onTextChanged(CharSequence, int, int, int) parameter #0:
     Missing nullability on parameter `text` in method `onTextChanged`
-MissingNullability: androidx.appcompat.widget.AppCompatButton#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
-    Missing nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`
 MissingNullability: androidx.appcompat.widget.AppCompatButton#setTextAppearance(android.content.Context, int) parameter #0:
     Missing nullability on parameter `context` in method `setTextAppearance`
 MissingNullability: androidx.appcompat.widget.AppCompatCheckBox#setButtonDrawable(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `buttonDrawable` in method `setButtonDrawable`
-MissingNullability: androidx.appcompat.widget.AppCompatCheckedTextView#onCreateInputConnection(android.view.inputmethod.EditorInfo):
-    Missing nullability on method `onCreateInputConnection` return
-MissingNullability: androidx.appcompat.widget.AppCompatCheckedTextView#onCreateInputConnection(android.view.inputmethod.EditorInfo) parameter #0:
-    Missing nullability on parameter `outAttrs` in method `onCreateInputConnection`
-MissingNullability: androidx.appcompat.widget.AppCompatCheckedTextView#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
-    Missing nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`
-MissingNullability: androidx.appcompat.widget.AppCompatCheckedTextView#setTextAppearance(android.content.Context, int) parameter #0:
-    Missing nullability on parameter `context` in method `setTextAppearance`
-MissingNullability: androidx.appcompat.widget.AppCompatEditText#onCreateInputConnection(android.view.inputmethod.EditorInfo):
-    Missing nullability on method `onCreateInputConnection` return
-MissingNullability: androidx.appcompat.widget.AppCompatEditText#onCreateInputConnection(android.view.inputmethod.EditorInfo) parameter #0:
-    Missing nullability on parameter `outAttrs` in method `onCreateInputConnection`
-MissingNullability: androidx.appcompat.widget.AppCompatEditText#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
-    Missing nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`
 MissingNullability: androidx.appcompat.widget.AppCompatEditText#setTextAppearance(android.content.Context, int) parameter #0:
     Missing nullability on parameter `context` in method `setTextAppearance`
 MissingNullability: androidx.appcompat.widget.AppCompatImageButton#setImageBitmap(android.graphics.Bitmap) parameter #0:
@@ -703,8 +675,6 @@ MissingNullability: androidx.appcompat.widget.AppCompatTextView#onCreateInputCon
     Missing nullability on parameter `outAttrs` in method `onCreateInputConnection`
 MissingNullability: androidx.appcompat.widget.AppCompatTextView#onTextChanged(CharSequence, int, int, int) parameter #0:
     Missing nullability on parameter `text` in method `onTextChanged`
-MissingNullability: androidx.appcompat.widget.AppCompatTextView#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
-    Missing nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`
 MissingNullability: androidx.appcompat.widget.AppCompatTextView#setTextAppearance(android.content.Context, int) parameter #0:
     Missing nullability on parameter `context` in method `setTextAppearance`
 MissingNullability: androidx.appcompat.widget.LinearLayoutCompat#checkLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
@@ -815,8 +785,6 @@ MissingNullability: androidx.appcompat.widget.SwitchCompat#onPopulateAccessibili
     Missing nullability on parameter `event` in method `onPopulateAccessibilityEvent`
 MissingNullability: androidx.appcompat.widget.SwitchCompat#onTouchEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `ev` in method `onTouchEvent`
-MissingNullability: androidx.appcompat.widget.SwitchCompat#setCustomSelectionActionModeCallback(android.view.ActionMode.Callback) parameter #0:
-    Missing nullability on parameter `actionModeCallback` in method `setCustomSelectionActionModeCallback`
 MissingNullability: androidx.appcompat.widget.SwitchCompat#setSwitchTextAppearance(android.content.Context, int) parameter #0:
     Missing nullability on parameter `context` in method `setSwitchTextAppearance`
 MissingNullability: androidx.appcompat.widget.SwitchCompat#setSwitchTypeface(android.graphics.Typeface) parameter #0:

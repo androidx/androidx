@@ -59,6 +59,7 @@ inline fun NavGraphBuilder.dialog(
 /**
  * DSL for constructing a new [TestNavigator.Destination] from a [FloatingTestNavigator].
  */
+@Suppress("DEPRECATION")
 @NavDestinationDsl
 class FloatingTestNavigatorDestinationBuilder(
     navigator: FloatingTestNavigator,

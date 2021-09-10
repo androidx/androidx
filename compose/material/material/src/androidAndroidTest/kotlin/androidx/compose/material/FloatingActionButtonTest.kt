@@ -20,12 +20,12 @@ import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
@@ -65,7 +65,7 @@ class FloatingActionButtonTest {
         rule.setMaterialContent {
             Box {
                 FloatingActionButton(modifier = Modifier.testTag("myButton"), onClick = {}) {
-                    Icon(Icons.Filled.Favorite)
+                    Icon(Icons.Filled.Favorite, null)
                 }
             }
         }
@@ -99,7 +99,7 @@ class FloatingActionButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 FloatingActionButton(onClick = {}) {
-                    Icon(Icons.Filled.Favorite)
+                    Icon(Icons.Filled.Favorite, null)
                 }
             }
             .assertIsSquareWithSize(56.dp)
@@ -111,7 +111,7 @@ class FloatingActionButtonTest {
             ExtendedFloatingActionButton(
                 modifier = Modifier.testTag("FAB"),
                 text = { Text("Extended FAB Text") },
-                icon = { Icon(Icons.Filled.Favorite) },
+                icon = { Icon(Icons.Filled.Favorite, null) },
                 onClick = {}
             )
         }
@@ -143,8 +143,8 @@ class FloatingActionButtonTest {
         rule.setMaterialContent {
             Column {
                 Spacer(
-                    Modifier.size(10.dp).weight(1f).onGloballyPositioned {
-                        item1Bounds = it.boundsInRoot
+                    Modifier.requiredSize(10.dp).weight(1f).onGloballyPositioned {
+                        item1Bounds = it.boundsInRoot()
                     }
                 )
 
@@ -152,13 +152,13 @@ class FloatingActionButtonTest {
                     onClick = {},
                     modifier = Modifier.weight(1f)
                         .onGloballyPositioned {
-                            buttonBounds = it.boundsInRoot
+                            buttonBounds = it.boundsInRoot()
                         }
                 ) {
                     Text("Button")
                 }
 
-                Spacer(Modifier.size(10.dp).weight(1f))
+                Spacer(Modifier.requiredSize(10.dp).weight(1f))
             }
         }
 
@@ -178,15 +178,15 @@ class FloatingActionButtonTest {
             Box {
                 surface = MaterialTheme.colors.surface
                 fabColor = MaterialTheme.colors.secondary
-                Providers(AmbientShapes provides Shapes(small = themeShape)) {
+                CompositionLocalProvider(LocalShapes provides Shapes(small = themeShape)) {
                     FloatingActionButton(
                         modifier = Modifier.testTag("myButton"),
                         onClick = {},
-                        elevation = FloatingActionButtonConstants.defaultElevation(
+                        elevation = FloatingActionButtonDefaults.elevation(
                             defaultElevation = 0.dp
                         )
                     ) {
-                        Box(Modifier.preferredSize(10.dp, 10.dp))
+                        Box(Modifier.size(10.dp, 10.dp))
                     }
                 }
             }
@@ -215,14 +215,14 @@ class FloatingActionButtonTest {
             Box {
                 surface = MaterialTheme.colors.surface
                 fabColor = MaterialTheme.colors.secondary
-                Providers(AmbientShapes provides Shapes(small = themeShape)) {
+                CompositionLocalProvider(LocalShapes provides Shapes(small = themeShape)) {
                     ExtendedFloatingActionButton(
                         modifier = Modifier.testTag("myButton"),
                         onClick = {},
-                        elevation = FloatingActionButtonConstants.defaultElevation(
+                        elevation = FloatingActionButtonDefaults.elevation(
                             defaultElevation = 0.dp
                         ),
-                        text = { Box(Modifier.preferredSize(10.dp, 50.dp)) }
+                        text = { Box(Modifier.size(10.dp, 50.dp)) }
                     )
                 }
             }
@@ -252,7 +252,7 @@ class FloatingActionButtonTest {
                     }
                 ) {
                     Box(
-                        Modifier.preferredSize(2.dp)
+                        Modifier.size(2.dp)
                             .onGloballyPositioned { contentCoordinates = it }
                     )
                 }
@@ -260,13 +260,13 @@ class FloatingActionButtonTest {
         }
 
         rule.runOnIdle {
-            val buttonBounds = buttonCoordinates!!.boundsInRoot
-            val contentBounds = contentCoordinates!!.boundsInRoot
+            val buttonBounds = buttonCoordinates!!.boundsInRoot()
+            val contentBounds = contentCoordinates!!.boundsInRoot()
             assertThat(contentBounds.width).isLessThan(buttonBounds.width)
             assertThat(contentBounds.height).isLessThan(buttonBounds.height)
             with(rule.density) {
-                assertThat(contentBounds.width).isEqualTo(2.dp.toIntPx().toFloat())
-                assertThat(contentBounds.height).isEqualTo(2.dp.toIntPx().toFloat())
+                assertThat(contentBounds.width).isEqualTo(2.dp.roundToPx().toFloat())
+                assertThat(contentBounds.height).isEqualTo(2.dp.roundToPx().toFloat())
             }
             assertWithinOnePixel(buttonBounds.center, contentBounds.center)
         }
@@ -281,7 +281,7 @@ class FloatingActionButtonTest {
                 ExtendedFloatingActionButton(
                     text = {
                         Box(
-                            Modifier.preferredSize(2.dp)
+                            Modifier.size(2.dp)
                                 .onGloballyPositioned { contentCoordinates = it }
                         )
                     },
@@ -292,13 +292,13 @@ class FloatingActionButtonTest {
         }
 
         rule.runOnIdle {
-            val buttonBounds = buttonCoordinates!!.boundsInRoot
-            val contentBounds = contentCoordinates!!.boundsInRoot
+            val buttonBounds = buttonCoordinates!!.boundsInRoot()
+            val contentBounds = contentCoordinates!!.boundsInRoot()
             assertThat(contentBounds.width).isLessThan(buttonBounds.width)
             assertThat(contentBounds.height).isLessThan(buttonBounds.height)
             with(rule.density) {
-                assertThat(contentBounds.width).isEqualTo(2.dp.toIntPx().toFloat())
-                assertThat(contentBounds.height).isEqualTo(2.dp.toIntPx().toFloat())
+                assertThat(contentBounds.width).isEqualTo(2.dp.roundToPx().toFloat())
+                assertThat(contentBounds.height).isEqualTo(2.dp.roundToPx().toFloat())
             }
             assertWithinOnePixel(buttonBounds.center, contentBounds.center)
         }
@@ -314,13 +314,13 @@ class FloatingActionButtonTest {
                 ExtendedFloatingActionButton(
                     text = {
                         Box(
-                            Modifier.preferredSize(2.dp)
+                            Modifier.size(2.dp)
                                 .onGloballyPositioned { textCoordinates = it }
                         )
                     },
                     icon = {
                         Box(
-                            Modifier.preferredSize(10.dp)
+                            Modifier.size(10.dp)
                                 .onGloballyPositioned { iconCoordinates = it }
                         )
                     },
@@ -331,18 +331,18 @@ class FloatingActionButtonTest {
         }
 
         rule.runOnIdle {
-            val buttonBounds = buttonCoordinates!!.boundsInRoot
-            val textBounds = textCoordinates!!.boundsInRoot
-            val iconBounds = iconCoordinates!!.boundsInRoot
+            val buttonBounds = buttonCoordinates!!.boundsInRoot()
+            val textBounds = textCoordinates!!.boundsInRoot()
+            val iconBounds = iconCoordinates!!.boundsInRoot()
             with(rule.density) {
-                assertThat(textBounds.width).isEqualTo(2.dp.toIntPx().toFloat())
-                assertThat(textBounds.height).isEqualTo(2.dp.toIntPx().toFloat())
-                assertThat(iconBounds.width).isEqualTo(10.dp.toIntPx().toFloat())
-                assertThat(iconBounds.height).isEqualTo(10.dp.toIntPx().toFloat())
+                assertThat(textBounds.width).isEqualTo(2.dp.roundToPx().toFloat())
+                assertThat(textBounds.height).isEqualTo(2.dp.roundToPx().toFloat())
+                assertThat(iconBounds.width).isEqualTo(10.dp.roundToPx().toFloat())
+                assertThat(iconBounds.height).isEqualTo(10.dp.roundToPx().toFloat())
 
                 assertWithinOnePixel(buttonBounds.center.y, iconBounds.center.y)
                 assertWithinOnePixel(buttonBounds.center.y, textBounds.center.y)
-                val halfPadding = 6.dp.toIntPx().toFloat()
+                val halfPadding = 6.dp.roundToPx().toFloat()
                 assertWithinOnePixel(
                     iconBounds.center.x + iconBounds.width / 2 + halfPadding,
                     textBounds.center.x - textBounds.width / 2 - halfPadding

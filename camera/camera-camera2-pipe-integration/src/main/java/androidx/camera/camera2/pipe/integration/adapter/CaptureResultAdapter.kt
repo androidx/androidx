@@ -21,7 +21,7 @@ import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestMetadata
-import androidx.camera.camera2.pipe.impl.Log
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.impl.CAMERAX_TAG_BUNDLE
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState
 import androidx.camera.core.impl.CameraCaptureMetaData.AfMode
@@ -58,11 +58,11 @@ class CaptureResultAdapter(
         when (val state = result.metadata[CaptureResult.CONTROL_AF_STATE]) {
             CaptureResult.CONTROL_AF_STATE_INACTIVE -> AfState.INACTIVE
             CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN,
-            CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-            CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED -> AfState.SCANNING
+            CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN -> AfState.SCANNING
             CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED -> AfState.LOCKED_FOCUSED
             CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED -> AfState.LOCKED_NOT_FOCUSED
-            CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED -> AfState.FOCUSED
+            CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED -> AfState.PASSIVE_FOCUSED
+            CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED -> AfState.PASSIVE_NOT_FOCUSED
             null -> AfState.UNKNOWN
             else -> {
                 Log.debug { "Unknown AF state ($state) for $frameNumber!" }

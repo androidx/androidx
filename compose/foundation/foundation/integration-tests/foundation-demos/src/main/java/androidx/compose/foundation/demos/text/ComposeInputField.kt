@@ -16,23 +16,24 @@
 
 package androidx.compose.foundation.demos.text
 
-import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.AmbientLayoutDirection
-import androidx.compose.ui.text.SoftwareKeyboardController
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -41,39 +42,48 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun InputFieldDemo() {
-    ScrollableColumn {
-        TagLine(tag = "LTR Layout")
-        Providers(AmbientLayoutDirection provides LayoutDirection.Ltr) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                TagLine(tag = "simple editing single line")
-                EditLine(singleLine = true)
-                TagLine(tag = "simple editing multi line")
-                EditLine(text = displayTextHindi)
-                TagLine(tag = "simple editing RTL")
-                EditLine(text = displayTextArabic)
+    LazyColumn {
+        item {
+            TagLine(tag = "LTR Layout")
+        }
+        item {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    TagLine(tag = "simple editing single line")
+                    EditLine(singleLine = true)
+                    TagLine(tag = "simple editing multi line")
+                    EditLine(text = displayTextHindi)
+                    TagLine(tag = "simple editing RTL")
+                    EditLine(text = displayTextArabic)
+                }
             }
         }
-        TagLine(tag = "RTL Layout")
-        Providers(AmbientLayoutDirection provides LayoutDirection.Rtl) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                TagLine(tag = "simple editing RTL")
-                EditLine()
-                EditLine(text = displayTextArabic)
-                EditLine(text = displayText)
+        item {
+            TagLine(tag = "RTL Layout")
+        }
+        item {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    TagLine(tag = "simple editing RTL")
+                    EditLine()
+                    EditLine(text = displayTextArabic)
+                    EditLine(text = displayText)
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 internal fun EditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
-    imeAction: ImeAction = ImeAction.Unspecified,
+    imeAction: ImeAction = ImeAction.Default,
     singleLine: Boolean = false,
     text: String = ""
 ) {
-    val controller = remember { mutableStateOf<SoftwareKeyboardController?>(null) }
-    val state = savedInstanceState { text }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val state = rememberSaveable { mutableStateOf(text) }
     BasicTextField(
         modifier = demoTextFieldModifiers,
         value = state.value,
@@ -82,12 +92,9 @@ internal fun EditLine(
             keyboardType = keyboardType,
             imeAction = imeAction
         ),
+        keyboardActions = KeyboardActions { keyboardController?.hide() },
         onValueChange = { state.value = it },
         textStyle = TextStyle(fontSize = fontSize8),
-        onTextInputStarted = { controller.value = it },
-        onImeActionPerformed = {
-            controller.value?.hideSoftwareKeyboard()
-        }
     )
 }
 

@@ -161,7 +161,7 @@ public class WebViewOnUiThread {
     }
 
     public static void destroy(final WebView webView) {
-        WebkitUtils.onMainThreadSync(() -> webView.destroy());
+        WebkitUtils.onMainThreadSync(webView::destroy);
     }
 
     public void setWebViewClient(final WebViewClient webviewClient) {
@@ -189,9 +189,8 @@ public class WebViewOnUiThread {
 
     public static void setWebViewRenderProcessClient(
             final WebView webView, final WebViewRenderProcessClient webViewRenderProcessClient) {
-        WebkitUtils.onMainThreadSync(() -> {
-            WebViewCompat.setWebViewRenderProcessClient(webView, webViewRenderProcessClient);
-        });
+        WebkitUtils.onMainThreadSync(() -> WebViewCompat.setWebViewRenderProcessClient(
+                webView, webViewRenderProcessClient));
     }
 
     public void setWebViewRenderProcessClient(
@@ -203,10 +202,8 @@ public class WebViewOnUiThread {
             final WebView webView,
             final Executor executor,
             final WebViewRenderProcessClient webViewRenderProcessClient) {
-        WebkitUtils.onMainThreadSync(() -> {
-            WebViewCompat.setWebViewRenderProcessClient(
-                    webView, executor, webViewRenderProcessClient);
-        });
+        WebkitUtils.onMainThreadSync(() -> WebViewCompat.setWebViewRenderProcessClient(
+                webView, executor, webViewRenderProcessClient));
     }
 
     public WebViewRenderProcessClient getWebViewRenderProcessClient() {
@@ -215,9 +212,8 @@ public class WebViewOnUiThread {
 
     public static WebViewRenderProcessClient getWebViewRenderProcessClient(
             final WebView webView) {
-        return WebkitUtils.onMainThreadSync(() -> {
-            return WebViewCompat.getWebViewRenderProcessClient(webView);
-        });
+        return WebkitUtils.onMainThreadSync(
+                () -> WebViewCompat.getWebViewRenderProcessClient(webView));
     }
 
     public WebMessagePortCompat[] createWebMessageChannelCompat() {
@@ -225,17 +221,14 @@ public class WebViewOnUiThread {
     }
 
     public void postWebMessageCompat(final WebMessageCompat message, final Uri targetOrigin) {
-        WebkitUtils.onMainThreadSync(() -> {
-            WebViewCompat.postWebMessage(mWebView, message, targetOrigin);
-        });
+        WebkitUtils.onMainThreadSync(
+                () -> WebViewCompat.postWebMessage(mWebView, message, targetOrigin));
     }
 
     public void addWebMessageListener(String jsObjectName, Set<String> allowedOriginRules,
             final WebViewCompat.WebMessageListener listener) {
-        WebkitUtils.onMainThreadSync(() -> {
-            WebViewCompat.addWebMessageListener(
-                    mWebView, jsObjectName, allowedOriginRules, listener);
-        });
+        WebkitUtils.onMainThreadSync(() -> WebViewCompat.addWebMessageListener(
+                mWebView, jsObjectName, allowedOriginRules, listener));
     }
 
     public void removeWebMessageListener(final String jsObjectName) {
@@ -243,11 +236,10 @@ public class WebViewOnUiThread {
                 () -> WebViewCompat.removeWebMessageListener(mWebView, jsObjectName));
     }
 
-    public ScriptReferenceCompat addDocumentStartJavaScript(
+    public ScriptHandler addDocumentStartJavaScript(
             String script, Set<String> allowedOriginRules) {
-        return WebkitUtils.onMainThreadSync(() -> {
-            return WebViewCompat.addDocumentStartJavaScript(mWebView, script, allowedOriginRules);
-        });
+        return WebkitUtils.onMainThreadSync(() -> WebViewCompat.addDocumentStartJavaScript(
+                mWebView, script, allowedOriginRules));
     }
 
     public void addJavascriptInterface(final Object object, final String name) {
@@ -284,10 +276,8 @@ public class WebViewOnUiThread {
     public void loadDataWithBaseURLAndWaitForCompletion(final String baseUrl,
             final String data, final String mimeType, final String encoding,
             final String historyUrl) {
-        callAndWait(() -> {
-            mWebView.loadDataWithBaseURL(baseUrl, data, mimeType, encoding,
-                    historyUrl);
-        });
+        callAndWait(() -> mWebView.loadDataWithBaseURL(
+                baseUrl, data, mimeType, encoding, historyUrl));
     }
 
     /**
@@ -296,7 +286,7 @@ public class WebViewOnUiThread {
      * similar functions.
      */
     void waitForLoadCompletion() {
-        waitForCriteria(LOAD_TIMEOUT, () -> isLoaded());
+        waitForCriteria(LOAD_TIMEOUT, this::isLoaded);
         clearLoad();
     }
 
@@ -322,9 +312,8 @@ public class WebViewOnUiThread {
 
     public void postVisualStateCallbackCompat(final long requestId,
             final WebViewCompat.VisualStateCallback callback) {
-        WebkitUtils.onMainThreadSync(() -> {
-            WebViewCompat.postVisualStateCallback(mWebView, requestId, callback);
-        });
+        WebkitUtils.onMainThreadSync(() -> WebViewCompat.postVisualStateCallback(
+                mWebView, requestId, callback));
     }
 
     /**
@@ -332,7 +321,7 @@ public class WebViewOnUiThread {
      */
     public String evaluateJavascriptSync(final String script) {
         final ResolvableFuture<String> future = ResolvableFuture.create();
-        evaluateJavascript(script, result -> future.set(result));
+        evaluateJavascript(script, future::set);
         return WebkitUtils.waitForFuture(future);
     }
 
@@ -365,12 +354,7 @@ public class WebViewOnUiThread {
      */
     public void waitForDOMReadyToRender() {
         final ResolvableFuture<Void> future = ResolvableFuture.create();
-        postVisualStateCallbackCompat(0, new WebViewCompat.VisualStateCallback() {
-            @Override
-            public void onComplete(long requestId) {
-                future.set(null);
-            }
-        });
+        postVisualStateCallbackCompat(0, requestId -> future.set(null));
         WebkitUtils.waitForFuture(future);
     }
 
@@ -483,11 +467,8 @@ public class WebViewOnUiThread {
 
         // Force loop to exit when processing this. Loop.quit() doesn't
         // work because this is the main Loop.
-        WebkitUtils.onMainThread(new Runnable() {
-            @Override
-            public void run() {
-                throw new ExitLoopException(); // exit loop!
-            }
+        WebkitUtils.onMainThread((Runnable) () -> {
+            throw new ExitLoopException(); // exit loop!
         });
         try {
             // Pump messages until our message gets through.

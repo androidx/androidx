@@ -16,7 +16,6 @@
 
 package androidx.compose.material.demos
 
-import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -25,11 +24,18 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredHeight
-import androidx.compose.foundation.layout.preferredWidth
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Checkbox
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
@@ -51,7 +57,9 @@ import androidx.compose.material.samples.TextFieldWithIcons
 import androidx.compose.material.samples.TextFieldWithPlaceholder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,39 +68,103 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun TextFieldsDemo() {
-    ScrollableColumn(
-        modifier = Modifier.fillMaxHeight(),
-        contentPadding = PaddingValues(10.dp)
+    LazyColumn(
+        modifier = Modifier.fillMaxHeight().width(300.dp)
     ) {
-        Text("Password text field")
-        PasswordTextField()
-        Text("Text field with leading and trailing icons")
-        TextFieldWithIcons()
-        Text("Outlined text field")
-        SimpleOutlinedTextFieldSample()
-        Text("Text field with placeholder")
-        TextFieldWithPlaceholder()
-        Text("Text field with error state handling")
-        TextFieldWithErrorState()
-        Text("Text field with helper/error message")
-        TextFieldWithHelperMessage()
-        Text("Hide keyboard on IME action")
-        TextFieldWithHideKeyboardOnImeAction()
-        Text("TextFieldValue overload")
-        TextFieldSample()
+        item {
+            Text("Password text field")
+            PasswordTextField()
+        }
+        item {
+            Text("Text field with leading and trailing icons")
+            TextFieldWithIcons()
+        }
+        item {
+            Text("Outlined text field")
+            SimpleOutlinedTextFieldSample()
+        }
+        item {
+            Text("Text field with placeholder")
+            TextFieldWithPlaceholder()
+        }
+        item {
+            Text("Text field with error state handling")
+            TextFieldWithErrorState()
+        }
+        item {
+            Text("Text field with helper message")
+            TextFieldWithHelperMessage()
+        }
+        item {
+            Text("Hide keyboard on IME action")
+            TextFieldWithHideKeyboardOnImeAction()
+        }
+        item {
+            Text("TextFieldValue overload")
+            TextFieldSample()
+        }
+        item {
+            Text("Outlined text field with custom shape")
+            CustomShapeOutlinedTextFieldSample()
+        }
+    }
+}
+
+@Composable
+fun VerticalAlignmentsInTextField() {
+    Column {
+        val singleLine = remember { mutableStateOf(false) }
+        val label = remember { mutableStateOf(false) }
+        val text = remember { mutableStateOf("") }
+
+        Spacer(Modifier.requiredHeight(10.dp))
+        OptionRow(
+            title = "Single line",
+            checked = singleLine.value,
+            onCheckedChange = { singleLine.value = it }
+        )
+        OptionRow(
+            title = "Label",
+            checked = label.value,
+            onCheckedChange = { label.value = it }
+        )
+
+        Spacer(Modifier.requiredHeight(10.dp))
+        val textFieldModifier = Modifier
+            .align(Alignment.CenterHorizontally)
+            .requiredWidth(300.dp)
+            .requiredHeightIn(max = 200.dp)
+            .then(if (singleLine.value) Modifier else Modifier.requiredHeightIn(min = 100.dp))
+        TextField(
+            value = text.value,
+            onValueChange = { text.value = it },
+            label = if (label.value) { @Composable { Text("Label") } } else null,
+            singleLine = singleLine.value,
+            modifier = textFieldModifier
+        )
+        Spacer(Modifier.requiredHeight(10.dp))
+        OutlinedTextField(
+            value = text.value,
+            onValueChange = { text.value = it },
+            label = if (label.value) { @Composable { Text("Label") } } else null,
+            singleLine = singleLine.value,
+            modifier = textFieldModifier
+        )
     }
 }
 
 @Composable
 fun MaterialTextFieldDemo() {
-    ScrollableColumn(contentPadding = PaddingValues(10.dp)) {
-        var text by savedInstanceState { "" }
-        var leadingChecked by savedInstanceState { false }
-        var trailingChecked by savedInstanceState { false }
-        val characterCounterChecked by savedInstanceState { false }
-        var singleLineChecked by savedInstanceState { true }
-        var selectedOption by savedInstanceState { Option.None }
-        var selectedTextField by savedInstanceState { TextFieldType.Filled }
+    Column(Modifier.verticalScroll(rememberScrollState()).padding(PaddingValues(10.dp))) {
+        var text by rememberSaveable { mutableStateOf("") }
+        var leadingChecked by rememberSaveable { mutableStateOf(false) }
+        var trailingChecked by rememberSaveable { mutableStateOf(false) }
+        val characterCounterChecked by rememberSaveable { mutableStateOf(false) }
+        var singleLineChecked by rememberSaveable { mutableStateOf(true) }
+        var selectedOption by rememberSaveable { mutableStateOf(Option.None) }
+        var selectedTextField by rememberSaveable { mutableStateOf(TextFieldType.Filled) }
+        var disabled by rememberSaveable { mutableStateOf(false) }
+        var readOnly by rememberSaveable { mutableStateOf(false) }
 
         val textField: @Composable () -> Unit = @Composable {
             when (selectedTextField) {
@@ -100,36 +172,56 @@ fun MaterialTextFieldDemo() {
                     TextField(
                         value = text,
                         onValueChange = { text = it },
+                        enabled = !disabled,
+                        readOnly = readOnly,
                         singleLine = singleLineChecked,
                         label = {
                             val label =
                                 "Label" + if (selectedOption == Option.Error) "*" else ""
                             Text(text = label)
                         },
-                        leadingIcon = { if (leadingChecked) Icon(Icons.Filled.Favorite) },
-                        trailingIcon = { if (trailingChecked) Icon(Icons.Filled.Info) },
-                        isErrorValue = selectedOption == Option.Error,
-                        modifier = Modifier.widthIn(max = 300.dp)
+                        leadingIcon = if (leadingChecked) {
+                            @Composable { Icon(Icons.Filled.Favorite, "Favorite") }
+                        } else {
+                            null
+                        },
+                        trailingIcon = if (trailingChecked) {
+                            @Composable { Icon(Icons.Filled.Info, "Info") }
+                        } else {
+                            null
+                        },
+                        isError = selectedOption == Option.Error,
+                        modifier = Modifier.requiredWidth(300.dp)
                     )
                 TextFieldType.Outlined ->
                     OutlinedTextField(
                         value = text,
                         onValueChange = { text = it },
+                        enabled = !disabled,
+                        readOnly = readOnly,
                         singleLine = singleLineChecked,
                         label = {
                             val label =
                                 "Label" + if (selectedOption == Option.Error) "*" else ""
                             Text(text = label)
                         },
-                        leadingIcon = { if (leadingChecked) Icon(Icons.Filled.Favorite) },
-                        trailingIcon = { if (trailingChecked) Icon(Icons.Filled.Info) },
-                        isErrorValue = selectedOption == Option.Error,
-                        modifier = Modifier.widthIn(max = 300.dp)
+                        leadingIcon = if (leadingChecked) {
+                            @Composable { Icon(Icons.Filled.Favorite, "Favorite") }
+                        } else {
+                            null
+                        },
+                        trailingIcon = if (trailingChecked) {
+                            @Composable { Icon(Icons.Filled.Info, "Info") }
+                        } else {
+                            null
+                        },
+                        isError = selectedOption == Option.Error,
+                        modifier = Modifier.requiredWidth(300.dp)
                     )
             }
         }
 
-        Box(Modifier.preferredHeight(150.dp).align(Alignment.CenterHorizontally)) {
+        Box(Modifier.height(150.dp).align(Alignment.CenterHorizontally)) {
             if (selectedOption == Option.None) {
                 textField()
             } else {
@@ -139,29 +231,27 @@ fun MaterialTextFieldDemo() {
 
         Column {
             Title("Text field type")
-            Column {
-                TextFieldType.values().map { it.name }.forEach { textType ->
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = (textType == selectedTextField.name),
-                                onClick = {
-                                    selectedTextField = TextFieldType.valueOf(textType)
-                                }
-                            )
-                            .padding(horizontal = 16.dp)
-                    ) {
-                        RadioButton(
+            TextFieldType.values().map { it.name }.forEach { textType ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .selectable(
                             selected = (textType == selectedTextField.name),
-                            onClick = { selectedTextField = TextFieldType.valueOf(textType) }
+                            onClick = {
+                                selectedTextField = TextFieldType.valueOf(textType)
+                            }
                         )
-                        Text(
-                            text = textType,
-                            style = MaterialTheme.typography.body1.merge(),
-                            modifier = Modifier.padding(start = 16.dp)
-                        )
-                    }
+                        .padding(horizontal = 16.dp)
+                ) {
+                    RadioButton(
+                        selected = (textType == selectedTextField.name),
+                        onClick = null
+                    )
+                    Text(
+                        text = textType,
+                        style = MaterialTheme.typography.body1.merge(),
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
                 }
             }
 
@@ -188,34 +278,56 @@ fun MaterialTextFieldDemo() {
                 onCheckedChange = { /* TODO */ }
             )
 
-            Spacer(Modifier.preferredHeight(20.dp))
+            Spacer(Modifier.height(20.dp))
 
             Title("Assistive text")
-            Column {
-                Option.values().map { it.name }.forEach { text ->
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = (text == selectedOption.name),
-                                onClick = { selectedOption = Option.valueOf(text) }
-                            )
-                            .padding(horizontal = 16.dp)
-                    ) {
-                        RadioButton(
+            Option.values().map { it.name }.forEach { text ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .selectable(
                             selected = (text == selectedOption.name),
                             onClick = { selectedOption = Option.valueOf(text) }
                         )
-                        Text(
-                            text = text,
-                            style = MaterialTheme.typography.body1.merge(),
-                            modifier = Modifier.padding(start = 16.dp)
-                        )
-                    }
+                        .padding(horizontal = 16.dp)
+                ) {
+                    RadioButton(
+                        selected = (text == selectedOption.name),
+                        onClick = null
+                    )
+                    Text(
+                        text = text,
+                        style = MaterialTheme.typography.body1.merge(),
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
                 }
             }
+
+            Title("Other settings")
+            OptionRow(
+                title = "Read-only",
+                checked = readOnly,
+                onCheckedChange = { readOnly = it }
+            )
+            OptionRow(
+                title = "Disabled",
+                checked = disabled,
+                onCheckedChange = { disabled = it }
+            )
         }
     }
+}
+
+@Composable
+fun CustomShapeOutlinedTextFieldSample() {
+    var text by rememberSaveable { mutableStateOf("") }
+
+    OutlinedTextField(
+        value = text,
+        onValueChange = { text = it },
+        label = { Text("Label") },
+        shape = CutCornerShape(5.dp)
+    )
 }
 
 /**
@@ -253,7 +365,7 @@ private fun ColumnScope.Title(title: String) {
         style = MaterialTheme.typography.body1,
         modifier = Modifier.align(Alignment.CenterHorizontally)
     )
-    Spacer(Modifier.preferredHeight(10.dp))
+    Spacer(Modifier.height(10.dp))
 }
 
 @Composable
@@ -263,9 +375,16 @@ private fun OptionRow(
     onCheckedChange: (Boolean) -> Unit,
     enabled: Boolean = true
 ) {
-    Row(Modifier.padding(start = 10.dp, top = 10.dp)) {
-        Checkbox(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
-        Spacer(Modifier.preferredWidth(20.dp))
+    Row(
+        Modifier
+            .padding(start = 10.dp, top = 10.dp)
+            .fillMaxWidth()
+            .toggleable(
+                value = checked, onValueChange = onCheckedChange, enabled = enabled
+            )
+    ) {
+        Checkbox(checked = checked, onCheckedChange = null, enabled = enabled)
+        Spacer(Modifier.width(20.dp))
         Text(text = title, style = MaterialTheme.typography.body1)
     }
 }

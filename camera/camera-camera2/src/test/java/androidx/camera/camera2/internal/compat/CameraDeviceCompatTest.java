@@ -46,9 +46,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
+@SuppressWarnings("deprecation")
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
+        instrumentedPackages = { "androidx.camera.camera2.internal.compat.params" })
 public final class CameraDeviceCompatTest {
 
     private static final int NUM_OUTPUTS = 3;

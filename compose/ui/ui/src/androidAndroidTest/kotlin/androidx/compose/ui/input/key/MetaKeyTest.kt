@@ -16,6 +16,9 @@
 
 package androidx.compose.ui.input.key
 
+import android.view.KeyEvent.KEYCODE_A as KeyCodeA
+import android.view.KeyEvent.ACTION_DOWN as KeyDown
+import android.view.KeyEvent as AndroidKeyEvent
 import android.view.KeyEvent.META_ALT_ON
 import android.view.KeyEvent.META_CTRL_ON
 import android.view.KeyEvent.META_META_ON
@@ -28,7 +31,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalKeyInput::class)
 class MetaKeyTest {
 
     @Test
@@ -128,6 +130,6 @@ class MetaKeyTest {
     }
 
     private fun testKeyEvent(androidMetaKeys: Int = 0): KeyEvent {
-        return keyEvent(Key.A, KeyEventType.KeyDown, androidMetaKeys)
+        return KeyEvent(AndroidKeyEvent(0L, 0L, KeyDown, KeyCodeA, 0, androidMetaKeys))
     }
 }

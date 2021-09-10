@@ -100,7 +100,8 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
                 return;
             }
 
-            Integer captureId = imageProxy.getImageInfo().getTagBundle().getTag(mTagBundleKey);
+            Integer captureId =
+                    (Integer) imageProxy.getImageInfo().getTagBundle().getTag(mTagBundleKey);
             if (captureId == null) {
                 throw new IllegalArgumentException("CaptureId is null.");
             }

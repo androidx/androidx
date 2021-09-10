@@ -47,8 +47,6 @@ MissingNullability: androidx.percentlayout.widget.PercentLayoutHelper.PercentLay
     Missing nullability on parameter `view` in method `fillMarginLayoutParams`
 MissingNullability: androidx.percentlayout.widget.PercentLayoutHelper.PercentLayoutInfo#fillMarginLayoutParams(android.view.View, android.view.ViewGroup.MarginLayoutParams, int, int) parameter #1:
     Missing nullability on parameter `params` in method `fillMarginLayoutParams`
-MissingNullability: androidx.percentlayout.widget.PercentLayoutHelper.PercentLayoutInfo#fillMarginLayoutParams(android.view.ViewGroup.MarginLayoutParams, int, int) parameter #0:
-    Missing nullability on parameter `params` in method `fillMarginLayoutParams`
 MissingNullability: androidx.percentlayout.widget.PercentLayoutHelper.PercentLayoutInfo#restoreLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
     Missing nullability on parameter `params` in method `restoreLayoutParams`
 MissingNullability: androidx.percentlayout.widget.PercentLayoutHelper.PercentLayoutInfo#restoreMarginLayoutParams(android.view.ViewGroup.MarginLayoutParams) parameter #0:

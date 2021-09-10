@@ -21,8 +21,6 @@
     <color name="colorAccent">#03DAC5</color>
 
     <color name="colorFeatureFold">#7700FF00</color>
-    <color name="colorFeatureHinge">#77FF0000</color>
-    <color name="colorFeatureUnknown">#77000000</color>
 
     <color name="colorSplitContentBackground">#3B6BDB4C</color>
     <color name="colorSplitControlsBackground">#475ABFF3</color>

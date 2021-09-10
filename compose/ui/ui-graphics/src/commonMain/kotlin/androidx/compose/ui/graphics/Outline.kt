@@ -22,10 +22,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.boundingRect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.util.annotation.FloatRange
 
 /**
  * Defines a simple shape, used for bounding graphical regions.
@@ -38,12 +38,29 @@ sealed class Outline {
      * Rectangular area.
      */
     @Immutable
-    data class Rectangle(val rect: Rect) : Outline()
+    class Rectangle(val rect: Rect) : Outline() {
+
+        override val bounds: Rect
+            get() = rect
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Rectangle) return false
+
+            if (rect != other.rect) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return rect.hashCode()
+        }
+    }
     /**
      * Rectangular area with rounded corners.
      */
     @Immutable
-    data class Rounded(val roundRect: RoundRect) : Outline() {
+    class Rounded(val roundRect: RoundRect) : Outline() {
 
         /**
          * Optional Path to be created for the RoundRect if the corner radii are not identical
@@ -60,13 +77,51 @@ sealed class Outline {
                 null
             }
         }
+
+        override val bounds: Rect
+            get() = roundRect.boundingRect
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Rounded) return false
+
+            if (roundRect != other.roundRect) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return roundRect.hashCode()
+        }
     }
     /**
      * An area defined as a path.
      *
-     * Note that only convex paths can be used for drawing the shadow. See [Path.isConvex].
+     * Note that if you use this path for drawing the shadow on Android versions less than 10 the
+     * shadow will not be drawn for the concave paths. See [Path.isConvex].
      */
-    data class Generic(val path: Path) : Outline()
+    class Generic(val path: Path) : Outline() {
+        override val bounds: Rect
+            get() = path.getBounds()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Generic) return false
+
+            if (path != other.path) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return path.hashCode()
+        }
+    }
+
+    /**
+     * Return the bounds of the outline
+     */
+    abstract val bounds: Rect
 }
 
 /**
@@ -92,7 +147,8 @@ fun Path.addOutline(outline: Outline) = when (outline) {
 fun DrawScope.drawOutline(
     outline: Outline,
     color: Color,
-    @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
+    /*@FloatRange(from = 0.0, to = 1.0)*/
+    alpha: Float = 1.0f,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
     blendMode: BlendMode = DrawScope.DefaultBlendMode
@@ -131,7 +187,8 @@ fun DrawScope.drawOutline(
 fun DrawScope.drawOutline(
     outline: Outline,
     brush: Brush,
-    @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
+    /*@FloatRange(from = 0.0, to = 1.0)*/
+    alpha: Float = 1.0f,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
     blendMode: BlendMode = DrawScope.DefaultBlendMode

@@ -16,7 +16,10 @@
 
 package androidx.car.app.model.constraints;
 
+import static androidx.annotation.RestrictTo.Scope;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarColor.CarColorType;
 
@@ -24,8 +27,11 @@ import java.util.HashSet;
 
 /**
  * Encapsulates the constraints to apply when rendering a {@link CarColor} on a template.
+ *
+ * @hide
  */
-public class CarColorConstraints {
+@RestrictTo(Scope.LIBRARY)
+public final class CarColorConstraints {
 
     @NonNull
     public static final CarColorConstraints UNCONSTRAINED =
@@ -64,7 +70,7 @@ public class CarColorConstraints {
     /**
      * Returns {@code true} if the {@link CarColor} meets the constraints' requirement.
      *
-     * @throws IllegalArgumentException if the color type is not allowed.
+     * @throws IllegalArgumentException if the color type is not allowed
      */
     public void validateOrThrow(@NonNull CarColor carColor) {
         @CarColorType int type = carColor.getType();
@@ -74,9 +80,9 @@ public class CarColorConstraints {
     }
 
     private CarColorConstraints(int[] allowedColorTypes) {
-        this.mAllowedTypes = new HashSet<>();
+        mAllowedTypes = new HashSet<>();
         for (int type : allowedColorTypes) {
-            this.mAllowedTypes.add(type);
+            mAllowedTypes.add(type);
         }
     }
 }

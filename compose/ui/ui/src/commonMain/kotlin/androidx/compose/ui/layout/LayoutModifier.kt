@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.IntSize
  * the [androidx.compose.ui.layout.Layout] component is used to define the layout behavior of
  * multiple children.
  *
+ * @sample androidx.compose.ui.samples.LayoutModifierSample
+ *
  * @see androidx.compose.ui.layout.Layout
  */
 interface LayoutModifier : Modifier.Element {
@@ -45,6 +47,10 @@ interface LayoutModifier : Modifier.Element {
      * [Placeable], which defines how the wrapped content should be positioned inside
      * the [LayoutModifier]. A convenient way to create the [MeasureResult]
      * is to use the [MeasureScope.layout] factory function.
+     *
+     * A [LayoutModifier] uses the same measurement and layout concepts and principles as a
+     * [Layout], the only difference is that they apply to exactly one child. For a more detailed
+     * explanation of measurement and layout, see [MeasurePolicy].
      */
     fun MeasureScope.measure(
         measurable: Measurable,
@@ -229,7 +235,7 @@ private object MeasuringIntrinsics {
             measuredSize = IntSize(width, height)
         }
 
-        override fun get(line: AlignmentLine): Int = AlignmentLine.Unspecified
+        override fun get(alignmentLine: AlignmentLine): Int = AlignmentLine.Unspecified
         override fun placeAt(
             position: IntOffset,
             zIndex: Float,

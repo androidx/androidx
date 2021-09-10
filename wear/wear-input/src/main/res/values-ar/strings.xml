@@ -3,7 +3,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="buttons_round_top_center" msgid="5559087816427379703">"الأعلى"</string>
     <string name="buttons_round_top_right" msgid="4871780374047139328">"أعلى اليمين"</string>
-    <string name="buttons_round_center_right" msgid="1509579668330531551">"توسيط لليمين"</string>
+    <string name="buttons_round_center_right" msgid="1509579668330531551">"أوسط اليمين"</string>
     <string name="buttons_round_bottom_right" msgid="2377403938095293895">"أسفل اليمين"</string>
     <string name="buttons_round_bottom_center" msgid="7330585893633364324">"الأسفل"</string>
     <string name="buttons_round_bottom_left" msgid="2128239325315047486">"أسفل اليسار"</string>
@@ -21,7 +21,7 @@
     <string name="buttons_rect_left_center" msgid="2090348335774325845">"توسيط لليسار"</string>
     <string name="buttons_rect_left_bottom" msgid="2890382227404669440">"الأسفل، جهة اليسار"</string>
     <string name="buttons_rect_right_top" msgid="8781047384037217975">"الأعلى، جهة اليمين"</string>
-    <string name="buttons_rect_right_center" msgid="9046922334870476704">"توسيط لليمين"</string>
+    <string name="buttons_rect_right_center" msgid="9046922334870476704">"أوسط اليمين"</string>
     <string name="buttons_rect_right_bottom" msgid="231110280868923853">"الأسفل، جهة اليمين"</string>
     <string name="buttons_rect_top_left" msgid="7572206729575579647">"أعلى اليسار"</string>
     <string name="buttons_rect_top_center" msgid="79705740801041383">"الأعلى"</string>

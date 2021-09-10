@@ -71,6 +71,8 @@ class regexes_matcher(object):
             if self.matches(text):
                 return 0
             return None
+        if not self.matches(text):
+            return None
         self.ensure_split()
         count = 0
         for child in self.children:
@@ -102,32 +104,14 @@ class regexes_matcher(object):
         return self.matcher.fullmatch(text)
 
 
-def select_failing_task_output(lines):
+def print_failing_task_names(lines):
     tasks_of_interest = []
     # first, find tasks of interest
     for line in lines:
         if line.startswith("Execution failed for task"):
             tasks_of_interest.append(line.split("task '")[1][:-3])
 
-
     print("Detected these failing tasks: " + str(tasks_of_interest))
-
-    # next, save all excerpts between start(interesting task) and end(interesting task)
-    current_interesting_tasks = []
-    retained_lines = []
-    for line in lines:
-        if line.startswith("Task ") and line.split(" ")[1] in tasks_of_interest:
-            if line.split(" ")[-1].strip() == "Starting":
-                current_interesting_tasks.append(line.split(" ")[1])
-            elif line.split(" ")[-1].strip() == "Finished":
-                current_interesting_tasks.remove(line.split(" ")[1])
-                retained_lines.append(line)
-        if current_interesting_tasks: retained_lines.append(line)
-    if retained_lines:
-        return retained_lines
-    # if no output was created by any failing tasks, then maybe there could be useful output from
-    # somewhere else
-    return lines
 
 def shorten_uninteresting_stack_frames(lines):
     result = []
@@ -145,46 +129,6 @@ def shorten_uninteresting_stack_frames(lines):
             result.append(line)
             prev_line_is_boring = False
     return result
-
-def remove_known_uninteresting_lines(lines):
-  skipLines = {
-      "A fine-grained performance profile is available: use the --scan option.",
-      "* Get more help at https://help.gradle.org",
-      "Use '--warning-mode all' to show the individual deprecation warnings.",
-      "See https://docs.gradle.org/6.5/userguide/command_line_interface.html#sec:command_line_warnings",
-
-      "Note: Some input files use or override a deprecated API.",
-      "Note: Recompile with -Xlint:deprecation for details.",
-      "Note: Some input files use unchecked or unsafe operations.",
-      "Note: Recompile with -Xlint:unchecked for details.",
-
-      "w: ATTENTION!",
-      "This build uses unsafe internal compiler arguments:",
-      "-XXLanguage:-NewInference",
-      "-XXLanguage:+InlineClasses",
-      "This mode is not recommended for production use,",
-      "as no stability/compatibility guarantees are given on",
-      "compiler or generated code. Use it at your own risk!"
-  }
-  skipPrefixes = [
-      "See the profiling report at:",
-
-      "Deprecated Gradle features were used in this build"
-  ]
-  result = []
-  for line in lines:
-      stripped = line.strip()
-      if stripped in skipLines:
-          continue
-      include = True
-      for prefix in skipPrefixes:
-          if stripped.startswith(prefix):
-              include = False
-              break
-      if include:
-          result.append(line)
-  return result
-
 
 # Returns the path of the config file holding exemptions for deterministic/consistent output.
 # These exemptions can be garbage collected via the `--gc` argument
@@ -260,6 +204,23 @@ def collapse_consecutive_blank_lines(lines):
             prev_blank = False
     return result
 
+def extract_task_name(line):
+    prefix = "> Task "
+    if line.startswith(prefix):
+        return line[len(prefix):].strip()
+    return None
+
+def is_task_line(line):
+    return extract_task_name(line) is not None
+
+def extract_task_names(lines):
+    names = []
+    for line in lines:
+        name = extract_task_name(line)
+        if name is not None and name not in names:
+            names.append(name)
+    return names
+
 # If a task has no output (or only blank output), this function removes the task (and its output)
 # For example, turns this:
 #  > Task :a
@@ -277,8 +238,8 @@ def collapse_tasks_having_no_output(lines):
     pending_task = None
     pending_blanks = []
     for line in lines:
-        is_task = line.startswith("> Task ") or line.startswith("> Configure project ")
-        if is_task:
+        is_section = is_task_line(line) or line.startswith("> Configure project ") or line.startswith("FAILURE: Build failed with an exception.")
+        if is_section:
             pending_task = line
             pending_blanks = []
         elif line.strip() == "":
@@ -408,12 +369,12 @@ def suggest_missing_exemptions(messages, config_lines):
         if line == "":
             continue
         # save task name
-        is_task = False
-        if line.startswith("> Task :") or line.startswith("> Configure project "):
+        is_section = False
+        if is_task_line(line) or line.startswith("> Configure project "):
             # If a task creates output, we record its name
             line = "# " + line
             pending_task_line = line
-            is_task = True
+            is_section = True
         # determine where to put task name
         current_found_index = existing_matcher.index_first_matching_regex(line)
         if current_found_index is not None:
@@ -423,7 +384,7 @@ def suggest_missing_exemptions(messages, config_lines):
             pending_task_line = None
             continue
         # skip outputting task names for tasks that don't output anything
-        if is_task:
+        if is_section:
             continue
 
         # escape message
@@ -541,9 +502,7 @@ def main():
     validate = update or arguments.validate
     interesting_lines = all_lines
     if not validate:
-        interesting_lines = select_failing_task_output(interesting_lines)
-    interesting_lines = shorten_uninteresting_stack_frames(interesting_lines)
-    interesting_lines = remove_known_uninteresting_lines(interesting_lines)
+        print_failing_task_names(interesting_lines)
     interesting_lines = remove_by_regexes(interesting_lines, exemption_regexes, validate)
     interesting_lines = collapse_tasks_having_no_output(interesting_lines)
     interesting_lines = collapse_consecutive_blank_lines(interesting_lines)
@@ -562,30 +521,32 @@ def main():
         if len(interesting_lines) != 0:
             print("")
             print("=" * 80)
-            print("build_log_simplifier.py: Error: Found " + str(len(interesting_lines)) + " lines of new warning output:")
+            print("build_log_simplifier.py: Error: Found " + str(len(interesting_lines)) + " new lines of warning output!")
             print("")
-            print("".join(interesting_lines))
-            print("=" * 80)
-            print("Error: build_log_simplifier.py found " + str(len(interesting_lines)) + " new lines of output")
+            print("The new output:")
+            print("  " + "  ".join(interesting_lines))
             print("")
-            print("  Log     : " + ",".join(log_paths))
-            print("  Baseline: " + get_deterministic_exemptions_path())
+            print("To reproduce this failure:")
+            print("  Try $ ./gradlew -Pandroidx.validateNoUnrecognizedMessages --rerun-tasks " + " ".join(extract_task_names(interesting_lines)))
+            print("")
+            print("Instructions:")
+            print("  Fix these messages if you can.")
+            print("  Otherwise, you may suppress them.")
+            print("  See also https://android.googlesource.com/platform/frameworks/support/+/androidx-main/development/build_log_simplifier/VALIDATION_FAILURE.md")
+            print("")
             new_exemptions_path = log_paths[0] + ".ignore"
             # filter out any inconsistently observed messages so we don't try to exempt them twice
             all_lines = remove_by_regexes(all_lines, flake_exemption_regexes, validate)
             # update deterministic exemptions file based on the result
             suggested = generate_suggested_exemptions(all_lines, deterministic_exemption_regexes, arguments.gc)
             writelines(new_exemptions_path, suggested)
-            print("")
-            print("Please fix or suppress these new messages in the tool that generates them.")
-            print("If you cannot, then you can exempt them by doing:")
-            print("")
-            print("  cp " + new_exemptions_path + " " + get_deterministic_exemptions_path())
-            print("")
-            print("For more information, see https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/development/build_log_simplifier/VALIDATION_FAILURE.md")
-            print("=" * 80)
+            print("Files:")
+            print("  Full Log                   : " + ",".join(log_paths))
+            print("  Baseline                   : " + get_deterministic_exemptions_path())
+            print("  Autogenerated new baseline : " + new_exemptions_path)
             exit(1)
     else:
+        interesting_lines = shorten_uninteresting_stack_frames(interesting_lines)
         print("".join(interesting_lines))
 
 if __name__ == "__main__":

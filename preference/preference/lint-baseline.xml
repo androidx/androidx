@@ -1,213 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
-        id="UnusedAttribute"
-        message="Attribute `fontFamily` is only used in API level 16 and higher (current min is 14) Did you mean `app:fontFamily` ?"
-        errorLine1="                      android:fontFamily=&quot;sans-serif-condensed&quot;"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="res/layout/preference_widget_seekbar.xml"
-            line="95"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.preference.PreferenceCategory is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 28; however, the containing class androidx.preference.PreferenceCategory is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            holder.itemView.setAccessibilityHeading(true);"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceCategory.java"
             line="73"
             column="29"/>
-    </issue>
-
-    <issue
-        id="HandlerLeak"
-        message="This `Handler` class should be static or leaks might occur (anonymous android.os.Handler)"
-        errorLine1="    private final Handler mHandler = new Handler() {"
-        errorLine2="                                     ^">
-        <location
-            file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="127"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="HandlerLeak"
-        message="This `Handler` class should be static or leaks might occur (anonymous android.os.Handler)"
-        errorLine1="    private Handler mHandler = new Handler() {"
-        errorLine2="                               ^">
-        <location
-            file="src/main/java/androidx/preference/PreferenceFragmentCompat.java"
-            line="122"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="DisableBaselineAlignment"
-        message="Set `android:baselineAligned=&quot;false&quot;` on this element for better performance"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~~~~~">
-        <location
-            file="res/layout/preference.xml"
-            line="18"
-            column="2"/>
-    </issue>
-
-    <issue
-        id="DisableBaselineAlignment"
-        message="Set `android:baselineAligned=&quot;false&quot;` on this element for better performance"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; "
-        errorLine2=" ~~~~~~~~~~~~">
-        <location
-            file="res/layout/preference_information.xml"
-            line="20"
-            column="2"/>
-    </issue>
-
-    <issue
-        id="DisableBaselineAlignment"
-        message="Set `android:baselineAligned=&quot;false&quot;` on this element for better performance"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~~~~~">
-        <location
-            file="res/layout/preference_information_material.xml"
-            line="19"
-            column="2"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?android:attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
-        errorLine1="    android:background=&quot;?android:attr/selectableItemBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="res/layout/expand_button.xml"
-            line="29"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?android:attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
-        errorLine1="    android:background=&quot;?android:attr/selectableItemBackground&quot;>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="res/layout/preference.xml"
-            line="26"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?android:attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
-        errorLine1="    android:background=&quot;?android:attr/selectableItemBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="res/layout/preference_category_material.xml"
-            line="26"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?android:attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
-        errorLine1="    android:background=&quot;?android:attr/selectableItemBackground&quot;>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="res/layout/preference_dropdown.xml"
-            line="26"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?android:attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
-        errorLine1="    android:background=&quot;?android:attr/selectableItemBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="res/layout/preference_material.xml"
-            line="28"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?android:attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
-        errorLine1="    android:background=&quot;?android:attr/selectableItemBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="res/layout/preference_widget_seekbar_material.xml"
-            line="29"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="TextFields"
-        message="This text field does not specify an `inputType`"
-        errorLine1="    &lt;EditText"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="res/layout/preference_dialog_edittext.xml"
-            line="43"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="Autofill"
-        message="Missing `autofillHints` attribute"
-        errorLine1="    &lt;EditText"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="res/layout/preference_dialog_edittext.xml"
-            line="43"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="res/layout/preference_information_material.xml"
-            line="36"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="res/layout/preference_widget_seekbar.xml"
-            line="28"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="LabelFor"
-        message="Missing accessibility label: where minSdk &lt; 17, you should provide an `android:hint`"
-        errorLine1="    &lt;EditText"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="res/layout/preference_dialog_edittext.xml"
-            line="43"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="LabelFor"
-        message="Missing accessibility label: when using `android:labelFor`, you must also define an `android:text` or an `android:contentDescription`"
-        errorLine1="                android:labelFor=&quot;@id/seekbar&quot;"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="res/layout/preference_widget_seekbar_material.xml"
-            line="52"
-            column="17"/>
     </issue>
 
     <issue
@@ -877,7 +679,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/EditTextPreferenceDialogFragmentCompat.java"
-            line="36"
+            line="48"
             column="19"/>
     </issue>
 
@@ -888,7 +690,7 @@
         errorLine2="                                                                     ~~~~~~">
         <location
             file="src/main/java/androidx/preference/EditTextPreferenceDialogFragmentCompat.java"
-            line="36"
+            line="48"
             column="70"/>
     </issue>
 
@@ -899,7 +701,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/preference/EditTextPreferenceDialogFragmentCompat.java"
-            line="46"
+            line="58"
             column="26"/>
     </issue>
 
@@ -910,7 +712,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/preference/EditTextPreferenceDialogFragmentCompat.java"
-            line="62"
+            line="74"
             column="37"/>
     </issue>
 
@@ -2215,17 +2017,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        CharSequence provideSummary(T preference);"
-        errorLine2="                                    ~">
-        <location
-            file="src/main/java/androidx/preference/Preference.java"
-            line="2189"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public BaseSavedState(Parcel source) {"
         errorLine2="                              ~~~~~~">
         <location
@@ -2516,7 +2307,7 @@
         errorLine2="              ~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragment.java"
-            line="256"
+            line="255"
             column="15"/>
     </issue>
 
@@ -2527,7 +2318,7 @@
         errorLine2="                                      ~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragment.java"
-            line="256"
+            line="255"
             column="39"/>
     </issue>
 
@@ -2538,7 +2329,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragment.java"
-            line="276"
+            line="275"
             column="37"/>
     </issue>
 
@@ -2549,7 +2340,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragment.java"
-            line="302"
+            line="301"
             column="25"/>
     </issue>
 
@@ -2560,7 +2351,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragment.java"
-            line="307"
+            line="306"
             column="27"/>
     </issue>
 
@@ -2571,7 +2362,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragmentCompat.java"
-            line="79"
+            line="78"
             column="26"/>
     </issue>
 
@@ -2582,7 +2373,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragmentCompat.java"
-            line="140"
+            line="139"
             column="27"/>
     </issue>
 
@@ -2593,7 +2384,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragmentCompat.java"
-            line="174"
+            line="173"
             column="12"/>
     </issue>
 
@@ -2604,7 +2395,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragmentCompat.java"
-            line="190"
+            line="189"
             column="43"/>
     </issue>
 
@@ -2615,7 +2406,7 @@
         errorLine2="              ~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragmentCompat.java"
-            line="233"
+            line="242"
             column="15"/>
     </issue>
 
@@ -2626,7 +2417,7 @@
         errorLine2="                                      ~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragmentCompat.java"
-            line="233"
+            line="242"
             column="39"/>
     </issue>
 
@@ -2637,7 +2428,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragmentCompat.java"
-            line="249"
+            line="258"
             column="37"/>
     </issue>
 
@@ -2648,7 +2439,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/PreferenceDialogFragmentCompat.java"
-            line="271"
+            line="280"
             column="25"/>
     </issue>
 
@@ -2826,17 +2617,6 @@
             file="src/main/java/androidx/preference/PreferenceFragment.java"
             line="456"
             column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public &lt;T extends Preference> T findPreference(CharSequence key) {"
-        errorLine2="                                  ~">
-        <location
-            file="src/main/java/androidx/preference/PreferenceFragment.java"
-            line="480"
-            column="35"/>
     </issue>
 
     <issue

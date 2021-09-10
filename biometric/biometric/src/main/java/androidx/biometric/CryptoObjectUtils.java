@@ -16,6 +16,7 @@
 
 package androidx.biometric;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
@@ -235,6 +236,7 @@ class CryptoObjectUtils {
      *
      * @return An internal-only instance of {@link androidx.biometric.BiometricPrompt.CryptoObject}.
      */
+    @SuppressLint("TrulyRandom")
     @RequiresApi(Build.VERSION_CODES.M)
     @Nullable
     static BiometricPrompt.CryptoObject createFakeCryptoObject() {

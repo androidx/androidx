@@ -48,7 +48,8 @@ final class BlockingReceiver extends BroadcastReceiver {
     private BlockingReceiver(Context context, String action) {
         mContext = Preconditions.checkNotNull(context);
         mExpectedAction = Preconditions.checkNotNull(action);
-        mIntent = PendingIntent.getBroadcast(mContext, 0, new Intent(mExpectedAction), 0);
+        mIntent = PendingIntent.getBroadcast(mContext, 0, new Intent(mExpectedAction),
+                PendingIntent.FLAG_IMMUTABLE);
         mLatch = new CountDownLatch(1);
     }
 

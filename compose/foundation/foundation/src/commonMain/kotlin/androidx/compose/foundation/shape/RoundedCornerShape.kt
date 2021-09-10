@@ -23,62 +23,90 @@ import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.annotation.IntRange
 
 /**
  * A shape describing the rectangle with rounded corners.
  *
- * @param topLeft a size of the top left corner
- * @param topRight a size of the top right corner
- * @param bottomRight a size of the bottom left corner
- * @param bottomLeft a size of the bottom right corner
+ * This shape will automatically mirror the corner sizes in [LayoutDirection.Rtl], use
+ * [AbsoluteRoundedCornerShape] for the layout direction unaware version of this shape.
+ *
+ * @param topStart a size of the top start corner
+ * @param topEnd a size of the top end corner
+ * @param bottomEnd a size of the bottom end corner
+ * @param bottomStart a size of the bottom start corner
  */
 class RoundedCornerShape(
-    topLeft: CornerSize,
-    topRight: CornerSize,
-    bottomRight: CornerSize,
-    bottomLeft: CornerSize
-) : CornerBasedShape(topLeft, topRight, bottomRight, bottomLeft) {
+    topStart: CornerSize,
+    topEnd: CornerSize,
+    bottomEnd: CornerSize,
+    bottomStart: CornerSize
+) : CornerBasedShape(
+    topStart = topStart,
+    topEnd = topEnd,
+    bottomEnd = bottomEnd,
+    bottomStart = bottomStart
+) {
 
     override fun createOutline(
         size: Size,
-        topLeft: Float,
-        topRight: Float,
-        bottomRight: Float,
-        bottomLeft: Float
-    ) = if (topLeft + topRight + bottomLeft + bottomRight == 0.0f) {
+        topStart: Float,
+        topEnd: Float,
+        bottomEnd: Float,
+        bottomStart: Float,
+        layoutDirection: LayoutDirection
+    ) = if (topStart + topEnd + bottomEnd + bottomStart == 0.0f) {
         Outline.Rectangle(size.toRect())
     } else {
         Outline.Rounded(
             RoundRect(
                 rect = size.toRect(),
-                topLeft = topLeft.toRadius(),
-                topRight = topRight.toRadius(),
-                bottomRight = bottomRight.toRadius(),
-                bottomLeft = bottomLeft.toRadius()
+                topLeft = CornerRadius(if (layoutDirection == Ltr) topStart else topEnd),
+                topRight = CornerRadius(if (layoutDirection == Ltr) topEnd else topStart),
+                bottomRight = CornerRadius(if (layoutDirection == Ltr) bottomEnd else bottomStart),
+                bottomLeft = CornerRadius(if (layoutDirection == Ltr) bottomStart else bottomEnd)
             )
         )
     }
 
     override fun copy(
-        topLeft: CornerSize,
-        topRight: CornerSize,
-        bottomRight: CornerSize,
-        bottomLeft: CornerSize
+        topStart: CornerSize,
+        topEnd: CornerSize,
+        bottomEnd: CornerSize,
+        bottomStart: CornerSize
     ) = RoundedCornerShape(
-        topLeft = topLeft,
-        topRight = topRight,
-        bottomRight = bottomRight,
-        bottomLeft = bottomLeft
+        topStart = topStart,
+        topEnd = topEnd,
+        bottomEnd = bottomEnd,
+        bottomStart = bottomStart
     )
 
     override fun toString(): String {
-        return "RoundedCornerShape(topLeft = $topLeft, topRight = $topRight, bottomRight = " +
-            "$bottomRight, bottomLeft = $bottomLeft)"
+        return "RoundedCornerShape(topStart = $topStart, topEnd = $topEnd, bottomEnd = " +
+            "$bottomEnd, bottomStart = $bottomStart)"
     }
 
-    private /*inline*/ fun Float.toRadius() = CornerRadius(this)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RoundedCornerShape) return false
+
+        if (topStart != other.topStart) return false
+        if (topEnd != other.topEnd) return false
+        if (bottomEnd != other.bottomEnd) return false
+        if (bottomStart != other.bottomStart) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = topStart.hashCode()
+        result = 31 * result + topEnd.hashCode()
+        result = 31 * result + bottomEnd.hashCode()
+        result = 31 * result + bottomStart.hashCode()
+        return result
+    }
 }
 
 /**
@@ -90,69 +118,82 @@ val CircleShape = RoundedCornerShape(50)
  * Creates [RoundedCornerShape] with the same size applied for all four corners.
  * @param corner [CornerSize] to apply.
  */
-/*inline*/ fun RoundedCornerShape(corner: CornerSize) =
+fun RoundedCornerShape(corner: CornerSize) =
     RoundedCornerShape(corner, corner, corner, corner)
 
 /**
  * Creates [RoundedCornerShape] with the same size applied for all four corners.
  * @param size Size in [Dp] to apply.
  */
-/*inline*/ fun RoundedCornerShape(size: Dp) = RoundedCornerShape(CornerSize(size))
+fun RoundedCornerShape(size: Dp) = RoundedCornerShape(CornerSize(size))
 
 /**
  * Creates [RoundedCornerShape] with the same size applied for all four corners.
  * @param size Size in pixels to apply.
  */
-/*inline*/ fun RoundedCornerShape(size: Float) = RoundedCornerShape(CornerSize(size))
+fun RoundedCornerShape(size: Float) = RoundedCornerShape(CornerSize(size))
 
 /**
  * Creates [RoundedCornerShape] with the same size applied for all four corners.
  * @param percent Size in percents to apply.
  */
-/*inline*/ fun RoundedCornerShape(percent: Int) =
+fun RoundedCornerShape(percent: Int) =
     RoundedCornerShape(CornerSize(percent))
 
 /**
  * Creates [RoundedCornerShape] with sizes defined in [Dp].
  */
-/*inline*/ fun RoundedCornerShape(
-    topLeft: Dp = 0.dp,
-    topRight: Dp = 0.dp,
-    bottomRight: Dp = 0.dp,
-    bottomLeft: Dp = 0.dp
+fun RoundedCornerShape(
+    topStart: Dp = 0.dp,
+    topEnd: Dp = 0.dp,
+    bottomEnd: Dp = 0.dp,
+    bottomStart: Dp = 0.dp
 ) = RoundedCornerShape(
-    CornerSize(topLeft),
-    CornerSize(topRight),
-    CornerSize(bottomRight),
-    CornerSize(bottomLeft)
+    topStart = CornerSize(topStart),
+    topEnd = CornerSize(topEnd),
+    bottomEnd = CornerSize(bottomEnd),
+    bottomStart = CornerSize(bottomStart)
 )
 
 /**
  * Creates [RoundedCornerShape] with sizes defined in pixels.
  */
-/*inline*/ fun RoundedCornerShape(
-    topLeft: Float = 0.0f,
-    topRight: Float = 0.0f,
-    bottomRight: Float = 0.0f,
-    bottomLeft: Float = 0.0f
+fun RoundedCornerShape(
+    topStart: Float = 0.0f,
+    topEnd: Float = 0.0f,
+    bottomEnd: Float = 0.0f,
+    bottomStart: Float = 0.0f
 ) = RoundedCornerShape(
-    CornerSize(topLeft),
-    CornerSize(topRight),
-    CornerSize(bottomRight),
-    CornerSize(bottomLeft)
+    topStart = CornerSize(topStart),
+    topEnd = CornerSize(topEnd),
+    bottomEnd = CornerSize(bottomEnd),
+    bottomStart = CornerSize(bottomStart)
 )
 
 /**
  * Creates [RoundedCornerShape] with sizes defined in percents of the shape's smaller side.
+ *
+ * @param topStartPercent The top start corner radius as a percentage of the smaller side, with a
+ * range of 0 - 100.
+ * @param topEndPercent The top end corner radius as a percentage of the smaller side, with a
+ * range of 0 - 100.
+ * @param bottomEndPercent The bottom end corner radius as a percentage of the smaller side,
+ * with a range of 0 - 100.
+ * @param bottomStartPercent The bottom start corner radius as a percentage of the smaller side,
+ * with a range of 0 - 100.
  */
-/*inline*/ fun RoundedCornerShape(
-    @IntRange(from = 0, to = 100) topLeftPercent: Int = 0,
-    @IntRange(from = 0, to = 100) topRightPercent: Int = 0,
-    @IntRange(from = 0, to = 100) bottomRightPercent: Int = 0,
-    @IntRange(from = 0, to = 100) bottomLeftPercent: Int = 0
+fun RoundedCornerShape(
+    /*@IntRange(from = 0, to = 100)*/
+    topStartPercent: Int = 0,
+    /*@IntRange(from = 0, to = 100)*/
+    topEndPercent: Int = 0,
+    /*@IntRange(from = 0, to = 100)*/
+    bottomEndPercent: Int = 0,
+    /*@IntRange(from = 0, to = 100)*/
+    bottomStartPercent: Int = 0
 ) = RoundedCornerShape(
-    CornerSize(topLeftPercent),
-    CornerSize(topRightPercent),
-    CornerSize(bottomRightPercent),
-    CornerSize(bottomLeftPercent)
+    topStart = CornerSize(topStartPercent),
+    topEnd = CornerSize(topEndPercent),
+    bottomEnd = CornerSize(bottomEndPercent),
+    bottomStart = CornerSize(bottomStartPercent)
 )

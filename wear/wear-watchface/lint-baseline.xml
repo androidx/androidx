@@ -1,88 +1,488 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha03" type="baseline" client="gradle" name="AGP (7.1.0-alpha03)" variant="all" version="7.1.0-alpha03">
 
     <issue
-        id="BanTargetApiAnnotation"
-        message="Uses @TargetApi annotation"
-        errorLine1="@TargetApi(16)"
-        errorLine2="~~~~~~~~~~~~~~">
+        id="MissingClass"
+        message="Class referenced in the layout file, `androidx.wear.widget.SwipeDismissFrameLayout`, was not found in the project or the libraries"
+        errorLine1="&lt;androidx.wear.widget.SwipeDismissFrameLayout"
+        errorLine2="^">
         <location
-            file="src/main/java/androidx/wear/watchface/ui/WatchFaceConfigActivity.kt"
-            line="71"
+            file="src/main/res/layout/complication_config_layout.xml"
+            line="2"
             column="1"/>
     </issue>
 
     <issue
-        id="BanTargetApiAnnotation"
-        message="Uses @TargetApi annotation"
-        errorLine1="@TargetApi(26)"
-        errorLine2="~~~~~~~~~~~~~~">
+        id="MissingClass"
+        message="Class referenced in the layout file, `androidx.wear.widget.SwipeDismissFrameLayout`, was not found in the project or the libraries"
+        errorLine1="&lt;androidx.wear.widget.SwipeDismissFrameLayout"
+        errorLine2="^">
         <location
-            file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"
-            line="200"
+            file="src/main/res/layout/config_layout.xml"
+            line="2"
             column="1"/>
     </issue>
 
     <issue
-        id="ExportedService"
-        message="Exported service does not require permission"
-        errorLine1="    &lt;service"
-        errorLine2="     ~~~~~~~">
+        id="MissingClass"
+        message="Class referenced in the layout file, `androidx.wear.widget.WearableRecyclerView`, was not found in the project or the libraries"
+        errorLine1="    &lt;androidx.wear.widget.WearableRecyclerView"
+        errorLine2="    ^">
         <location
-            file="src/main/AndroidManifest.xml"
-            line="20"
-            column="6"/>
+            file="src/main/res/layout/config_layout.xml"
+            line="11"
+            column="5"/>
     </issue>
 
     <issue
-        id="DrawAllocation"
-        message="Avoid object allocations during draw/layout operations (preallocate and reuse instead)"
-        errorLine1="            RenderParameters("
-        errorLine2="            ^">
+        id="MissingClass"
+        message="Class referenced in the layout file, `androidx.wear.widget.SwipeDismissFrameLayout`, was not found in the project or the libraries"
+        errorLine1="&lt;androidx.wear.widget.SwipeDismissFrameLayout"
+        errorLine2="^">
         <location
-            file="src/main/java/androidx/wear/watchface/ui/ComplicationConfigFragment.kt"
-            line="191"
+            file="src/main/res/layout/style_options_layout.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MissingClass"
+        message="Class referenced in the layout file, `androidx.wear.widget.WearableRecyclerView`, was not found in the project or the libraries"
+        errorLine1="    &lt;androidx.wear.widget.WearableRecyclerView"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/style_options_layout.xml"
+            line="10"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `createInteractiveInstance$lint_module`"
+        errorLine1="                engineWrapper.createInteractiveInstance(initParams, &quot;test&quot;)"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/AsyncWatchFaceInitTest.kt"
+            line="220"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance`"
+        errorLine1="                .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance("
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/AsyncWatchFaceInitTest.kt"
+            line="242"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `WatchFaceControlService`"
+        errorLine1="            WatchFaceControlService().apply {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlServiceTest.kt"
+            line="111"
             column="13"/>
     </issue>
 
     <issue
-        id="Wakelock"
-        message="Found a wakelock `acquire()` but no `release()` calls anywhere"
-        errorLine1="                ambientUpdateWakelock.acquire()"
-        errorLine2="                                      ~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `setContext`"
+        errorLine1="                setContext(ApplicationProvider.getApplicationContext&lt;Context>())"
+        errorLine2="                ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"
-            line="324"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="WakelockTimeout"
-        message="Provide a timeout when requesting a wakelock with `PowerManager.Wakelock.acquire(long timeout)`. This will ensure the OS will cleanup any wakelocks that last longer than you intend, and will save your user&apos;s battery."
-        errorLine1="                ambientUpdateWakelock.acquire()"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"
-            line="324"
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlServiceTest.kt"
+            line="112"
             column="17"/>
     </issue>
 
     <issue
-        id="WakelockTimeout"
-        message="Provide a timeout when requesting a wakelock with `PowerManager.Wakelock.acquire(long timeout)`. This will ensure the OS will cleanup any wakelocks that last longer than you intend, and will save your user&apos;s battery."
-        errorLine1="                ambientUpdateWakelock.acquire()"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `onBind`"
+        errorLine1="            }.onBind("
+        errorLine2="              ~~~~~~">
         <location
-            file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"
-            line="324"
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlServiceTest.kt"
+            line="113"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `ACTION_WATCHFACE_CONTROL_SERVICE`"
+        errorLine1="                Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE)"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlServiceTest.kt"
+            line="114"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `WatchFaceControlService`"
+        errorLine1="            WatchFaceControlService().apply {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlServiceTest.kt"
+            line="137"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `setContext`"
+        errorLine1="                setContext(ApplicationProvider.getApplicationContext&lt;Context>())"
+        errorLine2="                ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlServiceTest.kt"
+            line="138"
             column="17"/>
     </issue>
 
     <issue
-        id="IconDensities"
-        message="Missing the following drawables in `drawable-xxhdpi`: ic_elements_settings_styles.png (found in drawable-hdpi, drawable-mdpi, drawable-xhdpi)">
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `onBind`"
+        errorLine1="            }.onBind("
+        errorLine2="              ~~~~~~">
         <location
-            file="src/main/res/drawable-xxhdpi"/>
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlServiceTest.kt"
+            line="139"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `ACTION_WATCHFACE_CONTROL_SERVICE`"
+        errorLine1="                Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE)"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlServiceTest.kt"
+            line="140"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `ashmemReadImageBundle`"
+        errorLine1="        val bitmap = SharedMemoryImage.ashmemReadImageBundle("
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlServiceTest.kt"
+            line="164"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `ashmemReadImageBundle`"
+        errorLine1="        val bitmap = SharedMemoryImage.ashmemReadImageBundle("
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlServiceTest.kt"
+            line="208"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `ashmemReadImageBundle`"
+        errorLine1="        val bitmap = SharedMemoryImage.ashmemReadImageBundle("
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlServiceTest.kt"
+            line="242"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `WatchFaceControlService`"
+        errorLine1="            WatchFaceControlService().apply {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlServiceTest.kt"
+            line="275"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `setContext`"
+        errorLine1="                setContext(ApplicationProvider.getApplicationContext&lt;Context>())"
+        errorLine2="                ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlServiceTest.kt"
+            line="276"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `onBind`"
+        errorLine1="            }.onBind("
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlServiceTest.kt"
+            line="277"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `ACTION_WATCHFACE_CONTROL_SERVICE`"
+        errorLine1="                Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE)"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlServiceTest.kt"
+            line="278"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `android.graphics.SurfaceTexture()`"
+        errorLine1="    private val surfaceTexture = SurfaceTexture(false)"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
+            line="292"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `android.view.SurfaceHolder#lockHardwareCanvas`"
+        errorLine1="        Mockito.`when`(surfaceHolder.lockHardwareCanvas()).thenReturn(canvas)"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
+            line="330"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `android.view.SurfaceHolder#lockHardwareCanvas`"
+        errorLine1="        Mockito.`when`(surfaceHolder.lockHardwareCanvas()).thenReturn(canvas)"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
+            line="368"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance`"
+        errorLine1="            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance("
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
+            line="413"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `setWatchUiState`"
+        errorLine1="        interactiveWatchFaceInstance.setWatchUiState("
+        errorLine2="                                     ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
+            line="463"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `release`"
+        errorLine1="        interactiveWatchFaceInstance.release()"
+        errorLine2="                                     ~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
+            line="469"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `android.view.SurfaceHolder#lockHardwareCanvas`"
+        errorLine1="        Mockito.`when`(surfaceHolder.lockHardwareCanvas()).thenReturn(canvas)"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceServiceImageTest.kt"
+            line="802"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance`"
+        errorLine1="            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance("
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
+            line="434"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance`"
+        errorLine1="            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance("
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
+            line="2699"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 25): `updateComplicationData`"
+        errorLine1="        interactiveInstance!!.updateComplicationData("
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
+            line="2765"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 25): `android.view.WindowInsets.Builder#setSystemWindowInsets`"
+        errorLine1="        WindowInsets.Builder().setSystemWindowInsets("
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
+            line="2939"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 25): `android.view.WindowInsets.Builder()`"
+        errorLine1="        WindowInsets.Builder().setSystemWindowInsets("
+        errorLine2="                     ~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
+            line="2939"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 25): `android.graphics.Insets#of`"
+        errorLine1="            Insets.of(0, 0, 0, chinHeight)"
+        errorLine2="                   ~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
+            line="2940"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 25): `android.view.WindowInsets.Builder#build`"
+        errorLine1="        ).build()"
+        errorLine2="          ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
+            line="2941"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 25): `android.view.WindowInsets.Builder()`"
+        errorLine1="        WindowInsets.Builder().setInsets("
+        errorLine2="                     ~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
+            line="2944"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 25): `android.view.WindowInsets.Builder#setInsets`"
+        errorLine1="        WindowInsets.Builder().setInsets("
+        errorLine2="                               ~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
+            line="2944"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 25): `android.view.WindowInsets.Type#systemBars`"
+        errorLine1="            WindowInsets.Type.systemBars(),"
+        errorLine2="                              ~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
+            line="2945"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 25): `android.graphics.Insets#of`"
+        errorLine1="            Insets.of(Rect().apply { bottom = chinHeight })"
+        errorLine2="                   ~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
+            line="2946"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 25): `android.view.WindowInsets.Builder#build`"
+        errorLine1="        ).build()"
+        errorLine2="          ~~~~~">
+        <location
+            file="src/test/java/androidx/wear/watchface/WatchFaceServiceTest.kt"
+            line="2947"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="WrongThread"
+        message="Method addUserStyleChangeListener must be called from the UI thread, currently inferred thread is worker thread"
+        errorLine1="        currentUserStyleRepository.addUserStyleChangeListener("
+        errorLine2="        ^">
+        <location
+            file="src/test/java/androidx/wear/watchface/TestCommon.kt"
+            line="89"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="WrongThread"
+        message="Method addTapListener must be called from the UI thread, currently inferred thread is worker thread"
+        errorLine1="        complicationSlotsManager.addTapListener("
+        errorLine2="        ^">
+        <location
+            file="src/test/java/androidx/wear/watchface/TestCommon.kt"
+            line="99"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.wear.watchface.WatchFaceImpl is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            renderer.surfaceHolder.surface.setFrameRate("
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/WatchFace.kt"
+            line="593"
+            column="44"/>
     </issue>
 
 </issues>

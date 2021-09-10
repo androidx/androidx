@@ -2,15 +2,14 @@
 set -e
 
 function usage() {
-  echo "Usage: $0 <buildId>"
+  echo "Usage: $0 <buildId> [<buildId>...]"
   echo
-  echo "Downloads logs from build <buildId> and then garbage collects any messages in"
+  echo "Downloads logs from the given build Ids and then garbage collects any messages in"
   echo "messages.ignore that don't match any of the downloaded logs"
   exit 1
 }
 
-buildId="$1"
-if [ "$buildId" == "" ]; then
+if [ "$1" == "" ]; then
   usage
 fi
 
@@ -23,9 +22,11 @@ function fetch_artifact() {
 
 # fetch_log <target>
 function fetch_logs() {
-  target="$1"
-  mkdir "$target"
-  cd "$target"
+  build_id="$1"
+  target="$2"
+  newDir="${build_id}_${target}"
+  mkdir $newDir
+  cd $newDir
   # download as many logs as exist
   for i in $(seq 20); do
     if fetch_artifact --bid "$buildId" --target "$target" "logs/gradle.${i}.log"; then
@@ -53,17 +54,20 @@ SUPPORT_ROOT="$(cd $SCRIPT_DIR/../.. && pwd)"
 BUILD_SCRIPTS_DIR="$SUPPORT_ROOT/busytown"
 
 # find the .sh files that enable build log validation
-target_scripts="$(cd $BUILD_SCRIPTS_DIR && find -name "*.sh" -type f | xargs grep -l androidx.validateNoUnrecognizedMessages | sed 's|^./||')"
+target_scripts="$(cd $BUILD_SCRIPTS_DIR && find -maxdepth 1 -name "*.sh" -type f | grep -v androidx-studio-integration | sed 's|^./||')"
 
 # find the target names that enable build log validation
 targets="$(echo $target_scripts | sed 's/\.sh//g')"
 
 # download log for each target
 setup_temp_dir
-for target in $targets; do
-  fetch_logs $target
+while [ "$1" != "" ]; do
+  buildId="$1"
+  for target in $targets; do
+    fetch_logs $buildId $target
+  done
+  shift
 done
-
 
 # process all of the logs
 logs="$(echo */*.log)"

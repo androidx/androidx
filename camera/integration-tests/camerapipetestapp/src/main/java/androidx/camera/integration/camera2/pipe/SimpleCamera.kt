@@ -19,7 +19,6 @@ package androidx.camera.integration.camera2.pipe
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
-import android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
 import android.media.ImageReader
 import android.os.Handler
 import android.util.Log
@@ -31,9 +30,10 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
-import androidx.camera.camera2.pipe.StreamConfig
+import androidx.camera.camera2.pipe.CameraStream.Config
+import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
-import androidx.camera.camera2.pipe.StreamType
+import androidx.camera.camera2.pipe.core.Debug
 import kotlin.math.absoluteValue
 
 private const val defaultWidth = 960
@@ -42,9 +42,9 @@ private const val defaultArea = defaultWidth * defaultHeight
 private const val defaultAspectRatio = defaultWidth.toDouble() / defaultHeight.toDouble()
 
 class SimpleCamera(
-    private val cameraId: CameraId,
-    private val cameraMetadata: CameraMetadata,
+    private val cameraConfig: CameraGraph.Config,
     private val cameraGraph: CameraGraph,
+    private val cameraMetadata: CameraMetadata,
     private val imageReader: ImageReader
 ) {
     companion object {
@@ -60,7 +60,9 @@ class SimpleCamera(
             Log.i("CXCP-App", "Selected $cameraId to open.")
 
             val cameraMetadata = cameraPipe.cameras().awaitMetadata(cameraId)
-            var yuvSizes = cameraMetadata.streamMap.getOutputSizes(ImageFormat.YUV_420_888).toList()
+            var yuvSizes =
+                cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
+                    .getOutputSizes(ImageFormat.YUV_420_888).toList()
 
             val closestAspectRatioSize = yuvSizes.minByOrNull {
                 (it.aspectRatio() - defaultAspectRatio).absoluteValue
@@ -77,18 +79,15 @@ class SimpleCamera(
 
             Log.i("CXCP-App", "Selected $yuvSize as the YUV output size")
 
-            val yuvStreamConfig = StreamConfig(
-                yuvSize,
-                StreamFormat.YUV_420_888,
-                cameraId,
-                StreamType.SURFACE
-            )
-
-            val viewfinderStreamConfig = StreamConfig(
+            val viewfinderStreamConfig = Config.create(
                 yuvSize,
                 StreamFormat.UNKNOWN,
-                cameraId,
-                StreamType.SURFACE_VIEW
+                outputType = OutputStream.OutputType.SURFACE_VIEW
+            )
+
+            val yuvStreamConfig = Config.create(
+                yuvSize,
+                StreamFormat.YUV_420_888
             )
 
             val config = CameraGraph.Config(
@@ -97,15 +96,17 @@ class SimpleCamera(
                     viewfinderStreamConfig,
                     yuvStreamConfig
                 ),
-                listeners = listeners,
-                template = RequestTemplate(CameraDevice.TEMPLATE_PREVIEW)
+                defaultListeners = listeners,
+                defaultTemplate = RequestTemplate(CameraDevice.TEMPLATE_PREVIEW)
             )
 
             val cameraGraph = cameraPipe.create(config)
 
             val viewfinderStream = cameraGraph.streams[viewfinderStreamConfig]!!
+            val viewfinderOutput = viewfinderStream.outputs.single()
+
             viewfinder.configure(
-                viewfinderStream.size,
+                viewfinderOutput.size,
                 object : Viewfinder.SurfaceListener {
                     override fun onSurfaceChanged(surface: Surface?, size: Size?) {
                         Log.i("CXCP-App", "Viewfinder surface changed to $surface at $size")
@@ -114,22 +115,30 @@ class SimpleCamera(
                 }
             )
             val yuvStream = cameraGraph.streams[yuvStreamConfig]!!
+            val yuvOutput = yuvStream.outputs.single()
+
+            val imageReader = ImageReader.newInstance(
+                yuvOutput.size.width,
+                yuvOutput.size.height,
+                yuvOutput.format.value,
+                10
+            )
+            cameraGraph.setSurface(yuvStream.id, imageReader.surface)
+
             cameraGraph.acquireSessionOrNull()!!.use {
-                it.setRepeating(
+                it.startRepeating(
                     Request(
                         streams = listOf(viewfinderStream.id, yuvStream.id)
                     )
                 )
             }
 
-            val imageReader = ImageReader.newInstance(
-                yuvSize.width,
-                yuvSize.height,
-                ImageFormat.YUV_420_888,
-                10
+            return SimpleCamera(
+                config,
+                cameraGraph,
+                cameraMetadata,
+                imageReader
             )
-            cameraGraph.setSurface(yuvStream.id, imageReader.surface)
-            return SimpleCamera(cameraId, cameraMetadata, cameraGraph, imageReader)
         }
 
         private fun Size.aspectRatio(): Double {
@@ -177,36 +186,6 @@ class SimpleCamera(
         imageReader.close()
     }
 
-    fun cameraInfoString(): String {
-        val lensFacing = when (cameraMetadata[CameraCharacteristics.LENS_FACING]) {
-            CameraCharacteristics.LENS_FACING_FRONT -> "Front"
-            CameraCharacteristics.LENS_FACING_BACK -> "Back"
-            CameraCharacteristics.LENS_FACING_EXTERNAL -> "External"
-            else -> "Unknown"
-        }
-
-        val capabilities = cameraMetadata[CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES]
-        val cameraType = if (capabilities != null &&
-            capabilities.contains(REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA)
-        ) {
-            "Logical"
-        } else {
-            "Physical"
-        }
-
-        return StringBuilder().apply {
-            append("$cameraGraph (Camera ${cameraId.value})\n")
-            append("  Facing:    $lensFacing ($cameraType)\n")
-            append("Streams:")
-            for (stream in cameraGraph.streams) {
-                append("\n  ")
-                append(stream.value.id.toString().padEnd(12, ' '))
-                append(stream.value.size.toString().padEnd(12, ' '))
-                append(stream.value.format.name.padEnd(16, ' '))
-                append(stream.value.type.toString().padEnd(16, ' '))
-            }
-
-            // TODO: Add static configuration info.
-        }.toString()
-    }
+    fun cameraInfoString(): String =
+        Debug.formatCameraGraphProperties(cameraMetadata, cameraConfig, cameraGraph)
 }

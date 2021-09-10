@@ -16,6 +16,10 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.ScrollableDefaults
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,138 +29,135 @@ import androidx.compose.ui.unit.dp
 /**
  * Receiver scope which is used by [LazyColumn] and [LazyRow].
  */
+@LazyScopeMarker
 interface LazyListScope {
     /**
-     * Adds a list of items and their content to the scope.
+     * Adds a single item.
      *
-     * @param items the data list
-     * @param itemContent the content displayed by a single item
-     */
-    fun <T> items(
-        items: List<T>,
-        itemContent: @Composable LazyItemScope.(item: T) -> Unit
-    )
-
-    /**
-     * Adds a single item to the scope.
-     *
+     * @param key a stable and unique key representing the item. Using the same key
+     * for multiple items in the list is not allowed. Type of the key should be saveable
+     * via Bundle on Android. If null is passed the position in the list will represent the key.
+     * When you specify the key the scroll position will be maintained based on the key, which
+     * means if you add/remove items before the current visible item the item with the given key
+     * will be kept as the first visible one.
      * @param content the content of the item
      */
-    fun item(content: @Composable LazyItemScope.() -> Unit)
+    fun item(key: Any? = null, content: @Composable LazyItemScope.() -> Unit)
 
     /**
-     * Adds a list of items to the scope where the content of an item is aware of its index.
+     * Adds a [count] of items.
      *
-     * @param items the data list
+     * @param count the items count
+     * @param key a factory of stable and unique keys representing the item. Using the same key
+     * for multiple items in the list is not allowed. Type of the key should be saveable
+     * via Bundle on Android. If null is passed the position in the list will represent the key.
+     * When you specify the key the scroll position will be maintained based on the key, which
+     * means if you add/remove items before the current visible item the item with the given key
+     * will be kept as the first visible one.
      * @param itemContent the content displayed by a single item
      */
-    fun <T> itemsIndexed(
-        items: List<T>,
-        itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
+    fun items(
+        count: Int,
+        key: ((index: Int) -> Any)? = null,
+        itemContent: @Composable LazyItemScope.(index: Int) -> Unit
     )
-}
-
-internal class IntervalHolder(
-    val startIndex: Int,
-    val content: LazyItemScope.(Int) -> (@Composable () -> Unit)
-)
-
-internal class LazyListScopeImpl : LazyListScope {
-    private val intervals = mutableListOf<IntervalHolder>()
-    var totalSize = 0
-
-    fun contentFor(index: Int, scope: LazyItemScope): @Composable () -> Unit {
-        val intervalIndex = findIndexOfHighestValueLesserThan(intervals, index)
-
-        val interval = intervals[intervalIndex]
-        val localIntervalIndex = index - interval.startIndex
-
-        return interval.content(scope, localIntervalIndex)
-    }
-
-    override fun <T> items(
-        items: List<T>,
-        itemContent: @Composable LazyItemScope.(item: T) -> Unit
-    ) {
-        // There aren't any items to display
-        if (items.isEmpty()) { return }
-
-        val interval = IntervalHolder(
-            startIndex = totalSize,
-            content = { index ->
-                val item = items[index]
-
-                { itemContent(item) }
-            }
-        )
-
-        totalSize += items.size
-
-        intervals.add(interval)
-    }
-
-    override fun item(content: @Composable LazyItemScope.() -> Unit) {
-        val interval = IntervalHolder(
-            startIndex = totalSize,
-            content = { { content() } }
-        )
-
-        totalSize += 1
-
-        intervals.add(interval)
-    }
-
-    override fun <T> itemsIndexed(
-        items: List<T>,
-        itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
-    ) {
-        // There aren't any items to display
-        if (items.isEmpty()) { return }
-
-        val interval = IntervalHolder(
-            startIndex = totalSize,
-            content = { index ->
-                val item = items[index]
-
-                { itemContent(index, item) }
-            }
-        )
-
-        totalSize += items.size
-
-        intervals.add(interval)
-    }
 
     /**
-     * Finds the index of the [list] which contains the highest value of [IntervalHolder.startIndex]
-     * that is less than or equal to the given [value].
+     * Adds a sticky header item, which will remain pinned even when scrolling after it.
+     * The header will remain pinned until the next header will take its place.
+     *
+     * @sample androidx.compose.foundation.samples.StickyHeaderSample
+     *
+     * @param key a stable and unique key representing the item. Using the same key
+     * for multiple items in the list is not allowed. Type of the key should be saveable
+     * via Bundle on Android. If null is passed the position in the list will represent the key.
+     * When you specify the key the scroll position will be maintained based on the key, which
+     * means if you add/remove items before the current visible item the item with the given key
+     * will be kept as the first visible one.
+     * @param content the content of the header
      */
-    private fun findIndexOfHighestValueLesserThan(list: List<IntervalHolder>, value: Int): Int {
-        var left = 0
-        var right = list.lastIndex
+    @ExperimentalFoundationApi
+    fun stickyHeader(key: Any? = null, content: @Composable LazyItemScope.() -> Unit)
+}
 
-        while (left < right) {
-            val middle = (left + right) / 2
+/**
+ * Adds a list of items.
+ *
+ * @param items the data list
+ * @param key a factory of stable and unique keys representing the item. Using the same key
+ * for multiple items in the list is not allowed. Type of the key should be saveable
+ * via Bundle on Android. If null is passed the position in the list will represent the key.
+ * When you specify the key the scroll position will be maintained based on the key, which
+ * means if you add/remove items before the current visible item the item with the given key
+ * will be kept as the first visible one.
+ * @param itemContent the content displayed by a single item
+ */
+inline fun <T> LazyListScope.items(
+    items: List<T>,
+    noinline key: ((item: T) -> Any)? = null,
+    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
+) = items(items.size, if (key != null) { index: Int -> key(items[index]) } else null) {
+    itemContent(items[it])
+}
 
-            val middleValue = list[middle].startIndex
-            if (middleValue == value) {
-                return middle
-            }
+/**
+ * Adds a list of items where the content of an item is aware of its index.
+ *
+ * @param items the data list
+ * @param key a factory of stable and unique keys representing the item. Using the same key
+ * for multiple items in the list is not allowed. Type of the key should be saveable
+ * via Bundle on Android. If null is passed the position in the list will represent the key.
+ * When you specify the key the scroll position will be maintained based on the key, which
+ * means if you add/remove items before the current visible item the item with the given key
+ * will be kept as the first visible one.
+ * @param itemContent the content displayed by a single item
+ */
+inline fun <T> LazyListScope.itemsIndexed(
+    items: List<T>,
+    noinline key: ((index: Int, item: T) -> Any)? = null,
+    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
+) = items(items.size, if (key != null) { index: Int -> key(index, items[index]) } else null) {
+    itemContent(it, items[it])
+}
 
-            if (middleValue < value) {
-                left = middle + 1
+/**
+ * Adds an array of items.
+ *
+ * @param items the data array
+ * @param key a factory of stable and unique keys representing the item. Using the same key
+ * for multiple items in the list is not allowed. Type of the key should be saveable
+ * via Bundle on Android. If null is passed the position in the list will represent the key.
+ * When you specify the key the scroll position will be maintained based on the key, which
+ * means if you add/remove items before the current visible item the item with the given key
+ * will be kept as the first visible one.
+ * @param itemContent the content displayed by a single item
+ */
+inline fun <T> LazyListScope.items(
+    items: Array<T>,
+    noinline key: ((item: T) -> Any)? = null,
+    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
+) = items(items.size, if (key != null) { index: Int -> key(items[index]) } else null) {
+    itemContent(items[it])
+}
 
-                // Verify that the left will not be bigger than our value
-                if (value < list[left].startIndex) {
-                    return middle
-                }
-            } else {
-                right = middle - 1
-            }
-        }
-
-        return left
-    }
+/**
+ * Adds an array of items where the content of an item is aware of its index.
+ *
+ * @param items the data array
+ * @param key a factory of stable and unique keys representing the item. Using the same key
+ * for multiple items in the list is not allowed. Type of the key should be saveable
+ * via Bundle on Android. If null is passed the position in the list will represent the key.
+ * When you specify the key the scroll position will be maintained based on the key, which
+ * means if you add/remove items before the current visible item the item with the given key
+ * will be kept as the first visible one.
+ * @param itemContent the content displayed by a single item
+ */
+inline fun <T> LazyListScope.itemsIndexed(
+    items: Array<T>,
+    noinline key: ((index: Int, item: T) -> Any)? = null,
+    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
+) = items(items.size, if (key != null) { index: Int -> key(index, items[index]) } else null) {
+    itemContent(it, items[it])
 }
 
 /**
@@ -170,9 +171,17 @@ internal class LazyListScopeImpl : LazyListScope {
  * @param modifier the modifier to apply to this layout
  * @param state the state object to be used to control or observe the list's state
  * @param contentPadding a padding around the whole content. This will add padding for the
- * content after it has been clipped, which is not possible via [modifier] param. Note that it is
- * **not** a padding applied for each item's content
+ * content after it has been clipped, which is not possible via [modifier] param. You can use it
+ * to add a padding before the first item or after the last one. If you want to add a spacing
+ * between each item use [horizontalArrangement].
+ * @param reverseLayout reverse the direction of scrolling and layout, when `true` items will be
+ * composed from the end to the start and [LazyListState.firstVisibleItemIndex] == 0 will mean
+ * the first item is located at the end.
+ * @param horizontalArrangement The horizontal arrangement of the layout's children. This allows
+ * to add a spacing between items and specify the arrangement of the items when we have not enough
+ * of them to fill the whole minimum size.
  * @param verticalAlignment the vertical alignment applied to the items
+ * @param flingBehavior logic describing fling behavior.
  * @param content a block which describes the content. Inside this block you can use methods like
  * [LazyListScope.item] to add a single item or [LazyListScope.items] to add a list of items.
  */
@@ -181,22 +190,24 @@ fun LazyRow(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
+    reverseLayout: Boolean = false,
+    horizontalArrangement: Arrangement.Horizontal =
+        if (!reverseLayout) Arrangement.Start else Arrangement.End,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     content: LazyListScope.() -> Unit
 ) {
-    val scope = LazyListScopeImpl()
-    scope.apply(content)
-
     LazyList(
-        itemsCount = scope.totalSize,
         modifier = modifier,
         state = state,
         contentPadding = contentPadding,
         verticalAlignment = verticalAlignment,
-        isVertical = false
-    ) { index ->
-        scope.contentFor(index, this)
-    }
+        horizontalArrangement = horizontalArrangement,
+        isVertical = false,
+        flingBehavior = flingBehavior,
+        reverseLayout = reverseLayout,
+        content = content
+    )
 }
 
 /**
@@ -207,12 +218,20 @@ fun LazyRow(
  *
  * @sample androidx.compose.foundation.samples.LazyColumnSample
  *
- * @param modifier the modifier to apply to this layout
- * @param state the state object to be used to control or observe the list's state
- * @param contentPadding a padding around the whole content. This will add padding for the
- * content after it has been clipped, which is not possible via [modifier] param. Note that it is
- * **not** a padding applied for each item's content
- * @param horizontalAlignment the horizontal alignment applied to the items
+ * @param modifier the modifier to apply to this layout.
+ * @param state the state object to be used to control or observe the list's state.
+ * @param contentPadding a padding around the whole content. This will add padding for the.
+ * content after it has been clipped, which is not possible via [modifier] param. You can use it
+ * to add a padding before the first item or after the last one. If you want to add a spacing
+ * between each item use [verticalArrangement].
+ * @param reverseLayout reverse the direction of scrolling and layout, when `true` items will be
+ * composed from the bottom to the top and [LazyListState.firstVisibleItemIndex] == 0 will mean
+ * we scrolled to the bottom.
+ * @param verticalArrangement The vertical arrangement of the layout's children. This allows
+ * to add a spacing between items and specify the arrangement of the items when we have not enough
+ * of them to fill the whole minimum size.
+ * @param horizontalAlignment the horizontal alignment applied to the items.
+ * @param flingBehavior logic describing fling behavior.
  * @param content a block which describes the content. Inside this block you can use methods like
  * [LazyListScope.item] to add a single item or [LazyListScope.items] to add a list of items.
  */
@@ -221,20 +240,30 @@ fun LazyColumn(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
+    reverseLayout: Boolean = false,
+    verticalArrangement: Arrangement.Vertical =
+        if (!reverseLayout) Arrangement.Top else Arrangement.Bottom,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     content: LazyListScope.() -> Unit
 ) {
-    val scope = LazyListScopeImpl()
-    scope.apply(content)
-
     LazyList(
-        itemsCount = scope.totalSize,
         modifier = modifier,
         state = state,
         contentPadding = contentPadding,
+        flingBehavior = flingBehavior,
         horizontalAlignment = horizontalAlignment,
-        isVertical = true
-    ) { index ->
-        scope.contentFor(index, this)
-    }
+        verticalArrangement = verticalArrangement,
+        isVertical = true,
+        reverseLayout = reverseLayout,
+        content = content
+    )
 }
+
+/**
+ * This should create an object meeting following requirements:
+ * 1) objects created for the same index are equals and never equals for different indexes
+ * 2) this class is saveable via a default SaveableStateRegistry on the platform
+ * 3) this objects can't be equals to any object which could be provided by a user as a custom key
+ */
+internal expect fun getDefaultLazyKeyFor(index: Int): Any

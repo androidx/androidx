@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"पासवर्ड का इस्तेमाल करें"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"पिन, पैटर्न या पासवर्ड सेट नहीं है."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"इस डिवाइस को पिन, पैटर्न या पासवर्ड की मदद से लॉक/अनलॉक नहीं किया जा सकता."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"फ़िंगरप्रिंट आइकॉन"</string>
 </resources>

@@ -18,8 +18,7 @@ package androidx.compose.ui.focus
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.ui.FocusModifier
-import androidx.compose.ui.focus.FocusState.Inactive
+import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -30,7 +29,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
-@OptIn(ExperimentalFocus::class)
 @RunWith(AndroidJUnit4::class)
 class FindParentFocusNodeTest {
     @get:Rule

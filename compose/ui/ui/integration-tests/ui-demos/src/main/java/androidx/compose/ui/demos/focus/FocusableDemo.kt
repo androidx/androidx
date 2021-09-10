@@ -15,6 +15,7 @@
  */
 package androidx.compose.ui.demos.focus
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,15 +28,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus
-import androidx.compose.ui.focus.ExperimentalFocus
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.isFocused
-import androidx.compose.ui.focusObserver
-import androidx.compose.ui.focusRequester
-import androidx.compose.ui.gesture.tapGestureFilter
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Green
+import androidx.compose.ui.input.pointer.pointerInput
 
 @Composable
 fun FocusableDemo() {
@@ -58,16 +57,15 @@ fun FocusableDemo() {
 }
 
 @Composable
-@OptIn(ExperimentalFocus::class)
 private fun FocusableText(text: String) {
     var color by remember { mutableStateOf(Black) }
-    val focusRequester = FocusRequester()
+    val focusRequester = remember { FocusRequester() }
     Text(
         modifier = Modifier
             .focusRequester(focusRequester)
-            .focusObserver { color = if (it.isFocused) Green else Black }
-            .focus()
-            .tapGestureFilter { focusRequester.requestFocus() },
+            .onFocusChanged { color = if (it.isFocused) Green else Black }
+            .focusTarget()
+            .pointerInput(Unit) { detectTapGestures { focusRequester.requestFocus() } },
         text = text,
         color = color
     )

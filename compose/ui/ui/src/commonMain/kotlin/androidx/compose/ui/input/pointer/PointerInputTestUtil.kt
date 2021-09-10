@@ -17,59 +17,58 @@
 package androidx.compose.ui.input.pointer
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.Duration
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.Uptime
+import androidx.compose.ui.util.fastForEach
 
 // TODO(shepshapard): Document.
 
 internal fun down(
     id: Long,
-    duration: Duration = Duration.Zero,
+    durationMillis: Long = 0L,
     x: Float = 0f,
     y: Float = 0f
 ): PointerInputChange =
     PointerInputChange(
         PointerId(id),
-        PointerInputData(
-            Uptime.Boot + duration,
-            Offset(x, y),
-            true
-        ),
-        PointerInputData(Uptime.Boot + duration, Offset(x, y), false),
-        ConsumedData(Offset.Zero, false)
+        durationMillis,
+        Offset(x, y),
+        true,
+        durationMillis,
+        Offset(x, y),
+        false,
+        ConsumedData()
     )
 
-internal fun PointerInputChange.moveTo(duration: Duration, x: Float = 0f, y: Float = 0f) =
+internal fun PointerInputChange.moveTo(durationMillis: Long, x: Float = 0f, y: Float = 0f) =
     copy(
-        previous = current,
-        current = PointerInputData(
-            Uptime.Boot + duration,
-            Offset(x, y),
-            true
-        ),
+        previousTime = uptimeMillis,
+        previousPressed = pressed,
+        previousPosition = position,
+        currentTime = durationMillis,
+        currentPressed = true,
+        currentPosition = Offset(x, y),
         consumed = ConsumedData()
     )
 
-internal fun PointerInputChange.moveBy(duration: Duration, dx: Float = 0f, dy: Float = 0f) =
+internal fun PointerInputChange.moveBy(durationMillis: Long, dx: Float = 0f, dy: Float = 0f) =
     copy(
-        previous = current,
-        current = PointerInputData(
-            current.uptime + duration,
-            Offset(current.position.x + dx, current.position.y + dy),
-            true
-        ),
+        previousTime = uptimeMillis,
+        previousPressed = pressed,
+        previousPosition = position,
+        currentTime = uptimeMillis + durationMillis,
+        currentPressed = true,
+        currentPosition = Offset(position.x + dx, position.y + dy),
         consumed = ConsumedData()
     )
 
-internal fun PointerInputChange.up(duration: Duration) =
+internal fun PointerInputChange.up(durationMillis: Long) =
     copy(
-        previous = current,
-        current = PointerInputData(
-            Uptime.Boot + duration,
-            current.position,
-            false
-        ),
+        previousTime = uptimeMillis,
+        previousPressed = pressed,
+        previousPosition = position,
+        currentTime = durationMillis,
+        currentPressed = false,
+        currentPosition = position,
         consumed = ConsumedData()
     )
 
@@ -130,42 +129,7 @@ internal fun PointerInputHandler.invokeOverPasses(
 ) {
     require(pointerEvent.changes.isNotEmpty())
     require(pointerEventPasses.isNotEmpty())
-    pointerEventPasses.forEach {
+    pointerEventPasses.fastForEach {
         this.invoke(pointerEvent, it, size)
-    }
-}
-
-/**
- * Simulates the dispatching of [event] to [this] on all [PointerEventPass]es in their standard
- * order.
- *
- * @param event The event to dispatch.
- */
-internal fun ((CustomEvent, PointerEventPass) -> Unit).invokeOverAllPasses(
-    event: CustomEvent
-) {
-    invokeOverPasses(
-        event,
-        listOf(
-            PointerEventPass.Initial,
-            PointerEventPass.Main,
-            PointerEventPass.Final
-        )
-    )
-}
-
-/**
- * Simulates the dispatching of [event] to [this] on all [PointerEventPass]es in their standard
- * order.
- *
- * @param event The event to dispatch.
- * @param pointerEventPasses The [PointerEventPass]es to pass to each call to [this].
- */
-internal fun ((CustomEvent, PointerEventPass) -> Unit).invokeOverPasses(
-    event: CustomEvent,
-    pointerEventPasses: List<PointerEventPass>
-) {
-    pointerEventPasses.forEach { pass ->
-        this.invoke(event, pass)
     }
 }

@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+NullableCollection: androidx.appsearch.app.GenericDocument#getPropertyDocumentArray(String):
+    Return type of method androidx.appsearch.app.GenericDocument.getPropertyDocumentArray(String) is a nullable collection (`androidx.appsearch.app.GenericDocument[]`); must be non-null
+NullableCollection: androidx.appsearch.app.GenericDocument#getPropertyStringArray(String):
+    Return type of method androidx.appsearch.app.GenericDocument.getPropertyStringArray(String) is a nullable collection (`java.lang.String[]`); must be non-null

@@ -16,24 +16,48 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.compose.foundation.lazy.layout.LazyLayoutItemInfo
+import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureResult
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.util.fastMap
+
 /**
  * The result of the measure pass for lazy list layout.
  */
 internal class LazyListMeasureResult(
-    /** Calculated size for the main axis.*/
-    val mainAxisSize: Int,
-    /** Calculated size for the cross axis.*/
-    val crossAxisSize: Int,
-    /** The list of items to be placed during the layout pass.*/
-    val items: List<LazyMeasuredItem>,
-    /** The main axis offset to be used for the first item in the [items] list.*/
-    val itemsScrollOffset: Int,
-    /** The new value for [LazyListState.firstVisibleItemIndex].*/
-    val firstVisibleItemIndex: DataIndex,
+    // properties defining the scroll position:
+    /** The new first visible item.*/
+    val firstVisibleItem: LazyMeasuredItem?,
     /** The new value for [LazyListState.firstVisibleItemScrollOffset].*/
     val firstVisibleItemScrollOffset: Int,
     /** True if there is some space available to continue scrolling in the forward direction.*/
     val canScrollForward: Boolean,
     /** The amount of scroll consumed during the measure pass.*/
-    val consumedScroll: Float
-)
+    val consumedScroll: Float,
+    /** List of items which were composed, but are not a part of [visibleItemsInfo].*/
+    val composedButNotVisibleItems: List<LazyMeasuredItem>?,
+    // MeasureResult defining the layout
+    val measureResult: MeasureResult,
+    // properties representing the info needed for LazyListLayoutInfo
+    /** see [LazyListLayoutInfo.visibleItemsInfo] */
+    override val visibleItemsInfo: List<LazyListItemInfo>,
+    /** see [LazyListLayoutInfo.viewportStartOffset] */
+    override val viewportStartOffset: Int,
+    /** see [LazyListLayoutInfo.viewportEndOffset] */
+    override val viewportEndOffset: Int,
+    /** see [LazyListLayoutInfo.totalItemsCount] */
+    override val totalItemsCount: Int,
+) : LazyListLayoutInfo, MeasureResult by measureResult {
+    val lazyLayoutMeasureResult: LazyLayoutMeasureResult get() =
+        object : LazyLayoutMeasureResult, MeasureResult by measureResult {
+            override val visibleItemsInfo: List<LazyLayoutItemInfo>
+                get() = this@LazyListMeasureResult.visibleItemsInfo.fastMap {
+                    object : LazyLayoutItemInfo {
+                        override val index: Int get() = it.index
+                        override val key: Any get() = it.key
+                    }
+                }
+            override val composedButNotVisibleItemsIndices: List<Int>?
+                get() = composedButNotVisibleItems?.fastMap { it.index }
+        }
+}

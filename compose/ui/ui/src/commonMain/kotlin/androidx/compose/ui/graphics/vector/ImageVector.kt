@@ -17,7 +17,9 @@
 package androidx.compose.ui.graphics.vector
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -28,7 +30,7 @@ import androidx.compose.ui.unit.Dp
  * It can be composed and rendered by passing it as an argument to [rememberVectorPainter]
  */
 @Immutable
-data class ImageVector internal constructor(
+class ImageVector internal constructor(
 
     /**
      * Name of the Vector asset
@@ -60,7 +62,17 @@ data class ImageVector internal constructor(
     /**
      * Root group of the vector asset that contains all the child groups and paths
      */
-    val root: VectorGroup
+    val root: VectorGroup,
+
+    /**
+     * Optional tint color to be applied to the vector graphic
+     */
+    val tintColor: Color,
+
+    /**
+     * Blend mode used to apply [tintColor]
+     */
+    val tintBlendMode: BlendMode
 ) {
     /**
      * Builder used to construct a Vector graphic tree.
@@ -99,7 +111,17 @@ data class ImageVector internal constructor(
          * Used to define the height of the viewport space. Viewport is basically the virtual canvas
          * where the paths are drawn on.
          */
-        private val viewportHeight: Float
+        private val viewportHeight: Float,
+
+        /**
+         * Optional color used to tint the entire vector image
+         */
+        private val tintColor: Color = Color.Unspecified,
+
+        /**
+         * Blend mode used to apply the tint color
+         */
+        private val tintBlendMode: BlendMode = BlendMode.SrcIn
     ) {
         private val nodes = Stack<GroupParams>()
 
@@ -157,61 +179,6 @@ data class ImageVector internal constructor(
         }
 
         /**
-         * Create a new group and push it to the front of the stack of ImageVector nodes
-         *
-         * @param name the name of the group
-         * @param rotate the rotation of the group in degrees
-         * @param pivotX the x coordinate of the pivot point to rotate or scale the group
-         * @param pivotY the y coordinate of the pivot point to rotate or scale the group
-         * @param scaleX the scale factor in the X-axis to apply to the group
-         * @param scaleY the scale factor in the Y-axis to apply to the group
-         * @param translationX the translation in virtual pixels to apply along the x-axis
-         * @param translationY the translation in virtual pixels to apply along the y-axis
-         * @param clipPathData the path information used to clip the content within the group
-         *
-         * @return This ImageVector.Builder instance as a convenience for chaining calls
-         */
-        @Deprecated(
-            "Use addGroup instead",
-            ReplaceWith(
-                "addGroup(" +
-                    "name, " +
-                    "rotate, " +
-                    "pivotX, " +
-                    "pivotY, " +
-                    "scaleX, " +
-                    "scaleY, " +
-                    "translationX, " +
-                    "translationY, " +
-                    "clipPathData",
-                "androidx.compose.ui.graphics.vector"
-            )
-        )
-        @Suppress("BuilderSetStyle")
-        fun pushGroup(
-            name: String = DefaultGroupName,
-            rotate: Float = DefaultRotation,
-            pivotX: Float = DefaultPivotX,
-            pivotY: Float = DefaultPivotY,
-            scaleX: Float = DefaultScaleX,
-            scaleY: Float = DefaultScaleY,
-            translationX: Float = DefaultTranslationX,
-            translationY: Float = DefaultTranslationY,
-            clipPathData: List<PathNode> = EmptyPath
-        ): Builder =
-            addGroup(
-                name,
-                rotate,
-                pivotX,
-                pivotY,
-                scaleX,
-                scaleY,
-                translationX,
-                translationY,
-                clipPathData
-            )
-
-        /**
          * Pops the topmost VectorGroup from this ImageVector.Builder. This is used to indicate
          * that no additional ImageVector nodes will be added to the current VectorGroup
          * @return This ImageVector.Builder instance as a convenience for chaining calls
@@ -222,21 +189,6 @@ data class ImageVector internal constructor(
             currentGroup.children.add(popped.asVectorGroup())
             return this
         }
-
-        /**
-         * Pops the topmost VectorGroup from this ImageVector.Builder. This is used to indicate
-         * that no additional ImageVector nodes will be added to the current VectorGroup
-         * @return This ImageVector.Builder instance as a convenience for chaining calls
-         */
-        @Suppress("BuilderSetStyle")
-        @Deprecated(
-            "Use clearGroup instead",
-            ReplaceWith(
-                "clearGroup()",
-                "androidx.compose.ui.graphics.vector"
-            )
-        )
-        fun popGroup(): Builder = clearGroup()
 
         /**
          * Add a path to the ImageVector graphic. This represents a leaf node in the ImageVector graphics
@@ -321,7 +273,9 @@ data class ImageVector internal constructor(
                 defaultHeight,
                 viewportWidth,
                 viewportHeight,
-                root.asVectorGroup()
+                root.asVectorGroup(),
+                tintColor,
+                tintBlendMode
             )
 
             isConsumed = true
@@ -374,6 +328,39 @@ data class ImageVector internal constructor(
             var clipPathData: List<PathNode> = EmptyPath,
             var children: MutableList<VectorNode> = mutableListOf()
         )
+    }
+
+    /**
+     * Provide an empty companion object to hang platform-specific companion extensions onto.
+     */
+    companion object { } // ktlint-disable no-empty-class-body
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ImageVector) return false
+
+        if (name != other.name) return false
+        if (defaultWidth != other.defaultWidth) return false
+        if (defaultHeight != other.defaultHeight) return false
+        if (viewportWidth != other.viewportWidth) return false
+        if (viewportHeight != other.viewportHeight) return false
+        if (root != other.root) return false
+        if (tintColor != other.tintColor) return false
+        if (tintBlendMode != other.tintBlendMode) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + defaultWidth.hashCode()
+        result = 31 * result + defaultHeight.hashCode()
+        result = 31 * result + viewportWidth.hashCode()
+        result = 31 * result + viewportHeight.hashCode()
+        result = 31 * result + root.hashCode()
+        result = 31 * result + tintColor.hashCode()
+        result = 31 * result + tintBlendMode.hashCode()
+        return result
     }
 }
 
@@ -701,16 +688,7 @@ inline fun ImageVector.Builder.group(
     clearGroup()
 }
 
-@Deprecated(
-    "Use ImageVector.Builder instead",
-    ReplaceWith(
-        "ImageVector.Builder",
-        "androidx.compose.ui.graphics.vector"
-    )
-)
-typealias VectorAssetBuilder = ImageVector.Builder
-
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 private inline class Stack<T>(private val backing: ArrayList<T> = ArrayList<T>()) {
     val size: Int get() = backing.size
 

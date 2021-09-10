@@ -25,6 +25,9 @@
         android:theme="@style/Theme.AppCompat"
         tools:ignore="MissingApplicationIcon">
 
+        <!-- Profileable to enable macrobenchmark profiling -->
+        <profileable android:shell="true"/>
+
         <!--
         Activities need to be exported so the macrobenchmark can discover them
         under the new package visibility changes for Android 11.
@@ -47,6 +50,20 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="androidx.benchmark.integration.macrobenchmark.target.RECYCLER_VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+
+        <!--
+        Activities need to be exported so the macrobenchmark can discover them
+        under the new package visibility changes for Android 11.
+         -->
+        <activity
+            android:name=".NotExportedActivity"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="androidx.benchmark.integration.macrobenchmark.target.NOT_EXPORTED_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

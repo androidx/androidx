@@ -1,188 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="SwitchIntDef"
-        message="Switch statement on an `int` with known associated constant missing case `View.TEXT_ALIGNMENT_CENTER`, `View.TEXT_ALIGNMENT_GRAVITY`, `View.TEXT_ALIGNMENT_INHERIT`"
-        errorLine1="        switch (getTextAlignment()) {"
-        errorLine2="        ~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/WearCurvedTextView.java"
-            line="306"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="VectorPath"
-        message="Very long vector path (835 characters), which is bad for performance. Considering reducing precision, removing minor details or rasterizing vector."
-        errorLine1="                android:pathData=&quot;M 99.625,-194.5 c 0.0,0.0 -182.125,0.0 -194.25,0.0 c -12.125,0.0 -11.875,11.0 -11.875,11.0 c 0.0,0.0 0.00002,151.259307861 0.00002,151.259307861 c 0.0,0.0 17.625,-0.207061767578 17.625,-0.207061767578 c 0.0,0.0 -0.00002,-108.614746094 -0.00002,-111.239746094 c 0.0,-2.625 1.9375,-2.375 1.9375,-2.375 c 0.0,0.0 175.4375,0.0 177.8125,0.0 c 2.375,0.0 2.125,2.9375 2.125,2.9375 c 0.0,0.0 0.0,285.8125 0.0,288.125 c 0.0,2.3125 -2.0,2.0 -2.0,2.0 c 0.0,0.0 -174.875,0.0 -177.6875,0.0 c -2.8125,0.0 -2.3125,-1.875 -2.3125,-1.875 c 0.0,0.0 0.00005,-86.4319152832 0.00005,-86.4319152832 c 0.0,0.0 -17.25,0.0 -17.25,0.0 c 0.0,0.0 -0.00005,121.306915283 -0.00005,132.306915283 c 0.0,11.0 9.25,10.75 9.25,10.75 c 0.0,0.0 184.25,0.0 195.5,0.0 c 11.25,0.0 10.5,-12.25 10.5,-12.25 c 0.0,0.0 0.125,-364.75 0.125,-374.5 c 0.0,-9.75 -9.5,-9.5 -9.5,-9.5 Z&quot;"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/open_on_phone.xml"
-            line="19"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="NestedWeights"
-        message="Nested weights are bad for performance"
-        errorLine1="            android:layout_weight=&quot;@dimen/ws_nav_drawer_two_item_row_start_space_weight&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/ws_single_page_nav_drawer_2_item.xml"
-            line="39"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="NestedWeights"
-        message="Nested weights are bad for performance"
-        errorLine1="            android:layout_weight=&quot;@dimen/ws_nav_drawer_three_item_row_start_space_weight&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/ws_single_page_nav_drawer_3_item.xml"
-            line="38"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="NestedWeights"
-        message="Nested weights are bad for performance"
-        errorLine1="            android:layout_weight=&quot;0.5&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/ws_single_page_nav_drawer_4_item.xml"
-            line="38"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="NestedWeights"
-        message="Nested weights are bad for performance"
-        errorLine1="            android:layout_weight=&quot;0.5&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/ws_single_page_nav_drawer_5_item.xml"
-            line="39"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="NestedWeights"
-        message="Nested weights are bad for performance"
-        errorLine1="                android:layout_weight=&quot;@dimen/ws_nav_drawer_two_item_row_start_space_weight&quot;"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/ws_single_page_nav_drawer_5_item.xml"
-            line="45"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NestedWeights"
-        message="Nested weights are bad for performance"
-        errorLine1="            android:layout_weight=&quot;0.5&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/ws_single_page_nav_drawer_6_item.xml"
-            line="40"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="NestedWeights"
-        message="Nested weights are bad for performance"
-        errorLine1="                android:layout_weight=&quot;@dimen/ws_nav_drawer_three_item_row_start_space_weight&quot;"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/ws_single_page_nav_drawer_6_item.xml"
-            line="46"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NestedWeights"
-        message="Nested weights are bad for performance"
-        errorLine1="            android:layout_weight=&quot;0.33&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/ws_single_page_nav_drawer_7_item.xml"
-            line="39"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="NestedWeights"
-        message="Nested weights are bad for performance"
-        errorLine1="                android:layout_weight=&quot;@dimen/ws_nav_drawer_two_item_row_start_space_weight&quot;"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/ws_single_page_nav_drawer_7_item.xml"
-            line="45"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `#cc000000` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
-        errorLine1="    android:background=&quot;#cc000000&quot;>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/ws_overlay_confirmation.xml"
-            line="9"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="IconDensities"
-        message="Missing the following drawables in `drawable-xxhdpi`: ws_full_sad.png (found in drawable-hdpi, drawable-xhdpi)">
-        <location
-            file="src/main/res/drawable-xxhdpi"/>
-    </issue>
-
-    <issue
-        id="ClickableViewAccessibility"
-        message="`onTouch` should call `View#performClick` when a click is detected"
-        errorLine1="            public boolean onTouch(View v, MotionEvent event) {"
-        errorLine2="                           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/ConfirmationOverlay.java"
-            line="302"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ClickableViewAccessibility"
-        message="Custom view `SwipeDismissLayout` overrides `onTouchEvent` but not `performClick`"
-        errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
-        errorLine2="                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/SwipeDismissLayout.java"
-            line="307"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="ClickableViewAccessibility"
-        message="Custom view `WearableDrawerLayout` overrides `onTouchEvent` but not `performClick`"
-        errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
-        errorLine2="                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
-            line="516"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="ClickableViewAccessibility"
-        message="Custom view `WearableRecyclerView` overrides `onTouchEvent` but not `performClick`"
-        errorLine1="    public boolean onTouchEvent(MotionEvent event) {"
-        errorLine2="                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"
-            line="144"
-            column="20"/>
-    </issue>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
         id="KotlinPropertyAccess"
@@ -207,7 +24,8 @@
         <location
             file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"
             line="339"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -222,7 +40,8 @@
         <location
             file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
             line="217"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -237,7 +56,8 @@
         <location
             file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
             line="238"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -252,7 +72,8 @@
         <location
             file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
             line="260"
-            column="17"/>
+            column="17"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -335,17 +156,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static &lt;T extends Activity> AmbientController attachAmbientSupport(T activity) {"
-        errorLine2="                                                                              ~">
-        <location
-            file="src/main/java/androidx/wear/ambient/AmbientMode.java"
-            line="250"
-            column="79"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
         errorLine2="                     ~~~~~~">
         <location
@@ -394,7 +204,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="100"
+            line="127"
             column="9"/>
     </issue>
 
@@ -405,7 +215,7 @@
         errorLine2="                                   ~~~~~~">
         <location
             file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="116"
+            line="144"
             column="36"/>
     </issue>
 
@@ -416,7 +226,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="183"
+            line="211"
             column="26"/>
     </issue>
 
@@ -427,7 +237,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="196"
+            line="224"
             column="26"/>
     </issue>
 
@@ -438,19 +248,8 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="252"
+            line="280"
             column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static &lt;T extends FragmentActivity> AmbientController attach(T activity) {"
-        errorLine2="                                                                        ~">
-        <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="252"
-            column="73"/>
     </issue>
 
     <issue
@@ -460,7 +259,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="268"
+            line="296"
             column="22"/>
     </issue>
 
@@ -471,7 +270,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="268"
+            line="296"
             column="37"/>
     </issue>
 
@@ -482,7 +281,7 @@
         errorLine2="                                                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="268"
+            line="296"
             column="56"/>
     </issue>
 
@@ -493,7 +292,7 @@
         errorLine2="                                                                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="268"
+            line="296"
             column="76"/>
     </issue>
 
@@ -1351,7 +1150,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
-            line="78"
+            line="54"
             column="36"/>
     </issue>
 
@@ -1362,7 +1161,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
-            line="86"
+            line="62"
             column="37"/>
     </issue>
 
@@ -1373,7 +1172,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
-            line="94"
+            line="69"
             column="33"/>
     </issue>
 
@@ -1384,7 +1183,7 @@
         errorLine2="                                   ~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
-            line="118"
+            line="81"
             column="36"/>
     </issue>
 
@@ -1395,7 +1194,7 @@
         errorLine2="                                   ~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
-            line="136"
+            line="99"
             column="36"/>
     </issue>
 
@@ -1406,7 +1205,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
-            line="136"
+            line="99"
             column="53"/>
     </issue>
 
@@ -1417,7 +1216,7 @@
         errorLine2="                                   ~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
-            line="151"
+            line="114"
             column="36"/>
     </issue>
 
@@ -1428,7 +1227,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
-            line="151"
+            line="114"
             column="53"/>
     </issue>
 
@@ -1439,7 +1238,7 @@
         errorLine2="                                   ~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
-            line="169"
+            line="130"
             column="36"/>
     </issue>
 
@@ -1450,7 +1249,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
-            line="169"
+            line="130"
             column="53"/>
     </issue>
 
@@ -1461,7 +1260,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
-            line="184"
+            line="136"
             column="29"/>
     </issue>
 
@@ -1472,7 +1271,7 @@
         errorLine2="                               ~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/SwipeDismissFrameLayout.java"
-            line="192"
+            line="145"
             column="32"/>
     </issue>
 

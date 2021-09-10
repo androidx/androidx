@@ -17,19 +17,19 @@
 package androidx.appcompat.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-import static androidx.core.widget.RichContentReceiverCompat.FLAG_CONVERT_TO_PLAIN_TEXT;
-import static androidx.core.widget.RichContentReceiverCompat.SOURCE_CLIPBOARD;
+import static androidx.appcompat.widget.AppCompatReceiveContentHelper.maybeHandleDragEventViaPerformReceiveContent;
+import static androidx.appcompat.widget.AppCompatReceiveContentHelper.maybeHandleMenuActionViaPerformReceiveContent;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.Editable;
+import android.text.method.KeyListener;
 import android.util.AttributeSet;
 import android.view.ActionMode;
+import android.view.DragEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.textclassifier.TextClassifier;
@@ -42,10 +42,16 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
+import androidx.core.view.ContentInfoCompat;
+import androidx.core.view.OnReceiveContentListener;
+import androidx.core.view.OnReceiveContentViewBehavior;
 import androidx.core.view.TintableBackgroundView;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.inputmethod.EditorInfoCompat;
 import androidx.core.view.inputmethod.InputConnectionCompat;
-import androidx.core.widget.RichContentReceiverCompat;
 import androidx.core.widget.TextViewCompat;
+import androidx.core.widget.TextViewOnReceiveContentListener;
+import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
 
 /**
  * A {@link EditText} which supports compatible features on older versions of the platform,
@@ -55,8 +61,8 @@ import androidx.core.widget.TextViewCompat;
  *     {@link androidx.core.view.ViewCompat}.</li>
  *     <li>Allows setting of the background tint using {@link R.attr#backgroundTint} and
  *     {@link R.attr#backgroundTintMode}.</li>
- *     <li>Allows setting a custom {@link RichContentReceiverCompat receiver callback} in order to
- *     handle insertion of content (e.g. pasting text or an image from the clipboard). This callback
+ *     <li>Allows setting a custom {@link OnReceiveContentListener listener} to handle
+ *     insertion of content (e.g. pasting text or an image from the clipboard). This listener
  *     provides the opportunity to implement app-specific handling such as creating an attachment
  *     when an image is pasted.</li>
  * </ul>
@@ -66,13 +72,16 @@ import androidx.core.widget.TextViewCompat;
  * <a href="{@docRoot}topic/libraries/support-library/packages.html#v7-appcompat">appcompat</a>.
  * You should only need to manually use this class when writing custom views.</p>
  */
-public class AppCompatEditText extends EditText implements TintableBackgroundView {
+@AppCompatShadowedAttributes
+public class AppCompatEditText extends EditText implements TintableBackgroundView,
+        OnReceiveContentViewBehavior, EmojiCompatConfigurationView {
 
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
     private final AppCompatTextClassifierHelper mTextClassifierHelper;
-    @Nullable
-    private RichContentReceiverCompat<TextView> mRichContentReceiverCompat;
+    private final TextViewOnReceiveContentListener mDefaultOnReceiveContentListener;
+    @NonNull
+    private final AppCompatEmojiEditTextHelper mAppCompatEmojiEditTextHelper;
 
     public AppCompatEditText(@NonNull Context context) {
         this(context, null);
@@ -96,6 +105,11 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
         mTextHelper.applyCompoundDrawablesTints();
 
         mTextClassifierHelper = new AppCompatTextClassifierHelper(this);
+
+        mDefaultOnReceiveContentListener = new TextViewOnReceiveContentListener();
+        mAppCompatEmojiEditTextHelper = new AppCompatEmojiEditTextHelper(this);
+        mAppCompatEmojiEditTextHelper.loadFromAttributes(attrs, defStyleAttr);
+        mAppCompatEmojiEditTextHelper.initKeyListener();
     }
 
     /**
@@ -204,23 +218,29 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     }
 
     /**
-     * If a {@link #setRichContentReceiverCompat receiver callback} is set, the returned
+     * If a {@link ViewCompat#setOnReceiveContentListener listener is set}, the returned
      * {@link InputConnection} will use it to handle calls to {@link InputConnection#commitContent}.
      *
      * {@inheritDoc}
      */
+    @Nullable
     @Override
-    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+    public InputConnection onCreateInputConnection(@NonNull EditorInfo outAttrs) {
         InputConnection ic = super.onCreateInputConnection(outAttrs);
         mTextHelper.populateSurroundingTextIfNeeded(this, ic, outAttrs);
         ic = AppCompatHintHelper.onCreateInputConnection(ic, outAttrs, this);
-        if (ic != null && mRichContentReceiverCompat != null) {
-            mRichContentReceiverCompat.populateEditorInfoContentMimeTypes(ic, outAttrs);
-            InputConnectionCompat.OnCommitContentListener callback =
-                    mRichContentReceiverCompat.buildOnCommitContentListener(this);
-            ic = InputConnectionCompat.createWrapper(ic, outAttrs, callback);
+
+        // On SDK 30 and below, we manually configure the InputConnection here to use
+        // ViewCompat.performReceiveContent. On S and above, the platform's BaseInputConnection
+        // implementation calls View.performReceiveContent by default.
+        if (ic != null && Build.VERSION.SDK_INT <= 30) {
+            String[] mimeTypes = ViewCompat.getOnReceiveContentMimeTypes(this);
+            if (mimeTypes != null) {
+                EditorInfoCompat.setContentMimeTypes(outAttrs, mimeTypes);
+                ic = InputConnectionCompat.createWrapper(this, ic, outAttrs);
+            }
         }
-        return ic;
+        return mAppCompatEmojiEditTextHelper.onCreateInputConnection(ic, outAttrs);
     }
 
     /**
@@ -228,9 +248,17 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
      */
     @Override
-    public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {
-        super.setCustomSelectionActionModeCallback(TextViewCompat
-                .wrapCustomSelectionActionModeCallback(this, actionModeCallback));
+    public void setCustomSelectionActionModeCallback(
+            @Nullable ActionMode.Callback actionModeCallback) {
+        super.setCustomSelectionActionModeCallback(
+                TextViewCompat.wrapCustomSelectionActionModeCallback(this, actionModeCallback));
+    }
+
+    @Override
+    @Nullable
+    public ActionMode.Callback getCustomSelectionActionModeCallback() {
+        return TextViewCompat.unwrapCustomSelectionActionModeCallback(
+                super.getCustomSelectionActionModeCallback());
     }
 
     /**
@@ -263,64 +291,68 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
         return mTextClassifierHelper.getTextClassifier();
     }
 
+    @Override
+    public boolean onDragEvent(@SuppressWarnings("MissingNullability") DragEvent event) {
+        if (maybeHandleDragEventViaPerformReceiveContent(this, event)) {
+            return true;
+        }
+        return super.onDragEvent(event);
+    }
+
     /**
-     * If a {@link #setRichContentReceiverCompat receiver callback} is set, uses it to execute the
+     * If a {@link ViewCompat#setOnReceiveContentListener listener is set}, uses it to execute the
      * "Paste" and "Paste as plain text" menu actions.
      *
      * {@inheritDoc}
      */
     @Override
     public boolean onTextContextMenuItem(int id) {
-        if (mRichContentReceiverCompat == null) {
-            return super.onTextContextMenuItem(id);
-        }
-        if (id == android.R.id.paste || id == android.R.id.pasteAsPlainText) {
-            ClipboardManager cm = (ClipboardManager) getContext().getSystemService(
-                    Context.CLIPBOARD_SERVICE);
-            ClipData clip = cm == null ? null : cm.getPrimaryClip();
-            if (clip != null) {
-                int flags = (id == android.R.id.paste) ? 0 : FLAG_CONVERT_TO_PLAIN_TEXT;
-                mRichContentReceiverCompat.onReceive(this, clip, SOURCE_CLIPBOARD, flags);
-            }
+        if (maybeHandleMenuActionViaPerformReceiveContent(this, id)) {
             return true;
         }
         return super.onTextContextMenuItem(id);
     }
 
     /**
-     * Returns the callback that handles insertion of content into this view (e.g. pasting from
-     * the clipboard). See {@link #setRichContentReceiverCompat} for more info.
+     * Implements the default behavior for receiving content, which coerces all content to text
+     * and inserts into the view.
      *
-     * @return The callback that this view is using to handle insertion of content. Returns
-     * {@code null} if no callback is configured, in which case the platform behavior of the
-     * {@link EditText} component will be used for content insertion.
+     * <p>IMPORTANT: This method is provided to enable custom widgets that extend this class
+     * to customize the default behavior for receiving content. Apps wishing to provide custom
+     * behavior for receiving content should not override this method, but rather should set
+     * a listener via {@link ViewCompat#setOnReceiveContentListener}. App code wishing to inject
+     * content into this view should not call this method directly, but rather should invoke
+     * {@link ViewCompat#performReceiveContent}.
+     *
+     * @param payload The content to insert and related metadata.
+     *
+     * @return The portion of the passed-in content that was not handled (may be all, some, or none
+     * of the passed-in content).
      */
     @Nullable
-    public RichContentReceiverCompat<TextView> getRichContentReceiverCompat() {
-        return mRichContentReceiverCompat;
+    @Override
+    public ContentInfoCompat onReceiveContent(@NonNull ContentInfoCompat payload) {
+        return mDefaultOnReceiveContentListener.onReceiveContent(this, payload);
     }
 
     /**
-     * Sets the callback to handle insertion of content into this view.
+     * Adds EmojiCompat KeyListener to correctly edit multi-codepoint emoji when they've been
+     * converted to spans.
      *
-     * <p>"Content" and "rich content" here refers to both text and non-text: plain text, styled
-     * text, HTML, images, videos, audio files, etc. The callback configured here should typically
-     * extend from {@link androidx.core.widget.TextViewRichContentReceiverCompat} to provide
-     * consistent behavior for text content.
-     *
-     * <p>This callback will be invoked for the following scenarios:
-     * <ol>
-     *     <li>Paste from the clipboard (e.g. "Paste" or "Paste as plain text" action in the
-     *     insertion/selection menu)
-     *     <li>Content insertion from the keyboard ({@link InputConnection#commitContent})
-     * </ol>
-     *
-     * @param receiver The callback to use. This can be {@code null} to clear any previously set
-     *                 callback (the platform behavior of the {@link EditText} component will then
-     *                 be used).
+     * {@inheritDoc}
      */
-    public void setRichContentReceiverCompat(
-            @Nullable RichContentReceiverCompat<TextView> receiver) {
-        mRichContentReceiverCompat = receiver;
+    @Override
+    public void setKeyListener(@Nullable KeyListener keyListener) {
+        super.setKeyListener(mAppCompatEmojiEditTextHelper.getKeyListener(keyListener));
+    }
+
+    @Override
+    public void setEmojiCompatEnabled(boolean enabled) {
+        mAppCompatEmojiEditTextHelper.setEnabled(enabled);
+    }
+
+    @Override
+    public boolean isEmojiCompatEnabled() {
+        return mAppCompatEmojiEditTextHelper.isEnabled();
     }
 }

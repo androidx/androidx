@@ -22,8 +22,8 @@ import static org.junit.Assert.assertThat;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.os.Build;
-import android.support.v4.media.AudioAttributesCompat;
 
+import androidx.media.AudioAttributesCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -38,13 +38,13 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class AudioAttributesCompatTest {
     // some macros for conciseness
-    static final AudioAttributesCompat.Builder mkBuilder(
+    static AudioAttributesCompat.Builder mkBuilder(
             @AudioAttributesCompat.AttributeContentType int type,
             @AudioAttributesCompat.AttributeUsage int usage) {
         return new AudioAttributesCompat.Builder().setContentType(type).setUsage(usage);
     }
 
-    static final AudioAttributesCompat.Builder mkBuilder(int legacyStream) {
+    static AudioAttributesCompat.Builder mkBuilder(int legacyStream) {
         return new AudioAttributesCompat.Builder().setLegacyStreamType(legacyStream);
     }
 
@@ -162,6 +162,29 @@ public class AudioAttributesCompatTest {
         assertThat(
                 notificationLegacyAAC.getLegacyStreamType(),
                 equalTo(AudioManager.STREAM_NOTIFICATION));
+    }
+
+    @Test
+    public void testUsageAndContentTypeInferredFromLegacyStreamType() {
+        AudioAttributesCompat alarmAAC = mkBuilder(AudioManager.STREAM_ALARM).build();
+        assertThat(alarmAAC.getUsage(), equalTo(AudioAttributesCompat.USAGE_ALARM));
+        assertThat(alarmAAC.getContentType(),
+                equalTo(AudioAttributesCompat.CONTENT_TYPE_SONIFICATION));
+
+        AudioAttributesCompat musicAAC = mkBuilder(AudioManager.STREAM_MUSIC).build();
+        assertThat(musicAAC.getUsage(), equalTo(AudioAttributesCompat.USAGE_MEDIA));
+        assertThat(musicAAC.getContentType(), equalTo(AudioAttributesCompat.CONTENT_TYPE_MUSIC));
+
+        AudioAttributesCompat notificationAAC = mkBuilder(AudioManager.STREAM_NOTIFICATION).build();
+        assertThat(notificationAAC.getUsage(), equalTo(AudioAttributesCompat.USAGE_NOTIFICATION));
+        assertThat(notificationAAC.getContentType(),
+                equalTo(AudioAttributesCompat.CONTENT_TYPE_SONIFICATION));
+
+        AudioAttributesCompat voiceCallAAC = mkBuilder(AudioManager.STREAM_VOICE_CALL).build();
+        assertThat(voiceCallAAC.getUsage(),
+                equalTo(AudioAttributesCompat.USAGE_VOICE_COMMUNICATION));
+        assertThat(voiceCallAAC.getContentType(),
+                equalTo(AudioAttributesCompat.CONTENT_TYPE_SPEECH));
     }
 
     @After

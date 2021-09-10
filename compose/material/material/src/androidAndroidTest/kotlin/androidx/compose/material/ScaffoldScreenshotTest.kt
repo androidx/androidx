@@ -27,10 +27,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.AmbientLayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.captureToImage
@@ -48,7 +48,6 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterialApi::class)
 class ScaffoldScreenshotTest {
 
     @get:Rule
@@ -602,7 +601,6 @@ class ScaffoldScreenshotTest {
  * @param rtl whether to set [LayoutDirection.Rtl] as the [LayoutDirection] for this Scaffold and
  * its content
  */
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun ScreenshotScaffold(
     showTopAppBar: Boolean,
@@ -625,7 +623,7 @@ private fun ScreenshotScaffold(
             val cutoutShape = if (fabCutout) CircleShape else null
             BottomAppBar(cutoutShape = cutoutShape) {
                 IconButton(onClick = {}) {
-                    Icon(Icons.Filled.Menu)
+                    Icon(Icons.Filled.Menu, null)
                 }
             }
         }
@@ -647,7 +645,7 @@ private fun ScreenshotScaffold(
     val fab = @Composable {
         if (showFab) {
             FloatingActionButton(
-                content = { Icon(Icons.Filled.Favorite) },
+                content = { Icon(Icons.Filled.Favorite, null) },
                 onClick = {}
             )
         }
@@ -655,7 +653,7 @@ private fun ScreenshotScaffold(
 
     val layoutDirection = if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
 
-    Providers(AmbientLayoutDirection provides layoutDirection) {
+    CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
         Box(
             Modifier
                 .fillMaxSize(0.5f)
@@ -670,7 +668,7 @@ private fun ScreenshotScaffold(
                 floatingActionButton = fab,
                 floatingActionButtonPosition = fabPosition,
                 isFloatingActionButtonDocked = dockedFab,
-                bodyContent = { innerPadding ->
+                content = { innerPadding ->
                     Box(
                         modifier = Modifier
                             .padding(innerPadding)

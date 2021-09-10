@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE", "EXPERIMENTAL_FEATURE_WARNING")
+@file:Suppress(
+    "NOTHING_TO_INLINE",
+    "INLINE_CLASS_DEPRECATED",
+    "EXPERIMENTAL_FEATURE_WARNING"
+)
 
 package androidx.compose.ui.unit
 
@@ -26,10 +30,17 @@ import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
 
 /**
+ * Constructs an [IntSize] from width and height [Int] values.
+ */
+@Stable
+fun IntSize(width: Int, height: Int): IntSize = IntSize(packInts(width, height))
+
+/**
  * A two-dimensional size class used for measuring in [Int] pixels.
  */
 @Immutable
-inline class IntSize(@PublishedApi internal val packedValue: Long) {
+inline class IntSize internal constructor(@PublishedApi internal val packedValue: Long) {
+
     /**
      * The horizontal aspect of the size in [Int] pixels.
      */
@@ -83,11 +94,12 @@ inline class IntSize(@PublishedApi internal val packedValue: Long) {
 operator fun Int.times(size: IntSize) = size * this
 
 /**
- * Constructs an [IntSize] from width and height [Int] values.
+ * Convert a [IntSize] to a [IntRect].
  */
 @Stable
-fun IntSize(width: Int, height: Int): IntSize =
-    IntSize(packInts(width, height))
+fun IntSize.toIntRect(): IntRect {
+    return IntRect(IntOffset.Zero, this)
+}
 
 /**
  * Returns the [IntOffset] of the center of the rect from the point of [0, 0]

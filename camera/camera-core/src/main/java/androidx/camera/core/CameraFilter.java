@@ -17,14 +17,25 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.camera.core.impl.CameraConfig;
+import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
+import androidx.camera.core.impl.Identifier;
 
 import java.util.List;
 
 /**
  * An interface for filtering cameras.
  */
-@ExperimentalCameraFilter
 public interface CameraFilter {
+    /**
+     * Default identifier of camera filter.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    Identifier DEFAULT_ID = Identifier.create(new Object());
+
     /**
      * Filters a list of {@link CameraInfo}s and returns those matching the requirements.
      *
@@ -43,4 +54,23 @@ public interface CameraFilter {
      */
     @NonNull
     List<CameraInfo> filter(@NonNull List<CameraInfo> cameraInfos);
+
+    /**
+     * Returns the id of this camera filter.
+     *
+     * <p>A camera filter can be associated with a set of camera configuration options. This
+     * means a camera filter's {@link Identifier} can be mapped to a unique {@link CameraConfig}.
+     * An example of this is extension modes, where a camera filter can represent an extension
+     * mode, and each extension mode adds a set of camera configurations to the camera that
+     * supports it. {@link ExtendedCameraConfigProviderStore#getConfigProvider(Object)} allows
+     * retrieving the {@link CameraConfig} of an extension mode given the {@link Identifier} of
+     * its camera filter.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    default Identifier getIdentifier() {
+        return DEFAULT_ID;
+    }
 }

@@ -169,7 +169,6 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     private final DirectedAcyclicGraph<View> mChildDag = new DirectedAcyclicGraph<>();
 
     private final List<View> mTempList1 = new ArrayList<>();
-    private final List<View> mTempDependenciesList = new ArrayList<>();
     private Paint mScrimPaint;
 
     // Array to be mutated by calls to nested scrolling related methods of Behavior to satisfy the
@@ -1556,7 +1555,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
      */
     @SuppressWarnings("unchecked")
     public void dispatchDependentViewsChanged(@NonNull View view) {
-        final List<View> dependents = mChildDag.getIncomingEdges(view);
+        final List<View> dependents = mChildDag.getIncomingEdgesInternal(view);
         if (dependents != null && !dependents.isEmpty()) {
             for (int i = 0; i < dependents.size(); i++) {
                 final View child = dependents.get(i);
@@ -1571,40 +1570,27 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     }
 
     /**
-     * Returns the list of views which the provided view depends on. Do not store this list as its
-     * contents may not be valid beyond the caller.
+     * Returns a new list containing the views on which the provided view depends.
      *
-     * @param child the view to find dependencies for.
-     *
-     * @return the list of views which {@code child} depends on.
+     * @param child the view to find dependencies for
+     * @return a new list of views on which {@code child} depends
      */
     @NonNull
     public List<View> getDependencies(@NonNull View child) {
-        final List<View> dependencies = mChildDag.getOutgoingEdges(child);
-        mTempDependenciesList.clear();
-        if (dependencies != null) {
-            mTempDependenciesList.addAll(dependencies);
-        }
-        return mTempDependenciesList;
+        List<View> result = mChildDag.getOutgoingEdges(child);
+        return result == null ? Collections.<View>emptyList() : result;
     }
 
     /**
-     * Returns the list of views which depend on the provided view. Do not store this list as its
-     * contents may not be valid beyond the caller.
+     * Returns a new list of views which depend on the provided view.
      *
-     * @param child the view to find dependents of.
-     *
-     * @return the list of views which depend on {@code child}.
+     * @param child the view to find dependents of
+     * @return a new list of views which depend on {@code child}
      */
     @NonNull
-    @SuppressWarnings("unchecked")
     public List<View> getDependents(@NonNull View child) {
-        final List<View> edges = mChildDag.getIncomingEdges(child);
-        mTempDependenciesList.clear();
-        if (edges != null) {
-            mTempDependenciesList.addAll(edges);
-        }
-        return mTempDependenciesList;
+        List<View> result = mChildDag.getIncomingEdges(child);
+        return result == null ? Collections.<View>emptyList() : result;
     }
 
     @VisibleForTesting
@@ -1828,14 +1814,14 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     }
 
     @Override
-    public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes) {
-        onNestedScrollAccepted(child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
+    public void onNestedScrollAccepted(View child, View target, int axes) {
+        onNestedScrollAccepted(child, target, axes, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes, int type) {
-        mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, nestedScrollAxes, type);
+    public void onNestedScrollAccepted(View child, View target, int axes, int type) {
+        mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, axes, type);
         mNestedScrollingTarget = target;
 
         final int childCount = getChildCount();
@@ -1849,7 +1835,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
             final Behavior viewBehavior = lp.getBehavior();
             if (viewBehavior != null) {
                 viewBehavior.onNestedScrollAccepted(this, view, child, target,
-                        nestedScrollAxes, type);
+                        axes, type);
             }
         }
     }

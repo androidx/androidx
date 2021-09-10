@@ -16,7 +16,6 @@
 
 package android.support.wearable.watchface.accessibility;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Rect;
@@ -32,6 +31,7 @@ import android.support.wearable.watchface.Constants;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +43,7 @@ import java.util.Objects;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@TargetApi(VERSION_CODES.KITKAT)
+@RequiresApi(VERSION_CODES.KITKAT)
 @SuppressWarnings("BanParcelableUsage")
 public final class ContentDescriptionLabel implements Parcelable {
 

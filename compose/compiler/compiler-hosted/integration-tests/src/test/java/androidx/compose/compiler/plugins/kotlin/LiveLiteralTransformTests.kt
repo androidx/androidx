@@ -18,12 +18,11 @@ package androidx.compose.compiler.plugins.kotlin
 
 import androidx.compose.compiler.plugins.kotlin.lower.DurableKeyVisitor
 import androidx.compose.compiler.plugins.kotlin.lower.LiveLiteralTransformer
-import org.jetbrains.kotlin.backend.common.extensions.IrPluginContextImpl
-import org.jetbrains.kotlin.backend.common.ir.BuiltinSymbolsBase
+import org.intellij.lang.annotations.Language
+import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
+import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
-import org.jetbrains.kotlin.ir.linkage.IrDeserializer
 import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
-import org.jetbrains.kotlin.psi2ir.generators.GeneratorContext
 import org.jetbrains.kotlin.resolve.DelegatingBindingTrace
 import org.junit.Test
 
@@ -364,7 +363,7 @@ class LiveLiteralTransformTests : AbstractIrTransformTest() {
               }
             }
             @LiveLiteralFileInfo(file = "/Test.kt")
-            internal class LiveLiterals%TestKt {
+            internal object LiveLiterals%TestKt {
               val Int%fun-bar%class-%no-name-provided%%fun-a: Int = 1
               var State%Int%fun-bar%class-%no-name-provided%%fun-a: State<Int>?
               @LiveLiteralInfo(key = "Int%fun-bar%class-%no-name-provided%%fun-a", offset = 159)
@@ -416,7 +415,7 @@ class LiveLiteralTransformTests : AbstractIrTransformTest() {
               print(LiveLiterals%TestKt.Int%arg-0%call-print-2%fun-A())
             }
             @LiveLiteralFileInfo(file = "/Test.kt")
-            internal class LiveLiterals%TestKt {
+            internal object LiveLiterals%TestKt {
               val Int%arg-0%call-print%fun-A: Int = 1
               var State%Int%arg-0%call-print%fun-A: State<Int>?
               @LiveLiteralInfo(key = "Int%arg-0%call-print%fun-A", offset = 62)
@@ -559,32 +558,23 @@ class LiveLiteralTransformTests : AbstractIrTransformTest() {
 
     private var builtKeys = mutableSetOf<String>()
 
+    @OptIn(ObsoleteDescriptorBasedAPI::class)
     override fun postProcessingStep(
         module: IrModuleFragment,
-        generatorContext: GeneratorContext,
-        irLinker: IrDeserializer,
-        symbols: BuiltinSymbolsBase
+        context: IrPluginContext
     ) {
-        val pluginContext = IrPluginContextImpl(
-            module = generatorContext.moduleDescriptor,
-            bindingContext = generatorContext.bindingContext,
-            languageVersionSettings = generatorContext.languageVersionSettings,
-            st = generatorContext.symbolTable,
-            typeTranslator = generatorContext.typeTranslator,
-            irBuiltIns = generatorContext.irBuiltIns,
-            linker = irLinker,
-            symbols = symbols
-        )
         @Suppress("DEPRECATION")
-        val bindingTrace = DelegatingBindingTrace(pluginContext.bindingContext, "test trace")
+        val bindingTrace = DelegatingBindingTrace(context.bindingContext, "test trace")
         val symbolRemapper = DeepCopySymbolRemapper()
         val keyVisitor = DurableKeyVisitor(builtKeys)
         val transformer = object : LiveLiteralTransformer(
             true,
+            false,
             keyVisitor,
-            pluginContext,
+            context,
             symbolRemapper,
-            bindingTrace
+            bindingTrace,
+            ModuleMetricsImpl("temp", context)
         ) {
             override fun makeKeySet(): MutableSet<String> {
                 return super.makeKeySet().also { builtKeys = it }
@@ -595,8 +585,8 @@ class LiveLiteralTransformTests : AbstractIrTransformTest() {
 
     // since the lowering will throw an exception if duplicate keys are found, all we have to do
     // is run the lowering
-    private fun assertNoDuplicateKeys(src: String) {
-        generateIrModuleWithJvmResolve(
+    private fun assertNoDuplicateKeys(@Language("kotlin") src: String) {
+        JvmCompilation().compile(
             listOf(
                 sourceFile("Test.kt", src.replace('%', '$'))
             )
@@ -606,7 +596,7 @@ class LiveLiteralTransformTests : AbstractIrTransformTest() {
     // For a given src string, a
     private fun assertKeys(vararg keys: String, makeSrc: () -> String) {
         builtKeys = mutableSetOf()
-        generateIrModuleWithJvmResolve(
+        JvmCompilation().compile(
             listOf(
                 sourceFile("Test.kt", makeSrc().replace('%', '$'))
             )
@@ -623,7 +613,7 @@ class LiveLiteralTransformTests : AbstractIrTransformTest() {
 
     // test: have two src strings (before/after) and assert that the keys of the params didn't change
     private fun assertDurableChange(before: String, after: String) {
-        generateIrModuleWithJvmResolve(
+        JvmCompilation().compile(
             listOf(
                 sourceFile("Test.kt", before.replace('%', '$'))
             )
@@ -632,7 +622,7 @@ class LiveLiteralTransformTests : AbstractIrTransformTest() {
 
         builtKeys = mutableSetOf()
 
-        generateIrModuleWithJvmResolve(
+        JvmCompilation().compile(
             listOf(
                 sourceFile("Test.kt", after.replace('%', '$'))
             )

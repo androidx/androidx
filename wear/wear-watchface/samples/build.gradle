@@ -18,8 +18,6 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.LibraryVersions
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -30,7 +28,8 @@ dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
     api(project(":wear:wear-watchface"))
     implementation(project(":wear:wear-watchface-complications-rendering"))
-    api(KOTLIN_STDLIB)
+    implementation(project(":wear:wear-watchface-editor-samples"))
+    api(libs.kotlinStdlib)
 }
 
 androidx {
@@ -44,10 +43,6 @@ androidx {
 
 android {
     defaultConfig {
-        minSdkVersion 25
-    }
-    compileOptions {
-        sourceCompatibility 1.8
-        targetCompatibility 1.8
+        minSdkVersion 26
     }
 }

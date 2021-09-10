@@ -1,0 +1,29 @@
+// Signature format: 4.0
+package androidx.paging {
+
+  public final class AdjacentItems<T> {
+    ctor public AdjacentItems(T? before, T? after);
+    method public T? component1();
+    method public T? component2();
+    method public androidx.paging.AdjacentItems<T> copy(T? before, T? after);
+    method public T? getAfter();
+    method public T? getBefore();
+    property public final T? after;
+    property public final T? before;
+  }
+
+  public abstract class ListenableFuturePagingSource<Key, Value> extends androidx.paging.PagingSource<Key,Value> {
+    ctor public ListenableFuturePagingSource();
+    method public suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.paging.PagingSource.LoadResult<Key,Value>> loadFuture(androidx.paging.PagingSource.LoadParams<Key> params);
+  }
+
+  public final class PagingDataFutures {
+    method @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,java.lang.Boolean> predicate, java.util.concurrent.Executor executor);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,java.lang.Iterable<R>> transform, java.util.concurrent.Executor executor);
+    method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<androidx.paging.AdjacentItems<T>,R> generator, java.util.concurrent.Executor executor);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,R> transform, java.util.concurrent.Executor executor);
+  }
+
+}
+

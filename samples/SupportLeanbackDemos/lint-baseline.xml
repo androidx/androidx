@@ -1,26 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="ObsoleteLintCustomCheck"
-        message="Lint found an issue registry (`androidx.appcompat.AppCompatIssueRegistry`) which is older than the current API level; these checks may not work correctly.&#xA;&#xA;Recompile the checks against the latest version. Custom check API version is 7 (4.0), current lint API level is 8 (4.1)">
-        <location
-            file="../../../../../../home/jeffrygaston/.gradle/caches/transforms-2/files-2.1/e89b39c1e7aed820921e8a0e91e1121c/appcompat-1.2.0/jars/lint.jar"/>
-    </issue>
-
-    <issue
-        id="ObsoleteLintCustomCheck"
-        message="Lint found an issue registry (`androidx.fragment.lint.FragmentIssueRegistry`) which is older than the current API level; these checks may not work correctly.&#xA;&#xA;Recompile the checks against the latest version. Custom check API version is 6 (3.6), current lint API level is 8 (4.1)">
-        <location
-            file="../../../../../../home/jeffrygaston/.gradle/caches/transforms-2/files-2.1/38e69ca3d85f212c778f2525693f521d/fragment-1.2.0/jars/lint.jar"/>
-    </issue>
-
-    <issue
-        id="ObsoleteLintCustomCheck"
-        message="Lint found an issue registry (`androidx.lifecycle.lint.LifecycleRuntimeIssueRegistry`) which is older than the current API level; these checks may not work correctly.&#xA;&#xA;Recompile the checks against the latest version. Custom check API version is 6 (3.6), current lint API level is 8 (4.1)">
-        <location
-            file="../../../../../../home/jeffrygaston/.gradle/caches/transforms-2/files-2.1/978ca5ef4768037f7867d4f4a6ee707a/lifecycle-runtime-ktx-2.2.0/jars/lint.jar"/>
-    </issue>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
         id="MissingSuperCall"
@@ -67,171 +46,6 @@
     </issue>
 
     <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
-        errorLine1="        b.append(String.format(&quot;%.2f&quot;, ((float) seconds + seconds2)));"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackSeekDataProviderSample.java"
-            line="80"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="SdCardPath"
-        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
-        errorLine1="                        &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
-            line="109"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SdCardPath"
-        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
-        errorLine1="                        &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
-            line="112"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SdCardPath"
-        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
-        errorLine1="                    &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/SampleVideoFragment.java"
-            line="80"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SdCardPath"
-        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
-        errorLine1="                                &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/SampleVideoFragment.java"
-            line="92"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SdCardPath"
-        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
-        errorLine1="                    &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/SampleVideoSupportFragment.java"
-            line="83"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SdCardPath"
-        message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
-        errorLine1="                                &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/SampleVideoSupportFragment.java"
-            line="95"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `resizeableActivity` is only used in API level 24 and higher (current min is 21)"
-        errorLine1="            android:resizeableActivity=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="93"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `supportsPictureInPicture` is only used in API level 24 and higher (current min is 21)"
-        errorLine1="            android:supportsPictureInPicture=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="94"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `resizeableActivity` is only used in API level 24 and higher (current min is 21)"
-        errorLine1="            android:resizeableActivity=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="101"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `supportsPictureInPicture` is only used in API level 24 and higher (current min is 21)"
-        errorLine1="            android:supportsPictureInPicture=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="102"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `resizeableActivity` is only used in API level 24 and higher (current min is 21)"
-        errorLine1="            android:resizeableActivity=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="109"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `supportsPictureInPicture` is only used in API level 24 and higher (current min is 21)"
-        errorLine1="            android:supportsPictureInPicture=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="110"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `resizeableActivity` is only used in API level 24 and higher (current min is 21)"
-        errorLine1="            android:resizeableActivity=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="117"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `supportsPictureInPicture` is only used in API level 24 and higher (current min is 21)"
-        errorLine1="            android:supportsPictureInPicture=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="118"
-            column="13"/>
-    </issue>
-
-    <issue
         id="BanSynchronizedMethods"
         message="Use of synchronized methods is not recommended"
         errorLine1="    /**"
@@ -243,223 +57,234 @@
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="    &lt;fragment"
-        errorLine2="     ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/activity_music_example.xml"
-            line="17"
-            column="6"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="419"
+            column="25"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1=" &lt;fragment"
-        errorLine2="  ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/browse.xml"
-            line="23"
-            column="3"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="419"
+            column="51"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="&lt;fragment xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                                      ~~~~~~~~">
         <location
-            file="src/main/res/layout/browse_animation.xml"
-            line="18"
-            column="2"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="419"
+            column="71"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1=" &lt;fragment"
-        errorLine2="  ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/browse_support.xml"
-            line="25"
-            column="3"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="705"
+            column="25"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="    &lt;fragment"
-        errorLine2="     ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
+        errorLine2="                                            ~~~~~~~~">
         <location
-            file="src/main/res/layout/fragment_tab.xml"
-            line="24"
-            column="6"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="705"
+            column="45"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="    &lt;fragment"
-        errorLine2="     ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/onboarding.xml"
-            line="22"
-            column="6"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="763"
+            column="17"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="    &lt;fragment"
-        errorLine2="     ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/playback_activity.xml"
-            line="21"
-            column="6"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="763"
+            column="43"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="    &lt;fragment"
-        errorLine2="     ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                              ~~~~~~~~">
         <location
-            file="src/main/res/layout/playback_activity_support.xml"
-            line="23"
-            column="6"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="763"
+            column="63"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="    &lt;fragment"
-        errorLine2="     ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/playback_controls.xml"
-            line="21"
-            column="6"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="797"
+            column="17"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="    &lt;fragment"
-        errorLine2="     ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/playback_controls_support.xml"
-            line="23"
-            column="6"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="797"
+            column="43"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="    &lt;fragment"
-        errorLine2="     ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                              ~~~~~~~~">
         <location
-            file="src/main/res/layout/playback_transportcontrol_activity.xml"
-            line="21"
-            column="6"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="797"
+            column="63"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="    &lt;fragment"
-        errorLine2="     ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/playback_transportcontrol_activity_support.xml"
-            line="23"
-            column="6"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="840"
+            column="17"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="  &lt;fragment"
-        errorLine2="   ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/rows.xml"
-            line="24"
-            column="4"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="840"
+            column="43"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="  &lt;fragment"
-        errorLine2="   ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                              ~~~~~~~~">
         <location
-            file="src/main/res/layout/rows_support.xml"
-            line="26"
-            column="4"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="840"
+            column="63"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="&lt;fragment xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/search.xml"
-            line="18"
-            column="2"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="932"
+            column="17"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="&lt;fragment xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/search_support.xml"
-            line="20"
-            column="2"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="932"
+            column="43"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="    &lt;fragment"
-        errorLine2="     ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.leanback.MediaSessionService is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
+        errorLine2="                                                              ~~~~~~~~">
         <location
-            file="src/main/res/layout/settings.xml"
-            line="20"
-            column="6"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
+            line="932"
+            column="63"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="&lt;fragment xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        getActivity().enterPictureInPictureMode();"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/vertical_grid.xml"
-            line="18"
-            column="2"/>
+            file="src/main/java/com/example/android/leanback/PlaybackFragment.java"
+            line="90"
+            column="39"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="&lt;fragment xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        getActivity().enterPictureInPictureMode();"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/vertical_grid_support.xml"
-            line="20"
-            column="2"/>
+            file="src/main/java/com/example/android/leanback/PlaybackSupportFragment.java"
+            line="93"
+            column="39"/>
     </issue>
 
     <issue
-        id="InflateParams"
-        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
-        errorLine1="        View view = getLayoutInflater().inflate(R.layout.horizontal_grid, null, false);"
-        errorLine2="                                                                          ~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        getActivity().enterPictureInPictureMode();"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"
-            line="55"
-            column="75"/>
+            file="src/main/java/com/example/android/leanback/PlaybackTransportControlFragment.java"
+            line="76"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        getActivity().enterPictureInPictureMode();"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/leanback/PlaybackTransportControlSupportFragment.java"
+            line="79"
+            column="39"/>
     </issue>
 
     <issue
@@ -878,908 +703,6 @@
             file="src/main/java/com/example/android/leanback/VerticalGridSupportFragment.java"
             line="105"
             column="23"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="419"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="419"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                                      ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="419"
-            column="71"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="705"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
-        errorLine2="                                            ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="705"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="763"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="763"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                              ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="763"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="797"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="797"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                              ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="797"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="840"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="840"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                              ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="840"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="932"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="932"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class com.example.android.leanback.MediaSessionService is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                              ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="932"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class null is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="                        getActivity().enterPictureInPictureMode();"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackFragment.java"
-            line="90"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class null is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="                        getActivity().enterPictureInPictureMode();"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackSupportFragment.java"
-            line="93"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class null is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="                        getActivity().enterPictureInPictureMode();"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackTransportControlFragment.java"
-            line="76"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class null is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="                        getActivity().enterPictureInPictureMode();"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackTransportControlSupportFragment.java"
-            line="79"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="GuidedStepFragment.SLIDE_FROM_BOTTOM can only be accessed from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="            setEntranceTransitionType(GuidedStepFragment.SLIDE_FROM_BOTTOM);"
-        errorLine2="                                                         ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"
-            line="76"
-            column="58"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="GuidedStepFragment.setEntranceTransitionType can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="            setEntranceTransitionType(GuidedStepFragment.SLIDE_FROM_BOTTOM);"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"
-            line="76"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="GuidedStepSupportFragment.SLIDE_FROM_BOTTOM can only be accessed from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="            setEntranceTransitionType(GuidedStepSupportFragment.SLIDE_FROM_BOTTOM);"
-        errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"
-            line="79"
-            column="65"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="GuidedStepSupportFragment.setEntranceTransitionType can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="            setEntranceTransitionType(GuidedStepSupportFragment.SLIDE_FROM_BOTTOM);"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"
-            line="79"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        MediaPlayerGlue mediaPlayerGlue = new MediaPlayerGlue(getActivity());"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
-            line="82"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue.setMode can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        mediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ONE);"
-        errorLine2="                        ~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
-            line="84"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue.setArtist can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        mediaPlayerGlue.setArtist(&quot;A Googler&quot;);"
-        errorLine2="                        ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
-            line="85"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue.setTitle can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        mediaPlayerGlue.setTitle(&quot;Diving with Sharks Trailer&quot;);"
-        errorLine2="                        ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
-            line="86"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue.setMediaSource can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        mediaPlayerGlue.setMediaSource(Uri.parse(&quot;android.resource://com.example.android.leanback/&quot;"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsFragment.java"
-            line="87"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        MediaPlayerGlue mediaPlayerGlue = new MediaPlayerGlue(getActivity());"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
-            line="85"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue.setMode can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        mediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ONE);"
-        errorLine2="                        ~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
-            line="87"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue.setArtist can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        mediaPlayerGlue.setArtist(&quot;A Googler&quot;);"
-        errorLine2="                        ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
-            line="88"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue.setTitle can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        mediaPlayerGlue.setTitle(&quot;Diving with Sharks Trailer&quot;);"
-        errorLine2="                        ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
-            line="89"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MediaPlayerGlue.setMediaSource can only be called from within the same library group prefix (referenced groupId=`androidx.leanback` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        mediaPlayerGlue.setMediaSource(Uri.parse(&quot;android.resource://com.example.android.leanback/&quot;"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/NewDetailsSupportFragment.java"
-            line="90"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="PermissionImpliesUnsupportedHardware"
-        message="Permission exists without corresponding hardware `&lt;uses-feature android:name=&quot;android.hardware.microphone&quot; required=&quot;false&quot;>` tag"
-        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.RECORD_AUDIO&quot; />"
-        errorLine2="     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="15"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="UseCompatLoadingForDrawables"
-        message="Use `ResourcesCompat.getDrawable()`"
-        errorLine1="            Drawable icon = getActivity().getResources().getDrawable(R.drawable.ic_main_icon);"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/DetailsPresenterSelectionActivity.java"
-            line="74"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UseCompatLoadingForDrawables"
-        message="Use `ContextCompat.getDrawable()`"
-        errorLine1="        mMediaPlayerGlue.setArt(getActivity().getDrawable(R.drawable.google_map));"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/VideoConsumptionWithDetailCardFragment.java"
-            line="76"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="AllowBackup"
-        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
-        errorLine1="    &lt;application"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="19"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="AllowBackup"
-        message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
-        errorLine1="    &lt;application"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="19"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This `AsyncTask` class should be static or leaks might occur (com.example.android.leanback.BackgroundHelper.LoadBitmapTaskBase)"
-        errorLine1="    class LoadBitmapTaskBase extends android.os.AsyncTask&lt;Request, Object, Request> {"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="126"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This `AsyncTask` class should be static or leaks might occur (com.example.android.leanback.BackgroundHelper.LoadBitmapIntoBackgroundManagerTask)"
-        errorLine1="    class LoadBitmapIntoBackgroundManagerTask extends LoadBitmapTaskBase {"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="162"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This `AsyncTask` class should be static or leaks might occur (com.example.android.leanback.BackgroundHelper.LoadBitmapCallbackTask)"
-        errorLine1="    class LoadBitmapCallbackTask extends LoadBitmapTaskBase {"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="170"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This `AsyncTask` class should be static or leaks might occur (com.example.android.leanback.PlaybackSeekAsyncDataProvider.LoadBitmapTask)"
-        errorLine1="    class LoadBitmapTask extends android.os.AsyncTask&lt;Object, Object, Bitmap> {"
-        errorLine2="          ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/PlaybackSeekAsyncDataProvider.java"
-            line="54"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="HandlerLeak"
-        message="This `Handler` class should be static or leaks might occur (com.example.android.leanback.MediaSessionService.MediaPlayerAudioHandler)"
-        errorLine1="    private class MediaPlayerAudioHandler extends Handler {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="87"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/browse.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/browse_support.xml"
-            line="20"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/date_picker.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/details_activity.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/guided_step_activity.xml"
-            line="19"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/onboarding.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/pin_picker.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/playback_activity.xml"
-            line="17"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/playback_activity_support.xml"
-            line="19"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/playback_transportcontrol_activity.xml"
-            line="17"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/playback_transportcontrol_activity_support.xml"
-            line="19"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/time_picker.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.array.pref_parent_control_entries_summaries` appears to be unused"
-        errorLine1="    &lt;array name=&quot;pref_parent_control_entries_summaries&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/arrays.xml"
-            line="46"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.raw.browse` appears to be unused">
-        <location
-            file="src/main/res/raw/browse.mp4"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.details_img` appears to be unused">
-        <location
-            file="src/main/res/drawable/details_img.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.google_android` appears to be unused">
-        <location
-            file="src/main/res/drawable/google_android.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.google_logo` appears to be unused">
-        <location
-            file="src/main/res/drawable/google_logo.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.google_photo` appears to be unused">
-        <location
-            file="src/main/res/drawable/google_photo.jpeg"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_guidedstep_option_a` appears to be unused">
-        <location
-            file="src/main/res/drawable/ic_guidedstep_option_a.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_guidedstep_option_b` appears to be unused">
-        <location
-            file="src/main/res/drawable/ic_guidedstep_option_b.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_guidedstep_option_c` appears to be unused">
-        <location
-            file="src/main/res/drawable/ic_guidedstep_option_c.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_settings_wifi_3_bar` appears to be unused">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_settings_wifi_3_bar.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.raw.media0` appears to be unused">
-        <location
-            file="src/main/res/raw/media0.mp3"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.raw.media1` appears to be unused">
-        <location
-            file="src/main/res/raw/media1.mp3"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.playback_controls` appears to be unused"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/playback_controls.xml"
-            line="17"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.playback_controls_support` appears to be unused"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/playback_controls_support.xml"
-            line="19"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.playbackoverlay` appears to be unused"
-        errorLine1="    &lt;string name=&quot;playbackoverlay&quot;>PlaybackOverlay&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="55"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.playbackoverlay_description` appears to be unused"
-        errorLine1="    &lt;string name=&quot;playbackoverlay_description&quot;>PlaybackOverlayFragment test&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="56"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.playbackoverlay_support` appears to be unused"
-        errorLine1="    &lt;string name=&quot;playbackoverlay_support&quot;>PlaybackOverlay(support version)&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="57"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.playbackoverlay_support_description` appears to be unused"
-        errorLine1="    &lt;string name=&quot;playbackoverlay_support_description&quot;>PlaybackOverlaySupportFragment test&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="58"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.legacydetails_off` appears to be unused"
-        errorLine1="    &lt;string name=&quot;legacydetails_off&quot;>Use New DetailsPresenter&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="78"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.legacydetails_on` appears to be unused"
-        errorLine1="    &lt;string name=&quot;legacydetails_on&quot;>Use Legacy DetailsPresenter&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="79"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.guidedstep_fourth_description` appears to be unused"
-        errorLine1="    &lt;string name=&quot;guidedstep_fourth_description&quot;>Fourth step of guided sequence&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="103"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.Theme_Example_AppCompat_Leanback_SearchDetails` appears to be unused"
-        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.SearchDetails&quot; parent=&quot;Theme.AppCompat.Leanback.Details.NoSharedElementTransition&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/themes_appcompat.xml"
-            line="23"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.Theme_Example_AppCompat_Leanback_Details` appears to be unused"
-        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.Details&quot; parent=&quot;Theme.AppCompat.Leanback.Details&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/themes_appcompat.xml"
-            line="25"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.Theme_Example_AppCompat_Leanback_Details_CustomTitle` appears to be unused"
-        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.Details.CustomTitle&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/themes_appcompat.xml"
-            line="27"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.Theme_Example_AppCompat_Leanback_Rows` appears to be unused"
-        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.Rows&quot; parent=&quot;Theme.AppCompat.Leanback&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/themes_appcompat.xml"
-            line="32"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.Theme_Example_AppCompat_Leanback_GuidedStep` appears to be unused"
-        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.GuidedStep&quot; parent=&quot;Theme.AppCompat.Leanback.GuidedStep&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/themes_appcompat.xml"
-            line="36"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.Theme_Example_AppCompat_Leanback_GuidedStep_First` appears to be unused"
-        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.GuidedStep.First&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/themes_appcompat.xml"
-            line="39"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.Theme_Example_AppCompat_Leanback_GuidedStep_Half` appears to be unused"
-        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.GuidedStep.Half&quot; parent=&quot;Theme.AppCompat.Leanback.GuidedStep.Half&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/themes_appcompat.xml"
-            line="42"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.Theme_Example_AppCompat_Leanback_Preferences` appears to be unused"
-        errorLine1="    &lt;style name=&quot;Theme.Example.AppCompat.Leanback.Preferences&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/themes_appcompat.xml"
-            line="44"
-            column="12"/>
     </issue>
 
     <issue
@@ -2339,7 +1262,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="291"
+            line="292"
             column="13"/>
     </issue>
 
@@ -2350,7 +1273,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="294"
+            line="295"
             column="13"/>
     </issue>
 
@@ -2361,7 +1284,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="419"
+            line="420"
             column="13"/>
     </issue>
 
@@ -2372,7 +1295,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="420"
+            line="421"
             column="13"/>
     </issue>
 
@@ -2383,7 +1306,7 @@
         errorLine2="                                ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="422"
+            line="423"
             column="33"/>
     </issue>
 
@@ -2394,7 +1317,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="423"
+            line="424"
             column="13"/>
     </issue>
 
@@ -2405,7 +1328,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="448"
+            line="449"
             column="17"/>
     </issue>
 
@@ -2416,7 +1339,7 @@
         errorLine2="            ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="454"
+            line="455"
             column="13"/>
     </issue>
 
@@ -2427,7 +1350,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="569"
+            line="570"
             column="33"/>
     </issue>
 
@@ -2438,7 +1361,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="570"
+            line="571"
             column="62"/>
     </issue>
 
@@ -2449,7 +1372,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="570"
+            line="571"
             column="17"/>
     </issue>
 
@@ -2460,7 +1383,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="571"
+            line="572"
             column="25"/>
     </issue>
 
@@ -2471,7 +1394,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="576"
+            line="577"
             column="33"/>
     </issue>
 
@@ -2482,7 +1405,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="577"
+            line="578"
             column="65"/>
     </issue>
 
@@ -2493,7 +1416,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="577"
+            line="578"
             column="17"/>
     </issue>
 
@@ -2504,7 +1427,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="578"
+            line="579"
             column="25"/>
     </issue>
 
@@ -2515,7 +1438,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="621"
+            line="622"
             column="50"/>
     </issue>
 
@@ -2526,7 +1449,7 @@
         errorLine2="            ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="634"
+            line="635"
             column="13"/>
     </issue>
 
@@ -4819,449 +3742,13 @@
     </issue>
 
     <issue
-        id="UselessParent"
-        message="This `LinearLayout` layout or its `RelativeLayout` parent is useless"
-        errorLine1="    &lt;LinearLayout"
-        errorLine2="     ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/page_fragment.xml"
-            line="7"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="IconColors"
-        message="Action Bar icons should use a single gray color (`#333333` for light themes (with 60%/30% opacity for enabled/disabled), and `#FFFFFF` with opacity 80%/30% for dark themes">
-        <location
-            file="src/main/res/drawable/ic_action_a.png"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/details_img.png` in densityless folder">
-        <location
-            file="src/main/res/drawable/details_img.png"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/details_img_16x9.png` in densityless folder">
-        <location
-            file="src/main/res/drawable/details_img_16x9.png"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/gallery_photo_1.jpg` in densityless folder">
-        <location
-            file="src/main/res/drawable/gallery_photo_1.jpg"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/gallery_photo_2.jpg` in densityless folder">
-        <location
-            file="src/main/res/drawable/gallery_photo_2.jpg"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/gallery_photo_3.jpg` in densityless folder">
-        <location
-            file="src/main/res/drawable/gallery_photo_3.jpg"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/gallery_photo_4.jpg` in densityless folder">
-        <location
-            file="src/main/res/drawable/gallery_photo_4.jpg"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/gallery_photo_5.jpg` in densityless folder">
-        <location
-            file="src/main/res/drawable/gallery_photo_5.jpg"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/gallery_photo_6.jpg` in densityless folder">
-        <location
-            file="src/main/res/drawable/gallery_photo_6.jpg"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/gallery_photo_7.jpg` in densityless folder">
-        <location
-            file="src/main/res/drawable/gallery_photo_7.jpg"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/gallery_photo_8.jpg` in densityless folder">
-        <location
-            file="src/main/res/drawable/gallery_photo_8.jpg"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/google_android.png` in densityless folder">
-        <location
-            file="src/main/res/drawable/google_android.png"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/google_logo.png` in densityless folder">
-        <location
-            file="src/main/res/drawable/google_logo.png"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/google_map.jpg` in densityless folder">
-        <location
-            file="src/main/res/drawable/google_map.jpg"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/google_photo.jpeg` in densityless folder">
-        <location
-            file="src/main/res/drawable/google_photo.jpeg"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/ic_action_a.png` in densityless folder">
-        <location
-            file="src/main/res/drawable/ic_action_a.png"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/ic_guidedstep_option_a.png` in densityless folder">
-        <location
-            file="src/main/res/drawable/ic_guidedstep_option_a.png"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/ic_guidedstep_option_b.png` in densityless folder">
-        <location
-            file="src/main/res/drawable/ic_guidedstep_option_b.png"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/ic_guidedstep_option_c.png` in densityless folder">
-        <location
-            file="src/main/res/drawable/ic_guidedstep_option_c.png"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/ic_title.png` in densityless folder">
-        <location
-            file="src/main/res/drawable/ic_title.png"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/spiderman.jpg` in densityless folder">
-        <location
-            file="src/main/res/drawable/spiderman.jpg"/>
-    </issue>
-
-    <issue
-        id="IconDensities"
-        message="Missing the following drawables in `drawable-hdpi`: bg.png, ic_settings_apps.png, ic_settings_parental_control.png, ic_settings_time.png, ic_settings_wifi_3_bar.png... (46 more)">
-        <location
-            file="src/main/res/drawable-hdpi"/>
-    </issue>
-
-    <issue
-        id="IconDensities"
-        message="Missing the following drawables in `drawable-mdpi`: bg.png, ic_settings_apps.png, ic_settings_parental_control.png, ic_settings_time.png, ic_settings_wifi_3_bar.png... (46 more)">
-        <location
-            file="src/main/res/drawable-mdpi"/>
-    </issue>
-
-    <issue
-        id="TextFields"
-        message="This text field does not specify an `inputType`"
-        errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/page_fragment.xml"
-            line="15"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="TextFields"
-        message="This text field does not specify an `inputType`"
-        errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/page_fragment.xml"
-            line="24"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="TextFields"
-        message="This text field does not specify an `inputType`"
-        errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/page_fragment.xml"
-            line="33"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="Autofill"
-        message="Missing `autofillHints` attribute"
-        errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/page_fragment.xml"
-            line="15"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="Autofill"
-        message="Missing `autofillHints` attribute"
-        errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/page_fragment.xml"
-            line="24"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="Autofill"
-        message="Missing `autofillHints` attribute"
-        errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/page_fragment.xml"
-            line="33"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="LabelFor"
-        message="Missing accessibility label: provide either a view with an `android:labelFor` that references this view or provide an `android:hint`"
-        errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/page_fragment.xml"
-            line="15"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="LabelFor"
-        message="Missing accessibility label: provide either a view with an `android:labelFor` that references this view or provide an `android:hint`"
-        errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/page_fragment.xml"
-            line="24"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="LabelFor"
-        message="Missing accessibility label: provide either a view with an `android:labelFor` that references this view or provide an `android:hint`"
-        errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/page_fragment.xml"
-            line="33"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="        vh.getSubtitle().setText(&quot;2013 - 2014   Drama   TV-14&quot;);"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/DetailsDescriptionPresenter.java"
-            line="23"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="        vh.getBody().setText(&quot;Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do &quot;"
-        errorLine2="                             ^">
-        <location
-            file="src/main/java/com/example/android/leanback/DetailsDescriptionPresenter.java"
-            line="24"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="        vh.getBody().setText(&quot;Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do &quot;"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/DetailsDescriptionPresenter.java"
-            line="24"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                + &quot;eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim &quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/DetailsDescriptionPresenter.java"
-            line="25"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                + &quot;veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo &quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/DetailsDescriptionPresenter.java"
-            line="26"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                + &quot;consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse &quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/DetailsDescriptionPresenter.java"
-            line="27"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                + &quot;cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non &quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/DetailsDescriptionPresenter.java"
-            line="28"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                + &quot;proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&quot;);"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/DetailsDescriptionPresenter.java"
-            line="29"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="            ((TextView) holder.itemView).setText(&quot;Item &quot;+position);"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"
-            line="145"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="            ((TextView) holder.itemView).setText(&quot;Item &quot;+position);"
-        errorLine2="                                                 ~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"
-            line="145"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Header 1&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Header 1&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/page_fragment.xml"
-            line="19"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Header 2&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Header 2&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/page_fragment.xml"
-            line="28"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Header 3&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Header 3&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/page_fragment.xml"
-            line="37"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_alignParentRight` with `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
-        errorLine1="        android:layout_alignParentRight=&quot;true&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/page_fragment.xml"
-            line="11"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginRight` with `android:layout_marginEnd=&quot;128dp&quot;` to better support right-to-left layouts"
-        errorLine1="        android:layout_marginRight=&quot;128dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/page_fragment.xml"
-            line="12"
-            column="9"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public Bitmap getCache(Object token) {"
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="61"
+            line="62"
             column="16"/>
     </issue>
 
@@ -5272,7 +3759,7 @@
         errorLine2="                               ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="61"
+            line="62"
             column="32"/>
     </issue>
 
@@ -5283,7 +3770,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="72"
+            line="74"
             column="30"/>
     </issue>
 
@@ -5294,7 +3781,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="72"
+            line="74"
             column="44"/>
     </issue>
 
@@ -5305,7 +3792,7 @@
         errorLine2="                      ~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="81"
+            line="83"
             column="23"/>
     </issue>
 
@@ -5316,7 +3803,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="93"
+            line="95"
             column="45"/>
     </issue>
 
@@ -5327,7 +3814,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="105"
+            line="107"
             column="29"/>
     </issue>
 
@@ -5338,7 +3825,7 @@
         errorLine2="                             ~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="215"
+            line="217"
             column="30"/>
     </issue>
 
@@ -5349,7 +3836,7 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="228"
+            line="230"
             column="31"/>
     </issue>
 
@@ -5360,7 +3847,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="265"
+            line="267"
             column="29"/>
     </issue>
 
@@ -5371,7 +3858,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="277"
+            line="279"
             column="28"/>
     </issue>
 
@@ -5382,7 +3869,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/BackgroundHelper.java"
-            line="277"
+            line="279"
             column="47"/>
     </issue>
 
@@ -6306,7 +4793,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="83"
+            line="84"
             column="40"/>
     </issue>
 
@@ -6317,7 +4804,7 @@
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="89"
+            line="90"
             column="40"/>
     </issue>
 
@@ -6328,7 +4815,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="95"
+            line="96"
             column="43"/>
     </issue>
 
@@ -6339,7 +4826,7 @@
         errorLine2="               ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="196"
+            line="197"
             column="16"/>
     </issue>
 
@@ -6350,7 +4837,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="196"
+            line="197"
             column="42"/>
     </issue>
 
@@ -6361,7 +4848,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="207"
+            line="208"
             column="37"/>
     </issue>
 
@@ -6372,7 +4859,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="207"
+            line="208"
             column="65"/>
     </issue>
 
@@ -6383,7 +4870,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="224"
+            line="225"
             column="43"/>
     </issue>
 
@@ -6394,7 +4881,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="269"
+            line="270"
             column="30"/>
     </issue>
 
@@ -6405,7 +4892,7 @@
         errorLine2="               ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="279"
+            line="280"
             column="16"/>
     </issue>
 
@@ -6416,7 +4903,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="279"
+            line="280"
             column="42"/>
     </issue>
 
@@ -6427,7 +4914,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="290"
+            line="291"
             column="37"/>
     </issue>
 
@@ -6438,7 +4925,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="290"
+            line="291"
             column="65"/>
     </issue>
 
@@ -6449,7 +4936,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="298"
+            line="299"
             column="43"/>
     </issue>
 
@@ -6460,7 +4947,7 @@
         errorLine2="                                                                      ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="298"
+            line="299"
             column="71"/>
     </issue>
 
@@ -6471,7 +4958,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="306"
+            line="307"
             column="43"/>
     </issue>
 
@@ -6482,7 +4969,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="327"
+            line="328"
             column="52"/>
     </issue>
 
@@ -6493,7 +4980,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="391"
+            line="392"
             column="16"/>
     </issue>
 
@@ -6504,7 +4991,7 @@
         errorLine2="               ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="407"
+            line="408"
             column="16"/>
     </issue>
 
@@ -6515,7 +5002,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="407"
+            line="408"
             column="42"/>
     </issue>
 
@@ -6526,7 +5013,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="418"
+            line="419"
             column="37"/>
     </issue>
 
@@ -6537,7 +5024,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="418"
+            line="419"
             column="65"/>
     </issue>
 
@@ -6548,7 +5035,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="428"
+            line="429"
             column="43"/>
     </issue>
 
@@ -6559,7 +5046,7 @@
         errorLine2="                                                                      ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="428"
+            line="429"
             column="71"/>
     </issue>
 
@@ -6570,7 +5057,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="437"
+            line="438"
             column="43"/>
     </issue>
 
@@ -6581,7 +5068,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="459"
+            line="460"
             column="52"/>
     </issue>
 
@@ -6592,7 +5079,7 @@
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="479"
+            line="480"
             column="49"/>
     </issue>
 
@@ -6603,7 +5090,7 @@
         errorLine2="               ~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="502"
+            line="503"
             column="16"/>
     </issue>
 
@@ -6614,7 +5101,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="502"
+            line="503"
             column="34"/>
     </issue>
 
@@ -6625,7 +5112,7 @@
         errorLine2="                                                          ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="502"
+            line="503"
             column="59"/>
     </issue>
 
@@ -6636,7 +5123,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="503"
+            line="504"
             column="17"/>
     </issue>
 
@@ -6647,7 +5134,7 @@
         errorLine2="               ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="535"
+            line="536"
             column="16"/>
     </issue>
 
@@ -6658,7 +5145,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="535"
+            line="536"
             column="42"/>
     </issue>
 
@@ -6669,7 +5156,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="546"
+            line="547"
             column="16"/>
     </issue>
 
@@ -6680,7 +5167,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="556"
+            line="557"
             column="37"/>
     </issue>
 
@@ -6691,7 +5178,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="556"
+            line="557"
             column="65"/>
     </issue>
 
@@ -6702,7 +5189,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="583"
+            line="584"
             column="43"/>
     </issue>
 
@@ -6713,7 +5200,7 @@
         errorLine2="                                                                      ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="583"
+            line="584"
             column="71"/>
     </issue>
 
@@ -6724,7 +5211,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="590"
+            line="591"
             column="43"/>
     </issue>
 
@@ -6735,7 +5222,7 @@
         errorLine2="               ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="618"
+            line="619"
             column="16"/>
     </issue>
 
@@ -6746,7 +5233,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="618"
+            line="619"
             column="42"/>
     </issue>
 
@@ -6757,7 +5244,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="629"
+            line="630"
             column="37"/>
     </issue>
 
@@ -6768,7 +5255,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="629"
+            line="630"
             column="65"/>
     </issue>
 
@@ -6779,7 +5266,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"
-            line="638"
+            line="639"
             column="43"/>
     </issue>
 
@@ -8550,7 +7037,7 @@
         errorLine2="                          ~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/PhotoViewModel.java"
-            line="39"
+            line="44"
             column="27"/>
     </issue>
 
@@ -8561,7 +7048,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/PhotoViewModel.java"
-            line="58"
+            line="64"
             column="12"/>
     </issue>
 

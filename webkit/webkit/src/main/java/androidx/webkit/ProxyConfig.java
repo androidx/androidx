@@ -17,6 +17,7 @@
 package androidx.webkit;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 
@@ -68,14 +69,17 @@ public final class ProxyConfig {
 
     private List<ProxyRule> mProxyRules;
     private List<String> mBypassRules;
+    private boolean mReverseBypass;
 
     /**
      * @hide Internal use only
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public ProxyConfig(@NonNull List<ProxyRule> proxyRules, @NonNull List<String> bypassRules) {
+    public ProxyConfig(@NonNull List<ProxyRule> proxyRules, @NonNull List<String> bypassRules,
+            boolean reverseBypass) {
         mProxyRules = proxyRules;
         mBypassRules = bypassRules;
+        mReverseBypass = reverseBypass;
     }
 
     /**
@@ -103,6 +107,19 @@ public final class ProxyConfig {
     @NonNull
     public List<String> getBypassRules() {
         return Collections.unmodifiableList(mBypassRules);
+    }
+
+    /**
+     * Returns {@code true} if reverse bypass is enabled. Reverse bypass means that only URLs in the
+     * bypass list will use these proxy settings. {@link #getBypassRules()} returns the URL list.
+     *
+     * <p>See {@link Builder#setReverseBypassEnabled(boolean)} for a more detailed description.
+     *
+     * @return reverseBypass
+     *
+     */
+    public boolean isReverseBypassEnabled() {
+        return mReverseBypass;
     }
 
     /**
@@ -162,6 +179,7 @@ public final class ProxyConfig {
     public static final class Builder {
         private List<ProxyRule> mProxyRules;
         private List<String> mBypassRules;
+        private boolean mReverseBypass = false;
 
         /**
          * Create an empty ProxyConfig Builder.
@@ -177,6 +195,7 @@ public final class ProxyConfig {
         public Builder(@NonNull ProxyConfig proxyConfig) {
             mProxyRules = proxyConfig.getProxyRules();
             mBypassRules = proxyConfig.getBypassRules();
+            mReverseBypass = proxyConfig.isReverseBypassEnabled();
         }
 
         /**
@@ -186,7 +205,7 @@ public final class ProxyConfig {
          */
         @NonNull
         public ProxyConfig build() {
-            return new ProxyConfig(proxyRules(), bypassRules());
+            return new ProxyConfig(proxyRules(), bypassRules(), reverseBypass());
         }
 
         /**
@@ -316,6 +335,31 @@ public final class ProxyConfig {
             return addBypassRule(BYPASS_RULE_REMOVE_IMPLICIT);
         }
 
+        /**
+         * Reverse the bypass list.
+         *
+         * <p>The default value is {@code false}, in which case all URLs will use proxy settings
+         * except the ones in the bypass list, which will be connected to directly instead.
+         *
+         * <p>If set to {@code true}, then only URLs in the bypass list will use these proxy
+         * settings, and all other URLs will be connected to directly.
+         *
+         * <p>Use {@link #addBypassRule(String)} to add bypass rules.
+         *
+         * <p>This method should only be called if
+         * {@link WebViewFeature#isFeatureSupported(String)}
+         * returns {@code true} for {@link WebViewFeature#PROXY_OVERRIDE_REVERSE_BYPASS}.
+         *
+         * @return This Builder object
+         */
+        @RequiresFeature(name = WebViewFeature.PROXY_OVERRIDE_REVERSE_BYPASS,
+                enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+        @NonNull
+        public Builder setReverseBypassEnabled(boolean reverseBypass) {
+            mReverseBypass = reverseBypass;
+            return this;
+        }
+
         @NonNull
         private List<ProxyRule> proxyRules() {
             return mProxyRules;
@@ -324,6 +368,10 @@ public final class ProxyConfig {
         @NonNull
         private List<String> bypassRules() {
             return mBypassRules;
+        }
+
+        private boolean reverseBypass() {
+            return mReverseBypass;
         }
     }
 }

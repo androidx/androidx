@@ -47,7 +47,7 @@ public class TypeTest {
     }
 
     private fun assertThatIsWireType(type: ComplicationType, wireType: Int) {
-        assertThat(type.asWireComplicationType()).isEqualTo(wireType)
+        assertThat(type.toWireComplicationType()).isEqualTo(wireType)
     }
 
     @Test

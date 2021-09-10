@@ -1,330 +1,308 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha06)" variant="all" version="7.1.0-alpha06">
 
     <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="            String scheme = uri.getScheme().toLowerCase();"
-        errorLine2="                                            ~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 27 (current min is 14): `android.app.Activity#setTurnScreenOn`"
+        errorLine1="        setTurnScreenOn(true);"
+        errorLine2="        ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/app/MediaRouteControllerDialog.java"
-            line="1451"
-            column="45"/>
+            file="src/androidTest/java/androidx/mediarouter/media/MediaRouter2TestActivity.java"
+            line="47"
+            column="9"/>
     </issue>
 
     <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="            String scheme = uri.getScheme().toLowerCase();"
-        errorLine2="                                            ~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 27 (current min is 14): `android.app.Activity#setShowWhenLocked`"
+        errorLine1="        setShowWhenLocked(true);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
-            line="1524"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `splitTrack` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="            android:splitTrack=&quot;false&quot; />"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_cast_group_volume_item.xml"
-            line="56"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `splitTrack` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="            android:splitTrack=&quot;false&quot; />"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_cast_route_item.xml"
-            line="80"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `importantForAccessibility` is only used in API level 16 and higher (current min is 14)"
-        errorLine1="                      android:importantForAccessibility=&quot;no&quot;"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_controller_material_dialog_b.xml"
-            line="43"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `controlX1` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="    android:controlX1=&quot;0.4&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/mr_fast_out_slow_in.xml"
-            line="19"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `controlY1` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="    android:controlY1=&quot;0&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/mr_fast_out_slow_in.xml"
-            line="20"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `controlX2` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="    android:controlX2=&quot;0.2&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/mr_fast_out_slow_in.xml"
-            line="21"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `controlY2` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="    android:controlY2=&quot;1&quot;/>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/mr_fast_out_slow_in.xml"
-            line="22"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `controlX1` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="    android:controlX1=&quot;0&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/mr_linear_out_slow_in.xml"
-            line="19"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `controlY1` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="    android:controlY1=&quot;0&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/mr_linear_out_slow_in.xml"
-            line="20"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `controlX2` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="    android:controlX2=&quot;0.2&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/mr_linear_out_slow_in.xml"
-            line="21"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `controlY2` is only used in API level 21 and higher (current min is 14)"
-        errorLine1="    android:controlY2=&quot;1&quot;/>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/interpolator/mr_linear_out_slow_in.xml"
-            line="22"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `importantForAccessibility` is only used in API level 16 and higher (current min is 14)"
-        errorLine1="                  android:importantForAccessibility=&quot;no&quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_playback_control.xml"
-            line="44"
-            column="19"/>
+            file="src/androidTest/java/androidx/mediarouter/media/MediaRouter2TestActivity.java"
+            line="48"
+            column="9"/>
     </issue>
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                        mSelectRouteIntMethod.invoke(router, types, route);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="327"
+            line="340"
             column="25"/>
     </issue>
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    return mGetSystemAudioRouteMethod.invoke(router);"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="371"
+            line="385"
             column="28"/>
     </issue>
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    mScanWifiDisplaysMethod.invoke(mDisplayManager);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="jellybean-mr1/androidx/mediarouter/media/MediaRouterJellybeanMr1.java"
-            line="123"
+            line="133"
             column="21"/>
     </issue>
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling Method.invoke without an SDK check"
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                    int statusCode = (Integer)mGetStatusCodeMethod.invoke(route);"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="jellybean-mr1/androidx/mediarouter/media/MediaRouterJellybeanMr1.java"
-            line="165"
+            line="175"
             column="47"/>
     </issue>
 
     <issue
-        id="QueryPermissionsNeeded"
-        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
-        errorLine1="        List&lt;ResolveInfo> resolveInfos = packageManager.queryIntentActivities(intent, 0);"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.TransferCallback is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (newController == mMediaRouter2.getSystemController()) {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="401"
-            column="57"/>
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="384"
+            column="48"/>
     </issue>
 
     <issue
-        id="QueryPermissionsNeeded"
-        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
-        errorLine1="        List&lt;ResolveInfo> resolveInfos = pm.queryBroadcastReceivers(queryIntent, 0);"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.TransferCallback is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                List&lt;MediaRoute2Info> selectedRoutes = newController.getSelectedRoutes();"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/media/MediaTransferReceiver.java"
-            line="82"
-            column="45"/>
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="387"
+            column="70"/>
     </issue>
 
     <issue
-        id="QueryPermissionsNeeded"
-        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
-        errorLine1="        for (ResolveInfo resolveInfo : mPackageManager.queryIntentServices(intent, 0)) {"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.TransferCallback is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                String routeId = selectedRoutes.get(0).getId();"
+        errorLine2="                                                       ~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/media/RegisteredMediaRouteProviderWatcher.java"
-            line="109"
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="393"
             column="56"/>
     </issue>
 
     <issue
-        id="QueryPermissionsNeeded"
-        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
-        errorLine1="        return mPackageManager.queryIntentServices(intent, 0).stream()"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    : mRoutingController.getId();"
+        errorLine2="                                         ~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/media/RegisteredMediaRouteProviderWatcher.java"
-            line="166"
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="488"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mRoutingController.setVolume(volume);"
+        errorLine2="                               ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="496"
             column="32"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            int volumeBefore = mOptimisticVolume &lt; 0 ? mRoutingController.getVolume() :"
+        errorLine2="                                                                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="506"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    mRoutingController.getVolumeMax()));"
+        errorLine2="                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="509"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mRoutingController.setVolume(mOptimisticVolume);"
+        errorLine2="                               ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="510"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (mRoutingController == null || mRoutingController.isReleased()"
+        errorLine2="                                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="516"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mRoutingController.release();"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="544"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mMediaRouter2.transferTo(route);"
+        errorLine2="                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="562"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mRoutingController.selectRoute(route);"
+        errorLine2="                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="578"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mRoutingController.deselectRoute(route);"
+        errorLine2="                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="594"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (mRoutingController == null || mRoutingController.isReleased()"
+        errorLine2="                                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="604"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            if (mRoutingController == null || mRoutingController.isReleased()"
+        errorLine2="                                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
+            line="630"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        ScriptIntrinsicBlur blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));"
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
-            line="659"
+            line="664"
             column="62"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        blurScript.setRadius(radius);"
         errorLine2="                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
-            line="660"
+            line="665"
             column="20"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        blurScript.setInput(allocation);"
         errorLine2="                   ~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
-            line="661"
+            line="666"
             column="20"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        blurScript.forEach(blurAllocation);"
         errorLine2="                   ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
-            line="662"
+            line="667"
             column="20"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.mediarouter.media.MediaRouterApi24.RouteInfo is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.mediarouter.media.MediaRouterApi24.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getDeviceType();"
         errorLine2="                                                                   ~~~~~~~~~~~~~">
         <location
             file="api24/androidx/mediarouter/media/MediaRouterApi24.java"
-            line="25"
+            line="26"
             column="68"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getName(context);"
         errorLine2="                                                                   ~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="124"
+            line="127"
             column="68"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getStatus();"
         errorLine2="                                                                   ~~~~~~~~~">
-        <location
-            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="128"
-            column="68"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
-        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getSupportedTypes();"
-        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
             line="132"
@@ -332,10 +310,10 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
-        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getCategory();"
-        errorLine2="                                                                   ~~~~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getSupportedTypes();"
+        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
             line="136"
@@ -343,252 +321,241 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getCategory();"
+        errorLine2="                                                                   ~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="141"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getIconDrawable();"
         errorLine2="                                                                   ~~~~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="140"
+            line="146"
             column="68"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getPlaybackType();"
         errorLine2="                                                                   ~~~~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="144"
+            line="150"
             column="68"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getPlaybackStream();"
         errorLine2="                                                                   ~~~~~~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="148"
+            line="154"
             column="68"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getVolume();"
         errorLine2="                                                                   ~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="152"
+            line="158"
             column="68"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getVolumeMax();"
         errorLine2="                                                                   ~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="156"
+            line="162"
             column="68"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getVolumeHandling();"
         errorLine2="                                                                   ~~~~~~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="160"
+            line="166"
             column="68"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getTag();"
         errorLine2="                                                                   ~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="164"
+            line="171"
             column="68"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.RouteInfo)routeObj).setTag(tag);"
         errorLine2="                                                            ~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="168"
+            line="175"
             column="61"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.RouteInfo)routeObj).requestSetVolume(volume);"
         errorLine2="                                                            ~~~~~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="172"
+            line="179"
             column="61"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.RouteInfo)routeObj).requestUpdateVolume(direction);"
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="176"
+            line="183"
             column="61"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getGroup();"
         errorLine2="                                                                   ~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="180"
+            line="188"
             column="68"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteGroup is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteGroup is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            final int count = group.getRouteCount();"
         errorLine2="                                    ~~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="196"
+            line="205"
             column="37"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteGroup is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteGroup is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                out.add(group.getRouteAt(i));"
         errorLine2="                              ~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="199"
+            line="208"
             column="31"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setName(name);"
         errorLine2="                                                                ~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="210"
+            line="219"
             column="65"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setStatus(status);"
         errorLine2="                                                                ~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="214"
+            line="223"
             column="65"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setIconDrawable(icon);"
         errorLine2="                                                                ~~~~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="218"
+            line="227"
             column="65"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setPlaybackType(type);"
         errorLine2="                                                                ~~~~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="222"
+            line="231"
             column="65"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setPlaybackStream(stream);"
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="226"
+            line="235"
             column="65"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setVolume(volume);"
         errorLine2="                                                                ~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="230"
+            line="239"
             column="65"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setVolumeMax(volumeMax);"
         errorLine2="                                                                ~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="234"
+            line="243"
             column="65"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setVolumeHandling(volumeHandling);"
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="238"
-            column="65"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
-        errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setVolumeCallback("
-        errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="242"
-            column="65"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
-        errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setRemoteControlClient("
-        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
             line="247"
@@ -596,948 +563,157 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
-        errorLine1="            return ((android.media.MediaRouter.RouteCategory)categoryObj).getName(context);"
-        errorLine2="                                                                          ~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setVolumeCallback("
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
         <location
             file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="257"
-            column="75"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
-        errorLine1="            ((android.media.MediaRouter.RouteCategory)categoryObj).getRoutes(out);"
-        errorLine2="                                                                   ~~~~~~~~~">
-        <location
-            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="263"
-            column="68"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
-        errorLine1="            return ((android.media.MediaRouter.RouteCategory)categoryObj).getSupportedTypes();"
-        errorLine2="                                                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="268"
-            column="75"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
-        errorLine1="            return ((android.media.MediaRouter.RouteCategory)categoryObj).isGroupable();"
-        errorLine2="                                                                          ~~~~~~~~~~~">
-        <location
-            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="272"
-            column="75"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.SelectRouteWorkaround is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
-        errorLine1="            int routeTypes = route.getSupportedTypes();"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~">
-        <location
-            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="318"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.SelectRouteWorkaround is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
-        errorLine1="            router.selectRoute(types, route);"
-        errorLine2="                   ~~~~~~~~~~~">
-        <location
-            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="344"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.GetDefaultRouteWorkaround is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
-        errorLine1="            return router.getRouteAt(0);"
-        errorLine2="                          ~~~~~~~~~~">
-        <location
-            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
-            line="379"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.mediarouter.media.MediaRouterJellybeanMr1.RouteInfo is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
-        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).isEnabled();"
-        errorLine2="                                                                   ~~~~~~~~~">
-        <location
-            file="jellybean-mr1/androidx/mediarouter/media/MediaRouterJellybeanMr1.java"
-            line="42"
-            column="68"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 17, the call containing class androidx.mediarouter.media.MediaRouterJellybeanMr1.RouteInfo is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
-        errorLine1="                return ((android.media.MediaRouter.RouteInfo)routeObj).getPresentationDisplay();"
-        errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="jellybean-mr1/androidx/mediarouter/media/MediaRouterJellybeanMr1.java"
-            line="49"
-            column="72"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.mediarouter.media.MediaRouterJellybeanMr2.RouteInfo is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
-        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getDescription();"
-        errorLine2="                                                                   ~~~~~~~~~~~~~~">
-        <location
-            file="jellybean-mr2/androidx/mediarouter/media/MediaRouterJellybeanMr2.java"
-            line="34"
-            column="68"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.mediarouter.media.MediaRouterJellybeanMr2.RouteInfo is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
-        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).isConnecting();"
-        errorLine2="                                                                   ~~~~~~~~~~~~">
-        <location
-            file="jellybean-mr2/androidx/mediarouter/media/MediaRouterJellybeanMr2.java"
-            line="38"
-            column="68"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 18, the call containing class androidx.mediarouter.media.MediaRouterJellybeanMr2.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
-        errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setDescription(description);"
-        errorLine2="                                                                ~~~~~~~~~~~~~~">
-        <location
-            file="jellybean-mr2/androidx/mediarouter/media/MediaRouterJellybeanMr2.java"
-            line="47"
+            line="252"
             column="65"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.mediarouter.media.RegisteredMediaRouteProviderWatcher is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="        return mPackageManager.queryIntentServices(intent, 0).stream()"
-        errorLine2="                                                              ~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setRemoteControlClient("
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/media/RegisteredMediaRouteProviderWatcher.java"
-            line="166"
-            column="63"/>
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="258"
+            column="65"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.mediarouter.media.RegisteredMediaRouteProviderWatcher is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="                .map(resolveInfo -> resolveInfo.serviceInfo).collect(Collectors.toList());"
-        errorLine2="                 ~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return ((android.media.MediaRouter.RouteCategory)categoryObj).getName(context);"
+        errorLine2="                                                                          ~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/media/RegisteredMediaRouteProviderWatcher.java"
-            line="167"
-            column="18"/>
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="269"
+            column="75"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.mediarouter.media.RegisteredMediaRouteProviderWatcher is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="                .map(resolveInfo -> resolveInfo.serviceInfo).collect(Collectors.toList());"
-        errorLine2="                                                             ~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ((android.media.MediaRouter.RouteCategory)categoryObj).getRoutes(out);"
+        errorLine2="                                                                   ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/media/RegisteredMediaRouteProviderWatcher.java"
-            line="167"
-            column="62"/>
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="276"
+            column="68"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.mediarouter.media.RegisteredMediaRouteProviderWatcher is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="                .map(resolveInfo -> resolveInfo.serviceInfo).collect(Collectors.toList());"
-        errorLine2="                                                                                ~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return ((android.media.MediaRouter.RouteCategory)categoryObj).getSupportedTypes();"
+        errorLine2="                                                                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/media/RegisteredMediaRouteProviderWatcher.java"
-            line="167"
-            column="81"/>
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="281"
+            column="75"/>
     </issue>
 
     <issue
-        id="StaticFieldLeak"
-        message="Do not place Android context classes in static fields (static reference to `ConnectivityReceiver` which has field `mContext` pointing to `Context`); this is a memory leak"
-        errorLine1="    private static ConnectivityReceiver sConnectivityReceiver;"
-        errorLine2="            ~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return ((android.media.MediaRouter.RouteCategory)categoryObj).isGroupable();"
+        errorLine2="                                                                          ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="102"
-            column="13"/>
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="285"
+            column="75"/>
     </issue>
 
     <issue
-        id="StaticFieldLeak"
-        message="This `AsyncTask` class should be static or leaks might occur (androidx.mediarouter.app.MediaRouteButton.RemoteIndicatorLoader)"
-        errorLine1="    private final class RemoteIndicatorLoader extends android.os.AsyncTask&lt;Void, Void, Drawable> {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.SelectRouteWorkaround is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            int routeTypes = route.getSupportedTypes();"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="801"
-            column="25"/>
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="331"
+            column="36"/>
     </issue>
 
     <issue
-        id="StaticFieldLeak"
-        message="This `AsyncTask` class should be static or leaks might occur (androidx.mediarouter.app.MediaRouteControllerDialog.FetchArtTask)"
-        errorLine1="    private class FetchArtTask extends android.os.AsyncTask&lt;Void, Void, Bitmap> {"
-        errorLine2="                  ~~~~~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.SelectRouteWorkaround is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            router.selectRoute(types, route);"
+        errorLine2="                   ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/app/MediaRouteControllerDialog.java"
-            line="1338"
-            column="19"/>
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="357"
+            column="20"/>
     </issue>
 
     <issue
-        id="StaticFieldLeak"
-        message="This `AsyncTask` class should be static or leaks might occur (androidx.mediarouter.app.MediaRouteDynamicControllerDialog.FetchArtTask)"
-        errorLine1="    private class FetchArtTask extends android.os.AsyncTask&lt;Void, Void, Bitmap> {"
-        errorLine2="                  ~~~~~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.mediarouter.media.MediaRouterJellybean.GetDefaultRouteWorkaround is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return router.getRouteAt(0);"
+        errorLine2="                          ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
-            line="1416"
-            column="19"/>
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="393"
+            column="27"/>
     </issue>
 
     <issue
-        id="HandlerLeak"
-        message="This `Handler` class should be static or leaks might occur (androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController.ReceiveHandler)"
-        errorLine1="        class ReceiveHandler extends Handler {"
-        errorLine2="              ~~~~~~~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.media.MediaRouterJellybeanMr1.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).isEnabled();"
+        errorLine2="                                                                   ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="619"
-            column="15"/>
+            file="jellybean-mr1/androidx/mediarouter/media/MediaRouterJellybeanMr1.java"
+            line="44"
+            column="68"/>
     </issue>
 
     <issue
-        id="HandlerLeak"
-        message="This `Handler` class should be static or leaks might occur (anonymous android.os.Handler)"
-        errorLine1="    private final Handler mHandler = new Handler() {"
-        errorLine2="                                     ^">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.media.MediaRouterJellybeanMr1.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                return ((android.media.MediaRouter.RouteInfo)routeObj).getPresentationDisplay();"
+        errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/app/MediaRouteChooserDialog.java"
-            line="83"
-            column="38"/>
+            file="jellybean-mr1/androidx/mediarouter/media/MediaRouterJellybeanMr1.java"
+            line="52"
+            column="72"/>
     </issue>
 
     <issue
-        id="HandlerLeak"
-        message="This `Handler` class should be static or leaks might occur (anonymous android.os.Handler)"
-        errorLine1="    private final Handler mHandler = new Handler() {"
-        errorLine2="                                     ^">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.mediarouter.media.MediaRouterJellybeanMr2.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getDescription();"
+        errorLine2="                                                                   ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicChooserDialog.java"
-            line="87"
-            column="38"/>
+            file="jellybean-mr2/androidx/mediarouter/media/MediaRouterJellybeanMr2.java"
+            line="37"
+            column="68"/>
     </issue>
 
     <issue
-        id="HandlerLeak"
-        message="This `Handler` class should be static or leaks might occur (anonymous android.os.Handler)"
-        errorLine1="    final Handler mHandler = new Handler() {"
-        errorLine2="                             ^">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.mediarouter.media.MediaRouterJellybeanMr2.RouteInfo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).isConnecting();"
+        errorLine2="                                                                   ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
-            line="143"
-            column="30"/>
+            file="jellybean-mr2/androidx/mediarouter/media/MediaRouterJellybeanMr2.java"
+            line="41"
+            column="68"/>
     </issue>
 
     <issue
-        id="HandlerLeak"
-        message="This `Handler` class should be static or leaks might occur (androidx.mediarouter.media.MediaRouteProvider.ProviderHandler)"
-        errorLine1="    private final class ProviderHandler extends Handler {"
-        errorLine2="                        ~~~~~~~~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 18; however, the containing class androidx.mediarouter.media.MediaRouterJellybeanMr2.UserRouteInfo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setDescription(description);"
+        errorLine2="                                                                ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/media/MediaRouteProvider.java"
-            line="897"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="HandlerLeak"
-        message="This `Handler` class should be static or leaks might occur (androidx.mediarouter.media.MediaRouteProviderService.PrivateHandler)"
-        errorLine1="    private final class PrivateHandler extends Handler {"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRouteProviderService.java"
-            line="311"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="HandlerLeak"
-        message="This `Handler` class should be static or leaks might occur (androidx.mediarouter.media.MediaRouter.GlobalMediaRouter.CallbackHandler)"
-        errorLine1="        private final class CallbackHandler extends Handler {"
-        errorLine2="                            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="3646"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/mr_cast_media_metadata.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/mr_controller_material_dialog_b.xml"
-            line="17"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="InefficientWeight"
-        message="Use a `layout_height` of `0dp` instead of `match_parent` for better performance"
-        errorLine1="              android:layout_height=&quot;match_parent&quot;"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_cast_group_volume_item.xml"
-            line="24"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UselessParent"
-        message="This `LinearLayout` layout or its `FrameLayout` parent is possibly useless; transfer the `background` attribute to the other view"
-        errorLine1="    &lt;LinearLayout android:id=&quot;@+id/mr_dialog_area&quot;"
-        errorLine2="     ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_controller_material_dialog_b.xml"
-            line="21"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="UselessParent"
-        message="This `LinearLayout` layout or its `LinearLayout` parent is possibly useless"
-        errorLine1="    &lt;LinearLayout android:id=&quot;@+id/volume_item_container&quot;"
-        errorLine2="     ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_controller_volume_item.xml"
-            line="20"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;mr_chooser_searching&quot; msgid=&quot;6114250663023140921&quot;>&quot;A localizar dispositivos...&quot;&lt;/string>"
-        errorLine2="                                                                    ^">
-        <location
-            file="src/main/res/values-pt-rPT/strings.xml"
-            line="26"
-            column="69"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;mr_controller_casting_screen&quot; msgid=&quot;9171231064758955152&quot;>&quot;A transmitir o ecrã...&quot;&lt;/string>"
-        errorLine2="                                                                            ^">
-        <location
-            file="src/main/res/values-pt-rPT/strings.xml"
-            line="39"
-            column="77"/>
-    </issue>
-
-    <issue
-        id="IconDensities"
-        message="Missing the following drawables in `drawable-hdpi`: ic_group_collapse_00.png, ic_group_collapse_01.png, ic_group_collapse_02.png, ic_group_collapse_03.png, ic_group_collapse_04.png... (151 more)">
-        <location
-            file="src/main/res/drawable-hdpi"/>
-    </issue>
-
-    <issue
-        id="IconDensities"
-        message="Missing the following drawables in `drawable-mdpi`: ic_group_collapse_00.png, ic_group_collapse_01.png, ic_group_collapse_02.png, ic_group_collapse_03.png, ic_group_collapse_04.png... (151 more)">
-        <location
-            file="src/main/res/drawable-mdpi"/>
-    </issue>
-
-    <issue
-        id="IconDensities"
-        message="Missing the following drawables in `drawable-xhdpi`: ic_group_collapse_00.png, ic_group_collapse_01.png, ic_group_collapse_02.png, ic_group_collapse_03.png, ic_group_collapse_04.png... (27 more)">
-        <location
-            file="src/main/res/drawable-xhdpi"/>
-    </issue>
-
-    <issue
-        id="IconDensities"
-        message="Missing the following drawables in `drawable-xxhdpi`: ic_group_collapse_00.png, ic_group_collapse_01.png, ic_group_collapse_02.png, ic_group_collapse_03.png, ic_group_collapse_04.png... (27 more)">
-        <location
-            file="src/main/res/drawable-xxhdpi"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_group_collapse_15.png, ic_group_expand_00.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/ic_group_expand_00.png"/>
-        <location
-            file="src/main/res/drawable-xxxhdpi/ic_group_collapse_15.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_group_collapse_00.png, ic_group_expand_15.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/ic_group_expand_15.png"/>
-        <location
-            file="src/main/res/drawable-xxxhdpi/ic_group_collapse_00.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_01_dark.png, ic_mr_button_connecting_01_dark.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_01_dark.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_01_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_01_dark.png, ic_mr_button_connecting_01_dark.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_01_dark.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_01_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_01_light.png, ic_mr_button_connecting_01_light.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_01_light.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_01_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_01_light.png, ic_mr_button_connecting_01_light.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_01_light.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_01_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_02_dark.png, ic_mr_button_connecting_02_dark.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_02_dark.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_02_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_02_dark.png, ic_mr_button_connecting_02_dark.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_02_dark.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_02_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_02_light.png, ic_mr_button_connecting_02_light.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_02_light.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_02_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_02_light.png, ic_mr_button_connecting_02_light.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_02_light.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_02_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_03_dark.png, ic_mr_button_connecting_03_dark.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_03_dark.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_03_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_03_dark.png, ic_mr_button_connecting_03_dark.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_03_dark.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_03_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_03_light.png, ic_mr_button_connecting_03_light.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_03_light.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_03_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_03_light.png, ic_mr_button_connecting_03_light.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_03_light.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_03_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_04_dark.png, ic_mr_button_connecting_04_dark.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_04_dark.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_04_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_04_dark.png, ic_mr_button_connecting_04_dark.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_04_dark.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_04_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_04_light.png, ic_mr_button_connecting_04_light.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_04_light.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_04_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_04_light.png, ic_mr_button_connecting_04_light.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_04_light.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_04_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_05_dark.png, ic_mr_button_connecting_05_dark.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_05_dark.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_05_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_05_dark.png, ic_mr_button_connecting_05_dark.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_05_dark.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_05_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_05_light.png, ic_mr_button_connecting_05_light.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_05_light.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_05_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_05_light.png, ic_mr_button_connecting_05_light.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_05_light.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_05_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_06_dark.png, ic_mr_button_connecting_06_dark.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_06_dark.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_06_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_06_dark.png, ic_mr_button_connecting_06_dark.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_06_dark.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_06_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_06_light.png, ic_mr_button_connecting_06_light.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_06_light.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_06_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_06_light.png, ic_mr_button_connecting_06_light.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_06_light.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_06_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_07_dark.png, ic_mr_button_connecting_07_dark.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_07_dark.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_07_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_07_dark.png, ic_mr_button_connecting_07_dark.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_07_dark.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_07_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_07_light.png, ic_mr_button_connecting_07_light.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_07_light.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_07_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_07_light.png, ic_mr_button_connecting_07_light.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_07_light.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_07_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_08_dark.png, ic_mr_button_connecting_08_dark.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_08_dark.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_08_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_08_dark.png, ic_mr_button_connecting_08_dark.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_08_dark.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_08_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_08_light.png, ic_mr_button_connecting_08_light.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_08_light.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_08_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_08_light.png, ic_mr_button_connecting_08_light.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_08_light.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_08_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_09_dark.png, ic_mr_button_connecting_09_dark.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_09_dark.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_09_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_09_dark.png, ic_mr_button_connecting_09_dark.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_09_dark.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_09_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_09_light.png, ic_mr_button_connecting_09_light.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_09_light.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_09_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_09_light.png, ic_mr_button_connecting_09_light.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_09_light.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_09_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_10_dark.png, ic_mr_button_connecting_10_dark.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_10_dark.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_10_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_10_dark.png, ic_mr_button_connecting_10_dark.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_10_dark.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_10_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_10_light.png, ic_mr_button_connecting_10_light.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_10_light.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_10_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_10_light.png, ic_mr_button_connecting_10_light.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_10_light.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_10_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_00_dark.png, ic_mr_button_connecting_00_dark.png, ic_mr_button_connecting_30_dark.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_30_dark.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_00_dark.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_00_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_00_dark.png, ic_mr_button_connecting_00_dark.png, ic_mr_button_connecting_30_dark.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_30_dark.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_00_dark.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_00_dark.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_00_light.png, ic_mr_button_connecting_00_light.png, ic_mr_button_connecting_30_light.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_30_light.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connecting_00_light.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mr_button_connected_00_light.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mr_button_connected_00_light.png, ic_mr_button_connecting_00_light.png, ic_mr_button_connecting_30_light.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_30_light.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connecting_00_light.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mr_button_connected_00_light.png"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView android:id=&quot;@+id/mr_cast_group_icon&quot;"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_cast_group_item.xml"
-            line="30"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageButton android:id=&quot;@+id/mr_cast_mute_button&quot;"
-        errorLine2="         ~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_cast_group_volume_item.xml"
-            line="35"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView android:id=&quot;@+id/mr_cast_meta_background&quot;"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_cast_media_metadata.xml"
-            line="21"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="            &lt;ImageView android:id=&quot;@+id/mr_cast_meta_art&quot;"
-        errorLine2="             ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_cast_media_metadata.xml"
-            line="50"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="            &lt;ImageView android:id=&quot;@+id/mr_cast_route_icon&quot;"
-        errorLine2="             ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_cast_route_item.xml"
-            line="31"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageButton android:id=&quot;@+id/mr_cast_mute_button&quot;"
-        errorLine2="         ~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_cast_route_item.xml"
-            line="59"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView android:id=&quot;@+id/mr_chooser_route_icon&quot;"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_chooser_list_item.xml"
-            line="27"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="            &lt;ImageView android:id=&quot;@+id/mr_volume_item_icon&quot;"
-        errorLine2="             ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_controller_volume_item.xml"
-            line="40"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView android:id=&quot;@+id/mr_picker_route_icon&quot;"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_picker_route_item.xml"
-            line="28"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_volume_control.xml"
-            line="27"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="KeyboardInaccessibleWidget"
-        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
-        errorLine1="            android:clickable=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/mr_volume_control.xml"
-            line="43"
-            column="13"/>
+            file="jellybean-mr2/androidx/mediarouter/media/MediaRouterJellybeanMr2.java"
+            line="51"
+            column="65"/>
     </issue>
 
 </issues>

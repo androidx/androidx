@@ -29,10 +29,9 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument

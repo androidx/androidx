@@ -16,21 +16,25 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.onCommit
-import androidx.compose.runtime.onDispose
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.focus
-import androidx.compose.ui.focus.ExperimentalFocus
-import androidx.compose.ui.focus.isFocused
-import androidx.compose.ui.focusObserver
+import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.layout.RelocationRequester
+import androidx.compose.ui.layout.relocationRequester
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.semantics
+import kotlinx.coroutines.launch
 
 /**
  * Configure component to be focusable via focus system or accessibility "focus" event.
@@ -40,44 +44,80 @@ import androidx.compose.ui.semantics.semantics
  * @sample androidx.compose.foundation.samples.FocusableSample
  *
  * @param enabled Controls the enabled state. When `false`, element won't participate in the focus
- * @param interactionState [InteractionState] that will be updated to contain [Interaction.Focused]
- * when this focusable is focused
+ * @param interactionSource [MutableInteractionSource] that will be used to emit
+ * [FocusInteraction.Focus] when this element is being focused.
  */
-@OptIn(ExperimentalFocus::class)
 fun Modifier.focusable(
     enabled: Boolean = true,
-    interactionState: InteractionState? = null,
+    interactionSource: MutableInteractionSource? = null,
 ) = composed(
     inspectorInfo = debugInspectorInfo {
         name = "focusable"
         properties["enabled"] = enabled
-        properties["interactionState"] = interactionState
+        properties["interactionSource"] = interactionSource
     }
 ) {
+    val scope = rememberCoroutineScope()
+    val focusedInteraction = remember { mutableStateOf<FocusInteraction.Focus?>(null) }
     var isFocused by remember { mutableStateOf(false) }
-    onDispose {
-        interactionState?.removeInteraction(Interaction.Focused)
-    }
-    onCommit(enabled) {
-        if (!enabled) {
-            interactionState?.removeInteraction(Interaction.Focused)
+    // TODO(b/195353459): Remove this annotation before 1.1 goes stable.
+    @OptIn(ExperimentalComposeUiApi::class)
+    val relocationRequester = remember { RelocationRequester() }
+    DisposableEffect(interactionSource) {
+        onDispose {
+            focusedInteraction.value?.let { oldValue ->
+                val interaction = FocusInteraction.Unfocus(oldValue)
+                interactionSource?.tryEmit(interaction)
+                focusedInteraction.value = null
+            }
         }
     }
+    DisposableEffect(enabled) {
+        if (!enabled) {
+            scope.launch {
+                focusedInteraction.value?.let { oldValue ->
+                    val interaction = FocusInteraction.Unfocus(oldValue)
+                    interactionSource?.emit(interaction)
+                    focusedInteraction.value = null
+                }
+            }
+        }
+        onDispose { }
+    }
 
+    // TODO(b/195353459): Remove this annotation before 1.1 goes stable.
+    @OptIn(ExperimentalComposeUiApi::class)
     if (enabled) {
         Modifier
             .semantics {
                 this.focused = isFocused
             }
-            .focusObserver {
+            .relocationRequester(relocationRequester)
+            .onFocusChanged {
                 isFocused = it.isFocused
                 if (isFocused) {
-                    interactionState?.addInteraction(Interaction.Focused)
+                    scope.launch {
+                        focusedInteraction.value?.let { oldValue ->
+                            val interaction = FocusInteraction.Unfocus(oldValue)
+                            interactionSource?.emit(interaction)
+                            focusedInteraction.value = null
+                        }
+                        val interaction = FocusInteraction.Focus()
+                        interactionSource?.emit(interaction)
+                        focusedInteraction.value = interaction
+                        relocationRequester.bringIntoView()
+                    }
                 } else {
-                    interactionState?.removeInteraction(Interaction.Focused)
+                    scope.launch {
+                        focusedInteraction.value?.let { oldValue ->
+                            val interaction = FocusInteraction.Unfocus(oldValue)
+                            interactionSource?.emit(interaction)
+                            focusedInteraction.value = null
+                        }
+                    }
                 }
             }
-            .focus()
+            .focusTarget()
     } else {
         Modifier
     }

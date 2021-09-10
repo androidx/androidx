@@ -1,0 +1,124 @@
+column {
+  contents {
+    spacer {
+      width {
+        linear_dimension {
+          value: 150
+        }
+      }
+      height {
+        linear_dimension {
+          value: 2
+        }
+      }
+      modifiers {
+        background {
+          color {
+            argb: 0xfffcba03
+          }
+        }
+      }
+    }
+  }
+  contents {
+    spannable {
+      max_lines {
+        value: 5
+      }
+      multiline_alignment {
+        value: HORIZONTAL_ALIGN_START
+      }
+      line_spacing {
+        value: 20
+      }
+      spans {
+        text {
+          font_style {
+            color {
+              argb: 0xFFFF0000
+            }
+          }
+          text {
+            value: "Hello World "
+          }
+        }
+      }
+      spans {
+        text {
+          font_style {
+            weight {
+              value: FONT_WEIGHT_BOLD
+            }
+            color {
+              argb: 0xFF00FF00
+            }
+          }
+          text {
+            value: "This is a test that should wrap "
+          }
+        }
+      }
+      spans {
+        text {
+          font_style {
+            italic {
+              value: true
+            }
+            underline {
+              value: true
+            }
+            size {
+              value: 24
+            }
+            color {
+              argb: 0xFF0000FF
+            }
+          }
+          text {
+            value: "across multiple lines!"
+          }
+        }
+      }
+      spans {
+        text {
+          font_style {
+            size {
+              value: 14
+            }
+            color {
+              argb: 0xFF4287f5
+            }
+            letter_spacing {
+              value: 0.6
+            }
+          }
+          text {
+            value: "Social distancing! "
+          }
+        }
+      }
+    }
+  }
+  contents {
+    spacer {
+      width {
+        linear_dimension {
+          value: 150
+        }
+      }
+      height {
+        linear_dimension {
+          value: 2
+        }
+      }
+      modifiers {
+        background {
+          color {
+            argb: 0xfffcba03
+          }
+        }
+      }
+    }
+  }
+}
+

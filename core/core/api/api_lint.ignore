@@ -151,8 +151,6 @@ BuilderSetStyle: androidx.core.app.NotificationCompat.Builder#limitCharSequenceL
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.NotificationCompat.Builder.limitCharSequenceLength(CharSequence)
 BuilderSetStyle: androidx.core.app.ShareCompat.IntentBuilder#createChooserIntent():
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.ShareCompat.IntentBuilder.createChooserIntent()
-BuilderSetStyle: androidx.core.app.ShareCompat.IntentBuilder#from(android.app.Activity):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.ShareCompat.IntentBuilder.from(android.app.Activity)
 BuilderSetStyle: androidx.core.app.ShareCompat.IntentBuilder#startChooser():
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.ShareCompat.IntentBuilder.startChooser()
 BuilderSetStyle: androidx.core.app.TaskStackBuilder#create(android.content.Context):
@@ -207,6 +205,24 @@ GetterOnBuilder: androidx.core.app.TaskStackBuilder#getPendingIntent(int, int, a
     Getter should be on the built object, not the builder: method androidx.core.app.TaskStackBuilder.getPendingIntent(int,int,android.os.Bundle)
 
 
+GetterSetterNames: androidx.core.app.NotificationCompat.Action.WearableExtender#getHintDisplayActionInline():
+    Symmetric method for `setHintDisplayActionInline` must be named `isHintDisplayActionInline`; was `getHintDisplayActionInline`
+GetterSetterNames: androidx.core.app.NotificationCompat.Action.WearableExtender#getHintLaunchesActivity():
+    Symmetric method for `setHintLaunchesActivity` must be named `isHintLaunchesActivity`; was `getHintLaunchesActivity`
+GetterSetterNames: androidx.core.app.NotificationCompat.WearableExtender#getContentIntentAvailableOffline():
+    Symmetric method for `setContentIntentAvailableOffline` must be named `isContentIntentAvailableOffline`; was `getContentIntentAvailableOffline`
+GetterSetterNames: androidx.core.app.NotificationCompat.WearableExtender#getHintContentIntentLaunchesActivity():
+    Symmetric method for `setHintContentIntentLaunchesActivity` must be named `isHintContentIntentLaunchesActivity`; was `getHintContentIntentLaunchesActivity`
+GetterSetterNames: androidx.core.app.NotificationCompat.WearableExtender#getStartScrollBottom():
+    Symmetric method for `setStartScrollBottom` must be named `isStartScrollBottom`; was `getStartScrollBottom`
+GetterSetterNames: androidx.core.graphics.drawable.RoundedBitmapDrawable#setAntiAlias(boolean):
+    Symmetric method for `hasAntiAlias` must be named `setHasAntiAlias`; was `setAntiAlias`
+GetterSetterNames: androidx.core.graphics.drawable.RoundedBitmapDrawable#setMipMap(boolean):
+    Symmetric method for `hasMipMap` must be named `setHasMipMap`; was `setMipMap`
+GetterSetterNames: androidx.core.view.GestureDetectorCompat#setIsLongpressEnabled(boolean):
+    Symmetric method for `isLongpressEnabled` must be named `setLongpressEnabled`; was `setIsLongpressEnabled`
+
+
 KotlinOperator: androidx.core.os.LocaleListCompat#get(int):
     Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
 
@@ -237,8 +253,6 @@ MissingGetterMatchingBuilder: androidx.core.app.NotificationChannelCompat.Builde
     androidx.core.app.NotificationChannelCompat does not declare a `isShowBadge()` method matching method androidx.core.app.NotificationChannelCompat.Builder.setShowBadge(boolean)
 MissingGetterMatchingBuilder: androidx.core.app.NotificationChannelCompat.Builder#setVibrationEnabled(boolean):
     androidx.core.app.NotificationChannelCompat does not declare a `isVibrationEnabled()` method matching method androidx.core.app.NotificationChannelCompat.Builder.setVibrationEnabled(boolean)
-MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Action.Builder#addExtras(android.os.Bundle):
-    androidx.core.app.NotificationCompat.Action does not declare a `getExtrass()` method matching method androidx.core.app.NotificationCompat.Action.Builder.addExtras(android.os.Bundle)
 MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Action.Builder#setAllowGeneratedReplies(boolean):
     androidx.core.app.NotificationCompat.Action does not declare a `isAllowGeneratedReplies()` method matching method androidx.core.app.NotificationCompat.Action.Builder.setAllowGeneratedReplies(boolean)
 MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Action.Builder#setShowsUserInterface(boolean):
@@ -252,7 +266,7 @@ MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addAc
 MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addAction(int, CharSequence, android.app.PendingIntent):
     android.app.Notification does not declare a `getActions()` method matching method androidx.core.app.NotificationCompat.Builder.addAction(int,CharSequence,android.app.PendingIntent)
 MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addExtras(android.os.Bundle):
-    android.app.Notification does not declare a `getExtrass()` method matching method androidx.core.app.NotificationCompat.Builder.addExtras(android.os.Bundle)
+    android.app.Notification does not declare a getter method matching method androidx.core.app.NotificationCompat.Builder.addExtras(android.os.Bundle) (expected one of: [getExtras(), getExtrases()])
 MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addInvisibleAction(androidx.core.app.NotificationCompat.Action):
     android.app.Notification does not declare a `getInvisibleActions()` method matching method androidx.core.app.NotificationCompat.Builder.addInvisibleAction(androidx.core.app.NotificationCompat.Action)
 MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addInvisibleAction(int, CharSequence, android.app.PendingIntent):
@@ -341,8 +355,6 @@ MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setWh
     android.app.Notification does not declare a `getWhen()` method matching method androidx.core.app.NotificationCompat.Builder.setWhen(long)
 MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder#setReplyAction(android.app.PendingIntent, androidx.core.app.RemoteInput):
     androidx.core.app.NotificationCompat.CarExtender.UnreadConversation does not declare a `getReplyAction()` method matching method androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder.setReplyAction(android.app.PendingIntent,androidx.core.app.RemoteInput)
-MissingGetterMatchingBuilder: androidx.core.app.RemoteInput.Builder#addExtras(android.os.Bundle):
-    androidx.core.app.RemoteInput does not declare a `getExtrass()` method matching method androidx.core.app.RemoteInput.Builder.addExtras(android.os.Bundle)
 MissingGetterMatchingBuilder: androidx.core.app.RemoteInput.Builder#setAllowDataType(String, boolean):
     androidx.core.app.RemoteInput does not declare a `getAllowDataType()` method matching method androidx.core.app.RemoteInput.Builder.setAllowDataType(String,boolean)
 MissingGetterMatchingBuilder: androidx.core.app.RemoteInput.Builder#setAllowFreeFormInput(boolean):
@@ -365,8 +377,6 @@ MissingGetterMatchingBuilder: androidx.core.view.WindowInsetsCompat.Builder#setV
     androidx.core.view.WindowInsetsCompat does not declare a `getVisible()` method matching method androidx.core.view.WindowInsetsCompat.Builder.setVisible(int,boolean)
 
 
-MissingNullability: androidx.core.app.ActivityCompat#invalidateOptionsMenu(android.app.Activity) parameter #0:
-    Missing nullability on parameter `activity` in method `invalidateOptionsMenu`
 MissingNullability: androidx.core.app.ActivityCompat#requestDragAndDropPermissions(android.app.Activity, android.view.DragEvent) parameter #0:
     Missing nullability on parameter `activity` in method `requestDragAndDropPermissions`
 MissingNullability: androidx.core.app.ActivityCompat#requestDragAndDropPermissions(android.app.Activity, android.view.DragEvent) parameter #1:
@@ -469,8 +479,6 @@ MissingNullability: androidx.core.app.TaskStackBuilder#addParentStack(android.co
     Missing nullability on method `addParentStack` return
 MissingNullability: androidx.core.app.TaskStackBuilder#addParentStack(android.content.ComponentName) parameter #0:
     Missing nullability on parameter `sourceActivityName` in method `addParentStack`
-MissingNullability: androidx.core.app.TaskStackBuilder#from(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `from`
 MissingNullability: androidx.core.content.ContentResolverCompat#query(android.content.ContentResolver, android.net.Uri, String[], String, String[], String, androidx.core.os.CancellationSignal):
     Missing nullability on method `query` return
 MissingNullability: androidx.core.content.ContentResolverCompat#query(android.content.ContentResolver, android.net.Uri, String[], String, String[], String, androidx.core.os.CancellationSignal) parameter #0:
@@ -487,12 +495,6 @@ MissingNullability: androidx.core.content.ContentResolverCompat#query(android.co
     Missing nullability on parameter `sortOrder` in method `query`
 MissingNullability: androidx.core.content.ContentResolverCompat#query(android.content.ContentResolver, android.net.Uri, String[], String, String[], String, androidx.core.os.CancellationSignal) parameter #6:
     Missing nullability on parameter `cancellationSignal` in method `query`
-MissingNullability: androidx.core.content.ContextCompat#getCodeCacheDir(android.content.Context):
-    Missing nullability on method `getCodeCacheDir` return
-MissingNullability: androidx.core.content.ContextCompat#getMainExecutor(android.content.Context):
-    Missing nullability on method `getMainExecutor` return
-MissingNullability: androidx.core.content.ContextCompat#getMainExecutor(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `getMainExecutor`
 MissingNullability: androidx.core.content.FileProvider#getType(android.net.Uri):
     Missing nullability on method `getType` return
 MissingNullability: androidx.core.content.FileProvider#getUriForFile(android.content.Context, String, java.io.File):
@@ -511,14 +513,6 @@ MissingNullability: androidx.core.content.pm.ShortcutInfoCompat#toShortcutInfo()
     Missing nullability on method `toShortcutInfo` return
 MissingNullability: androidx.core.content.pm.ShortcutInfoCompat.Builder#setIcon(androidx.core.graphics.drawable.IconCompat) parameter #0:
     Missing nullability on parameter `icon` in method `setIcon`
-MissingNullability: androidx.core.database.DatabaseUtilsCompat#appendSelectionArgs(String[], String[]) parameter #0:
-    Missing nullability on parameter `originalValues` in method `appendSelectionArgs`
-MissingNullability: androidx.core.database.DatabaseUtilsCompat#appendSelectionArgs(String[], String[]) parameter #1:
-    Missing nullability on parameter `newValues` in method `appendSelectionArgs`
-MissingNullability: androidx.core.database.DatabaseUtilsCompat#concatenateWhere(String, String) parameter #0:
-    Missing nullability on parameter `a` in method `concatenateWhere`
-MissingNullability: androidx.core.database.DatabaseUtilsCompat#concatenateWhere(String, String) parameter #1:
-    Missing nullability on parameter `b` in method `concatenateWhere`
 MissingNullability: androidx.core.graphics.drawable.DrawableCompat#getColorFilter(android.graphics.drawable.Drawable):
     Missing nullability on method `getColorFilter` return
 MissingNullability: androidx.core.graphics.drawable.DrawableCompat#wrap(android.graphics.drawable.Drawable):
@@ -573,18 +567,10 @@ MissingNullability: androidx.core.hardware.fingerprint.FingerprintManagerCompat.
     Missing nullability on parameter `crypto` in method `AuthenticationResult`
 MissingNullability: androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationResult#getCryptoObject():
     Missing nullability on method `getCryptoObject` return
-MissingNullability: androidx.core.net.TrafficStatsCompat#tagSocket(java.net.Socket) parameter #0:
-    Missing nullability on parameter `socket` in method `tagSocket`
-MissingNullability: androidx.core.net.TrafficStatsCompat#untagSocket(java.net.Socket) parameter #0:
-    Missing nullability on parameter `socket` in method `untagSocket`
 MissingNullability: androidx.core.os.LocaleListCompat#get(int):
     Missing nullability on method `get` return
 MissingNullability: androidx.core.os.LocaleListCompat#indexOf(java.util.Locale) parameter #0:
     Missing nullability on parameter `locale` in method `indexOf`
-MissingNullability: androidx.core.os.LocaleListCompat#wrap(Object) parameter #0:
-    Missing nullability on parameter `localeList` in method `wrap`
-MissingNullability: androidx.core.os.ParcelableCompat#newCreator(androidx.core.os.ParcelableCompatCreatorCallbacks<T>) parameter #0:
-    Missing nullability on parameter `callbacks` in method `newCreator`
 MissingNullability: androidx.core.os.ParcelableCompatCreatorCallbacks#createFromParcel(android.os.Parcel, ClassLoader) parameter #0:
     Missing nullability on parameter `in` in method `createFromParcel`
 MissingNullability: androidx.core.os.ParcelableCompatCreatorCallbacks#createFromParcel(android.os.Parcel, ClassLoader) parameter #1:
@@ -795,8 +781,6 @@ MissingNullability: androidx.core.view.GravityCompat#applyDisplay(int, android.g
     Missing nullability on parameter `display` in method `applyDisplay`
 MissingNullability: androidx.core.view.GravityCompat#applyDisplay(int, android.graphics.Rect, android.graphics.Rect, int) parameter #2:
     Missing nullability on parameter `inoutObj` in method `applyDisplay`
-MissingNullability: androidx.core.view.LayoutInflaterCompat#getFactory(android.view.LayoutInflater) parameter #0:
-    Missing nullability on parameter `inflater` in method `getFactory`
 MissingNullability: androidx.core.view.LayoutInflaterFactory#onCreateView(android.view.View, String, android.content.Context, android.util.AttributeSet):
     Missing nullability on method `onCreateView` return
 MissingNullability: androidx.core.view.LayoutInflaterFactory#onCreateView(android.view.View, String, android.content.Context, android.util.AttributeSet) parameter #0:
@@ -825,18 +809,10 @@ MissingNullability: androidx.core.view.MarginLayoutParamsCompat#setMarginStart(a
     Missing nullability on parameter `lp` in method `setMarginStart`
 MissingNullability: androidx.core.view.MenuCompat#setGroupDividerEnabled(android.view.Menu, boolean) parameter #0:
     Missing nullability on parameter `menu` in method `setGroupDividerEnabled`
-MissingNullability: androidx.core.view.MenuCompat#setShowAsAction(android.view.MenuItem, int) parameter #0:
-    Missing nullability on parameter `item` in method `setShowAsAction`
-MissingNullability: androidx.core.view.MenuItemCompat#collapseActionView(android.view.MenuItem) parameter #0:
-    Missing nullability on parameter `item` in method `collapseActionView`
-MissingNullability: androidx.core.view.MenuItemCompat#expandActionView(android.view.MenuItem) parameter #0:
-    Missing nullability on parameter `item` in method `expandActionView`
 MissingNullability: androidx.core.view.MenuItemCompat#getActionProvider(android.view.MenuItem):
     Missing nullability on method `getActionProvider` return
 MissingNullability: androidx.core.view.MenuItemCompat#getActionProvider(android.view.MenuItem) parameter #0:
     Missing nullability on parameter `item` in method `getActionProvider`
-MissingNullability: androidx.core.view.MenuItemCompat#getActionView(android.view.MenuItem) parameter #0:
-    Missing nullability on parameter `item` in method `getActionView`
 MissingNullability: androidx.core.view.MenuItemCompat#getAlphabeticModifiers(android.view.MenuItem) parameter #0:
     Missing nullability on parameter `item` in method `getAlphabeticModifiers`
 MissingNullability: androidx.core.view.MenuItemCompat#getContentDescription(android.view.MenuItem):
@@ -857,20 +833,12 @@ MissingNullability: androidx.core.view.MenuItemCompat#getTooltipText(android.vie
     Missing nullability on method `getTooltipText` return
 MissingNullability: androidx.core.view.MenuItemCompat#getTooltipText(android.view.MenuItem) parameter #0:
     Missing nullability on parameter `item` in method `getTooltipText`
-MissingNullability: androidx.core.view.MenuItemCompat#isActionViewExpanded(android.view.MenuItem) parameter #0:
-    Missing nullability on parameter `item` in method `isActionViewExpanded`
 MissingNullability: androidx.core.view.MenuItemCompat#setActionProvider(android.view.MenuItem, androidx.core.view.ActionProvider):
     Missing nullability on method `setActionProvider` return
 MissingNullability: androidx.core.view.MenuItemCompat#setActionProvider(android.view.MenuItem, androidx.core.view.ActionProvider) parameter #0:
     Missing nullability on parameter `item` in method `setActionProvider`
 MissingNullability: androidx.core.view.MenuItemCompat#setActionProvider(android.view.MenuItem, androidx.core.view.ActionProvider) parameter #1:
     Missing nullability on parameter `provider` in method `setActionProvider`
-MissingNullability: androidx.core.view.MenuItemCompat#setActionView(android.view.MenuItem, android.view.View) parameter #0:
-    Missing nullability on parameter `item` in method `setActionView`
-MissingNullability: androidx.core.view.MenuItemCompat#setActionView(android.view.MenuItem, android.view.View) parameter #1:
-    Missing nullability on parameter `view` in method `setActionView`
-MissingNullability: androidx.core.view.MenuItemCompat#setActionView(android.view.MenuItem, int) parameter #0:
-    Missing nullability on parameter `item` in method `setActionView`
 MissingNullability: androidx.core.view.MenuItemCompat#setAlphabeticShortcut(android.view.MenuItem, char, int) parameter #0:
     Missing nullability on parameter `item` in method `setAlphabeticShortcut`
 MissingNullability: androidx.core.view.MenuItemCompat#setContentDescription(android.view.MenuItem, CharSequence) parameter #0:
@@ -887,14 +855,8 @@ MissingNullability: androidx.core.view.MenuItemCompat#setIconTintMode(android.vi
     Missing nullability on parameter `tintMode` in method `setIconTintMode`
 MissingNullability: androidx.core.view.MenuItemCompat#setNumericShortcut(android.view.MenuItem, char, int) parameter #0:
     Missing nullability on parameter `item` in method `setNumericShortcut`
-MissingNullability: androidx.core.view.MenuItemCompat#setOnActionExpandListener(android.view.MenuItem, androidx.core.view.MenuItemCompat.OnActionExpandListener) parameter #0:
-    Missing nullability on parameter `item` in method `setOnActionExpandListener`
-MissingNullability: androidx.core.view.MenuItemCompat#setOnActionExpandListener(android.view.MenuItem, androidx.core.view.MenuItemCompat.OnActionExpandListener) parameter #1:
-    Missing nullability on parameter `listener` in method `setOnActionExpandListener`
 MissingNullability: androidx.core.view.MenuItemCompat#setShortcut(android.view.MenuItem, char, char, int, int) parameter #0:
     Missing nullability on parameter `item` in method `setShortcut`
-MissingNullability: androidx.core.view.MenuItemCompat#setShowAsAction(android.view.MenuItem, int) parameter #0:
-    Missing nullability on parameter `item` in method `setShowAsAction`
 MissingNullability: androidx.core.view.MenuItemCompat#setTooltipText(android.view.MenuItem, CharSequence) parameter #0:
     Missing nullability on parameter `item` in method `setTooltipText`
 MissingNullability: androidx.core.view.MenuItemCompat#setTooltipText(android.view.MenuItem, CharSequence) parameter #1:
@@ -903,28 +865,6 @@ MissingNullability: androidx.core.view.MenuItemCompat.OnActionExpandListener#onM
     Missing nullability on parameter `item` in method `onMenuItemActionCollapse`
 MissingNullability: androidx.core.view.MenuItemCompat.OnActionExpandListener#onMenuItemActionExpand(android.view.MenuItem) parameter #0:
     Missing nullability on parameter `item` in method `onMenuItemActionExpand`
-MissingNullability: androidx.core.view.MotionEventCompat#findPointerIndex(android.view.MotionEvent, int) parameter #0:
-    Missing nullability on parameter `event` in method `findPointerIndex`
-MissingNullability: androidx.core.view.MotionEventCompat#getActionIndex(android.view.MotionEvent) parameter #0:
-    Missing nullability on parameter `event` in method `getActionIndex`
-MissingNullability: androidx.core.view.MotionEventCompat#getActionMasked(android.view.MotionEvent) parameter #0:
-    Missing nullability on parameter `event` in method `getActionMasked`
-MissingNullability: androidx.core.view.MotionEventCompat#getAxisValue(android.view.MotionEvent, int) parameter #0:
-    Missing nullability on parameter `event` in method `getAxisValue`
-MissingNullability: androidx.core.view.MotionEventCompat#getAxisValue(android.view.MotionEvent, int, int) parameter #0:
-    Missing nullability on parameter `event` in method `getAxisValue`
-MissingNullability: androidx.core.view.MotionEventCompat#getButtonState(android.view.MotionEvent) parameter #0:
-    Missing nullability on parameter `event` in method `getButtonState`
-MissingNullability: androidx.core.view.MotionEventCompat#getPointerCount(android.view.MotionEvent) parameter #0:
-    Missing nullability on parameter `event` in method `getPointerCount`
-MissingNullability: androidx.core.view.MotionEventCompat#getPointerId(android.view.MotionEvent, int) parameter #0:
-    Missing nullability on parameter `event` in method `getPointerId`
-MissingNullability: androidx.core.view.MotionEventCompat#getSource(android.view.MotionEvent) parameter #0:
-    Missing nullability on parameter `event` in method `getSource`
-MissingNullability: androidx.core.view.MotionEventCompat#getX(android.view.MotionEvent, int) parameter #0:
-    Missing nullability on parameter `event` in method `getX`
-MissingNullability: androidx.core.view.MotionEventCompat#getY(android.view.MotionEvent, int) parameter #0:
-    Missing nullability on parameter `event` in method `getY`
 MissingNullability: androidx.core.view.MotionEventCompat#isFromSource(android.view.MotionEvent, int) parameter #0:
     Missing nullability on parameter `event` in method `isFromSource`
 MissingNullability: androidx.core.view.OnApplyWindowInsetsListener#onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat):
@@ -949,188 +889,14 @@ MissingNullability: androidx.core.view.PointerIconCompat#load(android.content.re
     Missing nullability on method `load` return
 MissingNullability: androidx.core.view.PointerIconCompat#load(android.content.res.Resources, int) parameter #0:
     Missing nullability on parameter `resources` in method `load`
-MissingNullability: androidx.core.view.ScaleGestureDetectorCompat#isQuickScaleEnabled(Object) parameter #0:
-    Missing nullability on parameter `scaleGestureDetector` in method `isQuickScaleEnabled`
 MissingNullability: androidx.core.view.ScaleGestureDetectorCompat#isQuickScaleEnabled(android.view.ScaleGestureDetector) parameter #0:
     Missing nullability on parameter `scaleGestureDetector` in method `isQuickScaleEnabled`
-MissingNullability: androidx.core.view.ScaleGestureDetectorCompat#setQuickScaleEnabled(Object, boolean) parameter #0:
-    Missing nullability on parameter `scaleGestureDetector` in method `setQuickScaleEnabled`
 MissingNullability: androidx.core.view.ScaleGestureDetectorCompat#setQuickScaleEnabled(android.view.ScaleGestureDetector, boolean) parameter #0:
     Missing nullability on parameter `scaleGestureDetector` in method `setQuickScaleEnabled`
-MissingNullability: androidx.core.view.VelocityTrackerCompat#getXVelocity(android.view.VelocityTracker, int) parameter #0:
-    Missing nullability on parameter `tracker` in method `getXVelocity`
-MissingNullability: androidx.core.view.VelocityTrackerCompat#getYVelocity(android.view.VelocityTracker, int) parameter #0:
-    Missing nullability on parameter `tracker` in method `getYVelocity`
-MissingNullability: androidx.core.view.ViewCompat#canScrollHorizontally(android.view.View, int) parameter #0:
-    Missing nullability on parameter `view` in method `canScrollHorizontally`
-MissingNullability: androidx.core.view.ViewCompat#canScrollVertically(android.view.View, int) parameter #0:
-    Missing nullability on parameter `view` in method `canScrollVertically`
-MissingNullability: androidx.core.view.ViewCompat#enableAccessibleClickableSpanSupport(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `enableAccessibleClickableSpanSupport`
-MissingNullability: androidx.core.view.ViewCompat#getAccessibilityNodeProvider(android.view.View):
-    Missing nullability on method `getAccessibilityNodeProvider` return
-MissingNullability: androidx.core.view.ViewCompat#getAccessibilityPaneTitle(android.view.View):
-    Missing nullability on method `getAccessibilityPaneTitle` return
-MissingNullability: androidx.core.view.ViewCompat#getAccessibilityPaneTitle(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getAccessibilityPaneTitle`
-MissingNullability: androidx.core.view.ViewCompat#getAlpha(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getAlpha`
-MissingNullability: androidx.core.view.ViewCompat#getBackgroundTintList(android.view.View):
-    Missing nullability on method `getBackgroundTintList` return
-MissingNullability: androidx.core.view.ViewCompat#getBackgroundTintMode(android.view.View):
-    Missing nullability on method `getBackgroundTintMode` return
-MissingNullability: androidx.core.view.ViewCompat#getLayerType(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getLayerType`
-MissingNullability: androidx.core.view.ViewCompat#getMatrix(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getMatrix`
-MissingNullability: androidx.core.view.ViewCompat#getMeasuredHeightAndState(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getMeasuredHeightAndState`
-MissingNullability: androidx.core.view.ViewCompat#getMeasuredState(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getMeasuredState`
-MissingNullability: androidx.core.view.ViewCompat#getMeasuredWidthAndState(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getMeasuredWidthAndState`
-MissingNullability: androidx.core.view.ViewCompat#getOverScrollMode(android.view.View) parameter #0:
-    Missing nullability on parameter `v` in method `getOverScrollMode`
-MissingNullability: androidx.core.view.ViewCompat#getParentForAccessibility(android.view.View):
-    Missing nullability on method `getParentForAccessibility` return
-MissingNullability: androidx.core.view.ViewCompat#getPivotX(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getPivotX`
-MissingNullability: androidx.core.view.ViewCompat#getPivotY(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getPivotY`
-MissingNullability: androidx.core.view.ViewCompat#getRotation(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getRotation`
-MissingNullability: androidx.core.view.ViewCompat#getRotationX(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getRotationX`
-MissingNullability: androidx.core.view.ViewCompat#getRotationY(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getRotationY`
-MissingNullability: androidx.core.view.ViewCompat#getScaleX(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getScaleX`
-MissingNullability: androidx.core.view.ViewCompat#getScaleY(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getScaleY`
-MissingNullability: androidx.core.view.ViewCompat#getTranslationX(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getTranslationX`
-MissingNullability: androidx.core.view.ViewCompat#getTranslationY(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getTranslationY`
-MissingNullability: androidx.core.view.ViewCompat#getX(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getX`
-MissingNullability: androidx.core.view.ViewCompat#getY(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `getY`
-MissingNullability: androidx.core.view.ViewCompat#isAccessibilityHeading(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `isAccessibilityHeading`
-MissingNullability: androidx.core.view.ViewCompat#isOpaque(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `isOpaque`
-MissingNullability: androidx.core.view.ViewCompat#isScreenReaderFocusable(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `isScreenReaderFocusable`
-MissingNullability: androidx.core.view.ViewCompat#jumpDrawablesToCurrentState(android.view.View) parameter #0:
-    Missing nullability on parameter `v` in method `jumpDrawablesToCurrentState`
-MissingNullability: androidx.core.view.ViewCompat#keyboardNavigationClusterSearch(android.view.View, android.view.View, int):
-    Missing nullability on method `keyboardNavigationClusterSearch` return
-MissingNullability: androidx.core.view.ViewCompat#keyboardNavigationClusterSearch(android.view.View, android.view.View, int) parameter #1:
-    Missing nullability on parameter `currentCluster` in method `keyboardNavigationClusterSearch`
-MissingNullability: androidx.core.view.ViewCompat#onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
-    Missing nullability on parameter `v` in method `onInitializeAccessibilityEvent`
-MissingNullability: androidx.core.view.ViewCompat#onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
-    Missing nullability on parameter `event` in method `onInitializeAccessibilityEvent`
-MissingNullability: androidx.core.view.ViewCompat#onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat) parameter #1:
-    Missing nullability on parameter `info` in method `onInitializeAccessibilityNodeInfo`
-MissingNullability: androidx.core.view.ViewCompat#onPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
-    Missing nullability on parameter `v` in method `onPopulateAccessibilityEvent`
-MissingNullability: androidx.core.view.ViewCompat#onPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
-    Missing nullability on parameter `event` in method `onPopulateAccessibilityEvent`
-MissingNullability: androidx.core.view.ViewCompat#performAccessibilityAction(android.view.View, int, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `arguments` in method `performAccessibilityAction`
-MissingNullability: androidx.core.view.ViewCompat#postOnAnimation(android.view.View, Runnable) parameter #1:
-    Missing nullability on parameter `action` in method `postOnAnimation`
-MissingNullability: androidx.core.view.ViewCompat#postOnAnimationDelayed(android.view.View, Runnable, long) parameter #1:
-    Missing nullability on parameter `action` in method `postOnAnimationDelayed`
-MissingNullability: androidx.core.view.ViewCompat#setAccessibilityDelegate(android.view.View, androidx.core.view.AccessibilityDelegateCompat) parameter #1:
-    Missing nullability on parameter `delegate` in method `setAccessibilityDelegate`
-MissingNullability: androidx.core.view.ViewCompat#setAccessibilityHeading(android.view.View, boolean) parameter #0:
-    Missing nullability on parameter `view` in method `setAccessibilityHeading`
-MissingNullability: androidx.core.view.ViewCompat#setAccessibilityPaneTitle(android.view.View, CharSequence) parameter #0:
-    Missing nullability on parameter `view` in method `setAccessibilityPaneTitle`
-MissingNullability: androidx.core.view.ViewCompat#setAccessibilityPaneTitle(android.view.View, CharSequence) parameter #1:
-    Missing nullability on parameter `accessibilityPaneTitle` in method `setAccessibilityPaneTitle`
-MissingNullability: androidx.core.view.ViewCompat#setActivated(android.view.View, boolean) parameter #0:
-    Missing nullability on parameter `view` in method `setActivated`
-MissingNullability: androidx.core.view.ViewCompat#setAlpha(android.view.View, float) parameter #0:
-    Missing nullability on parameter `view` in method `setAlpha`
-MissingNullability: androidx.core.view.ViewCompat#setBackgroundTintList(android.view.View, android.content.res.ColorStateList) parameter #1:
-    Missing nullability on parameter `tintList` in method `setBackgroundTintList`
-MissingNullability: androidx.core.view.ViewCompat#setBackgroundTintMode(android.view.View, android.graphics.PorterDuff.Mode) parameter #1:
-    Missing nullability on parameter `mode` in method `setBackgroundTintMode`
-MissingNullability: androidx.core.view.ViewCompat#setChildrenDrawingOrderEnabled(android.view.ViewGroup, boolean) parameter #0:
-    Missing nullability on parameter `viewGroup` in method `setChildrenDrawingOrderEnabled`
-MissingNullability: androidx.core.view.ViewCompat#setClipBounds(android.view.View, android.graphics.Rect) parameter #1:
-    Missing nullability on parameter `clipBounds` in method `setClipBounds`
-MissingNullability: androidx.core.view.ViewCompat#setFitsSystemWindows(android.view.View, boolean) parameter #0:
-    Missing nullability on parameter `view` in method `setFitsSystemWindows`
-MissingNullability: androidx.core.view.ViewCompat#setLayerPaint(android.view.View, android.graphics.Paint) parameter #1:
-    Missing nullability on parameter `paint` in method `setLayerPaint`
-MissingNullability: androidx.core.view.ViewCompat#setLayerType(android.view.View, int, android.graphics.Paint) parameter #0:
-    Missing nullability on parameter `view` in method `setLayerType`
-MissingNullability: androidx.core.view.ViewCompat#setLayerType(android.view.View, int, android.graphics.Paint) parameter #2:
-    Missing nullability on parameter `paint` in method `setLayerType`
-MissingNullability: androidx.core.view.ViewCompat#setOverScrollMode(android.view.View, int) parameter #0:
-    Missing nullability on parameter `v` in method `setOverScrollMode`
-MissingNullability: androidx.core.view.ViewCompat#setPivotX(android.view.View, float) parameter #0:
-    Missing nullability on parameter `view` in method `setPivotX`
-MissingNullability: androidx.core.view.ViewCompat#setPivotY(android.view.View, float) parameter #0:
-    Missing nullability on parameter `view` in method `setPivotY`
-MissingNullability: androidx.core.view.ViewCompat#setPointerIcon(android.view.View, androidx.core.view.PointerIconCompat) parameter #1:
-    Missing nullability on parameter `pointerIcon` in method `setPointerIcon`
-MissingNullability: androidx.core.view.ViewCompat#setRotation(android.view.View, float) parameter #0:
-    Missing nullability on parameter `view` in method `setRotation`
-MissingNullability: androidx.core.view.ViewCompat#setRotationX(android.view.View, float) parameter #0:
-    Missing nullability on parameter `view` in method `setRotationX`
-MissingNullability: androidx.core.view.ViewCompat#setRotationY(android.view.View, float) parameter #0:
-    Missing nullability on parameter `view` in method `setRotationY`
-MissingNullability: androidx.core.view.ViewCompat#setSaveFromParentEnabled(android.view.View, boolean) parameter #0:
-    Missing nullability on parameter `v` in method `setSaveFromParentEnabled`
-MissingNullability: androidx.core.view.ViewCompat#setScaleX(android.view.View, float) parameter #0:
-    Missing nullability on parameter `view` in method `setScaleX`
-MissingNullability: androidx.core.view.ViewCompat#setScaleY(android.view.View, float) parameter #0:
-    Missing nullability on parameter `view` in method `setScaleY`
-MissingNullability: androidx.core.view.ViewCompat#setScreenReaderFocusable(android.view.View, boolean) parameter #0:
-    Missing nullability on parameter `view` in method `setScreenReaderFocusable`
-MissingNullability: androidx.core.view.ViewCompat#setTransitionName(android.view.View, String) parameter #1:
-    Missing nullability on parameter `transitionName` in method `setTransitionName`
-MissingNullability: androidx.core.view.ViewCompat#setTranslationX(android.view.View, float) parameter #0:
-    Missing nullability on parameter `view` in method `setTranslationX`
-MissingNullability: androidx.core.view.ViewCompat#setTranslationY(android.view.View, float) parameter #0:
-    Missing nullability on parameter `view` in method `setTranslationY`
-MissingNullability: androidx.core.view.ViewCompat#setX(android.view.View, float) parameter #0:
-    Missing nullability on parameter `view` in method `setX`
-MissingNullability: androidx.core.view.ViewCompat#setY(android.view.View, float) parameter #0:
-    Missing nullability on parameter `view` in method `setY`
-MissingNullability: androidx.core.view.ViewCompat#startDragAndDrop(android.view.View, android.content.ClipData, android.view.View.DragShadowBuilder, Object, int) parameter #1:
-    Missing nullability on parameter `data` in method `startDragAndDrop`
-MissingNullability: androidx.core.view.ViewCompat#startDragAndDrop(android.view.View, android.content.ClipData, android.view.View.DragShadowBuilder, Object, int) parameter #2:
-    Missing nullability on parameter `shadowBuilder` in method `startDragAndDrop`
-MissingNullability: androidx.core.view.ViewCompat#startDragAndDrop(android.view.View, android.content.ClipData, android.view.View.DragShadowBuilder, Object, int) parameter #3:
-    Missing nullability on parameter `localState` in method `startDragAndDrop`
-MissingNullability: androidx.core.view.ViewCompat#updateDragShadow(android.view.View, android.view.View.DragShadowBuilder) parameter #1:
-    Missing nullability on parameter `shadowBuilder` in method `updateDragShadow`
-MissingNullability: androidx.core.view.ViewCompat.OnUnhandledKeyEventListenerCompat#onUnhandledKeyEvent(android.view.View, android.view.KeyEvent) parameter #0:
-    Missing nullability on parameter `v` in method `onUnhandledKeyEvent`
-MissingNullability: androidx.core.view.ViewCompat.OnUnhandledKeyEventListenerCompat#onUnhandledKeyEvent(android.view.View, android.view.KeyEvent) parameter #1:
-    Missing nullability on parameter `event` in method `onUnhandledKeyEvent`
 MissingNullability: androidx.core.view.ViewConfigurationCompat#getScaledHoverSlop(android.view.ViewConfiguration) parameter #0:
     Missing nullability on parameter `config` in method `getScaledHoverSlop`
-MissingNullability: androidx.core.view.ViewConfigurationCompat#getScaledPagingTouchSlop(android.view.ViewConfiguration) parameter #0:
-    Missing nullability on parameter `config` in method `getScaledPagingTouchSlop`
-MissingNullability: androidx.core.view.ViewConfigurationCompat#hasPermanentMenuKey(android.view.ViewConfiguration) parameter #0:
-    Missing nullability on parameter `config` in method `hasPermanentMenuKey`
 MissingNullability: androidx.core.view.ViewConfigurationCompat#shouldShowMenuShortcutsWhenKeyboardPresent(android.view.ViewConfiguration, android.content.Context) parameter #0:
     Missing nullability on parameter `config` in method `shouldShowMenuShortcutsWhenKeyboardPresent`
-MissingNullability: androidx.core.view.ViewGroupCompat#onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
-    Missing nullability on parameter `group` in method `onRequestSendAccessibilityEvent`
-MissingNullability: androidx.core.view.ViewGroupCompat#onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
-    Missing nullability on parameter `child` in method `onRequestSendAccessibilityEvent`
-MissingNullability: androidx.core.view.ViewGroupCompat#onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent) parameter #2:
-    Missing nullability on parameter `event` in method `onRequestSendAccessibilityEvent`
-MissingNullability: androidx.core.view.ViewGroupCompat#setMotionEventSplittingEnabled(android.view.ViewGroup, boolean) parameter #0:
-    Missing nullability on parameter `group` in method `setMotionEventSplittingEnabled`
 MissingNullability: androidx.core.view.ViewParentCompat#notifySubtreeAccessibilityStateChanged(android.view.ViewParent, android.view.View, android.view.View, int) parameter #0:
     Missing nullability on parameter `parent` in method `notifySubtreeAccessibilityStateChanged`
 MissingNullability: androidx.core.view.ViewParentCompat#notifySubtreeAccessibilityStateChanged(android.view.ViewParent, android.view.View, android.view.View, int) parameter #1:
@@ -1201,12 +967,6 @@ MissingNullability: androidx.core.view.ViewParentCompat#onStopNestedScroll(andro
     Missing nullability on parameter `parent` in method `onStopNestedScroll`
 MissingNullability: androidx.core.view.ViewParentCompat#onStopNestedScroll(android.view.ViewParent, android.view.View, int) parameter #1:
     Missing nullability on parameter `target` in method `onStopNestedScroll`
-MissingNullability: androidx.core.view.ViewParentCompat#requestSendAccessibilityEvent(android.view.ViewParent, android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
-    Missing nullability on parameter `parent` in method `requestSendAccessibilityEvent`
-MissingNullability: androidx.core.view.ViewParentCompat#requestSendAccessibilityEvent(android.view.ViewParent, android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
-    Missing nullability on parameter `child` in method `requestSendAccessibilityEvent`
-MissingNullability: androidx.core.view.ViewParentCompat#requestSendAccessibilityEvent(android.view.ViewParent, android.view.View, android.view.accessibility.AccessibilityEvent) parameter #2:
-    Missing nullability on parameter `event` in method `requestSendAccessibilityEvent`
 MissingNullability: androidx.core.view.ViewPropertyAnimatorCompat#alpha(float):
     Missing nullability on method `alpha` return
 MissingNullability: androidx.core.view.ViewPropertyAnimatorCompat#alphaBy(float):
@@ -1297,52 +1057,26 @@ MissingNullability: androidx.core.view.ViewPropertyAnimatorListenerAdapter#onAni
     Missing nullability on parameter `view` in method `onAnimationStart`
 MissingNullability: androidx.core.view.ViewPropertyAnimatorUpdateListener#onAnimationUpdate(android.view.View) parameter #0:
     Missing nullability on parameter `view` in method `onAnimationUpdate`
-MissingNullability: androidx.core.view.accessibility.AccessibilityEventCompat#appendRecord(android.view.accessibility.AccessibilityEvent, androidx.core.view.accessibility.AccessibilityRecordCompat) parameter #0:
-    Missing nullability on parameter `event` in method `appendRecord`
-MissingNullability: androidx.core.view.accessibility.AccessibilityEventCompat#appendRecord(android.view.accessibility.AccessibilityEvent, androidx.core.view.accessibility.AccessibilityRecordCompat) parameter #1:
-    Missing nullability on parameter `record` in method `appendRecord`
-MissingNullability: androidx.core.view.accessibility.AccessibilityEventCompat#asRecord(android.view.accessibility.AccessibilityEvent) parameter #0:
-    Missing nullability on parameter `event` in method `asRecord`
 MissingNullability: androidx.core.view.accessibility.AccessibilityEventCompat#getAction(android.view.accessibility.AccessibilityEvent) parameter #0:
     Missing nullability on parameter `event` in method `getAction`
 MissingNullability: androidx.core.view.accessibility.AccessibilityEventCompat#getContentChangeTypes(android.view.accessibility.AccessibilityEvent) parameter #0:
     Missing nullability on parameter `event` in method `getContentChangeTypes`
 MissingNullability: androidx.core.view.accessibility.AccessibilityEventCompat#getMovementGranularity(android.view.accessibility.AccessibilityEvent) parameter #0:
     Missing nullability on parameter `event` in method `getMovementGranularity`
-MissingNullability: androidx.core.view.accessibility.AccessibilityEventCompat#getRecord(android.view.accessibility.AccessibilityEvent, int) parameter #0:
-    Missing nullability on parameter `event` in method `getRecord`
-MissingNullability: androidx.core.view.accessibility.AccessibilityEventCompat#getRecordCount(android.view.accessibility.AccessibilityEvent) parameter #0:
-    Missing nullability on parameter `event` in method `getRecordCount`
 MissingNullability: androidx.core.view.accessibility.AccessibilityEventCompat#setAction(android.view.accessibility.AccessibilityEvent, int) parameter #0:
     Missing nullability on parameter `event` in method `setAction`
 MissingNullability: androidx.core.view.accessibility.AccessibilityEventCompat#setContentChangeTypes(android.view.accessibility.AccessibilityEvent, int) parameter #0:
     Missing nullability on parameter `event` in method `setContentChangeTypes`
 MissingNullability: androidx.core.view.accessibility.AccessibilityEventCompat#setMovementGranularity(android.view.accessibility.AccessibilityEvent, int) parameter #0:
     Missing nullability on parameter `event` in method `setMovementGranularity`
-MissingNullability: androidx.core.view.accessibility.AccessibilityManagerCompat#addAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener) parameter #0:
-    Missing nullability on parameter `manager` in method `addAccessibilityStateChangeListener`
-MissingNullability: androidx.core.view.accessibility.AccessibilityManagerCompat#addAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener) parameter #1:
-    Missing nullability on parameter `listener` in method `addAccessibilityStateChangeListener`
 MissingNullability: androidx.core.view.accessibility.AccessibilityManagerCompat#addTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener) parameter #0:
     Missing nullability on parameter `manager` in method `addTouchExplorationStateChangeListener`
 MissingNullability: androidx.core.view.accessibility.AccessibilityManagerCompat#addTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener) parameter #1:
     Missing nullability on parameter `listener` in method `addTouchExplorationStateChangeListener`
-MissingNullability: androidx.core.view.accessibility.AccessibilityManagerCompat#getEnabledAccessibilityServiceList(android.view.accessibility.AccessibilityManager, int) parameter #0:
-    Missing nullability on parameter `manager` in method `getEnabledAccessibilityServiceList`
-MissingNullability: androidx.core.view.accessibility.AccessibilityManagerCompat#getInstalledAccessibilityServiceList(android.view.accessibility.AccessibilityManager) parameter #0:
-    Missing nullability on parameter `manager` in method `getInstalledAccessibilityServiceList`
-MissingNullability: androidx.core.view.accessibility.AccessibilityManagerCompat#isTouchExplorationEnabled(android.view.accessibility.AccessibilityManager) parameter #0:
-    Missing nullability on parameter `manager` in method `isTouchExplorationEnabled`
-MissingNullability: androidx.core.view.accessibility.AccessibilityManagerCompat#removeAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener) parameter #0:
-    Missing nullability on parameter `manager` in method `removeAccessibilityStateChangeListener`
-MissingNullability: androidx.core.view.accessibility.AccessibilityManagerCompat#removeAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener) parameter #1:
-    Missing nullability on parameter `listener` in method `removeAccessibilityStateChangeListener`
 MissingNullability: androidx.core.view.accessibility.AccessibilityManagerCompat#removeTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener) parameter #0:
     Missing nullability on parameter `manager` in method `removeTouchExplorationStateChangeListener`
 MissingNullability: androidx.core.view.accessibility.AccessibilityManagerCompat#removeTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener) parameter #1:
     Missing nullability on parameter `listener` in method `removeTouchExplorationStateChangeListener`
-MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#AccessibilityNodeInfoCompat(Object) parameter #0:
-    Missing nullability on parameter `info` in method `AccessibilityNodeInfoCompat`
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#addAction(androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat) parameter #0:
     Missing nullability on parameter `action` in method `addAction`
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#addChild(android.view.View) parameter #0:
@@ -1363,8 +1097,6 @@ MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat
     Missing nullability on method `focusSearch` return
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#getActionList():
     Missing nullability on method `getActionList` return
-MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#getBoundsInParent(android.graphics.Rect) parameter #0:
-    Missing nullability on parameter `outBounds` in method `getBoundsInParent`
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#getBoundsInScreen(android.graphics.Rect) parameter #0:
     Missing nullability on parameter `outBounds` in method `getBoundsInScreen`
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#getChild(int):
@@ -1423,8 +1155,6 @@ MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat
     Missing nullability on parameter `child` in method `removeChild`
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#removeChild(android.view.View, int) parameter #0:
     Missing nullability on parameter `root` in method `removeChild`
-MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#setBoundsInParent(android.graphics.Rect) parameter #0:
-    Missing nullability on parameter `bounds` in method `setBoundsInParent`
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#setBoundsInScreen(android.graphics.Rect) parameter #0:
     Missing nullability on parameter `bounds` in method `setBoundsInScreen`
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#setClassName(CharSequence) parameter #0:
@@ -1561,30 +1291,14 @@ MissingNullability: androidx.core.view.accessibility.AccessibilityNodeProviderCo
     Missing nullability on method `getProvider` return
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeProviderCompat#performAction(int, int, android.os.Bundle) parameter #2:
     Missing nullability on parameter `arguments` in method `performAction`
-MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#AccessibilityRecordCompat(Object) parameter #0:
-    Missing nullability on parameter `record` in method `AccessibilityRecordCompat`
 MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#getMaxScrollX(android.view.accessibility.AccessibilityRecord) parameter #0:
     Missing nullability on parameter `record` in method `getMaxScrollX`
 MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#getMaxScrollY(android.view.accessibility.AccessibilityRecord) parameter #0:
     Missing nullability on parameter `record` in method `getMaxScrollY`
-MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#obtain(androidx.core.view.accessibility.AccessibilityRecordCompat) parameter #0:
-    Missing nullability on parameter `record` in method `obtain`
-MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#setBeforeText(CharSequence) parameter #0:
-    Missing nullability on parameter `beforeText` in method `setBeforeText`
-MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#setClassName(CharSequence) parameter #0:
-    Missing nullability on parameter `className` in method `setClassName`
-MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#setContentDescription(CharSequence) parameter #0:
-    Missing nullability on parameter `contentDescription` in method `setContentDescription`
 MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#setMaxScrollX(android.view.accessibility.AccessibilityRecord, int) parameter #0:
     Missing nullability on parameter `record` in method `setMaxScrollX`
 MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#setMaxScrollY(android.view.accessibility.AccessibilityRecord, int) parameter #0:
     Missing nullability on parameter `record` in method `setMaxScrollY`
-MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#setParcelableData(android.os.Parcelable) parameter #0:
-    Missing nullability on parameter `parcelableData` in method `setParcelableData`
-MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#setSource(android.view.View) parameter #0:
-    Missing nullability on parameter `source` in method `setSource`
-MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#setSource(android.view.View, int) parameter #0:
-    Missing nullability on parameter `root` in method `setSource`
 MissingNullability: androidx.core.view.accessibility.AccessibilityRecordCompat#setSource(android.view.accessibility.AccessibilityRecord, android.view.View, int) parameter #1:
     Missing nullability on parameter `root` in method `setSource`
 MissingNullability: androidx.core.view.accessibility.AccessibilityViewCommand.MoveHtmlArguments#getHTMLElement():
@@ -1617,12 +1331,6 @@ MissingNullability: androidx.core.view.animation.PathInterpolatorCompat#create(f
     Missing nullability on method `create` return
 MissingNullability: androidx.core.view.animation.PathInterpolatorCompat#create(float, float, float, float):
     Missing nullability on method `create` return
-MissingNullability: androidx.core.view.inputmethod.EditorInfoCompat#getContentMimeTypes(android.view.inputmethod.EditorInfo) parameter #0:
-    Missing nullability on parameter `editorInfo` in method `getContentMimeTypes`
-MissingNullability: androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener#onCommitContent(androidx.core.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `inputContentInfo` in method `onCommitContent`
-MissingNullability: androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener#onCommitContent(androidx.core.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `opts` in method `onCommitContent`
 MissingNullability: androidx.core.widget.AutoScrollHelper#onTouch(android.view.View, android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `v` in method `onTouch`
 MissingNullability: androidx.core.widget.AutoScrollHelper#onTouch(android.view.View, android.view.MotionEvent) parameter #1:
@@ -1631,14 +1339,6 @@ MissingNullability: androidx.core.widget.AutoScrollHelper#setEnabled(boolean):
     Missing nullability on method `setEnabled` return
 MissingNullability: androidx.core.widget.AutoScrollHelper#setExclusive(boolean):
     Missing nullability on method `setExclusive` return
-MissingNullability: androidx.core.widget.EdgeEffectCompat#EdgeEffectCompat(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `EdgeEffectCompat`
-MissingNullability: androidx.core.widget.EdgeEffectCompat#draw(android.graphics.Canvas) parameter #0:
-    Missing nullability on parameter `canvas` in method `draw`
-MissingNullability: androidx.core.widget.ListPopupWindowCompat#createDragToOpenListener(Object, android.view.View) parameter #0:
-    Missing nullability on parameter `listPopupWindow` in method `createDragToOpenListener`
-MissingNullability: androidx.core.widget.ListPopupWindowCompat#createDragToOpenListener(Object, android.view.View) parameter #1:
-    Missing nullability on parameter `src` in method `createDragToOpenListener`
 MissingNullability: androidx.core.widget.NestedScrollView#addView(android.view.View) parameter #0:
     Missing nullability on parameter `child` in method `addView`
 MissingNullability: androidx.core.widget.NestedScrollView#addView(android.view.View, android.view.ViewGroup.LayoutParams) parameter #0:
@@ -1695,12 +1395,6 @@ MissingNullability: androidx.core.widget.NestedScrollView#requestChildRectangleO
     Missing nullability on parameter `rectangle` in method `requestChildRectangleOnScreen`
 MissingNullability: androidx.core.widget.NestedScrollView.OnScrollChangeListener#onScrollChange(androidx.core.widget.NestedScrollView, int, int, int, int) parameter #0:
     Missing nullability on parameter `v` in method `onScrollChange`
-MissingNullability: androidx.core.widget.ScrollerCompat#create(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `create`
-MissingNullability: androidx.core.widget.ScrollerCompat#create(android.content.Context, android.view.animation.Interpolator) parameter #0:
-    Missing nullability on parameter `context` in method `create`
-MissingNullability: androidx.core.widget.ScrollerCompat#create(android.content.Context, android.view.animation.Interpolator) parameter #1:
-    Missing nullability on parameter `interpolator` in method `create`
 
 
 MutableBareField: androidx.core.app.NotificationCompat.Action#actionIntent:
@@ -1713,6 +1407,50 @@ NoClone: androidx.core.app.NotificationCompat.Action.WearableExtender#clone():
     Provide an explicit copy constructor instead of implementing `clone()`
 NoClone: androidx.core.app.NotificationCompat.WearableExtender#clone():
     Provide an explicit copy constructor instead of implementing `clone()`
+
+
+NullableCollection: androidx.core.app.ActivityOptionsCompat#toBundle():
+    Return type of method androidx.core.app.ActivityOptionsCompat.toBundle() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.core.app.FrameMetricsAggregator#getMetrics():
+    Return type of method androidx.core.app.FrameMetricsAggregator.getMetrics() is a nullable collection (`android.util.SparseIntArray[]`); must be non-null
+NullableCollection: androidx.core.app.FrameMetricsAggregator#remove(android.app.Activity):
+    Return type of method androidx.core.app.FrameMetricsAggregator.remove(android.app.Activity) is a nullable collection (`android.util.SparseIntArray[]`); must be non-null
+NullableCollection: androidx.core.app.FrameMetricsAggregator#reset():
+    Return type of method androidx.core.app.FrameMetricsAggregator.reset() is a nullable collection (`android.util.SparseIntArray[]`); must be non-null
+NullableCollection: androidx.core.app.FrameMetricsAggregator#stop():
+    Return type of method androidx.core.app.FrameMetricsAggregator.stop() is a nullable collection (`android.util.SparseIntArray[]`); must be non-null
+NullableCollection: androidx.core.app.NotificationCompat#getExtras(android.app.Notification):
+    Return type of method androidx.core.app.NotificationCompat.getExtras(android.app.Notification) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.core.app.NotificationCompat.Action#getDataOnlyRemoteInputs():
+    Return type of method androidx.core.app.NotificationCompat.Action.getDataOnlyRemoteInputs() is a nullable collection (`androidx.core.app.RemoteInput[]`); must be non-null
+NullableCollection: androidx.core.app.NotificationCompat.Action#getRemoteInputs():
+    Return type of method androidx.core.app.NotificationCompat.Action.getRemoteInputs() is a nullable collection (`androidx.core.app.RemoteInput[]`); must be non-null
+NullableCollection: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation#getMessages():
+    Return type of method androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.getMessages() is a nullable collection (`java.lang.String[]`); must be non-null
+NullableCollection: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation#getParticipants():
+    Return type of method androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.getParticipants() is a nullable collection (`java.lang.String[]`); must be non-null
+NullableCollection: androidx.core.app.ShareCompat.IntentReader#getEmailBcc():
+    Return type of method androidx.core.app.ShareCompat.IntentReader.getEmailBcc() is a nullable collection (`java.lang.String[]`); must be non-null
+NullableCollection: androidx.core.app.ShareCompat.IntentReader#getEmailCc():
+    Return type of method androidx.core.app.ShareCompat.IntentReader.getEmailCc() is a nullable collection (`java.lang.String[]`); must be non-null
+NullableCollection: androidx.core.app.ShareCompat.IntentReader#getEmailTo():
+    Return type of method androidx.core.app.ShareCompat.IntentReader.getEmailTo() is a nullable collection (`java.lang.String[]`); must be non-null
+NullableCollection: androidx.core.content.pm.ShortcutInfoCompat#getCategories():
+    Return type of method androidx.core.content.pm.ShortcutInfoCompat.getCategories() is a nullable collection (`java.util.Set`); must be non-null
+NullableCollection: androidx.core.content.pm.ShortcutInfoCompat#getExtras():
+    Return type of method androidx.core.content.pm.ShortcutInfoCompat.getExtras() is a nullable collection (`android.os.PersistableBundle`); must be non-null
+NullableCollection: androidx.core.net.MailTo#getHeaders():
+    Return type of method androidx.core.net.MailTo.getHeaders() is a nullable collection (`java.util.Map`); must be non-null
+NullableCollection: androidx.core.provider.FontRequest#getCertificates():
+    Return type of method androidx.core.provider.FontRequest.getCertificates() is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.core.view.ContentInfoCompat#getExtras():
+    Return type of method androidx.core.view.ContentInfoCompat.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.core.view.ViewCompat#getOnReceiveContentMimeTypes(android.view.View):
+    Return type of method androidx.core.view.ViewCompat.getOnReceiveContentMimeTypes(android.view.View) is a nullable collection (`java.lang.String[]`); must be non-null
+NullableCollection: androidx.core.view.accessibility.AccessibilityNodeProviderCompat#findAccessibilityNodeInfosByText(String, int):
+    Return type of method androidx.core.view.accessibility.AccessibilityNodeProviderCompat.findAccessibilityNodeInfosByText(String,int) is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener#onCommitContent(androidx.core.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle) parameter #2:
+    Type of parameter opts in androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener.onCommitContent(androidx.core.view.inputmethod.InputContentInfoCompat inputContentInfo, int flags, android.os.Bundle opts) is a nullable collection (`android.os.Bundle`); must be non-null
 
 
 OptionalBuilderConstructorArgument: androidx.core.app.NotificationCompat.Action.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CharSequence, android.app.PendingIntent) parameter #0:
@@ -1773,7 +1511,3 @@ VisiblySynchronized: androidx.core.os.CancellationSignal#isCanceled():
     Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.core.os.CancellationSignal.isCanceled()
 VisiblySynchronized: androidx.core.os.CancellationSignal#setOnCancelListener(androidx.core.os.CancellationSignal.OnCancelListener):
     Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.core.os.CancellationSignal.setOnCancelListener(androidx.core.os.CancellationSignal.OnCancelListener)
-VisiblySynchronized: androidx.core.widget.ContentLoadingProgressBar#hide():
-    Internal locks must not be exposed: method androidx.core.widget.ContentLoadingProgressBar.hide()
-VisiblySynchronized: androidx.core.widget.ContentLoadingProgressBar#show():
-    Internal locks must not be exposed: method androidx.core.widget.ContentLoadingProgressBar.show()

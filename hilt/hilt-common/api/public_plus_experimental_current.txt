@@ -1,21 +1,7 @@
 // Signature format: 4.0
-package androidx.hilt {
-
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target(java.lang.annotation.ElementType.PARAMETER) public @interface Assisted {
-  }
-
-}
-
-package androidx.hilt.lifecycle {
-
-  @dagger.hilt.GeneratesRootInput @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.CONSTRUCTOR) public @interface ViewModelInject {
-  }
-
-}
-
 package androidx.hilt.work {
 
-  @dagger.hilt.GeneratesRootInput @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.CONSTRUCTOR) public @interface WorkerInject {
+  @dagger.hilt.GeneratesRootInput @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface HiltWorker {
   }
 
 }

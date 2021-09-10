@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.concurrent.CountDownLatch;
  * Visibility transition that tracks which targets are applied to it.
  * By default, this transition does no animation.
  */
+@RequiresApi(21)
 public class TrackingVisibility extends Visibility implements TargetTracking {
     private final ArrayList<View> mEnteringTargets = new ArrayList<>();
     private final ArrayList<View> mExitingTargets = new ArrayList<>();

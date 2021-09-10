@@ -19,51 +19,83 @@ package androidx.wear.watchface.test
 import android.content.Context
 import android.os.Handler
 import android.view.SurfaceHolder
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.samples.createExampleOpenGLWatchFaceBuilder
+import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
+import androidx.wear.watchface.samples.ExampleOpenGLWatchFaceService
+import androidx.wear.watchface.style.CurrentUserStyleRepository
+import java.time.ZoneId
 
 /** A simple OpenGL test watch face for integration tests. */
 internal class TestGlesWatchFaceService(
     testContext: Context,
     private val handler: Handler,
     var mockSystemTimeMillis: Long,
-    var surfacHolderOverride: SurfaceHolder?
+    var mockZoneId: ZoneId,
+    var surfacHolderOverride: SurfaceHolder?,
+    var directBootParams: WallpaperInteractiveWatchFaceInstanceParams?
 ) : WatchFaceService() {
 
-    private val mutableWatchState = MutableWatchState().apply {
-        isAmbient.value = false
+    private val mutableWatchState = MutableWatchState()
+
+    // We can't subclass ExampleOpenGLWatchFaceService because we want to override internal methods,
+    // so instead we use composition.
+    private val delegate = object : ExampleOpenGLWatchFaceService() {
+        init {
+            attachBaseContext(testContext)
+        }
     }
 
     init {
         attachBaseContext(testContext)
     }
 
-    override fun createWatchFace(
+    override fun createUserStyleSchema() = delegate.createUserStyleSchema()
+
+    override fun createComplicationSlotsManager(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = delegate.createComplicationSlotsManager(currentUserStyleRepository)
+
+    override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        watchState: WatchState
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace {
         // Override is necessary because the watch face isn't visible in this test.
         mutableWatchState.isVisible.value = true
-        return createExampleOpenGLWatchFaceBuilder(
-            this,
+        return delegate.createWatchFace(
             surfaceHolder,
-            watchState
+            watchState,
+            complicationSlotsManager,
+            currentUserStyleRepository
         ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
-            override fun getSystemTimeMillis(): Long {
-                return mockSystemTimeMillis
-            }
+            override fun getSystemTimeMillis() = mockSystemTimeMillis
+
+            override fun getSystemTimeZoneId() = mockZoneId
         })
     }
 
     override fun getMutableWatchState() = mutableWatchState
 
-    override fun getHandler() = handler
+    override fun getUiThreadHandlerImpl() = handler
 
     // We want full control over when frames are produced.
     override fun allowWatchFaceToAnimate() = false
 
     override fun getWallpaperSurfaceHolderOverride() = surfacHolderOverride
+
+    override fun readDirectBootPrefs(
+        context: Context,
+        fileName: String
+    ) = directBootParams
+
+    override fun writeDirectBootPrefs(
+        context: Context,
+        fileName: String,
+        prefs: WallpaperInteractiveWatchFaceInstanceParams
+    ) {}
 }

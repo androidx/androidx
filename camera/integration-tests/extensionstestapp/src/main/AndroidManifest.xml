@@ -28,6 +28,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name="androidx.camera.integration.extensions.CameraExtensionsActivity"
+            android:exported="true"
             android:label="Camera Extensions">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

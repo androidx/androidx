@@ -93,6 +93,7 @@ public class WebViewFeature {
             FORCE_DARK_STRATEGY,
             WEB_MESSAGE_LISTENER,
             DOCUMENT_START_SCRIPT,
+            PROXY_OVERRIDE_REVERSE_BYPASS,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -153,7 +154,7 @@ public class WebViewFeature {
      * {@link androidx.webkit.WebViewCompat#setSafeBrowsingWhitelist(List, ValueCallback)}.
      *
      * <p>This is functionally equivalent to {@link #SAFE_BROWSING_ALLOWLIST}: both constants
-     * represent the same range of compatiblity across Android OS versions and WebView versions.
+     * represent the same range of compatibility across Android OS versions and WebView versions.
      *
      * @deprecated Please use {@link #SAFE_BROWSING_ALLOWLIST} and {@link
      * androidx.webkit.WebViewCompat#setSafeBrowsingAllowlist(Set, ValueCallback)} instead.
@@ -446,12 +447,15 @@ public class WebViewFeature {
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers {@link WebViewCompat#addDocumentStartJavaScript(android.webkit.WebView,
      * String, Set)}.
-     *
-     * TODO(ctzsm): unhide when ready.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String DOCUMENT_START_SCRIPT = "DOCUMENT_START_SCRIPT";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.ProxyConfig.Builder#setReverseBypassEnabled(boolean)}
+     */
+    public static final String PROXY_OVERRIDE_REVERSE_BYPASS = "PROXY_OVERRIDE_REVERSE_BYPASS";
 
     /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link

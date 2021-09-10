@@ -26,7 +26,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -46,9 +45,12 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Unit tests for {@link ImageAnalysisNonBlockingAnalyzer}
+ */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, instrumentedPackages = { "androidx.camera.core" })
 public class ImageAnalysisNonBlockingAnalyzerTest {
     private ImageAnalysisNonBlockingAnalyzer mImageAnalysisNonBlockingAnalyzer;
     private static final AtomicInteger ROTATION = new AtomicInteger(0);
@@ -78,43 +80,36 @@ public class ImageAnalysisNonBlockingAnalyzerTest {
         mImageAnalysisNonBlockingAnalyzer.setAnalyzer(CameraXExecutors.mainThreadExecutor(),
                 mAnalyzer);
         mImageAnalysisNonBlockingAnalyzer.setRelativeRotation(ROTATION.get());
+        mImageAnalysisNonBlockingAnalyzer.attach();
     }
 
     @Test
-    public void imageClosedAfterAnalyzerClosed() {
-        mImageAnalysisNonBlockingAnalyzer.close();
-
+    public void imageClosedAfterAnalyzerDetached() {
+        // Arrange.
+        mImageAnalysisNonBlockingAnalyzer.detach();
+        // Act.
         mImageAnalysisNonBlockingAnalyzer.onImageAvailable(mImageReaderProxy);
-
+        shadowOf(getMainLooper()).idle();
+        // Assert.
         verify(mImageProxy, times(1)).close();
     }
 
     @Test
-    public void analysisNotRunAfterAnalyzerClosed() {
-        mImageAnalysisNonBlockingAnalyzer.close();
-
+    public void imageNotClosedWhenAnalyzerAttached() {
+        // Act.
         mImageAnalysisNonBlockingAnalyzer.onImageAvailable(mImageReaderProxy);
-
-        verifyZeroInteractions(mAnalyzer);
-    }
-
-    @Test
-    public void imageNotClosedWhenAnalyzerOpen() {
-        mImageAnalysisNonBlockingAnalyzer.open();
-
-        mImageAnalysisNonBlockingAnalyzer.onImageAvailable(mImageReaderProxy);
-
+        shadowOf(getMainLooper()).idle();
+        // Assert.
         verify(mImageProxy, never()).close();
     }
 
     @Test
-    public void analysisRunWhenAnalyzerOpen() {
-        mImageAnalysisNonBlockingAnalyzer.open();
-
+    public void analysisRunWhenAnalyzerAttached() {
+        // Act.
         mImageAnalysisNonBlockingAnalyzer.onImageAvailable(mImageReaderProxy);
-
         shadowOf(getMainLooper()).idle();
 
+        // Assert.
         ArgumentCaptor<ImageProxy> imageProxyArgumentCaptor =
                 ArgumentCaptor.forClass(ImageProxy.class);
         verify(mAnalyzer, times(1)).analyze(
@@ -129,15 +124,33 @@ public class ImageAnalysisNonBlockingAnalyzerTest {
     }
 
     @Test
-    public void imageClosedWhenAnalyzerNull() {
-        mImageAnalysisNonBlockingAnalyzer.setAnalyzer(CameraXExecutors.mainThreadExecutor(), null);
-        mImageAnalysisNonBlockingAnalyzer.open();
+    public void setAnalyzerNull_incomingImageClosed() {
+        // Arrange.
+        mImageAnalysisNonBlockingAnalyzer.setAnalyzer(null, null);
+        // Act.
         mImageAnalysisNonBlockingAnalyzer.onImageAvailable(mImageReaderProxy);
+        shadowOf(getMainLooper()).idle();
+        // Assert.
+        verify(mImageProxy).close();
+    }
 
-        final ArgumentCaptor<ImageAnalysisNonBlockingAnalyzer.CacheAnalyzingImageProxy>
-                imageProxyToAnalyze = ArgumentCaptor.forClass(
-                ImageAnalysisNonBlockingAnalyzer.CacheAnalyzingImageProxy.class);
-        verify(mImageAnalysisNonBlockingAnalyzer).analyzeImage(imageProxyToAnalyze.capture());
-        assertThat(imageProxyToAnalyze.getValue().isClosed()).isTrue();
+    @Test
+    public void closeAnalyzer_cachedImageBecomesNull() {
+        // Arrange.
+        mImageAnalysisNonBlockingAnalyzer.mCachedImage = mImageProxy;
+        // Act.
+        mImageAnalysisNonBlockingAnalyzer.setAnalyzer(null, null);
+        // Assert.
+        assertThat(mImageAnalysisNonBlockingAnalyzer.mCachedImage).isNull();
+    }
+
+    @Test
+    public void detachAnalyzer_cachedImageBecomesNull() {
+        // Arrange.
+        mImageAnalysisNonBlockingAnalyzer.mCachedImage = mImageProxy;
+        // Act.
+        mImageAnalysisNonBlockingAnalyzer.detach();
+        // Assert.
+        assertThat(mImageAnalysisNonBlockingAnalyzer.mCachedImage).isNull();
     }
 }

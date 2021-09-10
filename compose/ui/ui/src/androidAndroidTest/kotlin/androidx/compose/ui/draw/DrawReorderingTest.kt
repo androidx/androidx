@@ -20,9 +20,9 @@ import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.emptyContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -36,7 +36,6 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.padding
 import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
-import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.validateSquareColors
@@ -1039,6 +1038,62 @@ class DrawReorderingTest {
         )
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun placingInDifferentOrderTriggersRedraw() {
+        var reverseOrder by mutableStateOf(false)
+        rule.runOnUiThread {
+            activity.setContent {
+                Layout(
+                    content = {
+                        FixedSize(30) {
+                            FixedSize(
+                                10,
+                                Modifier.padding(10)
+                                    .background(Color.White)
+                            )
+                        }
+                        FixedSize(30) {
+                            FixedSize(
+                                30,
+                                Modifier.background(Color.Red)
+                            )
+                        }
+                    },
+                    modifier = Modifier.drawLatchModifier()
+                ) { measurables, _ ->
+                    val newConstraints = Constraints.fixed(30, 30)
+                    val placeables = measurables.map { m ->
+                        m.measure(newConstraints)
+                    }
+                    layout(newConstraints.maxWidth, newConstraints.maxWidth) {
+                        if (!reverseOrder) {
+                            placeables[0].place(0, 0)
+                            placeables[1].place(0, 0)
+                        } else {
+                            placeables[1].place(0, 0)
+                            placeables[0].place(0, 0)
+                        }
+                    }
+                }
+            }
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        rule.runOnUiThread {
+            drawLatch = CountDownLatch(1)
+            reverseOrder = true
+        }
+
+        rule.validateSquareColors(
+            outerColor = Color.Red,
+            innerColor = Color.White,
+            size = 10,
+            drawLatch = drawLatch
+        )
+    }
+
     fun Modifier.drawLatchModifier() = drawBehind { drawLatch.countDown() }
 }
 
@@ -1046,7 +1101,7 @@ class DrawReorderingTest {
 private fun FixedSize(
     size: State<Int>,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit = emptyContent()
+    content: @Composable () -> Unit = {}
 ) {
     Layout(content = content, modifier = modifier) { measurables, _ ->
         val newConstraints = Constraints.fixed(size.value, size.value)

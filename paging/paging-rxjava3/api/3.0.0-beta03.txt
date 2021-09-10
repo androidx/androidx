@@ -1,0 +1,25 @@
+// Signature format: 4.0
+package androidx.paging.rxjava3 {
+
+  public final class PagingRx {
+    method @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.rxjava3.core.Single<java.lang.Boolean>> predicate);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.rxjava3.core.Single<java.lang.Iterable<R>>> transform);
+    method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super T,? extends io.reactivex.rxjava3.core.Maybe<R>> generator);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.rxjava3.core.Single<R>> transform);
+  }
+
+  public final class PagingRx {
+    method @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.rxjava3.core.Single<java.lang.Boolean>> predicate);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.rxjava3.core.Single<java.lang.Iterable<R>>> transform);
+    method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super T,? extends io.reactivex.rxjava3.core.Maybe<R>> generator);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.rxjava3.core.Single<R>> transform);
+  }
+
+  public abstract class RxPagingSource<Key, Value> extends androidx.paging.PagingSource<Key,Value> {
+    ctor public RxPagingSource();
+    method public final suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
+    method public abstract io.reactivex.rxjava3.core.Single<androidx.paging.PagingSource.LoadResult<Key,Value>> loadSingle(androidx.paging.PagingSource.LoadParams<Key> params);
+  }
+
+}
+

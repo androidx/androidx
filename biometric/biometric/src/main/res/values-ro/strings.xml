@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Folosiți parola"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Nu este setat niciun cod PIN, model sau parolă."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Dispozitivul nu acceptă codul PIN, modelul sau parola."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Pictograma amprentă"</string>
 </resources>

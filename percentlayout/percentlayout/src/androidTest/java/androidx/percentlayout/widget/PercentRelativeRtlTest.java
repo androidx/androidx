@@ -94,6 +94,7 @@ import org.junit.Test;
  * the core classes, but rather just provide a translation layer between percentage-based values
  * and pixel-based ones.
  */
+@SuppressWarnings("deprecation")
 @LargeTest
 public class PercentRelativeRtlTest extends BaseInstrumentationTestCase<TestRelativeRtlActivity> {
     private PercentRelativeLayout mPercentRelativeLayout;

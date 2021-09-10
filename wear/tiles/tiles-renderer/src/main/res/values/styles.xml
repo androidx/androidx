@@ -1,0 +1,20 @@
+<resources>
+  <style name="TilesFallbackTextAppearance">
+    <!-- Note that many properties are non-overridable, as they are explicitly
+         set by inflateText (e.g. bold, italic, size etc).  -->
+    <item name="android:fontFamily">sans-serif</item>
+    <item name="android:textSize">16sp</item>
+  </style>
+
+  <style name="TilesBaseFont">
+    <item name="tilesNormalFont">sans-serif</item>
+    <item name="tilesMediumFont">sans-serif-medium</item>
+    <item name="tilesBoldFont">sans-serif</item>
+  </style>
+
+  <style name="TilesBaseTheme">
+    <item name="tilesFallbackTextAppearance">@style/TilesFallbackTextAppearance</item>
+    <item name="tilesTitleFont">@style/TilesBaseFont</item>
+    <item name="tilesBodyFont">@style/TilesBaseFont</item>
+  </style>
+</resources>

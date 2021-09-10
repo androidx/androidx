@@ -1,37 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="        return &quot;HUAWEI&quot;.equals(Build.BRAND.toUpperCase())"
-        errorLine2="                                           ~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `java.time.Duration#ofMillis`"
+        errorLine1="        ShadowSystemClock.advanceBy(Duration.ofMillis(100));"
+        errorLine2="                                             ~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/internal/compat/quirk/HuaweiMediaStoreLocationValidationQuirk.java"
-            line="40"
-            column="44"/>
+            file="src/test/java/androidx/camera/core/impl/utils/ExifTest.java"
+            line="159"
+            column="46"/>
     </issue>
 
     <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="                || &quot;HONOR&quot;.equals(Build.BRAND.toUpperCase());"
-        errorLine2="                                              ~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `java.time.Duration#ofMillis`"
+        errorLine1="        ShadowSystemClock.advanceBy(Duration.ofMillis(100));"
+        errorLine2="                                             ~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/internal/compat/quirk/HuaweiMediaStoreLocationValidationQuirk.java"
-            line="41"
+            file="src/test/java/androidx/camera/core/impl/utils/ExifTest.java"
+            line="162"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `new android.graphics.SurfaceTexture`"
+        errorLine1="        mTestSurfaceTexture = new SurfaceTexture(/* singleBufferMode= */ false);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/core/internal/compat/ImageWriterCompatTest.java"
+            line="47"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `newInstance`"
+        errorLine1="        ImageWriter imageWriter = ImageWriterCompat.newInstance(mTestSurface,"
+        errorLine2="                                                    ~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/core/internal/compat/ImageWriterCompatTest.java"
+            line="59"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 22 (current min is 21): `android.os.Message#isAsynchronous`"
+        errorLine1="        boolean isAsyncBeforeSending = message.isAsynchronous();"
+        errorLine2="                                               ~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/core/impl/utils/MainThreadAsyncHandlerTest.java"
+            line="64"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 22 (current min is 21): `android.os.Message#isAsynchronous`"
+        errorLine1="        boolean isAsyncAfterSending = message.isAsynchronous();"
+        errorLine2="                                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/core/impl/utils/MainThreadAsyncHandlerTest.java"
+            line="68"
             column="47"/>
     </issue>
 
     <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="        return KNOWN_AFFECTED_DEVICES.contains(Build.DEVICE.toLowerCase());"
-        errorLine2="                                                            ~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 28 (current min is 23): `triggerImage`"
+        errorLine1="        triggerImage(processingSurface, 1);"
+        errorLine2="        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/quirk/IncompleteCameraListQuirk.java"
-            line="51"
-            column="61"/>
+            file="src/androidTest/java/androidx/camera/core/ProcessingSurfaceTest.java"
+            line="158"
+            column="9"/>
     </issue>
 
     <issue
@@ -367,50 +411,6 @@
     <issue
         id="BanSynchronizedMethods"
         message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/ImageAnalysisNonBlockingAnalyzer.java"
-            line="73"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/ImageAnalysisNonBlockingAnalyzer.java"
-            line="82"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/ImageAnalysisNonBlockingAnalyzer.java"
-            line="91"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/ImageAnalysisNonBlockingAnalyzer.java"
-            line="102"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
         errorLine1="        @Override"
         errorLine2="        ^">
         <location
@@ -497,57 +497,13 @@
     </issue>
 
     <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
-        errorLine1="    private static final class Speed {"
-        errorLine2="                               ~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/utils/Exif.java"
-            line="627"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnsupportedChromeOsCameraSystemFeature"
-        message="You should look for any camera available on the device, not just the rear"
-        errorLine1="            if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/CameraValidator.java"
-            line="56"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SwitchIntDef"
-        message="Switch statement on an `int` with known associated constant missing case `FLASH_MODE_UNKNOWN`"
-        errorLine1="        switch (getFlashMode()) {"
-        errorLine2="        ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageCapture.java"
-            line="1274"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SwitchIntDef"
-        message="Switch statement on an `int` with known associated constant missing case `MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED`"
-        errorLine1="            switch (outputBufferId) {"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/VideoCapture.java"
-            line="745"
-            column="13"/>
-    </issue>
-
-    <issue
         id="KotlinPropertyAccess"
         message="This getter should be public such that `useRepeatingSurface` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
         errorLine1="        boolean isUseRepeatingSurface() {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CaptureConfig.java"
-            line="306"
+            line="302"
             column="17"/>
     </issue>
 
@@ -569,7 +525,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="61"
+            line="63"
             column="28"/>
     </issue>
 
@@ -580,7 +536,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="61"
+            line="63"
             column="45"/>
     </issue>
 
@@ -591,7 +547,7 @@
         errorLine2="    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="71"
+            line="73"
             column="5"/>
     </issue>
 
@@ -602,7 +558,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="71"
+            line="73"
             column="42"/>
     </issue>
 
@@ -613,7 +569,7 @@
         errorLine2="                                                                           ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="71"
+            line="73"
             column="76"/>
     </issue>
 
@@ -657,7 +613,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"
-            line="35"
+            line="37"
             column="26"/>
     </issue>
 
@@ -668,7 +624,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"
-            line="47"
+            line="50"
             column="18"/>
     </issue>
 
@@ -679,7 +635,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"
-            line="54"
+            line="57"
             column="29"/>
     </issue>
 
@@ -719,28 +675,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void onError(SaveError saveError, String message, @Nullable Throwable cause);"
-        errorLine2="                     ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageSaver.java"
-            line="285"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void onError(SaveError saveError, String message, @Nullable Throwable cause);"
-        errorLine2="                                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageSaver.java"
-            line="285"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static Handler getInstance() {"
         errorLine2="                  ~~~~~~~">
         <location
@@ -774,56 +708,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static &lt;T> Optional&lt;T> of(T reference) {"
-        errorLine2="                                     ~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="90"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static &lt;T> Optional&lt;T> fromNullable(@Nullable T nullableReference) {"
         errorLine2="                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
             line="102"
             column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract T get();"
-        errorLine2="                    ~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="130"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract T or(T defaultValue);"
-        errorLine2="                    ~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="168"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract T or(T defaultValue);"
-        errorLine2="                         ~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="168"
-            column="26"/>
     </issue>
 
     <issue
@@ -846,17 +736,6 @@
             file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
             line="177"
             column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract T or(Supplier&lt;? extends T> supplier);"
-        errorLine2="                    ~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="189"
-            column="21"/>
     </issue>
 
     <issue

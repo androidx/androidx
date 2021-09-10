@@ -17,10 +17,11 @@
 package androidx.compose.ui.demos.gestures
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -28,23 +29,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.ScaleObserver
-import androidx.compose.ui.gesture.scaleGestureFilter
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 
 /**
- * Simple [scaleGestureFilter] demo.
+ * Simple [detectTransformGestures] demo with scale only.
  */
 @Composable
 fun ScaleGestureFilterDemo() {
     val size = remember { mutableStateOf(192.dp) }
-
-    val scaleObserver = object : ScaleObserver {
-        override fun onScale(scaleFactor: Float) {
-            size.value *= scaleFactor
-        }
-    }
 
     Column {
         Text("Demonstrates the scale gesture detector!")
@@ -52,8 +46,10 @@ fun ScaleGestureFilterDemo() {
         Box(
             Modifier.fillMaxSize()
                 .wrapContentSize(Alignment.Center)
-                .preferredSize(size.value)
-                .scaleGestureFilter(scaleObserver)
+                .size(size.value)
+                .pointerInput(Unit) {
+                    detectTransformGestures { _, _, zoom, _ -> size.value *= zoom }
+                }
                 .background(Color(0xFF9e9e9e.toInt()))
         )
     }

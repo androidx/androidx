@@ -18,10 +18,14 @@ package androidx.compose.material
 
 import android.os.Build
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.CutCornerShape
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.testutils.assertIsEqualTo
+import androidx.compose.testutils.assertIsNotEqualTo
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.FirstBaseline
@@ -29,12 +33,11 @@ import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.assertHeightIsEqualTo
-import androidx.compose.ui.test.assertIsEqualTo
-import androidx.compose.ui.test.assertIsNotEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getAlignmentLinePosition
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -42,6 +45,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -69,7 +73,7 @@ class SnackbarTest {
         rule.setMaterialContent {
             Box {
                 Snackbar(
-                    text = { Text("Message") },
+                    content = { Text("Message") },
                     action = {
                         TextButton(onClick = { clicked = true }) {
                             Text("UNDO")
@@ -96,7 +100,7 @@ class SnackbarTest {
             parentMaxWidth = 300.dp
         ) {
             Snackbar(
-                text = {
+                content = {
                     Text("Message")
                 }
             )
@@ -124,7 +128,7 @@ class SnackbarTest {
             parentMaxWidth = 300.dp
         ) {
             Snackbar(
-                text = {
+                content = {
                     Text("Message", fontSize = 30.sp)
                 }
             )
@@ -151,13 +155,13 @@ class SnackbarTest {
             parentMaxWidth = 300.dp
         ) {
             Snackbar(
-                text = {
+                content = {
                     Text("Message")
                 },
                 action = {
                     TextButton(
                         onClick = {},
-                        modifier = Modifier.testTag("button")
+                        modifier = Modifier.clipToBounds().testTag("button")
                     ) {
                         Text("Undo")
                     }
@@ -174,7 +178,7 @@ class SnackbarTest {
 
         val snackBounds = snackbar.getUnclippedBoundsInRoot()
         val textBounds = rule.onNodeWithText("Message").getUnclippedBoundsInRoot()
-        val buttonBounds = rule.onNodeWithText("Undo").getUnclippedBoundsInRoot()
+        val buttonBounds = rule.onNodeWithText("Undo").getBoundsInRoot()
 
         val buttonTopOffset = buttonBounds.top - snackBounds.top
         val textTopOffset = textBounds.top - snackBounds.top
@@ -191,7 +195,7 @@ class SnackbarTest {
         ) {
             val fontSize = 30.sp
             Snackbar(
-                text = {
+                content = {
                     Text("Message", fontSize = fontSize)
                 },
                 action = {
@@ -228,7 +232,7 @@ class SnackbarTest {
             parentMaxWidth = 300.dp
         ) {
             Snackbar(
-                text = {
+                content = {
                     Text(longText, Modifier.testTag("text"), maxLines = 2)
                 }
             )
@@ -258,7 +262,7 @@ class SnackbarTest {
             parentMaxWidth = 300.dp
         ) {
             Snackbar(
-                text = {
+                content = {
                     Text(longText, Modifier.testTag("text"), maxLines = 2)
                 },
                 action = {
@@ -297,15 +301,15 @@ class SnackbarTest {
             parentMaxWidth = 300.dp
         ) {
             Snackbar(
-                text = {
-                    Text("Message")
+                content = {
+                    Text("Message", Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp))
                 },
                 action = {
                     TextButton(
                         onClick = {},
                         modifier = Modifier.testTag("button")
                     ) {
-                        Text("Undo")
+                        Text("Undo", Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp))
                     }
                 },
                 actionOnNewLine = true
@@ -320,8 +324,11 @@ class SnackbarTest {
         rule.onNodeWithText("Message")
             .assertTopPositionInRootIsEqualTo(30.dp - textFirstBaseLine)
 
-        rule.onNodeWithTag("button")
-            .assertTopPositionInRootIsEqualTo(18.dp + textBounds.top + textLastBaseLine)
+        val lastBaselineToBottom = max(18.dp, 48.dp - textLastBaseLine)
+
+        rule.onNodeWithTag("button").assertTopPositionInRootIsEqualTo(
+            lastBaselineToBottom + textBounds.top + textLastBaseLine
+        )
 
         snackbar
             .assertHeightIsEqualTo(8.dp + buttonBounds.top + buttonBounds.height)
@@ -342,12 +349,12 @@ class SnackbarTest {
                 // on top of surface
                 snackBarColor = MaterialTheme.colors.onSurface.copy(alpha = 0.8f)
                     .compositeOver(background)
-                Providers(AmbientShapes provides Shapes(medium = shape)) {
+                CompositionLocalProvider(LocalShapes provides Shapes(medium = shape)) {
                     Snackbar(
                         modifier = Modifier
                             .semantics(mergeDescendants = true) {}
                             .testTag("snackbar"),
-                        text = { Text("") }
+                        content = { Text("") }
                     )
                 }
             }
@@ -365,7 +372,6 @@ class SnackbarTest {
     }
 
     @Test
-    @OptIn(ExperimentalMaterialApi::class)
     fun defaultSnackbar_dataVersion_proxiesParameters() {
         var clicked = false
         val snackbarData = object : SnackbarData {

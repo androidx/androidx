@@ -14,15 +14,37 @@
  * limitations under the License.
  */
 
+import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("AndroidXUiPlugin")
+    id("AndroidXComposePlugin")
+}
+
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    kotlin {
+        android()
+        jvm("desktop")
+
+        sourceSets {
+            desktopMain.dependsOn(jvmMain)
+        }
+    }
+
+    android {
+        sourceSets {
+            main {
+                res.srcDirs += "src/commonMain/resources"
+                res.srcDirs += "src/androidMain/res"
+            }
+        }
+    }
 }
 
 androidx {

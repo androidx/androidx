@@ -16,8 +16,6 @@
 
 package androidx.cursoradapter.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -31,8 +29,6 @@ import android.widget.Filter;
 import android.widget.FilterQueryProvider;
 import android.widget.Filterable;
 
-import androidx.annotation.RestrictTo;
-
 /**
  * Static library support version of the framework's {@link android.widget.CursorAdapter}.
  * Used to write apps that run on platforms prior to Android 3.0.  When running
@@ -42,60 +38,15 @@ import androidx.annotation.RestrictTo;
  */
 public abstract class CursorAdapter extends BaseAdapter implements Filterable,
         CursorFilter.CursorFilterClient {
-    /**
-     * This field should be made private, so it is hidden from the SDK.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    protected boolean mDataValid;
-    /**
-     * This field should be made private, so it is hidden from the SDK.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    protected boolean mAutoRequery;
-    /**
-     * This field should be made private, so it is hidden from the SDK.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    protected Cursor mCursor;
-    /**
-     * This field should be made private, so it is hidden from the SDK.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    protected Context mContext;
-    /**
-     * This field should be made private, so it is hidden from the SDK.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    protected int mRowIDColumn;
-    /**
-     * This field should be made private, so it is hidden from the SDK.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    protected ChangeObserver mChangeObserver;
-    /**
-     * This field should be made private, so it is hidden from the SDK.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    protected DataSetObserver mDataSetObserver;
-    /**
-     * This field should be made private, so it is hidden from the SDK.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    protected CursorFilter mCursorFilter;
-    /**
-     * This field should be made private, so it is hidden from the SDK.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    protected FilterQueryProvider mFilterQueryProvider;
+    boolean mDataValid;
+    private boolean mAutoRequery;
+    private Cursor mCursor;
+    private Context mContext;
+    private int mRowIDColumn;
+    private ChangeObserver mChangeObserver;
+    private DataSetObserver mDataSetObserver;
+    private CursorFilter mCursorFilter;
+    private FilterQueryProvider mFilterQueryProvider;
 
     /**
      * If set the adapter will call requery() on the cursor whenever a content change

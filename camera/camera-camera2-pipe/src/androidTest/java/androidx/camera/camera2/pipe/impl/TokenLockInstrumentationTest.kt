@@ -16,6 +16,9 @@
 
 package androidx.camera.camera2.pipe.impl
 
+import androidx.camera.camera2.pipe.core.TokenLockImpl
+import androidx.camera.camera2.pipe.core.acquire
+import androidx.camera.camera2.pipe.core.acquireOrNull
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat

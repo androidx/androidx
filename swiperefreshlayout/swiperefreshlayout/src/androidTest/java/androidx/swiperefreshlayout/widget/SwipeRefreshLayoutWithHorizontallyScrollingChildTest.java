@@ -40,8 +40,8 @@ import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.filters.FlakyTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 import androidx.testutils.SwipeInjector;
 
 import org.junit.Before;
@@ -52,8 +52,8 @@ public class SwipeRefreshLayoutWithHorizontallyScrollingChildTest {
 
     @Rule
     @SuppressWarnings("deprecation")
-    public final ActivityTestRule<ComponentActivity>
-            mActivityTestRule = new ActivityTestRule<>(ComponentActivity.class);
+    public final androidx.test.rule.ActivityTestRule<ComponentActivity>
+            mActivityTestRule = new androidx.test.rule.ActivityTestRule<>(ComponentActivity.class);
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
@@ -94,6 +94,7 @@ public class SwipeRefreshLayoutWithHorizontallyScrollingChildTest {
     }
 
     @Test
+    @FlakyTest(bugId = 190192628)
     public void refreshWhileScrollingRecyclerView() {
         // When we drag the RecyclerView horizontally, and then move the pointer down,
         SwipeInjector swiper = new SwipeInjector(InstrumentationRegistry.getInstrumentation());
@@ -116,6 +117,7 @@ public class SwipeRefreshLayoutWithHorizontallyScrollingChildTest {
 
     @Test
     @SuppressWarnings("deprecation")
+    @FlakyTest(bugId = 190192628)
     public void refreshWhileScrollingRecyclerView_legacy() {
         // If the legacy behavior is enabled
         mSwipeRefreshLayout.setLegacyRequestDisallowInterceptTouchEventEnabled(true);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="v7_preference_on" msgid="89551595707643515">"ଅନ୍ ଅଛି"</string>
+    <string name="v7_preference_on" msgid="89551595707643515">"ଚାଲୁ ଅଛି"</string>
     <string name="v7_preference_off" msgid="3140233346420563315">"ବନ୍ଦ"</string>
     <string name="expand_button_title" msgid="2427401033573778270">"ଅଧିକ ଉନ୍ନତ"</string>
     <string name="summary_collapsed_preference_list" msgid="9167775378838880170">"<xliff:g id="CURRENT_ITEMS">%1$s</xliff:g>, <xliff:g id="ADDED_ITEMS">%2$s</xliff:g>"</string>

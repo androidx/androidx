@@ -21,9 +21,12 @@ import android.app.Application
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import androidx.paging.insertFooterItem
+import androidx.paging.insertHeaderItem
 import androidx.paging.insertSeparators
 import androidx.paging.integration.testapp.room.Customer
 import androidx.paging.integration.testapp.room.SampleDatabase
@@ -57,11 +60,12 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
             .executeOnDiskIO { database.customerDao.removeAll() }
     }
 
+    @OptIn(ExperimentalPagingApi::class)
     val flow = Pager(
         PagingConfig(10),
         remoteMediator = V3RemoteMediator(
             database,
-            NetworkCustomerPagingSource.FACTORY()
+            NetworkCustomerPagingSource.FACTORY
         )
     ) {
         database.customerDao.loadPagedAgeOrderPagingSource()
@@ -76,7 +80,7 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
                         Customer().apply {
                             id = -1
                             name = "RIGHT ABOVE DIVIDER"
-                            lastName = "LAST NAME"
+                            lastName = "RIGHT ABOVE DIVIDER"
                         }
                     }
                 }
@@ -85,19 +89,21 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
                         Customer().apply {
                             id = -2
                             name = "RIGHT BELOW DIVIDER"
-                            lastName = "LAST NAME"
+                            lastName = "RIGHT BELOW DIVIDER"
                         }
                     } else null
                 }
                 .insertHeaderItem(
-                    Customer().apply {
+                    item = Customer().apply {
                         id = Int.MIN_VALUE
+                        name = "HEADER"
                         lastName = "HEADER"
                     }
                 )
                 .insertFooterItem(
-                    Customer().apply {
+                    item = Customer().apply {
                         id = Int.MAX_VALUE
+                        name = "FOOTER"
                         lastName = "FOOTER"
                     }
                 )

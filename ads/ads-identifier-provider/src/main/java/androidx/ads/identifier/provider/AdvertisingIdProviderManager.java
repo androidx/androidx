@@ -52,7 +52,12 @@ import java.util.concurrent.Callable;
  * <li>Register the Advertising Id settings UI with the intent filter
  * "androidx.ads.identifier.provider.OPEN_SETTINGS".
  * </ol>
+ *
+ * @deprecated Use the
+ * <a href="https://developers.google.com/android/reference/com/google/android/gms/ads/identifier/AdvertisingIdClient">
+ * Advertising ID API that's available as part of Google Play Services</a> instead of this library.
  */
+@Deprecated
 public class AdvertisingIdProviderManager {
 
     @VisibleForTesting
@@ -105,6 +110,7 @@ public class AdvertisingIdProviderManager {
      * user of the device can manager all the providers' settings together.
      */
     @NonNull
+    @SuppressWarnings("MixedMutabilityReturnType")
     public static List<AdvertisingIdProviderInfo> getAdvertisingIdProviders(
             @NonNull Context context) {
         PackageManager packageManager = context.getPackageManager();
@@ -142,6 +148,7 @@ public class AdvertisingIdProviderManager {
      * <p>This is achieved by looking up which activities can handle {@link #OPEN_SETTINGS_ACTION}
      * intent action.
      */
+    @SuppressWarnings("MixedMutabilityReturnType")
     private static Map<String, String> getOpenSettingsActivities(PackageManager packageManager) {
         Intent settingsIntent = new Intent(OPEN_SETTINGS_ACTION);
         List<ResolveInfo> settingsResolveInfos = packageManager.queryIntentActivities(

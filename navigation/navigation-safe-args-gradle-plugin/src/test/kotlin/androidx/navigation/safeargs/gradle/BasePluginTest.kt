@@ -72,7 +72,9 @@ abstract class BasePluginTest {
         File(projectRoot(), "$NAV_RESOURCES/$name")
 
     internal fun gradleBuilder(vararg args: String) = GradleRunner.create()
-        .withProjectDir(projectRoot()).withPluginClasspath().withArguments(*args)
+        .withProjectDir(projectRoot()).withPluginClasspath()
+        // b/175897186 set explicit metaspace size in hopes of fewer crashes
+        .withArguments("-Dorg.gradle.jvmargs=-XX:MaxMetaspaceSize=512m", *args)
 
     internal fun runGradle(vararg args: String) = gradleBuilder(*args).build()
     internal fun runAndFailGradle(vararg args: String) = gradleBuilder(*args).buildAndFail()
@@ -88,7 +90,7 @@ abstract class BasePluginTest {
             """.trimIndent(),
             suffix = """
                 dependencies {
-                    implementation "${projectSetup.props.navigationCommon}"
+                    implementation "${projectSetup.props.navigationRuntime}"
                 }
             """.trimIndent()
         )
@@ -104,7 +106,7 @@ abstract class BasePluginTest {
                 ext.buildTools = "${props.buildToolsVersion}"
                 ext.minSdk = ${props.minSdkVersion}
                 ext.debugKeystoreFile = "${props.debugKeystore}"
-                ext.navigationCommonDep = "${props.navigationCommon}"
+                ext.navigationCommonDep = "${props.navigationRuntime}"
             }
 
             allprojects {
@@ -130,7 +132,7 @@ abstract class BasePluginTest {
             suffix = """
                 dependencies {
                     implementation "${projectSetup.props.kotlinStblib}"
-                    implementation "${projectSetup.props.navigationCommon}"
+                    implementation "${projectSetup.props.navigationRuntime}"
                 }
             """.trimIndent()
         )

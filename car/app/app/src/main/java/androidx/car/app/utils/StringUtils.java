@@ -27,7 +27,7 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(LIBRARY)
-public class StringUtils {
+public final class StringUtils {
     private static final int MAX_SHORT_STRING_LENGTH = 16;
 
     /**

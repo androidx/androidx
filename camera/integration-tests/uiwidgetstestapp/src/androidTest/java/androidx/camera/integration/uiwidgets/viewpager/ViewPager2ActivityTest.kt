@@ -64,10 +64,13 @@ class ViewPager2ActivityTest(private val lensFacing: Int) {
             CameraSelector.LENS_FACING_FRONT,
             CameraSelector.LENS_FACING_BACK
         )
+
+        @JvmField
+        val testCameraRule = CameraUtil.PreTestCamera()
     }
 
     @get:Rule
-    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest(testCameraRule)
 
     private val mDevice =
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
@@ -111,6 +114,7 @@ class ViewPager2ActivityTest(private val lensFacing: Int) {
             onView(withId(R.id.blank_textview)).check(matches(isDisplayed()))
 
             onView(withId(R.id.viewPager2)).perform(swipeRight())
+            onView(withId(R.id.preview_textureview)).check(matches(isDisplayed()))
 
             // For b/149877652, need to check if the surface texture of TextureView continues
             // getting updates after detaching from window and then attaching to window.
@@ -134,6 +138,8 @@ class ViewPager2ActivityTest(private val lensFacing: Int) {
 
             // After resume, swipe in CameraFragment to check Preview in stream state
             onView(withId(R.id.viewPager2)).perform(swipeRight())
+            onView(withId(R.id.preview_textureview)).check(matches(isDisplayed()))
+
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
 
             // The test covers pause/resume and ViewPager2 swipe out/in behaviors. Hence, need to

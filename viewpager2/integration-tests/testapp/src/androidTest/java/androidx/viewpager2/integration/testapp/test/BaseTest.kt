@@ -29,6 +29,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.testutils.setSystemExclusionRectsForEspressoSwipes
 import androidx.viewpager2.integration.testapp.R
 import androidx.viewpager2.integration.testapp.test.util.ViewPagerIdleWatcher
 import androidx.viewpager2.integration.testapp.test.util.onCurrentPage
@@ -71,6 +72,7 @@ abstract class BaseTest<T : FragmentActivity>(clazz: Class<T>) {
     @Before
     open fun setUp() {
         viewPager = activityTestRule.activity.findViewById(layoutId)
+        viewPager.setSystemExclusionRectsForEspressoSwipes()
         idleWatcher = ViewPagerIdleWatcher(viewPager)
         onView(withId(layoutId)).perform(waitForInjectMotionEvents())
     }

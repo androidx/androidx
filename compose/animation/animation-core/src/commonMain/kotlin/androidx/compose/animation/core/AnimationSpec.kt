@@ -19,7 +19,9 @@ package androidx.compose.animation.core
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.util.annotation.IntRange
+import androidx.compose.runtime.Stable
+import androidx.compose.ui.unit.IntOffset
+import kotlin.math.abs
 
 object AnimationConstants {
     /**
@@ -28,20 +30,20 @@ object AnimationConstants {
     const val DefaultDurationMillis: Int = 300
 
     /**
-     * Used as a iterations count for [VectorizedRepeatableSpec] to create an infinity repeating animation.
+     * The value that is used when the animation time is not yet set.
      */
-    const val Infinite: Int = Int.MAX_VALUE
+    const val UnspecifiedTime: Long = Long.MIN_VALUE
 }
 
 /**
  * [AnimationSpec] stores the specification of an animation, including 1) the data type to be
  * animated, and 2) the animation configuration (i.e. [VectorizedAnimationSpec]) that will be used
- * to once the data (of type [T]) has been converted to [AnimationVector].
+ * once the data (of type [T]) has been converted to [AnimationVector].
  *
  * Any type [T] can be animated by the system as long as a [TwoWayConverter] is supplied to convert
  * the data type [T] from and to an [AnimationVector]. There are a number of converters
  * available out of the box. For example, to animate [androidx.compose.ui.unit.IntOffset] the system
- * uses [androidx.compose.animation.IntOffset.VectorConverter] to convert the object to
+ * uses [IntOffset.VectorConverter][IntOffset.Companion.VectorConverter] to convert the object to
  * [AnimationVector2D], so that both x and y dimensions are animated independently with separate
  * velocity tracking. This enables multidimensional objects to be animated in a true
  * multi-dimensional way. It is particularly useful for smoothly handling animation interruptions
@@ -62,6 +64,19 @@ interface AnimationSpec<T> {
     fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
     ): VectorizedAnimationSpec<V>
+}
+
+/**
+ * [FiniteAnimationSpec] is the interface that all non-infinite [AnimationSpec]s implement,
+ * including: [TweenSpec], [SpringSpec], [KeyframesSpec], [RepeatableSpec], [SnapSpec], etc. By
+ * definition, [InfiniteRepeatableSpec] __does not__ implement this interface.
+ *
+ * @see [InfiniteRepeatableSpec]
+ */
+interface FiniteAnimationSpec<T> : AnimationSpec<T> {
+    override fun <V : AnimationVector> vectorize(
+        converter: TwoWayConverter<T, V>
+    ): VectorizedFiniteAnimationSpec<V>
 }
 
 /**
@@ -100,7 +115,7 @@ class TweenSpec<T>(
  *  [TweenSpec], and [SnapSpec]. These duration based specs can repeated when put into a
  *  [RepeatableSpec].
  */
-interface DurationBasedAnimationSpec<T> : AnimationSpec<T> {
+interface DurationBasedAnimationSpec<T> : FiniteAnimationSpec<T> {
     override fun <V : AnimationVector> vectorize(converter: TwoWayConverter<T, V>):
         VectorizedDurationBasedAnimationSpec<V>
 }
@@ -114,12 +129,13 @@ interface DurationBasedAnimationSpec<T> : AnimationSpec<T> {
  * @param stiffness stiffness of the spring. [Spring.StiffnessMedium] by default.
  * @param visibilityThreshold specifies the visibility threshold
  */
+// TODO: annotate damping/stiffness with FloatRange
 @Immutable
 class SpringSpec<T>(
     val dampingRatio: Float = Spring.DampingRatioNoBouncy,
     val stiffness: Float = Spring.StiffnessMedium,
     val visibilityThreshold: T? = null
-) : AnimationSpec<T> {
+) : FiniteAnimationSpec<T> {
 
     override fun <V : AnimationVector> vectorize(converter: TwoWayConverter<T, V>) =
         VectorizedSpringSpec(dampingRatio, stiffness, converter.convert(visibilityThreshold))
@@ -146,41 +162,190 @@ private fun <T, V : AnimationVector> TwoWayConverter<T, V>.convert(data: T?): V?
 }
 
 /**
- * [RepeatableSpec] takes another [DurationBasedAnimationSpec] and plays it [iterations] times.
+ * This class defines the two types of [StartOffset]: [StartOffsetType.Delay] and
+ * [StartOffsetType.FastForward].
+ * [StartOffsetType.Delay] delays the start of the animation, whereas [StartOffsetType.FastForward]
+ * starts the animation right away from a given play time in the animation.
+ *
+ * @see repeatable
+ * @see infiniteRepeatable
+ * @see StartOffset
+ */
+@Suppress("INLINE_CLASS_DEPRECATED")
+inline class StartOffsetType private constructor(internal val value: Int) {
+    companion object {
+        /**
+         * Delays the start of the animation.
+         */
+        val Delay = StartOffsetType(-1)
+
+        /**
+         * Fast forwards the animation to a given play time, and starts it immediately.
+         */
+        val FastForward = StartOffsetType(1)
+    }
+}
+
+/**
+ * This class defines a start offset for [repeatable] and [infiniteRepeatable]. There are two types
+ * of start offsets: [StartOffsetType.Delay] and [StartOffsetType.FastForward].
+ * [StartOffsetType.Delay] delays the start of the animation, whereas [StartOffsetType.FastForward]
+ * fast forwards the animation to a given play time and starts it right away.
+ *
+ * @sample androidx.compose.animation.core.samples.InfiniteProgressIndicator
+ */
+@Suppress("INLINE_CLASS_DEPRECATED")
+// This is an inline of Long so that when adding a StartOffset param to the end of constructor
+// param list, it won't be confused with/clash with the mask param generated by constructors.
+inline class StartOffset private constructor(internal val value: Long) {
+    /**
+     * This creates a start offset for [repeatable] and [infiniteRepeatable]. [offsetType] can be
+     * either of the following: [StartOffsetType.Delay] and [StartOffsetType.FastForward].
+     * [offsetType] defaults to [StartOffsetType.Delay].
+     *
+     * [StartOffsetType.Delay] delays the start of the animation by [offsetMillis], whereas
+     * [StartOffsetType.FastForward] starts the animation right away from [offsetMillis] in the
+     * animation.
+     */
+    constructor(offsetMillis: Int, offsetType: StartOffsetType = StartOffsetType.Delay) : this(
+        (offsetMillis * offsetType.value).toLong()
+    )
+
+    /**
+     * Returns the number of milliseconds to offset the start of the animation.
+     */
+    val offsetMillis: Int
+        get() = abs(this.value.toInt())
+
+    /**
+     * Returns the offset type of the provided [StartOffset].
+     */
+    val offsetType: StartOffsetType
+        get() = when (this.value > 0) {
+            true -> StartOffsetType.FastForward
+            false -> StartOffsetType.Delay
+        }
+}
+
+/**
+ * [RepeatableSpec] takes another [DurationBasedAnimationSpec] and plays it [iterations] times. For
+ * creating infinitely repeating animation spec, consider using [InfiniteRepeatableSpec].
  *
  * __Note__: When repeating in the [RepeatMode.Reverse] mode, it's highly recommended to have an
- * __odd__ number of iterations, or [AnimationConstants.Infinite] iterations. Otherwise, the
- * animation may jump to the end value when it finishes the last iteration.
+ * __odd__ number of iterations. Otherwise, the animation may jump to the end value when it finishes
+ * the last iteration.
  *
- * @param iterations the count of iterations. Should be at least 1. [AnimationConstants.Infinite]
- *                   can be used to have an infinity repeating animation.
+ * [initialStartOffset] can be used to either delay the start of the animation or to fast forward
+ * the animation to a given play time. This start offset will **not** be repeated, whereas the delay
+ * in the [animation] (if any) will be repeated. By default, the amount of offset is 0.
+ *
+ * @see repeatable
+ * @see InfiniteRepeatableSpec
+ * @see infiniteRepeatable
+ *
+ * @param iterations the count of iterations. Should be at least 1.
  * @param animation the [AnimationSpec] to be repeated
  * @param repeatMode whether animation should repeat by starting from the beginning (i.e.
  *                  [RepeatMode.Restart]) or from the end (i.e. [RepeatMode.Reverse])
+ * @param initialStartOffset offsets the start of the animation
  */
 @Immutable
 class RepeatableSpec<T>(
     val iterations: Int,
     val animation: DurationBasedAnimationSpec<T>,
-    val repeatMode: RepeatMode = RepeatMode.Restart
-) : AnimationSpec<T> {
+    val repeatMode: RepeatMode = RepeatMode.Restart,
+    val initialStartOffset: StartOffset = StartOffset(0)
+) : FiniteAnimationSpec<T> {
+
+    @Deprecated(
+        level = DeprecationLevel.HIDDEN,
+        message = "This constructor has been deprecated"
+    )
+    constructor(
+        iterations: Int,
+        animation: DurationBasedAnimationSpec<T>,
+        repeatMode: RepeatMode = RepeatMode.Restart
+    ) : this(iterations, animation, repeatMode, StartOffset(0))
+
     override fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
-    ): VectorizedAnimationSpec<V> {
-        return VectorizedRepeatableSpec(iterations, animation.vectorize(converter), repeatMode)
+    ): VectorizedFiniteAnimationSpec<V> {
+        return VectorizedRepeatableSpec(
+            iterations, animation.vectorize(converter), repeatMode, initialStartOffset
+        )
     }
 
     override fun equals(other: Any?): Boolean =
         if (other is RepeatableSpec<*>) {
             other.iterations == this.iterations &&
                 other.animation == this.animation &&
-                other.repeatMode == this.repeatMode
+                other.repeatMode == this.repeatMode &&
+                other.initialStartOffset == this.initialStartOffset
         } else {
             false
         }
 
     override fun hashCode(): Int {
-        return (iterations * 31 + animation.hashCode()) * 31 + repeatMode.hashCode()
+        return ((iterations * 31 + animation.hashCode()) * 31 + repeatMode.hashCode()) * 31 +
+            initialStartOffset.hashCode()
+    }
+}
+
+/**
+ * [InfiniteRepeatableSpec] repeats the provided [animation] infinite amount of times. It will
+ * never naturally finish. This means the animation will only be stopped via some form of manual
+ * cancellation. When used with transition or other animation composables, the infinite animations
+ * will stop when the composable is removed from the compose tree.
+ *
+ * For non-infinite repeating animations, consider [RepeatableSpec].
+ *
+ * [initialStartOffset] can be used to either delay the start of the animation or to fast forward
+ * the animation to a given play time. This start offset will **not** be repeated, whereas the delay
+ * in the [animation] (if any) will be repeated. By default, the amount of offset is 0.
+ *
+ * @sample androidx.compose.animation.core.samples.InfiniteProgressIndicator
+ *
+ * @param animation the [AnimationSpec] to be repeated
+ * @param repeatMode whether animation should repeat by starting from the beginning (i.e.
+ *                  [RepeatMode.Restart]) or from the end (i.e. [RepeatMode.Reverse])
+ * @param initialStartOffset offsets the start of the animation
+ * @see infiniteRepeatable
+ */
+// TODO: Consider supporting repeating spring specs
+class InfiniteRepeatableSpec<T>(
+    val animation: DurationBasedAnimationSpec<T>,
+    val repeatMode: RepeatMode = RepeatMode.Restart,
+    val initialStartOffset: StartOffset = StartOffset(0)
+) : AnimationSpec<T> {
+
+    @Deprecated(
+        level = DeprecationLevel.HIDDEN,
+        message = "This constructor has been deprecated"
+    )
+    constructor(
+        animation: DurationBasedAnimationSpec<T>,
+        repeatMode: RepeatMode = RepeatMode.Restart
+    ) : this(animation, repeatMode, StartOffset(0))
+
+    override fun <V : AnimationVector> vectorize(
+        converter: TwoWayConverter<T, V>
+    ): VectorizedAnimationSpec<V> {
+        return VectorizedInfiniteRepeatableSpec(
+            animation.vectorize(converter), repeatMode, initialStartOffset
+        )
+    }
+
+    override fun equals(other: Any?): Boolean =
+        if (other is InfiniteRepeatableSpec<*>) {
+            other.animation == this.animation && other.repeatMode == this.repeatMode &&
+                other.initialStartOffset == this.initialStartOffset
+        } else {
+            false
+        }
+
+    override fun hashCode(): Int {
+        return (animation.hashCode() * 31 + repeatMode.hashCode()) * 31 +
+            initialStartOffset.hashCode()
     }
 }
 
@@ -207,7 +372,7 @@ enum class RepeatMode {
  *              starts. Defaults to 0.
  */
 @Immutable
-class SnapSpec<T>(val delay: Int = 0) : AnimationSpec<T> {
+class SnapSpec<T>(val delay: Int = 0) : DurationBasedAnimationSpec<T> {
     override fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
     ): VectorizedDurationBasedAnimationSpec<V> = VectorizedSnapSpec(delay)
@@ -246,20 +411,22 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
      * at a particular time. Once the key frames are fully configured, the [KeyframesSpecConfig]
      * can be used to create a [KeyframesSpec].
      *
-     * @sample androidx.compose.animation.core.samples.FloatKeyframesBuilder
+     * @sample androidx.compose.animation.core.samples.KeyframesBuilderForPosition
      * @see keyframes
      */
     class KeyframesSpecConfig<T> {
         /**
-         * Duration of the animation in milliseconds. Defaults to [DefaultDurationMillis]
+         * Duration of the animation in milliseconds. The minimum is `0` and defaults to
+         * [DefaultDurationMillis]
          */
-        @IntRange(from = 0)
+        /*@IntRange(from = 0)*/
         var durationMillis: Int = DefaultDurationMillis
 
         /**
-         * The amount of time that the animation should be delayed. Defaults to 0.
+         * The amount of time that the animation should be delayed. The minimum is `0` and defaults
+         * to 0.
          */
-        @IntRange(from = 0)
+        /*@IntRange(from = 0)*/
         var delayMillis: Int = 0
 
         internal val keyframes = mutableMapOf<Int, KeyframeEntity<T>>()
@@ -268,11 +435,12 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
          * Adds a keyframe so that animation value will be [this] at time: [timeStamp]. For example:
          *     0.8f at 150 // ms
          *
-         * @param timeStamp The time in the during when animation should reach value: [this]
+         * @param timeStamp The time in the during when animation should reach value: [this], with
+         * a minimum value of `0`.
          * @return an [KeyframeEntity] so a custom [Easing] can be added by [with] method.
          */
         // TODO: Need a IntRange equivalent annotation
-        infix fun T.at(@IntRange(from = 0) timeStamp: Int): KeyframeEntity<T> {
+        infix fun T.at(/*@IntRange(from = 0)*/ timeStamp: Int): KeyframeEntity<T> {
             return KeyframeEntity(this).also {
                 keyframes[timeStamp] = it
             }
@@ -338,3 +506,133 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
         }
     }
 }
+
+/**
+ * Creates a [TweenSpec] configured with the given duration, delay and easing curve.
+ *
+ * @param durationMillis duration of the animation spec
+ * @param delayMillis the amount of time in milliseconds that animation waits before starting
+ * @param easing the easing curve that will be used to interpolate between start and end
+ */
+@Stable
+fun <T> tween(
+    durationMillis: Int = DefaultDurationMillis,
+    delayMillis: Int = 0,
+    easing: Easing = FastOutSlowInEasing
+): TweenSpec<T> = TweenSpec(durationMillis, delayMillis, easing)
+
+/**
+ * Creates a [SpringSpec] that uses the given spring constants (i.e. [dampingRatio] and
+ * [stiffness]. The optional [visibilityThreshold] defines when the animation
+ * should be considered to be visually close enough to round off to its target.
+ *
+ * @param dampingRatio damping ratio of the spring. [Spring.DampingRatioNoBouncy] by default.
+ * @param stiffness stiffness of the spring. [Spring.StiffnessMedium] by default.
+ * @param visibilityThreshold optionally specifies the visibility threshold.
+ */
+@Stable
+fun <T> spring(
+    dampingRatio: Float = Spring.DampingRatioNoBouncy,
+    stiffness: Float = Spring.StiffnessMedium,
+    visibilityThreshold: T? = null
+): SpringSpec<T> =
+    SpringSpec(dampingRatio, stiffness, visibilityThreshold)
+
+/**
+ * Creates a [KeyframesSpec] animation, initialized with [init]. For example:
+ *
+ * @param init Initialization function for the [KeyframesSpec] animation
+ * @See KeyframesSpec.KeyframesSpecConfig
+ */
+@Stable
+fun <T> keyframes(
+    init: KeyframesSpec.KeyframesSpecConfig<T>.() -> Unit
+): KeyframesSpec<T> {
+    return KeyframesSpec(KeyframesSpec.KeyframesSpecConfig<T>().apply(init))
+}
+
+/**
+ * Creates a [RepeatableSpec] that plays a [DurationBasedAnimationSpec] (e.g.
+ * [TweenSpec], [KeyframesSpec]) the amount of iterations specified by [iterations].
+ *
+ * The iteration count describes the amount of times the animation will run.
+ * 1 means no repeat. Recommend [infiniteRepeatable] for creating an infinity repeating animation.
+ *
+ * __Note__: When repeating in the [RepeatMode.Reverse] mode, it's highly recommended to have an
+ * __odd__ number of iterations. Otherwise, the animation may jump to the end value when it finishes
+ * the last iteration.
+ *
+ * [initialStartOffset] can be used to either delay the start of the animation or to fast forward
+ * the animation to a given play time. This start offset will **not** be repeated, whereas the delay
+ * in the [animation] (if any) will be repeated. By default, the amount of offset is 0.
+ *
+ * @param iterations the total count of iterations, should be greater than 1 to repeat.
+ * @param animation animation that will be repeated
+ * @param repeatMode whether animation should repeat by starting from the beginning (i.e.
+ *                  [RepeatMode.Restart]) or from the end (i.e. [RepeatMode.Reverse])
+ * @param initialStartOffset offsets the start of the animation
+ */
+@Stable
+fun <T> repeatable(
+    iterations: Int,
+    animation: DurationBasedAnimationSpec<T>,
+    repeatMode: RepeatMode = RepeatMode.Restart,
+    initialStartOffset: StartOffset = StartOffset(0)
+): RepeatableSpec<T> =
+    RepeatableSpec(iterations, animation, repeatMode, initialStartOffset)
+
+@Stable
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "This method has been deprecated in favor of the repeatable function that accepts" +
+        " start offset."
+)
+fun <T> repeatable(
+    iterations: Int,
+    animation: DurationBasedAnimationSpec<T>,
+    repeatMode: RepeatMode = RepeatMode.Restart
+) = RepeatableSpec(iterations, animation, repeatMode, StartOffset(0))
+
+/**
+ * Creates a [InfiniteRepeatableSpec] that plays a [DurationBasedAnimationSpec] (e.g.
+ * [TweenSpec], [KeyframesSpec]) infinite amount of iterations.
+ *
+ * For non-infinitely repeating animations, consider [repeatable].
+ *
+ * [initialStartOffset] can be used to either delay the start of the animation or to fast forward
+ * the animation to a given play time. This start offset will **not** be repeated, whereas the delay
+ * in the [animation] (if any) will be repeated. By default, the amount of offset is 0.
+ *
+ * @sample androidx.compose.animation.core.samples.InfiniteProgressIndicator
+ *
+ * @param animation animation that will be repeated
+ * @param repeatMode whether animation should repeat by starting from the beginning (i.e.
+ *                  [RepeatMode.Restart]) or from the end (i.e. [RepeatMode.Reverse])
+ * @param initialStartOffset offsets the start of the animation
+ */
+@Stable
+fun <T> infiniteRepeatable(
+    animation: DurationBasedAnimationSpec<T>,
+    repeatMode: RepeatMode = RepeatMode.Restart,
+    initialStartOffset: StartOffset = StartOffset(0)
+): InfiniteRepeatableSpec<T> =
+    InfiniteRepeatableSpec(animation, repeatMode, initialStartOffset)
+
+@Stable
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "This method has been deprecated in favor of the infinite repeatable function that" +
+        " accepts start offset."
+)
+fun <T> infiniteRepeatable(
+    animation: DurationBasedAnimationSpec<T>,
+    repeatMode: RepeatMode = RepeatMode.Restart
+) = InfiniteRepeatableSpec(animation, repeatMode, StartOffset(0))
+
+/**
+ * Creates a Snap animation for immediately switching the animating value to the end value.
+ *
+ * @param delayMillis the number of milliseconds to wait before the animation runs. 0 by default.
+ */
+@Stable
+fun <T> snap(delayMillis: Int = 0) = SnapSpec<T>(delayMillis)

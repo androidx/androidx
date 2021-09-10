@@ -17,10 +17,13 @@
 package androidx.compose.compiler.plugins.kotlin
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.diagnostics.DiagnosticFactory0
 import org.jetbrains.kotlin.diagnostics.DiagnosticFactory1
 import org.jetbrains.kotlin.diagnostics.DiagnosticFactory2
+import org.jetbrains.kotlin.diagnostics.DiagnosticFactory3
 import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.diagnostics.PositioningStrategies.DECLARATION_SIGNATURE_OR_DEFAULT
 import org.jetbrains.kotlin.diagnostics.Severity
@@ -69,10 +72,38 @@ object ComposeErrors {
         )
 
     @JvmField
+    val ABSTRACT_COMPOSABLE_DEFAULT_PARAMETER_VALUE =
+        DiagnosticFactory0.create<PsiElement>(
+            Severity.ERROR
+        )
+
+    @JvmField
+    val COMPOSABLE_FUN_MAIN =
+        DiagnosticFactory0.create<PsiElement>(
+            Severity.ERROR
+        )
+
+    @JvmField
     val CAPTURED_COMPOSABLE_INVOCATION =
         DiagnosticFactory2.create<PsiElement, DeclarationDescriptor, DeclarationDescriptor>(
             Severity.ERROR
         )
+
+    @JvmField
+    val MISSING_DISALLOW_COMPOSABLE_CALLS_ANNOTATION =
+        DiagnosticFactory3.create<
+            PsiElement,
+            ValueParameterDescriptor, // unmarked
+            ValueParameterDescriptor, // marked
+            CallableDescriptor
+            >(
+            Severity.ERROR
+        )
+
+    @JvmField
+    val NONREADONLY_CALL_IN_READONLY_COMPOSABLE = DiagnosticFactory0.create<PsiElement>(
+        Severity.ERROR
+    )
 
     // This error matches Kotlin's CONFLICTING_OVERLOADS error, except that it renders the
     // annotations with the descriptor. This is important to use for errors where the
@@ -82,12 +113,6 @@ object ComposeErrors {
         DiagnosticFactory1.create(
             Severity.ERROR,
             DECLARATION_SIGNATURE_OR_DEFAULT
-        )
-
-    @JvmField
-    val ILLEGAL_ASSIGN_TO_UNIONTYPE =
-        DiagnosticFactory2.create<KtExpression, Collection<KotlinType>, Collection<KotlinType>>(
-            Severity.ERROR
         )
 
     @JvmField

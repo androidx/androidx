@@ -51,8 +51,12 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     public static final Option<Integer> OPTION_MAX_CAPTURE_STAGES =
             Option.create("camerax.core.imageCapture.maxCaptureStages", Integer.class);
     public static final Option<ImageReaderProxyProvider> OPTION_IMAGE_READER_PROXY_PROVIDER =
-            Option.create("camerax.core.imageAnalysis.imageReaderProxyProvider",
+            Option.create("camerax.core.imageCapture.imageReaderProxyProvider",
                     ImageReaderProxyProvider.class);
+    public static final Option<Boolean> OPTION_USE_SOFTWARE_JPEG_ENCODER =
+            Option.create("camerax.core.imageCapture.useSoftwareJpegEncoder", boolean.class);
+    public static final Option<Integer> OPTION_FLASH_TYPE =
+            Option.create("camerax.core.imageCapture.flashType", int.class);
 
     // *********************************************************************************************
 
@@ -221,6 +225,38 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     @Nullable
     public ImageReaderProxyProvider getImageReaderProxyProvider() {
         return retrieveOption(OPTION_IMAGE_READER_PROXY_PROVIDER, null);
+    }
+
+    /**
+     * Returns whether ImageCapture should use a software JPEG encoder, if available.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public boolean isSoftwareJpegEncoderRequested() {
+        return retrieveOption(OPTION_USE_SOFTWARE_JPEG_ENCODER, false);
+    }
+
+    /**
+     * Returns the {@link ImageCapture.FlashType}.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value, if it exists in this configuration.
+     */
+    @ImageCapture.FlashType
+    public int getFlashType(@ImageCapture.FlashType int valueIfMissing) {
+        return retrieveOption(OPTION_FLASH_TYPE, valueIfMissing);
+    }
+
+    /**
+     * Returns the {@link ImageCapture.FlashType}.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @ImageCapture.FlashType
+    public int getFlashType() {
+        return retrieveOption(OPTION_FLASH_TYPE);
     }
 
     // Implementations of IO default methods

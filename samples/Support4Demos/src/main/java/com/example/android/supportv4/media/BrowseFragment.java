@@ -131,6 +131,7 @@ public class BrowseFragment extends Fragment {
         }
     };
 
+    @SuppressWarnings("ObjectToString")
     private MediaBrowserCompat.ConnectionCallback mConnectionCallback =
             new MediaBrowserCompat.ConnectionCallback() {
         @Override

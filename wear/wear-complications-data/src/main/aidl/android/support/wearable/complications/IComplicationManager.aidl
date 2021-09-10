@@ -9,7 +9,7 @@ import android.support.wearable.complications.ComplicationData;
  */
 interface IComplicationManager {
     /**
-     * Updates complication data for the given complication.
+     * Updates complication data for the given complication slot.
      */
-    void updateComplicationData(int complicationId, in ComplicationData data);
+    void updateComplicationData(int complicationSlotId, in ComplicationData data);
 }

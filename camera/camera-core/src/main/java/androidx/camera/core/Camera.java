@@ -21,7 +21,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraInternal;
-import androidx.camera.core.internal.CameraUseCaseAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -32,7 +31,7 @@ import java.util.LinkedHashSet;
  * camera via the {@link CameraControl}, and publish the state of the camera via {@link CameraInfo}.
  *
  * <p>{@linkplain androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(
- * androidx.lifecycle.LifecycleOwner, CameraSelector, UseCase...) An example} of how to obtain an
+ *androidx.lifecycle.LifecycleOwner, CameraSelector, UseCase...) An example} of how to obtain an
  * instance of this class can be found in the {@link androidx.camera.lifecycle} package.
  */
 public interface Camera {
@@ -81,6 +80,7 @@ public interface Camera {
      * first in this ordering will be used.
      *
      * <p> The set of CameraInternal should be static for the lifetime of the Camera.
+     *
      * @hide
      */
     @NonNull
@@ -97,20 +97,16 @@ public interface Camera {
     CameraConfig getExtendedConfig();
 
     /**
-     * Set the extended config of the Camera and potentially reconfigure the camera.
+     * Set the extended config of the Camera.
      *
-     * <p> This is used to apply additional configs that modifying the behavior of the camera and
-     * any attached {@link UseCase}. For example, this may limit the instances of CameraInternal
-     * that are used or configure the {@link ImageCapture} to use a
+     * <p>This is used to apply additional configs that modifying the behavior of the camera and
+     * any attached {@link UseCase}. For example, it may configure the {@link ImageCapture} to use a
      * {@link androidx.camera.core.impl.CaptureProcessor} in order to implement effects such as
      * HDR or bokeh.
-
-     * <p> This can cause the underlying camera to be reopen.
-     * @param cameraConfig if the null then it will reset the camera to an empty config.
      *
+     * @param cameraConfig if null then it will reset the camera to an empty config.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    void setExtendedConfig(@Nullable CameraConfig cameraConfig) throws
-            CameraUseCaseAdapter.CameraException;
+    void setExtendedConfig(@Nullable CameraConfig cameraConfig);
 }

@@ -18,12 +18,12 @@ package androidx.compose.ui.layout
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.node.LayoutNodeWrapper
 import androidx.compose.ui.unit.IntSize
 
 /**
  * A holder of the measured bounds for the layout (MeasureBox).
  */
-// TODO(Andrey): Add Matrix transformation here when we would have this logic.
 interface LayoutCoordinates {
     /**
      * The size of this layout in the local coordinates space.
@@ -38,6 +38,12 @@ interface LayoutCoordinates {
     /**
      * The coordinates of the parent layout. Null if there is no parent.
      */
+    val parentLayoutCoordinates: LayoutCoordinates?
+
+    /**
+     * The coordinates of the parent layout modifier or parent layout if there is no
+     * parent layout modifier, or `null` if there is no parent.
+     */
     val parentCoordinates: LayoutCoordinates?
 
     /**
@@ -46,93 +52,116 @@ interface LayoutCoordinates {
     val isAttached: Boolean
 
     /**
-     * Converts a global position into a local position within this layout.
+     * Converts [relativeToWindow] relative to the window's origin into an [Offset] relative to
+     * this layout.
      */
-    fun globalToLocal(global: Offset): Offset
+    fun windowToLocal(relativeToWindow: Offset): Offset
 
     /**
-     * Converts a local position within this layout into a global one.
+     * Converts [relativeToLocal] position within this layout into an [Offset] relative to the
+     * window's origin.
      */
-    fun localToGlobal(local: Offset): Offset
+    fun localToWindow(relativeToLocal: Offset): Offset
 
     /**
      * Converts a local position within this layout into an offset from the root composable.
      */
-    fun localToRoot(local: Offset): Offset
+    fun localToRoot(relativeToLocal: Offset): Offset
 
     /**
-     * Converts a child layout position into a local position within this layout.
+     * Converts an [relativeToSource] in [sourceCoordinates] space into local coordinates.
+     * [sourceCoordinates] may be any [LayoutCoordinates] that belong to the same
+     * compose layout hierarchy.
      */
-    fun childToLocal(child: LayoutCoordinates, childLocal: Offset): Offset
+    fun localPositionOf(sourceCoordinates: LayoutCoordinates, relativeToSource: Offset): Offset
 
     /**
-     * Returns the child bounding box, discarding clipped rectangles, in local coordinates.
+     * Returns the bounding box of [sourceCoordinates] in the local coordinates.
+     * If [clipBounds] is `true`, any clipping that occurs between [sourceCoordinates] and
+     * this layout will affect the returned bounds, and can even result in an empty rectangle
+     * if clipped regions do not overlap. If [clipBounds] is false, the bounding box of
+     * [sourceCoordinates] will be converted to local coordinates irrespective of any clipping
+     * applied between the layouts.
+     *
+     * When rotation or scaling is applied, the bounding box of the rotated or scaled value
+     * will be computed in the local coordinates. For example, if a 40 pixels x 20 pixel layout
+     * is rotated 90 degrees, the bounding box will be 20 pixels x 40 pixels in its parent's
+     * coordinates.
      */
-    fun childBoundingBox(child: LayoutCoordinates): Rect
+    fun localBoundingBoxOf(sourceCoordinates: LayoutCoordinates, clipBounds: Boolean = true): Rect
 
     /**
-     * Returns the position of an [alignment line][AlignmentLine],
+     * Returns the position in pixels of an [alignment line][AlignmentLine],
      * or [AlignmentLine.Unspecified] if the line is not provided.
      */
-    operator fun get(line: AlignmentLine): Int
+    operator fun get(alignmentLine: AlignmentLine): Int
 }
-
-/**
- * The global position of this layout.
- */
-inline val LayoutCoordinates.globalPosition: Offset get() = localToGlobal(Offset.Zero)
 
 /**
  * The position of this layout inside the root composable.
  */
-inline val LayoutCoordinates.positionInRoot: Offset get() = localToRoot(Offset.Zero)
+fun LayoutCoordinates.positionInRoot(): Offset = localToRoot(Offset.Zero)
+
+/**
+ * The position of this layout relative to the window.
+ */
+fun LayoutCoordinates.positionInWindow(): Offset = localToWindow(Offset.Zero)
 
 /**
  * The boundaries of this layout inside the root composable.
  */
-val LayoutCoordinates.boundsInRoot: Rect
-    get() {
-        return findRoot(this).childBoundingBox(this)
-    }
+fun LayoutCoordinates.boundsInRoot(): Rect =
+    findRoot().localBoundingBoxOf(this)
+
+/**
+ * The boundaries of this layout relative to the window's origin.
+ */
+fun LayoutCoordinates.boundsInWindow(): Rect {
+    val root = findRoot()
+    val bounds = boundsInRoot()
+    val topLeft = root.localToWindow(Offset(bounds.left, bounds.top))
+    val topRight = root.localToWindow(Offset(bounds.right, bounds.top))
+    val bottomRight = root.localToWindow(Offset(bounds.right, bounds.bottom))
+    val bottomLeft = root.localToWindow(Offset(bounds.left, bounds.bottom))
+    val left = minOf(topLeft.x, topRight.x, bottomLeft.x, bottomRight.x)
+    val top = minOf(topLeft.y, topRight.y, bottomLeft.y, bottomRight.y)
+    val right = maxOf(topLeft.x, topRight.x, bottomLeft.x, bottomRight.x)
+    val bottom = maxOf(topLeft.y, topRight.y, bottomLeft.y, bottomRight.y)
+    return Rect(left, top, right, bottom)
+}
 
 /**
  * Returns the position of the top-left in the parent's content area or (0, 0)
  * for the root.
  */
-val LayoutCoordinates.positionInParent: Offset
-    get() = parentCoordinates?.childToLocal(this, Offset.Zero) ?: Offset.Zero
+fun LayoutCoordinates.positionInParent(): Offset =
+    parentLayoutCoordinates?.localPositionOf(this, Offset.Zero) ?: Offset.Zero
 
 /**
  * Returns the bounding box of the child in the parent's content area, including any clipping
  * done with respect to the parent. For the root, the bounds is positioned at (0, 0) and sized
  * to the size of the root.
  */
-val LayoutCoordinates.boundsInParent: Rect
-    get() = parentCoordinates?.childBoundingBox(this)
+fun LayoutCoordinates.boundsInParent(): Rect =
+    parentLayoutCoordinates?.localBoundingBoxOf(this)
         ?: Rect(0f, 0f, size.width.toFloat(), size.height.toFloat())
 
 /**
- * The global boundaries of this layout inside.
+ * Returns the [LayoutCoordinates] of the root layout element in the hierarchy. This will have
+ * the size of the entire compose UI.
  */
-val LayoutCoordinates.globalBounds: Rect
-    get() {
-        val root = findRoot(this)
-        val rootPosition = root.localToGlobal(Offset.Zero)
-        val bounds = root.childBoundingBox(this)
-        return Rect(
-            left = bounds.left + rootPosition.x,
-            top = bounds.top + rootPosition.y,
-            right = bounds.right + rootPosition.x,
-            bottom = bounds.bottom + rootPosition.y
-        )
-    }
-
-private fun findRoot(layoutCoordinates: LayoutCoordinates): LayoutCoordinates {
-    var root = layoutCoordinates
-    var parent = root.parentCoordinates
+internal fun LayoutCoordinates.findRoot(): LayoutCoordinates {
+    var root = this
+    var parent = root.parentLayoutCoordinates
     while (parent != null) {
         root = parent
-        parent = root.parentCoordinates
+        parent = root.parentLayoutCoordinates
     }
-    return root
+    var rootLayoutNodeWrapper = root as? LayoutNodeWrapper ?: return root
+    var parentLayoutNodeWrapper = rootLayoutNodeWrapper.wrappedBy
+    while (parentLayoutNodeWrapper != null) {
+        rootLayoutNodeWrapper = parentLayoutNodeWrapper
+        parentLayoutNodeWrapper = parentLayoutNodeWrapper.wrappedBy
+    }
+    return rootLayoutNodeWrapper
 }

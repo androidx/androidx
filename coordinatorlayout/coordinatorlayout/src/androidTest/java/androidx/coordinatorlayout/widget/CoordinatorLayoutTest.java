@@ -23,7 +23,9 @@ import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentat
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -58,7 +60,6 @@ import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -69,16 +70,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@SuppressWarnings({"unchecked", "deprecation"})
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class CoordinatorLayoutTest {
     @Rule
-    public final ActivityTestRule<CoordinatorLayoutActivity> mActivityTestRule;
+    public final androidx.test.rule.ActivityTestRule<CoordinatorLayoutActivity> mActivityTestRule;
 
     private Instrumentation mInstrumentation;
 
     public CoordinatorLayoutTest() {
-        mActivityTestRule = new ActivityTestRule<>(CoordinatorLayoutActivity.class);
+        mActivityTestRule = new androidx.test.rule.ActivityTestRule<>(
+                CoordinatorLayoutActivity.class);
     }
 
     @Before
@@ -396,11 +399,12 @@ public class CoordinatorLayoutTest {
         final View viewA = new View(col.getContext());
         final View viewB = new View(col.getContext());
         final CoordinatorLayout.LayoutParams lpB = col.generateDefaultLayoutParams();
-        final CoordinatorLayout.Behavior behavior =
+        final CoordinatorLayout.Behavior<View> behavior =
                 new CoordinatorLayoutUtils.DependentBehavior(viewA) {
                     @Override
-                    public void onDependentViewRemoved(
-                            CoordinatorLayout parent, View child, View dependency) {
+                    public void onDependentViewRemoved(CoordinatorLayout parent,
+                            @NonNull View child, @NonNull View dependency) {
+                        // Make sure this doesn't crash.
                         parent.getDependencies(child);
                     }
                 };
@@ -423,6 +427,90 @@ public class CoordinatorLayoutTest {
             @Override
             public void run() {
                 col.removeView(viewA);
+            }
+        });
+    }
+
+    @Test
+    public void testGetDependencies() throws Throwable {
+        final Instrumentation instrumentation = getInstrumentation();
+        final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
+
+        // Add two views, A & B, where B depends on A
+        final View viewA = new View(col.getContext());
+        final View viewB = new View(col.getContext());
+        final CoordinatorLayout.LayoutParams lpB = col.generateDefaultLayoutParams();
+        final CoordinatorLayout.Behavior<View> behavior =
+                new CoordinatorLayoutUtils.DependentBehavior(viewA);
+        lpB.setBehavior(behavior);
+
+        // Now add views
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                col.addView(viewA);
+                col.addView(viewB, lpB);
+            }
+        });
+
+        // Wait for a layout
+        instrumentation.waitForIdleSync();
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                List<View> depsA = col.getDependencies(viewA);
+                assertNotNull("getDependencies is non-null", depsA);
+                assertThat("A has no dependencies", depsA.isEmpty());
+
+                List<View> depsB = col.getDependencies(viewB);
+                assertEquals("B depends only on A", 1, depsB.size());
+                assertThat("B depends only on A", depsB.contains(viewA));
+
+                assertThat("getDependencies returns a new list",
+                        depsB != col.getDependencies(viewB));
+            }
+        });
+    }
+
+    @Test
+    public void testGetDependents() throws Throwable {
+        final Instrumentation instrumentation = getInstrumentation();
+        final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
+
+        // Add two views, A & B, where B depends on A
+        final View viewA = new View(col.getContext());
+        final View viewB = new View(col.getContext());
+        final CoordinatorLayout.LayoutParams lpB = col.generateDefaultLayoutParams();
+        final CoordinatorLayout.Behavior<View> behavior =
+                new CoordinatorLayoutUtils.DependentBehavior(viewA);
+        lpB.setBehavior(behavior);
+
+        // Now add views
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                col.addView(viewA);
+                col.addView(viewB, lpB);
+            }
+        });
+
+        // Wait for a layout
+        instrumentation.waitForIdleSync();
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                List<View> depsA = col.getDependents(viewA);
+                assertEquals("A is depended upon only by B", 1, depsA.size());
+                assertThat("A is depended upon only by B", depsA.contains(viewB));
+
+                List<View> depsB = col.getDependents(viewB);
+                assertNotNull("getDependents is non-null", depsB);
+                assertThat("B has no dependents", depsB.isEmpty());
+
+                assertThat("getDependents returns a new list",
+                        depsA != col.getDependents(viewA));
             }
         });
     }

@@ -16,14 +16,14 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.layout.defaultMinSizeConstraints
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.AmbientDensity
-import androidx.compose.ui.platform.AmbientFontLoader
-import androidx.compose.ui.platform.AmbientLayoutDirection
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFontLoader
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.resolveDefaults
@@ -33,15 +33,15 @@ import androidx.compose.ui.unit.LayoutDirection
 
 @Suppress("ModifierInspectorInfo")
 internal fun Modifier.textFieldMinSize(style: TextStyle) = composed {
-    val density = AmbientDensity.current
-    val resourceLoader = AmbientFontLoader.current
-    val layoutDirection = AmbientLayoutDirection.current
+    val density = LocalDensity.current
+    val resourceLoader = LocalFontLoader.current
+    val layoutDirection = LocalLayoutDirection.current
 
     val minSizeState = remember { TextFieldSize(layoutDirection, density, resourceLoader, style) }
     minSizeState.update(layoutDirection, density, resourceLoader, style)
 
     Modifier.layout { measurable, constraints ->
-        Modifier.defaultMinSizeConstraints()
+        Modifier.defaultMinSize()
         val minSize = minSizeState.minSize
 
         val childConstraints = constraints.copy(

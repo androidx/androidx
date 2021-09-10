@@ -39,7 +39,6 @@ public class BundleUtilTest {
     public void testDeepEquals_self() {
         Bundle one = new Bundle();
         one.putString("a", "a");
-        assertThat(one).isEqualTo(one);
         assertThat(BundleUtil.deepEquals(one, one)).isTrue();
     }
 
@@ -200,6 +199,29 @@ public class BundleUtilTest {
         assertThat(b1.hashCode()).isNotEqualTo(b1Clone.hashCode());
         assertThat(BundleUtil.deepHashCode(b1)).isEqualTo(BundleUtil.deepHashCode(b1Clone));
         assertThat(BundleUtil.deepHashCode(b1)).isNotEqualTo(BundleUtil.deepHashCode(b2));
+    }
+
+    @Test
+    public void testDeepHashCode_differentKeys() {
+        Bundle[] inputs = new Bundle[2];
+        for (int i = 0; i < 2; i++) {
+            Bundle b = new Bundle();
+            b.putString("key" + i, "value");
+            inputs[i] = b;
+        }
+        assertThat(BundleUtil.deepHashCode(inputs[0]))
+                .isNotEqualTo(BundleUtil.deepHashCode(inputs[1]));
+    }
+
+    @Test
+    public void testDeepCopy() {
+        Bundle input = createThoroughBundle();
+        Bundle output = BundleUtil.deepCopy(input);
+        assertThat(input).isNotSameInstanceAs(output);
+        assertThat(BundleUtil.deepEquals(input, output)).isTrue();
+
+        output.getIntegerArrayList("integerArrayList").add(5);
+        assertThat(BundleUtil.deepEquals(input, output)).isFalse();
     }
 
     private static Bundle createThoroughBundle() {

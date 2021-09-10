@@ -9,8 +9,6 @@ import android.text.style.LeadingMarginSpan
 import android.text.style.LocaleSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.ScaleXSpan
-import android.text.style.StrikethroughSpan
-import android.text.style.UnderlineSpan
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
@@ -25,16 +23,16 @@ import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.text.android.TextLayout
 import androidx.compose.ui.text.android.style.BaselineShiftSpan
 import androidx.compose.ui.text.android.style.FontFeatureSpan
-import androidx.compose.ui.text.android.style.FontSpan
 import androidx.compose.ui.text.android.style.LetterSpacingSpanEm
 import androidx.compose.ui.text.android.style.LetterSpacingSpanPx
 import androidx.compose.ui.text.android.style.ShadowSpan
 import androidx.compose.ui.text.android.style.SkewXSpan
+import androidx.compose.ui.text.android.style.TextDecorationSpan
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.asFontFamily
+import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.matchers.assertThat
 import androidx.compose.ui.text.style.BaselineShift
@@ -61,17 +59,20 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
 import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 @OptIn(InternalPlatformTextApi::class)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class AndroidParagraphTest {
+class
+AndroidParagraphTest {
     // This sample font provides the following features:
     // 1. The width of most of visible characters equals to font size.
     // 2. The LTR/RTL characters are rendered as ▶/◀.
     // 3. The fontMetrics passed to TextPaint has descend - ascend equal to 1.2 * fontSize.
-    private val basicFontFamily = BASIC_MEASURE_FONT.asFontFamily()
+    private val basicFontFamily = BASIC_MEASURE_FONT.toFontFamily()
     private val defaultDensity = Density(density = 1f)
     private val context = InstrumentationRegistry.getInstrumentation().context
 
@@ -165,7 +166,13 @@ class AndroidParagraphTest {
         )
 
         assertThat(paragraph.charSequence.toString()).isEqualTo(text)
-        assertThat(paragraph.charSequence).hasSpan(StrikethroughSpan::class, 0, text.length)
+        assertThat(paragraph.charSequence).hasSpan(
+            spanClazz = TextDecorationSpan::class,
+            start = 0,
+            end = text.length
+        ) {
+            !it.isUnderlineText && it.isStrikethroughText
+        }
     }
 
     @Test
@@ -180,7 +187,13 @@ class AndroidParagraphTest {
         )
 
         assertThat(paragraph.charSequence.toString()).isEqualTo(text)
-        assertThat(paragraph.charSequence).hasSpan(UnderlineSpan::class, 0, text.length)
+        assertThat(paragraph.charSequence).hasSpan(
+            spanClazz = TextDecorationSpan::class,
+            start = 0,
+            end = text.length
+        ) {
+            it.isUnderlineText && !it.isStrikethroughText
+        }
     }
 
     @Test
@@ -195,7 +208,13 @@ class AndroidParagraphTest {
         )
 
         assertThat(paragraph.charSequence.toString()).isEqualTo(text)
-        assertThat(paragraph.charSequence).hasSpan(StrikethroughSpan::class, 0, "abc".length)
+        assertThat(paragraph.charSequence).hasSpan(
+            spanClazz = TextDecorationSpan::class,
+            start = 0,
+            end = "abc".length
+        ) {
+            !it.isUnderlineText && it.isStrikethroughText
+        }
     }
 
     @Test
@@ -210,7 +229,13 @@ class AndroidParagraphTest {
         )
 
         assertThat(paragraph.charSequence.toString()).isEqualTo(text)
-        assertThat(paragraph.charSequence).hasSpan(UnderlineSpan::class, 0, "abc".length)
+        assertThat(paragraph.charSequence).hasSpan(
+            spanClazz = TextDecorationSpan::class,
+            start = 0,
+            end = "abc".length
+        ) {
+            it.isUnderlineText && !it.isStrikethroughText
+        }
     }
 
     @Test
@@ -227,8 +252,13 @@ class AndroidParagraphTest {
         )
 
         assertThat(paragraph.charSequence.toString()).isEqualTo(text)
-        assertThat(paragraph.charSequence).hasSpan(UnderlineSpan::class, 0, "abc".length)
-        assertThat(paragraph.charSequence).hasSpan(StrikethroughSpan::class, 0, "abc".length)
+        assertThat(paragraph.charSequence).hasSpan(
+            spanClazz = TextDecorationSpan::class,
+            start = 0,
+            end = "abc".length
+        ) {
+            it.isUnderlineText && it.isStrikethroughText
+        }
     }
 
     @Test
@@ -245,7 +275,9 @@ class AndroidParagraphTest {
                 width = paragraphWidth
             )
 
-            assertThat(paragraph.charSequence).hasSpan(AbsoluteSizeSpan::class, 0, text.length)
+            assertThat(paragraph.charSequence).hasSpan(AbsoluteSizeSpan::class, 0, text.length) {
+                it.size == fontSize.toPx().roundToInt() && !it.dip
+            }
         }
     }
 
@@ -549,7 +581,7 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun testAnnotatedString_setTextGeometricTransformWithNull_noSpanSet() {
+    fun testAnnotatedString_setDefaultTextGeometricTransform() {
         val text = "abcde"
         val spanStyle = SpanStyle(textGeometricTransform = TextGeometricTransform())
 
@@ -559,8 +591,16 @@ class AndroidParagraphTest {
             width = 100.0f // width is not important
         )
 
-        assertThat(paragraph.charSequence).spans(ScaleXSpan::class).isEmpty()
-        assertThat(paragraph.charSequence).spans(SkewXSpan::class).isEmpty()
+        assertThat(paragraph.charSequence).hasSpan(ScaleXSpan::class, 0, text.length) {
+            it.scaleX == 1.0f
+        }
+        assertThat(paragraph.charSequence).hasSpan(
+            spanClazz = SkewXSpan::class,
+            start = 0,
+            end = text.length
+        ) {
+            it.skewX == 0.0f
+        }
     }
 
     @Test
@@ -582,7 +622,9 @@ class AndroidParagraphTest {
         assertThat(paragraph.charSequence).hasSpan(ScaleXSpan::class, 0, text.length) {
             it.scaleX == scaleX
         }
-        assertThat(paragraph.charSequence).spans(SkewXSpan::class).isEmpty()
+        assertThat(paragraph.charSequence).hasSpan(SkewXSpan::class, 0, text.length) {
+            it.skewX == 0.0f
+        }
     }
 
     @Test
@@ -600,7 +642,9 @@ class AndroidParagraphTest {
         assertThat(paragraph.charSequence).hasSpan(SkewXSpan::class, 0, text.length) {
             it.skewX == skewX
         }
-        assertThat(paragraph.charSequence).spans(ScaleXSpan::class).isEmpty()
+        assertThat(paragraph.charSequence).hasSpan(ScaleXSpan::class, 0, text.length) {
+            it.scaleX == 1.0f
+        }
     }
 
     @Test
@@ -687,78 +731,6 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun testAnnotatedString_fontFamily_addsTypefaceSpanWithCorrectTypeface() {
-        val text = "abcde"
-        val spanStyle = SpanStyle(
-            fontFamily = basicFontFamily,
-            fontStyle = FontStyle.Italic,
-            fontWeight = FontWeight.Bold
-        )
-        val expectedTypeface = TypefaceAdapter().create(
-            fontFamily = basicFontFamily,
-            fontStyle = FontStyle.Italic,
-            fontWeight = FontWeight.Bold
-        )
-        val expectedStart = 0
-        val expectedEnd = "abc".length
-
-        val paragraph = simpleParagraph(
-            text = text,
-            spanStyles = listOf(
-                AnnotatedString.Range(
-                    spanStyle,
-                    expectedStart,
-                    expectedEnd
-                )
-            ),
-            width = 100.0f
-        )
-
-        assertThat(paragraph.charSequence.toString()).isEqualTo(text)
-        assertThat(paragraph.charSequence)
-            .hasSpan(FontSpan::class, expectedStart, expectedEnd) { span ->
-                span.getTypeface(FontWeight.Bold.weight, true) == expectedTypeface
-            }
-    }
-
-    @Test
-    fun testAnnotatedString_fontFamily_whenFontSynthesizeTurnedOff() {
-        val text = "abcde"
-        val spanStyle = SpanStyle(
-            fontFamily = basicFontFamily,
-            fontStyle = FontStyle.Italic,
-            fontWeight = FontWeight.Bold,
-            fontSynthesis = FontSynthesis.None
-        )
-        val expectedTypeface = TypefaceAdapter().create(
-            fontFamily = basicFontFamily,
-            fontStyle = FontStyle.Italic,
-            fontWeight = FontWeight.Bold,
-            fontSynthesis = FontSynthesis.None
-        )
-        val expectedStart = 0
-        val expectedEnd = "abc".length
-
-        val paragraph = simpleParagraph(
-            text = text,
-            spanStyles = listOf(
-                AnnotatedString.Range(
-                    spanStyle,
-                    expectedStart,
-                    expectedEnd
-                )
-            ),
-            width = 100.0f
-        )
-
-        assertThat(paragraph.charSequence.toString()).isEqualTo(text)
-        assertThat(paragraph.charSequence)
-            .hasSpan(FontSpan::class, expectedStart, expectedEnd) { span ->
-                span.getTypeface(FontWeight.Bold.weight, true) == expectedTypeface
-            }
-    }
-
-    @Test
     fun testAnnotatedString_fontFeatureSetting_setSpanOnText() {
         val text = "abc"
         val fontFeatureSettings = "\"kern\" 0"
@@ -788,8 +760,8 @@ class AndroidParagraphTest {
         verify(typefaceAdapter, never()).create(
             fontFamily = any(),
             fontWeight = any(),
-            fontStyle = any(),
-            fontSynthesis = any()
+            fontStyle = anyFontStyle(),
+            fontSynthesis = anyFontSynthesis()
         )
         assertThat(paragraph.textPaint.typeface).isNull()
     }
@@ -812,8 +784,8 @@ class AndroidParagraphTest {
         verify(typefaceAdapter, times(1)).create(
             fontFamily = eq(null),
             fontWeight = eq(FontWeight.Bold),
-            fontStyle = eq(FontStyle.Normal),
-            fontSynthesis = eq(FontSynthesis.All)
+            fontStyle = eqFontStyle(FontStyle.Normal),
+            fontSynthesis = eqFontSynthesis(FontSynthesis.All)
         )
 
         val typeface = paragraph.textPaint.typeface
@@ -839,8 +811,8 @@ class AndroidParagraphTest {
         verify(typefaceAdapter, times(1)).create(
             fontFamily = eq(null),
             fontWeight = eq(FontWeight.Normal),
-            fontStyle = eq(FontStyle.Italic),
-            fontSynthesis = eq(FontSynthesis.All)
+            fontStyle = eqFontStyle(FontStyle.Italic),
+            fontSynthesis = eqFontSynthesis(FontSynthesis.All)
         )
 
         val typeface = paragraph.textPaint.typeface
@@ -867,8 +839,8 @@ class AndroidParagraphTest {
         verify(typefaceAdapter, times(1)).create(
             fontFamily = eq(fontFamily),
             fontWeight = eq(FontWeight.Normal),
-            fontStyle = eq(FontStyle.Normal),
-            fontSynthesis = eq(FontSynthesis.All)
+            fontStyle = eqFontStyle(FontStyle.Normal),
+            fontSynthesis = eqFontSynthesis(FontSynthesis.All)
         )
 
         val typeface = paragraph.textPaint.typeface
@@ -893,30 +865,12 @@ class AndroidParagraphTest {
         verify(typefaceAdapter, atLeastOnce()).create(
             fontFamily = eq(basicFontFamily),
             fontWeight = eq(FontWeight.Normal),
-            fontStyle = eq(FontStyle.Normal),
-            fontSynthesis = eq(FontSynthesis.All)
+            fontStyle = eqFontStyle(FontStyle.Normal),
+            fontSynthesis = eqFontSynthesis(FontSynthesis.All)
         )
         val typeface = paragraph.textPaint.typeface
         assertThat(typeface.isBold).isFalse()
         assertThat(typeface.isItalic).isFalse()
-    }
-
-    @Test
-    @MediumTest
-    fun testFontFamily_appliedAsSpan() {
-        val text = "abc"
-        val typefaceAdapter = spy(TypefaceAdapter())
-        val paragraph = simpleParagraph(
-            text = text,
-            style = TextStyle(
-                fontFamily = basicFontFamily
-            ),
-            typefaceAdapter = typefaceAdapter,
-            width = Float.MAX_VALUE
-        )
-
-        val charSequence = paragraph.charSequence
-        assertThat(charSequence).hasSpan(FontSpan::class, 0, text.length)
     }
 
     @Test
@@ -1435,4 +1389,30 @@ class AndroidParagraphTest {
     private fun TypefaceAdapter() = TypefaceAdapter(
         resourceLoader = TestFontResourceLoader(context)
     )
+}
+
+internal fun eqFontStyle(fontStyle: FontStyle): FontStyle {
+    return Mockito.argThat { arg: Any ->
+        if (arg is Int) {
+            arg == fontStyle.value
+        } else {
+            arg == fontStyle
+        }
+    } as FontStyle? ?: fontStyle
+}
+
+internal fun eqFontSynthesis(fontSynthesis: FontSynthesis): FontSynthesis {
+    return Mockito.argThat { arg: Any ->
+        if (arg is Int) {
+            arg == fontSynthesis.value
+        } else {
+            arg == fontSynthesis
+        }
+    } as FontSynthesis? ?: fontSynthesis
+}
+
+internal fun anyFontSynthesis(): FontSynthesis {
+    return Mockito.argThat { arg: Any ->
+        arg is Int || arg is FontSynthesis
+    } as FontSynthesis? ?: FontSynthesis.None
 }

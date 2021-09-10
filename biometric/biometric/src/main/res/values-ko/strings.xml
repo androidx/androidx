@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"비밀번호 사용"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"PIN, 패턴, 비밀번호가 설정되지 않았습니다."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"PIN, 패턴, 비밀번호를 지원하지 않는 기기입니다."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"지문 아이콘"</string>
 </resources>

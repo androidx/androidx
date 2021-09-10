@@ -15,5 +15,5 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.wear.watchface.complications.rendering">
+    package="androidx.wear.watchface.complications.rendering.test">
 </manifest>

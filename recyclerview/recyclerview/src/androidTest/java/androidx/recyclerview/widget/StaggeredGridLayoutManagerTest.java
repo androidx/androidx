@@ -48,6 +48,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
 import org.hamcrest.CoreMatchers;
@@ -1041,6 +1042,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
     }
 
     @Test
+    @FlakyTest(bugId = 187711357)
     public void updateAfterFullSpan2() throws Throwable {
         updateAfterFullSpanGapHandlingTest(20);
     }
@@ -1149,6 +1151,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         innerGapHandlingTest(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
     }
 
+    @FlakyTest(bugId = 187526412)
     @Test
     public void innerGapHandlingMoveItemsBetweenSpans() throws Throwable {
         innerGapHandlingTest(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);

@@ -15,45 +15,104 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.compat.test">
-
-    <uses-permission android:name="android.permission.VIBRATE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
-
-    <uses-permission android:name="android.permission.READ_CONTACTS"/>
-    <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
-
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    package="android.support.compat.test">
 
     <application
+        android:name="androidx.multidex.MultiDexApplication"
+        android:exported="true"
         android:supportsRtl="true"
         android:theme="@style/TestActivityTheme">
-        <activity android:name="androidx.core.widget.ListViewTestActivity"/>
+        <activity
+            android:name="androidx.core.widget.ListViewTestActivity"
+            android:exported="true" />
 
-        <activity android:name="androidx.core.widget.TextViewTestActivity"/>
+        <activity
+            android:name="androidx.core.widget.TextViewTestActivity"
+            android:exported="true" />
 
-        <activity android:name="androidx.core.widget.RichContentReceiverTestActivity"/>
+        <activity
+            android:name="androidx.core.widget.ReceiveContentTestActivity"
+            android:exported="true" />
 
-        <activity android:name="androidx.core.widget.TestContentViewActivity"/>
+        <activity
+            android:name="androidx.core.widget.TestContentViewActivity"
+            android:exported="true" />
 
-        <activity android:name="androidx.core.view.VpaActivity"/>
+        <activity
+            android:name="androidx.core.view.VpaActivity"
+            android:exported="true" />
 
         <activity
             android:name="android.support.v4.ThemedYellowActivity"
-            android:theme="@style/YellowTheme"/>
+            android:exported="true"
+            android:theme="@style/YellowTheme" />
 
-        <activity android:name="androidx.core.view.ViewCompatActivity"/>
+        <activity
+            android:name="androidx.core.view.ViewCompatActivity"
+            android:exported="true" />
 
-        <activity android:name="androidx.core.app.NavUtilsParentActivity"/>
+        <activity
+            android:name="androidx.core.app.NavUtilsParentActivity"
+            android:exported="true" />
         <activity
             android:name="androidx.core.app.NavUtilsActivity"
+            android:exported="true"
             android:parentActivityName="androidx.core.app.NavUtilsParentActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="androidx.core.app.NavUtilsParentActivity" />
         </activity>
+
+        <activity
+            android:name="androidx.core.app.TestActivity"
+            android:exported="true"
+            android:icon="@drawable/test_drawable_blue">
+            <intent-filter>
+                <action android:name="androidx.core.content.pm.SHORTCUT_LISTENER" />
+            </intent-filter>
+            <meta-data
+                android:name="androidx.core.content.pm.shortcut_listener_impl"
+                android:value="androidx.core.content.pm.TestShortcutInfoChangeListener" />
+        </activity>
+
+        <activity
+            android:name="androidx.core.app.TestComponentActivity"
+            android:exported="true" />
+
+        <activity
+            android:name="androidx.core.app.TestActivityWithLifecycle"
+            android:exported="true" />
+        <activity
+            android:name="androidx.core.app.ActivityCompatRecreateLifecycleTestActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.core.view.DragStartHelperTestActivity"
+            android:exported="true" />
+
+        <activity
+            android:name="androidx.core.widget.ContentLoadingProgressBarActivity"
+            android:exported="true" />
+
+        <activity
+            android:name="androidx.core.app.FrameMetricsActivity"
+            android:exported="true" />
+
+        <activity
+            android:name="androidx.core.app.FrameMetricsSubActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.core.widget.EdgeEffectCompatTest$EdgeEffectCompatTestActivity"
+            android:exported="true" />
+        <activity
+            android:name="androidx.core.view.WindowCompatActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Light.NoTitleBar" />
+
+        <activity
+            android:name="androidx.core.view.WindowInsetsCompatActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Light.NoTitleBar" />
+
         <activity-alias
             android:name="androidx.core.app.NavUtilsAliasActivity"
             android:targetActivity="androidx.core.app.NavUtilsActivity">
@@ -62,28 +121,6 @@
                 android:value="androidx.core.app.NavUtilsParentActivity" />
         </activity-alias>
 
-        <activity android:name="androidx.core.app.TestActivity"
-                  android:icon="@drawable/test_drawable_blue"/>
-
-        <activity android:name="androidx.core.app.TestComponentActivity"/>
-        <activity android:name="androidx.core.app.TestActivityWithLifecycle"/>
-        <activity android:name="androidx.core.app.ActivityCompatRecreateLifecycleTestActivity"/>
-
-        <activity android:name="androidx.core.view.DragStartHelperTestActivity"/>
-
-        <activity android:name="androidx.core.widget.ContentLoadingProgressBarActivity"/>
-
-        <activity android:name="androidx.core.app.FrameMetricsActivity"/>
-        <activity android:name="androidx.core.app.FrameMetricsSubActivity"/>
-
-        <activity
-            android:name="androidx.core.view.WindowCompatActivity"
-            android:theme="@android:style/Theme.Light.NoTitleBar" />
-
-        <activity
-            android:name="androidx.core.view.WindowInsetsCompatActivity"
-            android:theme="@android:style/Theme.Light.NoTitleBar" />
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="moocow;additional.authority"
@@ -91,17 +128,36 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/paths"/>
+                android:resource="@xml/paths" />
         </provider>
 
-        <provider android:name="androidx.core.provider.MockFontProvider"
-                  android:authorities="androidx.core.provider.fonts.font"
-                  android:exported="false"
-                  android:multiprocess="true"/>
+        <provider
+            android:name="androidx.core.provider.MockFontProvider"
+            android:authorities="androidx.core.provider.fonts.font"
+            android:exported="false"
+            android:multiprocess="true" />
 
-        <service android:name="androidx.core.app.JobIntentServiceTest$TargetService"
-                 android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <service
+            android:name="androidx.core.app.JobIntentServiceTest$TargetService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
     </application>
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
 
 </manifest>

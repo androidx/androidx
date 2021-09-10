@@ -19,31 +19,33 @@ import androidx.build.LibraryType
 import androidx.build.SdkHelperKt
 import androidx.build.SupportConfig
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
 }
 
 dependencies {
-    implementation(XPP3)
-    implementation(XMLPULL)
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.xpp3)
+    implementation(libs.xmlpull)
+    implementation(libs.kotlinStdlib)
 
-    implementation(JAVAPOET)
-    implementation "com.squareup:kotlinpoet:1.7.2"
+    implementation(libs.javapoet)
+    implementation(libs.kotlinPoet)
 
-    testImplementation(JUNIT)
-    testImplementation(GOOGLE_COMPILE_TESTING)
-    testImplementation fileTree(
+    testImplementation(libs.junit)
+    testImplementation(libs.googleCompileTesting)
+    testImplementation(fileTree(
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar"
-    )
-    testImplementation fileTree(
+    ))
+    testImplementation(fileTree(
             dir: "${new File(project(":navigation:navigation-common").buildDir, "libJar")}",
             include : "*.jar"
-    )
+    ))
+    testImplementation(fileTree(
+            dir: "${new File(project(":lifecycle:lifecycle-viewmodel-savedstate").buildDir, "libJar")}",
+            include : "*.jar"
+    ))
 }
 
 tasks.findByName("test").doFirst {
@@ -54,12 +56,13 @@ tasks.findByName("test").doFirst {
     it.classpath = files(classpath.minus(androidJar).plus(androidJar))
 }
 
-tasks.findByName("compileKotlin").dependsOn(":navigation:navigation-common:jarDebug")
+tasks.findByName("compileKotlin").dependsOn(":navigation:navigation-common:jarRelease")
+tasks.findByName("compileKotlin").dependsOn(":lifecycle:lifecycle-viewmodel-savedstate:jarRelease")
 
 androidx {
-    name = 'Android Navigation TypeSafe Arguments Generator'
+    name = "Android Navigation TypeSafe Arguments Generator"
     type = LibraryType.OTHER_CODE_PROCESSOR
     mavenGroup = LibraryGroups.NAVIGATION
-    inceptionYear = '2017'
+    inceptionYear = "2017"
     description = "Android Navigation TypeSafe Arguments Generator"
 }

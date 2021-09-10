@@ -23,16 +23,20 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.DoNotInline;
+import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
@@ -50,7 +54,8 @@ import java.util.TimeZone;
  * library such as Joda time, {@link #create(long, int, String)} can be used.
  */
 @SuppressWarnings("MissingSummary")
-public class DateTimeWithZone {
+@CarProtocol
+public final class DateTimeWithZone {
     /** The maximum allowed offset for a time zone, in seconds. */
     private static final long MAX_ZONE_OFFSET_SECONDS = 18 * HOURS.toSeconds(1);
 
@@ -84,18 +89,11 @@ public class DateTimeWithZone {
 
     @Override
     @NonNull
-    @RequiresApi(26)
-    // TODO(shiufai): consider removing the @RequiresApi annotation for a toString method.
-    @SuppressLint("UnsafeNewApiCall")
     public String toString() {
-        return "[local: "
-                + LocalDateTime.ofEpochSecond(
-                mTimeSinceEpochMillis / 1000,
-                /* nanoOfSecond= */ 0,
-                ZoneOffset.ofTotalSeconds(mZoneOffsetSeconds))
-                + ", zone: "
-                + mZoneShortName
-                + "]";
+        return "[time since epoch (ms): " + mTimeSinceEpochMillis
+                + "( " + new Date(mTimeSinceEpochMillis) + ") "
+                + " zone offset (s): " + mZoneOffsetSeconds
+                + ", zone: " + mZoneShortName + "]";
     }
 
     @Override
@@ -122,24 +120,24 @@ public class DateTimeWithZone {
      * Returns an instance of a {@link DateTimeWithZone}.
      *
      * @param timeSinceEpochMillis The number of milliseconds from the epoch of
-     *                             1970-01-01T00:00:00Z.
+     *                             1970-01-01T00:00:00Z
      * @param zoneOffsetSeconds    The offset of the time zone from UTC at the date specified by
      *                             {@code timeInUtcMillis}. This offset must be in the range
      *                             {@code -18:00} to {@code +18:00}, which corresponds to -64800
-     *                             to +64800.
+     *                             to +64800
      * @param zoneShortName        The abbreviated name of the time zone, for example, "PST" for
      *                             Pacific Standard Time. This string may be used to display to
      *                             the user along with the date when needed, for example, if this
-     *                             time zone is different than the current system time zone.
-     * @throws IllegalArgumentException if {@code timeSinceEpochMillis} is a negative value.
-     * @throws IllegalArgumentException if {@code zoneOffsetSeconds} is no within the required
-     *                                  range.
-     * @throws NullPointerException     if {@code zoneShortName} is {@code null}.
-     * @throws IllegalArgumentException if {@code zoneShortName} is empty.
+     *                             time zone is different than the current system time zone
+     * @throws IllegalArgumentException if {@code timeSinceEpochMillis} is a negative value, if
+     *                                  {@code zoneOffsetSeconds} is not within the required range,
+     *                                  or if {@code zoneShortName} is empty
+     * @throws NullPointerException     if {@code zoneShortName} is {@code null}
      */
     @NonNull
     public static DateTimeWithZone create(
-            long timeSinceEpochMillis, int zoneOffsetSeconds, @NonNull String zoneShortName) {
+            long timeSinceEpochMillis, @IntRange(from = -64800, to = 64800) int zoneOffsetSeconds,
+            @NonNull String zoneShortName) {
         if (timeSinceEpochMillis < 0) {
             throw new IllegalArgumentException(
                     "Time since epoch must be greater than or equal to zero");
@@ -157,15 +155,14 @@ public class DateTimeWithZone {
      * Returns an instance of a {@link DateTimeWithZone}.
      *
      * @param timeSinceEpochMillis The number of milliseconds from the epoch of
-     *                             1970-01-01T00:00:00Z.
+     *                             1970-01-01T00:00:00Z
      * @param timeZone             The time zone at the date specified by {@code timeInUtcMillis}.
-     *                             The abbreviated
-     *                             name of this time zone, formatted using the default locale, may
-     *                             be displayed to the user
-     *                             when needed, for example, if this time zone is different than
-     *                             the current system time zone.
-     * @throws IllegalArgumentException if {@code timeSinceEpochMillis} is a negative value.
-     * @throws NullPointerException     if {@code timeZone} is {@code null}.
+     *                             The abbreviated name of this time zone, formatted using the
+     *                             default locale, may be displayed to the user when needed, for
+     *                             example, if this time zone is different than the current
+     *                             system time zone
+     * @throws IllegalArgumentException if {@code timeSinceEpochMillis} is a negative value
+     * @throws NullPointerException     if {@code timeZone} is {@code null}
      */
     @NonNull
     public static DateTimeWithZone create(long timeSinceEpochMillis, @NonNull TimeZone timeZone) {
@@ -185,22 +182,14 @@ public class DateTimeWithZone {
      *
      * @param zonedDateTime The time with a time zone. The abbreviated name of this time zone,
      *                      formatted using the default locale, may be displayed to the user when
-     *                      needed, for example,
-     *                      if this time zone is different than the current system time zone.
-     * @throws NullPointerException if {@code zonedDateTime} is {@code null}.
+     *                      needed, for example, if this time zone is different than the current
+     *                      system time zone
+     * @throws NullPointerException if {@code zonedDateTime} is {@code null}
      */
-    // TODO(shiufai): revisit wrapping this method in a container class (e.g. Api26Impl).
-    @SuppressLint("UnsafeNewApiCall")
     @RequiresApi(26)
     @NonNull
     public static DateTimeWithZone create(@NonNull ZonedDateTime zonedDateTime) {
-        LocalDateTime localDateTime = requireNonNull(zonedDateTime).toLocalDateTime();
-        ZoneId zoneId = zonedDateTime.getZone();
-        ZoneOffset zoneOffset = zoneId.getRules().getOffset(localDateTime);
-        return create(
-                SECONDS.toMillis(localDateTime.toEpochSecond(zoneOffset)),
-                zoneOffset.getTotalSeconds(),
-                zoneId.getDisplayName(TextStyle.SHORT, Locale.getDefault()));
+        return Api26Impl.create(zonedDateTime);
     }
 
     private DateTimeWithZone() {
@@ -211,8 +200,30 @@ public class DateTimeWithZone {
 
     private DateTimeWithZone(
             long timeSinceEpochMillis, int zoneOffsetSeconds, @Nullable String timeZoneShortName) {
-        this.mTimeSinceEpochMillis = timeSinceEpochMillis;
-        this.mZoneOffsetSeconds = zoneOffsetSeconds;
-        this.mZoneShortName = timeZoneShortName;
+        mTimeSinceEpochMillis = timeSinceEpochMillis;
+        mZoneOffsetSeconds = zoneOffsetSeconds;
+        mZoneShortName = timeZoneShortName;
+    }
+
+    /**
+     * Version-specific static inner class to avoid verification errors that negatively affect
+     * run-time performance.
+     */
+    @RequiresApi(26)
+    private static final class Api26Impl {
+        private Api26Impl() {
+        }
+
+        @DoNotInline
+        @NonNull
+        public static DateTimeWithZone create(@NonNull ZonedDateTime zonedDateTime) {
+            LocalDateTime localDateTime = requireNonNull(zonedDateTime).toLocalDateTime();
+            ZoneId zoneId = zonedDateTime.getZone();
+            ZoneOffset zoneOffset = zoneId.getRules().getOffset(localDateTime);
+            return DateTimeWithZone.create(
+                    SECONDS.toMillis(localDateTime.toEpochSecond(zoneOffset)),
+                    zoneOffset.getTotalSeconds(),
+                    zoneId.getDisplayName(TextStyle.SHORT, Locale.getDefault()));
+        }
     }
 }

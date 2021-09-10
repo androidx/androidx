@@ -69,15 +69,25 @@ public class EncodedDataImpl implements EncodedData {
     @Override
     @NonNull
     public MediaCodec.BufferInfo getBufferInfo() {
-        throwIfClosed();
         return mBufferInfo;
     }
 
     /** {@inheritDoc} */
     @Override
     public long getPresentationTimeUs() {
-        throwIfClosed();
-        return getBufferInfo().presentationTimeUs;
+        return mBufferInfo.presentationTimeUs;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public long size() {
+        return mBufferInfo.size;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isKeyFrame() {
+        return (mBufferInfo.flags & MediaCodec.BUFFER_FLAG_KEY_FRAME) != 0;
     }
 
     /** {@inheritDoc} */
@@ -88,7 +98,7 @@ public class EncodedDataImpl implements EncodedData {
         }
         try {
             mMediaCodec.releaseOutputBuffer(mBufferIndex, false);
-        } catch (MediaCodec.CodecException e) {
+        } catch (IllegalStateException e) {
             mClosedCompleter.setException(e);
             return;
         }

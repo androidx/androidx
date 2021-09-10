@@ -1,0 +1,85 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package androidx.health.services.client.proto;
+
+import "data.proto";
+
+option java_package = "androidx.health.services.client.proto";
+option java_outer_classname = "ResponsesProto";
+
+message AutoExerciseCapabilitiesResponse {
+  optional AutoExerciseCapabilities capabilities = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message AutoExerciseDetectionStateResponse {
+  optional AutoExerciseDetectionState state = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message AvailabilityResponse {
+  optional DataType data_type = 1;
+  optional Availability availability = 2;
+  reserved 3 to max;  // Next ID
+}
+
+message DataPointsResponse {
+  repeated DataPoint data_points = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message ExerciseCapabilitiesResponse {
+  optional ExerciseCapabilities capabilities = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message ExerciseInfoResponse {
+  optional ExerciseInfo exercise_info = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message ExerciseLapSummaryResponse {
+  optional ExerciseLapSummary lap_summary = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message ExerciseUpdateResponse {
+  optional ExerciseUpdate exercise_update = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message HeartRateAlertParamsResponse {
+  optional HeartRateAlertParams params = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message MeasureCapabilitiesResponse {
+  optional MeasureCapabilities capabilities = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message PassiveMonitoringCapabilitiesResponse {
+  optional PassiveMonitoringCapabilities capabilities = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message PassiveMonitoringUpdateResponse {
+  optional PassiveMonitoringUpdate update = 1;
+  reserved 2 to max;  // Next ID
+}

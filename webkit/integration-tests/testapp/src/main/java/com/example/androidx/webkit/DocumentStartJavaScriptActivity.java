@@ -44,8 +44,6 @@ import java.util.HashSet;
  * An {@link Activity} to exercise {@link WebViewCompat#addDocumentStartJavaScript(WebView, String,
  * Set)} related functionality.
  */
-// TODO(ctzsm): Remove the @SuppressLint after addDocumentStartJavaScript is unhidden.
-@SuppressLint("RestrictedApi")
 public class DocumentStartJavaScriptActivity extends AppCompatActivity {
     private final Uri mExampleUri = new Uri.Builder()
                                             .scheme("https")
@@ -123,7 +121,7 @@ public class DocumentStartJavaScriptActivity extends AppCompatActivity {
         webView.setWebViewClient(new MyWebViewClient(assetLoader));
         webView.getSettings().setJavaScriptEnabled(true);
 
-        HashSet allowedOriginRules = new HashSet(Arrays.asList("https://example.com"));
+        HashSet<String> allowedOriginRules = new HashSet<>(Arrays.asList("https://example.com"));
         // Add WebMessageListeners.
         WebViewCompat.addWebMessageListener(webView, "replyObject", allowedOriginRules,
                 new ReplyMessageListener(mReplyProxyButton));

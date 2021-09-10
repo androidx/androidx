@@ -30,8 +30,9 @@ import androidx.core.util.Preconditions;
  * backup / restore.
  *
  * <p>Locus is a new concept introduced on
- * {@link android.os.Build.VERSION_CODES#Q Android Q} and it lets the Android system correlate
- * state between different subsystems such as content capture, shortcuts, and notifications.
+ * {@link android.os.Build.VERSION_CODES#Q Android Q} and it lets the intelligence service provided
+ * by the Android system correlate state between different subsystems such as content capture,
+ * shortcuts, and notifications.
  *
  * <p>For example, if your app provides an activity representing a chat between 2 users
  * (say {@code A} and {@code B}, this chat state could be represented by:
@@ -61,6 +62,9 @@ import androidx.core.util.Preconditions;
  *   <li>Configuring your app to launch the chat conversation through the
  *   {@link Intent#ACTION_VIEW_LOCUS} intent.
  * </ul>
+ *
+ * NOTE: The LocusId is only used by a on-device intelligence service provided by the Android
+ * System, see {@link ContentCaptureManager} for more details.
  */
 public final class LocusIdCompat {
 

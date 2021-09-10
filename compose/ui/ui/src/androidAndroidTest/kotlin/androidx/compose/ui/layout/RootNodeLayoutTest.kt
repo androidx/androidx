@@ -18,11 +18,11 @@ package androidx.compose.ui.layout
 
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.unit.Constraints
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -95,7 +95,7 @@ class RootNodeLayoutTest {
         assertNotNull(coordinates)
         assertEquals(
             Rect(left = 0f, top = 0f, right = 10f, bottom = 10f),
-            coordinates!!.boundsInRoot
+            coordinates!!.boundsInRoot()
         )
     }
 

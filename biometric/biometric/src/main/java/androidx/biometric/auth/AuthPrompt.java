@@ -17,14 +17,13 @@
 package androidx.biometric.auth;
 
 /**
- * A wrapper class for {@link Class2BiometricAuthPrompt}, {@link Class3BiometricAuthPrompt}
- * {@link Class2BiometricOrCredentialAuthPrompt}, {@link Class3BiometricOrCredentialAuthPrompt}
- * and {@link CredentialAuthPrompt} that allows for cancellation and dismissal of the current
- * authentication prompt.
+ * A handle to the prompt that is shown while the user is authenticating.
+ *
+ * <p>This interface is common across all sub-types of authentication prompts.
  */
 public interface AuthPrompt {
     /**
-     * Cancels authentication of the current BiometricPrompt.
+     * Cancels an ongoing authentication attempt and dismisses the prompt.
      */
     void cancelAuthentication();
 }

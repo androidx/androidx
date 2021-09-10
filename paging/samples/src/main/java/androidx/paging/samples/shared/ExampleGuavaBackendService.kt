@@ -20,4 +20,5 @@ import com.google.common.util.concurrent.ListenableFuture
 
 interface ExampleGuavaBackendService {
     fun searchUsers(query: String, after: String?): ListenableFuture<SearchUserResponse>
+    fun searchUsers(query: String, pageNumber: Int?): ListenableFuture<SearchUserResponse>
 }

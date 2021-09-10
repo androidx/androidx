@@ -28,9 +28,11 @@ import android.hardware.camera2.CameraDevice;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.Surface;
 
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
+import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import org.junit.Before;
@@ -41,13 +43,15 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
+        instrumentedPackages = { "androidx.camera.camera2.internal.compat.params" })
 public class CaptureSessionRepositoryTest {
     private static final int NUM_OUTPUTS = 3;
 
@@ -86,7 +90,8 @@ public class CaptureSessionRepositoryTest {
                         mMockStateCallback);
 
         mCaptureSessionCompatBase.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
         // Simulate the CameraCaptureSession is configured.
         sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
         assertThat(mCaptureSessionRepository.getCaptureSessions().size()).isEqualTo(1);
@@ -110,7 +115,8 @@ public class CaptureSessionRepositoryTest {
                         mMockStateCallback);
 
         mCaptureSessionCompatBase.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
         // Simulate the CameraCaptureSession is configured.
         sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
         assertThat(mCaptureSessionRepository.getCaptureSessions().size()).isEqualTo(1);
@@ -133,7 +139,8 @@ public class CaptureSessionRepositoryTest {
                         mMockStateCallback);
 
         mCaptureSessionCompatBase.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
         sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
 
         assertThat(mCaptureSessionRepository.getCreatingCaptureSessions().size()).isEqualTo(0);
@@ -150,7 +157,8 @@ public class CaptureSessionRepositoryTest {
                         mMockStateCallback);
 
         mCaptureSessionCompatBase.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
 
         assertThat(mCaptureSessionRepository.getCreatingCaptureSessions().size()).isEqualTo(1);
         assertThat(mCaptureSessionRepository.getCaptureSessions().size()).isEqualTo(0);
@@ -166,7 +174,8 @@ public class CaptureSessionRepositoryTest {
                         mMockStateCallback);
 
         mCaptureSessionCompatBase.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
 
         sessionConfigurationCompat.getStateCallback().onConfigureFailed(mMockCaptureSession);
 
@@ -184,7 +193,8 @@ public class CaptureSessionRepositoryTest {
                         mMockStateCallback);
 
         mCaptureSessionCompatBase.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
 
         // Simulate the CameraCaptureSession is configured.
         sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);

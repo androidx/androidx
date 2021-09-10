@@ -24,6 +24,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.os.CancellationSignal;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.R;
 
 import java.util.ArrayList;
@@ -113,17 +114,20 @@ abstract class SpecialEffectsController {
     @Nullable
     Operation.LifecycleImpact getAwaitingCompletionLifecycleImpact(
             @NonNull FragmentStateManager fragmentStateManager) {
+        Operation.LifecycleImpact lifecycleImpact = null;
         // First search through pending operations
         Operation pendingOperation = findPendingOperation(fragmentStateManager.getFragment());
         if (pendingOperation != null) {
-            return pendingOperation.getLifecycleImpact();
+            lifecycleImpact = pendingOperation.getLifecycleImpact();
         }
         // Then search through running operations
         Operation runningOperation = findRunningOperation(fragmentStateManager.getFragment());
-        if (runningOperation != null) {
+        // Only use the running operation if the pending operation is null or NONE
+        if (runningOperation != null
+                && (lifecycleImpact == null || lifecycleImpact == Operation.LifecycleImpact.NONE)) {
             return runningOperation.getLifecycleImpact();
         }
-        return null;
+        return lifecycleImpact;
     }
 
     @Nullable
@@ -247,6 +251,11 @@ abstract class SpecialEffectsController {
 
     void forcePostponedExecutePendingOperations() {
         if (mIsContainerPostponed) {
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(FragmentManager.TAG,
+                        "SpecialEffectsController: Forcing postponed operations"
+                );
+            }
             mIsContainerPostponed = false;
             executePendingOperations();
         }
@@ -255,6 +264,13 @@ abstract class SpecialEffectsController {
     void executePendingOperations() {
         if (mIsContainerPostponed) {
             // No operations should execute while the container is postponed
+            return;
+        }
+        // If the container is not attached to the window, ignore the special effect
+        // since none of the special effect systems will run them anyway.
+        if (!ViewCompat.isAttachedToWindow(mContainer)) {
+            forceCompleteAllOperations();
+            mOperationDirectionIsPop = false;
             return;
         }
         synchronized (mPendingOperations) {
@@ -280,16 +296,30 @@ abstract class SpecialEffectsController {
                 ArrayList<Operation> newPendingOperations = new ArrayList<>(mPendingOperations);
                 mPendingOperations.clear();
                 mRunningOperations.addAll(newPendingOperations);
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(FragmentManager.TAG,
+                            "SpecialEffectsController: Executing pending operations");
+                }
                 for (Operation operation : newPendingOperations) {
                     operation.onStart();
                 }
                 executeOperations(newPendingOperations, mOperationDirectionIsPop);
                 mOperationDirectionIsPop = false;
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(FragmentManager.TAG,
+                            "SpecialEffectsController: Finished executing pending operations");
+                }
             }
         }
     }
 
     void forceCompleteAllOperations() {
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG,
+                    "SpecialEffectsController: Forcing all operations to complete"
+            );
+        }
+        boolean attachedToWindow = ViewCompat.isAttachedToWindow(mContainer);
         synchronized (mPendingOperations) {
             updateFinalState();
             for (Operation operation : mPendingOperations) {
@@ -301,8 +331,9 @@ abstract class SpecialEffectsController {
             for (Operation operation : runningOperations) {
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(FragmentManager.TAG,
-                            "SpecialEffectsController: Cancelling running operation "
-                                    + operation);
+                            "SpecialEffectsController: " + (attachedToWindow ? "" :
+                                    "Container " + mContainer + " is not attached to window. ")
+                                    + "Cancelling running operation " + operation);
                 }
                 operation.cancel();
             }
@@ -312,8 +343,9 @@ abstract class SpecialEffectsController {
             for (Operation operation : pendingOperations) {
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(FragmentManager.TAG,
-                            "SpecialEffectsController: Cancelling pending operation "
-                                    + operation);
+                            "SpecialEffectsController: " + (attachedToWindow ? "" :
+                                    "Container " + mContainer + " is not attached to window. ")
+                                    + "Cancelling pending operation " + operation);
                 }
                 operation.cancel();
             }
@@ -698,16 +730,16 @@ abstract class SpecialEffectsController {
 
         @Override
         void onStart() {
-            Fragment fragment = mFragmentStateManager.getFragment();
-            View focusedView = fragment.mView.findFocus();
-            if (focusedView != null) {
-                fragment.setFocusedView(focusedView);
-                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                    Log.v(FragmentManager.TAG, "requestFocus: Saved focused view " + focusedView
-                            + " for Fragment " + fragment);
-                }
-            }
             if (getLifecycleImpact() == Operation.LifecycleImpact.ADDING) {
+                Fragment fragment = mFragmentStateManager.getFragment();
+                View focusedView = fragment.mView.findFocus();
+                if (focusedView != null) {
+                    fragment.setFocusedView(focusedView);
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(FragmentManager.TAG, "requestFocus: Saved focused view " + focusedView
+                                + " for Fragment " + fragment);
+                    }
+                }
                 View view = getFragment().requireView();
                 // We need to ensure that the fragment's view is re-added
                 // for ADDING operations to properly handle cases where the

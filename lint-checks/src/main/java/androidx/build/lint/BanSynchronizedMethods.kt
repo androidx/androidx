@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.build.lint
 
 import com.android.tools.lint.client.api.UElementHandler
@@ -35,7 +37,7 @@ class BanSynchronizedMethods : Detector(), Detector.UastScanner {
         override fun visitMethod(node: UMethod) {
             if (node.hasModifier(JvmModifier.SYNCHRONIZED)) {
                 context.report(
-                    BanSynchronizedMethods.ISSUE, node,
+                    ISSUE, node,
                     context.getLocation(node),
                     "Use of synchronized methods is not recommended",
                     null
@@ -45,12 +47,13 @@ class BanSynchronizedMethods : Detector(), Detector.UastScanner {
     }
 
     companion object {
+        @SuppressWarnings("LintImplUnexpectedDomain")
         val ISSUE = Issue.create(
             "BanSynchronizedMethods",
             "Method is synchronized",
             "Use of synchronized methods is not recommended," +
-                " please refer to https://g3doc.corp.google.com/company/teams/androidx/" +
-                "api_guidelines.md#avoid-synchronized-methods",
+                " please refer to https://android.googlesource.com/platform/frameworks/" +
+                "support/+/androidx-main/docs/api_guidelines.md",
             Category.CORRECTNESS, 5, Severity.ERROR,
             Implementation(BanSynchronizedMethods::class.java, Scope.JAVA_FILE_SCOPE)
         )

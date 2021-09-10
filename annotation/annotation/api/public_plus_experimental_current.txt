@@ -61,6 +61,13 @@ package androidx.annotation {
     field public static final int SP = 2; // 0x2
   }
 
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.TYPE}) public @interface Discouraged {
+    method public abstract String message() default "";
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD}) public @interface DisplayContext {
+  }
+
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public @interface DoNotInline {
   }
 
@@ -80,6 +87,9 @@ package androidx.annotation {
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface FractionRes {
   }
 
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.FIELD}) public @interface GravityInt {
+  }
+
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface GuardedBy {
     method public abstract String value();
   }
@@ -90,34 +100,34 @@ package androidx.annotation {
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface IdRes {
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public @interface InspectableProperty {
-    method public abstract int attributeId() default 0;
-    method public abstract androidx.annotation.InspectableProperty.EnumEntry[] enumMapping() default {};
-    method public abstract androidx.annotation.InspectableProperty.FlagEntry[] flagMapping() default {};
-    method public abstract boolean hasAttributeId() default true;
-    method public abstract String name() default "";
-    method public abstract androidx.annotation.InspectableProperty.ValueType valueType() default androidx.annotation.InspectableProperty.ValueType.INFERRED;
+  @Deprecated @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public @interface InspectableProperty {
+    method @Deprecated public abstract int attributeId() default 0;
+    method @Deprecated public abstract androidx.annotation.InspectableProperty.EnumEntry[] enumMapping() default {};
+    method @Deprecated public abstract androidx.annotation.InspectableProperty.FlagEntry[] flagMapping() default {};
+    method @Deprecated public abstract boolean hasAttributeId() default true;
+    method @Deprecated public abstract String name() default "";
+    method @Deprecated public abstract androidx.annotation.InspectableProperty.ValueType valueType() default androidx.annotation.InspectableProperty.ValueType.INFERRED;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) public static @interface InspectableProperty.EnumEntry {
-    method public abstract String name();
-    method public abstract int value();
+  @Deprecated @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) public static @interface InspectableProperty.EnumEntry {
+    method @Deprecated public abstract String name();
+    method @Deprecated public abstract int value();
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) public static @interface InspectableProperty.FlagEntry {
-    method public abstract int mask() default 0;
-    method public abstract String name();
-    method public abstract int target();
+  @Deprecated @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) public static @interface InspectableProperty.FlagEntry {
+    method @Deprecated public abstract int mask() default 0;
+    method @Deprecated public abstract String name();
+    method @Deprecated public abstract int target();
   }
 
-  public enum InspectableProperty.ValueType {
-    enum_constant public static final androidx.annotation.InspectableProperty.ValueType COLOR;
-    enum_constant public static final androidx.annotation.InspectableProperty.ValueType GRAVITY;
-    enum_constant public static final androidx.annotation.InspectableProperty.ValueType INFERRED;
-    enum_constant public static final androidx.annotation.InspectableProperty.ValueType INT_ENUM;
-    enum_constant public static final androidx.annotation.InspectableProperty.ValueType INT_FLAG;
-    enum_constant public static final androidx.annotation.InspectableProperty.ValueType NONE;
-    enum_constant public static final androidx.annotation.InspectableProperty.ValueType RESOURCE_ID;
+  @Deprecated public enum InspectableProperty.ValueType {
+    enum_constant @Deprecated public static final androidx.annotation.InspectableProperty.ValueType COLOR;
+    enum_constant @Deprecated public static final androidx.annotation.InspectableProperty.ValueType GRAVITY;
+    enum_constant @Deprecated public static final androidx.annotation.InspectableProperty.ValueType INFERRED;
+    enum_constant @Deprecated public static final androidx.annotation.InspectableProperty.ValueType INT_ENUM;
+    enum_constant @Deprecated public static final androidx.annotation.InspectableProperty.ValueType INT_FLAG;
+    enum_constant @Deprecated public static final androidx.annotation.InspectableProperty.ValueType NONE;
+    enum_constant @Deprecated public static final androidx.annotation.InspectableProperty.ValueType RESOURCE_ID;
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.ANNOTATION_TYPE}) public @interface IntDef {
@@ -161,6 +171,9 @@ package androidx.annotation {
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.PACKAGE}) public @interface NonNull {
   }
 
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD}) public @interface NonUiContext {
+  }
+
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.PACKAGE}) public @interface Nullable {
   }
 
@@ -198,7 +211,7 @@ package androidx.annotation {
     method public abstract androidx.annotation.RequiresPermission value() default @androidx.annotation.RequiresPermission;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.PACKAGE}) public @interface RestrictTo {
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.PACKAGE}) public @interface RestrictTo {
     method public abstract androidx.annotation.RestrictTo.Scope[] value();
   }
 
@@ -233,6 +246,9 @@ package androidx.annotation {
   }
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD}) public @interface TransitionRes {
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD}) public @interface UiContext {
   }
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.PARAMETER}) public @interface UiThread {

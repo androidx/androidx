@@ -436,6 +436,16 @@ public class NotificationCompat {
     public static final String EXTRA_PICTURE = "android.picture";
 
     /**
+     * {@link #getExtras extras} key: this is a boolean to indicate that the
+     * {@link BigPictureStyle#bigPicture(Bitmap) big picture} is to be shown in the collapsed state
+     * of a {@link BigPictureStyle} notification.  This will replace a
+     * {@link Builder#setLargeIcon(Bitmap) large icon} in that state if one was provided.
+     */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
+    public static final String EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED =
+            "android.showBigPictureWhenCollapsed";
+
+    /**
      * {@link #getExtras extras} key: An array of CharSequences to show in {@link InboxStyle}
      * expanded notifications, each of which was supplied to
      * {@link InboxStyle#addLine(CharSequence)}.
@@ -795,6 +805,56 @@ public class NotificationCompat {
      */
     public static final String GROUP_KEY_SILENT = "silent";
 
+    /** @hide */
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @IntDef({FOREGROUND_SERVICE_DEFAULT,
+            FOREGROUND_SERVICE_IMMEDIATE,
+            FOREGROUND_SERVICE_DEFERRED})
+    public @interface ServiceNotificationBehavior {}
+
+    /**
+     * Constant for {@link Builder#setForegroundServiceBehavior(int)}. In Android 12 or later,
+     * if the Notification associated with starting a foreground service has been
+     * built using setForegroundServiceBehavior() with this behavior, display of
+     * the notification will often be suppressed for a short time to avoid visual
+     * disturbances to the user.
+     *
+     * @see NotificationCompat.Builder#setForegroundServiceBehavior(int)
+     * @see #FOREGROUND_SERVICE_IMMEDIATE
+     * @see #FOREGROUND_SERVICE_DEFERRED
+     */
+    public static final int FOREGROUND_SERVICE_DEFAULT =
+            Notification.FOREGROUND_SERVICE_DEFAULT;
+
+    /**
+     * Constant for {@link Builder#setForegroundServiceBehavior(int)}. In Android 12 or later,
+     * if the Notification associated with starting a foreground service has been
+     * built using setForegroundServiceBehavior() with this behavior, display of
+     * the notification will be immediate even if the default behavior would be
+     * to defer visibility for a short time.
+     *
+     * @see NotificationCompat.Builder#setForegroundServiceBehavior(int)
+     * @see #FOREGROUND_SERVICE_DEFAULT
+     * @see #FOREGROUND_SERVICE_DEFERRED
+     */
+    public static final int FOREGROUND_SERVICE_IMMEDIATE =
+            Notification.FOREGROUND_SERVICE_IMMEDIATE;
+
+    /**
+     * Constant for {@link Builder#setForegroundServiceBehavior(int)}. In Android 12 or later,
+     * if the Notification associated with starting a foreground service has been
+     * built using setForegroundServiceBehavior() with this behavior, display of
+     * the notification will usually be suppressed for a short time to avoid visual
+     * disturbances to the user.
+     *
+     * @see NotificationCompat.Builder#setForegroundServiceBehavior(int)
+     * @see #FOREGROUND_SERVICE_DEFAULT
+     * @see #FOREGROUND_SERVICE_IMMEDIATE
+     */
+    public static final int FOREGROUND_SERVICE_DEFERRED =
+            Notification.FOREGROUND_SERVICE_DEFERRED;
+
     /**
      * Builder class for {@link NotificationCompat} objects.  Allows easier control over
      * all the flags, as well as help constructing the typical notification layouts.
@@ -884,6 +944,7 @@ public class NotificationCompat {
         LocusIdCompat mLocusId;
         long mTimeout;
         @GroupAlertBehavior int mGroupAlertBehavior = GROUP_ALERT_ALL;
+        @ServiceNotificationBehavior int mFgsDeferBehavior = FOREGROUND_SERVICE_DEFAULT;
         boolean mAllowSystemGeneratedContextualActions;
         BubbleMetadata mBubbleMetadata;
         Notification mNotification = new Notification();
@@ -1598,9 +1659,7 @@ public class NotificationCompat {
 
         /**
          * Setting this flag will make it so the notification is automatically
-         * canceled when the user clicks it in the panel.  The PendingIntent
-         * set with {@link #setDeleteIntent} will be broadcast when the notification
-         * is canceled.
+         * canceled when the user clicks it in the panel.
          */
         public @NonNull Builder setAutoCancel(boolean autoCancel) {
             setFlag(Notification.FLAG_AUTO_CANCEL, autoCancel);
@@ -2297,6 +2356,31 @@ public class NotificationCompat {
         }
 
         /**
+         * Specify a desired visibility policy for a Notification associated with a
+         * foreground service.  The default value is {@link #FOREGROUND_SERVICE_DEFAULT},
+         * meaning the system can choose to defer visibility of the notification for
+         * a short time after the service is started.  Pass
+         * {@link NotificationCompat#FOREGROUND_SERVICE_IMMEDIATE FOREGROUND_SERVICE_IMMEDIATE}
+         * to this method in order to guarantee that visibility is never deferred.  Pass
+         * {@link NotificationCompat#FOREGROUND_SERVICE_DEFERRED FOREGROUND_SERVICE_DEFERRED}
+         * to request that visibility is deferred whenever possible.
+         *
+         * <p class="note">Note that deferred visibility is not guaranteed.  There
+         * may be some circumstances under which the system will show the foreground
+         * service's associated Notification immediately even when the app has used
+         * this method to explicitly request deferred display.</p>
+         *
+         * This method has no effect when running on versions prior to
+          * {@link android.os.Build.VERSION_CODES#S}.
+         */
+        @SuppressWarnings("MissingGetterMatchingBuilder") // no underlying getter in platform API
+        @NonNull
+        public Builder setForegroundServiceBehavior(@ServiceNotificationBehavior int behavior) {
+            mFgsDeferBehavior = behavior;
+            return this;
+        }
+
+        /**
          * Sets the {@link BubbleMetadata} that will be used to display app content in a floating
          * window over the existing foreground activity.
          *
@@ -2396,6 +2480,16 @@ public class NotificationCompat {
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public int getPriority() {
             return mPriority;
+        }
+
+        /**
+         * @return the foreground service behavior defined for the notification
+         *
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        public int getForegroundServiceBehavior() {
+            return mFgsDeferBehavior;
         }
 
         /**
@@ -2938,6 +3032,7 @@ public class NotificationCompat {
         private Bitmap mPicture;
         private IconCompat mBigLargeIcon;
         private boolean mBigLargeIconSet;
+        private boolean mShowBigPictureWhenCollapsed;
 
         public BigPictureStyle() {
         }
@@ -2969,6 +3064,18 @@ public class NotificationCompat {
          */
         public @NonNull BigPictureStyle bigPicture(@Nullable Bitmap b) {
             mPicture = b;
+            return this;
+        }
+
+        /**
+         * When set, the {@link #bigPicture(Bitmap) big picture} of this style will be promoted and
+         * shown in place of the {@link Builder#setLargeIcon(Bitmap) large icon} in the collapsed
+         * state of this notification.
+         */
+        @RequiresApi(31)
+        @NonNull
+        public BigPictureStyle showBigPictureWhenCollapsed(boolean show) {
+            mShowBigPictureWhenCollapsed = show;
             return this;
         }
 
@@ -3023,6 +3130,9 @@ public class NotificationCompat {
                 if (mSummaryTextSet) {
                     Api16Impl.setSummaryText(style, mSummaryText);
                 }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Api31Impl.showBigPictureWhenCollapsed(style, mShowBigPictureWhenCollapsed);
+                }
             }
         }
 
@@ -3039,6 +3149,7 @@ public class NotificationCompat {
                 mBigLargeIconSet = true;
             }
             mPicture = extras.getParcelable(EXTRA_PICTURE);
+            mShowBigPictureWhenCollapsed = extras.getBoolean(EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED);
         }
 
         @Nullable
@@ -3065,6 +3176,7 @@ public class NotificationCompat {
             super.clearCompatExtraKeys(extras);
             extras.remove(EXTRA_LARGE_ICON_BIG);
             extras.remove(EXTRA_PICTURE);
+            extras.remove(EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED);
         }
 
         /**
@@ -3110,6 +3222,26 @@ public class NotificationCompat {
             @RequiresApi(23)
             static void setBigLargeIcon(Notification.BigPictureStyle style, Icon icon) {
                 style.bigLargeIcon(icon);
+            }
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.BigPictureStyle} methods which
+         * were added in API 31; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(31)
+        private static class Api31Impl {
+            private Api31Impl() {
+            }
+
+            /**
+             * Calls {@link Notification.BigPictureStyle#showBigPictureWhenCollapsed(boolean)}
+             */
+            @RequiresApi(31)
+            static void showBigPictureWhenCollapsed(Notification.BigPictureStyle style,
+                    boolean show) {
+                style.showBigPictureWhenCollapsed(show);
             }
         }
     }
@@ -3840,7 +3972,7 @@ public class NotificationCompat {
              * Get the text to be used for this message, or the fallback text if a type and content
              * Uri have been set
              */
-            @NonNull
+            @Nullable
             public CharSequence getText() {
                 return mText;
             }
@@ -5155,15 +5287,15 @@ public class NotificationCompat {
      * To create a notification with wearable extensions:
      * <ol>
      *   <li>Create a {@link NotificationCompat.Builder}, setting any desired
-     *   properties.
-     *   <li>Create a {@link NotificationCompat.WearableExtender}.
+     *   properties.</li>
+     *   <li>Create a {@link NotificationCompat.WearableExtender}.</li>
      *   <li>Set wearable-specific properties using the
-     *   {@code add} and {@code set} methods of {@link NotificationCompat.WearableExtender}.
+     *   {@code add} and {@code set} methods of {@link NotificationCompat.WearableExtender}.</li>
      *   <li>Call {@link NotificationCompat.Builder#extend} to apply the extensions to a
-     *   notification.
+     *   notification.</li>
      *   <li>Post the notification to the notification
      *   system with the {@code NotificationManagerCompat.notify(...)} methods
-     *   and not the {@code NotificationManager.notify(...)} methods.
+     *   and not the {@code NotificationManager.notify(...)} methods.</li>
      * </ol>
      *
      * <pre class="prettyprint">
@@ -6122,15 +6254,15 @@ public class NotificationCompat {
      *
      * <ol>
      *  <li>Create an {@link NotificationCompat.Builder}, setting any desired
-     *  properties.
-     *  <li>Create a {@link CarExtender}.
+     *  properties.</li>
+     *  <li>Create a {@link CarExtender}.</li>
      *  <li>Set car-specific properties using the {@code add} and {@code set} methods of
-     *  {@link CarExtender}.
+     *  {@link CarExtender}.</li>
      *  <li>Call {@link androidx.core.app.NotificationCompat.Builder#extend(NotificationCompat.Extender)}
-     *  to apply the extensions to a notification.
+     *  to apply the extensions to a notification.</li>
      *  <li>Post the notification to the notification system with the
      *  {@code NotificationManagerCompat.notify(...)} methods and not the
-     *  {@code NotificationManager.notify(...)} methods.
+     *  {@code NotificationManager.notify(...)} methods.</li>
      * </ol>
      *
      * <pre class="prettyprint">

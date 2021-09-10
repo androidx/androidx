@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.Publish
 
@@ -24,34 +23,36 @@ plugins {
 }
 
 dependencies {
-    api("androidx.media:media:1.2.0")
-    api(GUAVA_LISTENABLE_FUTURE)
+    api("androidx.media:media:1.4.1")
+    api(libs.guavaListenableFuture)
 
+    implementation("androidx.core:core:1.6.0-rc01")
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.palette:palette:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation("androidx.appcompat:appcompat-resources:1.2.0")
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation project(':media:version-compat-tests:lib')
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(project(":media:version-compat-tests:lib"))
+    androidTestImplementation(project(":mediarouter:mediarouter-testing"))
 }
 
 android {
     sourceSets {
         main.java.srcDirs += [
-                'jellybean',
-                'jellybean-mr1',
-                'jellybean-mr2',
-                'api24'
+                "jellybean",
+                "jellybean-mr1",
+                "jellybean-mr2",
+                "api24"
         ]
     }
 
     buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles "proguard-rules.pro"
     }
 }
 

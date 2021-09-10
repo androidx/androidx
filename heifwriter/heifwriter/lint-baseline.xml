@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 29 (current min is 28): `android.media.MediaFormat#KEY_MAX_PTS_GAP_TO_ENCODER`"
-        errorLine1="            codecFormat.setLong(MediaFormat.KEY_MAX_PTS_GAP_TO_ENCODER, -1000000);"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/heifwriter/HeifEncoder.java"
-            line="306"
-            column="33"/>
-    </issue>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
         id="BanSynchronizedMethods"

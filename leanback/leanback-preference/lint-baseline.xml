@@ -1,125 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
-        id="DisableBaselineAlignment"
-        message="Set `android:baselineAligned=&quot;false&quot;` on this element for better performance"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~~~~~">
+        id="MissingLeanbackLauncher"
+        message="Expecting an activity to have `android.intent.category.LEANBACK_LAUNCHER` intent filter"
+        errorLine1="&lt;manifest package=&quot;androidx.leanback.preference&quot;/>"
+        errorLine2=" ~~~~~~~~">
         <location
-            file="src/main/res/layout/leanback_preference.xml"
+            file="src/main/AndroidManifest.xml"
             line="18"
             column="2"/>
     </issue>
 
     <issue
-        id="DisableBaselineAlignment"
-        message="Set `android:baselineAligned=&quot;false&quot;` on this element for better performance"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~~~~~">
+        id="ImpliedTouchscreenHardware"
+        message="Hardware feature `android.hardware.touchscreen` not explicitly marked as optional "
+        errorLine1="&lt;manifest package=&quot;androidx.leanback.preference&quot;/>"
+        errorLine2=" ~~~~~~~~">
         <location
-            file="src/main/res/layout/leanback_preference_information.xml"
+            file="src/main/AndroidManifest.xml"
             line="18"
             column="2"/>
     </issue>
 
     <issue
-        id="InefficientWeight"
-        message="Use a `layout_width` of `0dp` instead of `wrap_content` for better performance"
-        errorLine1="            android:layout_width=&quot;wrap_content&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="MissingLeanbackSupport"
+        message="Expecting `&lt;uses-feature android:name=&quot;android.software.leanback&quot; android:required=&quot;false&quot; />` tag"
+        errorLine1="&lt;manifest package=&quot;androidx.leanback.preference&quot;/>"
+        errorLine2=" ~~~~~~~~">
         <location
-            file="src/main/res/layout/leanback_preference_widget_seekbar.xml"
-            line="40"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?android:attr/windowBackground` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
-        errorLine1="    android:background=&quot;?android:attr/windowBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/leanback_edit_preference_fragment.xml"
-            line="22"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?android:attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
-        errorLine1="    android:background=&quot;?android:attr/selectableItemBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/leanback_preference.xml"
-            line="22"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?android:attr/windowBackground` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
-        errorLine1="    android:background=&quot;?android:attr/windowBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/leanback_preference_fragment.xml"
-            line="22"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?android:attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
-        errorLine1="    android:background=&quot;?android:attr/selectableItemBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/leanback_preference_information.xml"
-            line="22"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Autofill"
-        message="Missing `autofillHints` attribute"
-        errorLine1="    &lt;EditText"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="src/main/res/layout/leanback_edit_preference_fragment.xml"
-            line="50"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/leanback_preference.xml"
-            line="36"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/leanback_preference_widget_seekbar.xml"
-            line="30"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="LabelFor"
-        message="Missing accessibility label: provide either a view with an `android:labelFor` that references this view or provide an `android:hint`"
-        errorLine1="    &lt;EditText"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="src/main/res/layout/leanback_edit_preference_fragment.xml"
-            line="50"
-            column="6"/>
+            file="src/main/AndroidManifest.xml"
+            line="18"
+            column="2"/>
     </issue>
 
     <issue
@@ -756,7 +668,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/preference/LeanbackPreferenceDialogFragment.java"
-            line="42"
+            line="39"
             column="26"/>
     </issue>
 
@@ -767,7 +679,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/preference/LeanbackPreferenceDialogFragment.java"
-            line="52"
+            line="49"
             column="12"/>
     </issue>
 
@@ -778,7 +690,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/preference/LeanbackPreferenceDialogFragmentCompat.java"
-            line="42"
+            line="39"
             column="26"/>
     </issue>
 
@@ -789,7 +701,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/preference/LeanbackPreferenceDialogFragmentCompat.java"
-            line="56"
+            line="53"
             column="12"/>
     </issue>
 
@@ -800,7 +712,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragment.java"
-            line="51"
+            line="48"
             column="12"/>
     </issue>
 
@@ -811,7 +723,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragment.java"
-            line="51"
+            line="48"
             column="30"/>
     </issue>
 
@@ -822,7 +734,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragment.java"
-            line="51"
+            line="48"
             column="55"/>
     </issue>
 
@@ -833,7 +745,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragment.java"
-            line="52"
+            line="49"
             column="13"/>
     </issue>
 
@@ -844,7 +756,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragment.java"
-            line="66"
+            line="63"
             column="31"/>
     </issue>
 
@@ -855,7 +767,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragment.java"
-            line="66"
+            line="63"
             column="42"/>
     </issue>
 
@@ -866,7 +778,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragment.java"
-            line="75"
+            line="72"
             column="26"/>
     </issue>
 
@@ -877,7 +789,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragmentCompat.java"
-            line="52"
+            line="49"
             column="12"/>
     </issue>
 
@@ -888,7 +800,7 @@
         errorLine2="                                                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragmentCompat.java"
-            line="52"
+            line="49"
             column="64"/>
     </issue>
 
@@ -899,7 +811,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragmentCompat.java"
-            line="53"
+            line="50"
             column="13"/>
     </issue>
 
@@ -910,7 +822,7 @@
         errorLine2="                                                  ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragmentCompat.java"
-            line="67"
+            line="64"
             column="51"/>
     </issue>
 
@@ -921,7 +833,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragmentCompat.java"
-            line="77"
+            line="74"
             column="26"/>
     </issue>
 

@@ -19,10 +19,9 @@ package androidx.compose.foundation.shape
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.util.annotation.FloatRange
-import androidx.compose.ui.util.annotation.IntRange
 
 /**
  * Defines size of a corner in pixels. For example for rounded shape it can be a corner radius.
@@ -47,9 +46,14 @@ interface CornerSize {
 @Stable
 fun CornerSize(size: Dp): CornerSize = DpCornerSize(size)
 
-private data class DpCornerSize(private val size: Dp) : CornerSize {
+private data class DpCornerSize(private val size: Dp) : CornerSize, InspectableValue {
     override fun toPx(shapeSize: Size, density: Density) =
         with(density) { size.toPx() }
+
+    override fun toString(): String = "CornerSize(size = ${size.value}.dp)"
+
+    override val valueOverride: Dp
+        get() = size
 }
 
 /**
@@ -59,8 +63,13 @@ private data class DpCornerSize(private val size: Dp) : CornerSize {
 @Stable
 fun CornerSize(size: Float): CornerSize = PxCornerSize(size)
 
-private data class PxCornerSize(private val size: Float) : CornerSize {
+private data class PxCornerSize(private val size: Float) : CornerSize, InspectableValue {
     override fun toPx(shapeSize: Size, density: Density) = size
+
+    override fun toString(): String = "CornerSize(size = $size.px)"
+
+    override val valueOverride: String
+        get() = "${size}px"
 }
 
 /**
@@ -69,7 +78,7 @@ private data class PxCornerSize(private val size: Float) : CornerSize {
  * Can't be negative or larger then 100 percents.
  */
 @Stable
-fun CornerSize(@IntRange(from = 0, to = 100) percent: Int): CornerSize =
+fun CornerSize(/*@IntRange(from = 0, to = 100)*/ percent: Int): CornerSize =
     PercentCornerSize(percent.toFloat())
 
 /**
@@ -78,8 +87,9 @@ fun CornerSize(@IntRange(from = 0, to = 100) percent: Int): CornerSize =
  * Can't be negative or larger then 100 percents.
  */
 private data class PercentCornerSize(
-    @FloatRange(from = 0.0, to = 100.0) private val percent: Float
-) : CornerSize {
+    /*@FloatRange(from = 0.0, to = 100.0)*/
+    private val percent: Float
+) : CornerSize, InspectableValue {
     init {
         if (percent < 0 || percent > 100) {
             throw IllegalArgumentException("The percent should be in the range of [0, 100]")
@@ -88,12 +98,22 @@ private data class PercentCornerSize(
 
     override fun toPx(shapeSize: Size, density: Density) =
         shapeSize.minDimension * (percent / 100f)
+
+    override fun toString(): String = "CornerSize(size = $percent%)"
+
+    override val valueOverride: String
+        get() = "$percent%"
 }
 
 /**
  * [CornerSize] always equals to zero.
  */
 @Stable
-val ZeroCornerSize: CornerSize = object : CornerSize {
+val ZeroCornerSize: CornerSize = object : CornerSize, InspectableValue {
     override fun toPx(shapeSize: Size, density: Density) = 0.0f
+
+    override fun toString(): String = "ZeroCornerSize"
+
+    override val valueOverride: String
+        get() = "ZeroCornerSize"
 }

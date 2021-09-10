@@ -63,6 +63,7 @@ public final class ImmediateSurfaceTest {
         assertThat(surfaceListenableFuture.get()).isSameInstanceAs(mMockSurface);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void surfaceClosedExceptionWhenClosed() {
         mImmediateSurface.close();

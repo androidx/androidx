@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright 2020 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="red_style_name" msgid="3422019812492418917">"Punainen tyyli"</string>
+    <string name="green_style_name" msgid="1807715891527319248">"Vihreä tyyli"</string>
+    <string name="colors_style_setting" msgid="7410336396317170889">"Värit"</string>
+    <string name="colors_style_setting_description" msgid="4961811355700378894">"Kellotaulun värit"</string>
+    <string name="colors_style_red" msgid="1284998271677973320">"Punainen"</string>
+    <string name="colors_style_green" msgid="1327609154689015139">"Vihreä"</string>
+    <string name="colors_style_blue" msgid="8619157586474982343">"Sininen"</string>
+    <string name="watchface_pips_setting" msgid="486515623723087644">"Tunnin piippaukset"</string>
+    <string name="watchface_pips_setting_description" msgid="651887190185401130">"Piirtämisvaihtoehto"</string>
+    <string name="watchface_hand_length_setting" msgid="7998526424509601034">"Viisarin pituus"</string>
+    <string name="watchface_hand_length_setting_description" msgid="9060532706860425059">"Viisarin asteikko"</string>
+    <string name="watchface_complications_setting" msgid="7605635862096204587">"Lisäominaisuudet"</string>
+    <string name="watchface_complications_setting_description" msgid="3565604049641117847">"Määrä ja sijoittelu"</string>
+    <string name="watchface_complications_setting_both" msgid="1869848592349112126">"Molemmat"</string>
+    <string name="watchface_complications_setting_none" msgid="722694346696596744">"–"</string>
+    <string name="watchface_complications_setting_left" msgid="1623162625339223972">"Vasen"</string>
+    <string name="watchface_complications_setting_right" msgid="3310633126129770902">"Oikea"</string>
+</resources>

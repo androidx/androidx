@@ -121,6 +121,24 @@ ConcreteCollection: androidx.recyclerview.widget.RecyclerView.LayoutManager#onAd
     Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
 
 
+GetterSetterNames: androidx.recyclerview.widget.LinearLayoutManager#getRecycleChildrenOnDetach():
+    Symmetric method for `setRecycleChildrenOnDetach` must be named `isRecycleChildrenOnDetach`; was `getRecycleChildrenOnDetach`
+GetterSetterNames: androidx.recyclerview.widget.LinearLayoutManager#getReverseLayout():
+    Symmetric method for `setReverseLayout` must be named `isReverseLayout`; was `getReverseLayout`
+GetterSetterNames: androidx.recyclerview.widget.LinearLayoutManager#getStackFromEnd():
+    Symmetric method for `setStackFromEnd` must be named `isStackFromEnd`; was `getStackFromEnd`
+GetterSetterNames: androidx.recyclerview.widget.RecyclerView#getClipToPadding():
+    Symmetric method for `setClipToPadding` must be named `isClipToPadding`; was `getClipToPadding`
+GetterSetterNames: androidx.recyclerview.widget.RecyclerView#getPreserveFocusAfterLayout():
+    Symmetric method for `setPreserveFocusAfterLayout` must be named `isPreserveFocusAfterLayout`; was `getPreserveFocusAfterLayout`
+GetterSetterNames: androidx.recyclerview.widget.RecyclerView.ViewHolder#setIsRecyclable(boolean):
+    Symmetric method for `isRecyclable` must be named `setRecyclable`; was `setIsRecyclable`
+GetterSetterNames: androidx.recyclerview.widget.SimpleItemAnimator#getSupportsChangeAnimations():
+    Symmetric method for `setSupportsChangeAnimations` must be named `isSupportsChangeAnimations`; was `getSupportsChangeAnimations`
+GetterSetterNames: androidx.recyclerview.widget.StaggeredGridLayoutManager#getReverseLayout():
+    Symmetric method for `setReverseLayout` must be named `isReverseLayout`; was `getReverseLayout`
+
+
 InternalField: androidx.recyclerview.widget.LinearLayoutManager.LayoutChunkResult#mConsumed:
     Internal field mConsumed must not be exposed
 InternalField: androidx.recyclerview.widget.LinearLayoutManager.LayoutChunkResult#mFinished:
@@ -377,8 +395,6 @@ MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#findViewByP
     Missing nullability on method `findViewByPosition` return
 MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#generateDefaultLayoutParams():
     Missing nullability on method `generateDefaultLayoutParams` return
-MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#getExtraLayoutSpace(androidx.recyclerview.widget.RecyclerView.State) parameter #0:
-    Missing nullability on parameter `state` in method `getExtraLayoutSpace`
 MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.Recycler) parameter #0:
     Missing nullability on parameter `view` in method `onDetachedFromWindow`
 MissingNullability: androidx.recyclerview.widget.LinearLayoutManager#onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.Recycler) parameter #1:
@@ -559,8 +575,6 @@ MissingNullability: androidx.recyclerview.widget.RecyclerView#requestChildRectan
     Missing nullability on parameter `rect` in method `requestChildRectangleOnScreen`
 MissingNullability: androidx.recyclerview.widget.RecyclerView#sendAccessibilityEventUnchecked(android.view.accessibility.AccessibilityEvent) parameter #0:
     Missing nullability on parameter `event` in method `sendAccessibilityEventUnchecked`
-MissingNullability: androidx.recyclerview.widget.RecyclerView#setLayoutTransition(android.animation.LayoutTransition) parameter #0:
-    Missing nullability on parameter `transition` in method `setLayoutTransition`
 MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#addDisappearingView(android.view.View) parameter #0:
     Missing nullability on parameter `child` in method `addDisappearingView`
 MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#addDisappearingView(android.view.View, int) parameter #0:
@@ -601,8 +615,6 @@ MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#getP
     Missing nullability on method `getProperties` return
 MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#onAttachedToWindow(androidx.recyclerview.widget.RecyclerView) parameter #0:
     Missing nullability on parameter `view` in method `onAttachedToWindow`
-MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView) parameter #0:
-    Missing nullability on parameter `view` in method `onDetachedFromWindow`
 MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.Recycler) parameter #0:
     Missing nullability on parameter `view` in method `onDetachedFromWindow`
 MissingNullability: androidx.recyclerview.widget.RecyclerView.LayoutManager#onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.Recycler) parameter #1:

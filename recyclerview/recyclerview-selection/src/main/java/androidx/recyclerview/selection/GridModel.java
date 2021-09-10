@@ -17,6 +17,7 @@
 package androidx.recyclerview.selection;
 
 import static androidx.core.util.Preconditions.checkArgument;
+import static androidx.core.util.Preconditions.checkState;
 
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -145,6 +146,7 @@ final class GridModel<K> {
 
         mIsActive = true;
         mPointer = mHost.createAbsolutePoint(relativeOrigin);
+
         mRelOrigin = createRelativePoint(mPointer);
         mRelPointer = createRelativePoint(mPointer);
         computeCurrentSelection();
@@ -171,7 +173,11 @@ final class GridModel<K> {
      */
     void resizeSelection(Point relativePointer) {
         mPointer = mHost.createAbsolutePoint(relativePointer);
-        updateModel();
+        // Should probably never been empty at this point, yet we guard against
+        // known exceptions because wholesome goodness.
+        if (!isEmpty()) {
+            updateModel();
+        }
     }
 
     /**
@@ -191,7 +197,12 @@ final class GridModel<K> {
         mPointer.x += dx;
         mPointer.y += dy;
         recordVisibleChildren();
-        updateModel();
+
+        // Should probably never been empty at this point, yet we guard against
+        // known exceptions because wholesome goodness.
+        if (!isEmpty()) {
+            updateModel();
+        }
     }
 
     /**
@@ -258,7 +269,9 @@ final class GridModel<K> {
      * in a selection change and, if it has, notifies listeners of this change.
      */
     private void updateModel() {
+        checkState(!isEmpty());
         RelativePoint old = mRelPointer;
+
         mRelPointer = createRelativePoint(mPointer);
         if (mRelPointer.equals(old)) {
             return;
@@ -590,6 +603,11 @@ final class GridModel<K> {
     }
 
     RelativePoint createRelativePoint(Point point) {
+        // mColumnBounds and mRowBounds is empty when there are no items in the view.
+        // Clients have to verify items exist before calling this method.
+        checkState(!mColumnBounds.isEmpty(), "Column bounds not established.");
+        checkState(!mRowBounds.isEmpty(), "Row bounds not established.");
+
         return new RelativePoint(
                 new RelativeCoordinate(mColumnBounds, point.x),
                 new RelativeCoordinate(mRowBounds, point.y));

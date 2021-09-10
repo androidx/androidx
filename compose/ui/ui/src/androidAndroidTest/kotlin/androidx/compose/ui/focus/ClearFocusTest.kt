@@ -17,12 +17,12 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.ui.FocusModifier
-import androidx.compose.ui.focus.FocusState.Active
-import androidx.compose.ui.focus.FocusState.ActiveParent
-import androidx.compose.ui.focus.FocusState.Captured
-import androidx.compose.ui.focus.FocusState.Disabled
-import androidx.compose.ui.focus.FocusState.Inactive
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.focus.FocusStateImpl.Active
+import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
+import androidx.compose.ui.focus.FocusStateImpl.Captured
+import androidx.compose.ui.focus.FocusStateImpl.Disabled
+import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -32,9 +32,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @SmallTest
-@OptIn(ExperimentalFocus::class)
 @RunWith(Parameterized::class)
-class ClearFocusTest(val forcedClear: Boolean) {
+class ClearFocusTest(private val forced: Boolean) {
     @get:Rule
     val rule = createComposeRule()
 
@@ -54,7 +53,7 @@ class ClearFocusTest(val forcedClear: Boolean) {
 
         // Act.
         val cleared = rule.runOnIdle {
-            modifier.focusNode.clearFocus(forcedClear)
+            modifier.focusNode.clearFocus(forced)
         }
 
         // Assert.
@@ -73,12 +72,14 @@ class ClearFocusTest(val forcedClear: Boolean) {
             Box(modifier = parent) {
                 Box(modifier = modifier)
             }
-            parent.focusedChild = modifier.focusNode
+            SideEffect {
+                parent.focusedChild = modifier.focusNode
+            }
         }
 
         // Act.
         val cleared = rule.runOnIdle {
-            modifier.focusNode.clearFocus(forcedClear)
+            modifier.focusNode.clearFocus(forced)
         }
 
         // Assert.
@@ -98,7 +99,7 @@ class ClearFocusTest(val forcedClear: Boolean) {
 
         // Act.
         rule.runOnIdle {
-            modifier.focusNode.clearFocus(forcedClear)
+            modifier.focusNode.clearFocus(forced)
         }
     }
 
@@ -114,13 +115,15 @@ class ClearFocusTest(val forcedClear: Boolean) {
                     Box(modifier = child)
                 }
             }
-            parent.focusedChild = modifier.focusNode
-            modifier.focusedChild = child.focusNode
+            SideEffect {
+                parent.focusedChild = modifier.focusNode
+                modifier.focusedChild = child.focusNode
+            }
         }
 
         // Act.
         val cleared = rule.runOnIdle {
-            modifier.focusNode.clearFocus(forcedClear)
+            modifier.focusNode.clearFocus(forced)
         }
 
         // Assert.
@@ -137,23 +140,25 @@ class ClearFocusTest(val forcedClear: Boolean) {
         val modifier = FocusModifier(ActiveParent)
         val child = FocusModifier(ActiveParent)
         val grandchild = FocusModifier(ActiveParent)
-        val greatgrandchild = FocusModifier(Active)
+        val greatGrandchild = FocusModifier(Active)
         rule.setFocusableContent {
             Box(modifier = modifier) {
                 Box(modifier = child) {
                     Box(modifier = grandchild) {
-                        Box(modifier = greatgrandchild)
+                        Box(modifier = greatGrandchild)
                     }
                 }
             }
-            modifier.focusedChild = child.focusNode
-            child.focusedChild = grandchild.focusNode
-            grandchild.focusedChild = greatgrandchild.focusNode
+            SideEffect {
+                modifier.focusedChild = child.focusNode
+                child.focusedChild = grandchild.focusNode
+                grandchild.focusedChild = greatGrandchild.focusNode
+            }
         }
 
         // Act.
         val cleared = rule.runOnIdle {
-            modifier.focusNode.clearFocus(forcedClear)
+            modifier.focusNode.clearFocus(forced)
         }
 
         // Assert.
@@ -165,7 +170,7 @@ class ClearFocusTest(val forcedClear: Boolean) {
             assertThat(modifier.focusState).isEqualTo(Inactive)
             assertThat(child.focusState).isEqualTo(Inactive)
             assertThat(grandchild.focusState).isEqualTo(Inactive)
-            assertThat(greatgrandchild.focusState).isEqualTo(Inactive)
+            assertThat(greatGrandchild.focusState).isEqualTo(Inactive)
         }
     }
 
@@ -179,12 +184,12 @@ class ClearFocusTest(val forcedClear: Boolean) {
 
         // Act.
         val cleared = rule.runOnIdle {
-            modifier.focusNode.clearFocus(forcedClear)
+            modifier.focusNode.clearFocus(forced)
         }
 
         // Assert.
         rule.runOnIdle {
-            when (forcedClear) {
+            when (forced) {
                 true -> {
                     assertThat(cleared).isTrue()
                     assertThat(modifier.focusState).isEqualTo(Inactive)
@@ -206,17 +211,19 @@ class ClearFocusTest(val forcedClear: Boolean) {
             Box(modifier = parent) {
                 Box(modifier = modifier)
             }
-            parent.focusedChild = modifier.focusNode
+            SideEffect {
+                parent.focusedChild = modifier.focusNode
+            }
         }
 
         // Act.
         val cleared = rule.runOnIdle {
-            modifier.focusNode.clearFocus(forcedClear)
+            modifier.focusNode.clearFocus(forced)
         }
 
         // Assert.
         rule.runOnIdle {
-            when (forcedClear) {
+            when (forced) {
                 true -> {
                     assertThat(cleared).isTrue()
                     assertThat(modifier.focusState).isEqualTo(Inactive)
@@ -239,7 +246,7 @@ class ClearFocusTest(val forcedClear: Boolean) {
 
         // Act.
         val cleared = rule.runOnIdle {
-            modifier.focusNode.clearFocus(forcedClear)
+            modifier.focusNode.clearFocus(forced)
         }
 
         // Assert.
@@ -259,7 +266,7 @@ class ClearFocusTest(val forcedClear: Boolean) {
 
         // Act.
         val cleared = rule.runOnIdle {
-            modifier.focusNode.clearFocus(forcedClear)
+            modifier.focusNode.clearFocus(forced)
         }
 
         // Assert.

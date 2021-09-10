@@ -20,69 +20,91 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.util.nativeClass
-import kotlin.math.min
+import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * Base class for [Shape]s defined by four [CornerSize]s.
  *
  * @see RoundedCornerShape for an example of the usage.
  *
- * @param topLeft a size of the top left corner
- * @param topRight a size of the top right corner
- * @param bottomRight a size of the bottom left corner
- * @param bottomLeft a size of the bottom right corner
+ * @param topStart a size of the top start corner
+ * @param topEnd a size of the top end corner
+ * @param bottomEnd a size of the bottom end corner
+ * @param bottomStart a size of the bottom start corner
  */
 abstract class CornerBasedShape(
-    val topLeft: CornerSize,
-    val topRight: CornerSize,
-    val bottomRight: CornerSize,
-    val bottomLeft: CornerSize
+    val topStart: CornerSize,
+    val topEnd: CornerSize,
+    val bottomEnd: CornerSize,
+    val bottomStart: CornerSize
 ) : Shape {
 
-    final override fun createOutline(size: Size, density: Density): Outline {
+    final override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ): Outline {
+        var topStart = topStart.toPx(size, density)
+        var topEnd = topEnd.toPx(size, density)
+        var bottomEnd = bottomEnd.toPx(size, density)
+        var bottomStart = bottomStart.toPx(size, density)
         val minDimension = size.minDimension
-        val topLeft = min(topLeft.toPx(size, density), minDimension)
-        val topRight = min(topRight.toPx(size, density), minDimension)
-        val bottomRight = min(bottomRight.toPx(size, density), minDimension - topRight)
-        val bottomLeft = min(bottomLeft.toPx(size, density), minDimension - topLeft)
-        require(topLeft >= 0.0f && topRight >= 0.0f && bottomRight >= 0.0f && bottomLeft >= 0.0f) {
-            "Corner size in Px can't be negative(topLeft = $topLeft, topRight = $topRight, " +
-                "bottomRight = $bottomRight, bottomLeft = $bottomLeft)!"
+        if (topStart + bottomStart > minDimension) {
+            val scale = minDimension / (topStart + bottomStart)
+            topStart *= scale
+            bottomStart *= scale
         }
-        return createOutline(size, topLeft, topRight, bottomRight, bottomLeft)
+        if (topEnd + bottomEnd > minDimension) {
+            val scale = minDimension / (topEnd + bottomEnd)
+            topEnd *= scale
+            bottomEnd *= scale
+        }
+        require(topStart >= 0.0f && topEnd >= 0.0f && bottomEnd >= 0.0f && bottomStart >= 0.0f) {
+            "Corner size in Px can't be negative(topStart = $topStart, topEnd = $topEnd, " +
+                "bottomEnd = $bottomEnd, bottomStart = $bottomStart)!"
+        }
+        return createOutline(
+            size = size,
+            topStart = topStart,
+            topEnd = topEnd,
+            bottomEnd = bottomEnd,
+            bottomStart = bottomStart,
+            layoutDirection = layoutDirection
+        )
     }
 
     /**
      * Creates [Outline] of this shape for the given [size].
      *
      * @param size the size of the shape boundary.
-     * @param topLeft the resolved size of the top left corner
-     * @param topRight the resolved size for the top right corner
-     * @param bottomRight the resolved size for the bottom left corner
-     * @param bottomLeft the resolved size for the bottom right corner
+     * @param topStart the resolved size of the top start corner
+     * @param topEnd the resolved size for the top end corner
+     * @param bottomEnd the resolved size for the bottom end corner
+     * @param bottomStart the resolved size for the bottom start corner
+     * @param layoutDirection the current layout direction.
      */
     abstract fun createOutline(
         size: Size,
-        topLeft: Float,
-        topRight: Float,
-        bottomRight: Float,
-        bottomLeft: Float
+        topStart: Float,
+        topEnd: Float,
+        bottomEnd: Float,
+        bottomStart: Float,
+        layoutDirection: LayoutDirection
     ): Outline
 
     /**
      * Creates a copy of this Shape with a new corner sizes.
      *
-     * @param topLeft a size of the top left corner
-     * @param topRight a size of the top right corner
-     * @param bottomRight a size of the bottom left corner
-     * @param bottomLeft a size of the bottom right corner
+     * @param topStart a size of the top start corner
+     * @param topEnd a size of the top end corner
+     * @param bottomEnd a size of the bottom end corner
+     * @param bottomStart a size of the bottom start corner
      */
     abstract fun copy(
-        topLeft: CornerSize = this.topLeft,
-        topRight: CornerSize = this.topRight,
-        bottomRight: CornerSize = this.bottomRight,
-        bottomLeft: CornerSize = this.bottomLeft
+        topStart: CornerSize = this.topStart,
+        topEnd: CornerSize = this.topEnd,
+        bottomEnd: CornerSize = this.bottomEnd,
+        bottomStart: CornerSize = this.bottomStart
     ): CornerBasedShape
 
     /**
@@ -90,28 +112,4 @@ abstract class CornerBasedShape(
      * @param all a size to apply for all four corners
      */
     fun copy(all: CornerSize): CornerBasedShape = copy(all, all, all, all)
-
-    // Implementations can't be data classes as we defined the abstract copy() method and the data
-    // class code generation is not compatible with it, so we provide our hashCode() and equals()
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (this.nativeClass() != other?.nativeClass()) return false
-
-        other as CornerBasedShape
-
-        if (topLeft != other.topLeft) return false
-        if (topRight != other.topRight) return false
-        if (bottomRight != other.bottomRight) return false
-        if (bottomLeft != other.bottomLeft) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = topLeft.hashCode()
-        result = 31 * result + topRight.hashCode()
-        result = 31 * result + bottomRight.hashCode()
-        result = 31 * result + bottomLeft.hashCode()
-        return result
-    }
 }

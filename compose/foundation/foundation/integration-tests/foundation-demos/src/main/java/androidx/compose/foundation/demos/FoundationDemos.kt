@@ -17,9 +17,9 @@
 package androidx.compose.foundation.demos
 
 import androidx.compose.foundation.samples.ControlledScrollableRowSample
-import androidx.compose.foundation.samples.MultipleInteractionStateSample
-import androidx.compose.foundation.samples.PriorityInteractionStateSample
-import androidx.compose.foundation.samples.ScrollableColumnSample
+import androidx.compose.foundation.samples.InteractionSourceFlowSample
+import androidx.compose.foundation.samples.SimpleInteractionSourceSample
+import androidx.compose.foundation.samples.VerticalScrollExample
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
 
@@ -27,14 +27,13 @@ val FoundationDemos = DemoCategory(
     "Foundation",
     listOf(
         ComposableDemo("Draggable, Scrollable, Zoomable, Focusable") { HighLevelGesturesDemo() },
-        ComposableDemo("Scrollable Column") { ScrollableColumnSample() },
+        ComposableDemo("Vertical scroll") { VerticalScrollExample() },
         ComposableDemo("Controlled Scrollable Row") { ControlledScrollableRowSample() },
         ComposableDemo("Draw Modifiers") { DrawModifiersDemo() },
         DemoCategory("Lazy lists", LazyListDemos),
-        ComposableDemo("Priority InteractionState") { PriorityInteractionStateSample() },
-        ComposableDemo("Multiple-interaction InteractionState") {
-            MultipleInteractionStateSample()
-        },
-        DemoCategory("Suspending Gesture Detectors", CoroutineGestureDemos)
+        ComposableDemo("Simple InteractionSource") { SimpleInteractionSourceSample() },
+        ComposableDemo("Flow InteractionSource") { InteractionSourceFlowSample() },
+        DemoCategory("Suspending Gesture Detectors", CoroutineGestureDemos),
+        ComposableDemo("NestedScroll") { NestedScrollDemo() },
     )
 )

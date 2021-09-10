@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
+import androidx.build.RunApiTasks
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -34,23 +34,25 @@ dependencies {
     // NOTE: API and IMPLEMENTATION dependencies are defined in dependencies.gradle to export for
     // other modules depending on the jarjar variant of CameraPipe. All dependencies should be
     // added there rather than directly here.
-    api CAMERA_PIPE_DEPS.API
-    implementation CAMERA_PIPE_DEPS.IMPLEMENTATION
+    api(CAMERA_PIPE_DEPS.API)
+    implementation(CAMERA_PIPE_DEPS.IMPLEMENTATION)
 
-    kapt(DAGGER_COMPILER)
+    kapt(libs.daggerCompiler)
 
-    testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
-    testImplementation(ROBOLECTRIC)
-    testImplementation(KOTLIN_COROUTINES_TEST)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(project(":camera:camera-camera2-pipe-testing"))
+    testImplementation(project(":internal-testutils-truth"))
 
-    kaptTest(DAGGER_COMPILER)
+    kaptTest(libs.daggerCompiler)
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(TRUTH)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
 }
 
 android {
@@ -76,10 +78,10 @@ android.libraryVariants.all { variant ->
     def exportJarTask = tasks.register("exportJar${suffix}", Jar) {
         archiveBaseName.set("camera-camera2-pipe-${variantName}-export")
         def kotlinCompileTask = tasks.findByName("compile${suffix}Kotlin")
-        from kotlinCompileTask.outputs.files
-        from files(variant.javaCompileProvider.get().destinationDir)
-        dependsOn kotlinCompileTask
-        dependsOn variant.javaCompileProvider.get()
+        from(kotlinCompileTask.outputs.files)
+        from(files(variant.javaCompileProvider.get().destinationDir))
+        dependsOn(kotlinCompileTask)
+        dependsOn(variant.javaCompileProvider.get())
     }
     def exportConfiguration = configurations.register("export${suffix}")
     artifacts.add(exportConfiguration.name, exportJarTask.flatMap{ it.archiveFile })
@@ -87,9 +89,10 @@ android.libraryVariants.all { variant ->
 
 androidx {
     name = "Jetpack Camera Pipe"
-    publish = Publish.SNAPSHOT_ONLY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.CAMERA
     mavenVersion = LibraryVersions.CAMERA_PIPE
+    runApiTasks = new RunApiTasks.No("CameraPipe is an implementation detail of other libraries.")
     inceptionYear = "2020"
     description = "A set of opinionated camera interfaces and implementations on top of Camera2 " +
             "that will form a flexible shim layer to power Frameserver and CameraX."

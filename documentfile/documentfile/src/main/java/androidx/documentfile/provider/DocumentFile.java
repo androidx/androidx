@@ -16,15 +16,15 @@
 
 package androidx.documentfile.provider;
 
-import android.content.Context;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
-import android.provider.DocumentsContract;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.provider.DocumentsContractCompat;
 
 import java.io.File;
 
@@ -133,13 +133,21 @@ public abstract class DocumentFile {
     @Nullable
     public static DocumentFile fromTreeUri(@NonNull Context context, @NonNull Uri treeUri) {
         if (Build.VERSION.SDK_INT >= 21) {
-            String documentId = DocumentsContract.getTreeDocumentId(treeUri);
-            if (DocumentsContract.isDocumentUri(context, treeUri)) {
-                documentId = DocumentsContract.getDocumentId(treeUri);
+            String documentId = DocumentsContractCompat.getTreeDocumentId(treeUri);
+            if (DocumentsContractCompat.isDocumentUri(context, treeUri)) {
+                documentId = DocumentsContractCompat.getDocumentId(treeUri);
             }
-            return new TreeDocumentFile(null, context,
-                    DocumentsContract.buildDocumentUriUsingTree(treeUri,
-                            documentId));
+            if (documentId == null) {
+                throw new IllegalArgumentException(
+                        "Could not get document ID from Uri: " + treeUri);
+            }
+            Uri treeDocumentUri =
+                    DocumentsContractCompat.buildDocumentUriUsingTree(treeUri, documentId);
+            if (treeDocumentUri == null) {
+                throw new NullPointerException(
+                        "Failed to build documentUri from a tree: " + treeUri);
+            }
+            return new TreeDocumentFile(null, context, treeDocumentUri);
         } else {
             return null;
         }
@@ -150,11 +158,7 @@ public abstract class DocumentFile {
      * {@link android.provider.DocumentsProvider}.
      */
     public static boolean isDocumentUri(@NonNull Context context, @Nullable Uri uri) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return DocumentsContract.isDocumentUri(context, uri);
-        } else {
-            return false;
-        }
+        return DocumentsContractCompat.isDocumentUri(context, uri);
     }
 
     /**

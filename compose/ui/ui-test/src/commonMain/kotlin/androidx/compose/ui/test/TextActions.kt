@@ -17,42 +17,37 @@
 package androidx.compose.ui.test
 
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.text.input.CommitTextEditOp
-import androidx.compose.ui.text.input.DeleteAllEditOp
-import androidx.compose.ui.text.input.EditOperation
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.CommitTextCommand
+import androidx.compose.ui.text.input.DeleteAllCommand
+import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.SetSelectionCommand
 
 /**
  * Clears the text in this node in similar way to IME.
- *
- * Note performing this operation requires to get a focus.
- *
- * @param alreadyHasFocus Whether the node already has a focus and thus does not need to be
- * clicked on.
  */
-fun SemanticsNodeInteraction.performTextClearance(alreadyHasFocus: Boolean = false) {
-    if (!alreadyHasFocus) {
-        performClick()
-    }
-    // TODO: There should be some assertion on focus in the future.
-
-    sendTextInputCommand(listOf(DeleteAllEditOp()))
+fun SemanticsNodeInteraction.performTextClearance() {
+    sendTextInputCommand(listOf(DeleteAllCommand()))
 }
 
 /**
  * Sends the given text to this node in similar way to IME.
  *
  * @param text Text to send.
- * @param alreadyHasFocus Whether the node already has a focus and thus does not need to be
- * clicked on.
  */
-fun SemanticsNodeInteraction.performTextInput(text: String, alreadyHasFocus: Boolean = false) {
-    if (!alreadyHasFocus) {
-        performClick()
-    }
-    // TODO: There should be some assertion on focus in the future.
+fun SemanticsNodeInteraction.performTextInput(text: String) {
+    sendTextInputCommand(listOf(CommitTextCommand(text, 1)))
+}
 
-    sendTextInputCommand(listOf(CommitTextEditOp(text, 1)))
+/**
+ * Sends the given selection to this node in similar way to IME.
+ *
+ * @param selection selection to send
+ */
+@ExperimentalTestApi
+fun SemanticsNodeInteraction.performTextInputSelection(selection: TextRange) {
+    sendTextInputCommand(listOf(SetSelectionCommand(selection.min, selection.max)))
 }
 
 /**
@@ -61,20 +56,9 @@ fun SemanticsNodeInteraction.performTextInput(text: String, alreadyHasFocus: Boo
  * This does not reflect text selection. All the text gets cleared out and new inserted.
  *
  * @param text Text to send.
- * @param alreadyHasFocus Whether the node already has a focus and thus does not need to be
- * clicked on.
  */
-fun SemanticsNodeInteraction.performTextReplacement(
-    text: String,
-    alreadyHasFocus: Boolean = false
-) {
-    if (!alreadyHasFocus) {
-        performClick()
-    }
-
-    // TODO: There should be some assertion on focus in the future.
-
-    sendTextInputCommand(listOf(DeleteAllEditOp(), CommitTextEditOp(text, 1)))
+fun SemanticsNodeInteraction.performTextReplacement(text: String) {
+    sendTextInputCommand(listOf(DeleteAllCommand(), CommitTextCommand(text, 1)))
 }
 
 /**
@@ -82,27 +66,20 @@ fun SemanticsNodeInteraction.performTextReplacement(
  *
  * The node needs to define its IME action in semantics.
  *
- * @param alreadyHasFocus Whether the node already has a focus and thus does not need to be
- * clicked on.
- *
  * @throws AssertionError if the node does not support input or does not define IME action.
  * @throws IllegalStateException if tne node did not establish input connection (e.g. is not
  * focused)
  */
-fun SemanticsNodeInteraction.performImeAction(alreadyHasFocus: Boolean = false) {
-    if (!alreadyHasFocus) {
-        performClick()
-    }
-
+fun SemanticsNodeInteraction.performImeAction() {
     val errorOnFail = "Failed to perform IME action."
     val node = fetchSemanticsNode(errorOnFail)
 
     assert(hasSetTextAction()) { errorOnFail }
 
     val actionSpecified = node.config.getOrElse(SemanticsProperties.ImeAction) {
-        ImeAction.Unspecified
+        ImeAction.Default
     }
-    if (actionSpecified == ImeAction.Unspecified) {
+    if (actionSpecified == ImeAction.Default) {
         throw AssertionError(
             buildGeneralErrorMessage(
                 "Failed to perform IME action as current node does not specify any.", selector, node
@@ -110,15 +87,25 @@ fun SemanticsNodeInteraction.performImeAction(alreadyHasFocus: Boolean = false) 
         )
     }
 
-    @OptIn(InternalTestingApi::class)
+    if (!isFocused().matches(node)) {
+        // Get focus
+        performClick()
+    }
+
+    @OptIn(InternalTestApi::class)
     testContext.testOwner.sendImeAction(node, actionSpecified)
 }
 
-internal fun SemanticsNodeInteraction.sendTextInputCommand(command: List<EditOperation>) {
+internal fun SemanticsNodeInteraction.sendTextInputCommand(command: List<EditCommand>) {
     val errorOnFail = "Failed to perform text input."
     val node = fetchSemanticsNode(errorOnFail)
     assert(hasSetTextAction()) { errorOnFail }
 
-    @OptIn(InternalTestingApi::class)
+    if (!isFocused().matches(node)) {
+        // Get focus
+        performClick()
+    }
+
+    @OptIn(InternalTestApi::class)
     testContext.testOwner.sendTextInputCommand(node, command)
 }

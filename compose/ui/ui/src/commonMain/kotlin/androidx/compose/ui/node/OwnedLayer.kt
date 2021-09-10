@@ -16,22 +16,23 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.geometry.MutableRect
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.layout.GraphicLayerInfo
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * A layer returned by [Owner.createLayer] to separate drawn content.
  */
-interface OwnedLayer {
-    /**
-     * The ID of the layer. This is used by tooling to match a layer to the associated
-     * LayoutNode.
-     */
-    val layerId: Long
+internal interface OwnedLayer : GraphicLayerInfo {
 
     /**
      * Applies the new layer properties and causing this layer to be redrawn.
@@ -49,8 +50,17 @@ interface OwnedLayer {
         cameraDistance: Float,
         transformOrigin: TransformOrigin,
         shape: Shape,
-        clip: Boolean
+        clip: Boolean,
+        renderEffect: RenderEffect?,
+        layoutDirection: LayoutDirection,
+        density: Density
     )
+
+    /**
+     * Returns `false` if [position] is outside the clipped region or `true` if clipping
+     * is disabled or it is within the clipped region.
+     */
+    fun isInLayer(position: Offset): Boolean
 
     /**
      * Changes the position of the layer contents.
@@ -83,7 +93,23 @@ interface OwnedLayer {
     fun destroy()
 
     /**
-     * Modifies [matrix] to be the transform that this layer applies to its content.
+     * Transforms [point] to this layer's bounds, returning an [Offset] with the transformed x
+     * and y values.
+     *
+     * @param point the [Offset] to transform to this layer's bounds
+     * @param inverse whether to invert this layer's transform [Matrix] first, such as when
+     * converting an offset in a parent layer to be in this layer's coordinates.
      */
-    fun getMatrix(matrix: Matrix)
+    fun mapOffset(point: Offset, inverse: Boolean): Offset
+
+    /**
+     * Transforms the provided [rect] to this layer's bounds, then updates [rect] to match the
+     * new bounds after the transform.
+     *
+     * @param rect the bounds to transform to this layer's bounds, and then mutate with the
+     * resulting value
+     * @param inverse whether to invert this layer's transform [Matrix] first, such as when
+     * converting bounds in a parent layer to be in this layer's coordinates.
+     */
+    fun mapBounds(rect: MutableRect, inverse: Boolean)
 }

@@ -16,8 +16,11 @@
 
 package androidx.compose.runtime.snapshots
 
-import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.mutableStateMapOf
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -449,17 +452,65 @@ class SnapshotStateMapTests {
         }
     }
 
-    @OptIn(ExperimentalComposeApi::class)
     @Test
     fun validateMapsCanBeSnapshot() {
         val map = defaultMap()
-        val snapshot = takeSnapshot()
+        val snapshot = Snapshot.takeSnapshot()
         try {
             map[100] = 100f
             assertTrue(map.contains(100))
             snapshot.enter { assertFalse(map.contains(100)) }
         } finally {
             snapshot.dispose()
+        }
+    }
+
+    @Test
+    fun concurrentModificationInGlobal_put_new() = runBlocking {
+        repeat(100) {
+            val map = mutableStateMapOf<Int, String>()
+            coroutineScope {
+                repeat(100) {
+                    launch(Dispatchers.Default) {
+                        map[it] = it.toString()
+                    }
+                }
+            }
+
+            repeat(100) {
+                assertEquals(map[it], it.toString())
+            }
+        }
+    }
+
+    @Test
+    fun concurrentModificationInGlobal_put_replace() = runBlocking {
+        repeat(100) {
+            val map = mutableStateMapOf(*Array(100) { it to "default" })
+            coroutineScope {
+                repeat(100) {
+                    launch(Dispatchers.Default) {
+                        map[it] = it.toString()
+                    }
+                }
+            }
+
+            repeat(100) {
+                assertEquals(map[it], it.toString())
+            }
+        }
+    }
+
+    @Test
+    fun modificationAcrossSnapshots() {
+        val map = mutableStateMapOf<Int, Int>()
+        repeat(100) {
+            Snapshot.withMutableSnapshot {
+                map[it] = it
+            }
+        }
+        repeat(100) {
+            assertEquals(it, map[it])
         }
     }
 

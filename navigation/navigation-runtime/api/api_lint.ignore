@@ -13,8 +13,18 @@ MissingBuildMethod: androidx.navigation.NavDeepLinkBuilder:
     androidx.navigation.NavDeepLinkBuilder does not declare a `build()` method, but builder classes are expected to
 
 
-MissingGetterMatchingBuilder: androidx.navigation.ActivityNavigator.Extras.Builder#addFlags(int):
-    androidx.navigation.ActivityNavigator.Extras does not declare a `getFlagss()` method matching method androidx.navigation.ActivityNavigator.Extras.Builder.addFlags(int)
+MissingJvmstatic: androidx.navigation.ActivityNavigatorExtrasKt#ActivityNavigatorExtras(androidx.core.app.ActivityOptionsCompat, int):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+
+
+MissingNullability: androidx.navigation.ActivityNavArgsLazyKt#navArgs(android.app.Activity):
+    Missing nullability on method `navArgs` return
+
+
+NullableCollection: androidx.navigation.NavController#saveState():
+    Return type of method androidx.navigation.NavController.saveState() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.navigation.NavController.OnDestinationChangedListener#onDestinationChanged(androidx.navigation.NavController, androidx.navigation.NavDestination, android.os.Bundle) parameter #2:
+    Type of parameter arguments in androidx.navigation.NavController.OnDestinationChangedListener.onDestinationChanged(androidx.navigation.NavController controller, androidx.navigation.NavDestination destination, android.os.Bundle arguments) is a nullable collection (`android.os.Bundle`); must be non-null
 
 
 TopLevelBuilder: androidx.navigation.NavDeepLinkBuilder:

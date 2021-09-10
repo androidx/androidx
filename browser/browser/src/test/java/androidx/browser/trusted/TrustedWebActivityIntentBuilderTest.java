@@ -56,6 +56,7 @@ import java.util.List;
 @Config(minSdk = Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class TrustedWebActivityIntentBuilderTest {
 
+    @SuppressWarnings("deprecation")
     @Test
     public void intentIsConstructedCorrectly() {
         Uri url = Uri.parse("https://test.com/page");

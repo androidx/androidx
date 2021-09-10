@@ -17,16 +17,16 @@ limitations under the License.
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="email" msgid="6099716515489216517">"ఇమెయిల్ పంపు"</string>
-    <string name="email_desc" msgid="2189760120923982860">"ఎంచుకున్న చిరునామాకు ఇమెయిల్‌ను పంపుతుంది"</string>
+    <string name="email_desc" msgid="2189760120923982860">"ఎంచుకున్న అడ్రస్‌కు ఇమెయిల్‌ను పంపుతుంది"</string>
     <string name="dial" msgid="2101464860090311277">"కాల్ చేయి"</string>
     <string name="dial_desc" msgid="1195407206406821463">"ఎంచుకున్న ఫోన్ నంబర్‌కు కాల్ చేస్తుంది"</string>
     <string name="browse" msgid="4753676368851695348">"తెరువు"</string>
     <string name="browse_desc" msgid="728882176434276995">"ఎంచుకున్న URLని తెరుస్తుంది"</string>
-    <string name="sms" msgid="2214738262605167054">"సందేశం పంపు"</string>
-    <string name="sms_desc" msgid="7733202356868441148">"ఎంచుకున్న ఫోన్ నంబర్‌కి సందేశం పంపుతుంది"</string>
+    <string name="sms" msgid="2214738262605167054">"మెసేజ్‌ పంపు"</string>
+    <string name="sms_desc" msgid="7733202356868441148">"ఎంచుకున్న ఫోన్ నంబర్‌కి మెసేజ్‌ పంపుతుంది"</string>
     <string name="add_contact" msgid="386263007484061034">"జోడించు"</string>
-    <string name="add_contact_desc" msgid="1739272501140197425">"పరిచయాలకు జోడిస్తుంది"</string>
-    <string name="floating_toolbar_open_overflow_description" msgid="6778458701858708647">"మరిన్ని ఎంపికలు"</string>
+    <string name="add_contact_desc" msgid="1739272501140197425">"కాంటాక్ట్‌లకు జోడిస్తుంది"</string>
+    <string name="floating_toolbar_open_overflow_description" msgid="6778458701858708647">"మరిన్ని ఆప్షన్‌లు"</string>
     <string name="floating_toolbar_close_overflow_description" msgid="3112942430227166657">"అతివ్యాప్తిని మూసివేస్తుంది"</string>
     <string name="abc_share" msgid="37557693057519685">"షేర్ చేయి"</string>
 </resources>

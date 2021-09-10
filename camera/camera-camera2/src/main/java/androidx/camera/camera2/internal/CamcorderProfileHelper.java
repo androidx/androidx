@@ -16,11 +16,15 @@
 
 package androidx.camera.camera2.internal;
 
+import android.media.CamcorderProfile;
+
 /**
  * This is helper class to use {@link android.media.CamcorderProfile} that may be mocked.
  */
 interface CamcorderProfileHelper {
-
     /** Returns true if the camcorder profile exists for the given camera and quality. */
     boolean hasProfile(int cameraId, int quality);
+
+    /** Returns the camcorder profile for the given camera at the given quality level. */
+    CamcorderProfile get(int cameraId, int quality);
 }

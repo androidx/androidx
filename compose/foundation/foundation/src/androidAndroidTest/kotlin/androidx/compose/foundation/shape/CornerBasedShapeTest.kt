@@ -16,11 +16,11 @@
 
 package androidx.compose.foundation.shape
 
-import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -38,26 +38,28 @@ class CornerBasedShapeTest {
         val passedSize = Size(100.0f, 50.0f)
         var assertionExecuted = false
         val assertSizes = { size: Size,
-            topLeft: Float,
-            topRight: Float,
-            bottomRight: Float,
-            bottomLeft: Float ->
+            topStart: Float,
+            topEnd: Float,
+            bottomEnd: Float,
+            bottomStart: Float,
+            ld: LayoutDirection ->
             assertThat(size).isEqualTo(passedSize)
-            assertThat(topLeft).isEqualTo(4.0f)
-            assertThat(topRight).isEqualTo(3.0f)
-            assertThat(bottomRight).isEqualTo(6.0f)
-            assertThat(bottomLeft).isEqualTo(25.0f)
+            assertThat(topStart).isEqualTo(4.0f)
+            assertThat(topEnd).isEqualTo(3.0f)
+            assertThat(bottomEnd).isEqualTo(6.0f)
+            assertThat(bottomStart).isEqualTo(25.0f)
+            assertThat(ld).isEqualTo(LayoutDirection.Ltr)
             assertionExecuted = true
         }
         val impl = Impl(
-            topLeft = CornerSize(4.0f),
-            topRight = CornerSize(3.0f),
-            bottomRight = CornerSize(3.dp),
-            bottomLeft = CornerSize(50),
+            topStart = CornerSize(4.0f),
+            topEnd = CornerSize(3.0f),
+            bottomEnd = CornerSize(3.dp),
+            bottomStart = CornerSize(50),
             onOutlineRequested = assertSizes
         )
 
-        assertThat(impl.createOutline(passedSize, density))
+        assertThat(impl.createOutline(passedSize, LayoutDirection.Ltr, density))
             .isEqualTo(Outline.Rectangle(passedSize.toRect()))
 
         assertThat(assertionExecuted).isTrue()
@@ -71,60 +73,29 @@ class CornerBasedShapeTest {
 
         val sizesList = mutableListOf<Size>()
         val assertSizes = { size: Size,
-            topLeft: Float,
-            topRight: Float,
-            bottomRight: Float,
-            bottomLeft: Float ->
+            topStart: Float,
+            topEnd: Float,
+            bottomEnd: Float,
+            bottomStart: Float,
+            ld: LayoutDirection ->
             sizesList.add(size)
-            assertThat(topLeft).isEqualTo(4.0f)
-            assertThat(topRight).isEqualTo(4.0f)
-            assertThat(bottomRight).isEqualTo(0.0f)
-            assertThat(bottomLeft).isEqualTo(0.0f)
+            assertThat(topStart).isEqualTo(4.0f)
+            assertThat(topEnd).isEqualTo(4.0f)
+            assertThat(bottomEnd).isEqualTo(0.0f)
+            assertThat(bottomStart).isEqualTo(0.0f)
+            assertThat(ld).isEqualTo(LayoutDirection.Ltr)
         }
 
         val impl = Impl(
-            topLeft = CornerSize(10.0f),
-            topRight = CornerSize(6.dp),
-            bottomRight = CornerSize(1.0f),
-            bottomLeft = CornerSize(2.0f),
+            topStart = CornerSize(10.0f),
+            topEnd = CornerSize(10.0f),
+            bottomEnd = CornerSize(0f),
+            bottomStart = CornerSize(0f),
             onOutlineRequested = assertSizes
         )
 
-        impl.createOutline(sizeWithLargerWidth, density)
-        impl.createOutline(sizeWithLargerHeight, density)
-
-        assertThat(sizesList).isEqualTo(mutableListOf(sizeWithLargerWidth, sizeWithLargerHeight))
-    }
-
-    @Test
-    fun largerBottomCornersUseRemainingFromMinDimensionSize() {
-        val density = Density(2f, 1f)
-        val sizeWithLargerWidth = Size(6.0f, 4.0f)
-        val sizeWithLargerHeight = Size(4.0f, 6.0f)
-
-        val sizesList = mutableListOf<Size>()
-        val assertSizes = { size: Size,
-            topLeft: Float,
-            topRight: Float,
-            bottomRight: Float,
-            bottomLeft: Float ->
-            sizesList.add(size)
-            assertThat(topLeft).isEqualTo(1.0f)
-            assertThat(topRight).isEqualTo(1.0f)
-            assertThat(bottomRight).isEqualTo(3.0f)
-            assertThat(bottomLeft).isEqualTo(3.0f)
-        }
-
-        val impl = Impl(
-            topLeft = CornerSize(1.0f),
-            topRight = CornerSize(0.5f.dp),
-            bottomRight = CornerSize(10f),
-            bottomLeft = CornerSize(100),
-            onOutlineRequested = assertSizes
-        )
-
-        impl.createOutline(sizeWithLargerWidth, density)
-        impl.createOutline(sizeWithLargerHeight, density)
+        impl.createOutline(sizeWithLargerWidth, LayoutDirection.Ltr, density)
+        impl.createOutline(sizeWithLargerHeight, LayoutDirection.Ltr, density)
 
         assertThat(sizesList).isEqualTo(mutableListOf(sizeWithLargerWidth, sizeWithLargerHeight))
     }
@@ -137,138 +108,206 @@ class CornerBasedShapeTest {
 
         val sizesList = mutableListOf<Size>()
         val assertSizes = { size: Size,
-            topLeft: Float,
-            topRight: Float,
-            bottomRight: Float,
-            bottomLeft: Float ->
+            topStart: Float,
+            topEnd: Float,
+            bottomEnd: Float,
+            bottomStart: Float,
+            ld: LayoutDirection ->
             sizesList.add(size)
-            assertThat(topLeft).isEqualTo(4.0f)
-            assertThat(topRight).isEqualTo(4.0f)
-            assertThat(bottomRight).isEqualTo(0.0f)
-            assertThat(bottomLeft).isEqualTo(0.0f)
+            assertThat(topStart).isEqualTo(4.0f)
+            assertThat(topEnd).isEqualTo(4.0f)
+            assertThat(bottomEnd).isEqualTo(0.0f)
+            assertThat(bottomStart).isEqualTo(0.0f)
+            assertThat(ld).isEqualTo(LayoutDirection.Ltr)
         }
 
         val impl = Impl(
-            topLeft = CornerSize(100),
-            topRight = CornerSize(100),
-            bottomRight = CornerSize(0),
-            bottomLeft = CornerSize(0),
+            topStart = CornerSize(100),
+            topEnd = CornerSize(100),
+            bottomEnd = CornerSize(0),
+            bottomStart = CornerSize(0),
             onOutlineRequested = assertSizes
         )
 
-        impl.createOutline(sizeWithLargerWidth, density)
-        impl.createOutline(sizeWithLargerHeight, density)
+        impl.createOutline(sizeWithLargerWidth, LayoutDirection.Ltr, density)
+        impl.createOutline(sizeWithLargerHeight, LayoutDirection.Ltr, density)
 
         assertThat(sizesList).isEqualTo(mutableListOf(sizeWithLargerWidth, sizeWithLargerHeight))
     }
 
     @Test
-    fun theSameImplsWithTheSameCornersAreEquals() {
-        @Suppress("ReplaceCallWithBinaryOperator")
-        assertThat(
-            Impl2(
-                topLeft = CornerSize(4.0f),
-                topRight = CornerSize(3.0f),
-                bottomRight = CornerSize(3.dp),
-                bottomLeft = CornerSize(50)
-            ).equals(
-                Impl2(
-                    topLeft = CornerSize(4.0f),
-                    topRight = CornerSize(3.0f),
-                    bottomRight = CornerSize(3.dp),
-                    bottomLeft = CornerSize(50)
-                )
-            )
-        ).isTrue()
-    }
-
-    @Test
-    fun differentImplWithTheSameCornersAreNotEquals() {
-        @Suppress("ReplaceCallWithBinaryOperator")
-        assertThat(
-            Impl(
-                topLeft = CornerSize(4.0f),
-                topRight = CornerSize(3.0f),
-                bottomRight = CornerSize(3.dp),
-                bottomLeft = CornerSize(50)
-            ).equals(
-                Impl2(
-                    topLeft = CornerSize(4.0f),
-                    topRight = CornerSize(3.0f),
-                    bottomRight = CornerSize(3.dp),
-                    bottomLeft = CornerSize(50)
-                )
-            )
-        ).isFalse()
-    }
-
-    @Test
     fun copyingUsesCorrectDefaults() {
         val impl = Impl(
-            topLeft = CornerSize(4.0f),
-            topRight = CornerSize(3.0f),
-            bottomRight = CornerSize(3.dp),
-            bottomLeft = CornerSize(50)
+            topStart = CornerSize(4.0f),
+            topEnd = CornerSize(3.0f),
+            bottomEnd = CornerSize(3.dp),
+            bottomStart = CornerSize(50)
         )
         assertThat(impl)
             .isEqualTo(
                 impl.copy(
-                    bottomRight = CornerSize(
+                    bottomEnd = CornerSize(
                         3.dp
                     )
                 )
             )
     }
+
+    @Test
+    fun layoutDirectionIsPassed() {
+        val density = Density(2f, 1f)
+        val passedSize = Size(100.0f, 50.0f)
+        var assertionExecuted = false
+        val assertSizes = {
+            size: Size,
+            topStart: Float,
+            topEnd: Float,
+            bottomEnd: Float,
+            bottomStart: Float,
+            ld: LayoutDirection ->
+            assertThat(size).isEqualTo(passedSize)
+            assertThat(topStart).isEqualTo(4.0f)
+            assertThat(topEnd).isEqualTo(3.0f)
+            assertThat(bottomEnd).isEqualTo(6.0f)
+            assertThat(bottomStart).isEqualTo(25.0f)
+            assertThat(ld).isEqualTo(LayoutDirection.Rtl)
+            assertionExecuted = true
+        }
+        val impl = Impl(
+            topStart = CornerSize(4.0f),
+            topEnd = CornerSize(3.0f),
+            bottomEnd = CornerSize(3.dp),
+            bottomStart = CornerSize(50),
+            onOutlineRequested = assertSizes
+        )
+
+        assertThat(impl.createOutline(passedSize, LayoutDirection.Rtl, density))
+            .isEqualTo(Outline.Rectangle(passedSize.toRect()))
+
+        assertThat(assertionExecuted).isTrue()
+    }
+
+    @Test
+    fun overSizedEqualCornerSizes() {
+        val density = Density(2f, 1f)
+        val sizeWithLargerWidth = Size(6.0f, 4.0f)
+        val sizeWithLargerHeight = Size(4.0f, 6.0f)
+
+        val sizesList = mutableListOf<Size>()
+        val assertSizes = { size: Size,
+            topStart: Float,
+            topEnd: Float,
+            bottomEnd: Float,
+            bottomStart: Float,
+            ld: LayoutDirection ->
+            sizesList.add(size)
+            assertThat(topStart).isEqualTo(2.0f)
+            assertThat(topEnd).isEqualTo(2.0f)
+            assertThat(bottomEnd).isEqualTo(2.0f)
+            assertThat(bottomStart).isEqualTo(2.0f)
+            assertThat(ld).isEqualTo(LayoutDirection.Ltr)
+        }
+
+        val impl = Impl(
+            topStart = CornerSize(75),
+            topEnd = CornerSize(75),
+            bottomEnd = CornerSize(75),
+            bottomStart = CornerSize(75),
+            onOutlineRequested = assertSizes
+        )
+
+        impl.createOutline(sizeWithLargerWidth, LayoutDirection.Ltr, density)
+        impl.createOutline(sizeWithLargerHeight, LayoutDirection.Ltr, density)
+
+        assertThat(sizesList).isEqualTo(mutableListOf(sizeWithLargerWidth, sizeWithLargerHeight))
+    }
+
+    @Test
+    fun overSizedCornerSizesShouldProportionallyScale() {
+        val density = Density(2f, 1f)
+        val sizeWithLargerWidth = Size(15.0f, 10.0f)
+        val sizeWithLargerHeight = Size(10.0f, 15.0f)
+
+        val sizesList = mutableListOf<Size>()
+        val assertSizes = { size: Size,
+            topStart: Float,
+            topEnd: Float,
+            bottomEnd: Float,
+            bottomStart: Float,
+            ld: LayoutDirection ->
+            sizesList.add(size)
+            assertThat(topStart).isEqualTo(7.5f)
+            assertThat(topEnd).isEqualTo(2.5f)
+            assertThat(bottomEnd).isEqualTo(7.5f)
+            assertThat(bottomStart).isEqualTo(2.5f)
+            assertThat(ld).isEqualTo(LayoutDirection.Ltr)
+        }
+
+        val impl = Impl(
+            topStart = CornerSize(90),
+            topEnd = CornerSize(30),
+            bottomEnd = CornerSize(90),
+            bottomStart = CornerSize(30),
+            onOutlineRequested = assertSizes
+        )
+
+        impl.createOutline(sizeWithLargerWidth, LayoutDirection.Ltr, density)
+        impl.createOutline(sizeWithLargerHeight, LayoutDirection.Ltr, density)
+
+        assertThat(sizesList).isEqualTo(mutableListOf(sizeWithLargerWidth, sizeWithLargerHeight))
+    }
 }
 
 private class Impl(
-    topLeft: CornerSize,
-    topRight: CornerSize,
-    bottomRight: CornerSize,
-    bottomLeft: CornerSize,
-    private val onOutlineRequested: ((Size, Float, Float, Float, Float) -> Unit)? = null
-) : CornerBasedShape(topLeft, topRight, bottomRight, bottomLeft) {
+    topStart: CornerSize,
+    topEnd: CornerSize,
+    bottomEnd: CornerSize,
+    bottomStart: CornerSize,
+    private val onOutlineRequested:
+        ((Size, Float, Float, Float, Float, LayoutDirection) -> Unit)? = null
+) : CornerBasedShape(topStart, topEnd, bottomEnd, bottomStart) {
 
     override fun createOutline(
         size: Size,
-        topLeft: Float,
-        topRight: Float,
-        bottomRight: Float,
-        bottomLeft: Float
+        topStart: Float,
+        topEnd: Float,
+        bottomEnd: Float,
+        bottomStart: Float,
+        layoutDirection: LayoutDirection
     ): Outline {
-        onOutlineRequested?.invoke(size, topLeft, topRight, bottomRight, bottomLeft)
+        onOutlineRequested?.invoke(size, topStart, topEnd, bottomEnd, bottomStart, layoutDirection)
         return Outline.Rectangle(size.toRect())
     }
 
     override fun copy(
-        topLeft: CornerSize,
-        topRight: CornerSize,
-        bottomRight: CornerSize,
-        bottomLeft: CornerSize
-    ) = Impl(topLeft, topRight, bottomRight, bottomLeft, onOutlineRequested)
-}
+        topStart: CornerSize,
+        topEnd: CornerSize,
+        bottomEnd: CornerSize,
+        bottomStart: CornerSize
+    ) = Impl(topStart, topEnd, bottomEnd, bottomStart, onOutlineRequested)
 
-private class Impl2(
-    topLeft: CornerSize,
-    topRight: CornerSize,
-    bottomRight: CornerSize,
-    bottomLeft: CornerSize
-) : CornerBasedShape(topLeft, topRight, bottomRight, bottomLeft) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Impl) return false
 
-    override fun createOutline(
-        size: Size,
-        topLeft: Float,
-        topRight: Float,
-        bottomRight: Float,
-        bottomLeft: Float
-    ): Outline {
-        return Outline.Rounded(RoundRect(size.toRect()))
+        if (topStart != other.topStart) return false
+        if (topEnd != other.topEnd) return false
+        if (bottomEnd != other.bottomEnd) return false
+        if (bottomStart != other.bottomStart) return false
+
+        return true
     }
 
-    override fun copy(
-        topLeft: CornerSize,
-        topRight: CornerSize,
-        bottomRight: CornerSize,
-        bottomLeft: CornerSize
-    ) = Impl2(topLeft, topRight, bottomRight, bottomLeft)
+    override fun hashCode(): Int {
+        var result = topStart.hashCode()
+        result = 31 * result + topEnd.hashCode()
+        result = 31 * result + bottomEnd.hashCode()
+        result = 31 * result + bottomStart.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "Impl(topStart = $topStart, topEnd = $topEnd, bottomEnd = $bottomEnd, bottomStart" +
+            " = $bottomStart)"
+    }
 }

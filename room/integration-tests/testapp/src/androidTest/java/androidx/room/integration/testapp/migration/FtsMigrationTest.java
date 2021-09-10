@@ -217,7 +217,7 @@ public class FtsMigrationTest {
 
     private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE Book RENAME TO Book_old");
             database.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `Book` USING FTS4("
                     + "`title`, `author`, `numOfPages`, `text`, matchinfo=fts3)");
@@ -228,7 +228,7 @@ public class FtsMigrationTest {
 
     private static final Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL(
                     "CREATE TABLE IF NOT EXISTS `Person` (`id` INTEGER NOT NULL, "
                             + "`firstName` TEXT, `lastName` TEXT, `line1` TEXT, `line2` TEXT, "
@@ -241,7 +241,7 @@ public class FtsMigrationTest {
 
     private static final Migration MIGRATION_3_4 = new Migration(3, 4) {
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE `Person` RENAME TO `User`");
             database.execSQL("DROP TABLE `AddressFts`");
             database.execSQL(
@@ -272,7 +272,7 @@ public class FtsMigrationTest {
 
     private static final Migration BAD_MIGRATION_1_2 = new Migration(1, 2) {
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("DROP TABLE Book");
             database.execSQL("CREATE VIRTUAL TABLE `Book` USING FTS4("
                     + "`title`, `author`, `numOfPages`, `text`)");

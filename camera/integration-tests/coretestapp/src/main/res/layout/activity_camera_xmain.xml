@@ -48,6 +48,23 @@ limitations under the License.
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 
+    <TextView
+        android:id="@+id/video_stats"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#FFF"
+        android:elevation="2dp"
+        android:scaleType="fitXY"
+        android:src="@android:drawable/btn_radio"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="4:3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
         android:layout_width="wrap_content"
@@ -95,6 +112,19 @@ limitations under the License.
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/takevideo"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/video_pause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:text="Pause"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/Video"
+        app:layout_constraintEnd_toEndOf="@+id/Video"
+        app:layout_constraintStart_toStartOf="@+id/Video"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 
@@ -246,6 +276,21 @@ limitations under the License.
         app:layout_constraintLeft_toRightOf="@id/plus_ev_toggle"
         app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
 
+    <Button
+        android:id="@+id/video_quality"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="5dp"
+        android:background="@drawable/round_button"
+        android:scaleType="fitXY"
+        android:textColor="#EEEEEE"
+        android:textSize="14dp"
+        android:visibility="invisible"
+        app:layout_constraintTop_toBottomOf="@id/direction_toggle"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
     <SeekBar
         android:id="@+id/seekBar"
         android:layout_width="250dp"
@@ -256,6 +301,30 @@ limitations under the License.
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.612"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/zoom_reset_toggle"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/btn_default"
+        android:scaleType="fitXY"
+        android:text="@string/toggle_zoom_reset"
+        android:textSize="10sp"
+        android:translationZ="1dp"
+        app:layout_constraintStart_toStartOf="@+id/Picture"
+        app:layout_constraintBottom_toTopOf="@+id/Picture" />
+
+    <Button
+        android:id="@+id/zoom_in_2x_toggle"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/btn_default"
+        android:scaleType="fitXY"
+        android:text="@string/toggle_zoom_in_2x"
+        android:textSize="10sp"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toRightOf="@+id/zoom_reset_toggle"
+        app:layout_constraintBottom_toTopOf="@+id/Picture" />
 
     <TextView
         android:id="@+id/zoomRatio"

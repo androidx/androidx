@@ -1,4 +1,4 @@
-package com.android.tools.build.jetifier.processor.com.android.tools.build.jetifier.processor.transform.java
+package com.android.tools.build.jetifier.processor.transform.java
 
 import com.android.tools.build.jetifier.processor.archive.ArchiveFile
 import com.android.tools.build.jetifier.processor.transform.TransformationContext

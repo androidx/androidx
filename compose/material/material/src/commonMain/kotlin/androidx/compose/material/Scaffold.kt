@@ -19,12 +19,11 @@ package androidx.compose.material
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Providers
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.emptyContent
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.staticAmbientOf
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -47,7 +46,6 @@ import androidx.compose.ui.util.fastMaxBy
  * inside of the [Scaffold]
  */
 @Stable
-@OptIn(ExperimentalMaterialApi::class)
 class ScaffoldState(
     val drawerState: DrawerState,
     val snackbarHostState: SnackbarHostState
@@ -61,7 +59,6 @@ class ScaffoldState(
  * inside of the [Scaffold]
  */
 @Composable
-@OptIn(ExperimentalMaterialApi::class)
 fun rememberScaffoldState(
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
@@ -72,22 +69,33 @@ fun rememberScaffoldState(
 /**
  * The possible positions for a [FloatingActionButton] attached to a [Scaffold].
  */
-enum class FabPosition {
-    /**
-     * Position FAB at the bottom of the screen in the center, above the [BottomAppBar] (if it
-     * exists)
-     */
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
+inline class FabPosition internal constructor(@Suppress("unused") private val value: Int) {
+    companion object {
+        /**
+         * Position FAB at the bottom of the screen in the center, above the [BottomAppBar] (if it
+         * exists)
+         */
+        val Center = FabPosition(0)
 
-    Center,
+        /**
+         * Position FAB at the bottom of the screen at the end, above the [BottomAppBar] (if it
+         * exists)
+         */
+        val End = FabPosition(1)
+    }
 
-    /**
-     * Position FAB at the bottom of the screen at the end, above the [BottomAppBar] (if it
-     * exists)
-     */
-    End
+    override fun toString(): String {
+        return when (this) {
+            Center -> "FabPosition.Center"
+            else -> "FabPosition.End"
+        }
+    }
 }
 
 /**
+ * <a href="https://material.io/design/layout/understanding-layout.html" class="external" target="_blank">Material Design layout</a>.
+ *
  * Scaffold implements the basic material design visual layout structure.
  *
  * This component provides API to put together several material components to construct your
@@ -134,39 +142,38 @@ enum class FabPosition {
  * below the drawer sheet (if set)
  * @param drawerBackgroundColor background color to be used for the drawer sheet
  * @param drawerContentColor color of the content to use inside the drawer sheet. Defaults to
- * either the matching `onFoo` color for [drawerBackgroundColor], or, if it is not a color from
+ * either the matching content color for [drawerBackgroundColor], or, if it is not a color from
  * the theme, this will keep the same value set above this Surface.
  * @param drawerScrimColor color of the scrim that obscures content when the drawer is open
  * @param backgroundColor background of the scaffold body
  * @param contentColor color of the content in scaffold body. Defaults to either the matching
- * `onFoo` color for [backgroundColor], or, if it is not a color from the theme, this will keep
+ * content color for [backgroundColor], or, if it is not a color from the theme, this will keep
  * the same value set above this Surface.
- * @param bodyContent content of your screen. The lambda receives an [PaddingValues] that should be
+ * @param content content of your screen. The lambda receives an [PaddingValues] that should be
  * applied to the content root via Modifier.padding to properly offset top and bottom bars. If
  * you're using VerticalScroller, apply this modifier to the child of the scroller, and not on
  * the scroller itself.
  */
 @Composable
-@OptIn(ExperimentalMaterialApi::class)
 fun Scaffold(
     modifier: Modifier = Modifier,
     scaffoldState: ScaffoldState = rememberScaffoldState(),
-    topBar: @Composable () -> Unit = emptyContent(),
-    bottomBar: @Composable () -> Unit = emptyContent(),
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
     snackbarHost: @Composable (SnackbarHostState) -> Unit = { SnackbarHost(it) },
-    floatingActionButton: @Composable () -> Unit = emptyContent(),
+    floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
     isFloatingActionButtonDocked: Boolean = false,
     drawerContent: @Composable (ColumnScope.() -> Unit)? = null,
     drawerGesturesEnabled: Boolean = true,
     drawerShape: Shape = MaterialTheme.shapes.large,
-    drawerElevation: Dp = DrawerConstants.DefaultElevation,
+    drawerElevation: Dp = DrawerDefaults.Elevation,
     drawerBackgroundColor: Color = MaterialTheme.colors.surface,
     drawerContentColor: Color = contentColorFor(drawerBackgroundColor),
-    drawerScrimColor: Color = DrawerConstants.defaultScrimColor,
+    drawerScrimColor: Color = DrawerDefaults.scrimColor,
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
-    bodyContent: @Composable (PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit
 ) {
     val child = @Composable { childModifier: Modifier ->
         Surface(modifier = childModifier, color = backgroundColor, contentColor = contentColor) {
@@ -174,7 +181,7 @@ fun Scaffold(
                 isFabDocked = isFloatingActionButtonDocked,
                 fabPosition = floatingActionButtonPosition,
                 topBar = topBar,
-                bodyContent = bodyContent,
+                content = content,
                 snackbar = {
                     snackbarHost(scaffoldState.snackbarHostState)
                 },
@@ -185,7 +192,7 @@ fun Scaffold(
     }
 
     if (drawerContent != null) {
-        ModalDrawerLayout(
+        ModalDrawer(
             modifier = modifier,
             drawerState = scaffoldState.drawerState,
             gesturesEnabled = drawerGesturesEnabled,
@@ -195,7 +202,7 @@ fun Scaffold(
             drawerBackgroundColor = drawerBackgroundColor,
             drawerContentColor = drawerContentColor,
             scrimColor = drawerScrimColor,
-            bodyContent = { child(Modifier) }
+            content = { child(Modifier) }
         )
     } else {
         child(modifier)
@@ -208,19 +215,19 @@ fun Scaffold(
  * @param isFabDocked whether the FAB (if present) is docked to the bottom bar or not
  * @param fabPosition [FabPosition] for the FAB (if present)
  * @param topBar the content to place at the top of the [Scaffold], typically a [TopAppBar]
- * @param bodyContent the main 'body' of the [Scaffold]
- * @param snackbar the [Snackbar] displayed on top of the [bodyContent]
- * @param fab the [FloatingActionButton] displayed on top of the [bodyContent], below the [snackbar]
+ * @param content the main 'body' of the [Scaffold]
+ * @param snackbar the [Snackbar] displayed on top of the [content]
+ * @param fab the [FloatingActionButton] displayed on top of the [content], below the [snackbar]
  * and above the [bottomBar]
  * @param bottomBar the content to place at the bottom of the [Scaffold], on top of the
- * [bodyContent], typically a [BottomAppBar].
+ * [content], typically a [BottomAppBar].
  */
 @Composable
 private fun ScaffoldLayout(
     isFabDocked: Boolean,
     fabPosition: FabPosition,
     topBar: @Composable () -> Unit,
-    bodyContent: @Composable (PaddingValues) -> Unit,
+    content: @Composable (PaddingValues) -> Unit,
     snackbar: @Composable () -> Unit,
     fab: @Composable () -> Unit,
     bottomBar: @Composable () -> Unit
@@ -244,29 +251,25 @@ private fun ScaffoldLayout(
 
             val snackbarHeight = snackbarPlaceables.fastMaxBy { it.height }?.height ?: 0
 
-            val fabPlaceables = subcompose(ScaffoldLayoutContent.Fab, fab).fastMap {
-                it.measure(looseConstraints)
-            }
+            val fabPlaceables =
+                subcompose(ScaffoldLayoutContent.Fab, fab).mapNotNull { measurable ->
+                    measurable.measure(looseConstraints).takeIf { it.height != 0 && it.width != 0 }
+                }
 
-            val fabWidth = fabPlaceables.fastMaxBy { it.width }?.width ?: 0
-            val fabHeight = fabPlaceables.fastMaxBy { it.height }?.height ?: 0
-
-            // FAB distance from the left of the layout, taking into account LTR / RTL
-            val fabLeftOffset = if (fabWidth != 0 && fabHeight != 0) {
-                if (fabPosition == FabPosition.End) {
+            val fabPlacement = if (fabPlaceables.isNotEmpty()) {
+                val fabWidth = fabPlaceables.fastMaxBy { it.width }!!.width
+                val fabHeight = fabPlaceables.fastMaxBy { it.height }!!.height
+                // FAB distance from the left of the layout, taking into account LTR / RTL
+                val fabLeftOffset = if (fabPosition == FabPosition.End) {
                     if (layoutDirection == LayoutDirection.Ltr) {
-                        layoutWidth - FabSpacing.toIntPx() - fabWidth
+                        layoutWidth - FabSpacing.roundToPx() - fabWidth
                     } else {
-                        FabSpacing.toIntPx()
+                        FabSpacing.roundToPx()
                     }
                 } else {
                     (layoutWidth - fabWidth) / 2
                 }
-            } else {
-                0
-            }
 
-            val fabPlacement = if (fabWidth != 0 && fabHeight != 0) {
                 FabPlacement(
                     isDocked = isFabDocked,
                     left = fabLeftOffset,
@@ -278,37 +281,30 @@ private fun ScaffoldLayout(
             }
 
             val bottomBarPlaceables = subcompose(ScaffoldLayoutContent.BottomBar) {
-                Providers(
-                    AmbientFabPlacement provides fabPlacement,
+                CompositionLocalProvider(
+                    LocalFabPlacement provides fabPlacement,
                     content = bottomBar
                 )
             }.fastMap { it.measure(looseConstraints) }
 
             val bottomBarHeight = bottomBarPlaceables.fastMaxBy { it.height }?.height ?: 0
-
-            val fabOffsetFromBottom = if (fabWidth != 0 && fabHeight != 0) {
+            val fabOffsetFromBottom = fabPlacement?.let {
                 if (bottomBarHeight == 0) {
-                    fabHeight + FabSpacing.toIntPx()
+                    it.height + FabSpacing.roundToPx()
                 } else {
                     if (isFabDocked) {
                         // Total height is the bottom bar height + half the FAB height
-                        bottomBarHeight + (fabHeight / 2)
+                        bottomBarHeight + (it.height / 2)
                     } else {
                         // Total height is the bottom bar height + the FAB height + the padding
                         // between the FAB and bottom bar
-                        bottomBarHeight + fabHeight + FabSpacing.toIntPx()
+                        bottomBarHeight + it.height + FabSpacing.roundToPx()
                     }
                 }
-            } else {
-                0
             }
 
             val snackbarOffsetFromBottom = if (snackbarHeight != 0) {
-                snackbarHeight + if (fabOffsetFromBottom != 0) {
-                    fabOffsetFromBottom
-                } else {
-                    bottomBarHeight
-                }
+                snackbarHeight + (fabOffsetFromBottom ?: bottomBarHeight)
             } else {
                 0
             }
@@ -317,7 +313,7 @@ private fun ScaffoldLayout(
 
             val bodyContentPlaceables = subcompose(ScaffoldLayoutContent.MainContent) {
                 val innerPadding = PaddingValues(bottom = bottomBarHeight.toDp())
-                bodyContent(innerPadding)
+                content(innerPadding)
             }.fastMap { it.measure(looseConstraints.copy(maxHeight = bodyContentHeight)) }
 
             // Placing to control drawing order to match default elevation of each placeable
@@ -336,8 +332,10 @@ private fun ScaffoldLayout(
                 it.place(0, layoutHeight - bottomBarHeight)
             }
             // Explicitly not using placeRelative here as `leftOffset` already accounts for RTL
-            fabPlaceables.fastForEach {
-                it.place(fabLeftOffset, layoutHeight - fabOffsetFromBottom)
+            fabPlacement?.let { placement ->
+                fabPlaceables.fastForEach {
+                    it.place(placement.left, layoutHeight - fabOffsetFromBottom!!)
+                }
             }
         }
     }
@@ -361,9 +359,10 @@ internal class FabPlacement(
 )
 
 /**
- * Ambient containing a [FabPlacement] that is read by [BottomAppBar] to calculate notch location.
+ * CompositionLocal containing a [FabPlacement] that is read by [BottomAppBar] to calculate notch
+ * location.
  */
-internal val AmbientFabPlacement = staticAmbientOf<FabPlacement?> { null }
+internal val LocalFabPlacement = staticCompositionLocalOf<FabPlacement?> { null }
 
 // FAB spacing above the bottom bar / bottom of the Scaffold
 private val FabSpacing = 16.dp

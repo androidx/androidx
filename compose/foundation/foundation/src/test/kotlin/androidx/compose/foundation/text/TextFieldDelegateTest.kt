@@ -23,44 +23,44 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.MultiParagraphIntrinsics
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextDelegate
+import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.EditProcessor
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.OffsetMap
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputService
+import androidx.compose.ui.text.input.TextInputSession
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.input.buildTextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(
-    InternalTextApi::class,
-    ExperimentalTextApi::class
-)
+@OptIn(InternalFoundationTextApi::class)
 @RunWith(JUnit4::class)
 class TextFieldDelegateTest {
 
@@ -72,12 +72,13 @@ class TextFieldDelegateTest {
     private lateinit var textInputService: TextInputService
     private lateinit var layoutCoordinates: LayoutCoordinates
     private lateinit var multiParagraphIntrinsics: MultiParagraphIntrinsics
+    private lateinit var textLayoutResultProxy: TextLayoutResultProxy
     private lateinit var textLayoutResult: TextLayoutResult
 
     /**
      * Test implementation of offset map which doubles the offset in transformed text.
      */
-    private val skippingOffsetMap = object : OffsetMap {
+    private val skippingOffsetMap = object : OffsetMapping {
         override fun originalToTransformed(offset: Int): Int = offset * 2
         override fun transformedToOriginal(offset: Int): Int = offset / 2
     }
@@ -93,6 +94,8 @@ class TextFieldDelegateTest {
         layoutCoordinates = mock()
         multiParagraphIntrinsics = mock()
         textLayoutResult = mock()
+        textLayoutResultProxy = mock()
+        whenever(textLayoutResultProxy.value).thenReturn(textLayoutResult)
     }
 
     @Test
@@ -100,14 +103,14 @@ class TextFieldDelegateTest {
         val position = Offset(100f, 200f)
         val offset = 10
         val editorState = TextFieldValue(text = "Hello, World", selection = TextRange(1))
-        whenever(processor.mBufferState).thenReturn(editorState)
-        whenever(textLayoutResult.getOffsetForPosition(position)).thenReturn(offset)
+        whenever(processor.toTextFieldValue()).thenReturn(editorState)
+        whenever(textLayoutResultProxy.getOffsetForPosition(position)).thenReturn(offset)
 
         TextFieldDelegate.setCursorOffset(
             position,
-            textLayoutResult,
+            textLayoutResultProxy,
             processor,
-            OffsetMap.identityOffsetMap,
+            OffsetMapping.Identity,
             onValueChange
         )
 
@@ -126,7 +129,17 @@ class TextFieldDelegateTest {
             imeAction = ImeAction.Search
         )
 
-        TextFieldDelegate.onFocus(
+        val textInputSession: TextInputSession = mock()
+        whenever(
+            textInputService.startInput(
+                eq(editorState),
+                eq(imeOptions),
+                any(),
+                eq(onEditorActionPerformed)
+            )
+        ).thenReturn(textInputSession)
+
+        val actual = TextFieldDelegate.onFocus(
             textInputService = textInputService,
             value = editorState,
             editProcessor = processor,
@@ -146,58 +159,29 @@ class TextFieldDelegateTest {
             eq(onEditorActionPerformed)
         )
 
-        verify(textInputService).showSoftwareKeyboard(any())
-    }
-
-    @Test
-    fun on_blur() {
-        val inputSessionToken = 10 // We are not using this value in this test.
-
-        val editorState = buildTextFieldValue(
-            text = "Hello, World",
-            selection = TextRange(1),
-            composition = TextRange(3, 5)
-        )
-        whenever(processor.mBufferState).thenReturn(editorState)
-
-        TextFieldDelegate.onBlur(
-            textInputService,
-            inputSessionToken,
-            processor,
-            true,
-            onValueChange
-        )
-
-        verify(textInputService).stopInput(eq(inputSessionToken))
-        verify(textInputService, never()).hideSoftwareKeyboard(any())
-        verify(onValueChange, times(1)).invoke(
-            eq(editorState.commitComposition())
-        )
+        verify(actual).showSoftwareKeyboard()
+        assertThat(actual).isEqualTo(textInputSession)
     }
 
     @Test
     fun on_blur_with_hiding() {
-        val inputSessionToken = 10 // We are not using this value in this test.
-
-        val editorState = buildTextFieldValue(
+        val editorState = TextFieldValue(
             text = "Hello, World",
             selection = TextRange(1),
             composition = TextRange(3, 5)
         )
-        whenever(processor.mBufferState).thenReturn(editorState)
+        whenever(processor.toTextFieldValue()).thenReturn(editorState)
 
-        TextFieldDelegate.onBlur(
-            textInputService,
-            inputSessionToken,
-            processor,
-            false, // There is no next focused client. Hide the keyboard.
-            onValueChange
-        )
+        val textInputSession = mock<TextInputSession>()
 
-        verify(textInputService).stopInput(eq(inputSessionToken))
-        verify(textInputService).hideSoftwareKeyboard(eq(inputSessionToken))
+        TextFieldDelegate.onBlur(textInputSession, processor, onValueChange)
+
+        inOrder(textInputSession) {
+            verify(textInputSession).hideSoftwareKeyboard()
+            verify(textInputSession).dispose()
+        }
         verify(onValueChange, times(1)).invoke(
-            eq(editorState.commitComposition())
+            eq(editorState.copy(composition = null))
         )
     }
 
@@ -210,35 +194,48 @@ class TextFieldDelegateTest {
             rootOffset = point
         )
         val editorState = TextFieldValue(text = "Hello, World", selection = TextRange(1))
-        val inputSessionToken = 10 // We are not using this value in this test.
+        val textInputSession: TextInputSession = mock()
+
+        val input = TextLayoutInput(
+            text = AnnotatedString(editorState.text),
+            style = TextStyle(),
+            placeholders = listOf(),
+            maxLines = Int.MAX_VALUE,
+            softWrap = true,
+            overflow = TextOverflow.Clip,
+            density = Density(1.0f),
+            layoutDirection = LayoutDirection.Ltr,
+            resourceLoader = mock(),
+            constraints = mock()
+        )
+        whenever(textLayoutResult.layoutInput).thenReturn(input)
+
         TextFieldDelegate.notifyFocusedRect(
             editorState,
             mDelegate,
             textLayoutResult,
             layoutCoordinates,
-            textInputService,
-            inputSessionToken,
+            textInputSession,
             true /* hasFocus */,
-            OffsetMap.identityOffsetMap
+            OffsetMapping.Identity
         )
-        verify(textInputService).notifyFocusedRect(eq(inputSessionToken), any())
+        verify(textInputSession).notifyFocusedRect(any())
     }
 
     @Test
     fun notify_focused_rect_without_focus() {
         val editorState = TextFieldValue(text = "Hello, World", selection = TextRange(1))
-        val inputSessionToken = 10 // We are not using this value in this test.
+        val textInputSession: TextInputSession = mock()
         TextFieldDelegate.notifyFocusedRect(
             editorState,
             mDelegate,
             textLayoutResult,
             layoutCoordinates,
-            textInputService,
-            inputSessionToken,
+            textInputSession,
             false /* hasFocus */,
-            OffsetMap.identityOffsetMap
+            OffsetMapping.Identity
         )
-        verify(textInputService, never()).notifyFocusedRect(any(), any())
+        verify(textInputSession, never()).notifyFocusedRect(any())
     }
 
     @Test
@@ -250,18 +247,31 @@ class TextFieldDelegateTest {
             rootOffset = point
         )
         val editorState = TextFieldValue(text = "Hello, World", selection = TextRange(12))
-        val inputSessionToken = 10 // We are not using this value in this test.
+        val textInputSession: TextInputSession = mock()
+        val input = TextLayoutInput(
+            text = AnnotatedString(editorState.text),
+            style = TextStyle(),
+            placeholders = listOf(),
+            maxLines = Int.MAX_VALUE,
+            softWrap = true,
+            overflow = TextOverflow.Clip,
+            density = Density(1.0f),
+            layoutDirection = LayoutDirection.Ltr,
+            resourceLoader = mock(),
+            constraints = mock()
+        )
+        whenever(textLayoutResult.layoutInput).thenReturn(input)
+
         TextFieldDelegate.notifyFocusedRect(
             editorState,
             mDelegate,
             textLayoutResult,
             layoutCoordinates,
-            textInputService,
-            inputSessionToken,
+            textInputSession,
             true /* hasFocus */,
-            OffsetMap.identityOffsetMap
+            OffsetMapping.Identity
         )
-        verify(textInputService).notifyFocusedRect(eq(inputSessionToken), any())
+        verify(textInputSession).notifyFocusedRect(any())
     }
 
     @Test
@@ -269,24 +279,37 @@ class TextFieldDelegateTest {
         val rect = Rect(0f, 1f, 2f, 3f)
         val point = Offset(5f, 6f)
         val editorState = TextFieldValue(text = "Hello, World", selection = TextRange(1, 3))
-        val inputSessionToken = 10 // We are not using this value in this test.
+
         whenever(textLayoutResult.getBoundingBox(any())).thenReturn(rect)
+        val input = TextLayoutInput(
+            text = AnnotatedString(editorState.text),
+            style = TextStyle(),
+            placeholders = listOf(),
+            maxLines = Int.MAX_VALUE,
+            softWrap = true,
+            overflow = TextOverflow.Clip,
+            density = Density(1.0f),
+            layoutDirection = LayoutDirection.Ltr,
+            resourceLoader = mock(),
+            constraints = mock()
+        )
+        whenever(textLayoutResult.layoutInput).thenReturn(input)
         layoutCoordinates = MockCoordinates(
             rootOffset = point
         )
+        val textInputSession: TextInputSession = mock()
 
         TextFieldDelegate.notifyFocusedRect(
             editorState,
             mDelegate,
             textLayoutResult,
             layoutCoordinates,
-            textInputService,
-            inputSessionToken,
+            textInputSession,
             true /* hasFocus */,
             skippingOffsetMap
         )
         verify(textLayoutResult).getBoundingBox(6)
-        verify(textInputService).notifyFocusedRect(eq(inputSessionToken), any())
+        verify(textInputSession).notifyFocusedRect(any())
     }
 
     @Test
@@ -294,12 +317,12 @@ class TextFieldDelegateTest {
         val position = Offset(100f, 200f)
         val offset = 10
         val editorState = TextFieldValue(text = "Hello, World", selection = TextRange(1))
-        whenever(processor.mBufferState).thenReturn(editorState)
-        whenever(textLayoutResult.getOffsetForPosition(position)).thenReturn(offset)
+        whenever(processor.toTextFieldValue()).thenReturn(editorState)
+        whenever(textLayoutResultProxy.getOffsetForPosition(position)).thenReturn(offset)
 
         TextFieldDelegate.setCursorOffset(
             position,
-            textLayoutResult,
+            textLayoutResultProxy,
             processor,
             skippingOffsetMap,
             onValueChange
@@ -312,30 +335,33 @@ class TextFieldDelegateTest {
 
     @Test
     fun use_identity_mapping_if_none_visual_transformation() {
-        val (visualText, offsetMap) =
-            VisualTransformation.None.filter(AnnotatedString(text = "Hello, World"))
+        val transformedText = VisualTransformation.None.filter(
+            AnnotatedString(text = "Hello, World")
+        )
+        val visualText = transformedText.text
+        val offsetMapping = transformedText.offsetMapping
 
-        assertEquals("Hello, World", visualText.text)
+        assertThat(visualText.text).isEqualTo("Hello, World")
         for (i in 0..visualText.text.length) {
             // Identity mapping returns if no visual filter is provided.
-            assertThat(offsetMap.originalToTransformed(i)).isEqualTo(i)
-            assertThat(offsetMap.transformedToOriginal(i)).isEqualTo(i)
+            assertThat(offsetMapping.originalToTransformed(i)).isEqualTo(i)
+            assertThat(offsetMapping.transformedToOriginal(i)).isEqualTo(i)
         }
     }
 
     @Test
     fun apply_composition_decoration() {
-        val identityOffsetMap = object : OffsetMap {
+        val identityOffsetMapping = object : OffsetMapping {
             override fun originalToTransformed(offset: Int): Int = offset
             override fun transformedToOriginal(offset: Int): Int = offset
         }
 
         val input = TransformedText(
-            transformedText = AnnotatedString.Builder().apply {
+            text = AnnotatedString.Builder().apply {
                 pushStyle(SpanStyle(color = Color.Red))
                 append("Hello, World")
             }.toAnnotatedString(),
-            offsetMap = identityOffsetMap
+            offsetMapping = identityOffsetMapping
         )
 
         val result = TextFieldDelegate.applyCompositionDecoration(
@@ -343,9 +369,9 @@ class TextFieldDelegateTest {
             transformed = input
         )
 
-        assertThat(result.transformedText.text).isEqualTo(input.transformedText.text)
-        assertThat(result.transformedText.spanStyles.size).isEqualTo(2)
-        assertThat(result.transformedText.spanStyles).contains(
+        assertThat(result.text.text).isEqualTo(input.text.text)
+        assertThat(result.text.spanStyles.size).isEqualTo(2)
+        assertThat(result.text.spanStyles).contains(
             AnnotatedString.Range(SpanStyle(textDecoration = TextDecoration.Underline), 3, 6)
         )
     }
@@ -353,17 +379,17 @@ class TextFieldDelegateTest {
     @Test
     fun apply_composition_decoration_with_offsetmap() {
         val offsetAmount = 5
-        val offsetMap = object : OffsetMap {
+        val offsetMapping = object : OffsetMapping {
             override fun originalToTransformed(offset: Int): Int = offsetAmount + offset
             override fun transformedToOriginal(offset: Int): Int = offset - offsetAmount
         }
 
         val input = TransformedText(
-            transformedText = AnnotatedString.Builder().apply {
+            text = AnnotatedString.Builder().apply {
                 append(" ".repeat(offsetAmount))
                 append("Hello World")
             }.toAnnotatedString(),
-            offsetMap = offsetMap
+            offsetMapping = offsetMapping
         )
 
         val range = TextRange(0, 2)
@@ -372,14 +398,83 @@ class TextFieldDelegateTest {
             transformed = input
         )
 
-        assertThat(result.transformedText.spanStyles.size).isEqualTo(1)
-        assertThat(result.transformedText.spanStyles).contains(
+        assertThat(result.text.spanStyles.size).isEqualTo(1)
+        assertThat(result.text.spanStyles).contains(
             AnnotatedString.Range(
                 SpanStyle(textDecoration = TextDecoration.Underline),
                 range.start + offsetAmount,
                 range.end + offsetAmount
             )
         )
+    }
+
+    @Test
+    fun notify_transformed_text() {
+        val rect = Rect(0f, 1f, 2f, 3f)
+        whenever(textLayoutResult.getBoundingBox(any())).thenReturn(rect)
+        val point = Offset(5f, 6f)
+        layoutCoordinates = MockCoordinates(
+            rootOffset = point
+        )
+
+        val textInputSession: TextInputSession = mock()
+        val input = TextLayoutInput(
+            // In this test case, transform the text into double characters text.
+            text = AnnotatedString("HHeelllloo,,  WWoorrlldd"),
+            style = TextStyle(),
+            placeholders = listOf(),
+            maxLines = Int.MAX_VALUE,
+            softWrap = true,
+            overflow = TextOverflow.Clip,
+            density = Density(1.0f),
+            layoutDirection = LayoutDirection.Ltr,
+            resourceLoader = mock(),
+            constraints = mock()
+        )
+        whenever(textLayoutResult.layoutInput).thenReturn(input)
+
+        val offsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int = offset * 2
+            override fun transformedToOriginal(offset: Int): Int = offset / 2
+        }
+
+        // The beginning of the text.
+        TextFieldDelegate.notifyFocusedRect(
+            TextFieldValue(text = "Hello, World", selection = TextRange(0)),
+            mDelegate,
+            textLayoutResult,
+            layoutCoordinates,
+            textInputSession,
+            true /* hasFocus */,
+            offsetMapping
+        )
+        verify(textInputSession).notifyFocusedRect(any())
+
+        // The tail of the transformed text.
+        reset(textInputSession)
+        TextFieldDelegate.notifyFocusedRect(
+            TextFieldValue(text = "Hello, World", selection = TextRange(24)),
+            mDelegate,
+            textLayoutResult,
+            layoutCoordinates,
+            textInputSession,
+            true /* hasFocus */,
+            offsetMapping
+        )
+        verify(textInputSession).notifyFocusedRect(any())
+
+        // Beyond the tail of the transformed text.
+        reset(textInputSession)
+        TextFieldDelegate.notifyFocusedRect(
+            TextFieldValue(text = "Hello, World", selection = TextRange(25)),
+            mDelegate,
+            textLayoutResult,
+            layoutCoordinates,
+            textInputSession,
+            true /* hasFocus */,
+            offsetMapping
+        )
+        verify(textInputSession).notifyFocusedRect(any())
     }
 
     private class MockCoordinates(
@@ -390,21 +485,28 @@ class TextFieldDelegateTest {
     ) : LayoutCoordinates {
         override val providedAlignmentLines: Set<AlignmentLine>
             get() = emptySet()
+        override val parentLayoutCoordinates: LayoutCoordinates?
+            get() = null
         override val parentCoordinates: LayoutCoordinates?
             get() = null
         override val isAttached: Boolean
             get() = true
-        override fun globalToLocal(global: Offset): Offset = localOffset
 
-        override fun localToGlobal(local: Offset): Offset = globalOffset
+        override fun windowToLocal(relativeToWindow: Offset): Offset = localOffset
 
-        override fun localToRoot(local: Offset): Offset = rootOffset
+        override fun localToWindow(relativeToLocal: Offset): Offset = globalOffset
 
-        override fun childToLocal(child: LayoutCoordinates, childLocal: Offset): Offset =
-            Offset.Zero
+        override fun localToRoot(relativeToLocal: Offset): Offset = rootOffset
+        override fun localPositionOf(
+            sourceCoordinates: LayoutCoordinates,
+            relativeToSource: Offset
+        ): Offset = Offset.Zero
 
-        override fun childBoundingBox(child: LayoutCoordinates): Rect = Rect.Zero
+        override fun localBoundingBoxOf(
+            sourceCoordinates: LayoutCoordinates,
+            clipBounds: Boolean
+        ): Rect = Rect.Zero
 
-        override fun get(line: AlignmentLine): Int = 0
+        override fun get(alignmentLine: AlignmentLine): Int = 0
     }
 }

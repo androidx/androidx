@@ -20,7 +20,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.util.packFloats
-import androidx.compose.ui.util.toStringAsFixed
 import androidx.compose.ui.util.unpackFloat1
 import androidx.compose.ui.util.unpackFloat2
 import kotlin.math.sqrt
@@ -28,9 +27,8 @@ import kotlin.math.sqrt
 /**
  * Constructs an Offset from the given relative x and y offsets
  */
-@Suppress("NOTHING_TO_INLINE")
 @Stable
-inline fun Offset(x: Float, y: Float) = Offset(packFloats(x, y))
+fun Offset(x: Float, y: Float) = Offset(packFloats(x, y))
 
 /**
  * An immutable 2D floating-point offset.
@@ -58,17 +56,29 @@ inline fun Offset(x: Float, y: Float) = Offset(packFloats(x, y))
  * Creates an offset. The first argument sets [x], the horizontal component,
  * and the second sets [y], the vertical component.
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class Offset(val packedValue: Long) {
+inline class Offset internal constructor(internal val packedValue: Long) {
 
     @Stable
     val x: Float
-        get() = unpackFloat1(packedValue)
+        get() {
+            // Explicitly compare against packed values to avoid auto-boxing of Size.Unspecified
+            check(this.packedValue != Unspecified.packedValue) {
+                "Offset is unspecified"
+            }
+            return unpackFloat1(packedValue)
+        }
 
     @Stable
     val y: Float
-        get() = unpackFloat2(packedValue)
+        get() {
+            // Explicitly compare against packed values to avoid auto-boxing of Size.Unspecified
+            check(this.packedValue != Unspecified.packedValue) {
+                "Offset is unspecified"
+            }
+            return unpackFloat2(packedValue)
+        }
 
     @Stable
     operator fun component1(): Float = x
@@ -222,3 +232,28 @@ fun lerp(start: Offset, stop: Offset, fraction: Float): Offset {
         lerp(start.y, stop.y, fraction)
     )
 }
+
+/**
+ * True if both x and y values of the [Offset] are finite
+ */
+@Stable
+val Offset.isFinite: Boolean get() = x.isFinite() && y.isFinite()
+
+/**
+ * `false` when this is [Offset.Unspecified].
+ */
+@Stable
+val Offset.isSpecified: Boolean get() = packedValue != Offset.Unspecified.packedValue
+
+/**
+ * `true` when this is [Offset.Unspecified].
+ */
+@Stable
+val Offset.isUnspecified: Boolean get() = packedValue == Offset.Unspecified.packedValue
+
+/**
+ * If this [Offset] [isSpecified] then this is returned, otherwise [block] is executed
+ * and its result is returned.
+ */
+inline fun Offset.takeOrElse(block: () -> Offset): Offset =
+    if (isSpecified) this else block()

@@ -160,11 +160,11 @@ public class PagerTabStrip extends PagerTitleStrip {
     }
 
     @Override
-    public void setTextSpacing(int textSpacing) {
-        if (textSpacing < mMinTextSpacing) {
-            textSpacing = mMinTextSpacing;
+    public void setTextSpacing(int spacingPixels) {
+        if (spacingPixels < mMinTextSpacing) {
+            spacingPixels = mMinTextSpacing;
         }
-        super.setTextSpacing(textSpacing);
+        super.setTextSpacing(spacingPixels);
     }
 
     @Override

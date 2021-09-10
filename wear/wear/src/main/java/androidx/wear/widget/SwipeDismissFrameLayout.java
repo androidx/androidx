@@ -161,7 +161,7 @@ public class SwipeDismissFrameLayout extends DismissibleFrameLayout {
 
     /** Returns true if the frame layout can be dismissed by swipe gestures. */
     public boolean isSwipeable() {
-        return super.isSwipeDismissible();
+        return super.isDismissableBySwipe();
     }
 
     /**
@@ -189,24 +189,24 @@ public class SwipeDismissFrameLayout extends DismissibleFrameLayout {
     }
 
     @Override
-    protected void executeDismissedCallbacks() {
-        super.executeDismissedCallbacks();
+    protected void performDismissFinishedCallbacks() {
+        super.performDismissFinishedCallbacks();
         for (int i = mCallbacksCompat.size() - 1; i >= 0; i--) {
             mCallbacksCompat.get(i).onDismissed(this);
         }
     }
 
     @Override
-    protected void executeDismissStartedCallbacks() {
-        super.executeDismissStartedCallbacks();
+    protected void performDismissStartedCallbacks() {
+        super.performDismissStartedCallbacks();
         for (int i = mCallbacksCompat.size() - 1; i >= 0; i--) {
             mCallbacksCompat.get(i).onSwipeStarted(this);
         }
     }
 
     @Override
-    protected void executeDismissCanceledCallbacks() {
-        super.executeDismissCanceledCallbacks();
+    protected void performDismissCanceledCallbacks() {
+        super.performDismissCanceledCallbacks();
         for (int i = mCallbacksCompat.size() - 1; i >= 0; i--) {
             mCallbacksCompat.get(i).onSwipeCanceled(this);
         }

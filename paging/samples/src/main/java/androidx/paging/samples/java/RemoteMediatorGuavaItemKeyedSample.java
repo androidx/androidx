@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import retrofit2.HttpException;
 
@@ -52,6 +53,27 @@ class RemoteMediatorGuavaItemKeyedSample extends ListenableFutureRemoteMediator<
         mDatabase = database;
         mUserDao = database.userDao();
         mBgExecutor = bgExecutor;
+    }
+
+    @NotNull
+    @Override
+    public ListenableFuture<InitializeAction> initializeFuture() {
+        long cacheTimeout = TimeUnit.HOURS.convert(1, TimeUnit.MILLISECONDS);
+        return Futures.transform(
+                mUserDao.lastUpdatedFuture(),
+                lastUpdatedMillis -> {
+                    if (System.currentTimeMillis() - lastUpdatedMillis >= cacheTimeout) {
+                        // Cached data is up-to-date, so there is no need to re-fetch
+                        // from the network.
+                        return InitializeAction.SKIP_INITIAL_REFRESH;
+                    } else {
+                        // Need to refresh cached data from network; returning
+                        // LAUNCH_INITIAL_REFRESH here will also block RemoteMediator's
+                        // APPEND and PREPEND from running until REFRESH succeeds.
+                        return InitializeAction.LAUNCH_INITIAL_REFRESH;
+                    }
+                },
+                mBgExecutor);
     }
 
     @NotNull

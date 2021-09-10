@@ -26,10 +26,11 @@ import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 
-import androidx.camera.camera2.interop.Camera2CameraFilter;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.core.CameraFilter;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.impl.CameraThreadConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -50,7 +51,8 @@ import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
+        instrumentedPackages = { "androidx.camera.camera2.internal" })
 public class CameraSelectionOptimizerTest {
     private Camera2CameraFactory mCamera2CameraFactory;
 
@@ -59,7 +61,7 @@ public class CameraSelectionOptimizerTest {
         mCamera2CameraFactory =
                 spy(new Camera2CameraFactory(ApplicationProvider.getApplicationContext(),
                         CameraThreadConfig.create(CameraXExecutors.mainThreadExecutor(),
-                                new Handler()),
+                                new Handler(Looper.getMainLooper())),
                         null));
     }
 
@@ -126,20 +128,20 @@ public class CameraSelectionOptimizerTest {
     public void requireLensFacingBack_andSelectWidestAngle() throws Exception {
         setupNormalCameras();
 
-        CameraFilter widestAngleFilter = Camera2CameraFilter.createCameraFilter(
-                cameraInfoList -> {
-                    float minFocalLength = 10000;
-                    Camera2CameraInfo minFocalCameraInfo = null;
-                    for (Camera2CameraInfo camera2CameraInfo : cameraInfoList) {
-                        float focalLength = camera2CameraInfo.getCameraCharacteristic(
+        CameraFilter widestAngleFilter = cameraInfoList -> {
+            float minFocalLength = 10000;
+            CameraInfo minFocalCameraInfo = null;
+            for (CameraInfo cameraInfo : cameraInfoList) {
+                float focalLength =
+                        Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(
                                 CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)[0];
-                        if (focalLength < minFocalLength) {
-                            minFocalLength = focalLength;
-                            minFocalCameraInfo = camera2CameraInfo;
-                        }
-                    }
-                    return Arrays.asList(minFocalCameraInfo);
-                });
+                if (focalLength < minFocalLength) {
+                    minFocalLength = focalLength;
+                    minFocalCameraInfo = cameraInfo;
+                }
+            }
+            return Arrays.asList(minFocalCameraInfo);
+        };
 
         CameraSelector cameraSelector =
                 new CameraSelector.Builder()
@@ -154,7 +156,6 @@ public class CameraSelectionOptimizerTest {
         assertThat(cameraIds).containsExactly("2");
         // only camera "1" 's getCameraCharacteristics can be avoided.
         verify(mCamera2CameraFactory, never()).getCameraInfo("1");
-
     }
 
     @Test
@@ -187,6 +188,38 @@ public class CameraSelectionOptimizerTest {
 
         // even though heuristic failed, it still works as expected.
         assertThat(cameraIds).containsExactly("0");
+    }
+
+    @Test
+    public void emptyCameraIdList_returnEmptyAvailableIds() throws Exception {
+        // Do not set up any cameras.
+        List<String> cameraIds =
+                CameraSelectionOptimizer.getSelectedAvailableCameraIds(mCamera2CameraFactory,
+                        CameraSelector.DEFAULT_BACK_CAMERA);
+
+        assertThat(cameraIds).isEmpty();
+    }
+
+    @Test
+    public void onlyCamera0_requireFront_returnEmptyAvailableIds() throws Exception {
+        initCharacterisic("0", CameraCharacteristics.LENS_FACING_BACK, 3.52f);
+
+        List<String> cameraIds =
+                CameraSelectionOptimizer.getSelectedAvailableCameraIds(mCamera2CameraFactory,
+                        CameraSelector.DEFAULT_FRONT_CAMERA);
+
+        assertThat(cameraIds).isEmpty();
+    }
+
+    @Test
+    public void onlyCamera1_requireBack_returnEmptyAvailableIds() throws Exception {
+        initCharacterisic("1", CameraCharacteristics.LENS_FACING_FRONT, 3.52f);
+
+        List<String> cameraIds =
+                CameraSelectionOptimizer.getSelectedAvailableCameraIds(mCamera2CameraFactory,
+                        CameraSelector.DEFAULT_BACK_CAMERA);
+
+        assertThat(cameraIds).isEmpty();
     }
 
     private void initCharacterisic(String cameraId, int lensFacing, float focalLength) {

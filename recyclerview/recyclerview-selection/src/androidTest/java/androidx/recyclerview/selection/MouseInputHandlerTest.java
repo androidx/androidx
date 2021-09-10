@@ -71,14 +71,14 @@ public final class MouseInputHandlerTest {
         mSelection = new SelectionProbe(mSelectionMgr);
 
         mMouseCallbacks = new TestOnContextClickListener();
-        mActivationCallbacks = new TestOnItemActivatedListener();
-        mFocusCallbacks = new TestFocusDelegate();
+        mActivationCallbacks = new TestOnItemActivatedListener<>();
+        mFocusCallbacks = new TestFocusDelegate<>();
 
-        mInputDelegate = new MouseInputHandler(
+        mInputDelegate = new MouseInputHandler<>(
                 mSelectionMgr,
-                new TestItemKeyProvider(
+                new TestItemKeyProvider<>(
                         ItemKeyProvider.SCOPE_MAPPED,
-                        new TestAdapter(TestData.createStringData(100))),
+                        new TestAdapter<>(TestData.createStringData(100))),
                 mDetailsLookup,
                 mMouseCallbacks,
                 mActivationCallbacks,

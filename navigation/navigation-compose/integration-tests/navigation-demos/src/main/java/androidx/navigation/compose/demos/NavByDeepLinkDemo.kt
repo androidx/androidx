@@ -23,12 +23,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
-import androidx.compose.material.ButtonConstants
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -36,10 +37,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.samples.Dashboard
 import androidx.navigation.compose.samples.Screen
+import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 
 @Composable
@@ -63,7 +64,7 @@ fun ProfileWithDeepLink(navController: NavController, uri: String) {
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
         Text(text = stringResource(Screen.Profile.resourceId))
         Divider(color = Color.Black)
-        val state = savedInstanceState { "" }
+        val state = rememberSaveable { mutableStateOf("") }
         Box {
             TextField(
                 value = state.value,
@@ -74,7 +75,7 @@ fun ProfileWithDeepLink(navController: NavController, uri: String) {
         Divider(color = Color.Black)
         Button(
             onClick = { navController.navigate(Uri.parse(uri + state.value)) },
-            colors = ButtonConstants.defaultButtonColors(backgroundColor = Color.LightGray),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Navigate By DeepLink")

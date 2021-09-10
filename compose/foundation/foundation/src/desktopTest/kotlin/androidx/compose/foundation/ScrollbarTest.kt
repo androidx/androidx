@@ -16,59 +16,53 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.foundation.gestures.LocalMouseScrollConfig
+import androidx.compose.foundation.gestures.MouseScrollableConfig
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumnFor
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.mouse.MouseScrollEvent
+import androidx.compose.ui.input.mouse.MouseScrollOrientation
 import androidx.compose.ui.input.mouse.MouseScrollUnit
-import androidx.compose.ui.platform.DesktopPlatform
-import androidx.compose.ui.platform.DesktopPlatformAmbient
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTesting
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
-import androidx.compose.ui.test.down
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.DesktopComposeTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performGesture
-import androidx.compose.ui.test.swipe
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.milliseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.yield
-import org.jetbrains.skija.Surface
 import org.junit.Assert.assertEquals
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
 @Suppress("WrapUnaryOperator")
-@OptIn(ExperimentalTesting::class)
+@OptIn(ExperimentalTestApi::class)
 class ScrollbarTest {
     @get:Rule
     val rule = createComposeRule()
-
-    // don't inline, surface controls canvas life time
-    private val surface = Surface.makeRasterN32Premul(100, 100)
-    private val canvas = surface.canvas
 
     @Test
     fun `drag slider to the middle`() {
@@ -78,11 +72,26 @@ class ScrollbarTest {
             }
             rule.awaitIdle()
 
-            rule.onNodeWithTag("scrollbar").performGesture {
-                swipe(start = Offset(0f, 25f), end = Offset(0f, 50f))
+            rule.onNodeWithTag("scrollbar").performTouchInput {
+                instantSwipe(start = Offset(0f, 25f), end = Offset(0f, 50f))
             }
-            onFrame()
+            rule.awaitIdle()
             rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(-50.dp)
+        }
+    }
+
+    @Test
+    fun `drag slider when it is hidden`() {
+        runBlocking(Dispatchers.Main) {
+            rule.setContent {
+                TestBox(size = 100.dp, childSize = 20.dp, childCount = 1, scrollbarWidth = 10.dp)
+            }
+            rule.awaitIdle()
+            rule.onNodeWithTag("scrollbar").performTouchInput {
+                instantSwipe(start = Offset(0f, 25f), end = Offset(0f, 50f))
+            }
+            rule.awaitIdle()
+            rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(0.dp)
         }
     }
 
@@ -94,16 +103,16 @@ class ScrollbarTest {
             }
             rule.awaitIdle()
 
-            rule.onNodeWithTag("scrollbar").performGesture {
-                swipe(start = Offset(0f, 25f), end = Offset(0f, 500f))
+            rule.onNodeWithTag("scrollbar").performTouchInput {
+                instantSwipe(start = Offset(0f, 25f), end = Offset(0f, 500f))
             }
-            onFrame()
+            rule.awaitIdle()
             rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(-100.dp)
 
-            rule.onNodeWithTag("scrollbar").performGesture {
-                swipe(start = Offset(0f, 99f), end = Offset(0f, -500f))
+            rule.onNodeWithTag("scrollbar").performTouchInput {
+                instantSwipe(start = Offset(0f, 99f), end = Offset(0f, -500f))
             }
-            onFrame()
+            rule.awaitIdle()
             rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(0.dp)
         }
     }
@@ -116,13 +125,29 @@ class ScrollbarTest {
             }
             rule.awaitIdle()
 
-            rule.onNodeWithTag("scrollbar").performGesture {
-                swipe(start = Offset(10f, 25f), end = Offset(0f, 50f))
+            rule.onNodeWithTag("scrollbar").performTouchInput {
+                instantSwipe(start = Offset(10f, 25f), end = Offset(0f, 50f))
             }
-            onFrame()
+            rule.awaitIdle()
             rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(0.dp)
         }
     }
+
+    // TODO(demin): write a test when we support DesktopComposeTestRule.mainClock:
+    //  see https://github.com/JetBrains/compose-jb/issues/637
+//    fun `move mouse to the slider and drag it`() {
+//        ...
+//        rule.performMouseMove(0, 25)
+//        rule.mainClock.advanceTimeByFrame()
+//        down(Offset(0f, 25f))
+//        rule.mainClock.advanceTimeByFrame()
+//        moveTo(Offset(0f, 30f))
+//        rule.mainClock.advanceTimeByFrame()
+//        moveTo(Offset(0f, 50f))
+//        rule.mainClock.advanceTimeByFrame()
+//        up()
+//        ...
+//    }
 
     // TODO(demin): enable after we resolve b/171889442
     @Ignore("Enable after we resolve b/171889442")
@@ -135,7 +160,7 @@ class ScrollbarTest {
             rule.awaitIdle()
 
             rule.performMouseScroll(0, 25, 1f)
-            onFrame()
+            rule.awaitIdle()
             rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(-10.dp)
         }
     }
@@ -151,7 +176,7 @@ class ScrollbarTest {
             rule.awaitIdle()
 
             rule.performMouseScroll(0, 99, 1f)
-            onFrame()
+            rule.awaitIdle()
             rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(-10.dp)
         }
     }
@@ -177,13 +202,13 @@ class ScrollbarTest {
             rule.awaitIdle()
 
             rule.performMouseScroll(20, 25, 10f)
-            onFrame()
+            rule.awaitIdle()
             rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(-100.dp)
 
-            rule.onNodeWithTag("scrollbar").performGesture {
-                swipe(start = Offset(0f, 99f), end = Offset(0f, -500f))
+            rule.onNodeWithTag("scrollbar").performTouchInput {
+                instantSwipe(start = Offset(0f, 99f), end = Offset(0f, -500f))
             }
-            onFrame()
+            rule.awaitIdle()
             rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(0.dp)
         }
     }
@@ -196,12 +221,12 @@ class ScrollbarTest {
             }
             rule.awaitIdle()
 
-            rule.onNodeWithTag("scrollbar").performGesture {
+            rule.onNodeWithTag("scrollbar").performTouchInput {
                 down(Offset(0f, 26f))
             }
 
             tryUntilSucceeded {
-                onFrame()
+                rule.awaitIdle()
                 rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(-100.dp)
             }
         }
@@ -215,12 +240,12 @@ class ScrollbarTest {
             }
             rule.awaitIdle()
 
-            rule.onNodeWithTag("scrollbar").performGesture {
+            rule.onNodeWithTag("scrollbar").performTouchInput {
                 down(Offset(0f, 99f))
             }
 
             tryUntilSucceeded {
-                onFrame()
+                rule.awaitIdle()
                 rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(-300.dp)
             }
         }
@@ -242,15 +267,15 @@ class ScrollbarTest {
                     }
                 }
             }
-            onFrame()
+            rule.awaitIdle()
 
             isContentVisible.value = true
-            onFrame()
+            rule.awaitIdle()
 
-            rule.onNodeWithTag("scrollbar").performGesture {
-                swipe(start = Offset(0f, 25f), end = Offset(0f, 500f))
+            rule.onNodeWithTag("scrollbar").performTouchInput {
+                instantSwipe(start = Offset(0f, 25f), end = Offset(0f, 500f))
             }
-            onFrame()
+            rule.awaitIdle()
             rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(-100.dp)
         }
     }
@@ -274,10 +299,39 @@ class ScrollbarTest {
             }
             rule.awaitIdle()
 
-            rule.onNodeWithTag("scrollbar").performGesture {
-                swipe(start = Offset(0f, 0f), end = Offset(0f, 11f), duration = 1.milliseconds)
+            rule.onNodeWithTag("scrollbar").performTouchInput {
+                instantSwipe(start = Offset(0f, 0f), end = Offset(0f, 11f))
             }
-            onFrame()
+            rule.awaitIdle()
+            assertEquals(2, state.firstVisibleItemIndex)
+            assertEquals(4, state.firstVisibleItemScrollOffset)
+        }
+    }
+
+    @Suppress("SameParameterValue")
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test(timeout = 3000)
+    fun `scroll in reversed lazy list`() {
+        runBlocking(Dispatchers.Main) {
+            lateinit var state: LazyListState
+
+            rule.setContent {
+                state = rememberLazyListState()
+                LazyTestBox(
+                    state,
+                    size = 100.dp,
+                    childSize = 20.dp,
+                    childCount = 20,
+                    scrollbarWidth = 10.dp,
+                    reverseLayout = true
+                )
+            }
+            rule.awaitIdle()
+
+            rule.onNodeWithTag("scrollbar").performTouchInput {
+                instantSwipe(start = Offset(0f, 99f), end = Offset(0f, 88f))
+            }
+            rule.awaitIdle()
             assertEquals(2, state.firstVisibleItemIndex)
             assertEquals(4, state.firstVisibleItemScrollOffset)
         }
@@ -302,10 +356,10 @@ class ScrollbarTest {
             }
             rule.awaitIdle()
 
-            rule.onNodeWithTag("scrollbar").performGesture {
-                swipe(start = Offset(0f, 0f), end = Offset(0f, 26f), duration = 1.milliseconds)
+            rule.onNodeWithTag("scrollbar").performTouchInput {
+                instantSwipe(start = Offset(0f, 0f), end = Offset(0f, 26f))
             }
-            onFrame()
+            rule.awaitIdle()
             assertEquals(5, state.firstVisibleItemIndex)
             assertEquals(4, state.firstVisibleItemScrollOffset)
         }
@@ -330,19 +384,36 @@ class ScrollbarTest {
             }
             rule.awaitIdle()
 
-            rule.onNodeWithTag("scrollbar").performGesture {
-                swipe(start = Offset(0f, 0f), end = Offset(0f, 10000f), duration = 1.milliseconds)
+            rule.onNodeWithTag("scrollbar").performTouchInput {
+                instantSwipe(start = Offset(0f, 0f), end = Offset(0f, 10000f))
             }
-            onFrame()
+            rule.awaitIdle()
             assertEquals(15, state.firstVisibleItemIndex)
             assertEquals(0, state.firstVisibleItemScrollOffset)
 
-            rule.onNodeWithTag("scrollbar").performGesture {
-                swipe(start = Offset(0f, 99f), end = Offset(0f, -10000f), duration = 1.milliseconds)
+            rule.onNodeWithTag("scrollbar").performTouchInput {
+                instantSwipe(start = Offset(0f, 99f), end = Offset(0f, -10000f))
             }
-            onFrame()
+            rule.awaitIdle()
             assertEquals(0, state.firstVisibleItemIndex)
             assertEquals(0, state.firstVisibleItemScrollOffset)
+        }
+    }
+
+    @Test
+    fun `drag lazy slider when it is hidden`() {
+        runBlocking(Dispatchers.Main) {
+            rule.setContent {
+                LazyTestBox(
+                    size = 100.dp, childSize = 20.dp, childCount = 1, scrollbarWidth = 10.dp
+                )
+            }
+            rule.awaitIdle()
+            rule.onNodeWithTag("scrollbar").performTouchInput {
+                instantSwipe(start = Offset(0f, 25f), end = Offset(0f, 50f))
+            }
+            rule.awaitIdle()
+            rule.onNodeWithTag("box0").assertTopPositionInRootIsEqualTo(0.dp)
         }
     }
 
@@ -357,18 +428,14 @@ class ScrollbarTest {
         }
     }
 
-    // TODO(demin): move to DesktopComposeTestRule?
-    private suspend fun onFrame() {
-        // TODO(demin): probably we don't need `yield` after we fix https://github.com/JetBrains/compose-jb/issues/137
-        yield()
-        (rule as DesktopComposeTestRule).owners?.onFrame(canvas, 100, 100, 0)
-        rule.awaitIdle()
+    private fun ComposeTestRule.performMouseScroll(x: Int, y: Int, delta: Float) {
+        (this as DesktopComposeTestRule).window.onMouseScroll(
+            x, y, MouseScrollEvent(MouseScrollUnit.Line(delta), MouseScrollOrientation.Vertical)
+        )
     }
 
-    private fun ComposeTestRule.performMouseScroll(x: Int, y: Int, delta: Float) {
-        (this as DesktopComposeTestRule).owners!!.onMouseScroll(
-            x, y, MouseScrollEvent(MouseScrollUnit.Line(delta), Orientation.Vertical)
-        )
+    private fun ComposeTestRule.performMouseMove(x: Int, y: Int) {
+        (this as DesktopComposeTestRule).window.onMouseMoved(x, y)
     }
 
     @Composable
@@ -381,9 +448,8 @@ class ScrollbarTest {
         Box(Modifier.size(size)) {
             val state = rememberScrollState()
 
-            ScrollableColumn(
-                Modifier.fillMaxSize().testTag("column"),
-                state
+            Column(
+                Modifier.fillMaxSize().testTag("column").verticalScroll(state)
             ) {
                 repeat(childCount) {
                     Box(Modifier.size(childSize).testTag("box$it"))
@@ -409,9 +475,8 @@ class ScrollbarTest {
         Box(Modifier.size(size)) {
             val state = rememberScrollState()
 
-            ScrollableColumn(
-                Modifier.fillMaxSize().testTag("column"),
-                state,
+            Column(
+                Modifier.fillMaxSize().testTag("column").verticalScroll(state),
                 content = scrollableContent
             )
 
@@ -429,23 +494,27 @@ class ScrollbarTest {
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
     private fun LazyTestBox(
-        state: LazyListState,
+        state: LazyListState = rememberLazyListState(),
         size: Dp,
         childSize: Dp,
         childCount: Int,
         scrollbarWidth: Dp,
+        reverseLayout: Boolean = false
     ) = withTestEnvironment {
         Box(Modifier.size(size)) {
-            LazyColumnFor(
-                (0 until childCount).toList(),
+            LazyColumn(
                 Modifier.fillMaxSize().testTag("column"),
-                state
+                state,
+                reverseLayout = reverseLayout
             ) {
-                Box(Modifier.size(childSize).testTag("box$it"))
+                items((0 until childCount).toList()) {
+                    Box(Modifier.size(childSize).testTag("box$it"))
+                }
             }
 
             VerticalScrollbar(
-                adapter = rememberScrollbarAdapter(state, childCount, childSize),
+                adapter = rememberScrollbarAdapter(state),
+                reverseLayout = reverseLayout,
                 modifier = Modifier
                     .width(scrollbarWidth)
                     .fillMaxHeight()
@@ -454,9 +523,15 @@ class ScrollbarTest {
         }
     }
 
+    private fun TouchInjectionScope.instantSwipe(start: Offset, end: Offset) {
+        down(start)
+        moveTo(end)
+        up()
+    }
+
     @Composable
-    private fun withTestEnvironment(content: @Composable () -> Unit) = Providers(
-        ScrollbarStyleAmbient provides ScrollbarStyle(
+    private fun withTestEnvironment(content: @Composable () -> Unit) = CompositionLocalProvider(
+        LocalScrollbarStyle provides ScrollbarStyle(
             minimalHeight = 16.dp,
             thickness = 8.dp,
             shape = RectangleShape,
@@ -464,7 +539,7 @@ class ScrollbarTest {
             unhoverColor = Color.Black,
             hoverColor = Color.Red
         ),
-        DesktopPlatformAmbient provides DesktopPlatform.MacOS,
+        LocalMouseScrollConfig provides MouseScrollableConfig.MacOSCocoa,
         content = content
     )
 }

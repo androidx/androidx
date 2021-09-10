@@ -18,7 +18,7 @@ function fn_aosp_checkout {
   repo download "platform/frameworks/support" ${REPO_ID:1:-1}  \
     && BRANCH=`git log -1 | grep Change-Id | awk '{print $2}'` \
     && git checkout -B "aosp/$BRANCH"                          \
-    && git branch --set-upstream-to=aosp/androidx-master-dev
+    && git branch --set-upstream-to=aosp/androidx-main
 }
 
 function fn_aosp_merged {
@@ -89,7 +89,7 @@ elif [[ "$1" == "c" ]]; then
   && repo download "platform/frameworks/support" "$PATCH"    \
   && BRANCH=`git log -1 | grep Change-Id | awk '{print $2}'` \
   && git checkout -B "`whoami`/$BRANCH"                     \
-  && git branch --set-upstream-to=aosp/androidx-master-dev
+  && git branch --set-upstream-to=aosp/androidx-main
 elif [[ "$1" == "r" ]]; then
   fn_git_check_uncommitted_changes
 

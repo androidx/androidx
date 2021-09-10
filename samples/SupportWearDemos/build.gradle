@@ -21,7 +21,7 @@ plugins {
 
 dependencies {
     implementation(project(":wear:wear"))
-    implementation project(path: ':appcompat:appcompat')
+    implementation(project(path: ":appcompat:appcompat"))
 }
 
 android {

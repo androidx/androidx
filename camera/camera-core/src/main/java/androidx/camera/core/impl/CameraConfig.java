@@ -16,8 +16,14 @@
 
 package androidx.camera.core.impl;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraFilter;
+import androidx.annotation.Nullable;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Preview;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Configuration for a {@link androidx.camera.core.Camera}.
@@ -26,54 +32,119 @@ public interface CameraConfig extends ReadableConfig {
 
     // Option Declarations:
     // *********************************************************************************************
-
-    /**
-     * Option: camerax.core.camera.cameraFilter
-     */
-    Option<CameraFilter> OPTION_CAMERA_FILTER =
-            Option.create("camerax.core.camera.cameraFilter", CameraFilter.class);
-
     Option<UseCaseConfigFactory> OPTION_USECASE_CONFIG_FACTORY =
             Option.create("camerax.core.camera.useCaseConfigFactory",
                     UseCaseConfigFactory.class);
 
+    Option<Identifier> OPTION_COMPATIBILITY_ID =
+            Option.create("camerax.core.camera.compatibilityId",
+                    Identifier.class);
+
+    Option<Integer> OPTION_USE_CASE_COMBINATION_REQUIRED_RULE =
+            Option.create("camerax.core.camera.useCaseCombinationRequiredRule", Integer.class);
+
+    Option<SessionProcessor> OPTION_SESSION_PROCESSOR =
+            Option.create("camerax.core.camera.SessionProcessor", SessionProcessor.class);
+
     /**
-     * Retrieves the camera filter from this configuration.
-     *
-     * <p> This filter is used to filter out additional cameras.
-     *
-     * @return The stored value, if it exists in this configuration. Otherwise a filter that does
-     * not filter out any cameras.
+     * No rule is required when the camera is opened by the camera config.
      */
-    @NonNull
-    default CameraFilter getCameraFilter() {
-        return retrieveOption(OPTION_CAMERA_FILTER, CameraFilters.ANY);
+    int REQUIRED_RULE_NONE = 0;
+
+    /**
+     * Both {@link Preview} and {@link ImageCapture} use cases are needed when the camera is
+     * opened by the camera config. An extra {@link Preview} or {@link ImageCapture} will be
+     * added only if one use case is lacking. If both {@link Preview} and {@link ImageCapture}
+     * are not bound, no extra {@link Preview} and {@link ImageCapture} will be added.
+     */
+    int REQUIRED_RULE_COEXISTING_PREVIEW_AND_IMAGE_CAPTURE = 1;
+
+    @IntDef({REQUIRED_RULE_NONE,
+            REQUIRED_RULE_COEXISTING_PREVIEW_AND_IMAGE_CAPTURE})
+    @Retention(RetentionPolicy.SOURCE)
+    @interface RequiredRule {
     }
 
     /**
      * Retrieves the use case config factory instance.
      */
     @NonNull
-    UseCaseConfigFactory getUseCaseConfigFactory();
+    default UseCaseConfigFactory getUseCaseConfigFactory() {
+        return retrieveOption(OPTION_USECASE_CONFIG_FACTORY, UseCaseConfigFactory.EMPTY_INSTANCE);
+    }
+
+    /**
+     * Retrieves the compatibility {@link Identifier}.
+     *
+     * <p>If camera configs have the same compatibility identifier, they will allow to bind a new
+     * use case without unbinding all use cases first.
+     */
+    @NonNull
+    Identifier getCompatibilityId();
+
+    /**
+     * Returns the use case combination required rule when the camera is opened by the camera
+     * config.
+     */
+    @RequiredRule
+    default int getUseCaseCombinationRequiredRule() {
+        return retrieveOption(OPTION_USE_CASE_COMBINATION_REQUIRED_RULE, REQUIRED_RULE_NONE);
+    }
+
+    /**
+     * Returns the session processor which will transform the stream configurations and
+     * will perform the repeating request and still capture request when being requested by CameraX.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Nullable
+    default SessionProcessor getSessionProcessor(@Nullable SessionProcessor valueIfMissing) {
+        return retrieveOption(OPTION_SESSION_PROCESSOR, valueIfMissing);
+    }
+
+    /**
+     * Returns the session processor which will transform the stream configurations and will
+     * perform the repeating request and still capture request when being requested by CameraX.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @NonNull
+    default SessionProcessor getSessionProcessor() {
+        return retrieveOption(OPTION_SESSION_PROCESSOR);
+    }
 
     /**
      * Builder for creating a {@link CameraConfig}.
+     *
      * @param <B> the top level builder type for which this builder is composed with.
      */
     interface Builder<B> {
         /**
-         * Sets the {@link CameraFilter} to apply.
-         *
-         * <p> The filter which will be additionally applied to
-         * {@link androidx.camera.core.CameraSelector} when selecting a camera.
-         *
-         * @param cameraFilter the {@link CameraFilter} to apply.
-         * @return The current Builder.
+         * Sets a {@link UseCaseConfigFactory} for the camera config.
          */
         @NonNull
-        B setCameraFilter(@NonNull CameraFilter cameraFilter);
-
-        @NonNull
         B setUseCaseConfigFactory(@NonNull UseCaseConfigFactory factory);
+
+        /**
+         * Sets compatibility {@link Identifier} for the camera config.
+         */
+        @NonNull
+        B setCompatibilityId(@NonNull Identifier identifier);
+
+        /**
+         * Sets use case combination required rule to this configuration.
+         */
+        @NonNull
+        B setUseCaseCombinationRequiredRule(@RequiredRule int useCaseCombinationRequiredRule);
+
+        /**
+         * Sets the session processor which will transform the stream configurations and will
+         * perform the repeating request and still capture request when being requested by CameraX.
+         */
+        @NonNull
+        B setSessionProcessor(@NonNull SessionProcessor sessionProcessor);
     }
 }

@@ -18,7 +18,7 @@ package androidx.compose.foundation
 
 import android.os.Build
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.testutils.assertShape
@@ -29,11 +29,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.AmbientDensity
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -62,16 +65,16 @@ class CanvasTest {
     fun testCanvas() {
         val strokeWidth = 5.0f
         rule.setContent {
-            val density = AmbientDensity.current.density
+            val density = LocalDensity.current.density
             val containerSize = (containerSize * 2 / density).dp
             val minWidth = (boxWidth / density).dp
             val minHeight = (boxHeight / density).dp
             Box(
-                modifier = Modifier.preferredSize(containerSize)
+                modifier = Modifier.size(containerSize)
                     .background(color = Color.White)
                     .wrapContentSize(Alignment.Center)
             ) {
-                Canvas(modifier = Modifier.preferredSize(minWidth, minHeight)) {
+                Canvas(modifier = Modifier.size(minWidth, minHeight)) {
                     drawLine(
                         start = Offset.Zero,
                         end = Offset(size.width, size.height),
@@ -161,6 +164,20 @@ class CanvasTest {
     }
 
     @Test
+    @OptIn(ExperimentalFoundationApi::class)
+    fun canvas_contentDescription() {
+        val testTag = "canvas"
+        val contentDescription = "cd"
+        rule.setContent {
+            Canvas(modifier = Modifier.testTag(testTag), contentDescription = contentDescription) {
+                drawRect(Color.Black)
+            }
+        }
+
+        rule.onNodeWithTag(testTag).assertContentDescriptionEquals(contentDescription)
+    }
+
+    @Test
     fun canvas_noSize_emptyCanvas() {
         rule.setContentForSizeAssertions {
             Canvas(modifier = Modifier) {
@@ -175,7 +192,7 @@ class CanvasTest {
     @LargeTest
     fun canvas_exactSizes() {
         rule.setContentForSizeAssertions {
-            Canvas(Modifier.preferredSize(100.dp)) {
+            Canvas(Modifier.size(100.dp)) {
                 drawRect(Color.Red)
             }
         }
@@ -194,7 +211,7 @@ class CanvasTest {
     @LargeTest
     fun canvas_exactSizes_drawCircle() {
         rule.setContentForSizeAssertions {
-            Canvas(Modifier.preferredSize(100.dp)) {
+            Canvas(Modifier.size(100.dp)) {
                 drawRect(Color.Red)
                 drawCircle(
                     Color.Blue,

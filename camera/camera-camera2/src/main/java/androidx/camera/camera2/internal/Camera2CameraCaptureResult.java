@@ -16,7 +16,10 @@
 
 package androidx.camera.camera2.internal;
 
+import android.graphics.Rect;
+import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureResult;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.Logger;
@@ -27,6 +30,7 @@ import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.impl.CameraCaptureMetaData.FlashState;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.TagBundle;
+import androidx.camera.core.impl.utils.ExifData;
 
 /** The camera2 implementation for the capture result of a single image capture. */
 public class Camera2CameraCaptureResult implements CameraCaptureResult {
@@ -41,6 +45,10 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
             @NonNull CaptureResult captureResult) {
         mTagBundle = tagBundle;
         mCaptureResult = captureResult;
+    }
+
+    public Camera2CameraCaptureResult(@NonNull CaptureResult captureResult) {
+        this(TagBundle.emptyBundle(), captureResult);
     }
 
     /**
@@ -88,14 +96,16 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
                 return AfState.INACTIVE;
             case CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN:
             case CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN:
-            case CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED:
                 return AfState.SCANNING;
             case CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED:
                 return AfState.LOCKED_FOCUSED;
             case CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED:
                 return AfState.LOCKED_NOT_FOCUSED;
+            case CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED:
+                return AfState.PASSIVE_NOT_FOCUSED;
             case CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED:
-                return AfState.FOCUSED;
+                return AfState.PASSIVE_FOCUSED;
+
             default: // fall out
         }
         Logger.e(TAG, "Undefined af state: " + state);
@@ -201,6 +211,66 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
     @Override
     public TagBundle getTagBundle() {
         return mTagBundle;
+    }
+
+    @Override
+    public void populateExifData(@NonNull ExifData.Builder exifData) {
+        // Call interface default to set flash mode
+        CameraCaptureResult.super.populateExifData(exifData);
+
+        // Set dimensions
+        Rect cropRegion = mCaptureResult.get(CaptureResult.SCALER_CROP_REGION);
+        if (cropRegion != null) {
+            exifData.setImageWidth(cropRegion.width())
+                    .setImageHeight(cropRegion.height());
+        }
+
+        // Set orientation
+        Integer jpegOrientation = mCaptureResult.get(CaptureResult.JPEG_ORIENTATION);
+        if (jpegOrientation != null) {
+            exifData.setOrientationDegrees(jpegOrientation);
+        }
+
+        // Set exposure time
+        Long exposureTimeNs = mCaptureResult.get(CaptureResult.SENSOR_EXPOSURE_TIME);
+        if (exposureTimeNs != null) {
+            exifData.setExposureTimeNanos(exposureTimeNs);
+        }
+
+        // Set the aperture
+        Float aperture = mCaptureResult.get(CaptureResult.LENS_APERTURE);
+        if (aperture != null) {
+            exifData.setLensFNumber(aperture);
+        }
+
+        // Set the ISO
+        Integer iso = mCaptureResult.get(CaptureResult.SENSOR_SENSITIVITY);
+        if (iso != null) {
+            if (Build.VERSION.SDK_INT >= 24) {
+                Integer postRawSensitivityBoost =
+                        mCaptureResult.get(CaptureResult.CONTROL_POST_RAW_SENSITIVITY_BOOST);
+                if (postRawSensitivityBoost != null) {
+                    iso *= (int) (postRawSensitivityBoost / 100f);
+                }
+            }
+            exifData.setIso(iso);
+        }
+
+        // Set the focal length
+        Float focalLength = mCaptureResult.get(CaptureResult.LENS_FOCAL_LENGTH);
+        if (focalLength != null) {
+            exifData.setFocalLength(focalLength);
+        }
+
+        // Set white balance MANUAL/AUTO
+        Integer whiteBalanceMode = mCaptureResult.get(CaptureResult.CONTROL_AWB_MODE);
+        if (whiteBalanceMode != null) {
+            ExifData.WhiteBalanceMode wbMode = ExifData.WhiteBalanceMode.AUTO;
+            if (whiteBalanceMode == CameraMetadata.CONTROL_AWB_MODE_OFF) {
+                wbMode = ExifData.WhiteBalanceMode.MANUAL;
+            }
+            exifData.setWhiteBalanceMode(wbMode);
+        }
     }
 
     @NonNull

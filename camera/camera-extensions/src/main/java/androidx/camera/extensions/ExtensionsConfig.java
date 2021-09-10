@@ -17,20 +17,19 @@
 package androidx.camera.extensions;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraFilter;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.Identifier;
 import androidx.camera.core.impl.MutableOptionsBundle;
-import androidx.camera.core.impl.ReadableConfig;
+import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 
 /**
  * Implementation of CameraConfig which provides the extensions capability.
  */
-class ExtensionsConfig implements ReadableConfig, CameraConfig {
+class ExtensionsConfig implements CameraConfig {
     // Option Declarations:
     // *********************************************************************************************
-
     public static final Option<Integer> OPTION_EXTENSION_MODE =
             Option.create(
                     "camerax.extensions.extensionMode", int.class);
@@ -47,17 +46,16 @@ class ExtensionsConfig implements ReadableConfig, CameraConfig {
         return mConfig;
     }
 
-    @Extensions.ExtensionMode
+    @ExtensionMode.Mode
     public int getExtensionMode() {
         return retrieveOption(OPTION_EXTENSION_MODE);
     }
 
-    @Override
     @NonNull
-    public UseCaseConfigFactory getUseCaseConfigFactory() {
-        return retrieveOption(OPTION_USECASE_CONFIG_FACTORY);
+    @Override
+    public Identifier getCompatibilityId() {
+        return retrieveOption(OPTION_COMPATIBILITY_ID);
     }
-
 
     static final class Builder implements CameraConfig.Builder<Builder> {
         private final MutableOptionsBundle mConfig = MutableOptionsBundle.create();
@@ -66,15 +64,8 @@ class ExtensionsConfig implements ReadableConfig, CameraConfig {
             return new ExtensionsConfig(mConfig);
         }
 
-        public Builder setExtensionMode(@Extensions.ExtensionMode int mode) {
+        public Builder setExtensionMode(@ExtensionMode.Mode int mode) {
             mConfig.insertOption(OPTION_EXTENSION_MODE, mode);
-            return this;
-        }
-
-        @NonNull
-        @Override
-        public Builder setCameraFilter(@NonNull CameraFilter cameraFilter) {
-            mConfig.insertOption(OPTION_CAMERA_FILTER, cameraFilter);
             return this;
         }
 
@@ -82,6 +73,28 @@ class ExtensionsConfig implements ReadableConfig, CameraConfig {
         @Override
         public Builder setUseCaseConfigFactory(@NonNull UseCaseConfigFactory factory) {
             mConfig.insertOption(OPTION_USECASE_CONFIG_FACTORY, factory);
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setCompatibilityId(@NonNull Identifier identifier) {
+            mConfig.insertOption(OPTION_COMPATIBILITY_ID, identifier);
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setUseCaseCombinationRequiredRule(int useCaseCombinationRequiredRule) {
+            mConfig.insertOption(OPTION_USE_CASE_COMBINATION_REQUIRED_RULE,
+                    useCaseCombinationRequiredRule);
+            return this;
+        }
+
+        @NonNull
+        @Override
+        public Builder setSessionProcessor(@NonNull SessionProcessor sessionProcessor) {
+            mConfig.insertOption(OPTION_SESSION_PROCESSOR, sessionProcessor);
             return this;
         }
     }

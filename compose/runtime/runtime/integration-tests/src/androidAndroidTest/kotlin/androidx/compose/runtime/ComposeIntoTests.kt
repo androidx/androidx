@@ -17,10 +17,10 @@
 package androidx.compose.runtime
 
 import android.os.HandlerThread
+import android.view.View
 import androidx.core.os.HandlerCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -35,11 +35,6 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class ComposeIntoTests : BaseComposeTest() {
-    @After
-    fun teardown() {
-        clearRoots()
-    }
-
     @get:Rule
     override val activityRule = makeTestActivityRule()
 
@@ -49,18 +44,17 @@ class ComposeIntoTests : BaseComposeTest() {
         val activity = activityRule.activity
 
         var initializationCount = 0
-        var commitCount = 0
-        @OptIn(ExperimentalComposeApi::class)
-        val composable = @Composable @ComposableContract(tracked = false) {
-            onActive { initializationCount++ }
-            onCommit { commitCount++ }
+        val composable = @Composable {
+            DisposableEffect(Unit) {
+                initializationCount++
+                onDispose { }
+            }
         }
 
         activity.show(composable)
         activity.waitForAFrame()
 
         assertEquals(1, initializationCount)
-        assertEquals(1, commitCount)
 
         activity.show(composable)
         activity.waitForAFrame()
@@ -68,7 +62,6 @@ class ComposeIntoTests : BaseComposeTest() {
         // if we call setContent multiple times, we want to ensure that it doesn't tear
         // down the whole hierarchy, so onActive should only get called once.
         assertEquals(1, initializationCount)
-        assertEquals(2, commitCount)
     }
 
     @Test // b/153355487
@@ -78,13 +71,13 @@ class ComposeIntoTests : BaseComposeTest() {
         var composed = 0
         var compositionLatch = CountDownLatch(1)
         val threadLatch = CountDownLatch(1)
-        val composition = activity.show {
+        activity.show {
             composed = model.value
             compositionLatch.countDown()
         }
+        val thread = HandlerThread("")
         try {
             compositionLatch.wait()
-            val thread = HandlerThread("")
             thread.start()
             HandlerCompat.createAsync(thread.looper).post {
                 model.value = 1
@@ -95,41 +88,41 @@ class ComposeIntoTests : BaseComposeTest() {
             compositionLatch.wait()
             assertEquals(1, composed)
         } finally {
-            activity.runOnUiThread { composition.dispose() }
+            activity.runOnUiThread {
+                activity.setContentView(View(activity))
+            }
+            thread.quitSafely()
         }
     }
 
     @Test
     @MediumTest
     fun testCompositionCanBeCollectedWithPendingInvalidate() {
-        val referenceQueue = ReferenceQueue<Composer<*>>()
-        var invalidateMethod: () -> Unit = {}
-        var composition: Composition? = null
-        var composer: Composer<*>? = null
-        var phantomReference: PhantomReference<Composer<*>>? = null
+        val referenceQueue = ReferenceQueue<Composer>()
+        var scope: RecomposeScope? = null
+        var composer: Composer? = null
+        var phantomReference: PhantomReference<Composer>? = null
         fun doShow() {
             val threadLatch = CountDownLatch(1)
-            composition = activity.show {
+            activity.show {
                 composer = currentComposer
-                invalidateMethod = invalidate
+                scope = currentRecomposeScope
                 threadLatch.countDown()
             }
             threadLatch.wait()
-            phantomReference = PhantomReference<Composer<*>>(composer, referenceQueue)
+            phantomReference = PhantomReference<Composer>(composer, referenceQueue)
         }
 
         doShow()
-        assertNotNull(invalidateMethod)
+        assertNotNull(scope)
 
         val threadLatch = CountDownLatch(1)
         activity.runOnUiThread {
-            composition?.dispose()
-            composition = null
+            activity.setContentView(View(activity))
             composer = null
             threadLatch.countDown()
         }
         threadLatch.wait()
-        assertNull(composition)
         assertNull(composer)
         assertNotNull(phantomReference)
 

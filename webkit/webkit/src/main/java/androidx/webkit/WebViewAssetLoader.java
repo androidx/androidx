@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
+import androidx.core.util.Pair;
 import androidx.webkit.internal.AssetHelper;
 
 import java.io.File;
@@ -62,18 +63,16 @@ import java.util.List;
  *          .addPathHandler("/assets/", new AssetsPathHandler(this))
  *          .build();
  *
- * webView.setWebViewClient(new WebViewClient() {
+ * webView.setWebViewClient(new WebViewClientCompat() {
  *     {@literal @}Override
  *     {@literal @}RequiresApi(21)
- *     public WebResourceResponse shouldInterceptRequest(WebView view,
- *                                      WebResourceRequest request) {
+ *     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
  *         return assetLoader.shouldInterceptRequest(request.getUrl());
  *     }
  *
  *     {@literal @}Override
  *     {@literal @}SuppressWarnings("deprecation") // for API < 21
- *     public WebResourceResponse shouldInterceptRequest(WebView view,
- *                                      WebResourceRequest request) {
+ *     public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
  *         return assetLoader.shouldInterceptRequest(Uri.parse(request));
  *     }
  * });
@@ -478,14 +477,10 @@ public final class WebViewAssetLoader {
      */
     public static final class Builder {
         private boolean mHttpAllowed;
-        private String mDomain;
-        @NonNull private List<PathMatcher> mBuilderMatcherList;
-
-        public Builder() {
-            mHttpAllowed = false;
-            mDomain = DEFAULT_DOMAIN;
-            mBuilderMatcherList = new ArrayList<>();
-        }
+        private String mDomain = DEFAULT_DOMAIN;
+        // This is stored as a List<Pair> to preserve the order in which PathHandlers are added and
+        // permit multiple PathHandlers for the same path.
+        @NonNull private final List<Pair<String, PathHandler>> mHandlerList = new ArrayList<>();
 
         /**
          * Set the domain under which app assets can be accessed.
@@ -518,6 +513,10 @@ public final class WebViewAssetLoader {
          * The path should start and end with a {@code "/"} and it shouldn't collide with a real web
          * path.
          *
+         * <p>{@code WebViewAssetLoader} will try {@code PathHandlers} in the order they're
+         * registered, and will use whichever is the first to return a non-{@code null} {@link
+         * WebResourceResponse}.
+         *
          * @param path the prefix path where this handler should be register.
          * @param handler {@link PathHandler} that handles requests for this path.
          * @return {@link Builder} object.
@@ -525,7 +524,7 @@ public final class WebViewAssetLoader {
          */
         @NonNull
         public Builder addPathHandler(@NonNull String path, @NonNull PathHandler handler) {
-            mBuilderMatcherList.add(new PathMatcher(mDomain, path, mHttpAllowed, handler));
+            mHandlerList.add(Pair.create(path, handler));
             return this;
         }
 
@@ -536,7 +535,13 @@ public final class WebViewAssetLoader {
          */
         @NonNull
         public WebViewAssetLoader build() {
-            return new WebViewAssetLoader(mBuilderMatcherList);
+            List<PathMatcher> pathMatcherList = new ArrayList<>();
+            for (Pair<String, PathHandler> pair : mHandlerList) {
+                String path = pair.first;
+                PathHandler handler = pair.second;
+                pathMatcherList.add(new PathMatcher(mDomain, path, mHttpAllowed, handler));
+            }
+            return new WebViewAssetLoader(pathMatcherList);
         }
     }
 

@@ -15,7 +15,6 @@
  */
 package androidx.appcompat.widget;
 
-import static androidx.appcompat.testutils.TestUtilsActions.setScreenOrientation;
 import static androidx.appcompat.testutils.TestUtilsMatchers.asViewMatcher;
 import static androidx.appcompat.testutils.TestUtilsMatchers.hasChild;
 import static androidx.appcompat.testutils.TestUtilsMatchers.isCombinedBackground;
@@ -25,17 +24,14 @@ import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
-import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import android.app.Instrumentation;
-import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewGroup;
@@ -189,39 +185,6 @@ public class AppCompatSpinnerTest
 
         final AppCompatSpinner.DialogPopup dialogPopup = (AppCompatSpinner.DialogPopup) popup;
         assertThat(dialogPopup.mPopup, instanceOf(AlertDialog.class));
-    }
-
-    @Test
-    public void testChangeOrientationDialogPopupPersists() {
-        verifyChangeOrientationPopupPersists(R.id.spinner_dialog_popup);
-    }
-
-    @Test
-    public void testChangeOrientationDropdownPopupPersists() {
-        verifyChangeOrientationPopupPersists(R.id.spinner_dropdown_popup);
-    }
-
-    private void verifyChangeOrientationPopupPersists(@IdRes int spinnerId) {
-        onView(withId(spinnerId)).perform(click());
-        // Wait until the popup is showing
-        waitUntilPopupIsShown((AppCompatSpinner) mActivity.findViewById(spinnerId));
-
-        // Use ActivityMonitor so that we can get the Activity instance after it has been
-        // recreated when the rotation request completes
-        Instrumentation.ActivityMonitor monitor =
-                new Instrumentation.ActivityMonitor(mActivity.getClass().getName(), null, false);
-        mInstrumentation.addMonitor(monitor);
-
-        onView(isRoot()).perform(
-                setScreenOrientation(mActivity, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE));
-
-        mActivity = (AppCompatSpinnerActivity) mInstrumentation.waitForMonitor(monitor);
-        mInstrumentation.waitForIdleSync();
-
-        // Now we can get the new (post-rotation) instance of our spinner
-        AppCompatSpinner newSpinner = mActivity.findViewById(spinnerId);
-        // And check that it's showing the popup
-        assertTrue(newSpinner.getInternalPopup().isShowing());
     }
 
     @Test

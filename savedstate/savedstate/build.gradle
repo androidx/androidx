@@ -1,6 +1,4 @@
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -10,10 +8,6 @@ plugins {
 }
 
 android {
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
-    }
     buildTypes.all {
         consumerProguardFiles("proguard-rules.pro")
     }
@@ -24,13 +18,13 @@ dependencies {
     implementation("androidx.arch.core:core-common:2.0.1")
     implementation("androidx.lifecycle:lifecycle-common:2.0.0")
 
-    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.0.0")
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(TRUTH)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
 }
 
 androidx {

@@ -16,6 +16,8 @@
 
 package androidx.compose.compiler.plugins.kotlin
 
+import androidx.compose.compiler.plugins.kotlin.ComposeErrors.ABSTRACT_COMPOSABLE_DEFAULT_PARAMETER_VALUE
+import androidx.compose.compiler.plugins.kotlin.ComposeErrors.COMPOSABLE_FUN_MAIN
 import androidx.compose.compiler.plugins.kotlin.ComposeErrors.COMPOSABLE_PROPERTY_BACKING_FIELD
 import androidx.compose.compiler.plugins.kotlin.ComposeErrors.COMPOSABLE_SUSPEND_FUN
 import androidx.compose.compiler.plugins.kotlin.ComposeErrors.COMPOSABLE_VAR
@@ -25,14 +27,19 @@ import org.jetbrains.kotlin.container.StorageComponentContainer
 import org.jetbrains.kotlin.container.useInstance
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
+import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
+import org.jetbrains.kotlin.descriptors.PropertyAccessorDescriptor
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.extensions.StorageComponentContainerContributor
+import org.jetbrains.kotlin.idea.MainFunctionDetector
 import org.jetbrains.kotlin.platform.TargetPlatform
+import org.jetbrains.kotlin.platform.js.isJs
 import org.jetbrains.kotlin.platform.jvm.isJvm
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.KtProperty
+import org.jetbrains.kotlin.psi.KtPropertyAccessor
 import org.jetbrains.kotlin.resolve.checkers.DeclarationChecker
 import org.jetbrains.kotlin.resolve.checkers.DeclarationCheckerContext
 import org.jetbrains.kotlin.types.KotlinType
@@ -43,8 +50,9 @@ class ComposableDeclarationChecker : DeclarationChecker, StorageComponentContain
         platform: TargetPlatform,
         moduleDescriptor: ModuleDescriptor
     ) {
-        if (!platform.isJvm()) return
-        container.useInstance(this)
+        if (platform.isJvm() || platform.isJs()) {
+            container.useInstance(this)
+        }
     }
 
     override fun check(
@@ -55,6 +63,12 @@ class ComposableDeclarationChecker : DeclarationChecker, StorageComponentContain
         when {
             declaration is KtProperty &&
                 descriptor is PropertyDescriptor -> checkProperty(declaration, descriptor, context)
+            declaration is KtPropertyAccessor &&
+                descriptor is PropertyAccessorDescriptor -> checkPropertyAccessor(
+                declaration,
+                descriptor,
+                context
+            )
             declaration is KtFunction &&
                 descriptor is FunctionDescriptor -> checkFunction(declaration, descriptor, context)
         }
@@ -82,6 +96,17 @@ class ComposableDeclarationChecker : DeclarationChecker, StorageComponentContain
                 COMPOSABLE_SUSPEND_FUN.on(declaration.nameIdentifier ?: declaration)
             )
         }
+
+        if (hasComposableAnnotation && descriptor.modality == Modality.ABSTRACT) {
+            declaration.valueParameters.forEach {
+                val defaultValue = it.defaultValue
+                if (defaultValue != null) {
+                    context.trace.report(
+                        ABSTRACT_COMPOSABLE_DEFAULT_PARAMETER_VALUE.on(defaultValue)
+                    )
+                }
+            }
+        }
         val params = descriptor.valueParameters
         val ktparams = declaration.valueParameters
         if (params.size == ktparams.size) {
@@ -91,6 +116,19 @@ class ComposableDeclarationChecker : DeclarationChecker, StorageComponentContain
                     checkType(param.type, typeRef, context)
                 }
             }
+        }
+        // NOTE: only use the MainFunctionDetector if the descriptor name is main, to avoid
+        // unnecessarily allocating this class
+        if (hasComposableAnnotation &&
+            descriptor.name.asString() == "main" &&
+            MainFunctionDetector(
+                    context.trace.bindingContext,
+                    context.languageVersionSettings
+                ).isMain(descriptor)
+        ) {
+            context.trace.report(
+                COMPOSABLE_FUN_MAIN.on(declaration.nameIdentifier ?: declaration)
+            )
         }
     }
 
@@ -111,10 +149,14 @@ class ComposableDeclarationChecker : DeclarationChecker, StorageComponentContain
         descriptor: PropertyDescriptor,
         context: DeclarationCheckerContext
     ) {
-        val hasComposableAnnotation = descriptor.hasComposableAnnotation()
+        val hasComposableAnnotation = descriptor
+            .getter
+            ?.hasComposableAnnotation() == true
         if (descriptor.overriddenDescriptors.isNotEmpty()) {
             val override = descriptor.overriddenDescriptors.first()
-            if (override.hasComposableAnnotation() != hasComposableAnnotation) {
+            val overrideIsComposable = override.hasComposableAnnotation() ||
+                override.getter?.hasComposableAnnotation() == true
+            if (overrideIsComposable != hasComposableAnnotation) {
                 context.trace.report(
                     ComposeErrors.CONFLICTING_OVERLOADS.on(
                         declaration,
@@ -130,6 +172,37 @@ class ComposableDeclarationChecker : DeclarationChecker, StorageComponentContain
             context.trace.report(COMPOSABLE_PROPERTY_BACKING_FIELD.on(name))
         }
         if (descriptor.isVar && name != null) {
+            context.trace.report(COMPOSABLE_VAR.on(name))
+        }
+    }
+
+    private fun checkPropertyAccessor(
+        declaration: KtPropertyAccessor,
+        descriptor: PropertyAccessorDescriptor,
+        context: DeclarationCheckerContext
+    ) {
+        val propertyDescriptor = descriptor.correspondingProperty
+        val propertyPsi = declaration.parent as? KtProperty ?: return
+        val name = propertyPsi.nameIdentifier
+        val initializer = propertyPsi.initializer
+        val hasComposableAnnotation = descriptor.hasComposableAnnotation()
+        if (descriptor.overriddenDescriptors.isNotEmpty()) {
+            val override = descriptor.overriddenDescriptors.first()
+            val overrideComposable = override.hasComposableAnnotation()
+            if (overrideComposable != hasComposableAnnotation) {
+                context.trace.report(
+                    ComposeErrors.CONFLICTING_OVERLOADS.on(
+                        declaration,
+                        listOf(descriptor, override)
+                    )
+                )
+            }
+        }
+        if (!hasComposableAnnotation) return
+        if (initializer != null && name != null) {
+            context.trace.report(COMPOSABLE_PROPERTY_BACKING_FIELD.on(name))
+        }
+        if (propertyDescriptor.isVar && name != null) {
             context.trace.report(COMPOSABLE_VAR.on(name))
         }
     }

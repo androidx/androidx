@@ -16,22 +16,29 @@
 
 package androidx.compose.ui.semantics
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.toRect
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.findRoot
 import androidx.compose.ui.node.DelegatingLayoutNodeWrapper
-import androidx.compose.ui.node.ExperimentalLayoutNodeApi
+import androidx.compose.ui.node.HitTestResult
 import androidx.compose.ui.node.LayoutNodeWrapper
 
-@OptIn(ExperimentalLayoutNodeApi::class)
 internal class SemanticsWrapper(
     wrapped: LayoutNodeWrapper,
     semanticsModifier: SemanticsModifier
 ) : DelegatingLayoutNodeWrapper<SemanticsModifier>(wrapped, semanticsModifier) {
+    private val useMinimumTouchTarget: Boolean
+        get() = modifier.semanticsConfiguration.getOrNull(SemanticsActions.OnClick) != null
+
     fun collapsedSemanticsConfiguration(): SemanticsConfiguration {
-        val nextSemantics = wrapped.nearestSemantics
-        if (nextSemantics == null) {
+        val nextSemantics = wrapped.nearestSemantics { true }
+        if (nextSemantics == null || modifier.semanticsConfiguration.isClearingSemantics) {
             return modifier.semanticsConfiguration
         }
 
-        var config = modifier.semanticsConfiguration.copy()
+        val config = modifier.semanticsConfiguration.copy()
         config.collapsePeer(nextSemantics.collapsedSemanticsConfiguration())
         return config
     }
@@ -42,10 +49,58 @@ internal class SemanticsWrapper(
     }
 
     override fun onModifierChanged() {
+        super.onModifierChanged()
         layoutNode.owner?.onSemanticsChange()
     }
 
     override fun toString(): String {
         return "${super.toString()} id: ${modifier.id} config: ${modifier.semanticsConfiguration}"
+    }
+
+    override fun hitTestSemantics(
+        pointerPosition: Offset,
+        hitSemanticsWrappers: HitTestResult<SemanticsWrapper>
+    ) {
+        hitTestInMinimumTouchTarget(
+            pointerPosition,
+            hitSemanticsWrappers,
+            forceParentIntercept = false,
+            useTouchSize = true,
+            content = this
+        ) {
+            // Also, keep looking to see if we also might hit any children.
+            // This avoids checking layer bounds twice as when we call super.hitTest()
+            val positionInWrapped = wrapped.fromParentPosition(pointerPosition)
+            wrapped.hitTestSemantics(positionInWrapped, hitSemanticsWrappers)
+        }
+    }
+
+    fun touchBoundsInRoot(): Rect {
+        if (!isAttached) {
+            return Rect.Zero
+        }
+        if (!useMinimumTouchTarget) {
+            return boundsInRoot()
+        }
+
+        val root = findRoot()
+
+        val bounds = rectCache
+        val padding = calculateMinimumTouchTargetPadding(minimumTouchTargetSize)
+        bounds.left = -padding.width
+        bounds.top = -padding.height
+        bounds.right = measuredWidth + padding.width
+        bounds.bottom = measuredHeight + padding.height
+
+        var wrapper: LayoutNodeWrapper = this
+        while (wrapper !== root) {
+            wrapper.rectInParent(bounds, clipBounds = false, clipToMinimumTouchTargetSize = true)
+            if (bounds.isEmpty) {
+                return Rect.Zero
+            }
+
+            wrapper = wrapper.wrappedBy!!
+        }
+        return bounds.toRect()
     }
 }

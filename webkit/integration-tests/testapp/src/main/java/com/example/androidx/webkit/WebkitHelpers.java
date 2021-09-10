@@ -45,7 +45,7 @@ public final class WebkitHelpers {
     }
 
     /**
-     * Replaces the entire view hierachy of this {@link Activity} to show an error message.
+     * Replaces the entire view hierarchy of this {@link Activity} to show an error message.
      *
      * <p>Returns the {@link TextView} holding the error message, so callers can optionally add more
      * functionality (ex. {@code setOnClickListener()}).

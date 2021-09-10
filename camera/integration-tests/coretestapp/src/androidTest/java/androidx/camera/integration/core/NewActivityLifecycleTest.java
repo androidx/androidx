@@ -21,13 +21,12 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.camera.core.CameraX;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.test.core.app.ApplicationProvider;
@@ -40,11 +39,16 @@ import androidx.test.rule.GrantPermissionRule;
 import androidx.test.uiautomator.UiDevice;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 // Test new activity lifecycle when using CameraX.
 @RunWith(AndroidJUnit4.class)
@@ -56,7 +60,6 @@ public final class NewActivityLifecycleTest {
 
     private final UiDevice mDevice =
             UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-    private final String mLauncherPackageName = mDevice.getLauncherPackageName();
     private final Context mContext = ApplicationProvider.getApplicationContext();
     private final Intent mIntent = mContext.getPackageManager()
             .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE);
@@ -83,7 +86,6 @@ public final class NewActivityLifecycleTest {
     public void setup() throws CoreAppTestUtil.ForegroundOccupiedError {
         assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();
-        assertThat(mLauncherPackageName, notNullValue());
 
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
@@ -98,6 +100,12 @@ public final class NewActivityLifecycleTest {
 
         mActivityRule.finishActivity();
         pressHomeButton();
+    }
+
+    @AfterClass
+    public static void shutdownCameraX()
+            throws InterruptedException, ExecutionException, TimeoutException {
+        CameraX.shutdown().get(10, TimeUnit.SECONDS);
     }
 
     @Test

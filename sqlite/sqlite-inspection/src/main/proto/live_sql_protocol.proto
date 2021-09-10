@@ -32,6 +32,8 @@ message Command {
     GetSchemaCommand get_schema = 2;
     QueryCommand query = 3;
     KeepDatabasesOpenCommand keep_databases_open = 4;
+    AcquireDatabaseLockCommand acquire_database_lock = 5;
+    ReleaseDatabaseLockCommand release_database_lock = 6;
   }
 }
 
@@ -56,6 +58,12 @@ message QueryCommand {
   // query_parameters, in the order that they appear in the query. Values will
   // be bound as Strings.
   repeated QueryParameterValue query_parameter_values = 3;
+  // Approximate response size limit in bytes.
+  // Best effort:
+  // - can deviate from the value up to 40% due to encoding overheads
+  // - in some cases can deviate by an extra ~2MB (max size of one row in Android SQLite)
+  // When unset, or set to <= `0`, it is considered unbounded.
+  int64 response_size_limit_hint = 4;
 }
 
 // Value of a parameter in QueryCommand. Currently only string and null values
@@ -73,6 +81,19 @@ message KeepDatabasesOpenCommand {
   bool set_enabled = 1;
 }
 
+// Request to lock a database to prevent modifications on it
+// (allowing for e.g. creating a consistent snapshot)
+message AcquireDatabaseLockCommand {
+  // Database to secure a lock on
+  int32 database_id = 1;
+}
+
+// Request to release a previously acquired database lock (see AcquireDatabaseLockCommand)
+message ReleaseDatabaseLockCommand {
+  // Id of the lock to release (see AcquireDatabaseLockResponse)
+  int32 lock_id = 1;
+}
+
 // --- Responses ---
 
 // Generic Response object grouping all Inspector Response types to Command
@@ -84,6 +105,8 @@ message Response {
     GetSchemaResponse get_schema = 2;
     QueryResponse query = 3;
     KeepDatabasesOpenResponse keep_databases_open = 4;
+    AcquireDatabaseLockResponse acquire_database_lock = 5;
+    ReleaseDatabaseLockResponse release_database_lock = 6;
     ErrorOccurredResponse error_occurred = 400;
   }
 }
@@ -145,6 +168,15 @@ message CellValue {
 
 message KeepDatabasesOpenResponse {}
 
+// Object expected as a response to AcquireDatabaseLockCommand.
+message AcquireDatabaseLockResponse {
+  // Id of the lock (allowing for releasing the lock later using ReleaseDatabaseLockRequest)
+  int32 lock_id = 1;
+}
+
+// Object expected as a response to ReleaseDatabaseLockCommand.
+message ReleaseDatabaseLockResponse {}
+
 // General Error message.
 // TODO: decide on a more fine-grained approach
 message ErrorOccurredResponse {
@@ -168,6 +200,7 @@ message ErrorContent {
     ERROR_NO_OPEN_DATABASE_WITH_REQUESTED_ID = 50;
     ERROR_ISSUE_WITH_PROCESSING_NEW_DATABASE_CONNECTION = 60;
     ERROR_DB_CLOSED_DURING_OPERATION = 70;
+    ERROR_ISSUE_WITH_LOCKING_DATABASE = 80;
   }
   ErrorCode error_code = 4;
 }

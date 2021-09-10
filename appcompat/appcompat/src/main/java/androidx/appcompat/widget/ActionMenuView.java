@@ -15,6 +15,7 @@
  */
 package androidx.appcompat.widget;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
@@ -46,6 +47,7 @@ import androidx.appcompat.view.menu.MenuView;
  * items in an overflow menu. This allows applications to present packs of actions inline with
  * specific or repeating content.
  */
+@SuppressWarnings("HiddenSuperclass")
 public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.ItemInvoker,
         MenuView {
 
@@ -118,7 +120,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
      * @param presenter Menu presenter used to display popup menu
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public void setPresenter(ActionMenuPresenter presenter) {
         mPresenter = presenter;
         mPresenter.setMenuView(this);

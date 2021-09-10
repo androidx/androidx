@@ -1,0 +1,76 @@
+// Signature format: 4.0
+package androidx.security.crypto {
+
+  public final class EncryptedFile {
+    method public java.io.FileInputStream openFileInput() throws java.io.FileNotFoundException, java.security.GeneralSecurityException, java.io.IOException;
+    method public java.io.FileOutputStream openFileOutput() throws java.security.GeneralSecurityException, java.io.IOException;
+  }
+
+  public static final class EncryptedFile.Builder {
+    ctor @Deprecated public EncryptedFile.Builder(java.io.File, android.content.Context, String, androidx.security.crypto.EncryptedFile.FileEncryptionScheme);
+    ctor public EncryptedFile.Builder(android.content.Context, java.io.File, androidx.security.crypto.MasterKey, androidx.security.crypto.EncryptedFile.FileEncryptionScheme);
+    method public androidx.security.crypto.EncryptedFile build() throws java.security.GeneralSecurityException, java.io.IOException;
+    method public androidx.security.crypto.EncryptedFile.Builder setKeysetAlias(String);
+    method public androidx.security.crypto.EncryptedFile.Builder setKeysetPrefName(String);
+  }
+
+  public enum EncryptedFile.FileEncryptionScheme {
+    enum_constant public static final androidx.security.crypto.EncryptedFile.FileEncryptionScheme AES256_GCM_HKDF_4KB;
+  }
+
+  public final class EncryptedSharedPreferences implements android.content.SharedPreferences {
+    method public boolean contains(String?);
+    method public static android.content.SharedPreferences create(android.content.Context, String, androidx.security.crypto.MasterKey, androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme, androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme) throws java.security.GeneralSecurityException, java.io.IOException;
+    method @Deprecated public static android.content.SharedPreferences create(String, String, android.content.Context, androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme, androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme) throws java.security.GeneralSecurityException, java.io.IOException;
+    method public android.content.SharedPreferences.Editor edit();
+    method public java.util.Map<java.lang.String!,?> getAll();
+    method public boolean getBoolean(String?, boolean);
+    method public float getFloat(String?, float);
+    method public int getInt(String?, int);
+    method public long getLong(String?, long);
+    method public String? getString(String?, String?);
+    method public java.util.Set<java.lang.String!>? getStringSet(String?, java.util.Set<java.lang.String!>?);
+    method public void registerOnSharedPreferenceChangeListener(android.content.SharedPreferences.OnSharedPreferenceChangeListener);
+    method public void unregisterOnSharedPreferenceChangeListener(android.content.SharedPreferences.OnSharedPreferenceChangeListener);
+  }
+
+  public enum EncryptedSharedPreferences.PrefKeyEncryptionScheme {
+    enum_constant public static final androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme AES256_SIV;
+  }
+
+  public enum EncryptedSharedPreferences.PrefValueEncryptionScheme {
+    enum_constant public static final androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme AES256_GCM;
+  }
+
+  public final class MasterKey {
+    method public static int getDefaultAuthenticationValidityDurationSeconds();
+    method public int getUserAuthenticationValidityDurationSeconds();
+    method public boolean isKeyStoreBacked();
+    method public boolean isStrongBoxBacked();
+    method public boolean isUserAuthenticationRequired();
+    field public static final int DEFAULT_AES_GCM_MASTER_KEY_SIZE = 256; // 0x100
+    field public static final String DEFAULT_MASTER_KEY_ALIAS = "_androidx_security_master_key_";
+  }
+
+  public static final class MasterKey.Builder {
+    ctor public MasterKey.Builder(android.content.Context);
+    ctor public MasterKey.Builder(android.content.Context, String);
+    method public androidx.security.crypto.MasterKey build() throws java.security.GeneralSecurityException, java.io.IOException;
+    method @RequiresApi(android.os.Build.VERSION_CODES.M) public androidx.security.crypto.MasterKey.Builder setKeyGenParameterSpec(android.security.keystore.KeyGenParameterSpec);
+    method public androidx.security.crypto.MasterKey.Builder setKeyScheme(androidx.security.crypto.MasterKey.KeyScheme);
+    method public androidx.security.crypto.MasterKey.Builder setRequestStrongBoxBacked(boolean);
+    method public androidx.security.crypto.MasterKey.Builder setUserAuthenticationRequired(boolean);
+    method public androidx.security.crypto.MasterKey.Builder setUserAuthenticationRequired(boolean, @IntRange(from=1) int);
+  }
+
+  public enum MasterKey.KeyScheme {
+    enum_constant public static final androidx.security.crypto.MasterKey.KeyScheme AES256_GCM;
+  }
+
+  @Deprecated @RequiresApi(android.os.Build.VERSION_CODES.M) public final class MasterKeys {
+    method @Deprecated public static String getOrCreate(android.security.keystore.KeyGenParameterSpec) throws java.security.GeneralSecurityException, java.io.IOException;
+    field @Deprecated public static final android.security.keystore.KeyGenParameterSpec AES256_GCM_SPEC;
+  }
+
+}
+

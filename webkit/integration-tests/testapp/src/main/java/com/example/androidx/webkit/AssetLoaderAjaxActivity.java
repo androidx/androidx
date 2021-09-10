@@ -36,7 +36,7 @@ import androidx.webkit.WebViewAssetLoader.AssetsPathHandler;
 import androidx.webkit.WebViewAssetLoader.ResourcesPathHandler;
 
 /**
- * An {@link Activity} to show a more useful usecase: performing ajax calls to load files from
+ * An {@link Activity} to show a more useful use case: performing ajax calls to load files from
  * local app assets and resources in a safer way using WebViewAssetLoader.
  */
 public class AssetLoaderAjaxActivity extends AppCompatActivity {

@@ -16,7 +16,7 @@
 
 package androidx.car.app.utils;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,7 +33,7 @@ import java.util.Map;
  *
  * @hide
  */
-@RestrictTo(LIBRARY)
+@RestrictTo(LIBRARY_GROUP)
 public final class CollectionUtils {
     /** Returns the input {@code list} if not {@code null}, or an empty list otherwise. */
     @NonNull
@@ -42,20 +42,23 @@ public final class CollectionUtils {
     }
 
     /**
-     * Returns a copy of the input {@code map} if not {@code null}, or an {@code null} otherwise.
+     * Returns a copy of the input {@link Map} if it is not {@code null}, or a
+     * {@link Collections#emptyMap} otherwise.
      */
-    @Nullable
+    @NonNull
     public static <K, V> Map<K, V> unmodifiableCopy(@Nullable Map<K, V> map) {
-        return map == null ? null : Collections.unmodifiableMap(new HashMap<>(map));
+        return map == null ? Collections.emptyMap() : Collections.unmodifiableMap(
+                new HashMap<>(map));
     }
 
     /**
-     * Returns a copy of the input {@code list} if not {@code null}, or an {@code null}
-     * otherwise.
+     * Returns a copy of the input {@link List} if it is not {@code null}, or a
+     * {@link Collections#emptyList()} otherwise.
      */
-    @Nullable
+    @NonNull
     public static <T> List<T> unmodifiableCopy(@Nullable List<T> list) {
-        return list == null ? null : Collections.unmodifiableList(new ArrayList<>(list));
+        return list == null ? Collections.emptyList() : Collections.unmodifiableList(
+                new ArrayList<>(list));
     }
 
     private CollectionUtils() {

@@ -40,6 +40,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -115,6 +116,7 @@ public class CoordinatorLayoutTouchEventTest {
     }
 
     @Test
+    @Ignore // This test is broken on all SDK levels.
     public void onInterceptTouchEvent_interceptOnDown() throws Throwable {
         mView1.setOnTouchListener(new ReturnTrueOnTouchListener());
         final MotionEvent downEvent = obtainEvent(MotionEvent.ACTION_DOWN);
@@ -209,6 +211,7 @@ public class CoordinatorLayoutTouchEventTest {
     }
 
     @Test
+    @Ignore // This test is broken on all SDK levels.
     public void onInterceptTouchEvent_multipleDowns_intercepted() throws Throwable {
         mView1.setOnTouchListener(new ReturnTrueOnTouchListener());
         final MotionEvent downEvent = obtainEvent(MotionEvent.ACTION_DOWN);
@@ -350,6 +353,7 @@ public class CoordinatorLayoutTouchEventTest {
     }
 
     @Test
+    @Ignore // This test is broken on all SDK levels.
     public void blocksInteractionBelow_move() throws Throwable {
         mView1.setOnTouchListener(new ReturnTrueOnTouchListener());
         final MotionEvent downEvent = obtainEvent(MotionEvent.ACTION_DOWN);
@@ -414,6 +418,7 @@ public class CoordinatorLayoutTouchEventTest {
     }
 
     @Test
+    @Ignore // This test is broken on all SDK levels.
     public void onTouchEvent_intercept() throws Throwable {
         TouchDelegate touchDelegate = mock(TouchDelegate.class);
         mCoordinatorLayout.setTouchDelegate(touchDelegate);

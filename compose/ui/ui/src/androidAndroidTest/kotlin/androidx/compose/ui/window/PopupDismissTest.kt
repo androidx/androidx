@@ -17,15 +17,17 @@
 package androidx.compose.ui.window
 
 import android.os.Build
-import androidx.compose.foundation.ClickableText
+import android.view.View
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -49,7 +51,7 @@ import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(Parameterized::class)
-class PopupDismissTest(private val isFocusable: Boolean) {
+class PopupDismissTest(private val focusable: Boolean) {
 
     companion object {
         @JvmStatic
@@ -70,24 +72,27 @@ class PopupDismissTest(private val isFocusable: Boolean) {
         var btnPos: Offset = Offset.Zero
 
         val latch = CountDownLatch(1)
+        var view: View? = null
 
         rule.setContent {
+            view = LocalView.current
             Box(Modifier.fillMaxSize()) {
                 ClickableText(
                     text = AnnotatedString("Button"),
                     onClick = { btnClicksCounter++ },
                     modifier = Modifier.onGloballyPositioned {
                         // UiDevice needs screen relative coordinates
-                        btnPos = it.localToGlobal(Offset.Zero)
+                        @Suppress("DEPRECATION")
+                        btnPos = it.localToRoot(Offset.Zero)
                     }
                 )
 
                 Popup(
                     alignment = Alignment.Center,
-                    isFocusable = isFocusable,
+                    properties = PopupProperties(focusable = focusable),
                     onDismissRequest = { dismissCounter++; latch.countDown() }
                 ) {
-                    Box(Modifier.preferredSize(100.dp, 100.dp)) {
+                    Box(Modifier.size(100.dp, 100.dp)) {
                         BasicText(text = "Popup", style = TextStyle(textAlign = TextAlign.Center))
                     }
                 }
@@ -104,9 +109,12 @@ class PopupDismissTest(private val isFocusable: Boolean) {
 
         with(rule.density) {
             // Need to click via UiDevice as this click has to propagate to multiple windows
+            val viewPos = intArrayOf(0, 0)
+            view!!.getLocationOnScreen(viewPos)
+
             device.click(
-                btnPos.x.toInt() + btnBounds.width.toIntPx() / 2,
-                btnPos.y.toInt() + btnBounds.height.toIntPx() / 2
+                viewPos[0] + btnPos.x.toInt() + btnBounds.width.roundToPx() / 2,
+                viewPos[1] + btnPos.y.toInt() + btnBounds.height.roundToPx() / 2
             )
         }
 
@@ -117,7 +125,7 @@ class PopupDismissTest(private val isFocusable: Boolean) {
 
         rule.runOnIdle {
             assertThat(dismissCounter).isEqualTo(1)
-            if (isFocusable) {
+            if (focusable) {
                 // Focusable popup consumes touch events => button receives none
                 assertThat(btnClicksCounter).isEqualTo(0)
             } else {

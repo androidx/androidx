@@ -99,20 +99,20 @@ public class ExifInterfaceTest {
             "jpeg_with_datetime_tag_primary_format.jpg";
     private static final String JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT =
             "jpeg_with_datetime_tag_secondary_format.jpg";
-    private static final String HEIC_WITH_EXIF = "heic_with_exif.heic";
+    private static final String HEIF_WITH_EXIF = "heif_with_exif.heic";
     private static final int[] IMAGE_RESOURCES = new int[] {
             R.raw.jpeg_with_exif_byte_order_ii, R.raw.jpeg_with_exif_byte_order_mm,
             R.raw.dng_with_exif_with_xmp, R.raw.jpeg_with_exif_with_xmp,
             R.raw.png_with_exif_byte_order_ii, R.raw.png_without_exif, R.raw.webp_with_exif,
             R.raw.webp_with_anim_without_exif, R.raw.webp_without_exif,
             R.raw.webp_lossless_without_exif, R.raw.jpeg_with_datetime_tag_primary_format,
-            R.raw.jpeg_with_datetime_tag_secondary_format, R.raw.heic_with_exif};
+            R.raw.jpeg_with_datetime_tag_secondary_format, R.raw.heif_with_exif};
     private static final String[] IMAGE_FILENAMES = new String[] {
             JPEG_WITH_EXIF_BYTE_ORDER_II, JPEG_WITH_EXIF_BYTE_ORDER_MM, DNG_WITH_EXIF_WITH_XMP,
             JPEG_WITH_EXIF_WITH_XMP, PNG_WITH_EXIF_BYTE_ORDER_II, PNG_WITHOUT_EXIF,
             WEBP_WITH_EXIF, WEBP_WITHOUT_EXIF_WITH_ANIM_DATA, WEBP_WITHOUT_EXIF,
             WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING, JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT,
-            JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT, HEIC_WITH_EXIF};
+            JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT, HEIF_WITH_EXIF};
 
     private static final int USER_READ_WRITE = 0600;
     private static final String TEST_TEMP_FILE_NAME = "testImage";
@@ -219,23 +219,23 @@ public class ExifInterfaceTest {
     private static final HashMap<Integer, Pair> FLIP_STATE_AND_ROTATION_DEGREES = new HashMap<>();
     static {
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_UNDEFINED, new Pair(false, 0));
+                ExifInterface.ORIENTATION_UNDEFINED, new Pair<>(false, 0));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_NORMAL, new Pair(false, 0));
+                ExifInterface.ORIENTATION_NORMAL, new Pair<>(false, 0));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_ROTATE_90, new Pair(false, 90));
+                ExifInterface.ORIENTATION_ROTATE_90, new Pair<>(false, 90));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_ROTATE_180, new Pair(false, 180));
+                ExifInterface.ORIENTATION_ROTATE_180, new Pair<>(false, 180));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_ROTATE_270, new Pair(false, 270));
+                ExifInterface.ORIENTATION_ROTATE_270, new Pair<>(false, 270));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL, new Pair(true, 0));
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL, new Pair<>(true, 0));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_TRANSVERSE, new Pair(true, 90));
+                ExifInterface.ORIENTATION_TRANSVERSE, new Pair<>(true, 90));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_FLIP_VERTICAL, new Pair(true, 180));
+                ExifInterface.ORIENTATION_FLIP_VERTICAL, new Pair<>(true, 180));
         FLIP_STATE_AND_ROTATION_DEGREES.put(
-                ExifInterface.ORIENTATION_TRANSPOSE, new Pair(true, 270));
+                ExifInterface.ORIENTATION_TRANSPOSE, new Pair<>(true, 270));
     }
 
     private static final String[] EXIF_TAGS = {
@@ -428,6 +428,7 @@ public class ExifInterfaceTest {
     @LargeTest
     public void testDngFiles() throws Throwable {
         readFromFilesWithExif(DNG_WITH_EXIF_WITH_XMP, R.array.dng_with_exif_with_xmp);
+        writeToFilesWithExif(DNG_WITH_EXIF_WITH_XMP, R.array.dng_with_exif_with_xmp);
     }
 
     @Test
@@ -459,15 +460,21 @@ public class ExifInterfaceTest {
     }
 
     /**
-     * .heic file is a container for HEIF format images, which ExifInterface supports.
+     * Support for retrieving EXIF from HEIF was added in SDK 28.
      */
     @Test
     @LargeTest
-    public void testHeicFile() throws Throwable {
-        // TODO: Reading HEIC file for SDK < 28 throws an exception. Revisit once issue is solved.
-        //  (b/172025296)
-        if (Build.VERSION.SDK_INT > 27) {
-            readFromFilesWithExif(HEIC_WITH_EXIF, R.array.heic_with_exif);
+    public void testHeifFile() throws Throwable {
+        if (Build.VERSION.SDK_INT >= 28) {
+            readFromFilesWithExif(HEIF_WITH_EXIF, R.array.heif_with_exif);
+        } else {
+            // Make sure that an exception is not thrown and that image length/width tag values
+            // return default values, not the actual values.
+            File imageFile = getFileFromExternalDir(HEIF_WITH_EXIF);
+            ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+            String defaultTagValue = "0";
+            assertEquals(defaultTagValue, exif.getAttribute(ExifInterface.TAG_IMAGE_LENGTH));
+            assertEquals(defaultTagValue, exif.getAttribute(ExifInterface.TAG_IMAGE_WIDTH));
         }
     }
 
@@ -684,6 +691,22 @@ public class ExifInterfaceTest {
         exif.saveAttributes();
         exif = new ExifInterface(imageFile.getAbsolutePath());
         assertEquals(currentTimeStamp - expectedDatetimeOffsetLongValue, (long) exif.getDateTime());
+
+        // Test that setting null throws NPE
+        try {
+            exif.setDateTime(null);
+            fail();
+        } catch (NullPointerException e) {
+            // Expected
+        }
+
+        // Test that setting negative value throws IAE
+        try {
+            exif.setDateTime(-1L);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
     }
 
     /**
@@ -757,29 +780,80 @@ public class ExifInterfaceTest {
         assertEquals(dateTimeOriginalValue, exif.getAttribute(ExifInterface.TAG_DATETIME));
     }
 
-    // TODO: Add tests for other variations (e.g. single/double digit number strings)
     @Test
     @LargeTest
-    public void testParsingSubsec() throws IOException {
+    public void testSubsec() throws IOException {
         File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
-        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, /* 0ms */ "000000");
+
+        // Set initial value to 0
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, /* 0ms */ "000");
         exif.saveAttributes();
+        assertEquals("000", exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
         long currentDateTimeValue = exif.getDateTime();
 
-        // Check that TAG_SUBSEC_TIME values starting with zero are supported.
-        // Note: getDateTime() supports only up to 1/1000th of a second.
-        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, /* 1ms */ "001000");
-        exif.saveAttributes();
-        assertEquals(currentDateTimeValue + 1, (long) exif.getDateTime());
-
-        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, /* 10ms */ "010000");
-        exif.saveAttributes();
-        assertEquals(currentDateTimeValue + 10, (long) exif.getDateTime());
-
-        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, /* 100ms */ "100000");
+        // Test that single and double-digit values are set properly.
+        // Note that since SubSecTime tag records fractions of a second, a single-digit value
+        // should be counted as the first decimal value, which is why "1" becomes 100ms and "11"
+        // becomes 110ms.
+        String oneDigitSubSec = "1";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, oneDigitSubSec);
         exif.saveAttributes();
         assertEquals(currentDateTimeValue + 100, (long) exif.getDateTime());
+        assertEquals(oneDigitSubSec, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+
+        String twoDigitSubSec1 = "01";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, twoDigitSubSec1);
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 10, (long) exif.getDateTime());
+        assertEquals(twoDigitSubSec1, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+
+        String twoDigitSubSec2 = "11";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, twoDigitSubSec2);
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 110, (long) exif.getDateTime());
+        assertEquals(twoDigitSubSec2, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+
+        // Test that 3-digit values are set properly.
+        String hundredMs = "100";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, hundredMs);
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 100, (long) exif.getDateTime());
+        assertEquals(hundredMs, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+
+        // Test that values starting with zero are also supported.
+        String oneMsStartingWithZeroes = "001";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, oneMsStartingWithZeroes);
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 1, (long) exif.getDateTime());
+        assertEquals(oneMsStartingWithZeroes, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+
+        String tenMsStartingWithZero = "010";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, tenMsStartingWithZero);
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 10, (long) exif.getDateTime());
+        assertEquals(tenMsStartingWithZero, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+
+        // Test that values with more than three digits are set properly. getAttribute() should
+        // return the whole string, but getDateTime() should only add the first three digits
+        // because it supports only up to 1/1000th of a second.
+        String fourDigitSubSec = "1234";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, fourDigitSubSec);
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 123, (long) exif.getDateTime());
+        assertEquals(fourDigitSubSec, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+
+        String fiveDigitSubSec = "23456";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, fiveDigitSubSec);
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 234, (long) exif.getDateTime());
+        assertEquals(fiveDigitSubSec, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
+
+        String sixDigitSubSec = "345678";
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, sixDigitSubSec);
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 345, (long) exif.getDateTime());
+        assertEquals(sixDigitSubSec, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
     }
 
     @Test
@@ -852,6 +926,7 @@ public class ExifInterfaceTest {
 
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     @SmallTest
     public void testInterchangeabilityBetweenTwoIsoSpeedTags() throws IOException {

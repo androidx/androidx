@@ -25,6 +25,6 @@
     <color name="interstitialButton">#F52424</color>
     <color name="linkColor">#2196F3</color>
     <color name="colorActiveSwitchThumb">#B2243FD5</color>
-    <color name="colorInctiveSwitchThumb">#f1f1f1</color>
-    <color name="colorInctiveSwitchTrack">#8F9092</color>
+    <color name="colorInactiveSwitchThumb">#f1f1f1</color>
+    <color name="colorInactiveSwitchTrack">#8F9092</color>
 </resources>

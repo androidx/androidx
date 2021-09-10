@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.max
 
 /**
+ * <a href="https://material.io/components/snackbars" class="external" target="_blank">Material Design snackbar</a>.
+ *
  * Snackbars provide brief messages about app processes at the bottom of the screen.
  *
  * Snackbars inform users of a process that an app has performed or will perform. They appear
@@ -46,6 +48,8 @@ import kotlin.math.max
  *
  * A Snackbar can contain a single action. Because Snackbar disappears automatically, the action
  * shouldn't be "Dismiss" or "Cancel".
+ *
+ * ![Snackbars image](https://developer.android.com/images/reference/androidx/compose/material/snackbars.png)
  *
  * This components provides only the visuals of the [Snackbar]. If you need to show a [Snackbar]
  * with defaults on the screen, use [ScaffoldState.snackbarHostState] and
@@ -57,21 +61,21 @@ import kotlin.math.max
  * of the [SnackbarHost] to the [Scaffold]:
  * @sample androidx.compose.material.samples.ScaffoldWithCustomSnackbar
  *
- * @param modifier modifiers for the the Snackbar layout
+ * @param modifier modifiers for the Snackbar layout
  * @param action action / button component to add as an action to the snackbar. Consider using
- * [SnackbarConstants.defaultActionPrimaryColor] as the color for the action, if you do not
+ * [SnackbarDefaults.primaryActionColor] as the color for the action, if you do not
  * have a predefined color you wish to use instead.
  * @param actionOnNewLine whether or not action should be put on the separate line. Recommended
  * for action with long action text
  * @param shape Defines the Snackbar's shape as well as its shadow
  * @param backgroundColor background color of the Snackbar
  * @param contentColor color of the content to use inside the snackbar. Defaults to
- * either the matching `onFoo` color for [backgroundColor], or, if it is not a color from
+ * either the matching content color for [backgroundColor], or, if it is not a color from
  * the theme, this will keep the same value set above this Surface.
  * @param elevation The z-coordinate at which to place the SnackBar. This controls the size
  * of the shadow below the SnackBar
- * @param text text component to show information about a process that an app has performed or
- * will perform
+ * @param content content to show information about a process that an app has performed or will
+ * perform
  */
 @Composable
 fun Snackbar(
@@ -79,10 +83,10 @@ fun Snackbar(
     action: @Composable (() -> Unit)? = null,
     actionOnNewLine: Boolean = false,
     shape: Shape = MaterialTheme.shapes.small,
-    backgroundColor: Color = SnackbarConstants.defaultBackgroundColor,
+    backgroundColor: Color = SnackbarDefaults.backgroundColor,
     contentColor: Color = MaterialTheme.colors.surface,
     elevation: Dp = 6.dp,
-    text: @Composable () -> Unit
+    content: @Composable () -> Unit
 ) {
     Surface(
         modifier = modifier,
@@ -91,13 +95,13 @@ fun Snackbar(
         color = backgroundColor,
         contentColor = contentColor
     ) {
-        Providers(AmbientContentAlpha provides ContentAlpha.high) {
+        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
             val textStyle = MaterialTheme.typography.body2
             ProvideTextStyle(value = textStyle) {
                 when {
-                    action == null -> TextOnlySnackbar(text)
-                    actionOnNewLine -> NewLineButtonSnackbar(text, action)
-                    else -> OneRowSnackbar(text, action)
+                    action == null -> TextOnlySnackbar(content)
+                    actionOnNewLine -> NewLineButtonSnackbar(content, action)
+                    else -> OneRowSnackbar(content, action)
                 }
             }
         }
@@ -105,6 +109,8 @@ fun Snackbar(
 }
 
 /**
+ * <a href="https://material.io/components/snackbars" class="external" target="_blank">Material Design snackbar</a>.
+ *
  * Snackbars provide brief messages about app processes at the bottom of the screen.
  *
  * Snackbars inform users of a process that an app has performed or will perform. They appear
@@ -113,6 +119,8 @@ fun Snackbar(
  *
  * A Snackbar can contain a single action. Because they disappear automatically, the action
  * shouldn't be "Dismiss" or "Cancel".
+ *
+ * ![Snackbars image](https://developer.android.com/images/reference/androidx/compose/material/snackbars.png)
  *
  * This version of snackbar is designed to work with [SnackbarData] provided by the
  * [SnackbarHost], which is usually used inside of the [Scaffold].
@@ -134,29 +142,28 @@ fun Snackbar(
  * @param shape Defines the Snackbar's shape as well as its shadow
  * @param backgroundColor background color of the Snackbar
  * @param contentColor color of the content to use inside the snackbar. Defaults to
- * either the matching `onFoo` color for [backgroundColor], or, if it is not a color from
+ * either the matching content color for [backgroundColor], or, if it is not a color from
  * the theme, this will keep the same value set above this Surface.
  * @param actionColor color of the action
  * @param elevation The z-coordinate at which to place the SnackBar. This controls the size
  * of the shadow below the SnackBar
  */
 @Composable
-@OptIn(ExperimentalMaterialApi::class)
 fun Snackbar(
     snackbarData: SnackbarData,
     modifier: Modifier = Modifier,
     actionOnNewLine: Boolean = false,
     shape: Shape = MaterialTheme.shapes.small,
-    backgroundColor: Color = SnackbarConstants.defaultBackgroundColor,
+    backgroundColor: Color = SnackbarDefaults.backgroundColor,
     contentColor: Color = MaterialTheme.colors.surface,
-    actionColor: Color = SnackbarConstants.defaultActionPrimaryColor,
+    actionColor: Color = SnackbarDefaults.primaryActionColor,
     elevation: Dp = 6.dp
 ) {
     val actionLabel = snackbarData.actionLabel
     val actionComposable: (@Composable () -> Unit)? = if (actionLabel != null) {
-        {
+        @Composable {
             TextButton(
-                colors = ButtonConstants.defaultTextButtonColors(contentColor = actionColor),
+                colors = ButtonDefaults.textButtonColors(contentColor = actionColor),
                 onClick = { snackbarData.performAction() },
                 content = { Text(actionLabel) }
             )
@@ -166,7 +173,7 @@ fun Snackbar(
     }
     Snackbar(
         modifier = modifier.padding(12.dp),
-        text = { Text(snackbarData.message) },
+        content = { Text(snackbarData.message) },
         action = actionComposable,
         actionOnNewLine = actionOnNewLine,
         shape = shape,
@@ -177,20 +184,20 @@ fun Snackbar(
 }
 
 /**
- * Object to hold constants used by the [Snackbar]
+ * Object to hold defaults used by [Snackbar]
  */
-object SnackbarConstants {
+object SnackbarDefaults {
 
     /**
-     * Default alpha of the overlay in the [defaultBackgroundColor]
+     * Default alpha of the overlay applied to the [backgroundColor]
      */
     private const val SnackbarOverlayAlpha = 0.8f
 
     /**
      * Default background color of the [Snackbar]
      */
-    @Composable
-    val defaultBackgroundColor: Color
+    val backgroundColor: Color
+        @Composable
         get() =
             MaterialTheme.colors.onSurface
                 .copy(alpha = SnackbarOverlayAlpha)
@@ -198,7 +205,7 @@ object SnackbarConstants {
 
     /**
      * Provides a best-effort 'primary' color to be used as the primary color inside a [Snackbar].
-     * Given that [Snackbar]s have an 'inverted' theme, i.e in a light theme they appear dark, and
+     * Given that [Snackbar]s have an 'inverted' theme, i.e. in a light theme they appear dark, and
      * in a dark theme they appear light, just using [Colors.primary] will not work, and has
      * incorrect contrast.
      *
@@ -210,8 +217,8 @@ object SnackbarConstants {
      * [MaterialTheme.colors] to attempt to reduce the contrast, and when in a dark theme this
      * function uses [Colors.primaryVariant].
      */
-    @Composable
-    val defaultActionPrimaryColor: Color
+    val primaryActionColor: Color
+        @Composable
         get() {
             val colors = MaterialTheme.colors
             return if (colors.isLight) {
@@ -251,7 +258,7 @@ private fun TextOnlySnackbar(content: @Composable () -> Unit) {
             } else {
                 SnackbarMinHeightTwoLines
             }
-        val containerHeight = max(minHeight.toIntPx(), textPlaceable.height)
+        val containerHeight = max(minHeight.roundToPx(), textPlaceable.height)
         layout(constraints.maxWidth, containerHeight) {
             val textPlaceY = (containerHeight - textPlaceable.height) / 2
             textPlaceable.placeRelative(0, textPlaceY)
@@ -301,7 +308,7 @@ private fun OneRowSnackbar(
     ) { measurables, constraints ->
         val buttonPlaceable = measurables.first { it.layoutId == actionTag }.measure(constraints)
         val textMaxWidth =
-            (constraints.maxWidth - buttonPlaceable.width - TextEndExtraSpacing.toIntPx())
+            (constraints.maxWidth - buttonPlaceable.width - TextEndExtraSpacing.roundToPx())
                 .coerceAtLeast(constraints.minWidth)
         val textPlaceable = measurables.first { it.layoutId == textTag }.measure(
             constraints.copy(minHeight = 0, maxWidth = textMaxWidth)
@@ -318,7 +325,7 @@ private fun OneRowSnackbar(
         val containerHeight: Int
         val buttonPlaceY: Int
         if (isOneLine) {
-            val minContainerHeight = SnackbarMinHeightOneLine.toIntPx()
+            val minContainerHeight = SnackbarMinHeightOneLine.roundToPx()
             val contentHeight = buttonPlaceable.height
             containerHeight = max(minContainerHeight, contentHeight)
             textPlaceY = (containerHeight - textPlaceable.height) / 2
@@ -331,9 +338,9 @@ private fun OneRowSnackbar(
                 }
             }
         } else {
-            val baselineOffset = HeightToFirstLine.toIntPx()
-            textPlaceY = baselineOffset - firstTextBaseline - SnackbarVerticalPadding.toIntPx()
-            val minContainerHeight = SnackbarMinHeightTwoLines.toIntPx()
+            val baselineOffset = HeightToFirstLine.roundToPx()
+            textPlaceY = baselineOffset - firstTextBaseline - SnackbarVerticalPadding.roundToPx()
+            val minContainerHeight = SnackbarMinHeightTwoLines.roundToPx()
             val contentHeight = textPlaceY + textPlaceable.height
             containerHeight = max(minContainerHeight, contentHeight)
             buttonPlaceY = (containerHeight - buttonPlaceable.height) / 2

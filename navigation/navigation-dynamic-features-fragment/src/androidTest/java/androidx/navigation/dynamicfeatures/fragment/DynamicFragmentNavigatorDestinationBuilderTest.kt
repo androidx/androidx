@@ -21,8 +21,10 @@ import androidx.fragment.app.FragmentActivity
 import androidx.navigation.dynamicfeatures.createGraph
 import androidx.navigation.get
 import androidx.test.annotation.UiThreadTest
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
@@ -30,14 +32,18 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class DynamicFragmentNavigatorDestinationBuilderTest {
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
-    private val fragmentManager get() = activityRule.activity.supportFragmentManager
+public class DynamicFragmentNavigatorDestinationBuilderTest {
 
+    @get:Rule
+    public val rule: ActivityScenarioRule<TestActivity> = ActivityScenarioRule(
+        TestActivity::class.java
+    )
+    private val fragmentManager get() = rule.withActivity { supportFragmentManager }
+
+    @Suppress("DEPRECATION")
     @UiThreadTest
-    @Test fun reified() {
+    @Test
+    public fun reified() {
         val navHostFragment = DynamicNavHostFragment()
         fragmentManager.beginTransaction()
             .add(android.R.id.content, navHostFragment)
@@ -51,8 +57,10 @@ class DynamicFragmentNavigatorDestinationBuilderTest {
             .isEqualTo(TestFragment::class.java.name)
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
-    @Test fun moduleName() {
+    @Test
+    public fun moduleName() {
         val navHostFragment = DynamicNavHostFragment()
         fragmentManager.beginTransaction()
             .add(android.R.id.content, navHostFragment)
@@ -71,8 +79,10 @@ class DynamicFragmentNavigatorDestinationBuilderTest {
             .isEqualTo(MODULE_NAME)
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
-    @Test fun no_moduleName() {
+    @Test
+    public fun no_moduleName() {
         val navHostFragment = DynamicNavHostFragment()
         fragmentManager.beginTransaction()
             .add(android.R.id.content, navHostFragment)
@@ -94,5 +104,5 @@ private const val DESTINATION_ID = 1
 private const val MODULE_NAME = "module"
 private const val FRAGMENT_CLASS_NAME = "androidx.navigation.dynamicfeatures.fragment.TestFragment"
 
-class TestActivity : FragmentActivity()
-class TestFragment : Fragment()
+public class TestActivity : FragmentActivity()
+private class TestFragment : Fragment()

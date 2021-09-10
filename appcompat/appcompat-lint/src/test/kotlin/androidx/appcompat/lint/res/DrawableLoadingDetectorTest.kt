@@ -52,6 +52,7 @@ class DrawableLoadingDetectorTest {
         // is on our own custom inner class
         lint().files(
             Stubs.APPCOMPAT_ACTIVITY,
+            Stubs.CONTEXT_COMPAT,
             customActivity
         ).issues(DrawableLoadingDetector.NOT_USING_COMPAT_LOADING)
             .run()

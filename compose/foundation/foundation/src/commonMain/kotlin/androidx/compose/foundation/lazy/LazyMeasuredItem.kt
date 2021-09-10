@@ -19,40 +19,55 @@ package androidx.compose.foundation.lazy
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.util.fastForEach
 
 /**
  * Represents one measured item of the lazy list. It can in fact consist of multiple placeables
  * if the user emit multiple layout nodes in the item callback.
  */
 internal class LazyMeasuredItem(
-    private val placeables: List<Placeable>,
+    override val index: Int,
+    private val placeables: Array<Placeable>,
     private val isVertical: Boolean,
-    private val horizontalAlignment: Alignment.Horizontal,
-    private val verticalAlignment: Alignment.Vertical,
+    private val horizontalAlignment: Alignment.Horizontal?,
+    private val verticalAlignment: Alignment.Vertical?,
     private val layoutDirection: LayoutDirection,
+    private val reverseLayout: Boolean,
     private val startContentPadding: Int,
-    private val endContentPadding: Int
-) {
+    private val endContentPadding: Int,
+    /**
+     * Extra spacing to be added to [size] aside from the sum of the [placeables] size. It
+     * is usually representing the spacing after the item.
+     */
+    private val spacing: Int,
+    override val key: Any
+) : LazyListItemInfo {
     /**
      * Sum of the main axis sizes of all the inner placeables.
      */
-    val mainAxisSize: Int
+    override val size: Int
+
+    /**
+     * Sum of the main axis sizes of all the inner placeables and [spacing].
+     */
+    val sizeWithSpacings: Int
 
     /**
      * Max of the cross axis sizes of all the inner placeables.
      */
     val crossAxisSize: Int
 
+    override var offset: Int = 0
+
     init {
         var mainAxisSize = 0
         var maxCrossAxis = 0
-        placeables.fastForEach {
+        placeables.forEach {
             mainAxisSize += if (isVertical) it.height else it.width
             maxCrossAxis = maxOf(maxCrossAxis, if (!isVertical) it.height else it.width)
         }
-        this.mainAxisSize = mainAxisSize
-        this.crossAxisSize = maxCrossAxis
+        size = mainAxisSize
+        sizeWithSpacings = size + spacing
+        crossAxisSize = maxCrossAxis
     }
 
     /**
@@ -60,18 +75,26 @@ internal class LazyMeasuredItem(
      * and [layoutHeight] should be provided to not place placeables which are ended up outside of
      * the viewport (for example one item consist of 2 placeables, and the first one is not going
      * to be visible, so we don't place it as an optimization, but place the second one).
+     * If [reverseOrder] is true the inner placeables would be placed in the inverted order.
      */
     fun place(
         scope: Placeable.PlacementScope,
         layoutWidth: Int,
-        layoutHeight: Int,
-        offset: Int
+        layoutHeight: Int
     ) = with(scope) {
-        var mainAxisOffset = offset
-        placeables.fastForEach {
+        val mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
+        var mainAxisOffset = if (reverseLayout) {
+            mainAxisLayoutSize - offset - size
+        } else {
+            offset
+        }
+        var index = if (reverseLayout) placeables.lastIndex else 0
+        while (if (reverseLayout) index >= 0 else index < placeables.size) {
+            val it = placeables[index]
+            if (reverseLayout) index-- else index++
             if (isVertical) {
-                val x =
-                    horizontalAlignment.align(it.width, layoutWidth, layoutDirection)
+                val x = requireNotNull(horizontalAlignment)
+                    .align(it.width, layoutWidth, layoutDirection)
                 if (mainAxisOffset + it.height > -startContentPadding &&
                     mainAxisOffset < layoutHeight + endContentPadding
                 ) {
@@ -79,7 +102,7 @@ internal class LazyMeasuredItem(
                 }
                 mainAxisOffset += it.height
             } else {
-                val y = verticalAlignment.align(it.height, layoutHeight)
+                val y = requireNotNull(verticalAlignment).align(it.height, layoutHeight)
                 if (mainAxisOffset + it.width > -startContentPadding &&
                     mainAxisOffset < layoutWidth + endContentPadding
                 ) {

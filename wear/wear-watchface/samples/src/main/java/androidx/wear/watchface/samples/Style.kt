@@ -19,8 +19,6 @@ package androidx.wear.watchface.samples
 import android.content.Context
 import android.graphics.Color
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
-import androidx.wear.watchface.CanvasComplicationDrawable
-import androidx.wear.watchface.WatchState
 
 private fun Context.getStyleResourceId(
     styleResourceId: Int,
@@ -88,9 +86,6 @@ class WatchFaceColorStyle(
         }
     }
 
-    fun getComplicationDrawableRenderer(context: Context, watchState: WatchState) =
-        CanvasComplicationDrawable(
-            ComplicationDrawable.getDrawable(context, complicationResourceId)!!,
-            watchState
-        )
+    fun getDrawable(context: Context) =
+        ComplicationDrawable.getDrawable(context, complicationResourceId)
 }

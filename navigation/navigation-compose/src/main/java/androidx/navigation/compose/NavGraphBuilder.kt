@@ -17,12 +17,12 @@
 package androidx.navigation.compose
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
-import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.get
-import androidx.navigation.navigation
 
 /**
  * Add the [Composable] to the [NavGraphBuilder]
@@ -40,11 +40,7 @@ public fun NavGraphBuilder.composable(
 ) {
     addDestination(
         ComposeNavigator.Destination(provider[ComposeNavigator::class], content).apply {
-            val internalRoute = createRoute(route)
-            addDeepLink(internalRoute)
-            val argument = navArgument(KEY_ROUTE) { defaultValue = route }
-            addArgument(argument.component1(), argument.component2())
-            id = internalRoute.hashCode()
+            this.route = route
             arguments.forEach { (argumentName, argument) ->
                 addArgument(argumentName, argument)
             }
@@ -58,17 +54,65 @@ public fun NavGraphBuilder.composable(
 /**
  * Construct a nested [NavGraph]
  *
- * @sample androidx.navigation.compose.samples.NestedNavStartDestination
- * @sample androidx.navigation.compose.samples.NestedNavInGraph
+ * @param startDestination the starting destination's route for this NavGraph
+ * @param route the destination's unique route
+ * @param arguments list of arguments to associate with destination
+ * @param deepLinks list of deep links to associate with the destinations
+ * @param builder the builder used to construct the graph
  */
 public fun NavGraphBuilder.navigation(
     startDestination: String,
     route: String,
+    arguments: List<NamedNavArgument> = emptyList(),
+    deepLinks: List<NavDeepLink> = emptyList(),
     builder: NavGraphBuilder.() -> Unit
-): Unit = navigation(
-    createRoute(route).hashCode(),
-    createRoute(startDestination).hashCode()
 ) {
-    deepLink(createRoute(route))
-    apply(builder)
+    addDestination(
+        NavGraphBuilder(provider, startDestination, route).apply(builder).build().apply {
+            arguments.forEach { (argumentName, argument) ->
+                addArgument(argumentName, argument)
+            }
+            deepLinks.forEach { deepLink ->
+                addDeepLink(deepLink)
+            }
+        }
+    )
+}
+
+/**
+ * Add the [Composable] to the [NavGraphBuilder] that will be hosted within a
+ * [androidx.compose.ui.window.Dialog]. This is suitable only when this dialog represents
+ * a separate screen in your app that needs its own lifecycle and saved state, independent
+ * of any other destination in your navigation graph. For use cases such as `AlertDialog`,
+ * you should use those APIs directly in the [composable] destination that wants to show that
+ * dialog.
+ *
+ * @param route route for the destination
+ * @param arguments list of arguments to associate with destination
+ * @param deepLinks list of deep links to associate with the destinations
+ * @param dialogProperties properties that should be passed to [androidx.compose.ui.window.Dialog].
+ * @param content composable content for the destination that will be hosted within the Dialog
+ */
+public fun NavGraphBuilder.dialog(
+    route: String,
+    arguments: List<NamedNavArgument> = emptyList(),
+    deepLinks: List<NavDeepLink> = emptyList(),
+    dialogProperties: DialogProperties = DialogProperties(),
+    content: @Composable (NavBackStackEntry) -> Unit
+) {
+    addDestination(
+        DialogNavigator.Destination(
+            provider[DialogNavigator::class],
+            dialogProperties,
+            content
+        ).apply {
+            this.route = route
+            arguments.forEach { (argumentName, argument) ->
+                addArgument(argumentName, argument)
+            }
+            deepLinks.forEach { deepLink ->
+                addDeepLink(deepLink)
+            }
+        }
+    )
 }

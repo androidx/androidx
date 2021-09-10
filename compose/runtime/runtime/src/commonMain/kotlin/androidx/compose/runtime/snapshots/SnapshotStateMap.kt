@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalComposeApi::class)
-
 package androidx.compose.runtime.snapshots
 
-import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.Stable
-import kotlinx.collections.immutable.PersistentMap
-import kotlinx.collections.immutable.persistentHashMapOf
+import androidx.compose.runtime.external.kotlinx.collections.immutable.PersistentMap
+import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentHashMapOf
+import androidx.compose.runtime.synchronized
+import kotlin.jvm.JvmName
 
 /**
  * An implementation of [MutableMap] that can be observed and snapshot. This is the result type
- * created by [androidx.compose.mutableStateMapOf].
+ * created by [androidx.compose.runtime.mutableStateMapOf].
  *
  * This class closely implements the same semantics as [HashMap].
  *
@@ -33,7 +32,7 @@ import kotlinx.collections.immutable.persistentHashMapOf
  */
 @Stable
 class SnapshotStateMap<K, V> : MutableMap<K, V>, StateObject {
-    override var firstStateRecord: StateMapStateRecord<K, V> =
+    override var firstStateRecord: StateRecord =
         StateMapStateRecord<K, V>(persistentHashMapOf())
         private set
 
@@ -63,7 +62,7 @@ class SnapshotStateMap<K, V> : MutableMap<K, V>, StateObject {
 
     @Suppress("UNCHECKED_CAST")
     internal val readable: StateMapStateRecord<K, V>
-        get() = firstStateRecord.readable(this)
+        get() = (firstStateRecord as StateMapStateRecord<K, V>).readable(this)
 
     internal inline fun removeIf(predicate: (MutableMap.MutableEntry<K, V>) -> Boolean): Boolean {
         var removed = false
@@ -92,47 +91,74 @@ class SnapshotStateMap<K, V> : MutableMap<K, V>, StateObject {
         return true
     }
 
+    /**
+     * An internal function used by the debugger to display the value of the current value of the
+     * mutable state object without triggering read observers.
+     */
+    @Suppress("unused")
+    internal val debuggerDisplayValue: Map<K, V>
+        @JvmName("getDebuggerDisplayValue")
+        get() = withCurrent { map }
+
     private inline fun <R> withCurrent(block: StateMapStateRecord<K, V>.() -> R): R =
         @Suppress("UNCHECKED_CAST")
-        @OptIn(ExperimentalComposeApi::class)
-        firstStateRecord.withCurrent(block)
+        (firstStateRecord as StateMapStateRecord<K, V>).withCurrent(block)
 
     private inline fun <R> writable(block: StateMapStateRecord<K, V>.() -> R): R =
         @Suppress("UNCHECKED_CAST")
-        firstStateRecord.writable(this, block)
+        (firstStateRecord as StateMapStateRecord<K, V>).writable(this, block)
 
-    private inline fun <R> mutate(block: (MutableMap<K, V>) -> R): R =
-        withCurrent {
-            val builder = map.builder()
-            val result = block(builder)
-            val newMap = builder.build()
-            if (newMap !== map) writable {
-                map = newMap
-                modification++
+    private inline fun <R> mutate(block: (MutableMap<K, V>) -> R): R {
+        var result: R
+        while (true) {
+            var oldMap: PersistentMap<K, V>? = null
+            var currentModification = 0
+            synchronized(sync) {
+                val current = withCurrent { this }
+                oldMap = current.map
+                currentModification = current.modification
             }
-            result
+            val builder = oldMap!!.builder()
+            result = block(builder)
+            val newMap = builder.build()
+            if (newMap == oldMap || synchronized(sync) {
+                writable {
+                    if (modification == currentModification) {
+                        map = newMap
+                        modification++
+                        true
+                    } else false
+                }
+            }
+            ) break
         }
+        return result
+    }
 
     private inline fun update(block: (PersistentMap<K, V>) -> PersistentMap<K, V>) = withCurrent {
         val newMap = block(map)
-        if (newMap !== map) writable {
-            map = newMap
-            modification++
+        if (newMap !== map) synchronized(sync) {
+            writable {
+                map = newMap
+                modification++
+            }
         }
     }
 
     /**
      * Implementation class of [SnapshotStateMap]. Do not use.
      */
-    class StateMapStateRecord<K, V> internal constructor(
+    internal class StateMapStateRecord<K, V> internal constructor(
         internal var map: PersistentMap<K, V>
     ) : StateRecord() {
         internal var modification = 0
         override fun assign(value: StateRecord) {
             @Suppress("UNCHECKED_CAST")
             val other = (value as StateMapStateRecord<K, V>)
-            map = other.map
-            modification = other.modification
+            synchronized(sync) {
+                map = other.map
+                modification = other.modification
+            }
         }
 
         override fun create(): StateRecord = StateMapStateRecord(map)
@@ -164,7 +190,7 @@ private class SnapshotMapEntrySet<K, V>(
         return removed
     }
     override fun retainAll(elements: Collection<MutableMap.MutableEntry<K, V>>): Boolean {
-        val entries = elements.map { it.key to it.value }.toMap()
+        val entries = elements.associate { it.key to it.value }
         return map.removeIf { !entries.containsKey(it.key) || entries[it.key] != it.value }
     }
     override fun contains(element: MutableMap.MutableEntry<K, V>): Boolean {
@@ -216,6 +242,20 @@ private class SnapshotMapValueSet<K, V>(
         return elements.all { map.containsValue(it) }
     }
 }
+
+/**
+ * This lock is used to ensure that the value of modification and the map in the state record,
+ * when used together, are atomically read and written.
+ *
+ * A global sync object is used to avoid having to allocate a sync object and initialize a monitor
+ * for each instance the map. This avoids additional allocations but introduces some contention
+ * between maps. As there is already contention on the global snapshot lock to write so the
+ * additional contention introduced by this lock is nominal.
+ *
+ * In code the requires this lock and calls `writable` (or other operation that acquires the
+ * snapshot global lock), this lock *MUST* be acquired first to avoid deadlocks.
+ */
+private val sync = Any()
 
 private abstract class StateMapMutableIterator<K, V>(
     val map: SnapshotStateMap<K, V>,

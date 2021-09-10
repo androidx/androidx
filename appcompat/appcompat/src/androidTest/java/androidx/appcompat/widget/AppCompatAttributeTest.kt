@@ -16,6 +16,7 @@
 
 package androidx.appcompat.widget
 
+import android.provider.Settings
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageView
@@ -23,13 +24,14 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.test.R
 import androidx.appcompat.app.AppCompatActivity
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -49,18 +51,19 @@ class AppCompatAttributeTest {
 
     @Before
     fun setup() {
-        InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand(
-            "settings put global debug_view_attributes_application_package " +
-                "androidx.appcompat.test"
+        getInstrumentation().uiAutomation.executeShellCommand(
+            "settings put global $DEBUG_VIEW_ATTRIBUTES $TEST_PACKAGE"
         )
+        assumeDebugViewAttributes(TEST_PACKAGE)
         activityRule.launchActivity(null)
     }
 
     @After
     fun tearDown() {
-        InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand(
-            "settings delete global debug_view_attributes_application_package"
+        getInstrumentation().uiAutomation.executeShellCommand(
+            "settings delete global $DEBUG_VIEW_ATTRIBUTES"
         )
+        assumeDebugViewAttributes(null)
     }
 
     @Test
@@ -166,5 +169,35 @@ class AppCompatAttributeTest {
             R.layout.view_attribute_layout,
             root.attributeSourceResourceMap[R.attr.showDividers]
         )
+    }
+
+    private companion object {
+        const val SETTINGS_TIMEOUT = 5000 // 5 seconds
+        const val DEBUG_VIEW_ATTRIBUTES = "debug_view_attributes_application_package"
+        const val TEST_PACKAGE = "androidx.appcompat.test"
+
+        fun busyWait(timeout: Int, predicate: () -> Boolean): Boolean {
+            val deadline = System.currentTimeMillis() + timeout
+
+            do {
+                if (predicate()) {
+                    return true
+                }
+                Thread.sleep(50)
+            } while (System.currentTimeMillis() < deadline)
+
+            return false
+        }
+
+        fun assumeDebugViewAttributes(expected: String?) {
+            val timeout = SETTINGS_TIMEOUT / 1000F
+            val contentResolver = getInstrumentation().targetContext.contentResolver
+            assumeTrue(
+                "Assumed $DEBUG_VIEW_ATTRIBUTES would be $expected within $timeout seconds",
+                busyWait(SETTINGS_TIMEOUT) {
+                    Settings.Global.getString(contentResolver, DEBUG_VIEW_ATTRIBUTES) == expected
+                }
+            )
+        }
     }
 }

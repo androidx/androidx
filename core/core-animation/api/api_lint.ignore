@@ -9,5 +9,9 @@ BuilderSetStyle: androidx.core.animation.AnimatorSet.Builder#with(androidx.core.
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.animation.AnimatorSet.Builder.with(androidx.core.animation.Animator)
 
 
+GetterSetterNames: androidx.core.animation.Keyframe#setValue(T):
+    Symmetric method for `hasValue` must be named `setHasValue`; was `setValue`
+
+
 StaticFinalBuilder: androidx.core.animation.AnimatorSet.Builder:
     Builder must be final: androidx.core.animation.AnimatorSet.Builder

@@ -70,18 +70,24 @@ plugins {
     java
 }
 
+val metalavaBuildId: String? = findProperty("metalavaBuildId") as String?
 repositories {
     jcenter()
     mavenCentral()
     google()
     gradlePluginPortal()
-    val metalavaBuildId: String? = findProperty("metalavaBuildId") as String?
     if (metalavaBuildId != null) {
         maven(url="https://androidx.dev/metalava/builds/${metalavaBuildId}/artifacts/repo/m2repository")
     }
 
     val allowBintray: String? = findProperty("allowBintray") as String?
     if (allowBintray != null) {
+        maven {
+            url = uri("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/")
+            metadataSources {
+                artifact()
+            }
+        }
         maven {
             url = uri("https://dl.bintray.com/kotlin/kotlin-dev/")
             metadataSources {
@@ -96,6 +102,16 @@ repositories {
         }
         maven {
             url = uri("https://dl.bintray.com/kotlin/kotlinx/")
+            metadataSources {
+                artifact()
+            }
+        }
+    }
+
+    val allowJetbrainsDev: String? = findProperty("allowJetbrainsDev") as String?
+    if (allowJetbrainsDev != null) {
+        maven {
+            url = uri("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
             metadataSources {
                 artifact()
             }
@@ -253,8 +269,8 @@ fun licenseFor(pomFile: File): File? {
 /**
  * Transforms POM files so we automatically comment out nodes with <type>aar</type>.
  *
- * We are doing this for all internal libraries to account for -PuseMaxDepVersions which swaps out
- * the dependencies of all androidx libraries with their respective ToT versions.
+ * We are doing this for all internal libraries to account for -Pandroidx.useMaxDepVersions
+ * which swaps out the dependencies of all androidx libraries with their respective ToT versions.
  * For more information look at b/127495641.
  */
 fun transformInternalPomFile(file: File): File {
@@ -430,7 +446,11 @@ open class DirectMetadataAccessVariantRule : ComponentMetadataRule {
             }
         }
         val variantNames = listOf(
-            "runtimeElements", "releaseRuntimePublication", "metadata-api", "runtime"
+            "runtimeElements",
+            "releaseRuntimePublication",
+            "metadata-api",
+            "metadataApiElements-published",
+            "runtime"
         )
         variantNames.forEach { name ->
             ctx.details.maybeAddVariant("allFilesWithDependencies${name.capitalize()}", name) {
@@ -448,6 +468,8 @@ open class DirectMetadataAccessVariantRule : ComponentMetadataRule {
                     addFile("${id.name}-${id.version}.jar")
                     addFile("${id.name}-${id.version}.aar")
                     addFile("${id.name}-${id.version}-sources.jar")
+                    addFile("${id.name}-${id.version}.klib")
+                    addFile("${id.name}-${id.version}-cinterop-interop.klib")
                 }
             }
         }
@@ -457,18 +479,30 @@ open class DirectMetadataAccessVariantRule : ComponentMetadataRule {
 tasks {
     val fetchArtifacts by creating {
         doLast {
+            var numArtifactsFound = 0
             println("\r\nAll Files with Dependencies")
             allFilesWithDependencies.incoming.artifactView {
                 lenient(true)
             }.artifacts.forEach {
                 copyArtifact(it, internal = isInternalArtifact(it))
+                numArtifactsFound++
             }
             gradleModuleMetadata.incoming.artifactView {
                 lenient(true)
             }.artifacts.forEach {
                 copyArtifact(it, internal = isInternalArtifact(it))
+                numArtifactsFound++
             }
-            println("\r\nResolved artifacts for $artifactName.")
+            if (numArtifactsFound < 1) {
+                var message = "Artifact $artifactName not found!"
+                if (metalavaBuildId != null) {
+                    message += "\nMake sure that ab/$metalavaBuildId contains the `metalava` "
+                    message += "target and that it has finished building, or see "
+                    message += "ab/metalava-master for available build ids"
+                }
+                throw GradleException(message)
+            }
+	    println("\r\nResolved $numArtifactsFound artifacts for $artifactName.")
         }
     }
 }

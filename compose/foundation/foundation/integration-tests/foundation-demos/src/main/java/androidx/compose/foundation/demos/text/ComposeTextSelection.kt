@@ -16,17 +16,20 @@
 
 package androidx.compose.foundation.demos.text
 
-import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.selection.DisableSelection
-import androidx.compose.ui.selection.SelectionContainer
+import androidx.compose.foundation.text.selection.DisableSelection
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -34,18 +37,41 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun TextSelectionDemo() {
-    ScrollableColumn {
-        TagLine(tag = "selection")
-        TextDemoSelection()
-        TagLine(tag = "selection with string input")
-        TextDemoSelectionWithStringInput()
-        TagLine(tag = "selection in 2D Array Vertical")
-        TextDemoSelection2DArrayVertical()
-        TagLine(tag = "enable and disable selection")
-        TextDemoSelectionEnableAndDisable()
+    LazyColumn {
+        item {
+            TagLine(tag = "selection")
+            TextDemoSelection()
+        }
+        item {
+            TagLine(tag = "selection with string input")
+            TextDemoSelectionWithStringInput()
+        }
+        item {
+            TagLine(tag = "selection in 2D Array Vertical")
+            TextDemoSelection2DArrayVertical()
+        }
+        item {
+            TagLine(tag = "enable and disable selection")
+            TextDemoSelectionEnableAndDisable()
+        }
+        item {
+            TagLine(tag = "fix crashing of longpress in the blank area")
+            SelectionContainer {
+                Text(
+                    text = "Hello World\nHello",
+                    modifier = Modifier.fillMaxWidth()
+                        .border(BorderStroke(1.dp, color = Color.Black))
+                        .height(80.dp)
+                )
+            }
+        }
+        item {
+            TagLine(tag = "")
+        }
     }
 }
 
@@ -77,7 +103,7 @@ fun TextDemoSelection() {
                     append(displayTextHindi)
                 }
 
-                append(text = "$arabicSentence")
+                append(text = arabicSentence)
 
                 withStyle(SpanStyle(localeList = LocaleList("zh-CN"))) {
                     append("\n先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。")

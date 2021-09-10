@@ -16,6 +16,7 @@
 
 package androidx.collection;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
@@ -96,5 +97,11 @@ public class ArrayMapTest {
                 fail(e.getMessage());
             }
         }
+    }
+
+    @Test
+    public void testIsSubclassOfSimpleArrayMap() {
+        Object map = new ArrayMap<String, Integer>();
+        assertTrue(map instanceof SimpleArrayMap);
     }
 }

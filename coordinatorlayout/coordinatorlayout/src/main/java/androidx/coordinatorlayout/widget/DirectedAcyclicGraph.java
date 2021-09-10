@@ -91,10 +91,25 @@ public final class DirectedAcyclicGraph<T> {
     /**
      * Get any incoming edges from the given node.
      *
+     * @return a new list containing any incoming edges, or {@code null} if there are none
+     */
+    @Nullable
+    public List<T> getIncomingEdges(@NonNull T node) {
+        ArrayList<T> result = getIncomingEdgesInternal(node);
+        if (result == null) {
+            return null;
+        } else {
+            return new ArrayList<>(result);
+        }
+    }
+
+    /**
+     * Get any incoming edges from the given node.
+     *
      * @return a list containing any incoming edges, or null if there are none.
      */
     @Nullable
-    public List getIncomingEdges(@NonNull T node) {
+    ArrayList<T> getIncomingEdgesInternal(@NonNull T node) {
         return mGraph.get(node);
     }
 
@@ -102,7 +117,7 @@ public final class DirectedAcyclicGraph<T> {
      * Get any outgoing edges for the given node (i.e. nodes which have an incoming edge
      * from the given node).
      *
-     * @return a list containing any outgoing edges, or null if there are none.
+     * @return a new list containing any outgoing edges, or {@code null} if there are none
      */
     @Nullable
     public List<T> getOutgoingEdges(@NonNull T node) {

@@ -17,10 +17,10 @@
 package androidx.compose.ui.test
 
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.semantics.AccessibilityAction
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.util.annotation.IntRange
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.toSize
 
@@ -36,12 +36,15 @@ internal expect fun printToLog(tag: String, message: String)
  * collected before. So the output can change over time if the tree changes.
  *
  * @param maxDepth Max depth of the nodes in hierarchy to print. Zero will print just this node.
+ * Must not be negative.
  */
 fun SemanticsNodeInteraction.printToString(
-    @IntRange(from = 0) maxDepth: Int = Int.MAX_VALUE
+    /*@IntRange(from = 0)*/
+    maxDepth: Int = Int.MAX_VALUE
 ): String {
     val result = fetchSemanticsNode()
-    return result.printToString(maxDepth)
+    return "Printing with useUnmergedTree = '$useUnmergedTree'\n" +
+        result.printToString(maxDepth)
 }
 
 /**
@@ -55,10 +58,12 @@ fun SemanticsNodeInteraction.printToString(
  *
  * @param tag The tag to be used in the log messages.
  * @param maxDepth Max depth of the nodes in hierarchy to print. Zero will print just this node.
+ * Must not be negative.
  */
 fun SemanticsNodeInteraction.printToLog(
     tag: String,
-    @IntRange(from = 0) maxDepth: Int = Int.MAX_VALUE
+    /*@IntRange(from = 0)*/
+    maxDepth: Int = Int.MAX_VALUE
 ) {
     val result = "printToLog:\n" + printToString(maxDepth)
     printToLog(tag, result)
@@ -74,17 +79,19 @@ fun SemanticsNodeInteraction.printToLog(
  * collected before. So the output can change over time if the tree changes.
  *
  * @param maxDepth Max depth of the nodes in hierarchy to print. Zero will print nodes in this
- * collection only.
+ * collection only. Must not be negative.
  */
 fun SemanticsNodeInteractionCollection.printToString(
-    @IntRange(from = 0) maxDepth: Int = 0
+    /*@IntRange(from = 0)*/
+    maxDepth: Int = 0
 ): String {
     val nodes = fetchSemanticsNodes()
-    return if (nodes.isEmpty()) {
-        "There were 0 nodes found!"
-    } else {
-        nodes.printToString(maxDepth)
-    }
+    return "Printing with useUnmergedTree = '$useUnmergedTree'\n" +
+        if (nodes.isEmpty()) {
+            "There were 0 nodes found!"
+        } else {
+            nodes.printToString(maxDepth)
+        }
 }
 
 /**
@@ -96,20 +103,21 @@ fun SemanticsNodeInteractionCollection.printToString(
  * Note that this will fetch the latest snapshot of nodes it sees in the hierarchy for the IDs it
  * collected before. So the output can change over time if the tree changes.
  *
- * @param tag The tag to be used in the log messages.
+ * @param tag The tag to be used in the log messages. Must not be negative.
  * @param maxDepth Max depth of the nodes in hierarchy to print. Zero will print nodes in this
  * collection only.
  */
 fun SemanticsNodeInteractionCollection.printToLog(
     tag: String,
-    @IntRange(from = 0) maxDepth: Int = 0
+    /*@IntRange(from = 0)*/
+    maxDepth: Int = 0
 ) {
     val result = "printToLog:\n" + printToString(maxDepth)
     printToLog(tag, result)
 }
 
 internal fun Collection<SemanticsNode>.printToString(maxDepth: Int = 0): String {
-    var sb = StringBuilder()
+    val sb = StringBuilder()
     var i = 1
     forEach {
         if (size > 1) {
@@ -205,16 +213,30 @@ private fun SemanticsNode.printToStringInner(
 
 private val SemanticsNode.unclippedGlobalBounds: Rect
     get() {
-        return Rect(globalPosition, size.toSize())
+        return Rect(positionInWindow, size.toSize())
     }
 
 private fun rectToShortString(rect: Rect): String {
-    return "(${rect.left}, ${rect.top}, ${rect.right}, ${rect.bottom})px"
+    return "(l=${rect.left}, t=${rect.top}, r=${rect.right}, b=${rect.bottom})px"
 }
 
 private fun StringBuilder.appendConfigInfo(config: SemanticsConfiguration, indent: String = "") {
+    val actions = mutableListOf<String>()
+    val units = mutableListOf<String>()
     for ((key, value) in config) {
         if (key == SemanticsProperties.TestTag) {
+            continue
+        }
+
+        if (value is AccessibilityAction<*> || value is Function<*>) {
+            // Avoids printing stuff like "action = 'AccessibilityAction\(label=null, action=.*\)'"
+            actions.add(key.name)
+            continue
+        }
+
+        if (value is Unit) {
+            // Avoids printing stuff like "Disabled = 'kotlin.Unit'"
+            units.add(key.name)
             continue
         }
 
@@ -239,6 +261,22 @@ private fun StringBuilder.appendConfigInfo(config: SemanticsConfiguration, inden
         append("'")
     }
 
+    if (units.isNotEmpty()) {
+        appendLine()
+        append(indent)
+        append("[")
+        append(units.joinToString(separator = ", "))
+        append("]")
+    }
+
+    if (actions.isNotEmpty()) {
+        appendLine()
+        append(indent)
+        append("Actions = [")
+        append(actions.joinToString(separator = ", "))
+        append("]")
+    }
+
     if (config.isMergingSemanticsOfDescendants) {
         appendLine()
         append(indent)
@@ -248,6 +286,6 @@ private fun StringBuilder.appendConfigInfo(config: SemanticsConfiguration, inden
     if (config.isClearingSemantics) {
         appendLine()
         append(indent)
-        append("ReplaceSemantics = 'true'")
+        append("ClearAndSetSemantics = 'true'")
     }
 }

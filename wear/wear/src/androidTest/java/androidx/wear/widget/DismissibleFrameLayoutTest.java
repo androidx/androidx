@@ -17,7 +17,6 @@
 package androidx.wear.widget;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.swipeRight;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.wear.widget.util.AsyncViewActions.waitForMatchingView;
@@ -34,11 +33,17 @@ import androidx.annotation.IdRes;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.action.GeneralLocation;
+import androidx.test.espresso.action.GeneralSwipeAction;
+import androidx.test.espresso.action.Press;
+import androidx.test.espresso.action.Swipe;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.wear.test.R;
+import androidx.wear.widget.util.FrameLocationAvoidingEdges;
 import androidx.wear.widget.util.WakeLockRule;
 
 import org.junit.Rule;
@@ -102,7 +107,7 @@ public class DismissibleFrameLayoutTest {
             // CHECK the layout is not hidden
             assertNotHidden(R.id.dismissible_root);
             // WHEN perform a swipe dismiss
-            onView(withId(R.id.dismissible_root)).perform(swipeRight());
+            onView(withId(R.id.dismissible_root)).perform(swipeRightFromLeftCenterAvoidingEdge());
             // AND hidden
             assertHidden(R.id.dismissible_root);
         }
@@ -117,7 +122,7 @@ public class DismissibleFrameLayoutTest {
             // CHECK the layout is not hidden
             assertNotHidden(R.id.dismissible_root);
             // WHEN perform a swipe dismiss
-            onView(withId(R.id.dismissible_root)).perform(swipeRight());
+            onView(withId(R.id.dismissible_root)).perform(swipeRightFromLeftCenterAvoidingEdge());
             // AND the layout is still nor hidden
             assertNotHidden(R.id.dismissible_root);
         }
@@ -202,7 +207,7 @@ public class DismissibleFrameLayoutTest {
             // CHECK the layout is not hidden
             assertNotHidden(R.id.dismissible_root);
             // WHEN perform a swipe dismiss
-            onView(withId(R.id.dismissible_root)).perform(swipeRight());
+            onView(withId(R.id.dismissible_root)).perform(swipeRightFromLeftCenterAvoidingEdge());
             // AND hidden
             assertHidden(R.id.dismissible_root);
         }
@@ -275,8 +280,15 @@ public class DismissibleFrameLayoutTest {
     private static class DismissCallback extends DismissibleFrameLayout.Callback {
 
         @Override
-        public void onDismissed(DismissibleFrameLayout layout) {
+        public void onDismissFinished(DismissibleFrameLayout layout) {
             layout.setVisibility(View.GONE);
         }
+    }
+
+    private static ViewAction swipeRightFromLeftCenterAvoidingEdge() {
+        return new GeneralSwipeAction(
+                Swipe.SLOW, FrameLocationAvoidingEdges.CENTER_LEFT_AVOIDING_EDGE,
+                GeneralLocation.CENTER_RIGHT,
+                Press.FINGER);
     }
 }

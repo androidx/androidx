@@ -16,6 +16,7 @@
 
 package androidx.camera.video.internal.encoder;
 
+import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 
 import androidx.annotation.NonNull;
@@ -47,9 +48,6 @@ public abstract class AudioEncoderConfig implements EncoderConfig {
     /** Gets the sample bitrate. */
     public abstract int getSampleRate();
 
-    /** Gets the channel mask. */
-    public abstract int getChannelMask();
-
     /** Gets the channel count. */
     public abstract int getChannelCount();
 
@@ -60,7 +58,10 @@ public abstract class AudioEncoderConfig implements EncoderConfig {
         MediaFormat mediaFormat = MediaFormat.createAudioFormat(getMimeType(), getSampleRate(),
                 getChannelCount());
         mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, getBitrate());
-        mediaFormat.setInteger(MediaFormat.KEY_CHANNEL_MASK, getChannelMask());
+        if (getMimeType().equals(MediaFormat.MIMETYPE_AUDIO_AAC)) {
+            mediaFormat.setInteger(MediaFormat.KEY_AAC_PROFILE,
+                    MediaCodecInfo.CodecProfileLevel.AACObjectLC);
+        }
         return mediaFormat;
     }
 
@@ -82,10 +83,6 @@ public abstract class AudioEncoderConfig implements EncoderConfig {
         /** Sets the sample rate. */
         @NonNull
         public abstract Builder setSampleRate(int sampleRate);
-
-        /** Sets the channel mask. */
-        @NonNull
-        public abstract Builder setChannelMask(int channelMask);
 
         /** Sets the channel count. */
         @NonNull

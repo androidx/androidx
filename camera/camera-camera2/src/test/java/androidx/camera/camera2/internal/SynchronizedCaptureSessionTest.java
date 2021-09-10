@@ -23,13 +23,14 @@ import static org.mockito.Mockito.verify;
 
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
+import android.view.Surface;
 
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImmediateSurface;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +40,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,7 +49,8 @@ import java.util.concurrent.ScheduledExecutorService;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
+        instrumentedPackages = { "androidx.camera.camera2.internal.compat.params" })
 public class SynchronizedCaptureSessionTest {
     private static final int NUM_OUTPUTS = 3;
 
@@ -64,10 +67,11 @@ public class SynchronizedCaptureSessionTest {
     private DeferrableSurface mDeferrableSurface1;
     private DeferrableSurface mDeferrableSurface2;
 
+    @SuppressWarnings("deprecation")
     @Before
     public void setUp() {
         mCaptureSessionRepository =
-                new CaptureSessionRepository(AsyncTask.THREAD_POOL_EXECUTOR);
+                new CaptureSessionRepository(android.os.AsyncTask.THREAD_POOL_EXECUTOR);
 
         mDeferrableSurface1 = mock(DeferrableSurface.class);
         mDeferrableSurface2 = mock(DeferrableSurface.class);
@@ -81,8 +85,8 @@ public class SynchronizedCaptureSessionTest {
         enabledFeature.add(SynchronizedCaptureSessionOpener.FEATURE_DEFERRABLE_SURFACE_CLOSE);
 
         mCaptureSessionOpenerBuilder = new SynchronizedCaptureSessionOpener.Builder(
-                AsyncTask.SERIAL_EXECUTOR, mScheduledExecutorService, mock(Handler.class),
-                mCaptureSessionRepository, -1);
+                android.os.AsyncTask.SERIAL_EXECUTOR, mScheduledExecutorService,
+                mock(Handler.class), mCaptureSessionRepository, -1);
         mSynchronizedCaptureSessionOpener = mCaptureSessionOpenerBuilder.build();
 
         mMockCaptureSession = mock(CameraCaptureSession.class);
@@ -124,10 +128,12 @@ public class SynchronizedCaptureSessionTest {
                         mockStateCallback1);
 
         mSynchronizedCaptureSessionOpener.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
         sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
         captureSessionUtil1.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
         sessionConfigurationCompat1.getStateCallback().onConfigured(mockCaptureSession1);
 
         verify(mMockStateCallback).onClosed(any(SynchronizedCaptureSession.class));
@@ -151,7 +157,8 @@ public class SynchronizedCaptureSessionTest {
                         mMockStateCallback);
 
         mSynchronizedCaptureSessionOpener.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
         sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
 
         mCaptureSessionRepository.getCameraStateCallback().onDisconnected(mock(CameraDevice.class));
@@ -168,7 +175,8 @@ public class SynchronizedCaptureSessionTest {
                         mMockStateCallback);
 
         mSynchronizedCaptureSessionOpener.openCaptureSession(mock(CameraDevice.class),
-                sessionConfigurationCompat);
+                sessionConfigurationCompat,
+                Arrays.asList(new ImmediateSurface(mock(Surface.class))));
         sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
 
         mCaptureSessionRepository.getCameraStateCallback().onDisconnected(mock(CameraDevice.class));

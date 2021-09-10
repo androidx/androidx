@@ -30,6 +30,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.LinearLayout;
 
+import androidx.annotation.GravityInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,6 +38,7 @@ import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
+import androidx.resourceinspection.annotation.Attribute;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -217,6 +219,12 @@ public class LinearLayoutCompat extends ViewGroup {
      * @return A flag set indicating how dividers should be shown around items.
      * @see #setShowDividers(int)
      */
+    @Attribute(value = "androidx.appcompat:showDividers", intMapping = {
+            @Attribute.IntMap(name = "none", value = 0),
+            @Attribute.IntMap(name = "beginning", value = 1, mask = 1),
+            @Attribute.IntMap(name = "middle", value = 2, mask = 2),
+            @Attribute.IntMap(name = "end", value = 4, mask = 4)
+    })
     @DividerMode
     public int getShowDividers() {
         return mShowDividers;
@@ -227,6 +235,7 @@ public class LinearLayoutCompat extends ViewGroup {
      *
      * @see #setDividerDrawable(Drawable)
      */
+    @Attribute("androidx.appcompat:divider")
     public Drawable getDividerDrawable() {
         return mDivider;
     }
@@ -274,6 +283,7 @@ public class LinearLayoutCompat extends ViewGroup {
      * @see #setDividerDrawable(Drawable)
      * @see #setDividerPadding(int)
      */
+    @Attribute("androidx.appcompat:dividerPadding")
     public int getDividerPadding() {
         return mDividerPadding;
     }
@@ -387,6 +397,7 @@ public class LinearLayoutCompat extends ViewGroup {
      *
      * @return true when widgets are baseline-aligned, false otherwise
      */
+    @Attribute("android:baselineAligned")
     public boolean isBaselineAligned() {
         return mBaselineAligned;
     }
@@ -410,6 +421,7 @@ public class LinearLayoutCompat extends ViewGroup {
      * @return True to measure children with a weight using the minimum
      *         size of the largest child, false otherwise.
      */
+    @Attribute("androidx.appcompat:measureWithLargestChild")
     public boolean isMeasureWithLargestChildEnabled() {
         return mUseLargestChild;
     }
@@ -486,6 +498,7 @@ public class LinearLayoutCompat extends ViewGroup {
      *   part of a larger layout that is baseline aligned, or -1 if none has
      *   been set.
      */
+    @Attribute("android:baselineAlignedChildIndex")
     public int getBaselineAlignedChildIndex() {
         return mBaselineAlignedChildIndex;
     }
@@ -535,6 +548,7 @@ public class LinearLayoutCompat extends ViewGroup {
      *         a number lower than or equals to 0.0f if not weight sum is
      *         to be used.
      */
+    @Attribute("android:weightSum")
     public float getWeightSum() {
         return mWeightSum;
     }
@@ -1672,6 +1686,10 @@ public class LinearLayoutCompat extends ViewGroup {
      *
      * @return either {@link #HORIZONTAL} or {@link #VERTICAL}
      */
+    @Attribute(value = "android:orientation", intMapping = {
+            @Attribute.IntMap(name = "horizontal", value = 0),
+            @Attribute.IntMap(name = "vertical", value = 1)
+    })
     @OrientationMode
     public int getOrientation() {
         return mOrientation;
@@ -1685,7 +1703,7 @@ public class LinearLayoutCompat extends ViewGroup {
      *
      * @param gravity See {@link android.view.Gravity}
      */
-    public void setGravity(int gravity) {
+    public void setGravity(@GravityInt int gravity) {
         if (mGravity != gravity) {
             if ((gravity & GravityCompat.RELATIVE_HORIZONTAL_GRAVITY_MASK) == 0) {
                 gravity |= GravityCompat.START;
@@ -1706,6 +1724,8 @@ public class LinearLayoutCompat extends ViewGroup {
      * @return the current gravity.
      * @see #setGravity
      */
+    @Attribute("android:gravity")
+    @GravityInt
     public int getGravity() {
         return mGravity;
     }

@@ -87,14 +87,14 @@ CallbackName: androidx.leanback.widget.ObjectAdapter.DataObserver:
     Class should be named DataCallback
 
 
+ConcreteCollection: androidx.leanback.widget.GridLayoutManager#onAddFocusables(androidx.recyclerview.widget.RecyclerView, java.util.ArrayList<android.view.View>, int, int) parameter #1:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
 ConcreteCollection: androidx.leanback.widget.ItemBridgeAdapter#getPresenterMapper():
     Return type is concrete collection (`java.util.ArrayList`); must be higher-level interface
 ConcreteCollection: androidx.leanback.widget.ItemBridgeAdapter#setPresenterMapper(java.util.ArrayList<androidx.leanback.widget.Presenter>) parameter #0:
     Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
 
 
-ContextFirst: androidx.leanback.widget.GuidedAction.BuilderBase#iconResourceId(int, android.content.Context) parameter #1:
-    Context is distinct, so it must be the first argument (method `iconResourceId`)
 ContextFirst: androidx.leanback.widget.PlaybackControlsRow.ThumbsAction#ThumbsAction(int, android.content.Context, int, int) parameter #1:
     Context is distinct, so it must be the first argument (method `ThumbsAction`)
 
@@ -113,10 +113,22 @@ ExecutorRegistration: androidx.leanback.media.SurfaceHolderGlueHost#setSurfaceHo
     Registration methods should have overload that accepts delivery Executor: `setSurfaceHolderCallback`
 
 
-FractionFloat: androidx.leanback.widget.Parallax.FloatProperty#atFraction(float):
-    Fractions must use floats, was `androidx.leanback.widget.Parallax.PropertyMarkerValue` in `atFraction`
-FractionFloat: androidx.leanback.widget.Parallax.IntProperty#atFraction(float):
-    Fractions must use floats, was `androidx.leanback.widget.Parallax.PropertyMarkerValue` in `atFraction`
+GetterSetterNames: androidx.leanback.widget.FullWidthDetailsOverviewSharedElementHelper#getAutoStartSharedElementTransition():
+    Symmetric method for `setAutoStartSharedElementTransition` must be named `isAutoStartSharedElementTransition`; was `getAutoStartSharedElementTransition`
+GetterSetterNames: androidx.leanback.widget.GuidedAction#setSubActions(java.util.List<androidx.leanback.widget.GuidedAction>):
+    Symmetric method for `hasSubActions` must be named `setHasSubActions`; was `setSubActions`
+GetterSetterNames: androidx.leanback.widget.HorizontalGridView#getFadingLeftEdge():
+    Symmetric method for `setFadingLeftEdge` must be named `isFadingLeftEdge`; was `getFadingLeftEdge`
+GetterSetterNames: androidx.leanback.widget.HorizontalGridView#getFadingRightEdge():
+    Symmetric method for `setFadingRightEdge` must be named `isFadingRightEdge`; was `getFadingRightEdge`
+GetterSetterNames: androidx.leanback.widget.ListRowPresenter#getShadowEnabled():
+    Symmetric method for `setShadowEnabled` must be named `isShadowEnabled`; was `getShadowEnabled`
+GetterSetterNames: androidx.leanback.widget.RowPresenter#getSelectEffectEnabled():
+    Symmetric method for `setSelectEffectEnabled` must be named `isSelectEffectEnabled`; was `getSelectEffectEnabled`
+GetterSetterNames: androidx.leanback.widget.VerticalGridPresenter#getKeepChildForeground():
+    Symmetric method for `setKeepChildForeground` must be named `isKeepChildForeground`; was `getKeepChildForeground`
+GetterSetterNames: androidx.leanback.widget.VerticalGridPresenter#getShadowEnabled():
+    Symmetric method for `setShadowEnabled` must be named `isShadowEnabled`; was `getShadowEnabled`
 
 
 InternalField: androidx.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder#mParentPresenter:
@@ -167,8 +179,6 @@ MissingNullability: androidx.leanback.app.BackgroundManager#getInstance(android.
     Missing nullability on parameter `activity` in method `getInstance`
 MissingNullability: androidx.leanback.app.BackgroundManager#setBitmap(android.graphics.Bitmap) parameter #0:
     Missing nullability on parameter `bitmap` in method `setBitmap`
-MissingNullability: androidx.leanback.app.BackgroundManager#setDimLayer(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `drawable` in method `setDimLayer`
 MissingNullability: androidx.leanback.app.BackgroundManager#setDrawable(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `drawable` in method `setDrawable`
 MissingNullability: androidx.leanback.app.BaseFragment#createEntranceTransition():
@@ -441,12 +451,6 @@ MissingNullability: androidx.leanback.app.DetailsFragment#getParallax():
     Missing nullability on method `getParallax` return
 MissingNullability: androidx.leanback.app.DetailsFragment#getRowsFragment():
     Missing nullability on method `getRowsFragment` return
-MissingNullability: androidx.leanback.app.DetailsFragment#inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `inflater` in method `inflateTitle`
-MissingNullability: androidx.leanback.app.DetailsFragment#inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `parent` in method `inflateTitle`
-MissingNullability: androidx.leanback.app.DetailsFragment#inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `savedInstanceState` in method `inflateTitle`
 MissingNullability: androidx.leanback.app.DetailsFragment#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
 MissingNullability: androidx.leanback.app.DetailsFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
@@ -513,12 +517,6 @@ MissingNullability: androidx.leanback.app.DetailsSupportFragment#getParallax():
     Missing nullability on method `getParallax` return
 MissingNullability: androidx.leanback.app.DetailsSupportFragment#getRowsSupportFragment():
     Missing nullability on method `getRowsSupportFragment` return
-MissingNullability: androidx.leanback.app.DetailsSupportFragment#inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `inflater` in method `inflateTitle`
-MissingNullability: androidx.leanback.app.DetailsSupportFragment#inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `parent` in method `inflateTitle`
-MissingNullability: androidx.leanback.app.DetailsSupportFragment#inflateTitle(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `savedInstanceState` in method `inflateTitle`
 MissingNullability: androidx.leanback.app.DetailsSupportFragment#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
 MissingNullability: androidx.leanback.app.DetailsSupportFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
@@ -707,8 +705,6 @@ MissingNullability: androidx.leanback.app.GuidedStepFragment#onGuidedActionClick
     Missing nullability on parameter `action` in method `onGuidedActionClicked`
 MissingNullability: androidx.leanback.app.GuidedStepFragment#onGuidedActionEditCanceled(androidx.leanback.widget.GuidedAction) parameter #0:
     Missing nullability on parameter `action` in method `onGuidedActionEditCanceled`
-MissingNullability: androidx.leanback.app.GuidedStepFragment#onGuidedActionEdited(androidx.leanback.widget.GuidedAction) parameter #0:
-    Missing nullability on parameter `action` in method `onGuidedActionEdited`
 MissingNullability: androidx.leanback.app.GuidedStepFragment#onGuidedActionEditedAndProceed(androidx.leanback.widget.GuidedAction) parameter #0:
     Missing nullability on parameter `action` in method `onGuidedActionEditedAndProceed`
 MissingNullability: androidx.leanback.app.GuidedStepFragment#onGuidedActionFocused(androidx.leanback.widget.GuidedAction) parameter #0:
@@ -803,8 +799,6 @@ MissingNullability: androidx.leanback.app.GuidedStepSupportFragment#onGuidedActi
     Missing nullability on parameter `action` in method `onGuidedActionClicked`
 MissingNullability: androidx.leanback.app.GuidedStepSupportFragment#onGuidedActionEditCanceled(androidx.leanback.widget.GuidedAction) parameter #0:
     Missing nullability on parameter `action` in method `onGuidedActionEditCanceled`
-MissingNullability: androidx.leanback.app.GuidedStepSupportFragment#onGuidedActionEdited(androidx.leanback.widget.GuidedAction) parameter #0:
-    Missing nullability on parameter `action` in method `onGuidedActionEdited`
 MissingNullability: androidx.leanback.app.GuidedStepSupportFragment#onGuidedActionEditedAndProceed(androidx.leanback.widget.GuidedAction) parameter #0:
     Missing nullability on parameter `action` in method `onGuidedActionEditedAndProceed`
 MissingNullability: androidx.leanback.app.GuidedStepSupportFragment#onGuidedActionFocused(androidx.leanback.widget.GuidedAction) parameter #0:
@@ -1147,8 +1141,6 @@ MissingNullability: androidx.leanback.app.SearchFragment#setSearchQuery(android.
     Missing nullability on parameter `intent` in method `setSearchQuery`
 MissingNullability: androidx.leanback.app.SearchFragment#setSearchResultProvider(androidx.leanback.app.SearchFragment.SearchResultProvider) parameter #0:
     Missing nullability on parameter `searchResultProvider` in method `setSearchResultProvider`
-MissingNullability: androidx.leanback.app.SearchFragment#setSpeechRecognitionCallback(androidx.leanback.widget.SpeechRecognitionCallback) parameter #0:
-    Missing nullability on parameter `callback` in method `setSpeechRecognitionCallback`
 MissingNullability: androidx.leanback.app.SearchFragment#setTitle(String) parameter #0:
     Missing nullability on parameter `title` in method `setTitle`
 MissingNullability: androidx.leanback.app.SearchFragment.SearchResultProvider#getResultsAdapter():
@@ -1217,8 +1209,6 @@ MissingNullability: androidx.leanback.app.SearchSupportFragment#setSearchQuery(a
     Missing nullability on parameter `intent` in method `setSearchQuery`
 MissingNullability: androidx.leanback.app.SearchSupportFragment#setSearchResultProvider(androidx.leanback.app.SearchSupportFragment.SearchResultProvider) parameter #0:
     Missing nullability on parameter `searchResultProvider` in method `setSearchResultProvider`
-MissingNullability: androidx.leanback.app.SearchSupportFragment#setSpeechRecognitionCallback(androidx.leanback.widget.SpeechRecognitionCallback) parameter #0:
-    Missing nullability on parameter `callback` in method `setSpeechRecognitionCallback`
 MissingNullability: androidx.leanback.app.SearchSupportFragment#setTitle(String) parameter #0:
     Missing nullability on parameter `title` in method `setTitle`
 MissingNullability: androidx.leanback.app.SearchSupportFragment.SearchResultProvider#getResultsAdapter():
@@ -1581,8 +1571,6 @@ MissingNullability: androidx.leanback.media.PlaybackControlGlue#onKey(android.vi
     Missing nullability on parameter `event` in method `onKey`
 MissingNullability: androidx.leanback.media.PlaybackControlGlue#setControlsRow(androidx.leanback.widget.PlaybackControlsRow) parameter #0:
     Missing nullability on parameter `controlsRow` in method `setControlsRow`
-MissingNullability: androidx.leanback.media.PlaybackControlGlue#setControlsRowPresenter(androidx.leanback.widget.PlaybackControlsRowPresenter) parameter #0:
-    Missing nullability on parameter `presenter` in method `setControlsRowPresenter`
 MissingNullability: androidx.leanback.media.PlaybackControlGlue#setPlaybackRowPresenter(androidx.leanback.widget.PlaybackRowPresenter) parameter #0:
     Missing nullability on parameter `presenter` in method `setPlaybackRowPresenter`
 MissingNullability: androidx.leanback.media.PlaybackGlue#PlaybackGlue(android.content.Context) parameter #0:
@@ -2041,10 +2029,6 @@ MissingNullability: androidx.leanback.widget.DetailsOverviewLogoPresenter.ViewHo
     Missing nullability on field `mParentViewHolder` in class `class androidx.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder`
 MissingNullability: androidx.leanback.widget.DetailsOverviewRow#DetailsOverviewRow(Object) parameter #0:
     Missing nullability on parameter `item` in method `DetailsOverviewRow`
-MissingNullability: androidx.leanback.widget.DetailsOverviewRow#addAction(androidx.leanback.widget.Action) parameter #0:
-    Missing nullability on parameter `action` in method `addAction`
-MissingNullability: androidx.leanback.widget.DetailsOverviewRow#addAction(int, androidx.leanback.widget.Action) parameter #1:
-    Missing nullability on parameter `action` in method `addAction`
 MissingNullability: androidx.leanback.widget.DetailsOverviewRow#getActionForKeyCode(int):
     Missing nullability on method `getActionForKeyCode` return
 MissingNullability: androidx.leanback.widget.DetailsOverviewRow#getActionsAdapter():
@@ -2053,8 +2037,6 @@ MissingNullability: androidx.leanback.widget.DetailsOverviewRow#getImageDrawable
     Missing nullability on method `getImageDrawable` return
 MissingNullability: androidx.leanback.widget.DetailsOverviewRow#getItem():
     Missing nullability on method `getItem` return
-MissingNullability: androidx.leanback.widget.DetailsOverviewRow#removeAction(androidx.leanback.widget.Action) parameter #0:
-    Missing nullability on parameter `action` in method `removeAction`
 MissingNullability: androidx.leanback.widget.DetailsOverviewRow#setActionsAdapter(androidx.leanback.widget.ObjectAdapter) parameter #0:
     Missing nullability on parameter `adapter` in method `setActionsAdapter`
 MissingNullability: androidx.leanback.widget.DetailsOverviewRow#setImageBitmap(android.content.Context, android.graphics.Bitmap) parameter #0:
@@ -2137,10 +2119,6 @@ MissingNullability: androidx.leanback.widget.FocusHighlightHelper#setupHeaderIte
     Missing nullability on parameter `adapter` in method `setupHeaderItemFocusHighlight`
 MissingNullability: androidx.leanback.widget.FocusHighlightHelper#setupHeaderItemFocusHighlight(androidx.leanback.widget.ItemBridgeAdapter, boolean) parameter #0:
     Missing nullability on parameter `adapter` in method `setupHeaderItemFocusHighlight`
-MissingNullability: androidx.leanback.widget.FocusHighlightHelper#setupHeaderItemFocusHighlight(androidx.leanback.widget.VerticalGridView) parameter #0:
-    Missing nullability on parameter `gridView` in method `setupHeaderItemFocusHighlight`
-MissingNullability: androidx.leanback.widget.FocusHighlightHelper#setupHeaderItemFocusHighlight(androidx.leanback.widget.VerticalGridView, boolean) parameter #0:
-    Missing nullability on parameter `gridView` in method `setupHeaderItemFocusHighlight`
 MissingNullability: androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter#FullWidthDetailsOverviewRowPresenter(androidx.leanback.widget.Presenter) parameter #0:
     Missing nullability on parameter `detailsPresenter` in method `FullWidthDetailsOverviewRowPresenter`
 MissingNullability: androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter#FullWidthDetailsOverviewRowPresenter(androidx.leanback.widget.Presenter, androidx.leanback.widget.DetailsOverviewLogoPresenter) parameter #0:
@@ -2305,8 +2283,6 @@ MissingNullability: androidx.leanback.widget.GuidedAction.BuilderBase#getContext
     Missing nullability on method `getContext` return
 MissingNullability: androidx.leanback.widget.GuidedAction.BuilderBase#icon(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `icon` in method `icon`
-MissingNullability: androidx.leanback.widget.GuidedAction.BuilderBase#iconResourceId(int, android.content.Context) parameter #1:
-    Missing nullability on parameter `context` in method `iconResourceId`
 MissingNullability: androidx.leanback.widget.GuidedAction.BuilderBase#intent(android.content.Intent) parameter #0:
     Missing nullability on parameter `intent` in method `intent`
 MissingNullability: androidx.leanback.widget.GuidedAction.BuilderBase#subActions(java.util.List<androidx.leanback.widget.GuidedAction>) parameter #0:
@@ -2391,10 +2367,6 @@ MissingNullability: androidx.leanback.widget.GuidedActionsStylist#onCreateViewHo
     Missing nullability on method `onCreateViewHolder` return
 MissingNullability: androidx.leanback.widget.GuidedActionsStylist#onCreateViewHolder(android.view.ViewGroup, int) parameter #0:
     Missing nullability on parameter `parent` in method `onCreateViewHolder`
-MissingNullability: androidx.leanback.widget.GuidedActionsStylist#onEditingModeChange(androidx.leanback.widget.GuidedActionsStylist.ViewHolder, androidx.leanback.widget.GuidedAction, boolean) parameter #0:
-    Missing nullability on parameter `vh` in method `onEditingModeChange`
-MissingNullability: androidx.leanback.widget.GuidedActionsStylist#onEditingModeChange(androidx.leanback.widget.GuidedActionsStylist.ViewHolder, androidx.leanback.widget.GuidedAction, boolean) parameter #1:
-    Missing nullability on parameter `action` in method `onEditingModeChange`
 MissingNullability: androidx.leanback.widget.GuidedActionsStylist#onEditingModeChange(androidx.leanback.widget.GuidedActionsStylist.ViewHolder, boolean, boolean) parameter #0:
     Missing nullability on parameter `vh` in method `onEditingModeChange`
 MissingNullability: androidx.leanback.widget.GuidedActionsStylist#onUpdateActivatorView(androidx.leanback.widget.GuidedActionsStylist.ViewHolder, androidx.leanback.widget.GuidedAction) parameter #0:
@@ -2405,18 +2377,10 @@ MissingNullability: androidx.leanback.widget.GuidedActionsStylist#onUpdateExpand
     Missing nullability on parameter `avh` in method `onUpdateExpandedViewHolder`
 MissingNullability: androidx.leanback.widget.GuidedActionsStylist#openInEditMode(androidx.leanback.widget.GuidedAction) parameter #0:
     Missing nullability on parameter `action` in method `openInEditMode`
-MissingNullability: androidx.leanback.widget.GuidedActionsStylist#setEditingMode(androidx.leanback.widget.GuidedActionsStylist.ViewHolder, androidx.leanback.widget.GuidedAction, boolean) parameter #0:
-    Missing nullability on parameter `vh` in method `setEditingMode`
-MissingNullability: androidx.leanback.widget.GuidedActionsStylist#setEditingMode(androidx.leanback.widget.GuidedActionsStylist.ViewHolder, androidx.leanback.widget.GuidedAction, boolean) parameter #1:
-    Missing nullability on parameter `action` in method `setEditingMode`
-MissingNullability: androidx.leanback.widget.GuidedActionsStylist#setExpandedViewHolder(androidx.leanback.widget.GuidedActionsStylist.ViewHolder) parameter #0:
-    Missing nullability on parameter `avh` in method `setExpandedViewHolder`
 MissingNullability: androidx.leanback.widget.GuidedActionsStylist#setupImeOptions(androidx.leanback.widget.GuidedActionsStylist.ViewHolder, androidx.leanback.widget.GuidedAction) parameter #0:
     Missing nullability on parameter `vh` in method `setupImeOptions`
 MissingNullability: androidx.leanback.widget.GuidedActionsStylist#setupImeOptions(androidx.leanback.widget.GuidedActionsStylist.ViewHolder, androidx.leanback.widget.GuidedAction) parameter #1:
     Missing nullability on parameter `action` in method `setupImeOptions`
-MissingNullability: androidx.leanback.widget.GuidedActionsStylist#startExpandedTransition(androidx.leanback.widget.GuidedActionsStylist.ViewHolder) parameter #0:
-    Missing nullability on parameter `avh` in method `startExpandedTransition`
 MissingNullability: androidx.leanback.widget.GuidedActionsStylist.ViewHolder#ViewHolder(android.view.View) parameter #0:
     Missing nullability on parameter `v` in method `ViewHolder`
 MissingNullability: androidx.leanback.widget.GuidedActionsStylist.ViewHolder#ViewHolder(android.view.View, boolean) parameter #0:
@@ -2515,8 +2479,6 @@ MissingNullability: androidx.leanback.widget.ImageCardView#ImageCardView(android
     Missing nullability on parameter `context` in method `ImageCardView`
 MissingNullability: androidx.leanback.widget.ImageCardView#ImageCardView(android.content.Context, android.util.AttributeSet, int) parameter #1:
     Missing nullability on parameter `attrs` in method `ImageCardView`
-MissingNullability: androidx.leanback.widget.ImageCardView#ImageCardView(android.content.Context, int) parameter #0:
-    Missing nullability on parameter `context` in method `ImageCardView`
 MissingNullability: androidx.leanback.widget.ImageCardView#getBadgeImage():
     Missing nullability on method `getBadgeImage` return
 MissingNullability: androidx.leanback.widget.ImageCardView#getContentText():
@@ -3329,8 +3291,6 @@ MissingNullability: androidx.leanback.widget.SearchBar#setSearchBarListener(andr
     Missing nullability on parameter `listener` in method `setSearchBarListener`
 MissingNullability: androidx.leanback.widget.SearchBar#setSearchQuery(String) parameter #0:
     Missing nullability on parameter `query` in method `setSearchQuery`
-MissingNullability: androidx.leanback.widget.SearchBar#setSpeechRecognitionCallback(androidx.leanback.widget.SpeechRecognitionCallback) parameter #0:
-    Missing nullability on parameter `request` in method `setSpeechRecognitionCallback`
 MissingNullability: androidx.leanback.widget.SearchBar#setSpeechRecognizer(android.speech.SpeechRecognizer) parameter #0:
     Missing nullability on parameter `recognizer` in method `setSpeechRecognizer`
 MissingNullability: androidx.leanback.widget.SearchBar#setTitle(String) parameter #0:

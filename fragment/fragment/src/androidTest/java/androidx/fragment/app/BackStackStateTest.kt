@@ -19,12 +19,11 @@ package androidx.fragment.app
 import android.os.Parcel
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelStore
-import androidx.test.annotation.UiThreadTest
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,10 +32,36 @@ import org.junit.runner.RunWith
 @LargeTest
 class BackStackStateTest {
 
-    @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = androidx.test.rule.ActivityTestRule(EmptyFragmentTestActivity::class.java)
-    private val fragmentManager get() = activityRule.activity.supportFragmentManager
+    val activityRule = ActivityScenarioRule(EmptyFragmentTestActivity::class.java)
+    private val fragmentManager get() = activityRule.withActivity {
+        supportFragmentManager
+    }
+
+    @Test
+    fun testRestoreFromPending() {
+        val fragment = StrictFragment()
+        val backStackRecord = BackStackRecord(fragmentManager).apply {
+            add(fragment, "tag")
+            addToBackStack("back_stack")
+            setReorderingAllowed(true)
+            setMaxLifecycle(fragment, Lifecycle.State.STARTED)
+        }
+
+        val backStackState = BackStackState(
+            listOf(fragment.mWho),
+            listOf(BackStackRecordState(backStackRecord))
+        )
+
+        val restoredBackStackRecords = backStackState.instantiate(
+            fragmentManager,
+            mapOf(fragment.mWho to fragment)
+        )
+        assertThat(restoredBackStackRecords)
+            .hasSize(1)
+        assertThat(restoredBackStackRecords[0].mOps[0].mFragment)
+            .isSameInstanceAs(fragment)
+    }
 
     @Test
     fun testParcel() {
@@ -47,308 +72,30 @@ class BackStackStateTest {
             setReorderingAllowed(true)
             setMaxLifecycle(fragment, Lifecycle.State.STARTED)
         }
-        val backStackState = BackStackState(backStackRecord)
+
+        fragmentManager.fragmentStore.setSavedState(fragment.mWho, FragmentState(fragment))
+        val backStackState = BackStackState(
+            listOf(fragment.mWho),
+            listOf(BackStackRecordState(backStackRecord))
+        )
+
         val parcel = Parcel.obtain()
         backStackState.writeToParcel(parcel, 0)
         // Reset for reading
         parcel.setDataPosition(0)
         val restoredBackStackState = BackStackState(parcel)
-        assertThat(restoredBackStackState.mOps).asList()
-            .containsExactlyElementsIn(backStackState.mOps.asList())
-        assertThat(restoredBackStackState.mFragmentWhos)
-            .containsExactlyElementsIn(backStackState.mFragmentWhos)
-        assertThat(restoredBackStackState.mOldMaxLifecycleStates).asList()
-            .containsExactlyElementsIn(backStackState.mOldMaxLifecycleStates.asList())
-        assertThat(restoredBackStackState.mCurrentMaxLifecycleStates).asList()
-            .containsExactlyElementsIn(backStackState.mCurrentMaxLifecycleStates.asList())
-        assertThat(restoredBackStackState.mReorderingAllowed)
-            .isEqualTo(backStackState.mReorderingAllowed)
-    }
+        assertThat(restoredBackStackState.mFragments)
+            .hasSize(1)
+        assertThat(restoredBackStackState.mTransactions)
+            .hasSize(1)
 
-    @Test
-    @UiThreadTest
-    fun testHideOnFragmentWithAManager() {
-        val viewModelStore1 = ViewModelStore()
-        val fc1 = activityRule.startupFragmentController(viewModelStore1)
-        val fm1 = fc1.supportFragmentManager
-
-        val viewModelStore2 = ViewModelStore()
-        val fc2 = activityRule.startupFragmentController(viewModelStore2)
-        val fm2 = fc2.supportFragmentManager
-
-        val fragment1 = Fragment()
-
-        fm1.beginTransaction().add(fragment1, "1").commitNow()
-        try {
-            fm2.beginTransaction().hide(fragment1).commitNow()
-            fail(
-                "Fragment associated with another" +
-                    " FragmentManager should throw IllegalStateException"
-            )
-        } catch (e: IllegalStateException) {
-            assertThat(e)
-                .hasMessageThat().contains(
-                    "Cannot hide Fragment attached to " +
-                        "a different FragmentManager. Fragment " + fragment1.toString() +
-                        " is already attached to a FragmentManager."
-                )
-        }
-
-        // Bring the state back down to destroyed before we finish the test
-        fc1.shutdown(viewModelStore1)
-        fc2.shutdown(viewModelStore2)
-    }
-
-    @Test
-    @UiThreadTest
-    fun testShowOnFragmentWithAManager() {
-        val viewModelStore1 = ViewModelStore()
-        val fc1 = activityRule.startupFragmentController(viewModelStore1)
-        val fm1 = fc1.supportFragmentManager
-
-        val viewModelStore2 = ViewModelStore()
-        val fc2 = activityRule.startupFragmentController(viewModelStore2)
-        val fm2 = fc2.supportFragmentManager
-
-        val fragment1 = Fragment()
-
-        fm1.beginTransaction().add(fragment1, "1").commitNow()
-        try {
-            fm2.beginTransaction().show(fragment1).commitNow()
-            fail(
-                "Fragment associated with another" +
-                    " FragmentManager should throw IllegalStateException"
-            )
-        } catch (e: IllegalStateException) {
-            assertThat(e)
-                .hasMessageThat().contains(
-                    "Cannot show Fragment attached to " +
-                        "a different FragmentManager. Fragment " + fragment1.toString() +
-                        " is already attached to a FragmentManager."
-                )
-        }
-
-        // Bring the state back down to destroyed before we finish the test
-        fc1.shutdown(viewModelStore1)
-        fc2.shutdown(viewModelStore2)
-    }
-
-    @Test
-    @UiThreadTest
-    fun testSetPrimaryNavigationFragmentOnFragmentWithAManager() {
-        val viewModelStore1 = ViewModelStore()
-        val fc1 = activityRule.startupFragmentController(viewModelStore1)
-        val fm1 = fc1.supportFragmentManager
-
-        val viewModelStore2 = ViewModelStore()
-        val fc2 = activityRule.startupFragmentController(viewModelStore2)
-        val fm2 = fc2.supportFragmentManager
-
-        val fragment1 = Fragment()
-
-        fm1.beginTransaction().add(fragment1, "1").commitNow()
-        try {
-            fm2.beginTransaction().setPrimaryNavigationFragment(fragment1).commitNow()
-            fail(
-                "Fragment associated with another" +
-                    " FragmentManager should throw IllegalStateException"
-            )
-        } catch (e: IllegalStateException) {
-            assertThat(e)
-                .hasMessageThat().contains(
-                    "Cannot setPrimaryNavigation for Fragment attached to " +
-                        "a different FragmentManager. Fragment " + fragment1.toString() +
-                        " is already attached to a FragmentManager."
-                )
-        }
-
-        // Bring the state back down to destroyed before we finish the test
-        fc1.shutdown(viewModelStore1)
-        fc2.shutdown(viewModelStore2)
-    }
-
-    @Test
-    @UiThreadTest
-    fun testDetachFragmentWithManager() {
-        val viewModelStore1 = ViewModelStore()
-        val fc1 = activityRule.startupFragmentController(viewModelStore1)
-        val fm1 = fc1.supportFragmentManager
-
-        val viewModelStore2 = ViewModelStore()
-        val fc2 = activityRule.startupFragmentController(viewModelStore2)
-        val fm2 = fc2.supportFragmentManager
-
-        // Add the initial state
-        val fragment1 = StrictFragment()
-
-        fm1.beginTransaction().add(fragment1, "1").commitNow()
-
-        try {
-            fm2.beginTransaction().detach(fragment1).commitNow()
-            fail(
-                "Fragment associated with another" +
-                    " FragmentManager should throw IllegalStateException"
-            )
-        } catch (e: IllegalStateException) {
-            assertThat(e)
-                .hasMessageThat().contains(
-                    "Cannot detach Fragment attached to " +
-                        "a different FragmentManager. Fragment " + fragment1.toString() +
-                        " is already attached to a FragmentManager."
-                )
-        }
-
-        // Bring the state back down to destroyed before we finish the test
-        fc1.shutdown(viewModelStore1)
-        fc2.shutdown(viewModelStore2)
-    }
-
-    @Test
-    @UiThreadTest
-    fun testRemoveFragmentWithManager() {
-        val viewModelStore1 = ViewModelStore()
-        val fc1 = activityRule.startupFragmentController(viewModelStore1)
-        val fm1 = fc1.supportFragmentManager
-
-        val viewModelStore2 = ViewModelStore()
-        val fc2 = activityRule.startupFragmentController(viewModelStore2)
-        val fm2 = fc2.supportFragmentManager
-
-        // Add the initial state
-        val fragment1 = StrictFragment()
-
-        fm1.beginTransaction().add(fragment1, "1").commitNow()
-
-        try {
-            fm2.beginTransaction().remove(fragment1).commitNow()
-            fail(
-                "Fragment associated with another" +
-                    " FragmentManager should throw IllegalStateException"
-            )
-        } catch (e: IllegalStateException) {
-            assertThat(e)
-                .hasMessageThat().contains(
-                    "Cannot remove Fragment attached to " +
-                        "a different FragmentManager. Fragment " + fragment1.toString() +
-                        " is already attached to a FragmentManager."
-                )
-        }
-
-        // Bring the state back down to destroyed before we finish the test
-        fc1.shutdown(viewModelStore1)
-        fc2.shutdown(viewModelStore2)
-    }
-
-    @Test
-    @UiThreadTest
-    fun setMaxLifecycleWrongFragmentManager() {
-        val viewModelStore = ViewModelStore()
-        val fc1 = activityRule.startupFragmentController(viewModelStore)
-        val fc2 = activityRule.startupFragmentController(viewModelStore)
-
-        val fm1 = fc1.supportFragmentManager
-        val fm2 = fc2.supportFragmentManager
-
-        val fragment = StrictViewFragment()
-        fm1.beginTransaction()
-            .add(android.R.id.content, fragment)
-            .commitNow()
-
-        try {
-            fm2.beginTransaction()
-                .setMaxLifecycle(fragment, Lifecycle.State.STARTED)
-                .commitNow()
-            fail(
-                "setting maxLifecycle on fragment not attached to fragment manager should throw" +
-                    " IllegalArgumentException"
-            )
-        } catch (e: IllegalArgumentException) {
-            assertThat(e)
-                .hasMessageThat()
-                .contains(
-                    "Cannot setMaxLifecycle for Fragment not attached to" +
-                        " FragmentManager $fm2"
-                )
-        }
-    }
-
-    @Test
-    @UiThreadTest
-    fun setMaxLifecycleInitialized() {
-        val viewModelStore = ViewModelStore()
-        val fc = activityRule.startupFragmentController(viewModelStore)
-
-        val fm = fc.supportFragmentManager
-
-        val fragment = StrictViewFragment()
-
-        fm.beginTransaction()
-            .add(android.R.id.content, fragment)
-            .setReorderingAllowed(true)
-            .setMaxLifecycle(fragment, Lifecycle.State.INITIALIZED)
-            .commitNow()
-
-        assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
-
-        assertThat(fragment.calledOnResume).isFalse()
-    }
-
-    @Test
-    @UiThreadTest
-    fun setMaxLifecycleInitializedAfterCreated() {
-        val viewModelStore = ViewModelStore()
-        val fc = activityRule.startupFragmentController(viewModelStore)
-
-        val fm = fc.supportFragmentManager
-
-        val fragment = StrictViewFragment()
-
-        fm.beginTransaction()
-            .add(android.R.id.content, fragment)
-            .setMaxLifecycle(fragment, Lifecycle.State.CREATED)
-            .commitNow()
-
-        try {
-            fm.beginTransaction()
-                .setMaxLifecycle(fragment, Lifecycle.State.INITIALIZED)
-                .commitNow()
-            fail(
-                "setting maxLifecycle state to state lower than created should throw" +
-                    " IllegalArgumentException"
-            )
-        } catch (e: IllegalArgumentException) {
-            assertThat(e)
-                .hasMessageThat()
-                .contains(
-                    "Cannot set maximum Lifecycle to INITIALIZED after the Fragment has been " +
-                        "created"
-                )
-        }
-    }
-
-    @Test
-    @UiThreadTest
-    fun setMaxLifecycleDestroyed() {
-        val viewModelStore = ViewModelStore()
-        val fc = activityRule.startupFragmentController(viewModelStore)
-
-        val fragment = StrictViewFragment()
-
-        try {
-            fc.supportFragmentManager.beginTransaction()
-                .add(android.R.id.content, fragment)
-                .setMaxLifecycle(fragment, Lifecycle.State.DESTROYED)
-                .commitNow()
-            fail(
-                "setting maxLifecycle state to DESTROYED should throw IllegalArgumentException"
-            )
-        } catch (e: IllegalArgumentException) {
-            assertThat(e)
-                .hasMessageThat()
-                .contains(
-                    "Cannot set maximum Lifecycle to DESTROYED. Use remove() to remove the " +
-                        "fragment from the FragmentManager and trigger its destruction."
-                )
-        }
+        val restoredBackStackRecords = restoredBackStackState.instantiate(
+            fragmentManager,
+            emptyMap()
+        )
+        assertThat(restoredBackStackRecords)
+            .hasSize(1)
+        assertThat(restoredBackStackRecords[0].mOps[0].mFragment)
+            .isInstanceOf(StrictFragment::class.java)
     }
 }

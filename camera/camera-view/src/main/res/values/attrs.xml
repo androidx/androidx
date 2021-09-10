@@ -25,27 +25,6 @@ limitations under the License.
         <enum name="performance" value="0" />
         <enum name="compatible" value="1" />
     </attr>
-    <declare-styleable name="CameraView">
-        <attr name="scaleType" />
-        <attr name="lensFacing" format="enum">
-            <enum name="none" value="0" />
-            <enum name="front" value="1" />
-            <enum name="back" value="2" />
-        </attr>
-        <attr name="captureMode" format="enum">
-            <enum name="image" value="0" />
-            <enum name="video" value="1" />
-            <enum name="mixed" value="2" />
-        </attr>
-        <attr name="flash" format="enum">
-            <enum name="auto" value="1" />
-            <enum name="on" value="2" />
-            <enum name="off" value="4" />
-        </attr>
-
-        <attr name="pinchToZoomEnabled" format="boolean" />
-    </declare-styleable>
-
     <declare-styleable name="PreviewView">
         <attr name="scaleType" />
         <attr name="implementationMode" />

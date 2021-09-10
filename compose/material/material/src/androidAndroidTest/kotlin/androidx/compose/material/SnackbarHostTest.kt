@@ -16,29 +16,41 @@
 
 package androidx.compose.material
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.AccessibilityManager
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.AdditionalMatchers.not
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@OptIn(ExperimentalMaterialApi::class)
 class SnackbarHostTest {
 
     @get:Rule
@@ -52,7 +64,7 @@ class SnackbarHostTest {
         rule.setContent {
             scope = rememberCoroutineScope()
             SnackbarHost(hostState) { data ->
-                remember(data) {
+                LaunchedEffect(data) {
                     resultedInvocation += data.message
                     data.dismiss()
                 }
@@ -66,9 +78,8 @@ class SnackbarHostTest {
             hostState.showSnackbar("3")
             Truth.assertThat(resultedInvocation).isEqualTo("123")
         }
-        runBlocking {
-            job.join()
-        }
+
+        rule.waitUntil { job.isCompleted }
     }
 
     @Test
@@ -79,9 +90,9 @@ class SnackbarHostTest {
         rule.setContent {
             scope = rememberCoroutineScope()
             SnackbarHost(hostState) { data ->
-                remember(data) {
+                LaunchedEffect(data) {
                     resultedInvocation += data.message
-                    scope.launch {
+                    launch {
                         delay(30L)
                         data.dismiss()
                     }
@@ -95,9 +106,8 @@ class SnackbarHostTest {
                 hostState.showSnackbar(it.toString())
             }
         }
-        runBlocking {
-            parent.children.forEach { it.join() }
-        }
+
+        rule.waitUntil { parent.children.all { it.isCompleted } }
         Truth.assertThat(resultedInvocation).isEqualTo("0123456789")
     }
 
@@ -118,9 +128,9 @@ class SnackbarHostTest {
         }
         rule.onNodeWithText("press")
             .performClick()
-        runBlocking {
-            job1.join()
-        }
+
+        rule.waitUntil { job1.isCompleted }
+
         val job2 = scope.launch {
             val result = hostState.showSnackbar(
                 message = "1",
@@ -128,9 +138,8 @@ class SnackbarHostTest {
             )
             Truth.assertThat(result).isEqualTo(SnackbarResult.Dismissed)
         }
-        runBlocking {
-            job2.join()
-        }
+
+        rule.waitUntil(timeoutMillis = 5_000) { job2.isCompleted }
     }
 
     @Test
@@ -154,9 +163,100 @@ class SnackbarHostTest {
             delay(10)
             switchState.value = false
         }
-        runBlocking {
-            job2.join()
-            job1.join()
+
+        rule.waitUntil { job1.isCompleted && job2.isCompleted }
+    }
+
+    @Test
+    fun snackbarHost_semantics() {
+        val hostState = SnackbarHostState()
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            SnackbarHost(hostState) { data ->
+                Snackbar(data)
+            }
         }
+        val job1 = scope.launch {
+            val result = hostState.showSnackbar("1", actionLabel = "press")
+            Truth.assertThat(result).isEqualTo(SnackbarResult.Dismissed)
+        }
+        rule.onNodeWithText("1").onParent().onParent()
+            .assert(
+                SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite)
+            )
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
+            .performSemanticsAction(SemanticsActions.Dismiss)
+
+        rule.waitUntil { job1.isCompleted }
+    }
+
+    @Test
+    fun snackbarDuration_toMillis_nonNullAccessibilityManager() {
+        val mockDurationControl = 10000L
+        val mockDurationNonControl = 5000L
+        val accessibilityManager: AccessibilityManager = mock {
+            on {
+                calculateRecommendedTimeoutMillis(eq(Long.MAX_VALUE), any(), any(), any())
+            } doReturn Long.MAX_VALUE
+            on {
+                calculateRecommendedTimeoutMillis(not(eq(Long.MAX_VALUE)), any(), any(), eq(true))
+            } doReturn mockDurationControl
+            on {
+                calculateRecommendedTimeoutMillis(not(eq(Long.MAX_VALUE)), any(), any(), eq(false))
+            } doReturn mockDurationNonControl
+        }
+        assertEquals(
+            Long.MAX_VALUE,
+            SnackbarDuration.Indefinite.toMillis(true, accessibilityManager)
+        )
+        assertEquals(
+            Long.MAX_VALUE,
+            SnackbarDuration.Indefinite.toMillis(false, accessibilityManager)
+        )
+        assertEquals(
+            mockDurationControl,
+            SnackbarDuration.Long.toMillis(true, accessibilityManager)
+        )
+        assertEquals(
+            mockDurationNonControl,
+            SnackbarDuration.Long.toMillis(false, accessibilityManager)
+        )
+        assertEquals(
+            mockDurationControl,
+            SnackbarDuration.Short.toMillis(true, accessibilityManager)
+        )
+        assertEquals(
+            mockDurationNonControl,
+            SnackbarDuration.Short.toMillis(false, accessibilityManager)
+        )
+    }
+
+    @Test
+    fun snackbarDuration_toMillis_nullAccessibilityManager() {
+        assertEquals(
+            Long.MAX_VALUE,
+            SnackbarDuration.Indefinite.toMillis(true, null)
+        )
+        assertEquals(
+            Long.MAX_VALUE,
+            SnackbarDuration.Indefinite.toMillis(false, null)
+        )
+        assertEquals(
+            10000L,
+            SnackbarDuration.Long.toMillis(true, null)
+        )
+        assertEquals(
+            10000L,
+            SnackbarDuration.Long.toMillis(false, null)
+        )
+        assertEquals(
+            4000L,
+            SnackbarDuration.Short.toMillis(true, null)
+        )
+        assertEquals(
+            4000L,
+            SnackbarDuration.Short.toMillis(false, null)
+        )
     }
 }

@@ -21,7 +21,6 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import java.io.File
-import java.lang.IllegalStateException
 import java.util.Properties
 
 /**
@@ -43,13 +42,22 @@ class ProjectSetupRule : ExternalResource() {
     val gradlePropertiesFile: File
         get() = File(rootDir, "gradle.properties")
 
+    /**
+     * Combined list of local build repo and remote repositories (prebuilts etc).
+     * Local build repo is the first in line to ensure it is prioritized.
+     */
+    val allRepositoryPaths: List<String> by lazy {
+        listOf(props.localSupportRepo) + props.repositoryUrls
+    }
+
     private val repositories: String
-        get() = """
-            repositories {
-                maven { url "${props.prebuiltsRoot}/androidx/external" }
-                maven { url "${props.prebuiltsRoot}/androidx/internal" }
+        get() = buildString {
+            appendLine("repositories {")
+            props.repositoryUrls.forEach {
+                appendLine("    maven { url '$it' }")
             }
-        """.trimIndent()
+            appendLine("}")
+        }
 
     val androidProject: String
         get() = """
@@ -113,11 +121,14 @@ data class ProjectProps(
     val buildToolsVersion: String,
     val minSdkVersion: String,
     val debugKeystore: String,
-    var navigationCommon: String,
+    var navigationRuntime: String,
     val kotlinStblib: String,
+    val kotlinVersion: String,
+    val kspVersion: String,
     val rootProjectPath: String,
     val localSupportRepo: String,
-    val agpDependency: String
+    val agpDependency: String,
+    val repositoryUrls: List<String>
 ) {
     companion object {
         fun load(): ProjectProps {
@@ -130,11 +141,14 @@ data class ProjectProps(
                 buildToolsVersion = properties.getProperty("buildToolsVersion"),
                 minSdkVersion = properties.getProperty("minSdkVersion"),
                 debugKeystore = properties.getProperty("debugKeystore"),
-                navigationCommon = properties.getProperty("navigationCommon"),
+                navigationRuntime = properties.getProperty("navigationRuntime"),
                 kotlinStblib = properties.getProperty("kotlinStdlib"),
+                kotlinVersion = properties.getProperty("kotlinVersion"),
+                kspVersion = properties.getProperty("kspVersion"),
                 rootProjectPath = properties.getProperty("rootProjectPath"),
                 localSupportRepo = properties.getProperty("localSupportRepo"),
-                agpDependency = properties.getProperty("agpDependency")
+                agpDependency = properties.getProperty("agpDependency"),
+                repositoryUrls = properties.getProperty("repositoryUrls").split(",")
             )
         }
     }

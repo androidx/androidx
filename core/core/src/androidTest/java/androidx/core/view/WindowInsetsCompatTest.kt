@@ -22,6 +22,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.hamcrest.Matchers.notNullValue
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertThat
 import org.junit.Assert.assertTrue
@@ -33,14 +34,14 @@ import org.junit.runner.RunWith
 @SmallTest
 class WindowInsetsCompatTest {
     @Test
-    fun consumeDisplayCutout_returnsNonNull() {
+    public fun consumeDisplayCutout_returnsNonNull() {
         val insets = WindowInsetsCompat.Builder().build()
         assertThat(insets.consumeDisplayCutout(), notNullValue())
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 21)
-    fun inset_systemWindow() {
+    public fun inset_systemWindow() {
         val start = Insets.of(12, 34, 35, 31)
         val insets = WindowInsetsCompat.Builder().setSystemWindowInsets(start).build()
 
@@ -53,7 +54,7 @@ class WindowInsetsCompatTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 21)
-    fun inset_systemWindow_largeValues() {
+    public fun inset_systemWindow_largeValues() {
         val start = Insets.of(12, 34, 35, 31)
         val insets = WindowInsetsCompat.Builder().setSystemWindowInsets(start).build()
 
@@ -68,7 +69,7 @@ class WindowInsetsCompatTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 21)
-    fun inset_systemBars() {
+    public fun inset_systemBars() {
         val start = Insets.of(12, 34, 35, 31)
         val insets = WindowInsetsCompat.Builder()
             .setInsets(Type.systemBars(), start)
@@ -83,7 +84,7 @@ class WindowInsetsCompatTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 21)
-    fun inset_systemBars_largeValues() {
+    public fun inset_systemBars_largeValues() {
         val start = Insets.of(12, 34, 35, 31)
         val insets = WindowInsetsCompat.Builder().setInsets(Type.systemBars(), start).build()
         // We inset with values larger than the inset values
@@ -95,12 +96,28 @@ class WindowInsetsCompatTest {
         assertEquals(0, result.bottom)
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public fun inset_set_ime_insets() {
+        val start = Insets.of(10, 11, 12, 13)
+        val insets = WindowInsetsCompat.Builder()
+            .setInsets(Type.ime(), start)
+            .build()
+            .getInsets(Type.ime())
+
+        // And assert that we have 0 inset values
+        assertEquals(10, insets.left)
+        assertEquals(11, insets.top)
+        assertEquals(12, insets.right)
+        assertEquals(13, insets.bottom)
+    }
+
     /**
      * On API 29+ we can test more types.
      */
     @Test
     @SdkSuppress(minSdkVersion = 29)
-    fun builder_min29_types() {
+    public fun builder_min29_types() {
         val sysBars = Insets.of(12, 34, 35, 31)
         val sysGesture = Insets.of(74, 26, 79, 21)
         val mandSysGesture = Insets.of(20, 10, 57, 1)
@@ -128,7 +145,7 @@ class WindowInsetsCompatTest {
      */
     @Test
     @SdkSuppress(minSdkVersion = 29)
-    fun builder_min29_deprecated() {
+    public fun builder_min29_deprecated() {
         val sysBars = Insets.of(12, 34, 35, 31)
         val sysGesture = Insets.of(74, 26, 79, 21)
         val mandSysGesture = Insets.of(20, 10, 57, 1)
@@ -156,7 +173,7 @@ class WindowInsetsCompatTest {
      */
     @Test
     @SdkSuppress(minSdkVersion = 20)
-    fun builder_min20_types() {
+    public fun builder_min20_types() {
         val sysBars = Insets.of(12, 34, 35, 31)
         val result = WindowInsetsCompat.Builder()
             .setInsets(Type.systemBars(), sysBars)
@@ -170,7 +187,7 @@ class WindowInsetsCompatTest {
      */
     @Test
     @SdkSuppress(minSdkVersion = 20)
-    fun builder_min20_deprecated() {
+    public fun builder_min20_deprecated() {
         val sysBars = Insets.of(12, 34, 35, 31)
         val result = WindowInsetsCompat.Builder()
             .setSystemWindowInsets(sysBars)
@@ -183,7 +200,7 @@ class WindowInsetsCompatTest {
      * Only API min-19, none of the setters work. Instead we just make sure we return non-null.
      */
     @Test
-    fun builder_minapi() {
+    public fun builder_minapi() {
         val sysBars = Insets.of(12, 34, 35, 31)
         val result = WindowInsetsCompat.Builder()
             .setInsets(Type.systemBars(), sysBars)
@@ -193,13 +210,13 @@ class WindowInsetsCompatTest {
 
     @Test
     @SdkSuppress(maxSdkVersion = 19)
-    fun consumed_exists() {
+    public fun consumed_exists() {
         assertNotNull(WindowInsetsCompat.CONSUMED)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 20)
-    fun consumed_exists_api20() {
+    public fun consumed_exists_api20() {
         assertNotNull(WindowInsetsCompat.CONSUMED)
         assertNotNull(WindowInsetsCompat.CONSUMED.toWindowInsets())
         assertTrue(WindowInsetsCompat.CONSUMED.isConsumed)
@@ -208,7 +225,7 @@ class WindowInsetsCompatTest {
     @Suppress("DEPRECATION")
     @Test
     @SdkSuppress(minSdkVersion = 20)
-    fun consumed_returnsNoneInsets() {
+    public fun consumed_returnsNoneInsets() {
         val sysBars = Insets.of(12, 34, 35, 31)
         val original = WindowInsetsCompat.Builder()
             .setInsets(Type.systemBars(), sysBars)
@@ -218,20 +235,38 @@ class WindowInsetsCompatTest {
     }
 
     @Test
-    fun test_equals() {
+    public fun test_equals() {
         val result = WindowInsetsCompat.Builder()
             .setInsets(Type.systemBars(), Insets.of(1, 2, 3, 4))
             .setInsetsIgnoringVisibility(Type.systemBars(), Insets.of(11, 12, 13, 14))
             .build()
+        result.setRootViewData(Insets.of(0, 0, 0, 15))
         val result2 = WindowInsetsCompat.Builder()
             .setInsets(Type.systemBars(), Insets.of(1, 2, 3, 4))
             .setInsetsIgnoringVisibility(Type.systemBars(), Insets.of(11, 12, 13, 14))
             .build()
+        result2.setRootViewData(Insets.of(0, 0, 0, 15))
         assertEquals(result, result2)
     }
 
     @Test
-    fun test_hashCode() {
+    @SdkSuppress(minSdkVersion = 20)
+    public fun test_not_equals_root_visible_insets() {
+        val result = WindowInsetsCompat.Builder()
+            .setInsets(Type.systemBars(), Insets.of(1, 2, 3, 4))
+            .setInsetsIgnoringVisibility(Type.systemBars(), Insets.of(11, 12, 13, 14))
+            .build()
+        result.setRootViewData(Insets.of(0, 0, 0, 15))
+        val result2 = WindowInsetsCompat.Builder()
+            .setInsets(Type.systemBars(), Insets.of(1, 2, 3, 4))
+            .setInsetsIgnoringVisibility(Type.systemBars(), Insets.of(11, 12, 13, 14))
+            .build()
+        result2.setRootViewData(Insets.of(0, 0, 0, 16))
+        assertNotEquals(result, result2)
+    }
+
+    @Test
+    public fun test_hashCode() {
         val result = WindowInsetsCompat.Builder()
             .setInsets(Type.systemBars(), Insets.of(1, 2, 3, 4))
             .setInsetsIgnoringVisibility(Type.systemBars(), Insets.of(11, 12, 13, 14))
@@ -241,5 +276,28 @@ class WindowInsetsCompatTest {
             .setInsetsIgnoringVisibility(Type.systemBars(), Insets.of(11, 12, 13, 14))
             .build()
         assertEquals(result.hashCode(), result2.hashCode())
+    }
+
+    @SdkSuppress(minSdkVersion = 21) // b/189492236
+    @Test
+    public fun set_only_navigation_bar_insets() {
+        val insets = WindowInsetsCompat.Builder()
+            .setInsets(Type.statusBars(), Insets.of(0, 100, 0, 0))
+            .setInsets(Type.navigationBars(), Insets.of(0, 0, 0, 200))
+            .build()
+
+        val removeStatusBarInsets = WindowInsetsCompat.Builder(insets)
+            .setInsets(Type.statusBars(), Insets.NONE)
+            .build()
+
+        assertEquals(0, removeStatusBarInsets.getInsets(Type.statusBars()).top)
+        assertEquals(200, removeStatusBarInsets.getInsets(Type.navigationBars()).bottom)
+
+        val removeNavBarInsets = WindowInsetsCompat.Builder(insets)
+            .setInsets(Type.navigationBars(), Insets.NONE)
+            .build()
+
+        assertEquals(100, removeNavBarInsets.getInsets(Type.statusBars()).top)
+        assertEquals(0, removeNavBarInsets.getInsets(Type.navigationBars()).bottom)
     }
 }

@@ -16,6 +16,7 @@
 
 package com.example.datastoresampleapp
 
+import android.content.Context
 import android.os.Bundle
 import android.os.StrictMode
 import android.util.Log
@@ -23,12 +24,10 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.Sampled
 import androidx.appcompat.app.AppCompatActivity
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.createDataStore
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
-import androidx.datastore.preferences.core.preferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -37,16 +36,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.io.IOException
 
+val Context.prefsDs by preferencesDataStore("datastore_test_app")
+
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class PreferencesDataStoreActivity : AppCompatActivity() {
     private val TAG = "PreferencesActivity"
 
     private val PREFERENCE_STORE_FILE_NAME = "datastore_test_app"
-    private val COUNTER_KEY = preferencesKey<Int>("counter")
-
-    private val preferenceStore: DataStore<Preferences> by lazy {
-        applicationContext.createDataStore(PREFERENCE_STORE_FILE_NAME)
-    }
+    private val COUNTER_KEY = intPreferencesKey("counter")
 
     @Sampled
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,7 +67,7 @@ class PreferencesDataStoreActivity : AppCompatActivity() {
         // Using preferenceStore:
         findViewById<Button>(R.id.counter_dec).setOnClickListener {
             lifecycleScope.launch {
-                preferenceStore.edit { prefs ->
+                prefsDs.edit { prefs ->
                     prefs[COUNTER_KEY] = (prefs[COUNTER_KEY] ?: 0) - 1
                 }
             }
@@ -78,14 +75,14 @@ class PreferencesDataStoreActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.counter_inc).setOnClickListener {
             lifecycleScope.launch {
-                preferenceStore.edit { prefs ->
+                prefsDs.edit { prefs ->
                     prefs[COUNTER_KEY] = (prefs[COUNTER_KEY] ?: 0) + 1
                 }
             }
         }
 
         lifecycleScope.launch {
-            preferenceStore.data
+            prefsDs.data
                 .catch { e ->
                     if (e is IOException) {
                         Log.e(TAG, "Error reading preferences.", e)

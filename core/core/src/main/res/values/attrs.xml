@@ -15,6 +15,9 @@
   ~ limitations under the License.
   -->
 <resources>
+    <!-- Default style for NestedScrollView. Should be set in your theme. -->
+    <attr name="nestedScrollViewStyle" format="reference" />
+
     <!-- Attributes that are read when parsing a <fontfamily> tag. -->
     <declare-styleable name="FontFamily">
         <!-- The authority of the Font Provider to be used for the request. -->
@@ -58,6 +61,11 @@
               timeout and wait until a reply is received from the font provider. -->
             <enum name="forever" value="-1" />
         </attr>
+        <!-- Provides the system font family name to check before downloading the font. For
+        example if the fontProviderQuery asked for "Sans Serif", it is possible to define
+        fontProviderSystemFontFamily as "sans-serif" to tell the system to use "sans-serif" font
+        family if it exists on the system. -->
+        <attr name="fontProviderSystemFontFamily" format="string" />
     </declare-styleable>
 
     <!-- Attributes that are read when parsing a <font> tag, which is a child of
@@ -102,6 +110,9 @@
         <!-- Alpha multiplier applied to the base color. -->
         <attr name="alpha" format="float" />
         <attr name="android:alpha"/>
+        <!-- Perceptual luminance applied to the base color. From 0 to 100. -->
+        <attr name="lStar" format="float" />
+        <attr name="android:lStar" />
     </declare-styleable>
 
     <!-- Used to describe the gradient for fill or stroke in a path of VectorDrawable. -->
@@ -152,5 +163,14 @@
         <attr name="android:offset" />
         <!-- The current color for the offset inside the gradient. -->
         <attr name="android:color" />
+    </declare-styleable>
+
+    <!-- Attributes that are read when parsing a <capability> tag. -->
+    <declare-styleable name="Capability">
+        <!-- Resource reference to the string array of query patterns for a custom capability. -->
+        <attr name="queryPatterns" format="reference" />
+        <!-- Indicates whether a parameter in a capability template can only contain a matched
+             shortcut id and not an arbitrary string. -->
+        <attr name="shortcutMatchRequired" format="boolean" />
     </declare-styleable>
 </resources>

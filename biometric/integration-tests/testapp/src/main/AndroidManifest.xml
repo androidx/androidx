@@ -24,25 +24,28 @@
     <!--suppress DeprecatedClassUsageInspection -->
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
 
-    <application>
+    <application android:allowBackup="false">
         <activity
             android:name=".MainActivity"
-            android:label="Main Activity"
+            android:label="@string/biometric_test_app_name"
+            android:exported="true"
             android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
-            android:name=".BiometricTestActivity"
-            android:label="Biometric Test App"
-            android:theme="@style/Theme.AppCompat.Light">
-        </activity>
+            android:name=".BiometricPromptTestActivity"
+            android:label="@string/biometric_prompt_test_title"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light" />
+
         <activity
             android:name=".AuthPromptTestActivity"
-            android:label="AuthPrompt Test Activity"
-            android:theme="@style/Theme.AppCompat.Light">
-        </activity>
+            android:label="@string/auth_prompt_test_title"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light" />
     </application>
 </manifest>

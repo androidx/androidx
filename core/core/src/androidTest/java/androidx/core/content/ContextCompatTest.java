@@ -352,6 +352,17 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     }
 
     @Test
+    public void testGetAttributionTag() throws Throwable {
+        assertEquals("Unattributed context", null, ContextCompat.getAttributionTag(mContext));
+
+        if (Build.VERSION.SDK_INT >= 30) {
+            // The following test is only expected to pass on v30+ devices
+            Context attributed = mContext.createAttributionContext("test");
+            assertEquals("Attributed context", "test", ContextCompat.getAttributionTag(attributed));
+        }
+    }
+
+    @Test
     public void testGetColor() throws Throwable {
         assertEquals("Unthemed color load", 0xFFFF8090,
                 ContextCompat.getColor(mContext, R.color.text_color));
@@ -434,7 +445,7 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
         return ((size * tdensity) + (sdensity >> 1)) / sdensity;
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void testCheckSelfPermissionNull() {
         ContextCompat.checkSelfPermission(mContext, null);
     }

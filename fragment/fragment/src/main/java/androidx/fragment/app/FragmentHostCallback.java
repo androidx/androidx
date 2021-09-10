@@ -35,6 +35,7 @@ import androidx.activity.result.ActivityResultRegistryOwner;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Preconditions;
@@ -247,8 +248,10 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
         return mContext;
     }
 
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
-    Handler getHandler() {
+    public Handler getHandler() {
         return mHandler;
     }
 }

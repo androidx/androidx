@@ -27,6 +27,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.animation.Animation
+import androidx.core.app.ActivityCompat
+import androidx.core.view.OnApplyWindowInsetsListener
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -152,20 +156,96 @@ class FragmentContainerViewTest {
             .setSystemWindowInsets(Insets.of(4, 3, 2, 1))
             .build()
 
-        var dispatchedToChild = false
-        childView.setOnApplyWindowInsetsListener { _, insets ->
-            // Ensure insets received by child are not consumed at all by the parent
-            assertThat(insets.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
-            dispatchedToChild = true
-            insets
-        }
+        var dispatchedToChild = 0
+        childView.setOnApplyWindowInsetsListener(object : View.OnApplyWindowInsetsListener {
+            override fun onApplyWindowInsets(p0: View?, insets: WindowInsets?): WindowInsets {
+                assertThat(insets!!.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
+                dispatchedToChild++
+                return insets
+            }
+        })
 
         childView.setTag(R.id.fragment_container_view_tag, Fragment())
 
         parentView.addView(childView)
         parentView.dispatchApplyWindowInsets(sentInsets)
 
-        assertThat(dispatchedToChild).isTrue()
+        assertThat(dispatchedToChild).isEqualTo(1)
+    }
+
+    @Suppress("DEPRECATION") /* systemWindowInsets */
+    @SdkSuppress(minSdkVersion = 29) // WindowInsets.Builder requires API 29
+    @Test
+    fun windowInsetsDispatchToMultipleChildren() {
+        val parentView = FragmentContainerView(context)
+        val childView = FragmentContainerView(context)
+        val childView2 = FragmentContainerView(context)
+
+        parentView.fitsSystemWindows = true
+
+        val sentInsets = WindowInsets.Builder()
+            .setSystemWindowInsets(Insets.of(4, 3, 2, 1))
+            .build()
+
+        var dispatchedToChild = 0
+        childView.setOnApplyWindowInsetsListener(object : View.OnApplyWindowInsetsListener {
+            override fun onApplyWindowInsets(p0: View?, insets: WindowInsets?): WindowInsets {
+                assertThat(insets!!.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
+                dispatchedToChild++
+                return WindowInsets.Builder()
+                    .setSystemWindowInsets(Insets.of(0, 0, 0, 0))
+                    .build()
+            }
+        })
+
+        var dispatchedToChild2 = 0
+        childView2.setOnApplyWindowInsetsListener(object : View.OnApplyWindowInsetsListener {
+            override fun onApplyWindowInsets(p0: View?, insets: WindowInsets?): WindowInsets {
+                assertThat(insets!!.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
+                dispatchedToChild2++
+                return insets
+            }
+        })
+
+        childView.setTag(R.id.fragment_container_view_tag, Fragment())
+        childView2.setTag(R.id.fragment_container_view_tag, Fragment())
+
+        parentView.addView(childView)
+        parentView.addView(childView2)
+        parentView.dispatchApplyWindowInsets(sentInsets)
+
+        assertThat(dispatchedToChild).isEqualTo(1)
+        assertThat(dispatchedToChild2).isEqualTo(1)
+    }
+
+    @Suppress("DEPRECATION") /* systemWindowInsets */
+    @SdkSuppress(minSdkVersion = 29) // WindowInsets.Builder requires API 29
+    @Test
+    fun onApplyWindowInsets() {
+        val fragmentContainerView = FragmentContainerView(context)
+        var calledListener = false
+        fragmentContainerView.fitsSystemWindows = true
+
+        val sentInsets = WindowInsets.Builder()
+            .setSystemWindowInsets(Insets.of(4, 3, 2, 1))
+            .build()
+
+        ViewCompat.setOnApplyWindowInsetsListener(
+            fragmentContainerView,
+            object : OnApplyWindowInsetsListener {
+                override fun onApplyWindowInsets(
+                    v: View?,
+                    insets: WindowInsetsCompat?
+                ): WindowInsetsCompat {
+                    calledListener = true
+                    return insets!!
+                }
+            }
+        )
+
+        fragmentContainerView.onApplyWindowInsets(sentInsets)
+
+        assertThat(calledListener).isFalse()
     }
 
     @Test
@@ -194,22 +274,6 @@ class FragmentContainerViewTest {
 
         try {
             FragmentContainerView(context).addView(view, 0, null)
-            fail("View without a Fragment added to FragmentContainerView should throw an exception")
-        } catch (e: IllegalStateException) {
-            assertThat(e)
-                .hasMessageThat().contains(
-                    "Views added to a FragmentContainerView must be associated with a Fragment. " +
-                        "View " + view + " is not associated with a Fragment."
-                )
-        }
-    }
-
-    @Test
-    fun addViewInLayoutNotAssociatedWithFragment() {
-        val view = View(context)
-
-        try {
-            FragmentContainerView(context).addViewInLayout(view, 0, null, false)
             fail("View without a Fragment added to FragmentContainerView should throw an exception")
         } catch (e: IllegalStateException) {
             assertThat(e)
@@ -293,23 +357,9 @@ class FragmentContainerViewTest {
 
         view.removeAllViewsInLayout()
 
-        assertThat(removingView1.getAnimationCount).isEqualTo(2)
-        assertThat(removingView2.getAnimationCount).isEqualTo(2)
+        assertThat(removingView1.getAnimationCount).isEqualTo(1)
+        assertThat(removingView2.getAnimationCount).isEqualTo(1)
         assertThat(view.childCount).isEqualTo(0)
-    }
-
-    // removeDetachedView should not actually remove the view
-    @Test
-    fun removeDetachedView() {
-        val childView1 = FragmentContainerView(context)
-        val childView2 = FragmentContainerView(context)
-
-        val view = setupRemoveTestsView(childView1, childView2)
-
-        view.removeDetachedView(childView1, false)
-
-        assertThat(view.childCount).isEqualTo(2)
-        assertThat(view.getChildAt(1)).isEqualTo(childView2)
     }
 
     private fun setupRemoveTestsView(
@@ -628,6 +678,66 @@ class FragmentContainerViewTest {
             .isTrue()
         // The view that was popped is drawn first which means it is on the bottom.
         assertThat(drawnFirst!!).isEqualTo(frag2View)
+    }
+
+    @Test
+    fun getFragmentNoneAdded() {
+        val fragmentContainerView = ActivityCompat.requireViewById<FragmentContainerView>(
+            activityRule.activity,
+            R.id.fragment_container_view
+        )
+
+        assertThat(fragmentContainerView.getFragment<StrictViewFragment?>()).isNull()
+    }
+
+    @Test
+    fun getFragmentTwoAdds() {
+        val fragmentContainerView = ActivityCompat.requireViewById<FragmentContainerView>(
+            activityRule.activity,
+            R.id.fragment_container_view
+        )
+        val fm = activityRule.activity.supportFragmentManager
+
+        val fragment1 = StrictViewFragment()
+        val fragment2 = StrictViewFragment()
+
+        fm.beginTransaction()
+            .add(R.id.fragment_container_view, fragment1)
+            .commit()
+        activityRule.waitForExecution()
+
+        fm.beginTransaction()
+            .add(R.id.fragment_container_view, fragment2)
+            .commit()
+        activityRule.waitForExecution()
+
+        val topFragment = fragmentContainerView.getFragment<StrictViewFragment>()
+        assertThat(topFragment).isSameInstanceAs(fragment2)
+    }
+
+    @Test
+    fun getFragmentAddAndReplace() {
+        val fragmentContainerView = ActivityCompat.requireViewById<FragmentContainerView>(
+            activityRule.activity,
+            R.id.fragment_container_view
+        )
+        val fm = activityRule.activity.supportFragmentManager
+
+        val fragment1 = StrictViewFragment(R.layout.fragment_container_view)
+        val fragment2 = StrictViewFragment(R.layout.fragment_container_view)
+
+        fm.beginTransaction()
+            .add(R.id.fragment_container_view, fragment1)
+            .commit()
+        activityRule.waitForExecution()
+
+        fm.beginTransaction()
+            .replace(R.id.fragment_container_view, fragment2)
+            .commit()
+        activityRule.waitForExecution()
+
+        val topFragment = fragmentContainerView.getFragment<StrictViewFragment>()
+        assertThat(topFragment).isSameInstanceAs(fragment2)
     }
 
     class ChildViewFragment(val viewTag: String? = null) : StrictViewFragment() {

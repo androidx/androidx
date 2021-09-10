@@ -80,6 +80,7 @@ class SettingsFragment() : PreferenceFragmentCompat() {
         preferenceScreen = preferences
     }
 
+    @Suppress("EXPERIMENTAL_ANNOTATION_ON_OVERRIDE_WARNING")
     @SuppressLint("SyntheticAccessor")
     @ExperimentalCoroutinesApi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -149,7 +150,7 @@ private val Preference.changeFlow: Flow<Pair<Preference?, Any?>>
 private object SettingsSerializer : Serializer<Settings> {
     override val defaultValue: Settings = Settings.getDefaultInstance()
 
-    override fun readFrom(input: InputStream): Settings {
+    override suspend fun readFrom(input: InputStream): Settings {
         try {
             return Settings.parseFrom(input)
         } catch (ipbe: InvalidProtocolBufferException) {
@@ -157,5 +158,5 @@ private object SettingsSerializer : Serializer<Settings> {
         }
     }
 
-    override fun writeTo(t: Settings, output: OutputStream) = t.writeTo(output)
+    override suspend fun writeTo(t: Settings, output: OutputStream) = t.writeTo(output)
 }

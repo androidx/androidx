@@ -17,9 +17,11 @@
 package androidx.camera.core;
 
 import android.app.Application;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.content.res.Resources;
+import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
@@ -33,17 +35,16 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
-import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.impl.CameraThreadConfig;
 import androidx.camera.core.impl.CameraValidator;
+import androidx.camera.core.impl.MetadataHolderService;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.core.internal.compat.quirk.IncompleteCameraListQuirk;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.HandlerCompat;
 import androidx.core.util.Preconditions;
@@ -53,8 +54,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Main interface for accessing CameraX library.
@@ -123,23 +122,6 @@ public final class CameraX {
             mSchedulerThread = null;
             mSchedulerHandler = schedulerHandler;
         }
-    }
-
-    /**
-     * Returns the camera id for a camera defined by the given {@link CameraSelector}.
-     *
-     * @param cameraSelector the camera selector
-     * @return the camera id if camera exists or {@code null} if no camera can be resolved with
-     * the camera selector.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public static CameraInternal getCameraWithCameraSelector(
-            @NonNull CameraSelector cameraSelector) {
-        CameraX cameraX = checkInitialized();
-
-        return cameraSelector.select(cameraX.getCameraRepository().getCameras());
     }
 
     /**
@@ -265,7 +247,7 @@ public final class CameraX {
         // Do not use FutureChain to chain the initFuture, because FutureChain.transformAsync()
         // will not propagate if the input initFuture is failed. We want to always
         // shutdown the CameraX instance to ensure that resources are freed.
-        sShutdownFuture = CallbackToFutureAdapter.getFuture(
+        sShutdownFuture = Futures.nonCancellationPropagating(CallbackToFutureAdapter.getFuture(
                 completer -> {
                     synchronized (INSTANCE_LOCK) {
                         // Wait initialize complete
@@ -275,22 +257,8 @@ public final class CameraX {
                         }, CameraXExecutors.directExecutor());
                         return "CameraX shutdown";
                     }
-                });
+                }));
         return sShutdownFuture;
-    }
-
-    /**
-     * Returns the context used for CameraX.
-     *
-     * @hide
-     * @deprecated This method will be removed. New code should not rely on it. See b/161302102.
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    @Deprecated
-    public static Context getContext() {
-        CameraX cameraX = checkInitialized();
-        return cameraX.mAppContext;
     }
 
     /**
@@ -323,20 +291,6 @@ public final class CameraX {
     }
 
     /**
-     * Wait for the initialize or shutdown task finished and then check if it is initialized.
-     *
-     * @return CameraX instance
-     * @throws IllegalStateException if it is not initialized
-     */
-    @NonNull
-    private static CameraX checkInitialized() {
-        CameraX cameraX = waitInitialized();
-        Preconditions.checkState(cameraX.isInitializedInternal(),
-                "Must call CameraX.initialize() first");
-        return cameraX;
-    }
-
-    /**
      * Returns a future which contains a CameraX instance after initialization is complete.
      *
      * @hide
@@ -366,7 +320,7 @@ public final class CameraX {
 
             if (instanceFuture == null) {
                 if (!isConfigured) {
-                    // Attempt initialization through Application or Resources
+                    // Attempt initialization through Application or meta-data
                     CameraXConfig.Provider configProvider = getConfigProvider(context);
                     if (configProvider == null) {
                         throw new IllegalStateException("CameraX is not configured properly. "
@@ -393,18 +347,33 @@ public final class CameraX {
             // Application is a CameraXConfig.Provider, use this directly
             configProvider = (CameraXConfig.Provider) application;
         } else {
-            // Try to retrieve the CameraXConfig.Provider through the application's resources
+            // Try to retrieve the CameraXConfig.Provider through meta-data provided by
+            // implementation library.
             try {
-                Resources resources = context.getApplicationContext().getResources();
-                String defaultProviderClassName =
-                        resources.getString(
-                                R.string.androidx_camera_default_config_provider);
+                Context appContext = ContextUtil.getApplicationContext(context);
+                ServiceInfo serviceInfo = appContext.getPackageManager().getServiceInfo(
+                        new ComponentName(appContext, MetadataHolderService.class),
+                        PackageManager.GET_META_DATA | PackageManager.MATCH_DISABLED_COMPONENTS);
+
+                String defaultProviderClassName = null;
+                if (serviceInfo.metaData != null) {
+                    defaultProviderClassName = serviceInfo.metaData.getString(
+                            "androidx.camera.core.impl.MetadataHolderService"
+                                    + ".DEFAULT_CONFIG_PROVIDER");
+                }
+                if (defaultProviderClassName == null) {
+                    Logger.e(TAG,
+                            "No default CameraXConfig.Provider specified in meta-data. The most "
+                                    + "likely cause is you did not include a default "
+                                    + "implementation in your build such as 'camera-camera2'.");
+                    return null;
+                }
                 Class<?> providerClass =
                         Class.forName(defaultProviderClassName);
                 configProvider = (CameraXConfig.Provider) providerClass
                         .getDeclaredConstructor()
                         .newInstance();
-            } catch (Resources.NotFoundException
+            } catch (PackageManager.NameNotFoundException
                     | ClassNotFoundException
                     | InstantiationException
                     | InvocationTargetException
@@ -412,7 +381,7 @@ public final class CameraX {
                     | IllegalAccessException
                     | NullPointerException e) {
                 Logger.e(TAG, "Failed to retrieve default CameraXConfig.Provider from "
-                        + "resources", e);
+                        + "meta-data", e);
             }
         }
 
@@ -430,24 +399,16 @@ public final class CameraX {
     @Nullable
     private static Application getApplicationFromContext(@NonNull Context context) {
         Application application = null;
-        Context appContext = context.getApplicationContext();
+        Context appContext = ContextUtil.getApplicationContext(context);
         while (appContext instanceof ContextWrapper) {
             if (appContext instanceof Application) {
                 application = (Application) appContext;
                 break;
             } else {
-                appContext = ((ContextWrapper) appContext).getBaseContext();
+                appContext = ContextUtil.getBaseContext((ContextWrapper) appContext);
             }
         }
-
         return application;
-    }
-
-    @NonNull
-    private static ListenableFuture<CameraX> getInstance() {
-        synchronized (INSTANCE_LOCK) {
-            return getInstanceLocked();
-        }
     }
 
     @GuardedBy("INSTANCE_LOCK")
@@ -461,21 +422,6 @@ public final class CameraX {
 
         return Futures.transform(sInitializeFuture, nullVoid -> cameraX,
                 CameraXExecutors.directExecutor());
-    }
-
-    /**
-     * Wait for the initialize or shutdown task finished.
-     *
-     * @throws IllegalStateException if the initialization is fail or timeout
-     */
-    @NonNull
-    private static CameraX waitInitialized() {
-        ListenableFuture<CameraX> future = getInstance();
-        try {
-            return future.get(WAIT_INITIALIZED_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-        } catch (ExecutionException | InterruptedException | TimeoutException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     /**
@@ -549,7 +495,7 @@ public final class CameraX {
                 //  the context within the called method.
                 mAppContext = getApplicationFromContext(context);
                 if (mAppContext == null) {
-                    mAppContext = context.getApplicationContext();
+                    mAppContext = ContextUtil.getApplicationContext(context);
                 }
                 CameraFactory.Provider cameraFactoryProvider =
                         mCameraXConfig.getCameraFactoryProvider(null);
@@ -562,8 +508,10 @@ public final class CameraX {
                 CameraThreadConfig cameraThreadConfig = CameraThreadConfig.create(mCameraExecutor,
                         mSchedulerHandler);
 
+                CameraSelector availableCamerasLimiter =
+                        mCameraXConfig.getAvailableCamerasLimiter(null);
                 mCameraFactory = cameraFactoryProvider.newInstance(mAppContext,
-                        cameraThreadConfig, null);
+                        cameraThreadConfig, availableCamerasLimiter);
                 CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
                         mCameraXConfig.getDeviceSurfaceManagerProvider(null);
                 if (surfaceManagerProvider == null) {
@@ -591,11 +539,9 @@ public final class CameraX {
 
                 mCameraRepository.init(mCameraFactory);
 
-                // Only verify the devices might have the b/167201193
-                if (DeviceQuirks.get(IncompleteCameraListQuirk.class) != null) {
-                    // Please ensure only validate the camera at the last of the initialization.
-                    CameraValidator.validateCameras(mAppContext, mCameraRepository);
-                }
+                // Please ensure only validate the camera at the last of the initialization.
+                CameraValidator.validateCameras(mAppContext, mCameraRepository,
+                        availableCamerasLimiter);
 
                 // Set completer to null if the init was successful.
                 setStateToInitialized();

@@ -21,9 +21,11 @@ import static androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -41,6 +43,7 @@ public class ImageAnalysisDeviceTest {
     @Test
     @UiThreadTest
     public void becomesActive_whenHasAnalyzer() {
+        when(mMockCameraInternal.getCameraInfoInternal()).thenReturn(new FakeCameraInfoInternal());
         ImageAnalysis useCase = new ImageAnalysis.Builder().setBackpressureStrategy(
                 STRATEGY_KEEP_ONLY_LATEST).build();
 
@@ -54,6 +57,7 @@ public class ImageAnalysisDeviceTest {
     @Test
     @UiThreadTest
     public void becomesInactive_whenNoAnalyzer() {
+        when(mMockCameraInternal.getCameraInfoInternal()).thenReturn(new FakeCameraInfoInternal());
         ImageAnalysis useCase = new ImageAnalysis.Builder().setBackpressureStrategy(
                 STRATEGY_KEEP_ONLY_LATEST).build();
 

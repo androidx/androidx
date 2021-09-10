@@ -17,11 +17,15 @@
 package androidx.appcompat.widget;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.text.Editable;
 import android.text.Layout;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.textclassifier.TextClassificationManager;
 import android.view.textclassifier.TextClassifier;
 import android.widget.EditText;
@@ -195,4 +199,40 @@ public class AppCompatEditTextTest {
     }
 
     private static class NoOpTextClassifier implements TextClassifier {}
+
+    @UiThreadTest
+    public void testSetCustomSelectionActionModeCallback() {
+        final AppCompatEditText view = new AppCompatEditText(mActivityTestRule.getActivity());
+        final ActionMode.Callback callback = new ActionMode.Callback() {
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+            }
+        };
+
+        // Default value is documented as null.
+        assertNull(view.getCustomSelectionActionModeCallback());
+
+        // Setter and getter should be symmetric.
+        view.setCustomSelectionActionModeCallback(callback);
+        assertEquals(callback, view.getCustomSelectionActionModeCallback());
+
+        // Argument is nullable.
+        view.setCustomSelectionActionModeCallback(null);
+        assertNull(view.getCustomSelectionActionModeCallback());
+    }
 }

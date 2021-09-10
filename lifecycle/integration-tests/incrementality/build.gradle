@@ -16,17 +16,16 @@
 
 import androidx.build.SdkResourceGenerator
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("kotlin")
+    id("AndroidXPlugin")
 }
 
 dependencies {
-    implementation(KOTLIN_STDLIB)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
-    testImplementation gradleTestKit()
+    implementation(libs.kotlinStdlib)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(gradleTestKit())
 }
 
 SdkResourceGenerator.generateForHostTest(project)

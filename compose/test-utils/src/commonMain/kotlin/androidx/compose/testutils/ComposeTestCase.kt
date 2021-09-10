@@ -37,7 +37,8 @@ interface ComposeTestCase {
 /**
  * To be implemented to provide a test case that is then executed in benchmarks.
  */
-interface LayeredComposeTestCase : ComposeTestCase {
+// TODO(b/185389423): Make this to be an interface once the compiler gets fixed.
+abstract class LayeredComposeTestCase : ComposeTestCase {
     /**
      * This method is guaranteed to be called only once per class lifetime. In case a benchmark
      * needs to measure initial composition / measure / layout / draw it re-creates this class
@@ -54,22 +55,24 @@ interface LayeredComposeTestCase : ComposeTestCase {
 
     /**
      * This method should emit content that is supposed to be measured. Any other helper containers,
-     * ambients and themes should be set in [ContentWrappers].
+     * CompositionLocals and themes should be set in [ContentWrappers].
      *
      * The lifecycle rules for this method are same as for [Content]
      */
     @Composable
-    fun MeasuredContent()
+    abstract fun MeasuredContent()
 
     /**
      * Receives the result of [MeasuredContent].
      *
      * In "first" benchmarks this method's content is set up before the content from
      * [MeasuredContent] gets introduced to be measured. This helps to avoid measuring helper
-     * containers or ambients setups.
+     * containers or CompositionLocal setups.
      *
      * The lifecycle rules for this method are same as for [Content]
      */
     @Composable
-    fun ContentWrappers(content: @Composable () -> Unit)
+    open fun ContentWrappers(content: @Composable () -> Unit) {
+        content()
+    }
 }

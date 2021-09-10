@@ -16,6 +16,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.leanback.test">
 
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <application
         android:supportsRtl="true">
         <activity android:name="androidx.leanback.widget.GridActivity"

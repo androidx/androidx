@@ -17,16 +17,19 @@
 package androidx.lifecycle;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.ClassesInfoCache.CallbackInfo;
 import androidx.lifecycle.Lifecycle.Event;
 
 /**
  * An internal implementation of {@link LifecycleObserver} that relies on reflection.
+ *
+ * @deprecated internal infra to support deprecated {@link OnLifecycleEvent}
  */
+@Deprecated
 class ReflectiveGenericLifecycleObserver implements LifecycleEventObserver {
     private final Object mWrapped;
-    private final CallbackInfo mInfo;
+    private final androidx.lifecycle.ClassesInfoCache.CallbackInfo mInfo;
 
+    @SuppressWarnings("deprecation")
     ReflectiveGenericLifecycleObserver(Object wrapped) {
         mWrapped = wrapped;
         mInfo = ClassesInfoCache.sInstance.getInfo(mWrapped.getClass());

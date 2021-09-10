@@ -1,0 +1,46 @@
+box {
+  contents {
+    text {
+      text {
+        value: "Hello World"
+      }
+    }
+  }
+  modifiers {
+    background {
+      color {
+        argb: 0xFF00FF00
+      }
+      corner {
+        radius {
+          value: 5
+        }
+      }
+    }
+    padding {
+      end {
+        value: 10
+      }
+      top {
+        value: 20
+      }
+      bottom {
+        value: 30
+      }
+      start {
+        value: 40
+      }
+      rtl_aware {
+        value: true
+      }
+    }
+    border {
+      color {
+        argb: 0xFFFF0000
+      }
+      width {
+        value: 5
+      }
+    }
+  }
+}

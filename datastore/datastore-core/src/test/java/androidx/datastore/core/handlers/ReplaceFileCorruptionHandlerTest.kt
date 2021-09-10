@@ -21,6 +21,7 @@ import androidx.datastore.core.TestingSerializer
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -28,8 +29,10 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.junit.rules.Timeout
 import java.io.File
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 @kotlinx.coroutines.InternalCoroutinesApi
@@ -38,6 +41,9 @@ import java.io.IOException
 class ReplaceFileCorruptionHandlerTest {
     @get:Rule
     val tmp = TemporaryFolder()
+
+    @get:Rule
+    val timeout = Timeout(10, TimeUnit.SECONDS)
 
     private lateinit var testFile: File
 
@@ -96,6 +102,7 @@ class ReplaceFileCorruptionHandlerTest {
 
     @Test
     fun testFailingWritePropagates() = runBlockingTest {
+
         preSeedData(testFile, 1)
 
         val store = SingleProcessDataStore<Byte>(
@@ -112,10 +119,12 @@ class ReplaceFileCorruptionHandlerTest {
     }
 
     private suspend fun preSeedData(file: File, byte: Byte) {
-        SingleProcessDataStore(
-            { file },
-            TestingSerializer(),
-            scope = TestCoroutineScope()
-        ).updateData { byte }
+        coroutineScope {
+            SingleProcessDataStore(
+                { file },
+                TestingSerializer(),
+                scope = this
+            ).updateData { byte }
+        }
     }
 }

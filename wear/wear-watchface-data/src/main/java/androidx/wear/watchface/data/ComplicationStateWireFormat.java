@@ -19,6 +19,7 @@ package androidx.wear.watchface.data;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.wearable.complications.ComplicationData;
@@ -47,7 +48,6 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
     Rect mBounds;
 
     @ParcelField(2)
-    @ComplicationBoundsType
     int mBoundsType;
 
     @ParcelField(3)
@@ -69,18 +69,36 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
     @ParcelField(7)
     boolean mIsEnabled;
 
+    @ParcelField(8)
+    boolean mIsInitiallyEnabled;
+
+    @ParcelField(9)
+    @ComplicationData.ComplicationType
+    int mCurrentType;
+
+    @ParcelField(10)
+    boolean mFixedComplicationProvider;
+
+    @ParcelField(11)
+    @NonNull
+    Bundle mComplicationConfigExtras;
+
     /** Used by VersionedParcelable. */
     ComplicationStateWireFormat() {
     }
 
     public ComplicationStateWireFormat(
             @NonNull Rect bounds,
-            @ComplicationBoundsType int boundsType,
+            int boundsType,
             @NonNull @ComplicationData.ComplicationType int[] supportedTypes,
             @Nullable List<ComponentName> defaultProvidersToTry,
             int fallbackSystemProvider,
             @ComplicationData.ComplicationType int defaultProviderType,
-            boolean isEnabled) {
+            boolean isEnabled,
+            boolean isInitiallyEnabled,
+            @ComplicationData.ComplicationType int currentType,
+            boolean fixedComplicationProvider,
+            @NonNull Bundle complicationConfigExtras) {
         mBounds = bounds;
         mBoundsType = boundsType;
         mSupportedTypes = supportedTypes;
@@ -88,6 +106,10 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
         mFallbackSystemProvider = fallbackSystemProvider;
         mDefaultProviderType = defaultProviderType;
         mIsEnabled = isEnabled;
+        mIsInitiallyEnabled = isInitiallyEnabled;
+        mCurrentType = currentType;
+        mFixedComplicationProvider = fixedComplicationProvider;
+        mComplicationConfigExtras = complicationConfigExtras;
     }
 
     @NonNull
@@ -95,7 +117,6 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
         return mBounds;
     }
 
-    @ComplicationBoundsType
     public int getBoundsType() {
         return mBoundsType;
     }
@@ -108,7 +129,7 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
 
     /**
      * Along with {@link #getFallbackSystemProvider} this is the wire format for
-     * DefaultComplicationProviderPolicy.
+     * DefaultComplicationDataSourcePolicy.
      */
     @Nullable
     public List<ComponentName> getDefaultProvidersToTry() {
@@ -117,7 +138,7 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
 
     /**
      * Along with {@link #getDefaultProvidersToTry} this is the wire format for
-     * DefaultComplicationProviderPolicy.
+     * DefaultComplicationDataSourcePolicy.
      */
     public int getFallbackSystemProvider() {
         return mFallbackSystemProvider;
@@ -130,6 +151,25 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
 
     public boolean isEnabled() {
         return mIsEnabled;
+    }
+
+    public boolean isInitiallyEnabled() {
+        return mIsInitiallyEnabled;
+    }
+
+    public boolean isFixedComplicationProvider() {
+        return mFixedComplicationProvider;
+    }
+
+    @NonNull
+    @ComplicationData.ComplicationType
+    public int getCurrentType() {
+        return mCurrentType;
+    }
+
+    @NonNull
+    public Bundle getComplicationConfigExtras() {
+        return mComplicationConfigExtras;
     }
 
     /** Serializes this ComplicationDetails to the specified {@link Parcel}. */

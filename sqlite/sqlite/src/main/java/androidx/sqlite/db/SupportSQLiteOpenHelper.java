@@ -17,8 +17,8 @@
 package androidx.sqlite.db;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
@@ -109,16 +109,16 @@ public interface SupportSQLiteOpenHelper extends Closeable {
 
     /**
      * Handles various lifecycle events for the SQLite connection, similar to
-     * {@link android.database.sqlite.SQLiteOpenHelper}.
+     * {@link SQLiteOpenHelper}.
      */
     @SuppressWarnings({"unused", "WeakerAccess"})
     abstract class Callback {
         private static final String TAG = "SupportSQLite";
         /**
          * Version number of the database (starting at 1); if the database is older,
-         * {@link SupportSQLiteOpenHelper.Callback#onUpgrade(SupportSQLiteDatabase, int, int)}
+         * {@link Callback#onUpgrade(SupportSQLiteDatabase, int, int)}
          * will be used to upgrade the database; if the database is newer,
-         * {@link SupportSQLiteOpenHelper.Callback#onDowngrade(SupportSQLiteDatabase, int, int)}
+         * {@link Callback#onDowngrade(SupportSQLiteDatabase, int, int)}
          * will be used to downgrade the database.
          */
         public final int version;
@@ -281,7 +281,7 @@ public interface SupportSQLiteOpenHelper extends Closeable {
             Log.w(TAG, "deleting the database file: " + fileName);
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    SQLiteDatabase.deleteDatabase(new File(fileName));
+                    SupportSQLiteCompat.Api16Impl.deleteDatabase(new File(fileName));
                 } else {
                     try {
                         final boolean deleted = new File(fileName).delete();

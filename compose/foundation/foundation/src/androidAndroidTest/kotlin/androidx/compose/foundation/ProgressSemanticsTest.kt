@@ -17,14 +17,17 @@
 package androidx.compose.foundation
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.AccessibilityRangeInfo
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertRangeInfoEquals
-import androidx.compose.ui.test.assertValueEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
@@ -51,30 +54,27 @@ class ProgressSemanticsTest {
                 Modifier
                     .testTag(tag)
                     .progressSemantics(progress.value)
-                    .preferredSize(50.dp)
+                    .size(50.dp)
                     .background(color = Color.Cyan)
             )
         }
 
         rule.onNodeWithTag(tag)
-            .assertValueEquals("0 percent")
-            .assertRangeInfoEquals(AccessibilityRangeInfo(0f, 0f..1f))
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
 
         rule.runOnUiThread {
             progress.value = 0.005f
         }
 
         rule.onNodeWithTag(tag)
-            .assertValueEquals("1 percent")
-            .assertRangeInfoEquals(AccessibilityRangeInfo(0.005f, 0f..1f))
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0.005f, 0f..1f))
 
         rule.runOnUiThread {
             progress.value = 0.5f
         }
 
         rule.onNodeWithTag(tag)
-            .assertValueEquals("50 percent")
-            .assertRangeInfoEquals(AccessibilityRangeInfo(0.5f, 0f..1f))
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0.5f, 0f..1f))
     }
 
     @Test
@@ -86,12 +86,17 @@ class ProgressSemanticsTest {
                 Modifier
                     .testTag(tag)
                     .progressSemantics()
-                    .preferredSize(50.dp)
+                    .size(50.dp)
                     .background(color = Color.Cyan)
             )
         }
 
         rule.onNodeWithTag(tag)
-            .assertValueEquals(Strings.InProgress)
+            .assert(
+                SemanticsMatcher("progress is ProgressBarRangeInfo.Indeterminate") {
+                    val progress = it.config.getOrNull(SemanticsProperties.ProgressBarRangeInfo)
+                    progress === ProgressBarRangeInfo.Indeterminate
+                }
+            )
     }
 }

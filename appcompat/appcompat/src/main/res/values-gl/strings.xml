@@ -31,8 +31,8 @@
     <string name="abc_activity_chooser_view_see_all" msgid="1189761859438369441">"Ver todo"</string>
     <string name="abc_shareactionprovider_share_with_application" msgid="9055268688411532828">"Comparte contido coa aplicación <xliff:g id="APPLICATION_NAME">%s</xliff:g>"</string>
     <string name="abc_shareactionprovider_share_with" msgid="8875138169939072951">"Comparte contido con"</string>
-    <string name="abc_capital_on" msgid="884982626291842264">"ACTIVAR"</string>
-    <string name="abc_capital_off" msgid="4215997306490295099">"DESACTIVAR"</string>
+    <string name="abc_capital_on" msgid="884982626291842264">"ACTIVADO"</string>
+    <string name="abc_capital_off" msgid="4215997306490295099">"DESACTIVADO"</string>
     <string name="search_menu_title" msgid="6264217191555673260">"Buscar"</string>
     <string name="abc_prepend_shortcut_label" msgid="5520303668377388990">"Menú +"</string>
     <string name="abc_menu_meta_shortcut_label" msgid="4192209724446364286">"Meta +"</string>

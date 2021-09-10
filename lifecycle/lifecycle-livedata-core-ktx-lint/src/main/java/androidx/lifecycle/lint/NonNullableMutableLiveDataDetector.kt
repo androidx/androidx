@@ -30,6 +30,8 @@ import com.android.tools.lint.detector.api.UastLintUtils
 import com.android.tools.lint.detector.api.isKotlin
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiVariable
+import com.intellij.psi.impl.source.PsiImmediateClassType
+import org.jetbrains.kotlin.asJava.elements.KtLightTypeParameter
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtNullableType
 import org.jetbrains.kotlin.psi.KtTypeReference
@@ -94,13 +96,26 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
             }
 
             private fun getFieldTypeReference(element: KotlinUField): KtTypeReference? {
-                // We need to extract type from the expression
+                // If field has type reference, we need to use type reference
+                // Given the field `val liveDataField: MutableLiveData<Boolean> = MutableLiveData()`
+                // reference: `MutableLiveData<Boolean>`
+                // argument: `Boolean`
+                val typeReference = element.sourcePsi
+                    ?.children
+                    ?.firstOrNull { it is KtTypeReference } as? KtTypeReference
+                val typeArgument = typeReference?.typeElement?.typeArgumentsAsTypes?.singleOrNull()
+                if (typeArgument != null) {
+                    return typeArgument
+                }
+
+                // We need to extract type from the call expression
                 // Given the field `val liveDataField = MutableLiveData<Boolean>()`
                 // expression: `MutableLiveData<Boolean>()`
                 // argument: `Boolean`
-                val expression = element.sourcePsi?.children?.get(0) as? KtCallExpression
-                val argument = expression?.typeArguments?.singleOrNull()
-                return argument?.typeReference
+                val expression = element.sourcePsi
+                    ?.children
+                    ?.firstOrNull { it is KtCallExpression } as? KtCallExpression
+                return expression?.typeArguments?.singleOrNull()?.typeReference
             }
 
             override fun visitCallExpression(node: UCallExpression) {
@@ -168,6 +183,9 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
         context: JavaContext,
         node: UCallExpression
     ) {
+        // ignore generic types
+        if (node.isGenericTypeDefinition()) return
+
         if (liveDataType.typeElement !is KtNullableType) {
             val fixes = mutableListOf<LintFix>()
             if (context.getLocation(liveDataType).file == context.file) {
@@ -194,6 +212,12 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
                 checkNullability(context, argument, "Expected non-nullable value", fixes)
             }
         }
+    }
+
+    private fun UCallExpression.isGenericTypeDefinition(): Boolean {
+        val classType = typeArguments.singleOrNull() as? PsiImmediateClassType
+        val resolveGenerics = classType?.resolveGenerics()
+        return resolveGenerics?.element is KtLightTypeParameter
     }
 
     /**

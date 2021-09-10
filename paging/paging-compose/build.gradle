@@ -18,30 +18,29 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("AndroidXUiPlugin")
+    id("AndroidXComposePlugin")
     id("org.jetbrains.kotlin.android")
     id("kotlin-android")
 }
 
 dependencies {
-    kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
-    implementation(KOTLIN_STDLIB)
-    api projectOrArtifact(":compose:foundation:foundation")
-    api("androidx.paging:paging-common-ktx:3.0.0-alpha06")
+    implementation(libs.kotlinStdlib)
+    api("androidx.compose.foundation:foundation:1.0.2")
+    api(project(":paging:paging-common"))
+    api("androidx.compose.runtime:runtime:1.0.2")
 
-    androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
-    androidTestImplementation projectOrArtifact(':internal-testutils-paging')
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(TRUTH)
+    androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(projectOrArtifact(":internal-testutils-paging"))
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
 }
 
 androidx {
@@ -53,10 +52,4 @@ androidx {
     description = "Compose integration with Paging"
     runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
-}
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        useIR = true
-    }
 }

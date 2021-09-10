@@ -23,12 +23,12 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class DynamicExtrasTest {
+public class DynamicExtrasTest {
 
-    class TestNavigatorExtras : Navigator.Extras
+    public class TestNavigatorExtras : Navigator.Extras
 
     @Test
-    fun build_withMonitorAndExtras() {
+    public fun build_withMonitorAndExtras() {
         val monitor = DynamicInstallMonitor()
         val navExtras = TestNavigatorExtras()
         val extras = DynamicExtras(monitor, navExtras)
@@ -37,7 +37,7 @@ class DynamicExtrasTest {
     }
 
     @Test
-    fun build_withoutMonitorOrExtras() {
+    public fun build_withoutMonitorOrExtras() {
         val extras = DynamicExtras()
         assertThat(extras.destinationExtras).isNull()
         assertThat(extras.installMonitor).isNull()

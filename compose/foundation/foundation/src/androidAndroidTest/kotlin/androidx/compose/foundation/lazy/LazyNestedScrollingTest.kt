@@ -16,24 +16,23 @@
 
 package androidx.compose.foundation.lazy
 
-import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.down
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.moveBy
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performGesture
-import androidx.compose.ui.test.up
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,29 +45,36 @@ class LazyNestedScrollingTest {
     @get:Rule
     val rule = createComposeRule()
 
+    private val expectedDragOffset = 20f
+    private val dragOffsetWithTouchSlop = expectedDragOffset + TestTouchSlop
+
     @Test
-    fun column_nestedScrollingBackwardInitially() {
+    fun column_nestedScrollingBackwardInitially() = runBlocking {
         val items = (1..3).toList()
         var draggedOffset = 0f
-        rule.setContent {
+        val scrollable = ScrollableState {
+            draggedOffset += it
+            it
+        }
+        rule.setContentWithTestViewConfiguration {
             Box(
-                Modifier.draggable(Orientation.Vertical) {
-                    draggedOffset += it
-                }
+                Modifier.scrollable(
+                    orientation = Orientation.Vertical,
+                    state = scrollable
+                )
             ) {
-                LazyColumnFor(
-                    items = items,
-                    modifier = Modifier.size(100.dp).testTag(LazyTag)
-                ) {
-                    Spacer(Modifier.size(50.dp).testTag("$it"))
+                LazyColumn(Modifier.requiredSize(100.dp).testTag(LazyTag)) {
+                    items(items) {
+                        Spacer(Modifier.requiredSize(50.dp).testTag("$it"))
+                    }
                 }
             }
         }
 
         rule.onNodeWithTag(LazyTag)
-            .performGesture {
+            .performTouchInput {
                 down(Offset(x = 10f, y = 10f))
-                moveBy(Offset(x = 0f, y = 100f))
+                moveBy(Offset(x = 0f, y = 100f + TestTouchSlop))
                 up()
             }
 
@@ -78,20 +84,24 @@ class LazyNestedScrollingTest {
     }
 
     @Test
-    fun column_nestedScrollingBackwardOnceWeScrolledForwardPreviously() {
+    fun column_nestedScrollingBackwardOnceWeScrolledForwardPreviously() = runBlocking {
         val items = (1..3).toList()
         var draggedOffset = 0f
-        rule.setContent {
+        val scrollable = ScrollableState {
+            draggedOffset += it
+            it
+        }
+        rule.setContentWithTestViewConfiguration {
             Box(
-                Modifier.draggable(Orientation.Vertical) {
-                    draggedOffset += it
-                }
+                Modifier.scrollable(
+                    orientation = Orientation.Vertical,
+                    state = scrollable
+                )
             ) {
-                LazyColumnFor(
-                    items = items,
-                    modifier = Modifier.size(100.dp).testTag(LazyTag)
-                ) {
-                    Spacer(Modifier.size(50.dp).testTag("$it"))
+                LazyColumn(Modifier.requiredSize(100.dp).testTag(LazyTag)) {
+                    items(items) {
+                        Spacer(Modifier.requiredSize(50.dp).testTag("$it"))
+                    }
                 }
             }
         }
@@ -106,131 +116,151 @@ class LazyNestedScrollingTest {
             .scrollBy(y = -(21.dp), density = rule.density)
 
         rule.onNodeWithTag(LazyTag)
-            .performGesture {
+            .performTouchInput {
                 draggedOffset = 0f
                 down(Offset(x = 10f, y = 10f))
-                moveBy(Offset(x = 0f, y = 50f))
+                moveBy(Offset(x = 0f, y = dragOffsetWithTouchSlop))
                 up()
             }
 
         rule.runOnIdle {
-            Truth.assertThat(draggedOffset).isEqualTo(50f)
+            Truth.assertThat(draggedOffset).isEqualTo(expectedDragOffset)
         }
     }
 
     @Test
-    fun column_nestedScrollingForwardWhenTheFullContentIsInitiallyVisible() {
+    fun column_nestedScrollingForwardWhenTheFullContentIsInitiallyVisible() = runBlocking {
         val items = (1..2).toList()
         var draggedOffset = 0f
-        rule.setContent {
+        val scrollable = ScrollableState {
+            draggedOffset += it
+            it
+        }
+        rule.setContentWithTestViewConfiguration {
             Box(
-                Modifier.draggable(Orientation.Vertical) {
-                    draggedOffset += it
-                }
+                Modifier.scrollable(
+                    orientation = Orientation.Vertical,
+                    state = scrollable
+                )
             ) {
-                LazyColumnFor(
-                    items = items,
-                    modifier = Modifier.size(100.dp).testTag(LazyTag)
-                ) {
-                    Spacer(Modifier.size(40.dp).testTag("$it"))
+                LazyColumn(Modifier.requiredSize(100.dp).testTag(LazyTag)) {
+                    items(items) {
+                        Spacer(Modifier.requiredSize(40.dp).testTag("$it"))
+                    }
                 }
             }
         }
 
         rule.onNodeWithTag(LazyTag)
-            .performGesture {
+            .performTouchInput {
                 down(Offset(x = 10f, y = 10f))
-                moveBy(Offset(x = 0f, y = -50f))
+                moveBy(Offset(x = 0f, y = -dragOffsetWithTouchSlop))
                 up()
             }
 
         rule.runOnIdle {
-            Truth.assertThat(draggedOffset).isEqualTo(-50f)
+            Truth.assertThat(draggedOffset).isEqualTo(-expectedDragOffset)
         }
     }
 
     @Test
-    fun column_nestedScrollingForwardWhenScrolledToTheEnd() {
+    fun column_nestedScrollingForwardWhenScrolledToTheEnd() = runBlocking {
         val items = (1..3).toList()
         var draggedOffset = 0f
-        rule.setContent {
+        val scrollable = ScrollableState {
+            draggedOffset += it
+            it
+        }
+        rule.setContentWithTestViewConfiguration {
             Box(
-                Modifier.draggable(Orientation.Vertical) {
-                    draggedOffset += it
-                }
+                Modifier.scrollable(
+                    orientation = Orientation.Vertical,
+                    state = scrollable
+                )
             ) {
-                LazyColumnFor(
-                    items = items,
-                    modifier = Modifier.size(100.dp).testTag(LazyTag)
-                ) {
-                    Spacer(Modifier.size(50.dp).testTag("$it"))
+                LazyColumn(Modifier.requiredSize(100.dp).testTag(LazyTag)) {
+                    items(items) {
+                        Spacer(Modifier.requiredSize(50.dp).testTag("$it"))
+                    }
                 }
             }
         }
 
-        // scroll forward
+        // scroll till the end
         rule.onNodeWithTag(LazyTag)
-            .scrollBy(y = 50.dp, density = rule.density)
+            .scrollBy(y = 55.dp, density = rule.density)
 
         rule.onNodeWithTag(LazyTag)
-            .performGesture {
+            .performTouchInput {
                 draggedOffset = 0f
                 down(Offset(x = 10f, y = 10f))
-                moveBy(Offset(x = 0f, y = -50f))
+                moveBy(Offset(x = 0f, y = -dragOffsetWithTouchSlop))
                 up()
             }
 
         rule.runOnIdle {
-            Truth.assertThat(draggedOffset).isEqualTo(-50f)
+            Truth.assertThat(draggedOffset).isEqualTo(-expectedDragOffset)
         }
     }
 
     @Test
-    fun row_nestedScrollingBackwardInitially() {
+    fun row_nestedScrollingBackwardInitially() = runBlocking {
         val items = (1..3).toList()
         var draggedOffset = 0f
-        rule.setContent {
+        val scrollable = ScrollableState {
+            draggedOffset += it
+            it
+        }
+        rule.setContentWithTestViewConfiguration {
             Box(
-                Modifier.draggable(Orientation.Horizontal) {
-                    draggedOffset += it
-                }
+                Modifier.scrollable(
+                    orientation = Orientation.Horizontal,
+                    state = scrollable
+                )
             ) {
-                LazyRowFor(
-                    items = items,
-                    modifier = Modifier.size(100.dp).testTag(LazyTag)
+                LazyRow(
+                    modifier = Modifier.requiredSize(100.dp).testTag(LazyTag)
                 ) {
-                    Spacer(Modifier.size(50.dp).testTag("$it"))
+                    items(items) {
+                        Spacer(Modifier.requiredSize(50.dp).testTag("$it"))
+                    }
                 }
             }
         }
 
         rule.onNodeWithTag(LazyTag)
-            .performGesture {
+            .performTouchInput {
                 down(Offset(x = 10f, y = 10f))
-                moveBy(Offset(x = 100f, y = 0f))
+                moveBy(Offset(x = dragOffsetWithTouchSlop, y = 0f))
                 up()
             }
 
         rule.runOnIdle {
-            Truth.assertThat(draggedOffset).isEqualTo(100f)
+            Truth.assertThat(draggedOffset).isEqualTo(expectedDragOffset)
         }
     }
 
     @Test
-    fun row_nestedScrollingBackwardOnceWeScrolledForwardPreviously() {
+    fun row_nestedScrollingBackwardOnceWeScrolledForwardPreviously() = runBlocking {
         val items = (1..3).toList()
         var draggedOffset = 0f
-        rule.setContent {
+        val scrollable = ScrollableState {
+            draggedOffset += it
+            it
+        }
+        rule.setContentWithTestViewConfiguration {
             Box(
-                Modifier.draggable(Orientation.Horizontal) {
-                    draggedOffset += it
-                }
+                Modifier.scrollable(
+                    orientation = Orientation.Horizontal,
+                    state = scrollable
+                )
             ) {
-                LazyRowFor(
-                    items = items,
-                    modifier = Modifier.size(100.dp).testTag(LazyTag)
+                LazyRow(
+                    modifier = Modifier.requiredSize(100.dp).testTag(LazyTag)
                 ) {
-                    Spacer(Modifier.size(50.dp).testTag("$it"))
+                    items(items) {
+                        Spacer(Modifier.requiredSize(50.dp).testTag("$it"))
+                    }
                 }
             }
         }
@@ -245,82 +275,94 @@ class LazyNestedScrollingTest {
             .scrollBy(x = -(21.dp), density = rule.density)
 
         rule.onNodeWithTag(LazyTag)
-            .performGesture {
+            .performTouchInput {
                 draggedOffset = 0f
                 down(Offset(x = 10f, y = 10f))
-                moveBy(Offset(x = 50f, y = 0f))
+                moveBy(Offset(x = dragOffsetWithTouchSlop, y = 0f))
                 up()
             }
 
         rule.runOnIdle {
-            Truth.assertThat(draggedOffset).isEqualTo(50f)
+            Truth.assertThat(draggedOffset).isEqualTo(expectedDragOffset)
         }
     }
 
     @Test
-    fun row_nestedScrollingForwardWhenTheFullContentIsInitiallyVisible() {
+    fun row_nestedScrollingForwardWhenTheFullContentIsInitiallyVisible() = runBlocking {
         val items = (1..2).toList()
         var draggedOffset = 0f
-        rule.setContent {
+        val scrollable = ScrollableState {
+            draggedOffset += it
+            it
+        }
+        rule.setContentWithTestViewConfiguration {
             Box(
-                Modifier.draggable(Orientation.Horizontal) {
-                    draggedOffset += it
-                }
+                Modifier.scrollable(
+                    orientation = Orientation.Horizontal,
+                    state = scrollable
+                )
             ) {
-                LazyRowFor(
-                    items = items,
-                    modifier = Modifier.size(100.dp).testTag(LazyTag)
+                LazyRow(
+                    modifier = Modifier.requiredSize(100.dp).testTag(LazyTag)
                 ) {
-                    Spacer(Modifier.size(40.dp).testTag("$it"))
+                    items(items) {
+                        Spacer(Modifier.requiredSize(40.dp).testTag("$it"))
+                    }
                 }
             }
         }
 
         rule.onNodeWithTag(LazyTag)
-            .performGesture {
+            .performTouchInput {
                 down(Offset(x = 10f, y = 10f))
-                moveBy(Offset(x = -50f, y = 0f))
+                moveBy(Offset(x = -dragOffsetWithTouchSlop, y = 0f))
                 up()
             }
 
         rule.runOnIdle {
-            Truth.assertThat(draggedOffset).isEqualTo(-50f)
+            Truth.assertThat(draggedOffset).isEqualTo(-expectedDragOffset)
         }
     }
 
     @Test
-    fun row_nestedScrollingForwardWhenScrolledToTheEnd() {
+    fun row_nestedScrollingForwardWhenScrolledToTheEnd() = runBlocking {
         val items = (1..3).toList()
         var draggedOffset = 0f
-        rule.setContent {
+        val scrollable = ScrollableState {
+            draggedOffset += it
+            it
+        }
+        rule.setContentWithTestViewConfiguration {
             Box(
-                Modifier.draggable(Orientation.Horizontal) {
-                    draggedOffset += it
-                }
+                Modifier.scrollable(
+                    orientation = Orientation.Horizontal,
+                    state = scrollable
+                )
             ) {
-                LazyRowFor(
-                    items = items,
-                    modifier = Modifier.size(100.dp).testTag(LazyTag)
+                LazyRow(
+                    modifier = Modifier.requiredSize(100.dp).testTag(LazyTag)
                 ) {
-                    Spacer(Modifier.size(50.dp).testTag("$it"))
+                    items(items) {
+                        Spacer(Modifier.requiredSize(50.dp).testTag("$it"))
+                    }
                 }
             }
         }
 
-        // scroll forward
+        // scroll till the end
         rule.onNodeWithTag(LazyTag)
-            .scrollBy(x = 50.dp, density = rule.density)
+            .scrollBy(x = 55.dp, density = rule.density)
 
         rule.onNodeWithTag(LazyTag)
-            .performGesture {
+            .performTouchInput {
                 draggedOffset = 0f
                 down(Offset(x = 10f, y = 10f))
-                moveBy(Offset(x = -50f, y = 0f))
+                moveBy(Offset(x = -dragOffsetWithTouchSlop, y = 0f))
                 up()
             }
 
         rule.runOnIdle {
-            Truth.assertThat(draggedOffset).isEqualTo(-50f)
+            Truth.assertThat(draggedOffset).isEqualTo(-expectedDragOffset)
         }
     }
 }

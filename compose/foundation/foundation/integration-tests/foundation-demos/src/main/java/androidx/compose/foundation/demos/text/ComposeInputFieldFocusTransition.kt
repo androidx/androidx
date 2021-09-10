@@ -16,20 +16,19 @@
 
 package androidx.compose.foundation.demos.text
 
-import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.focus.ExperimentalFocus
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.isFocused
-import androidx.compose.ui.focusObserver
-import androidx.compose.ui.focusRequester
+import androidx.compose.ui.focus.focusOrder
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.text.TextStyle
@@ -37,37 +36,32 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.sp
 
 @Composable
-@OptIn(ExperimentalFocus::class)
 fun TextFieldFocusTransition() {
-    val focusRequesters = List(6) { FocusRequester() }
+    val focusRequesters = remember { List(6) { FocusRequester() } }
 
-    ScrollableColumn {
-        TextFieldWithFocusRequesters(focusRequesters[0], focusRequesters[1])
-        TextFieldWithFocusRequesters(focusRequesters[1], focusRequesters[2])
-        TextFieldWithFocusRequesters(focusRequesters[2], focusRequesters[3])
-        TextFieldWithFocusRequesters(focusRequesters[3], focusRequesters[4])
-        TextFieldWithFocusRequesters(focusRequesters[4], focusRequesters[5])
-        TextFieldWithFocusRequesters(focusRequesters[5], focusRequesters[0])
+    LazyColumn {
+        itemsIndexed(focusRequesters) { index, item ->
+            val nextIndex = if (index == focusRequesters.size - 1) 0 else index + 1
+            TextFieldWithFocusRequesters(item, focusRequesters[nextIndex])
+        }
     }
 }
 
-@OptIn(ExperimentalFocus::class)
 @Composable
 private fun TextFieldWithFocusRequesters(
     focusRequester: FocusRequester,
     nextFocusRequester: FocusRequester
 ) {
-    val state = savedInstanceState { "Focus Transition Test" }
+    val state = rememberSaveable { mutableStateOf("Focus Transition Test") }
     var color by remember { mutableStateOf(Black) }
 
     BasicTextField(
         value = state.value,
         modifier = demoTextFieldModifiers
-            .focusObserver { color = if (it.isFocused) Red else Black }
-            .focusRequester(focusRequester),
+            .onFocusChanged { color = if (it.isFocused) Red else Black }
+            .focusOrder(focusRequester) { next = nextFocusRequester },
         textStyle = TextStyle(color = color, fontSize = 32.sp),
         onValueChange = { state.value = it },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-        onImeActionPerformed = { if (it == ImeAction.Next) nextFocusRequester.requestFocus() }
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
     )
 }

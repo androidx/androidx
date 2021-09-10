@@ -1,0 +1,14 @@
+/**
+ * A gradle init script that will re-run tasks that were requested in the ./gradlew command
+ * see profile.sh for usages.
+ */
+def requestedTasks = startParameter.taskRequests.collect {
+    it.args
+}.flatten()
+taskGraph.addTaskExecutionGraphListener { graph ->
+    graph.beforeTask { task ->
+        if (requestedTasks.contains(task.path)) {
+            task.outputs.upToDateWhen {false}
+        }
+    }
+}

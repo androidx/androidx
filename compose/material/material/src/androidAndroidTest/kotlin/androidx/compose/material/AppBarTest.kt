@@ -153,7 +153,7 @@ class AppBarTest {
                 TopAppBar(
                     title = {
                         Text("App Bar Title")
-                        textStyle = AmbientTextStyle.current
+                        textStyle = LocalTextStyle.current
                         h6Style = MaterialTheme.typography.h6
                     }
                 )
@@ -161,6 +161,53 @@ class AppBarTest {
         }
         assertThat(textStyle!!.fontSize).isEqualTo(h6Style!!.fontSize)
         assertThat(textStyle!!.fontFamily).isEqualTo(h6Style!!.fontFamily)
+    }
+
+    @Test
+    fun topAppBar_contentAlpha() {
+        var titleAlpha: Float? = null
+        var navigationIconAlpha: Float? = null
+        var actionAlpha: Float? = null
+        var high: Float? = null
+        var medium: Float? = null
+        rule.setMaterialContent {
+            Box {
+                TopAppBar(
+                    title = {
+                        titleAlpha = LocalContentAlpha.current
+                        high = ContentAlpha.high
+                        medium = ContentAlpha.medium
+                    },
+                    navigationIcon = { navigationIconAlpha = LocalContentAlpha.current },
+                    actions = { actionAlpha = LocalContentAlpha.current }
+                )
+            }
+        }
+        assertThat(titleAlpha).isNotNull()
+        assertThat(navigationIconAlpha).isNotNull()
+        assertThat(actionAlpha).isNotNull()
+        assertThat(high).isNotNull()
+        assertThat(medium).isNotNull()
+        assertThat(titleAlpha).isEqualTo(high)
+        assertThat(navigationIconAlpha).isEqualTo(high)
+        assertThat(actionAlpha).isEqualTo(medium)
+    }
+
+    @Test
+    fun topAppBar_genericContent_contentAlpha() {
+        var alpha: Float? = null
+        var medium: Float? = null
+        rule.setMaterialContent {
+            Box {
+                TopAppBar {
+                    alpha = LocalContentAlpha.current
+                    medium = ContentAlpha.medium
+                }
+            }
+        }
+        assertThat(alpha).isNotNull()
+        assertThat(medium).isNotNull()
+        assertThat(alpha).isEqualTo(medium)
     }
 
     @Test
@@ -193,12 +240,29 @@ class AppBarTest {
             )
     }
 
+    @Test
+    fun bottomAppBar_contentAlpha() {
+        var alpha: Float? = null
+        var medium: Float? = null
+        rule.setMaterialContent {
+            Box {
+                BottomAppBar {
+                    alpha = LocalContentAlpha.current
+                    medium = ContentAlpha.medium
+                }
+            }
+        }
+        assertThat(alpha).isNotNull()
+        assertThat(medium).isNotNull()
+        assertThat(alpha).isEqualTo(medium)
+    }
+
     /**
      * [IconButton] that just draws a red box, to simulate a real icon for testing positions.
      */
     private val FakeIcon = @Composable { modifier: Modifier ->
         IconButton(onClick = {}, modifier = modifier) {
-            Icon(ColorPainter(Color.Red))
+            Icon(ColorPainter(Color.Red), null)
         }
     }
 

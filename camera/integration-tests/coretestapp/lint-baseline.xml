@@ -1,147 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
-        id="ScopedStorage"
-        message="WRITE_EXTERNAL_STORAGE no longer provides write access when targeting Android 10+"
-        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot; />"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `java.lang.Double#isFinite`"
+        errorLine1="            if (Double.isFinite(actual[i])) {"
+        errorLine2="                       ~~~~~~~~">
         <location
-            file="src/main/AndroidManifest.xml"
-            line="19"
-            column="36"/>
+            file="src/test/java/androidx/camera/integration/core/FpsRecorderTest.java"
+            line="63"
+            column="24"/>
     </issue>
 
     <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
-        errorLine1="                Toast.makeText(getApplicationContext(), String.format(&quot;EV: %.2f&quot;, ev),"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `java.lang.Double#isFinite`"
+        errorLine1="            if (Double.isFinite(actual[i])) {"
+        errorLine2="                       ~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="200"
-            column="57"/>
+            file="src/test/java/androidx/camera/integration/core/FpsRecorderTest.java"
+            line="138"
+            column="24"/>
     </issue>
 
     <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
-        errorLine1="                Toast.makeText(getApplicationContext(), String.format(&quot;EV: %.2f&quot;,"
-        errorLine2="                                                        ^">
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.media.ImageWriter#newInstance`"
+        errorLine1="            imageWriter = ImageWriter.newInstance(surface, 2)"
+        errorLine2="                                      ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="463"
-            column="57"/>
+            file="src/androidTest/java/androidx/camera/integration/core/ImageCaptureTest.kt"
+            line="1512"
+            column="39"/>
     </issue>
 
     <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
-        errorLine1="                Toast.makeText(getApplicationContext(), String.format(&quot;EV: %.2f&quot;,"
-        errorLine2="                                                        ^">
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.media.ImageWriter#queueInputImage`"
+        errorLine1="                imageWriter!!.queueInputImage(imageProxy.image)"
+        errorLine2="                              ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="484"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
-        errorLine1="                String str = String.format(&quot;%.2fx&quot;, state.getZoomRatio());"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="958"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 29 (current min is 21): `android.provider.MediaStore.MediaColumns#DATE_TAKEN`"
-        errorLine1="        contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/VideoFileSaver.java"
-            line="73"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="VideoCapture.startRecording can only be called from within the same library group (groupId=androidx.camera)"
-        errorLine1="                getVideoCapture().startRecording(mVideoFileSaver.getNewVideoOutputFileOptions("
-        errorLine2="                                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="335"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="VideoCapture.stopRecording can only be called from within the same library group (groupId=androidx.camera)"
-        errorLine1="                getVideoCapture().stopRecording();"
-        errorLine2="                                  ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="343"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="SpUsage"
-        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
-        errorLine1="        android:textSize=&quot;11dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_xmain.xml"
-            line="216"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SpUsage"
-        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
-        errorLine1="        android:textSize=&quot;20dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_xmain.xml"
-            line="270"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SwitchIntDef"
-        message="Switch statement on an `int` with known associated constant missing case `ImageCapture.FLASH_MODE_UNKNOWN`"
-        errorLine1="            switch (getImageCapture().getFlashMode()) {"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="501"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="AllowBackup"
-        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
-        errorLine1="    &lt;application"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="25"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="AllowBackup"
-        message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
-        errorLine1="    &lt;application"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="25"
-            column="6"/>
+            file="src/androidTest/java/androidx/camera/integration/core/ImageCaptureTest.kt"
+            line="1520"
+            column="31"/>
     </issue>
 
     <issue
@@ -151,7 +52,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="177"
+            line="180"
             column="13"/>
     </issue>
 
@@ -162,7 +63,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="180"
+            line="183"
             column="22"/>
     </issue>
 
@@ -173,7 +74,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="181"
+            line="184"
             column="21"/>
     </issue>
 
@@ -184,7 +85,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="360"
+            line="380"
             column="25"/>
     </issue>
 
@@ -195,7 +96,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="363"
+            line="383"
             column="25"/>
     </issue>
 
@@ -206,7 +107,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="372"
+            line="392"
             column="33"/>
     </issue>
 
@@ -217,7 +118,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="381"
+            line="401"
             column="45"/>
     </issue>
 
@@ -228,52 +129,8 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="403"
+            line="423"
             column="45"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mViewFinder` of class `CameraXActivity` requires synthetic accessor"
-        errorLine1="                Display viewFinderDisplay = mViewFinder.getDisplay();"
-        errorLine2="                                            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="589"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCamera` of class `CameraXActivity` requires synthetic accessor"
-        errorLine1="                    if (mCamera == null) {"
-        errorLine2="                        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="864"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCamera` of class `CameraXActivity` requires synthetic accessor"
-        errorLine1="                    CameraInfo cameraInfo = mCamera.getCameraInfo();"
-        errorLine2="                                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="868"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCamera` of class `CameraXActivity` requires synthetic accessor"
-        errorLine1="                    CameraControl cameraControl = mCamera.getCameraControl();"
-        errorLine2="                                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="869"
-            column="51"/>
     </issue>
 
     <issue
@@ -283,7 +140,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/OpenGLActivity.java"
-            line="261"
+            line="262"
             column="33"/>
     </issue>
 
@@ -294,294 +151,8 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/core/OpenGLActivity.java"
-            line="262"
+            line="263"
             column="33"/>
-    </issue>
-
-    <issue
-        id="MissingApplicationIcon"
-        message="Should explicitly set `android:icon`, there is no default"
-        errorLine1="    &lt;application"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="25"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="SmallSp"
-        message="Avoid using sizes smaller than `12sp`: `10sp`"
-        errorLine1="        android:textSize=&quot;10sp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_xmain.xml"
-            line="230"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SmallSp"
-        message="Avoid using sizes smaller than `12sp`: `10sp`"
-        errorLine1="        android:textSize=&quot;10sp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_xmain.xml"
-            line="244"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ClickableViewAccessibility"
-        message="`onTouch` should call `View#performClick` when a click is detected"
-        errorLine1="            public boolean onTouch(View view, MotionEvent motionEvent) {"
-        errorLine2="                           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="901"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageButton"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_xmain.xml"
-            line="168"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageButton"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_xmain.xml"
-            line="181"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageButton"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_xmain.xml"
-            line="194"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                mRecord.setText(&quot;Stop&quot;);"
-        errorLine2="                                ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="340"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                mRecord.setText(&quot;Record&quot;);"
-        errorLine2="                                ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="342"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                mRecord.setText(&quot;Stop&quot;);"
-        errorLine2="                                ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="345"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                mRecord.setText(&quot;Record&quot;);"
-        errorLine2="                                ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="348"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="                                &quot;ImgCount: &quot; + mImageAnalysisFrameCount.get() + &quot; @ts: &quot;"
-        errorLine2="                                ^">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="571"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                                &quot;ImgCount: &quot; + mImageAnalysisFrameCount.get() + &quot; @ts: &quot;"
-        errorLine2="                                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="571"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                                &quot;ImgCount: &quot; + mImageAnalysisFrameCount.get() + &quot; @ts: &quot;"
-        errorLine2="                                                                                ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="571"
-            column="81"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Picture&quot;, should use `@string` resource"
-        errorLine1="        android:text=&quot;Picture&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_xmain.xml"
-            line="80"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Record&quot;, should use `@string` resource"
-        errorLine1="        android:text=&quot;Record&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_xmain.xml"
-            line="93"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;1x&quot;, should use `@string` resource"
-        errorLine1="        android:text=&quot;1x&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_xmain.xml"
-            line="269"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;--- fps&quot;, should use `@string` resource"
-        errorLine1="        android:text=&quot;--- fps&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout-land/opengl_activity.xml"
-            line="41"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;--- fps&quot;, should use `@string` resource"
-        errorLine1="        android:text=&quot;--- fps&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/opengl_activity.xml"
-            line="42"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;5dp&quot;` to better support right-to-left layouts"
-        errorLine1="        android:layout_marginLeft=&quot;5dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_xmain.xml"
-            line="172"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;5dp&quot;` to better support right-to-left layouts"
-        errorLine1="        android:layout_marginLeft=&quot;5dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_xmain.xml"
-            line="185"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;5dp&quot;` to better support right-to-left layouts"
-        errorLine1="        android:layout_marginLeft=&quot;5dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_xmain.xml"
-            line="198"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;5dp&quot;` to better support right-to-left layouts"
-        errorLine1="        android:layout_marginLeft=&quot;5dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_xmain.xml"
-            line="211"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;5dp&quot;` to better support right-to-left layouts"
-        errorLine1="        android:layout_marginLeft=&quot;5dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_xmain.xml"
-            line="225"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;5dp&quot;` to better support right-to-left layouts"
-        errorLine1="        android:layout_marginLeft=&quot;5dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_xmain.xml"
-            line="239"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginRight` with `android:layout_marginEnd=&quot;10dp&quot;` to better support right-to-left layouts"
-        errorLine1="        android:layout_marginRight=&quot;10dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_xmain.xml"
-            line="272"
-            column="9"/>
     </issue>
 
     <issue

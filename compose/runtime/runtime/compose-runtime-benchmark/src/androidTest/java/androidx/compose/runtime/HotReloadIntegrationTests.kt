@@ -17,12 +17,12 @@
 package androidx.compose.runtime
 
 import android.app.Activity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.ModalDrawerLayout
+import androidx.compose.material.ModalDrawer
 import androidx.compose.material.Text
 import androidx.compose.runtime.benchmark.ComposeActivity
-import androidx.compose.ui.layout.WithConstraints
-import androidx.compose.ui.platform.setContent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Rule
@@ -32,7 +32,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 /**
- * Test the hot reload with sub-composition (specifically WithConstraints).
+ * Test the hot reload with sub-composition (specifically BoxWithConstraints).
  *
  * It is a bit odd for this to be in the benchmark project but, for one test, it seemed overkill
  * to create a separate integration test project.
@@ -54,10 +54,10 @@ class HotReloadIntegrationTests {
         activity.uiThread {
             activity.setContent {
                 Column {
-                    WithConstraints {
-                        ModalDrawerLayout(
+                    BoxWithConstraints {
+                        ModalDrawer(
                             drawerContent = { },
-                            bodyContent = { Text(text = "Hello") }
+                            content = { Text(text = "Hello") }
                         )
                     }
                 }

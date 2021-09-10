@@ -30,19 +30,19 @@ import androidx.paging.PagingDataAdapter
 import androidx.paging.integration.testapp.R
 import androidx.paging.map
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class V3Activity : AppCompatActivity() {
+    val pagingAdapter = V3Adapter()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_recycler_view)
         val viewModel by viewModels<V3ViewModel>()
 
-        val pagingAdapter = V3Adapter()
         val orientationText = when (resources.configuration.orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> "land"
             Configuration.ORIENTATION_PORTRAIT -> "port"
@@ -50,7 +50,6 @@ class V3Activity : AppCompatActivity() {
         }
         // NOTE: lifecycleScope means we don't respect paused state here
         lifecycleScope.launch {
-            @OptIn(ExperimentalCoroutinesApi::class)
             viewModel.flow
                 .map { pagingData ->
                     pagingData.map { it.copy(text = "${it.text} - $orientationText") }

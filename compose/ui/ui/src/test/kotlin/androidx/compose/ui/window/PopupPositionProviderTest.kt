@@ -17,7 +17,7 @@
 package androidx.compose.ui.window
 
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.unit.IntBounds
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -32,8 +32,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionTopStart() {
         /* Expected TopStart Position
-           x = parentGlobalPosition.x + offset.x
-           y = parentGlobalPosition.y + offset.y
+           x = anchorBounds.x + offset.x
+           y = anchorBounds.y + offset.y
         */
         val expectedPosition = IntOffset(60, 60)
 
@@ -44,8 +44,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionTopStart_rtl() {
         /* Expected TopStart Position
-           x = parentGlobalPosition.x + parentSize.x - popupSize.x + (-offset.x)
-           y = parentGlobalPosition.y + offset.y
+           x = anchorBounds.x + parentSize.x - popupSize.x + (-offset.x)
+           y = anchorBounds.y + offset.y
         */
         val expectedPosition = IntOffset(100, 60)
 
@@ -56,8 +56,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionTopCenter() {
         /* Expected TopCenter Position
-           x = parentGlobalPosition.x + offset.x + parentSize.x / 2 - popupSize.x / 2
-           y = parentGlobalPosition.y + offset.y
+           x = anchorBounds.x + offset.x + parentSize.x / 2 - popupSize.x / 2
+           y = anchorBounds.y + offset.y
         */
         val expectedPosition = IntOffset(90, 60)
 
@@ -68,8 +68,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionTopCenter_rtl() {
         /* Expected TopCenter Position
-           x = parentGlobalPosition.x + (-offset.x) + parentSize.x / 2 - popupSize.x / 2
-           y = parentGlobalPosition.y + offset.y
+           x = anchorBounds.x + (-offset.x) + parentSize.x / 2 - popupSize.x / 2
+           y = anchorBounds.y + offset.y
         */
         val expectedPosition = IntOffset(70, 60)
 
@@ -80,8 +80,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionTopEnd() {
         /* Expected TopEnd Position
-           x = parentGlobalPosition.x + offset.x + parentSize.x - popupSize.x
-           y = parentGlobalPosition.y + offset.y
+           x = anchorBounds.x + offset.x + parentSize.x - popupSize.x
+           y = anchorBounds.y + offset.y
         */
         val expectedPosition = IntOffset(120, 60)
 
@@ -92,8 +92,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionTopEnd_rtl() {
         /* Expected TopEnd Position
-           x = parentGlobalPosition.x + (-offset.x)
-           y = parentGlobalPosition.y + offset.y
+           x = anchorBounds.x + (-offset.x)
+           y = anchorBounds.y + offset.y
         */
         val expectedPosition = IntOffset(40, 60)
 
@@ -104,8 +104,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionCenterEnd() {
         /* Expected CenterEnd Position
-           x = parentGlobalPosition.x + offset.x + parentSize.x - popupSize.x
-           y = parentGlobalPosition.y + offset.y + parentSize.y / 2 - popupSize.y / 2
+           x = anchorBounds.x + offset.x + parentSize.x - popupSize.x
+           y = anchorBounds.y + offset.y + parentSize.y / 2 - popupSize.y / 2
         */
         val expectedPosition = IntOffset(120, 100)
 
@@ -116,8 +116,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionCenterEnd_rtl() {
         /* Expected CenterEnd Position
-           x = parentGlobalPosition.x + (-offset.x)
-           y = parentGlobalPosition.y + offset.y + parentSize.y / 2 - popupSize.y / 2
+           x = anchorBounds.x + (-offset.x)
+           y = anchorBounds.y + offset.y + parentSize.y / 2 - popupSize.y / 2
         */
         val expectedPosition = IntOffset(40, 100)
 
@@ -128,8 +128,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionBottomEnd() {
         /* Expected BottomEnd Position
-           x = parentGlobalPosition.x + parentSize.x - popupSize.x + offset.x
-           y = parentGlobalPosition.y + offset.y + parentSize.y - popupSize.y
+           x = anchorBounds.x + parentSize.x - popupSize.x + offset.x
+           y = anchorBounds.y + offset.y + parentSize.y - popupSize.y
         */
         val expectedPosition = IntOffset(120, 140)
 
@@ -140,8 +140,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionBottomEnd_rtl() {
         /* Expected BottomEnd Position
-           x = parentGlobalPosition.x + parentSize.x - popupSize.x + offset.x
-           y = parentGlobalPosition.y + offset.y + parentSize.y - popupSize.y
+           x = anchorBounds.x + parentSize.x - popupSize.x + offset.x
+           y = anchorBounds.y + offset.y + parentSize.y - popupSize.y
         */
         val expectedPosition = IntOffset(40, 140)
 
@@ -152,8 +152,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionBottomCenter() {
         /* Expected BottomCenter Position
-           x = parentGlobalPosition.x + offset.x + parentSize.x / 2 - popupSize.x / 2
-           y = parentGlobalPosition.y + offset.y + parentSize.y - popupSize.y
+           x = anchorBounds.x + offset.x + parentSize.x / 2 - popupSize.x / 2
+           y = anchorBounds.y + offset.y + parentSize.y - popupSize.y
         */
         val expectedPosition = IntOffset(90, 140)
 
@@ -164,8 +164,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionBottomCenter_rtl() {
         /* Expected BottomCenter Position
-           x = parentGlobalPosition.x + (-offset.x) + parentSize.x / 2 - popupSize.x / 2
-           y = parentGlobalPosition.y + offset.y + parentSize.y - popupSize.y
+           x = anchorBounds.x + (-offset.x) + parentSize.x / 2 - popupSize.x / 2
+           y = anchorBounds.y + offset.y + parentSize.y - popupSize.y
         */
         val expectedPosition = IntOffset(70, 140)
 
@@ -176,8 +176,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionBottomStart() {
         /* Expected BottomStart Position
-           x = parentGlobalPosition.x + offset.x
-           y = parentGlobalPosition.y + offset.y + parentSize.y - popupSize.y
+           x = anchorBounds.x + offset.x
+           y = anchorBounds.y + offset.y + parentSize.y - popupSize.y
         */
         val expectedPosition = IntOffset(60, 140)
 
@@ -188,8 +188,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionBottomStart_rtl() {
         /* Expected BottomStart Position
-           x = parentGlobalPosition.x + parentSize.x - popupSize.x + (-offset.x)
-           y = parentGlobalPosition.y + offset.y + parentSize.y - popupSize.y
+           x = anchorBounds.x + parentSize.x - popupSize.x + (-offset.x)
+           y = anchorBounds.y + offset.y + parentSize.y - popupSize.y
         */
         val expectedPosition = IntOffset(100, 140)
 
@@ -200,8 +200,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionCenterStart() {
         /* Expected CenterStart Position
-           x = parentGlobalPosition.x + offset.x
-           y = parentGlobalPosition.y + offset.y + parentSize.y / 2 - popupSize.y / 2
+           x = anchorBounds.x + offset.x
+           y = anchorBounds.y + offset.y + parentSize.y / 2 - popupSize.y / 2
         */
         val expectedPosition = IntOffset(60, 100)
 
@@ -212,8 +212,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionCenterStart_rtl() {
         /* Expected CenterStart Position
-           x = parentGlobalPosition.x + parentSize.x - popupSize.x + (-offset.x)
-           y = parentGlobalPosition.y + offset.y + parentSize.y / 2 - popupSize.y / 2
+           x = anchorBounds.x + parentSize.x - popupSize.x + (-offset.x)
+           y = anchorBounds.y + offset.y + parentSize.y / 2 - popupSize.y / 2
         */
         val expectedPosition = IntOffset(100, 100)
 
@@ -224,8 +224,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionCenter() {
         /* Expected Center Position
-           x = parentGlobalPosition.x + offset.x + parentSize.x / 2 - popupSize.x / 2
-           y = parentGlobalPosition.y + offset.y + parentSize.y / 2 - popupSize.y / 2
+           x = anchorBounds.x + offset.x + parentSize.x / 2 - popupSize.x / 2
+           y = anchorBounds.y + offset.y + parentSize.y / 2 - popupSize.y / 2
         */
         val expectedPosition = IntOffset(90, 100)
 
@@ -236,8 +236,8 @@ class PopupPositionProviderTest {
     @Test
     fun positionCenter_rtl() {
         /* Expected Center Position
-           x = parentGlobalPosition.x + (-offset.x) + parentSize.x / 2 - popupSize.x / 2
-           y = parentGlobalPosition.y + offset.y + parentSize.y / 2 - popupSize.y / 2
+           x = anchorBounds.x + (-offset.x) + parentSize.x / 2 - popupSize.x / 2
+           y = anchorBounds.y + offset.y + parentSize.y / 2 - popupSize.y / 2
         */
         val expectedPosition = IntOffset(70, 100)
 
@@ -245,82 +245,16 @@ class PopupPositionProviderTest {
             .isEqualTo(expectedPosition)
     }
 
-    @Test
-    fun dropdown_positionStart() {
-        /* Expected Dropdown Start Position
-           x = parentGlobalPosition.x + offset.x
-           y = parentGlobalPosition.y + offset.y + parentSize.y
-        */
-        val expectedPosition = IntOffset(60, 160)
-
-        assertThat(calculateDropdownPosition(DropDownAlignment.Start, LayoutDirection.Ltr))
-            .isEqualTo(expectedPosition)
-    }
-
-    @Test
-    fun dropdown_positionStart_rtl() {
-        /* Expected Dropdown Start Position
-           x = parentGlobalPosition.x + parentSize.x - popupSize.x + (-offset.x)
-           y = parentGlobalPosition.y + offset.y + parentSize.y
-        */
-        val expectedPosition = IntOffset(100, 160)
-
-        assertThat(calculateDropdownPosition(DropDownAlignment.Start, LayoutDirection.Rtl))
-            .isEqualTo(expectedPosition)
-    }
-
-    @Test
-    fun dropdown_positionEnd() {
-        /* Expected Dropdown End Position
-           x = parentGlobalPosition.x + offset.x + parentSize.x
-           y = parentGlobalPosition.y + offset.y + parentSize.y
-        */
-        val expectedPosition = IntOffset(160, 160)
-
-        assertThat(calculateDropdownPosition(DropDownAlignment.End, LayoutDirection.Ltr))
-            .isEqualTo(expectedPosition)
-    }
-
-    @Test
-    fun dropdown_positionEnd_rtl() {
-        /* Expected Dropdown End Position
-           x = parentGlobalPosition.x - popupSize.x + (-offset.x)
-           y = parentGlobalPosition.y + offset.y + parentSize.y
-        */
-        val expectedPosition = IntOffset(0, 160)
-
-        assertThat(calculateDropdownPosition(DropDownAlignment.End, LayoutDirection.Rtl))
-            .isEqualTo(expectedPosition)
-    }
-
     private fun calculatePosition(alignment: Alignment, layoutDir: LayoutDirection): IntOffset {
-        val parentBounds = IntBounds(50, 50, 150, 150)
-        val windowBounds = IntBounds(0, 0, 1000, 1000)
+        val anchorBounds = IntRect(50, 50, 150, 150)
+        val windowSize = IntSize(1000, 1000)
         val offset = IntOffset(10, 10)
         val popupSize = IntSize(40, 20)
 
         return AlignmentOffsetPositionProvider(alignment, offset)
             .calculatePosition(
-                parentBounds,
-                windowBounds,
-                layoutDir,
-                popupSize
-            )
-    }
-
-    private fun calculateDropdownPosition(
-        alignment: DropDownAlignment,
-        layoutDir: LayoutDirection
-    ): IntOffset {
-        val parentBounds = IntBounds(50, 50, 150, 150)
-        val windowBounds = IntBounds(0, 0, 1000, 1000)
-        val offset = IntOffset(10, 10)
-        val popupSize = IntSize(40, 20)
-
-        return DropdownPositionProvider(alignment, offset)
-            .calculatePosition(
-                parentBounds,
-                windowBounds,
+                anchorBounds,
+                windowSize,
                 layoutDir,
                 popupSize
             )

@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * A [Modifier.Element] that draws into the space of the layout.
@@ -49,11 +50,31 @@ interface DrawCacheModifier : DrawModifier {
      * to objects change. This method is guaranteed to be called before
      * [DrawModifier.draw].
      *
-     * @param size The current size of the drawing environment
-     * @param density The current screen density to provide the ability to convert between
-     * density independent and raw pixel values
+     * @param params The params to be used to build the cache.
      */
-    fun onBuildCache(size: Size, density: Density)
+    fun onBuildCache(params: BuildDrawCacheParams)
+}
+
+/**
+ * The set of parameters which could be used to build the drawing cache.
+ *
+ * @see DrawCacheModifier.onBuildCache
+ */
+interface BuildDrawCacheParams {
+    /**
+     * The current size of the drawing environment
+     */
+    val size: Size
+
+    /**
+     * The current layout direction.
+     */
+    val layoutDirection: LayoutDirection
+
+    /**
+     * The current screen density to provide the ability to convert between
+     */
+    val density: Density
 }
 
 /**
@@ -75,9 +96,21 @@ private class DrawBackgroundModifier(
     val onDraw: DrawScope.() -> Unit,
     inspectorInfo: InspectorInfo.() -> Unit
 ) : DrawModifier, InspectorValueInfo(inspectorInfo) {
+
     override fun ContentDrawScope.draw() {
         onDraw()
         drawContent()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DrawBackgroundModifier) return false
+
+        return onDraw == other.onDraw
+    }
+
+    override fun hashCode(): Int {
+        return onDraw.hashCode()
     }
 }
 
@@ -116,16 +149,19 @@ fun Modifier.drawWithCache(
  * [onDrawBehind] will draw behind the layout's drawing contents however, [onDrawWithContent] will
  * provide the ability to draw before or after the layout's contents
  */
-class CacheDrawScope internal constructor(
-    internal var cachedDrawDensity: Density? = null
-) : Density {
+class CacheDrawScope internal constructor() : Density {
+    internal var cacheParams: BuildDrawCacheParams = EmptyBuildDrawCacheParams
     internal var drawResult: DrawResult? = null
 
     /**
      * Provides the dimensions of the current drawing environment
      */
-    var size: Size = Size.Unspecified
-        internal set
+    val size: Size get() = cacheParams.size
+
+    /**
+     * Provides the [LayoutDirection].
+     */
+    val layoutDirection: LayoutDirection get() = cacheParams.layoutDirection
 
     /**
      * Issue drawing commands to be executed before the layout content is drawn
@@ -143,10 +179,16 @@ class CacheDrawScope internal constructor(
     }
 
     override val density: Float
-        get() = cachedDrawDensity!!.density
+        get() = cacheParams.density.density
 
     override val fontScale: Float
-        get() = cachedDrawDensity!!.density
+        get() = cacheParams.density.fontScale
+}
+
+private object EmptyBuildDrawCacheParams : BuildDrawCacheParams {
+    override val size: Size = Size.Unspecified
+    override val layoutDirection: LayoutDirection = LayoutDirection.Ltr
+    override val density: Density = Density(1f, 1f)
 }
 
 /**
@@ -158,10 +200,9 @@ private data class DrawContentCacheModifier(
     val onBuildDrawCache: CacheDrawScope.() -> DrawResult
 ) : DrawCacheModifier {
 
-    override fun onBuildCache(size: Size, density: Density) {
+    override fun onBuildCache(params: BuildDrawCacheParams) {
         cacheDrawScope.apply {
-            cachedDrawDensity = density
-            this.size = size
+            cacheParams = params
             drawResult = null
             onBuildDrawCache()
             checkNotNull(drawResult) {
@@ -172,6 +213,22 @@ private data class DrawContentCacheModifier(
 
     override fun ContentDrawScope.draw() {
         cacheDrawScope.drawResult!!.block(this)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DrawContentCacheModifier) return false
+
+        if (cacheDrawScope != other.cacheDrawScope) return false
+        if (onBuildDrawCache != other.onBuildDrawCache) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = cacheDrawScope.hashCode()
+        result = 31 * result + onBuildDrawCache.hashCode()
+        return result
     }
 }
 
@@ -185,18 +242,35 @@ class DrawResult internal constructor(internal var block: ContentDrawScope.() ->
  * Creates a [DrawModifier] that allows the developer to draw before or after the layout's
  * contents. It also allows the modifier to adjust the layout's canvas.
  */
-// TODO: Inline this function -- it breaks with current compiler
-/*inline*/ fun Modifier.drawWithContent(
+fun Modifier.drawWithContent(
     onDraw: ContentDrawScope.() -> Unit
 ): Modifier = this.then(
-    object : DrawModifier, InspectorValueInfo(
-        debugInspectorInfo {
+    DrawWithContentModifier(
+        onDraw = onDraw,
+        inspectorInfo = debugInspectorInfo {
             name = "drawWithContent"
             properties["onDraw"] = onDraw
         }
-    ) {
-        override fun ContentDrawScope.draw() {
-            onDraw()
-        }
-    }
+    )
 )
+
+private class DrawWithContentModifier(
+    val onDraw: ContentDrawScope.() -> Unit,
+    inspectorInfo: InspectorInfo.() -> Unit
+) : DrawModifier, InspectorValueInfo(inspectorInfo) {
+
+    override fun ContentDrawScope.draw() {
+        onDraw()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DrawWithContentModifier) return false
+
+        return onDraw == other.onDraw
+    }
+
+    override fun hashCode(): Int {
+        return onDraw.hashCode()
+    }
+}

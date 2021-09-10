@@ -18,7 +18,7 @@ package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -26,14 +26,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.painter.ImagePainter
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.loadVectorResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -43,40 +40,27 @@ import androidx.compose.ui.unit.dp
 fun ImageSample() {
     val ImageBitmap = createTestImage()
     // Lays out and draws an image sized to the dimensions of the ImageBitmap
-    Image(bitmap = ImageBitmap)
+    Image(bitmap = ImageBitmap, contentDescription = "Localized description")
 }
 
 @Sampled
 @Composable
-fun ImagePainterSubsectionSample() {
+fun BitmapPainterSubsectionSample() {
     val ImageBitmap = createTestImage()
     // Lays out and draws an image sized to the rectangular subsection of the ImageBitmap
     Image(
-        painter = ImagePainter(
+        painter = BitmapPainter(
             ImageBitmap,
             IntOffset(10, 12),
             IntSize(50, 60)
-        )
+        ),
+        contentDescription = "Localized description"
     )
 }
 
 @Sampled
 @Composable
-fun ImageVectorSample() {
-    val imageVector = loadVectorResource(R.drawable.ic_sample_vector)
-    imageVector.resource.resource?.let {
-        Image(
-            imageVector = it,
-            modifier = Modifier.preferredSize(200.dp, 200.dp),
-            contentScale = ContentScale.Fit,
-            colorFilter = ColorFilter.tint(Color.Cyan)
-        )
-    }
-}
-
-@Sampled
-@Composable
-fun ImagePainterSample() {
+fun BitmapPainterSample() {
     val customPainter = remember {
         object : Painter() {
 
@@ -89,7 +73,11 @@ fun ImagePainterSample() {
         }
     }
 
-    Image(painter = customPainter, modifier = Modifier.preferredSize(100.dp, 100.dp))
+    Image(
+        painter = customPainter,
+        contentDescription = "Localized description",
+        modifier = Modifier.size(100.dp, 100.dp)
+    )
 }
 
 /**

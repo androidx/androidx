@@ -76,7 +76,7 @@ public class DeferrableSurfacesTest {
 
     @Test
     @MediumTest
-    @SuppressWarnings("deprecation") /* AsyncTask */
+    @SuppressWarnings({"deprecation", "unchecked"}) /* AsyncTask */
     public void getSurfaceTimeoutTest() {
         DeferrableSurface fakeDeferrableSurface = getFakeDeferrableSurface();
 

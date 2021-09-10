@@ -42,17 +42,17 @@ import javax.lang.model.util.Types;
 class SchemaCodeGenerator {
     private final ProcessingEnvironment mEnv;
     private final IntrospectionHelper mHelper;
-    private final AppSearchDocumentModel mModel;
+    private final DocumentModel mModel;
 
     public static void generate(
             @NonNull ProcessingEnvironment env,
-            @NonNull AppSearchDocumentModel model,
+            @NonNull DocumentModel model,
             @NonNull TypeSpec.Builder classBuilder) throws ProcessingException {
         new SchemaCodeGenerator(env, model).generate(classBuilder);
     }
 
     private SchemaCodeGenerator(
-            @NonNull ProcessingEnvironment env, @NonNull AppSearchDocumentModel model) {
+            @NonNull ProcessingEnvironment env, @NonNull DocumentModel model) {
         mEnv = env;
         mHelper = new IntrospectionHelper(env);
         mModel = model;
@@ -60,17 +60,17 @@ class SchemaCodeGenerator {
 
     private void generate(@NonNull TypeSpec.Builder classBuilder) throws ProcessingException {
         classBuilder.addField(
-                FieldSpec.builder(String.class, "SCHEMA_TYPE")
-                        .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
+                FieldSpec.builder(String.class, "SCHEMA_NAME")
+                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                         .initializer("$S", mModel.getSchemaName())
                         .build());
 
         classBuilder.addMethod(
-                MethodSpec.methodBuilder("getSchemaType")
+                MethodSpec.methodBuilder("getSchemaName")
                         .addModifiers(Modifier.PUBLIC)
                         .returns(TypeName.get(mHelper.mStringType))
                         .addAnnotation(Override.class)
-                        .addStatement("return SCHEMA_TYPE")
+                        .addStatement("return SCHEMA_NAME")
                         .build());
 
         classBuilder.addMethod(
@@ -85,7 +85,7 @@ class SchemaCodeGenerator {
 
     private CodeBlock createSchemaInitializer() throws ProcessingException {
         CodeBlock.Builder codeBlock = CodeBlock.builder()
-                .add("new $T(SCHEMA_TYPE)", mHelper.getAppSearchClass("AppSearchSchema", "Builder"))
+                .add("new $T(SCHEMA_NAME)", mHelper.getAppSearchClass("AppSearchSchema", "Builder"))
                 .indent();
         for (VariableElement property : mModel.getPropertyFields().values()) {
             codeBlock.add("\n.addProperty($L)", createPropertySchema(property));
@@ -96,22 +96,14 @@ class SchemaCodeGenerator {
 
     private CodeBlock createPropertySchema(@NonNull VariableElement property)
             throws ProcessingException {
-        AnnotationMirror annotation =
-                mHelper.getAnnotation(property, IntrospectionHelper.PROPERTY_CLASS);
+        AnnotationMirror annotation = mModel.getPropertyAnnotation(property);
         Map<String, Object> params = mHelper.getAnnotationParams(annotation);
-
-        // Start the builder for that property
-        String propertyName = mModel.getPropertyName(property);
-        CodeBlock.Builder codeBlock = CodeBlock.builder()
-                .add("new $T($S)",
-                        mHelper.getAppSearchClass("AppSearchSchema", "PropertyConfig", "Builder"),
-                        propertyName)
-                .indent();
 
         // Find the property type
         Types typeUtil = mEnv.getTypeUtils();
         TypeMirror propertyType;
         boolean repeated = false;
+        boolean isPropertyString = false;
         boolean isPropertyDocument = false;
         if (property.asType().getKind() == TypeKind.ERROR) {
             throw new ProcessingException("Property type unknown to java compiler", property);
@@ -136,42 +128,47 @@ class SchemaCodeGenerator {
         } else {
             propertyType = property.asType();
         }
-        ClassName propertyTypeEnum;
+        ClassName propertyClass;
         if (typeUtil.isSameType(propertyType, mHelper.mStringType)) {
-            propertyTypeEnum = mHelper.getAppSearchClass(
-                    "AppSearchSchema", "PropertyConfig", "DATA_TYPE_STRING");
+            propertyClass = mHelper.getAppSearchClass("AppSearchSchema", "StringPropertyConfig");
+            isPropertyString = true;
         } else if (typeUtil.isSameType(propertyType, mHelper.mIntegerBoxType)
                 || typeUtil.isSameType(propertyType, mHelper.mIntPrimitiveType)
                 || typeUtil.isSameType(propertyType, mHelper.mLongBoxType)
                 || typeUtil.isSameType(propertyType, mHelper.mLongPrimitiveType)) {
-            propertyTypeEnum = mHelper.getAppSearchClass(
-                    "AppSearchSchema", "PropertyConfig", "DATA_TYPE_INT64");
+            propertyClass = mHelper.getAppSearchClass("AppSearchSchema", "LongPropertyConfig");
         } else if (typeUtil.isSameType(propertyType, mHelper.mFloatBoxType)
                 || typeUtil.isSameType(propertyType, mHelper.mFloatPrimitiveType)
                 || typeUtil.isSameType(propertyType, mHelper.mDoubleBoxType)
                 || typeUtil.isSameType(propertyType, mHelper.mDoublePrimitiveType)) {
-            propertyTypeEnum = mHelper.getAppSearchClass(
-                    "AppSearchSchema", "PropertyConfig", "DATA_TYPE_DOUBLE");
+            propertyClass = mHelper.getAppSearchClass("AppSearchSchema", "DoublePropertyConfig");
         } else if (typeUtil.isSameType(propertyType, mHelper.mBooleanBoxType)
                 || typeUtil.isSameType(propertyType, mHelper.mBooleanPrimitiveType)) {
-            propertyTypeEnum = mHelper.getAppSearchClass(
-                    "AppSearchSchema", "PropertyConfig", "DATA_TYPE_BOOLEAN");
+            propertyClass = mHelper.getAppSearchClass("AppSearchSchema", "BooleanPropertyConfig");
         } else if (typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)
                 || typeUtil.isSameType(propertyType, mHelper.mByteBoxArrayType)) {
-            propertyTypeEnum = mHelper.getAppSearchClass(
-                    "AppSearchSchema", "PropertyConfig", "DATA_TYPE_BYTES");
+            propertyClass = mHelper.getAppSearchClass("AppSearchSchema", "BytesPropertyConfig");
         } else {
-            propertyTypeEnum = mHelper.getAppSearchClass(
-                    "AppSearchSchema", "PropertyConfig", "DATA_TYPE_DOCUMENT");
+            propertyClass = mHelper.getAppSearchClass("AppSearchSchema", "DocumentPropertyConfig");
             isPropertyDocument = true;
         }
-        codeBlock.add("\n.setDataType($T)", propertyTypeEnum);
 
+        // Start the builder for the property
+        String propertyName = mModel.getPropertyName(property);
+        CodeBlock.Builder codeBlock = CodeBlock.builder();
         if (isPropertyDocument) {
-            codeBlock.add("\n.setSchemaType($T.getInstance()"
-                    + ".getOrCreateFactory($T.class).getSchemaType())",
-                    mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType);
+            ClassName documentClass = (ClassName) ClassName.get(propertyType);
+            ClassName documentFactoryClass = mHelper.getDocumentClassFactoryForClass(documentClass);
+            codeBlock.add(
+                    "new $T($S, $T.SCHEMA_NAME)",
+                    propertyClass.nestedClass("Builder"),
+                    propertyName,
+                    documentFactoryClass);
+        } else {
+            codeBlock.add("new $T($S)", propertyClass.nestedClass("Builder"), propertyName);
         }
+        codeBlock.indent();
+
         // Find property cardinality
         ClassName cardinalityEnum;
         if (repeated) {
@@ -186,42 +183,45 @@ class SchemaCodeGenerator {
         }
         codeBlock.add("\n.setCardinality($T)", cardinalityEnum);
 
-        // Find tokenizer type
-        int tokenizerType = Integer.parseInt(params.get("tokenizerType").toString());
-        if (Integer.parseInt(params.get("indexingType").toString()) == 0) {
-            //TODO(b/171857731) remove this hack after apply to Icing lib's change.
-            tokenizerType = 0;
-        }
-        ClassName tokenizerEnum;
-        if (tokenizerType == 0 || isPropertyDocument) {  // TOKENIZER_TYPE_NONE
-            //It is only valid for tokenizer_type to be 'NONE' if the data type is
-            // {@link PropertyConfig#DATA_TYPE_DOCUMENT}.
-            tokenizerEnum = mHelper.getAppSearchClass(
-                    "AppSearchSchema", "PropertyConfig", "TOKENIZER_TYPE_NONE");
-        } else if (tokenizerType == 1) {  // TOKENIZER_TYPE_PLAIN
-            tokenizerEnum = mHelper.getAppSearchClass(
-                    "AppSearchSchema", "PropertyConfig", "TOKENIZER_TYPE_PLAIN");
-        } else {
-            throw new ProcessingException("Unknown tokenizer type " + tokenizerType, property);
-        }
-        codeBlock.add("\n.setTokenizerType($T)", tokenizerEnum);
+        if (isPropertyString) {
+            // Find tokenizer type
+            int tokenizerType = Integer.parseInt(params.get("tokenizerType").toString());
+            if (Integer.parseInt(params.get("indexingType").toString()) == 0) {
+                //TODO(b/171857731) remove this hack after apply to Icing lib's change.
+                tokenizerType = 0;
+            }
+            ClassName tokenizerEnum;
+            if (tokenizerType == 0) {  // TOKENIZER_TYPE_NONE
+                tokenizerEnum = mHelper.getAppSearchClass(
+                        "AppSearchSchema", "StringPropertyConfig", "TOKENIZER_TYPE_NONE");
+            } else if (tokenizerType == 1) {  // TOKENIZER_TYPE_PLAIN
+                tokenizerEnum = mHelper.getAppSearchClass(
+                        "AppSearchSchema", "StringPropertyConfig", "TOKENIZER_TYPE_PLAIN");
+            } else {
+                throw new ProcessingException("Unknown tokenizer type " + tokenizerType, property);
+            }
+            codeBlock.add("\n.setTokenizerType($T)", tokenizerEnum);
 
-        // Find indexing type
-        int indexingType = Integer.parseInt(params.get("indexingType").toString());
-        ClassName indexingEnum;
-        if (indexingType == 0) {  // INDEXING_TYPE_NONE
-            indexingEnum = mHelper.getAppSearchClass(
-                    "AppSearchSchema", "PropertyConfig", "INDEXING_TYPE_NONE");
-        } else if (indexingType == 1) {  // INDEXING_TYPE_EXACT_TERMS
-            indexingEnum = mHelper.getAppSearchClass(
-                    "AppSearchSchema", "PropertyConfig", "INDEXING_TYPE_EXACT_TERMS");
-        } else if (indexingType == 2) {  // INDEXING_TYPE_PREFIXES
-            indexingEnum = mHelper.getAppSearchClass(
-                    "AppSearchSchema", "PropertyConfig", "INDEXING_TYPE_PREFIXES");
-        } else {
-            throw new ProcessingException("Unknown indexing type " + indexingType, property);
+            // Find indexing type
+            int indexingType = Integer.parseInt(params.get("indexingType").toString());
+            ClassName indexingEnum;
+            if (indexingType == 0) {  // INDEXING_TYPE_NONE
+                indexingEnum = mHelper.getAppSearchClass(
+                        "AppSearchSchema", "StringPropertyConfig", "INDEXING_TYPE_NONE");
+            } else if (indexingType == 1) {  // INDEXING_TYPE_EXACT_TERMS
+                indexingEnum = mHelper.getAppSearchClass(
+                        "AppSearchSchema", "StringPropertyConfig", "INDEXING_TYPE_EXACT_TERMS");
+            } else if (indexingType == 2) {  // INDEXING_TYPE_PREFIXES
+                indexingEnum = mHelper.getAppSearchClass(
+                        "AppSearchSchema", "StringPropertyConfig", "INDEXING_TYPE_PREFIXES");
+            } else {
+                throw new ProcessingException("Unknown indexing type " + indexingType, property);
+            }
+            codeBlock.add("\n.setIndexingType($T)", indexingEnum);
+
+        } else if (isPropertyDocument) {
+            // TODO(b/177572431): Apply setIndexNestedProperties here
         }
-        codeBlock.add("\n.setIndexingType($T)", indexingEnum);
 
         // Done!
         codeBlock.add("\n.build()");

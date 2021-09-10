@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.content.ServiceConnection#onBindingDied`"
+        errorLine1="        getServiceConnection().onBindingDied(mTestComponentName);"
+        errorLine2="                               ~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/enterprise/feedback/BufferedServiceConnectionTest.java"
+            line="453"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.content.ServiceConnection#onBindingDied`"
+        errorLine1="        getServiceConnection().onBindingDied(mTestComponentName);"
+        errorLine2="                               ~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/enterprise/feedback/DefaultKeyedAppStatesReporterTest.java"
+            line="601"
+            column="32"/>
+    </issue>
+
+</issues>

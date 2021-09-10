@@ -23,7 +23,7 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,10 +34,9 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.platform.AmbientContext
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
 import kotlin.math.roundToInt
 
 @Suppress("SetTextI18n")
@@ -56,9 +55,9 @@ fun AndroidViewSample() {
 @Sampled
 @Composable
 fun AndroidDrawableInDrawScopeSample() {
-    val drawable = ContextCompat.getDrawable(AmbientContext.current, R.drawable.sample_drawable)
+    val drawable = LocalContext.current.getDrawable(R.drawable.sample_drawable)
     Box(
-        modifier = Modifier.size(100.dp)
+        modifier = Modifier.requiredSize(100.dp)
             .drawBehind {
                 drawIntoCanvas { canvas ->
                     drawable?.let {

@@ -37,6 +37,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -249,7 +250,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
         mAdapter.notifyDataSetChanged();
     }
 
-    private final class RouteAdapter extends ArrayAdapter<MediaRouter.RouteInfo>
+    private static final class RouteAdapter extends ArrayAdapter<MediaRouter.RouteInfo>
             implements ListView.OnItemClickListener {
         private final LayoutInflater mInflater;
         private final Drawable mDefaultIcon;
@@ -324,8 +325,14 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             MediaRouter.RouteInfo route = getItem(position);
             if (route.isEnabled()) {
+                ImageView iconView = view.findViewById(R.id.mr_chooser_route_icon);
+                ProgressBar progressBar = view.findViewById(R.id.mr_chooser_route_progress_bar);
+                // Show the progress bar
+                if (iconView != null && progressBar != null) {
+                    iconView.setVisibility(View.GONE);
+                    progressBar.setVisibility(View.VISIBLE);
+                }
                 route.select();
-                dismiss();
             }
         }
 

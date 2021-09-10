@@ -55,6 +55,7 @@ class SparseArrayTest {
         assertTrue(2 in array)
     }
 
+    @Ignore("b/184340872")
     @Test fun setOperator() {
         val array = SparseArray<String>()
         array[1] = "one"

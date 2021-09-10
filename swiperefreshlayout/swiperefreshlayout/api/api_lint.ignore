@@ -3,6 +3,10 @@ CallbackMethodName: androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnChil
     Callback method names must follow the on<Something> style: canChildScrollUp
 
 
+GetterSetterNames: androidx.swiperefreshlayout.widget.CircularProgressDrawable#getArrowEnabled():
+    Symmetric method for `setArrowEnabled` must be named `isArrowEnabled`; was `getArrowEnabled`
+
+
 InternalField: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#mFrom:
     Internal field mFrom must not be exposed
 InternalField: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#mOriginalOffsetTop:
@@ -69,8 +73,6 @@ MissingNullability: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#onStop
     Missing nullability on parameter `target` in method `onStopNestedScroll`
 MissingNullability: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#onTouchEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `ev` in method `onTouchEvent`
-MissingNullability: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#setColorScheme(int...) parameter #0:
-    Missing nullability on parameter `colors` in method `setColorScheme`
 MissingNullability: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#setColorSchemeColors(int...) parameter #0:
     Missing nullability on parameter `colors` in method `setColorSchemeColors`
 MissingNullability: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#setColorSchemeResources(int...) parameter #0:

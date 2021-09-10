@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-import androidx.build.LibraryVersions
+
 import androidx.build.LibraryGroups
 import androidx.build.Publish
 
@@ -26,53 +25,86 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.0.0")
-    api("androidx.annotation:annotation-experimental:1.0.0-rc01")
+    api("androidx.annotation:annotation:1.2.0")
     api("androidx.lifecycle:lifecycle-livedata:2.1.0")
-    api(GUAVA_LISTENABLE_FUTURE)
-    implementation("androidx.exifinterface:exifinterface:1.0.0")
+    api(libs.guavaListenableFuture)
+    api("androidx.annotation:annotation-experimental:1.1.0")
+    api(libs.kotlinStdlib) // Added for annotation-experimental
+    implementation("androidx.exifinterface:exifinterface:1.3.2")
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.lifecycle:lifecycle-common:2.1.0")
-    implementation(AUTO_VALUE_ANNOTATIONS)
+    implementation(libs.autoValueAnnotations)
+    compileOnly(project(":external:libyuv"))
 
-    annotationProcessor(AUTO_VALUE)
+    annotationProcessor(libs.autoValue)
 
-    testImplementation(KOTLIN_STDLIB)
-    testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
-    testImplementation(ROBOLECTRIC)
-    testImplementation(MOCKITO_CORE)
-    testImplementation project(":camera:camera-testing"), {
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockitoCore)
+    testImplementation(project(":camera:camera-testing"), {
         exclude group: "androidx.camera", module: "camera-core"
+    })
+    testImplementation("androidx.exifinterface:exifinterface:1.3.2")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.kotlinCoroutinesAndroid)
+    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    androidTestImplementation(project(":internal-testutils-truth"))
+}
+
+// Needed for the above compileOnly(project(':external:libyuv')) dep to work around b/194735614
+afterEvaluate {
+    tasks.named("configureCMakeDebug").configure {
+        dependsOn(":external:libyuv:prefabDebugPackage")
     }
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(project(":camera:camera-testing"))
-    androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
-    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
-    androidTestImplementation(project(":internal-testutils-truth"))
+    tasks.named("configureCMakeRelWithDebInfo").configure {
+        dependsOn(":external:libyuv:prefabReleasePackage")
+    }
 }
 
 android {
     defaultConfig {
         minSdkVersion 21
+        externalNativeBuild {
+            def versionScript = file("src/main/cpp/jni.lds").getAbsolutePath()
+            cmake {
+                cppFlags "-std=c++17", "-O3", "-flto", "-fPIC", "-fno-exceptions", "-fno-rtti",
+                        "-fomit-frame-pointer", "-fdata-sections", "-ffunction-sections"
+                arguments "-DCMAKE_VERBOSE_MAKEFILE=ON",
+                        "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,--gc-sections " +
+                                "-Wl,--version-script=${versionScript}"
+            }
+        }
+    }
+
+    buildFeatures.prefab = true
+
+    externalNativeBuild {
+        cmake {
+            version "3.10.2"
+            path "src/main/cpp/CMakeLists.txt"
+        }
     }
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
 
     packagingOptions {
-        pickFirst 'META-INF/support.camera_camera-core.version'
+        pickFirst "META-INF/support.camera_camera-core.version"
     }
 }
 

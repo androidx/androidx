@@ -17,13 +17,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.wear.watchface.samples">
 
-    <!-- Required for complications to receive complication data and open the provider chooser. -->
+    <!--
+      Required for complications to receive complication data and open the data source chooser.
+     -->
     <uses-feature android:name="android.hardware.type.watch" />
+    <meta-data android:name="com.google.android.wearable.standalone" android:value="true" />
 
     <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA" />
-    <uses-permission android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA_PRIVILEGED" />
+    <uses-permission android:name=
+        "com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA" />
+    <uses-permission android:name=
+        "com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA_PRIVILEGED" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!-- Required to act as a custom watch face. -->
@@ -41,30 +46,26 @@
             android:permission="android.permission.BIND_WALLPAPER">
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
-                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
+                <category android:name=
+                    "com.google.android.wearable.watchface.category.WATCH_FACE" />
             </intent-filter>
 
-            <intent-filter>
-                <action android:name="com.google.android.wearable.libraries.steampack.watchface.MockTime" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-
-            <meta-data
-                android:name="com.google.android.wearable.standalone"
-                android:value="true" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview"
-                android:resource="@drawable/watch_preview" />
+                android:resource="@drawable/analog_preview" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview_circular"
-                android:resource="@drawable/watch_preview" />
+                android:resource="@drawable/analog_preview" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
-                android:value="com.google.android.clockwork.watchfaces.complication.CONFIG_DIGITAL"/>
+                android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR"/>
             <meta-data
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face" />
+            <meta-data
+                android:name=
+                    "com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"
+                android:value="true" />
         </service>
 
         <service
@@ -75,30 +76,26 @@
             android:permission="android.permission.BIND_WALLPAPER">
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
-                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
+                <category android:name=
+                    "com.google.android.wearable.watchface.category.WATCH_FACE" />
             </intent-filter>
 
-            <intent-filter>
-                <action android:name="com.google.android.wearable.libraries.steampack.watchface.MockTime" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-
-            <meta-data
-                android:name="com.google.android.wearable.standalone"
-                android:value="true" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview"
-                android:resource="@drawable/watch_preview" />
+                android:resource="@drawable/digital_preview" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview_circular"
-                android:resource="@drawable/watch_preview" />
+                android:resource="@drawable/digital_preview" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
-                android:value="com.google.android.clockwork.watchfaces.complication.CONFIG_DIGITAL"/>
+                android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR"/>
             <meta-data
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face" />
+            <meta-data
+                android:name=
+                    "com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"
+                android:value="true" />
         </service>
 
         <service
@@ -109,45 +106,64 @@
             android:permission="android.permission.BIND_WALLPAPER">
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
-                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
+                <category android:name=
+                    "com.google.android.wearable.watchface.category.WATCH_FACE" />
             </intent-filter>
 
-            <intent-filter>
-                <action android:name="com.google.android.wearable.libraries.steampack.watchface.MockTime" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-
-            <meta-data
-                android:name="com.google.android.wearable.standalone"
-                android:value="true" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview"
-                android:resource="@drawable/watch_preview" />
+                android:resource="@drawable/gl_preview" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview_circular"
-                android:resource="@drawable/watch_preview" />
+                android:resource="@drawable/gl_preview" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
-                android:value="com.google.android.clockwork.watchfaces.complication.CONFIG_DIGITAL"/>
+                android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR"/>
+            <meta-data
+                android:name="android.service.wallpaper"
+                android:resource="@xml/watch_face" />
+            <meta-data
+                android:name=
+                    "com.google.android.wearable.watchface.companionBuiltinConfigurationEnabled"
+                android:value="true" />
+        </service>
+
+        <service
+            android:name=".ExampleOpenGLBackgroundInitWatchFaceService"
+            android:directBootAware="true"
+            android:exported="true"
+            android:label="@string/gl_background_init_watch_face_name"
+            android:permission="android.permission.BIND_WALLPAPER">
+            <intent-filter>
+                <action android:name="android.service.wallpaper.WallpaperService" />
+                <category android:name=
+                    "com.google.android.wearable.watchface.category.WATCH_FACE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="com.google.android.wearable.watchface.preview"
+                android:resource="@drawable/gl_background_preview" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.preview_circular"
+                android:resource="@drawable/gl_background_preview" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
+                android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR"/>
             <meta-data
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face" />
         </service>
 
         <activity
-            android:name="androidx.wear.complications.ComplicationHelperActivity"
-            android:exported="false" />
-
-        <activity
-            android:name="androidx.wear.watchface.ui.WatchFaceConfigActivity"
+            android:name="androidx.wear.watchface.editor.sample.WatchFaceConfigActivity"
             android:exported="true"
             android:label="Config"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
-                <action android:name="com.google.android.clockwork.watchfaces.complication.CONFIG_DIGITAL" />
+                <action android:name="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR" />
 
-                <category android:name="com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
+                <category android:name=
+                    "com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

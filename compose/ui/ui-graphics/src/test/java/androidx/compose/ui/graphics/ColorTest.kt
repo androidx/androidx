@@ -18,7 +18,6 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.util.lerp
-import androidx.compose.ui.util.toHexString
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -107,27 +106,27 @@ class ColorTest {
         val red = Color.Red
         val green = Color.Green
 
-        val redLinear = red.convert(ColorSpaces.LinearExtendedSrgb)
-        val greenLinear = green.convert(ColorSpaces.LinearExtendedSrgb)
+        val redOklab = red.convert(ColorSpaces.Oklab)
+        val greenOklab = green.convert(ColorSpaces.Oklab)
 
         for (i in 0..255) {
             val t = i / 255f
             val color = lerp(red, green, t)
-            val expectedLinear = Color(
-                red = lerp(redLinear.red, greenLinear.red, t),
+            val expectedOklab = Color(
+                red = lerp(redOklab.red, greenOklab.red, t),
                 green = lerp(
-                    redLinear.green,
-                    greenLinear.green,
+                    redOklab.green,
+                    greenOklab.green,
                     t
                 ),
                 blue = lerp(
-                    redLinear.blue,
-                    greenLinear.blue,
+                    redOklab.blue,
+                    greenOklab.blue,
                     t
                 ),
-                colorSpace = ColorSpaces.LinearExtendedSrgb
+                colorSpace = ColorSpaces.Oklab
             )
-            val expected = expectedLinear.convert(ColorSpaces.Srgb)
+            val expected = expectedOklab.convert(ColorSpaces.Srgb)
             val colorARGB = Color(color.toArgb())
             val expectedARGB = Color(expected.toArgb())
             assertEquals(
@@ -284,5 +283,108 @@ class ColorTest {
         assertEquals(0.3f, green, epsilon)
         assertEquals(0.4f, blue, epsilon)
         assertEquals(0.6f, alpha, epsilon)
+    }
+
+    @OptIn(ExperimentalGraphicsApi::class)
+    @Test
+    fun testHsvInSrgb() {
+        assertEquals(Color.Transparent, Color.hsv(0f, 0f, 0f, 0f))
+        assertEquals(Color.Black, Color.hsv(0f, 0f, 0f))
+        assertEquals(Color.Black, Color.hsv(120f, 0f, 0f))
+        assertEquals(Color.Black, Color.hsv(120f, 1f, 0f))
+        assertEquals(Color.White, Color.hsv(0f, 0f, 1f))
+        assertEquals(Color.White, Color.hsv(120f, 0f, 1f))
+        assertEquals(Color.White, Color.hsv(240f, 0f, 1f))
+        val gray = Color(0xFF808080)
+        assertEquals(gray, Color.hsv(0f, 0f, 0.5f))
+        assertEquals(gray, Color.hsv(120f, 0f, 0.5f))
+        assertEquals(gray, Color.hsv(240f, 0f, 0.5f))
+
+        assertEquals(Color.Red, Color.hsv(0f, 1f, 1f))
+        assertEquals(Color.Yellow, Color.hsv(60f, 1f, 1f))
+        assertEquals(Color.Green, Color.hsv(120f, 1f, 1f))
+        assertEquals(Color.Cyan, Color.hsv(180f, 1f, 1f))
+        assertEquals(Color.Blue, Color.hsv(240f, 1f, 1f))
+        assertEquals(Color.Magenta, Color.hsv(300f, 1f, 1f))
+        assertEquals(Color.Red, Color.hsv(360f, 1f, 1f))
+    }
+
+    @OptIn(ExperimentalGraphicsApi::class)
+    @Test
+    fun testHsvInLinearSrgb() {
+        val lrgb = ColorSpaces.LinearSrgb
+        val srgb = ColorSpaces.Srgb
+        assertEquals(Color.Black, Color.hsv(0f, 0f, 0f, 1f, lrgb).convert(srgb))
+        assertEquals(Color.Black, Color.hsv(120f, 0f, 0f, 1f, lrgb).convert(srgb))
+        assertEquals(Color.Black, Color.hsv(120f, 1f, 0f, 1f, lrgb).convert(srgb))
+        assertEquals(Color.White, Color.hsv(0f, 0f, 1f, 1f, lrgb).convert(srgb))
+        assertEquals(Color.White, Color.hsv(120f, 0f, 1f, 1f, lrgb).convert(srgb))
+        assertEquals(Color.White, Color.hsv(240f, 0f, 1f, 1f, lrgb).convert(srgb))
+        val gray = Color(0.5f, 0.5f, 0.5f, 1f, lrgb)
+        assertEquals(gray, Color.hsv(0f, 0f, 0.5f, 1f, lrgb))
+        assertEquals(gray, Color.hsv(120f, 0f, 0.5f, 1f, lrgb))
+        assertEquals(gray, Color.hsv(240f, 0f, 0.5f, 1f, lrgb))
+
+        assertEquals(Color(1f, 0f, 0f, 1f, lrgb), Color.hsv(0f, 1f, 1f, 1f, lrgb))
+        assertEquals(Color(1f, 1f, 0f, 1f, lrgb), Color.hsv(60f, 1f, 1f, 1f, lrgb))
+        assertEquals(Color(0f, 1f, 0f, 1f, lrgb), Color.hsv(120f, 1f, 1f, 1f, lrgb))
+        assertEquals(Color(0f, 1f, 1f, 1f, lrgb), Color.hsv(180f, 1f, 1f, 1f, lrgb))
+        assertEquals(Color(0f, 0f, 1f, 1f, lrgb), Color.hsv(240f, 1f, 1f, 1f, lrgb))
+        assertEquals(Color(1f, 0f, 1f, 1f, lrgb), Color.hsv(300f, 1f, 1f, 1f, lrgb))
+        assertEquals(Color(1f, 0f, 0f, 1f, lrgb), Color.hsv(360f, 1f, 1f, 1f, lrgb))
+    }
+
+    @OptIn(ExperimentalGraphicsApi::class)
+    @Test
+    fun testHslInSrgb() {
+        assertEquals(Color.Transparent, Color.hsl(0f, 0f, 0f, 0f))
+        assertEquals(Color.Black, Color.hsl(0f, 0f, 0f))
+        assertEquals(Color.Black, Color.hsl(120f, 0f, 0f))
+        assertEquals(Color.Black, Color.hsl(120f, 1f, 0f))
+        assertEquals(Color.White, Color.hsl(0f, 0f, 1f))
+        assertEquals(Color.White, Color.hsl(120f, 1f, 1f))
+        assertEquals(Color.White, Color.hsl(240f, 0.5f, 1f))
+        val gray = Color(0xFF808080)
+        assertEquals(gray, Color.hsl(0f, 0f, 0.5f))
+        assertEquals(gray, Color.hsl(120f, 0f, 0.5f))
+        assertEquals(gray, Color.hsl(240f, 0f, 0.5f))
+
+        assertEquals(Color.Red, Color.hsl(0f, 1f, 0.5f))
+        assertEquals(Color.Yellow, Color.hsl(60f, 1f, 0.5f))
+        assertEquals(Color.Green, Color.hsl(120f, 1f, 0.5f))
+        assertEquals(Color.Cyan, Color.hsl(180f, 1f, 0.5f))
+        assertEquals(Color.Blue, Color.hsl(240f, 1f, 0.5f))
+        assertEquals(Color.Magenta, Color.hsl(300f, 1f, 0.5f))
+        assertEquals(Color.Red, Color.hsl(360f, 1f, 0.5f))
+    }
+
+    @OptIn(ExperimentalGraphicsApi::class)
+    @Test
+    fun testHslInLinearSrgb() {
+        val lrgb = ColorSpaces.LinearSrgb
+        val srgb = ColorSpaces.Srgb
+        assertEquals(Color.Black, Color.hsl(0f, 0f, 0f, 1f, lrgb).convert(srgb))
+        assertEquals(Color.Black, Color.hsl(120f, 0f, 0f, 1f, lrgb).convert(srgb))
+        assertEquals(Color.Black, Color.hsl(120f, 1f, 0f, 1f, lrgb).convert(srgb))
+        assertEquals(Color.White, Color.hsl(0f, 0f, 1f, 1f, lrgb).convert(srgb))
+        assertEquals(Color.White, Color.hsl(120f, 0f, 1f, 1f, lrgb).convert(srgb))
+        assertEquals(Color.White, Color.hsl(240f, 0f, 1f, 1f, lrgb).convert(srgb))
+        val gray = Color(0.5f, 0.5f, 0.5f, 1f, lrgb)
+        assertEquals(gray, Color.hsl(0f, 0f, 0.5f, 1f, lrgb))
+        assertEquals(gray, Color.hsl(120f, 0f, 0.5f, 1f, lrgb))
+        assertEquals(gray, Color.hsl(240f, 0f, 0.5f, 1f, lrgb))
+
+        assertEquals(Color(1f, 0f, 0f, 1f, lrgb), Color.hsl(0f, 1f, 0.5f, 1f, lrgb))
+        assertEquals(Color(1f, 1f, 0f, 1f, lrgb), Color.hsl(60f, 1f, 0.5f, 1f, lrgb))
+        assertEquals(Color(0f, 1f, 0f, 1f, lrgb), Color.hsl(120f, 1f, 0.5f, 1f, lrgb))
+        assertEquals(Color(0f, 1f, 1f, 1f, lrgb), Color.hsl(180f, 1f, 0.5f, 1f, lrgb))
+        assertEquals(Color(0f, 0f, 1f, 1f, lrgb), Color.hsl(240f, 1f, 0.5f, 1f, lrgb))
+        assertEquals(Color(1f, 0f, 1f, 1f, lrgb), Color.hsl(300f, 1f, 0.5f, 1f, lrgb))
+        assertEquals(Color(1f, 0f, 0f, 1f, lrgb), Color.hsl(360f, 1f, 0.5f, 1f, lrgb))
+    }
+
+    companion object {
+        @OptIn(kotlin.ExperimentalUnsignedTypes::class)
+        fun Int.toHexString() = "0x${toUInt().toString(16).padStart(8, '0')}"
     }
 }

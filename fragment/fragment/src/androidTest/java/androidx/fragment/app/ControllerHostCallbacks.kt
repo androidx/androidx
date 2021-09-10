@@ -69,6 +69,7 @@ fun FragmentController.shutdown(
     destroyNonConfig: Boolean = true
 ): Parcelable? {
     dispatchPause()
+    @Suppress("DEPRECATION")
     val savedState = saveAllState()
     dispatchStop()
     if (destroyNonConfig) {

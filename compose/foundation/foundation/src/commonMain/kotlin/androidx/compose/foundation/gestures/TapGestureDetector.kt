@@ -17,33 +17,27 @@
 package androidx.compose.foundation.gestures
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.gesture.ExperimentalPointerInput
-import androidx.compose.ui.input.pointer.HandlePointerInputScope
+import androidx.compose.ui.input.pointer.AwaitPointerEventScope
+import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
-import androidx.compose.ui.input.pointer.anyPositionChangeConsumed
 import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.consumeDownChange
 import androidx.compose.ui.input.pointer.isOutOfBounds
+import androidx.compose.ui.input.pointer.positionChangeConsumed
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Uptime
-import androidx.compose.ui.unit.inMilliseconds
-import androidx.compose.ui.unit.seconds
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Receiver scope for [detectTapGestures]'s `onPress` lambda. This offers
@@ -59,7 +53,7 @@ interface PressGestureScope : Density {
 
     /**
      * Waits for the press to be released before returning. If the press was released,
-     * `false` is returned, or if the gesture was canceled by motion being consumed by
+     * `true` is returned, or if the gesture was canceled by motion being consumed by
      * another gesture, `false` is returned .
      */
     suspend fun tryAwaitRelease(): Boolean
@@ -76,9 +70,9 @@ private val NoPressGesture: suspend PressGestureScope.(Offset) -> Unit = { }
  * case of long press, all changes after the long press is detected are consumed.
  *
  * When [onDoubleTap] is provided, the tap gesture is detected only after
- * the [ViewConfiguration.doubleTapMinTime] has passed and [onDoubleTap] is called if the second
- * tap is started before [ViewConfiguration.doubleTapTimeout]. If [onDoubleTap] is not provided,
- * then [onTap] is called when the pointer up has been received.
+ * the [ViewConfiguration.doubleTapMinTimeMillis] has passed and [onDoubleTap] is called if the
+ * second tap is started before [ViewConfiguration.doubleTapTimeoutMillis]. If [onDoubleTap] is not
+ * provided, then [onTap] is called when the pointer up has been received.
  *
  * If the first down event was consumed, the entire gesture will be skipped, including
  * [onPress]. If the first down event was not consumed, if any other gesture consumes the down or
@@ -86,93 +80,83 @@ private val NoPressGesture: suspend PressGestureScope.(Offset) -> Unit = { }
  * the gestures are considered canceled. [onDoubleTap], [onLongPress], and [onTap] will not be
  * called after a gesture has been canceled.
  */
-@ExperimentalPointerInput
 suspend fun PointerInputScope.detectTapGestures(
-    onDoubleTap: (() -> Unit)? = null,
-    onLongPress: (() -> Unit)? = null,
+    onDoubleTap: ((Offset) -> Unit)? = null,
+    onLongPress: ((Offset) -> Unit)? = null,
     onPress: suspend PressGestureScope.(Offset) -> Unit = NoPressGesture,
-    onTap: () -> Unit
-) {
-    val pressScope = PressGestureScopeImpl(this)
+    onTap: ((Offset) -> Unit)? = null
+) = coroutineScope {
+    // special signal to indicate to the sending side that it shouldn't intercept and consume
+    // cancel/up events as we're only require down events
+    val pressScope = PressGestureScopeImpl(this@detectTapGestures)
+
     forEachGesture {
-        coroutineScope {
+        awaitPointerEventScope {
+            val down = awaitFirstDown()
+            down.consumeDownChange()
             pressScope.reset()
-            val down = handlePointerInput {
-                awaitFirstDown().also {
-                    it.consumeDownChange()
-                }
+            if (onPress !== NoPressGesture) launch {
+                pressScope.onPress(down.position)
             }
-            if (onPress !== NoPressGesture) {
-                launch { pressScope.onPress(down.current.position) }
-            }
-
-            val longPressTimeout =
-                if (onLongPress == null) {
-                    Int.MAX_VALUE.seconds
-                } else {
-                    viewConfiguration.longPressTimeout
-                }
-
-            var up: PointerInputChange? = null
+            val longPressTimeout = onLongPress?.let {
+                viewConfiguration.longPressTimeoutMillis
+            } ?: (Long.MAX_VALUE / 2)
+            var upOrCancel: PointerInputChange? = null
             try {
                 // wait for first tap up or long press
-                up = withTimeout(longPressTimeout.inMilliseconds()) {
-                    handlePointerInput {
-                        waitForUpOrCancellation()?.also { it.consumeDownChange() }
-                    }
+                upOrCancel = withTimeout(longPressTimeout) {
+                    waitForUpOrCancellation()
                 }
-                if (up == null) {
+                if (upOrCancel == null) {
                     pressScope.cancel() // tap-up was canceled
                 } else {
+                    upOrCancel.consumeDownChange()
                     pressScope.release()
                 }
-            } catch (_: TimeoutCancellationException) {
-                onLongPress?.invoke()
-                consumeAllEventsUntilUp()
+            } catch (_: PointerEventTimeoutCancellationException) {
+                onLongPress?.invoke(down.position)
+                consumeUntilUp()
                 pressScope.release()
             }
 
-            if (up != null) {
+            if (upOrCancel != null) {
                 // tap was successful.
                 if (onDoubleTap == null) {
-                    onTap() // no need to check for double-tap.
+                    onTap?.invoke(upOrCancel.position) // no need to check for double-tap.
                 } else {
                     // check for second tap
-                    val secondDown = detectSecondTapDown(up.current.uptime)
+                    val secondDown = awaitSecondDown(upOrCancel)
 
                     if (secondDown == null) {
-                        onTap() // no valid second tap started
+                        onTap?.invoke(upOrCancel.position) // no valid second tap started
                     } else {
                         // Second tap down detected
-                        secondDown.consumeDownChange()
                         pressScope.reset()
                         if (onPress !== NoPressGesture) {
-                            launch { pressScope.onPress(secondDown.current.position) }
+                            launch { pressScope.onPress(secondDown.position) }
                         }
 
                         try {
                             // Might have a long second press as the second tap
-                            withTimeout(longPressTimeout.inMilliseconds()) {
-                                handlePointerInput {
-                                    val secondUp = waitForUpOrCancellation()
-                                    if (secondUp == null) {
-                                        pressScope.cancel()
-                                        onTap()
-                                    } else {
-                                        secondUp.consumeDownChange()
-                                        pressScope.release()
-                                        onDoubleTap()
-                                    }
+                            withTimeout(longPressTimeout) {
+                                val secondUp = waitForUpOrCancellation()
+                                if (secondUp != null) {
+                                    secondUp.consumeDownChange()
+                                    pressScope.release()
+                                    onDoubleTap(secondUp.position)
+                                } else {
+                                    pressScope.cancel()
+                                    onTap?.invoke(upOrCancel.position)
                                 }
                             }
-                        } catch (e: TimeoutCancellationException) {
+                        } catch (e: PointerEventTimeoutCancellationException) {
                             // The first tap was valid, but the second tap is a long press.
                             // notify for the first tap
-                            onTap()
+                            onTap?.invoke(upOrCancel.position)
 
                             // notify for the long press
-                            onLongPress?.invoke()
-                            consumeAllEventsUntilUp()
+                            onLongPress?.invoke(secondDown.position)
+                            consumeUntilUp()
                             pressScope.release()
                         }
                     }
@@ -183,11 +167,71 @@ suspend fun PointerInputScope.detectTapGestures(
 }
 
 /**
+ * Consumes all pointer events until nothing is pressed and then returns. This method assumes
+ * that something is currently pressed.
+ */
+private suspend fun AwaitPointerEventScope.consumeUntilUp() {
+    do {
+        val event = awaitPointerEvent()
+        event.changes.fastForEach { it.consumeAllChanges() }
+    } while (event.changes.fastAny { it.pressed })
+}
+
+/**
+ * Waits for [ViewConfiguration.doubleTapTimeoutMillis] for a second press event. If a
+ * second press event is received before the time out, it is returned or `null` is returned
+ * if no second press is received.
+ */
+private suspend fun AwaitPointerEventScope.awaitSecondDown(
+    firstUp: PointerInputChange
+): PointerInputChange? = withTimeoutOrNull(viewConfiguration.doubleTapTimeoutMillis) {
+    val minUptime = firstUp.uptimeMillis + viewConfiguration.doubleTapMinTimeMillis
+    var change: PointerInputChange
+    // The second tap doesn't count if it happens before DoubleTapMinTime of the first tap
+    do {
+        change = awaitFirstDown()
+    } while (change.uptimeMillis < minUptime)
+    change
+}
+
+/**
+ * Shortcut for cases when we only need to get press/click logic, as for cases without long press
+ * and double click we don't require channelling or any other complications.
+ */
+internal suspend fun PointerInputScope.detectTapAndPress(
+    onPress: suspend PressGestureScope.(Offset) -> Unit = NoPressGesture,
+    onTap: ((Offset) -> Unit)? = null
+) {
+    val pressScope = PressGestureScopeImpl(this)
+    forEachGesture {
+        coroutineScope {
+            pressScope.reset()
+            awaitPointerEventScope {
+
+                val down = awaitFirstDown().also { it.consumeDownChange() }
+
+                if (onPress !== NoPressGesture) {
+                    launch { pressScope.onPress(down.position) }
+                }
+
+                val up = waitForUpOrCancellation()
+                if (up == null) {
+                    pressScope.cancel() // tap-up was canceled
+                } else {
+                    up.consumeDownChange()
+                    pressScope.release()
+                    onTap?.invoke(up.position)
+                }
+            }
+        }
+    }
+}
+
+/**
  * Reads events until the first down is received. If [requireUnconsumed] is `true` and the first
  * down is consumed in the [PointerEventPass.Main] pass, that gesture is ignored.
  */
-@ExperimentalPointerInput
-suspend fun HandlePointerInputScope.awaitFirstDown(
+suspend fun AwaitPointerEventScope.awaitFirstDown(
     requireUnconsumed: Boolean = true
 ): PointerInputChange {
     var event: PointerEvent
@@ -208,8 +252,7 @@ suspend fun HandlePointerInputScope.awaitFirstDown(
  * pass. If the gesture was not canceled, the final up change is returned or `null` if the
  * event was canceled.
  */
-@ExperimentalPointerInput
-suspend fun HandlePointerInputScope.waitForUpOrCancellation(): PointerInputChange? {
+suspend fun AwaitPointerEventScope.waitForUpOrCancellation(): PointerInputChange? {
     while (true) {
         val event = awaitPointerEvent(PointerEventPass.Main)
         if (event.changes.fastAll { it.changedToUp() }) {
@@ -217,53 +260,18 @@ suspend fun HandlePointerInputScope.waitForUpOrCancellation(): PointerInputChang
             return event.changes[0]
         }
 
-        if (event.changes.fastAny { it.consumed.downChange || it.isOutOfBounds(size) }) {
+        if (event.changes.fastAny {
+            it.consumed.downChange || it.isOutOfBounds(size, extendedTouchPadding)
+        }
+        ) {
             return null // Canceled
         }
 
         // Check for cancel by position consumption. We can look on the Final pass of the
         // existing pointer event because it comes after the Main pass we checked above.
         val consumeCheck = awaitPointerEvent(PointerEventPass.Final)
-        if (consumeCheck.changes.fastAny { it.anyPositionChangeConsumed() }) {
+        if (consumeCheck.changes.fastAny { it.positionChangeConsumed() }) {
             return null
-        }
-    }
-}
-
-/**
- * Consumes all event changes in the [PointerEventPass.Initial] until all pointers are up.
- */
-@ExperimentalPointerInput
-private suspend fun PointerInputScope.consumeAllEventsUntilUp() {
-    handlePointerInput {
-        if (!allPointersUp()) {
-            do {
-                val event = awaitPointerEvent(PointerEventPass.Initial)
-                event.changes.fastForEach { it.consumeAllChanges() }
-            } while (event.changes.fastAny { it.current.down })
-        }
-    }
-}
-
-/**
- * Reads input for second tap down event. If the second tap is within
- * [ViewConfiguration.doubleTapMinTime] of [upTime], the event is discarded. If the second down is
- * not detected within [ViewConfiguration.doubleTapTimeout] of [upTime], `null` is returned.
- * Otherwise, the down event is returned.
- */
-@ExperimentalPointerInput
-private suspend fun PointerInputScope.detectSecondTapDown(
-    upTime: Uptime
-): PointerInputChange? {
-    return withTimeoutOrNull(viewConfiguration.doubleTapTimeout.inMilliseconds()) {
-        handlePointerInput {
-            val minUptime = upTime + viewConfiguration.doubleTapMinTime
-            var change: PointerInputChange
-            // The second tap doesn't count if it happens before DoubleTapMinTime of the first tap
-            do {
-                change = awaitFirstDown()
-            } while (change.current.uptime < minUptime)
-            change
         }
     }
 }

@@ -3,9 +3,21 @@ contact_links:
   - name: Activity
     url: https://issuetracker.google.com/issues/new?component=527362&template=1189829
     about: File a bug or feature request for Activity
+  - name: Biometric
+    url: https://issuetracker.google.com/issues/new?component=559537&template=1214425
+    about: File a bug or feature request for Biometric
+  - name: Compose Compiler
+    url: https://issuetracker.google.com/issues/new?component=610764&template=1424126
+    about: File a bug or feature request for Compose Compiler
+  - name: DataStore
+    url: https://issuetracker.google.com/issues/new?component=907884&template=1466542
+    about: File a bug or feature request for DataStore
   - name: Fragment
     url: https://issuetracker.google.com/issues/new?component=460964&template=1182267
     about: File a bug or feature request for Fragment
+  - name: Lifecycle
+    url: https://issuetracker.google.com/issues/new?component=413132&template=1096619
+    about: File a bug or feature request for Lifecycle
   - name: Navigation
     url: https://issuetracker.google.com/issues/new?component=409828&template=1093757
     about: File a bug or feature request for Navigation

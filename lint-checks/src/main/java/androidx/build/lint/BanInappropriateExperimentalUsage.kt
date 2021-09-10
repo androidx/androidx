@@ -14,117 +14,123 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.build.lint
 
-import com.android.tools.lint.detector.api.AnnotationUsageType
+import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
-import com.android.tools.lint.detector.api.SourceCodeScanner
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiMethod
+import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
+import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
-import org.jetbrains.uast.getContainingUClass
+import org.jetbrains.uast.resolveToUElement
 
-class BanInappropriateExperimentalUsage : Detector(), SourceCodeScanner {
-    override fun applicableAnnotations(): List<String>? = listOf(
-        JAVA_EXPERIMENTAL_ANNOTATION,
-        KOTLIN_OPT_IN_ANNOTATION,
-        KOTLIN_EXPERIMENTAL_ANNOTATION
-    )
+/**
+ * Prevents usage of experimental annotations outside the groups in which they were defined.
+ */
+class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
 
-    override fun visitAnnotationUsage(
-        context: JavaContext,
-        usage: UElement,
-        type: AnnotationUsageType,
-        annotation: UAnnotation,
-        qualifiedName: String,
-        method: PsiMethod?,
-        referenced: PsiElement?,
-        annotations: List<UAnnotation>,
-        allMemberAnnotations: List<UAnnotation>,
-        allClassAnnotations: List<UAnnotation>,
-        allPackageAnnotations: List<UAnnotation>
-    ) {
-        when (qualifiedName) {
-            JAVA_EXPERIMENTAL_ANNOTATION,
-            JAVA_OPT_IN_ANNOTATION,
-            KOTLIN_EXPERIMENTAL_ANNOTATION,
-            KOTLIN_OPT_IN_ANNOTATION -> {
-                verifyExperimentalOrOptInUsageIsWithinSameGroup(
-                    context, usage, annotation
-                )
+    override fun getApplicableUastTypes() = listOf(UAnnotation::class.java)
+
+    override fun createUastHandler(context: JavaContext): UElementHandler {
+        return AnnotationChecker(context)
+    }
+
+    private inner class AnnotationChecker(val context: JavaContext) : UElementHandler() {
+        override fun visitAnnotation(node: UAnnotation) {
+            if (DEBUG) {
+                if (APPLICABLE_ANNOTATIONS.contains(node.qualifiedName) && node.sourcePsi != null) {
+                    (node.uastParent as? UClass)?.let { annotation ->
+                        println(
+                            "${context.driver.mode}: declared ${annotation.qualifiedName} in " +
+                                "${context.project}"
+                        )
+                    }
+                }
+            }
+
+            // If we find an usage of an experimentally-declared annotation, check it.
+            val annotation = node.resolveToUElement()
+            if (annotation is UAnnotated) {
+                val annotations = context.evaluator.getAllAnnotations(annotation, false)
+                if (annotations.any { APPLICABLE_ANNOTATIONS.contains(it.qualifiedName) }) {
+                    if (DEBUG) {
+                        println(
+                            "${context.driver.mode}: used ${node.qualifiedName} in " +
+                                "${context.project}"
+                        )
+                    }
+                    verifyUsageOfElementIsWithinSameGroup(context, node, annotation, ISSUE)
+                }
             }
         }
     }
 
-    fun verifyExperimentalOrOptInUsageIsWithinSameGroup(
+    fun verifyUsageOfElementIsWithinSameGroup(
         context: JavaContext,
         usage: UElement,
-        annotation: UAnnotation
+        annotation: UElement,
+        issue: Issue,
     ) {
-        val declaringGroup = getApproximateAnnotationMavenGroup(annotation)
-        val usingGroup = getApproximateUsageSiteMavenGroup(usage)
-        // Don't flag if group is null for some reason (for now at least)
-        // Also exclude sample for now, since it doesn't work well with our workaround (includes
-        // class)
-        if (declaringGroup != null && usingGroup != null && declaringGroup != usingGroup &&
-            usingGroup != "sample"
-        ) {
-            context.report(
-                BanInappropriateExperimentalUsage.ISSUE, usage, context.getNameLocation(usage),
-                "`Experimental`/`OptIn` APIs should only be used from within the same library " +
-                    "or libraries within the same requireSameVersion group"
-            )
+        val evaluator = context.evaluator
+        val usageCoordinates = evaluator.getLibrary(usage) ?: context.project.mavenCoordinate
+        val usageGroupId = usageCoordinates?.groupId
+        val annotationGroupId = evaluator.getLibrary(annotation)?.groupId
+        if (annotationGroupId != usageGroupId && annotationGroupId != null) {
+            if (DEBUG) {
+                println(
+                    "${context.driver.mode}: report usage of $annotationGroupId in $usageGroupId"
+                )
+            }
+            Incident(context)
+                .issue(issue)
+                .at(usage)
+                .message(
+                    "`Experimental` and `RequiresOptIn` APIs may only be used within the " +
+                        "same-version group where they were defined."
+                )
+                .report()
         }
-    }
-
-    fun getApproximateAnnotationMavenGroup(annotation: UAnnotation): String? {
-        if (annotation.getContainingUClass() == null || annotation.getContainingUClass()!!
-            .qualifiedName == null
-        ) {
-            return null
-        }
-        return annotation.getContainingUClass()!!.qualifiedName!!.split(".").subList(0, 2)
-            .joinToString(".")
-    }
-
-    fun getApproximateUsageSiteMavenGroup(usage: UElement): String? {
-        if (usage.getContainingUClass() == null || usage.getContainingUClass()!!
-            .qualifiedName == null
-        ) {
-            return null
-        }
-        return usage.getContainingUClass()!!.qualifiedName!!.split(".").subList(0, 2)
-            .joinToString(".")
     }
 
     companion object {
+        private const val DEBUG = false
 
         private const val KOTLIN_EXPERIMENTAL_ANNOTATION = "kotlin.Experimental"
-
+        private const val KOTLIN_REQUIRES_OPT_IN_ANNOTATION = "kotlin.RequiresOptIn"
         private const val JAVA_EXPERIMENTAL_ANNOTATION =
             "androidx.annotation.experimental.Experimental"
+        private const val JAVA_REQUIRES_OPT_IN_ANNOTATION =
+            "androidx.annotation.RequiresOptIn"
 
-        private const val KOTLIN_OPT_IN_ANNOTATION =
-            "kotlin.OptIn"
-
-        private const val JAVA_OPT_IN_ANNOTATION =
-            "androidx.annotation.OptIn"
+        private val APPLICABLE_ANNOTATIONS = listOf(
+            JAVA_EXPERIMENTAL_ANNOTATION,
+            KOTLIN_EXPERIMENTAL_ANNOTATION,
+            JAVA_REQUIRES_OPT_IN_ANNOTATION,
+            KOTLIN_REQUIRES_OPT_IN_ANNOTATION,
+        )
 
         val ISSUE = Issue.create(
-            "IllegalExperimentalApiUsage",
-            "Using experimental api from separately versioned library",
-            "APIs annotated with `@RequiresOptIn` or `@Experimental` are considered alpha." +
-                "A caller from another library may not use them unless that the two libraries " +
-                "are part of the same maven group and that group specifies requireSameVersion",
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(BanInappropriateExperimentalUsage::class.java, Scope.JAVA_FILE_SCOPE)
+            id = "IllegalExperimentalApiUsage",
+            briefDescription = "Using experimental API from separately versioned library",
+            explanation = "Annotations meta-annotated with `@RequiresOptIn` or `@Experimental` " +
+                "may only be referenced from within the same-version group in which they were " +
+                "defined.",
+            category = Category.CORRECTNESS,
+            priority = 5,
+            severity = Severity.ERROR,
+            implementation = Implementation(
+                BanInappropriateExperimentalUsage::class.java,
+                Scope.JAVA_FILE_SCOPE,
+            ),
         )
     }
 }

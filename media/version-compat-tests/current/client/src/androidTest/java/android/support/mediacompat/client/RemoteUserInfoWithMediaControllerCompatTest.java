@@ -20,7 +20,6 @@ import static android.support.mediacompat.testlib.MediaSessionConstants.ROOT_HIN
 import static android.support.mediacompat.testlib.MediaSessionConstants.ROOT_HINT_EXTRA_KEY_CALLER_UID;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SESSION_EVENT_NOTIFY_CALLBACK_METHOD_NAME_PREFIX;
 import static android.support.mediacompat.testlib.VersionConstants.KEY_SERVICE_VERSION;
-import static android.support.mediacompat.testlib.VersionConstants.VERSION_TOT;
 import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAGE_NAME;
 
 import static androidx.test.platform.app.InstrumentationRegistry.getArguments;
@@ -77,14 +76,11 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
     private MediaControllerCompat mMediaController;
     private ControllerCallback mMediaControllerCallback;
 
+    @SuppressWarnings("deprecation")
     @Before
     public void setUp() throws InterruptedException {
         mServiceVersion = getArguments().getString(KEY_SERVICE_VERSION, "");
         Log.d(TAG, "Service app version: " + mServiceVersion);
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
-
         Context context = getInstrumentation().getContext();
         CountDownLatch connectionLatch = new CountDownLatch(1);
         AtomicReference<MediaSessionCompat.Token> tokenRef = new AtomicReference<>();
@@ -132,9 +128,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @After
     public void tearDown() {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         getInstrumentation().runOnMainSync(() -> {
             if (mMediaBrowser != null) {
                 mMediaBrowser.disconnect();
@@ -145,9 +138,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testSendCommand() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onCommand");
         mMediaController.sendCommand("anyCommand", /* extras= */ null, /* cb= */ null);
         mMediaControllerCallback.assertThatSessionHasReceivedExpectedCallback();
@@ -155,9 +145,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testMediaButtonEvent() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onMediaButtonEvent");
         mMediaController.dispatchMediaButtonEvent(
                 new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE));
@@ -166,9 +153,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testPrepare() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onPrepare");
         mMediaController.getTransportControls().prepare();
         mMediaControllerCallback.assertThatSessionHasReceivedExpectedCallback();
@@ -176,9 +160,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testPrepareFromMediaId() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onPrepareFromMediaId");
         mMediaController.getTransportControls().prepareFromMediaId(
                 "anyMediaId", /* extras= */ null);
@@ -187,9 +168,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testPrepareFromSearch() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onPrepareFromSearch");
         mMediaController.getTransportControls().prepareFromSearch(
                 "anySearchQuery", /* extras= */ null);
@@ -198,9 +176,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testPrepareFromUri() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onPrepareFromUri");
         mMediaController.getTransportControls().prepareFromUri(
                 Uri.parse("https://test.com"), /* extras= */ null);
@@ -209,9 +184,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testPlay() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onPlay");
         mMediaController.getTransportControls().play();
         mMediaControllerCallback.assertThatSessionHasReceivedExpectedCallback();
@@ -219,9 +191,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testPlayFromMediaId() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onPlayFromMediaId");
         mMediaController.getTransportControls().playFromMediaId(
                 "anyMediaId", /* extras= */ null);
@@ -230,9 +199,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testPlayFromSearch() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onPlayFromSearch");
         mMediaController.getTransportControls().playFromSearch(
                 "anySearchQuery", /* extras= */ null);
@@ -241,9 +207,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testPlayFromUri() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onPlayFromUri");
         mMediaController.getTransportControls().playFromUri(
                 Uri.parse("https://test.com"), /* extras= */ null);
@@ -252,9 +215,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testSkipToQueueId() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onSkipToQueueItem");
         mMediaController.getTransportControls().skipToQueueItem(/* id= */ 0);
         mMediaControllerCallback.assertThatSessionHasReceivedExpectedCallback();
@@ -262,9 +222,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testSkipToNext() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onSkipToNext");
         mMediaController.getTransportControls().skipToNext();
         mMediaControllerCallback.assertThatSessionHasReceivedExpectedCallback();
@@ -272,9 +229,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testSkipToPrevious() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onSkipToPrevious");
         mMediaController.getTransportControls().skipToPrevious();
         mMediaControllerCallback.assertThatSessionHasReceivedExpectedCallback();
@@ -282,9 +236,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testFastForward() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onFastForward");
         mMediaController.getTransportControls().fastForward();
         mMediaControllerCallback.assertThatSessionHasReceivedExpectedCallback();
@@ -292,9 +243,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testRewind() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onRewind");
         mMediaController.getTransportControls().rewind();
         mMediaControllerCallback.assertThatSessionHasReceivedExpectedCallback();
@@ -302,9 +250,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testStop() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onStop");
         mMediaController.getTransportControls().stop();
         mMediaControllerCallback.assertThatSessionHasReceivedExpectedCallback();
@@ -312,9 +257,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testSetRating() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onSetRating");
         mMediaController.getTransportControls().setRating(
                 RatingCompat.newHeartRating(/* hasHeart= */ true));
@@ -323,9 +265,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testSetPlaybackSpeed() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onSetPlaybackSpeed");
         mMediaController.getTransportControls().setPlaybackSpeed(/* speed= */ 1.0f);
         mMediaControllerCallback.assertThatSessionHasReceivedExpectedCallback();
@@ -333,9 +272,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testSetCaptioningEnabled() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onSetCaptioningEnabled");
         mMediaController.getTransportControls().setCaptioningEnabled(/* enabled= */ true);
         mMediaControllerCallback.assertThatSessionHasReceivedExpectedCallback();
@@ -343,9 +279,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testSetRepeatMode() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onSetRepeatMode");
         mMediaController.getTransportControls().setRepeatMode(
                 PlaybackStateCompat.REPEAT_MODE_ONE);
@@ -354,9 +287,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testSetShuffleMode() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onSetShuffleMode");
         mMediaController.getTransportControls().setShuffleMode(
                 PlaybackStateCompat.SHUFFLE_MODE_GROUP);
@@ -365,9 +295,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testCustomAction() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onCustomAction");
         mMediaController.getTransportControls().sendCustomAction("anyAction", /* args= */ null);
         mMediaControllerCallback.assertThatSessionHasReceivedExpectedCallback();
@@ -375,9 +302,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testAddQueueItem() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onAddQueueItem");
         mMediaController.addQueueItem(
                 new MediaDescriptionCompat.Builder().setMediaId("anyMediaId").build());
@@ -386,9 +310,6 @@ public class RemoteUserInfoWithMediaControllerCompatTest {
 
     @Test
     public void testRemoveQueueItem() throws InterruptedException {
-        if (!VERSION_TOT.equals(mServiceVersion)) {
-            return;
-        }
         mMediaControllerCallback.setExpectedCallbackMethodName("onRemoveQueueItem");
         mMediaController.removeQueueItem(
                 new MediaDescriptionCompat.Builder().setMediaId("anyMediaId").build());

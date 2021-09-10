@@ -66,7 +66,7 @@ import java.util.Map;
  * </pre>
  * In addition to view creation and binding, Presenter allows dynamic interface (facet) to
  * be added: {@link #setFacet(Class, Object)}.  Supported facets:
- * <li> {@link ItemAlignmentFacet} is used by {@link HorizontalGridView} and
+ * {@link ItemAlignmentFacet} is used by {@link HorizontalGridView} and
  * {@link VerticalGridView} to customize child alignment.
  */
 public abstract class Presenter implements FacetProvider {

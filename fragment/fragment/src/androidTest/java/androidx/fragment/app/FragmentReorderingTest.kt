@@ -23,26 +23,19 @@ import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
 @SmallTest
-@RunWith(Parameterized::class)
-class FragmentReorderingTest(private val stateManager: StateManager) {
-
-    companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "stateManager={0}")
-        fun data() = arrayOf(NewStateManager, OldStateManager)
-    }
+@RunWith(AndroidJUnit4::class)
+class FragmentReorderingTest() {
 
     @Suppress("DEPRECATION")
     @get:Rule
@@ -54,25 +47,16 @@ class FragmentReorderingTest(private val stateManager: StateManager) {
 
     @Before
     fun setup() {
-        stateManager.setup()
         activityRule.setContentView(R.layout.simple_container)
         container = activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
         fm = activityRule.activity.supportFragmentManager
         instrumentation = InstrumentationRegistry.getInstrumentation()
     }
 
-    @After
-    fun teardown() {
-        stateManager.teardown()
-    }
-
     // Ensure that a replaced fragment is stopped before its replacement is started
     // and vice versa when popped
     @Test
     fun stopBeforeStart() {
-        if (stateManager is OldStateManager) {
-            return
-        }
         val fragment1 = StrictViewFragment()
         fm.beginTransaction()
             .add(R.id.fragmentContainer, fragment1)

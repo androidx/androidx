@@ -20,11 +20,16 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import android.graphics.Typeface;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import androidx.appcompat.test.R;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
@@ -101,5 +106,41 @@ public class AppCompatButtonTest
         Typeface expected = ResourcesCompat.getFont(mActivity, R.font.samplefont);
 
         assertEquals(expected, button.getTypeface());
+    }
+
+    @UiThreadTest
+    public void testSetCustomSelectionActionModeCallback() {
+        final AppCompatButton view = new AppCompatButton(mActivity);
+        final ActionMode.Callback callback = new ActionMode.Callback() {
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+            }
+        };
+
+        // Default value is documented as null.
+        assertNull(view.getCustomSelectionActionModeCallback());
+
+        // Setter and getter should be symmetric.
+        view.setCustomSelectionActionModeCallback(callback);
+        assertEquals(callback, view.getCustomSelectionActionModeCallback());
+
+        // Argument is nullable.
+        view.setCustomSelectionActionModeCallback(null);
+        assertNull(view.getCustomSelectionActionModeCallback());
     }
 }

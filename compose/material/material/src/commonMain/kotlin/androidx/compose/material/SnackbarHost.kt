@@ -16,9 +16,7 @@
 
 package androidx.compose.material
 
-import androidx.compose.animation.animatedFloat
-import androidx.compose.animation.core.AnimatedFloat
-import androidx.compose.animation.core.AnimationEndReason
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
@@ -26,16 +24,23 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.invalidate
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.AccessibilityManager
+import androidx.compose.ui.platform.LocalAccessibilityManager
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.dismiss
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.util.fastForEach
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.delay
@@ -52,7 +57,6 @@ import kotlin.coroutines.resume
  * automatically, but can be decoupled from it and live separately when desired.
  */
 @Stable
-@ExperimentalMaterialApi
 class SnackbarHostState {
 
     /**
@@ -106,7 +110,6 @@ class SnackbarHostState {
     }
 
     @Stable
-    @OptIn(ExperimentalMaterialApi::class)
     private class SnackbarDataImpl(
         override val message: String,
         override val actionLabel: String?,
@@ -145,16 +148,20 @@ class SnackbarHostState {
  * appearance based on the [SnackbarData] provided as a param
  */
 @Composable
-@ExperimentalMaterialApi
 fun SnackbarHost(
     hostState: SnackbarHostState,
     modifier: Modifier = Modifier,
     snackbar: @Composable (SnackbarData) -> Unit = { Snackbar(it) }
 ) {
     val currentSnackbarData = hostState.currentSnackbarData
+    val accessibilityManager = LocalAccessibilityManager.current
     LaunchedEffect(currentSnackbarData) {
         if (currentSnackbarData != null) {
-            delay(currentSnackbarData.duration.toMillis())
+            val duration = currentSnackbarData.duration.toMillis(
+                currentSnackbarData.actionLabel != null,
+                accessibilityManager
+            )
+            delay(duration)
             currentSnackbarData.dismiss()
         }
     }
@@ -172,7 +179,6 @@ fun SnackbarHost(
  * @property actionLabel optional action label to show as button in the Snackbar
  * @property duration duration of the snackbar
  */
-@ExperimentalMaterialApi
 interface SnackbarData {
     val message: String
     val actionLabel: String?
@@ -224,17 +230,30 @@ enum class SnackbarDuration {
     Indefinite
 }
 
-// TODO: a11y and magic numbers adjustment
-private fun SnackbarDuration.toMillis() = when (this) {
-    SnackbarDuration.Indefinite -> Long.MAX_VALUE
-    SnackbarDuration.Long -> 10000L
-    SnackbarDuration.Short -> 4000L
+// TODO: magic numbers adjustment
+internal fun SnackbarDuration.toMillis(
+    hasAction: Boolean,
+    accessibilityManager: AccessibilityManager?
+): Long {
+    val original = when (this) {
+        SnackbarDuration.Indefinite -> Long.MAX_VALUE
+        SnackbarDuration.Long -> 10000L
+        SnackbarDuration.Short -> 4000L
+    }
+    if (accessibilityManager == null) {
+        return original
+    }
+    return accessibilityManager.calculateRecommendedTimeoutMillis(
+        original,
+        containsIcons = true,
+        containsText = true,
+        containsControls = hasAction
+    )
 }
 
 // TODO: to be replaced with the public customizable implementation
 // it's basically tweaked nullable version of Crossfade
 @Composable
-@OptIn(ExperimentalMaterialApi::class)
 private fun FadeInFadeOutWithScale(
     current: SnackbarData?,
     modifier: Modifier = Modifier,
@@ -265,7 +284,7 @@ private fun FadeInFadeOutWithScale(
                         if (key != state.current) {
                             // leave only the current in the list
                             state.items.removeAll { it.key == key }
-                            state.invalidate()
+                            state.scope?.invalidate()
                         }
                     }
                 )
@@ -284,6 +303,10 @@ private fun FadeInFadeOutWithScale(
                             scaleY = scale.value,
                             alpha = opacity.value
                         )
+                        .semantics {
+                            liveRegion = LiveRegionMode.Polite
+                            dismiss { key.dismiss(); true }
+                        }
                 ) {
                     children()
                 }
@@ -291,7 +314,7 @@ private fun FadeInFadeOutWithScale(
         }
     }
     Box(modifier) {
-        state.invalidate = invalidate
+        state.scope = currentRecomposeScope
         state.items.fastForEach { (item, opacity) ->
             key(item) {
                 opacity {
@@ -306,7 +329,7 @@ private class FadeInFadeOutState<T> {
     // we use Any here as something which will not be equals to the real initial value
     var current: Any? = Any()
     var items = mutableListOf<FadeInFadeOutAnimationItem<T>>()
-    var invalidate: () -> Unit = { }
+    var scope: RecomposeScope? = null
 }
 
 private data class FadeInFadeOutAnimationItem<T>(
@@ -321,30 +344,28 @@ private fun animatedOpacity(
     animation: AnimationSpec<Float>,
     visible: Boolean,
     onAnimationFinish: () -> Unit = {}
-): AnimatedFloat {
-    val animatedFloat = animatedFloat(if (!visible) 1f else 0f)
-    onCommit(visible) {
-        animatedFloat.animateTo(
+): State<Float> {
+    val alpha = remember { Animatable(if (!visible) 1f else 0f) }
+    LaunchedEffect(visible) {
+        alpha.animateTo(
             if (visible) 1f else 0f,
-            anim = animation,
-            onEnd = { reason, _ ->
-                if (reason == AnimationEndReason.TargetReached) onAnimationFinish()
-            }
+            animationSpec = animation
         )
+        onAnimationFinish()
     }
-    return animatedFloat
+    return alpha.asState()
 }
 
 @Composable
-private fun animatedScale(animation: AnimationSpec<Float>, visible: Boolean): AnimatedFloat {
-    val animatedFloat = animatedFloat(if (!visible) 1f else 0.8f)
-    onCommit(visible) {
-        animatedFloat.animateTo(
+private fun animatedScale(animation: AnimationSpec<Float>, visible: Boolean): State<Float> {
+    val scale = remember { Animatable(if (!visible) 1f else 0.8f) }
+    LaunchedEffect(visible) {
+        scale.animateTo(
             if (visible) 1f else 0.8f,
-            anim = animation
+            animationSpec = animation
         )
     }
-    return animatedFloat
+    return scale.asState()
 }
 
 private const val SnackbarFadeInMillis = 150

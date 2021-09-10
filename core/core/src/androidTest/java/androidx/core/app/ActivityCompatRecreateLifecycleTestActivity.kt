@@ -20,7 +20,7 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.core.test.R
 
-class ActivityCompatRecreateLifecycleTestActivity : ComponentActivity() {
+public class ActivityCompatRecreateLifecycleTestActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -46,7 +46,7 @@ class ActivityCompatRecreateLifecycleTestActivity : ComponentActivity() {
         onStopHandler?.invoke(this)
     }
 
-    companion object {
+    internal companion object {
         var onResumeHandler: ((ActivityCompatRecreateLifecycleTestActivity) -> Unit)? = null
         var onStartHandler: ((ActivityCompatRecreateLifecycleTestActivity) -> Unit)? = null
         var onStopHandler: ((ActivityCompatRecreateLifecycleTestActivity) -> Unit)? = null

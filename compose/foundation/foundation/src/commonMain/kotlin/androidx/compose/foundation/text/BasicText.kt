@@ -21,18 +21,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 
 /**
  * Basic element that displays text and provides semantics / accessibility information.
+ * Typically you will instead want to use [androidx.compose.material.Text], which is
+ * a higher level Text element that contains semantics and consumes style information from a theme.
  *
  * @param text The text to be displayed.
  * @param modifier [Modifier] to apply to this layout node.
  * @param style Style configuration for the text such as color, font, line height etc.
- * @param onTextLayout Callback that is executed when a new text layout is calculated.
+ * @param onTextLayout Callback that is executed when a new text layout is calculated. A
+ * [TextLayoutResult] object that callback provides contains paragraph information, size of the
+ * text, baselines and other details. The callback can be used to add additional decoration or
+ * functionality to the text. For example, to draw selection around the text.
  * @param overflow How visual overflow should be handled.
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
  * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
@@ -64,11 +68,16 @@ fun BasicText(
 
 /**
  * Basic element that displays text and provides semantics / accessibility information.
+ * Typically you will instead want to use [androidx.compose.material.Text], which is
+ * a higher level Text element that contains semantics and consumes style information from a theme.
  *
  * @param text The text to be displayed.
  * @param modifier [Modifier] to apply to this layout node.
  * @param style Style configuration for the text such as color, font, line height etc.
- * @param onTextLayout Callback that is executed when a new text layout is calculated.
+ * @param onTextLayout Callback that is executed when a new text layout is calculated. A
+ * [TextLayoutResult] object that callback provides contains paragraph information, size of the
+ * text, baselines and other details. The callback can be used to add additional decoration or
+ * functionality to the text. For example, to draw selection around the text.
  * @param overflow How visual overflow should be handled.
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
  * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
@@ -79,7 +88,6 @@ fun BasicText(
  * @param inlineContent A map store composables that replaces certain ranges of the text. It's
  * used to insert composables into text layout. Check [InlineTextContent] for more information.
  */
-@OptIn(InternalTextApi::class)
 @Composable
 fun BasicText(
     text: AnnotatedString,

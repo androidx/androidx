@@ -19,23 +19,6 @@ package androidx.paging
 import androidx.paging.LoadState.NotLoading
 
 /**
- * Converts a list of incremental LoadState updates to local source to a list of expected
- * [CombinedLoadStates] events.
- */
-@OptIn(ExperimentalStdlibApi::class)
-fun List<Pair<LoadType, LoadState>>.toCombinedLoadStatesLocal() = scan(
-    CombinedLoadStates(
-        source = LoadStates(
-            refresh = NotLoading(endOfPaginationReached = false),
-            prepend = NotLoading(endOfPaginationReached = false),
-            append = NotLoading(endOfPaginationReached = false)
-        )
-    )
-) { prev, update ->
-    prev.set(update.first, false, update.second)
-}
-
-/**
  * Test-only local-only LoadStates builder which defaults each state to [NotLoading], with
  * [LoadState.endOfPaginationReached] = `false`
  */
@@ -44,11 +27,14 @@ fun localLoadStatesOf(
     prependLocal: LoadState = NotLoading(endOfPaginationReached = false),
     appendLocal: LoadState = NotLoading(endOfPaginationReached = false)
 ) = CombinedLoadStates(
+    refresh = refreshLocal,
+    prepend = prependLocal,
+    append = appendLocal,
     source = LoadStates(
         refresh = refreshLocal,
         prepend = prependLocal,
-        append = appendLocal
-    )
+        append = appendLocal,
+    ),
 )
 
 /**
@@ -56,6 +42,9 @@ fun localLoadStatesOf(
  * [LoadState.endOfPaginationReached] = `false`
  */
 fun remoteLoadStatesOf(
+    refresh: LoadState = NotLoading(endOfPaginationReached = false),
+    prepend: LoadState = NotLoading(endOfPaginationReached = false),
+    append: LoadState = NotLoading(endOfPaginationReached = false),
     refreshLocal: LoadState = NotLoading(endOfPaginationReached = false),
     prependLocal: LoadState = NotLoading(endOfPaginationReached = false),
     appendLocal: LoadState = NotLoading(endOfPaginationReached = false),
@@ -63,66 +52,31 @@ fun remoteLoadStatesOf(
     prependRemote: LoadState = NotLoading(endOfPaginationReached = false),
     appendRemote: LoadState = NotLoading(endOfPaginationReached = false)
 ) = CombinedLoadStates(
+    refresh = refresh,
+    prepend = prepend,
+    append = append,
     source = LoadStates(
         refresh = refreshLocal,
         prepend = prependLocal,
-        append = appendLocal
+        append = appendLocal,
     ),
     mediator = LoadStates(
         refresh = refreshRemote,
         prepend = prependRemote,
-        append = appendRemote
-    )
+        append = appendRemote,
+    ),
 )
 
-private fun CombinedLoadStates.set(
-    loadType: LoadType,
-    fromMediator: Boolean,
-    loadState: LoadState
-) = when (loadType) {
-    LoadType.REFRESH ->
-        if (fromMediator) {
-            copy(
-                mediator = mediator?.copy(refresh = loadState)
-                    ?: LoadStates(
-                        refresh = loadState,
-                        prepend = NotLoading(false),
-                        append = NotLoading(false)
-                    )
-            )
-        } else {
-            copy(
-                source = source.copy(refresh = loadState)
-            )
-        }
-    LoadType.PREPEND ->
-        if (fromMediator) {
-            copy(
-                mediator = mediator?.copy(prepend = loadState)
-                    ?: LoadStates(
-                        refresh = NotLoading(false),
-                        prepend = loadState,
-                        append = NotLoading(false)
-                    )
-            )
-        } else {
-            copy(
-                source = source.copy(prepend = loadState)
-            )
-        }
-    LoadType.APPEND ->
-        if (fromMediator) {
-            copy(
-                mediator = mediator?.copy(append = loadState)
-                    ?: LoadStates(
-                        refresh = NotLoading(false),
-                        prepend = NotLoading(false),
-                        append = loadState
-                    )
-            )
-        } else {
-            copy(
-                source = source.copy(append = loadState)
-            )
-        }
-}
+/**
+ * Test-only LoadStates builder which defaults each state to [NotLoading], with
+ * [LoadState.endOfPaginationReached] = `false`
+ */
+fun loadStates(
+    refresh: LoadState = NotLoading(endOfPaginationReached = false),
+    prepend: LoadState = NotLoading(endOfPaginationReached = false),
+    append: LoadState = NotLoading(endOfPaginationReached = false),
+) = LoadStates(
+    refresh = refresh,
+    prepend = prepend,
+    append = append,
+)
