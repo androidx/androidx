@@ -16,8 +16,12 @@
 
 package androidx.benchmark.macro
 
+import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
+import androidx.benchmark.MetricResult
 import androidx.benchmark.Shell
+import androidx.benchmark.macro.perfetto.FrameTimingQuery
 import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseStartupResult
 import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.test.platform.app.InstrumentationRegistry
@@ -130,6 +134,38 @@ public class FrameTimingMetric : Metric() {
             .toMap()
             .filterKeys { keyAllowList.contains(it) }
     )
+}
+
+/**
+ * WIP trace-based replacement for [FrameTimingMetric].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@Suppress("CanSealedSubClassBeObject")
+public class FrameTimingTraceMetric : Metric() {
+    internal override fun configure(packageName: String) {}
+    internal override fun start() {}
+    internal override fun stop() {}
+
+    internal override fun getMetrics(packageName: String, tracePath: String): MetricsWithUiState {
+        val frameTimesMs = FrameTimingQuery.getFrameSubMetrics(
+            absoluteTracePath = tracePath,
+            captureApiLevel = Build.VERSION.SDK_INT,
+            packageName = packageName
+        )[FrameTimingQuery.FrameSubMetric.FrameTime]!!
+            .sorted()
+            .map { it / 1_000_000.0 } // Convert to ms
+
+        fun percentile(percentile: Int) = MetricResult.getPercentile(frameTimesMs, percentile)
+        return MetricsWithUiState(
+            metrics = mapOf(
+                "trace_frameTime50thPercentileMs" to percentile(50),
+                "trace_frameTime90thPercentileMs" to percentile(90),
+                "trace_frameTime95thPercentileMs" to percentile(95),
+                "trace_frameTime99thPercentileMs" to percentile(99),
+                "trace_totalFrameCount" to frameTimesMs.size.toDouble()
+            )
+        )
+    }
 }
 
 /**

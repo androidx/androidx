@@ -36,6 +36,10 @@ package androidx.benchmark.macro {
     ctor public FrameTimingMetric();
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FrameTimingTraceMetric extends androidx.benchmark.macro.Metric {
+    ctor public FrameTimingTraceMetric();
+  }
+
   public final class IdeSummaryStringKt {
   }
 
