@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+package androidx.wear.watchface.test
+
 import android.graphics.Canvas
 import android.graphics.Rect
-
 import android.view.SurfaceHolder
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.ListenableWatchFaceService
@@ -33,6 +36,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.Mockito
 import java.time.Instant
 import java.time.ZonedDateTime
@@ -93,6 +97,8 @@ private class TestAsyncListenableWatchFaceService :
  * Illustrates that createWatchFaceFuture can be resolved in a different task posted to the main
  * looper.
  */
+@RunWith(AndroidJUnit4::class)
+@MediumTest
 public class AsyncListenableWatchFaceServiceTest {
 
     @Test

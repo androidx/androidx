@@ -106,6 +106,7 @@ package androidx.wear.watchface.client {
 
   public interface InteractiveWatchFaceClient extends java.lang.AutoCloseable {
     method @AnyThread public void addClientDisconnectListener(androidx.wear.watchface.client.InteractiveWatchFaceClient.ClientDisconnectListener listener, java.util.concurrent.Executor executor);
+    method public void addWatchFaceReadyListener(androidx.wear.watchface.client.InteractiveWatchFaceClient.WatchFaceReadyListener listener, java.util.concurrent.Executor executor);
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default Integer? getComplicationIdAt(@Px int x, @Px int y) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> getComplicationSlotsState();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.util.List<androidx.wear.watchface.ContentDescriptionLabel> getContentDescriptionLabels();
@@ -115,6 +116,7 @@ package androidx.wear.watchface.client {
     method @AnyThread public boolean isConnectionAlive();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void performAmbientTick() throws android.os.RemoteException;
     method @AnyThread public void removeClientDisconnectListener(androidx.wear.watchface.client.InteractiveWatchFaceClient.ClientDisconnectListener listener);
+    method public void removeWatchFaceReadyListener(androidx.wear.watchface.client.InteractiveWatchFaceClient.WatchFaceReadyListener listener);
     method @RequiresApi(27) @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, java.time.Instant instant, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idAndComplicationData) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void sendTouchEvent(@Px int xPosition, @Px int yPosition, @androidx.wear.watchface.TapType int tapType) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void setWatchUiState(androidx.wear.watchface.client.WatchUiState watchUiState) throws android.os.RemoteException;
@@ -142,6 +144,10 @@ package androidx.wear.watchface.client {
     field public static final int TAP_TYPE_UP = 2; // 0x2
   }
 
+  public static fun interface InteractiveWatchFaceClient.WatchFaceReadyListener {
+    method public void onWatchFaceReady();
+  }
+
   public interface WatchFaceControlClient extends java.lang.AutoCloseable {
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public androidx.wear.watchface.client.HeadlessWatchFaceClient? createHeadlessWatchFaceClient(android.content.ComponentName watchFaceName, androidx.wear.watchface.client.DeviceConfig deviceConfig, @Px int surfaceWidth, @Px int surfaceHeight) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses={ServiceNotBoundException::class, ServiceStartFailureException::class}) public default static suspend Object? createWatchFaceControlClient(android.content.Context context, String watchFacePackageName, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceControlClient> p) throws androidx.wear.watchface.client.WatchFaceControlClient.ServiceNotBoundException, androidx.wear.watchface.client.WatchFaceControlClient.ServiceStartFailureException;
@@ -154,6 +160,7 @@ package androidx.wear.watchface.client {
 
   public static final class WatchFaceControlClient.Companion {
     method @kotlin.jvm.Throws(exceptionClasses={ServiceNotBoundException::class, ServiceStartFailureException::class}) public suspend Object? createWatchFaceControlClient(android.content.Context context, String watchFacePackageName, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceControlClient> p) throws androidx.wear.watchface.client.WatchFaceControlClient.ServiceNotBoundException, androidx.wear.watchface.client.WatchFaceControlClient.ServiceStartFailureException;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public suspend Object? createWatchFaceControlClientImpl(android.content.Context context, android.content.Intent intent, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceControlClient> p);
   }
 
   public static final class WatchFaceControlClient.ServiceNotBoundException extends java.lang.Exception {
