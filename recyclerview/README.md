@@ -6,7 +6,7 @@ RecyclerView library provides a flexible View for displaying a limited window in
 
 [Release notes](https://developer.android.com/jetpack/androidx/releases/recyclerview)
 
-[Browse source](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/recyclerview/)
+[Browse source](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/recyclerview/)
 
 [Reference documentation](https://developer.android.com/reference/androidx/classes.html)
 

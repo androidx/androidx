@@ -41,6 +41,7 @@ import org.junit.Test;
 /**
  * Test cases to verify that percent layouts properly account for their own paddings.
  */
+@SuppressWarnings("deprecation")
 @LargeTest
 public class PercentDynamicLayoutTest
         extends BaseInstrumentationTestCase<PercentDynamicLayoutActivity> {

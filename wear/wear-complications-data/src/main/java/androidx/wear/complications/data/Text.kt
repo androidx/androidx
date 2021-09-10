@@ -18,7 +18,18 @@ package androidx.wear.complications.data
 
 import android.content.res.Resources
 import android.icu.util.TimeZone
+import android.support.wearable.complications.TimeDependentText
+import android.support.wearable.complications.TimeDifferenceText
+import android.text.style.ForegroundColorSpan
+import android.text.style.LocaleSpan
+import android.text.style.StrikethroughSpan
+import android.text.style.StyleSpan
+import android.text.style.SubscriptSpan
+import android.text.style.SuperscriptSpan
+import android.text.style.TypefaceSpan
+import android.text.style.UnderlineSpan
 import androidx.annotation.RestrictTo
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 /** The wire format for [ComplicationText]. */
@@ -29,6 +40,8 @@ private typealias WireComplicationTextTimeDifferenceBuilder =
 
 private typealias WireComplicationTextTimeFormatBuilder =
     android.support.wearable.complications.ComplicationText.TimeFormatBuilder
+
+private typealias WireTimeDependentText = android.support.wearable.complications.TimeDependentText
 
 /**
  * The text within a complication.
@@ -42,26 +55,29 @@ public interface ComplicationText {
      * Returns the text that should be displayed for the given timestamp.
      *
      * @param resources [Resources] from the current context
-     * @param dateTimeMillis milliseconds since epoch, e.g. from [System.currentTimeMillis]
+     * @param instant The [Instant] at which to sample the text
      */
     public fun getTextAt(
         resources: Resources,
-        dateTimeMillis: Long
+        instant: Instant
     ): CharSequence
 
     /**
-     * Returns true if the result of [getTextAt] will be the same for both [firstDateTimeMillis]
-     * and [secondDateTimeMillis].
+     * Returns true if the result of [getTextAt] will be the same for both [firstInstant] and
+     * [secondInstant].
      */
-    public fun returnsSameText(
-        firstDateTimeMillis: Long,
-        secondDateTimeMillis: Long
-    ): Boolean
+    public fun returnsSameText(firstInstant: Instant, secondInstant: Instant): Boolean
 
-    /** Returns the next time after [fromDateTimeMillis] at which the text may change.  */
-    public fun getNextChangeTime(fromDateTimeMillis: Long): Long
+    /** Returns the next time after [afterInstant] at which the text may change.  */
+    public fun getNextChangeTime(afterInstant: Instant): Instant
 
     public fun isAlwaysEmpty(): Boolean
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    public fun getTimeDependentText(): TimeDependentText
 
     /**
      * Converts this value to [WireComplicationText] object used for serialization.
@@ -69,40 +85,30 @@ public interface ComplicationText {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun asWireComplicationText(): WireComplicationText
+    public fun toWireComplicationText(): WireComplicationText
 
     public companion object {
-        /** Returns a [ComplicationText] that represent a plain [CharSequence]. */
-        @JvmStatic
-        public fun plain(text: CharSequence): ComplicationText =
-            WireComplicationText.plainText(text).asApiComplicationText()
-
-        /**
-         * Returns a builder for a [ComplicationText] representing a time difference, which can
-         * be either a count up or a count down.
-         *
-         * @param[style] the style of the time difference to be displayed.
-         */
-        @JvmStatic
-        public fun timeDifferenceBuilder(
-            style: TimeDifferenceStyle,
-            reference: TimeReference
-        ): TimeDifferenceComplicationText.Builder =
-            TimeDifferenceComplicationText.Builder(style, reference)
-
-        /**
-         * Returns a builder for a [ComplicationText] representing the current time.
-         *
-         * @param[format] the format in which the time should be displayed. This should be a pattern
-         * as used by [java.text.SimpleDateFormat].
-         */
-        @JvmStatic
-        public fun timeFormatBuilder(format: String): TimeFormatComplicationText.Builder =
-            TimeFormatComplicationText.Builder(format)
+        @JvmField
+        public val EMPTY: ComplicationText = PlainComplicationText.Builder("").build()
     }
 }
 
-/** The styling used for showing a time different by [ComplicationText.timeDifferenceBuilder]. */
+/** A [ComplicationText] that contains plain text. */
+public class PlainComplicationText internal constructor(
+    delegate: WireComplicationText
+) : ComplicationText by DelegatingComplicationText(delegate) {
+    /**
+     * A builder for [PlainComplicationText].
+     *
+     * @param[text] the text to be displayed.
+     */
+    public class Builder(private var text: CharSequence) {
+        public fun build(): PlainComplicationText =
+            PlainComplicationText(WireComplicationText.plainText(text))
+    }
+}
+
+/** The styling used for showing a time different by [ComplicationText#TimeDifferenceBuilder]. */
 public enum class TimeDifferenceStyle(internal var wireStyle: Int) {
 
     /**
@@ -202,17 +208,51 @@ public class TimeDifferenceComplicationText internal constructor(
     delegate: WireComplicationText
 ) : ComplicationText by DelegatingComplicationText(delegate) {
     /**
+     * Gets the smallest unit that may be shown in the time difference text. If specified, units
+     * smaller than this minimum will not be included.
+     */
+    public fun getMinimumTimeUnit(): TimeUnit? =
+        if (getTimeDependentText() is TimeDifferenceText)
+            (getTimeDependentText() as TimeDifferenceText).minimumUnit
+        else null
+
+    /**
      * Builder for [ComplicationText] representing a time difference.
      *
      * Requires setting a [TimeDifferenceStyle].
      */
-    public class Builder(
+    public class Builder private constructor(
         private val style: TimeDifferenceStyle,
-        private val reference: TimeReference
+        private val startInstant: Instant?,
+        private val endInstant: Instant?
     ) {
         private var text: CharSequence? = null
         private var displayAsNow: Boolean? = null
         private var minimumUnit: TimeUnit? = null
+
+        /**
+         * Constructs a [TimeDifferenceComplicationText.Builder] where the complication is counting
+         * up until [countUpTimeReference].
+         *
+         * @param style The [TimeDifferenceStyle] to use when rendering the time difference.
+         * @param countUpTimeReference The [CountUpTimeReference] to count up until.
+         */
+        public constructor(
+            style: TimeDifferenceStyle,
+            countUpTimeReference: CountUpTimeReference
+        ) : this(style, null, countUpTimeReference.instant)
+
+        /**
+         * Constructs a [TimeDifferenceComplicationText.Builder] where the complication is counting
+         * down until [countDownTimeReference].
+         *
+         * @param style The [TimeDifferenceStyle] to use when rendering the time difference.
+         * @param countDownTimeReference The [CountDownTimeReference] to count down until.
+         */
+        public constructor(
+            style: TimeDifferenceStyle,
+            countDownTimeReference: CountDownTimeReference
+        ) : this(style, countDownTimeReference.instant, null)
 
         /**
          * Sets the text within which the time difference will be displayed.
@@ -254,7 +294,7 @@ public class TimeDifferenceComplicationText internal constructor(
          * [TimeDifferenceStyle.SHORT_SINGLE_UNIT], then a minimum unit of [TimeUnit.SECONDS] will
          * have no effect.
          */
-        public fun setMinimumUnit(minimumUnit: TimeUnit?): Builder =
+        public fun setMinimumTimeUnit(minimumUnit: TimeUnit?): Builder =
             apply { this.minimumUnit = minimumUnit }
 
         /** Builds a [TimeDifferenceComplicationText]. */
@@ -262,11 +302,11 @@ public class TimeDifferenceComplicationText internal constructor(
             WireComplicationTextTimeDifferenceBuilder().apply {
                 setStyle(style.wireStyle)
                 setSurroundingText(text)
-                if (reference.hasStartDateTimeMillis()) {
-                    setReferencePeriodStartMillis(reference.startDateTimeMillis)
+                startInstant?.let {
+                    setReferencePeriodStartMillis(it.toEpochMilli())
                 }
-                if (reference.hasEndDateTimeMillis()) {
-                    setReferencePeriodEndMillis(reference.endDateTimeMillis)
+                endInstant?.let {
+                    setReferencePeriodEndMillis(it.toEpochMilli())
                 }
                 displayAsNow?.let { setShowNowText(it) }
                 setMinimumUnit(minimumUnit)
@@ -342,26 +382,58 @@ public class TimeFormatComplicationText internal constructor(
 private class DelegatingComplicationText(
     private val delegate: WireComplicationText
 ) : ComplicationText {
-    override fun getTextAt(resources: Resources, dateTimeMillis: Long) =
-        delegate.getTextAt(resources, dateTimeMillis)
+    override fun getTextAt(resources: Resources, instant: Instant) =
+        delegate.getTextAt(resources, instant.toEpochMilli())
 
-    override fun returnsSameText(firstDateTimeMillis: Long, secondDateTimeMillis: Long) =
-        delegate.returnsSameText(firstDateTimeMillis, secondDateTimeMillis)
+    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
+        delegate.returnsSameText(firstInstant.toEpochMilli(), secondInstant.toEpochMilli())
 
-    override fun getNextChangeTime(fromDateTimeMillis: Long) =
-        delegate.getNextChangeTime(fromDateTimeMillis)
+    override fun getNextChangeTime(afterInstant: Instant) =
+        Instant.ofEpochMilli(delegate.getNextChangeTime(afterInstant.toEpochMilli()))
 
     override fun isAlwaysEmpty() = delegate.isAlwaysEmpty
+    override fun getTimeDependentText(): TimeDependentText = delegate.timeDependentText
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    override fun asWireComplicationText() = delegate
+    override fun toWireComplicationText() = delegate
 }
 
 /** Converts a [WireComplicationText] into an equivalent [ComplicationText] instead. */
-internal fun WireComplicationText.asApiComplicationText(): ComplicationText =
+internal fun WireComplicationText.toApiComplicationText(): ComplicationText =
     DelegatingComplicationText(this)
 
 /** Converts a [TimeZone] into an equivalent [java.util.TimeZone]. */
 internal fun TimeZone.asJavaTimeZone(): java.util.TimeZone =
     java.util.TimeZone.getTimeZone(this.id)
+
+/** [ComplicationText] implementation that delegates to a [WireTimeDependentText] instance. */
+private class DelegatingTimeDependentText(
+    private val delegate: WireTimeDependentText
+) : ComplicationText {
+    override fun getTextAt(resources: Resources, instant: Instant) =
+        delegate.getTextAt(resources, instant.toEpochMilli())
+
+    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
+        delegate.returnsSameText(firstInstant.toEpochMilli(), secondInstant.toEpochMilli())
+
+    override fun getNextChangeTime(afterInstant: Instant) =
+        Instant.ofEpochMilli(delegate.getNextChangeTime(afterInstant.toEpochMilli()))
+
+    override fun isAlwaysEmpty() = false
+
+    override fun getTimeDependentText(): TimeDependentText = delegate
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun toWireComplicationText(): WireComplicationText {
+        throw UnsupportedOperationException(
+            "DelegatingTimeDependentText doesn't support asWireComplicationText"
+        )
+    }
+}
+
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun WireTimeDependentText.toApiComplicationText(): ComplicationText =
+    DelegatingTimeDependentText(this)

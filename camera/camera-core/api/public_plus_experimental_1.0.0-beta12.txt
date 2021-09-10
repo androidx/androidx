@@ -69,12 +69,14 @@ package androidx.camera.core {
   }
 
   public final class CameraXConfig {
+    method @androidx.camera.core.ExperimentalAvailableCamerasLimiter public androidx.camera.core.CameraSelector? getAvailableCamerasSelector(androidx.camera.core.CameraSelector?);
     method @androidx.camera.core.ExperimentalLogging public int getMinimumLoggingLevel();
   }
 
   public static final class CameraXConfig.Builder {
     method public androidx.camera.core.CameraXConfig build();
     method public static androidx.camera.core.CameraXConfig.Builder fromConfig(androidx.camera.core.CameraXConfig);
+    method @androidx.camera.core.ExperimentalAvailableCamerasLimiter public androidx.camera.core.CameraXConfig.Builder setAvailableCamerasSelector(androidx.camera.core.CameraSelector);
     method public androidx.camera.core.CameraXConfig.Builder setCameraExecutor(java.util.concurrent.Executor);
     method @androidx.camera.core.ExperimentalLogging public androidx.camera.core.CameraXConfig.Builder setMinimumLoggingLevel(@IntRange(from=android.util.Log.DEBUG, to=android.util.Log.ERROR) int);
     method @androidx.camera.core.ExperimentalCustomizableThreads public androidx.camera.core.CameraXConfig.Builder setSchedulerHandler(android.os.Handler);
@@ -86,6 +88,9 @@ package androidx.camera.core {
 
   public final class DisplayOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
     ctor public DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraInfo, float, float);
+  }
+
+  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalAvailableCamerasSelector {
   }
 
   @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCameraFilter {

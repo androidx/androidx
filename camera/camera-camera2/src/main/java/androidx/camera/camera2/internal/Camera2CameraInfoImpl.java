@@ -24,18 +24,24 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
+import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.CameraManagerCompat;
+import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalExposureCompensation;
+import androidx.camera.core.CameraState;
 import androidx.camera.core.ExposureState;
+import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ZoomState;
+import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
@@ -44,7 +50,10 @@ import androidx.lifecycle.Observer;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -58,7 +67,7 @@ import java.util.concurrent.Executor;
  * CameraCaptureCallbacks added before this link will also be added
  * to the {@link Camera2CameraControlImpl}.
  */
-@UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+@OptIn(markerClass = ExperimentalCamera2Interop.class)
 public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     private static final String TAG = "Camera2CameraInfo";
@@ -76,19 +85,35 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @GuardedBy("mLock")
     @Nullable
     private RedirectableLiveData<ZoomState> mRedirectZoomStateLiveData = null;
+    @NonNull
+    private final RedirectableLiveData<CameraState> mCameraStateLiveData;
     @GuardedBy("mLock")
     @Nullable
     private List<Pair<CameraCaptureCallback, Executor>> mCameraCaptureCallbacks = null;
+
+    @NonNull
+    private final Quirks mCameraQuirks;
+    @NonNull
+    private final CamcorderProfileProvider mCamera2CamcorderProfileProvider;
+    @NonNull
+    private final CameraManagerCompat mCameraManager;
 
     /**
      * Constructs an instance. Before {@link #linkWithCameraControl(Camera2CameraControlImpl)} is
      * called, camera control related API (torch/exposure/zoom) will return default values.
      */
     Camera2CameraInfoImpl(@NonNull String cameraId,
-            @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat) {
+            @NonNull CameraManagerCompat cameraManager) throws CameraAccessExceptionCompat {
         mCameraId = Preconditions.checkNotNull(cameraId);
-        mCameraCharacteristicsCompat = cameraCharacteristicsCompat;
+        mCameraManager = cameraManager;
+
+        mCameraCharacteristicsCompat = cameraManager.getCameraCharacteristicsCompat(mCameraId);
         mCamera2CameraInfo = new Camera2CameraInfo(this);
+        mCameraQuirks = CameraQuirks.get(cameraId, mCameraCharacteristicsCompat);
+        mCamera2CamcorderProfileProvider = new Camera2CamcorderProfileProvider(cameraId,
+                mCameraCharacteristicsCompat);
+        mCameraStateLiveData = new RedirectableLiveData<>(
+                CameraState.create(CameraState.Type.CLOSED));
     }
 
     /**
@@ -121,6 +146,14 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
             }
         }
         logDeviceInfo();
+    }
+
+    /**
+     * Sets the source of the {@linkplain CameraState camera states} that will be exposed. When
+     * called more than once, the previous camera state source is overridden.
+     */
+    void setCameraStateSource(@NonNull LiveData<CameraState> cameraStateSource) {
+        mCameraStateLiveData.redirectTo(cameraStateSource);
     }
 
     @NonNull
@@ -270,7 +303,6 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @NonNull
     @Override
-    @ExperimentalExposureCompensation
     public ExposureState getExposureState() {
         synchronized (mLock) {
             if (mCamera2CameraControlImpl == null) {
@@ -278,6 +310,12 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
             }
             return mCamera2CameraControlImpl.getExposureControl().getExposureState();
         }
+    }
+
+    @NonNull
+    @Override
+    public LiveData<CameraState> getCameraState() {
+        return mCameraStateLiveData;
     }
 
     /**
@@ -297,6 +335,24 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         final int hardwareLevel = getSupportedHardwareLevel();
         return hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
                 ? IMPLEMENTATION_TYPE_CAMERA2_LEGACY : IMPLEMENTATION_TYPE_CAMERA2;
+    }
+
+    @Override
+    public boolean isFocusMeteringSupported(@NonNull FocusMeteringAction action) {
+        synchronized (mLock) {
+            if (mCamera2CameraControlImpl == null) {
+                return false;
+            }
+            return mCamera2CameraControlImpl.getFocusMeteringControl().isFocusMeteringSupported(
+                    action);
+        }
+    }
+
+    /** {@inheritDoc} */
+    @NonNull
+    @Override
+    public CamcorderProfileProvider getCamcorderProfileProvider() {
+        return mCamera2CamcorderProfileProvider;
     }
 
     @Override
@@ -336,12 +392,49 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         }
     }
 
+    /** {@inheritDoc} */
+    @NonNull
+    @Override
+    public Quirks getCameraQuirks() {
+        return mCameraQuirks;
+    }
+
     /**
      * Gets the implementation of {@link Camera2CameraInfo}.
      */
     @NonNull
     public Camera2CameraInfo getCamera2CameraInfo() {
         return mCamera2CameraInfo;
+    }
+
+    /**
+     * Returns a map consisting of the camera ids and the {@link CameraCharacteristics}s.
+     *
+     * <p>For every camera, the map contains at least the CameraCharacteristics for the camera id.
+     * If the camera is logical camera, it will also contain associated physical camera ids and
+     * their CameraCharacteristics.
+     *
+     */
+    @NonNull
+    public Map<String, CameraCharacteristics> getCameraCharacteristicsMap() {
+        LinkedHashMap<String, CameraCharacteristics> map = new LinkedHashMap<>();
+
+        map.put(mCameraId, mCameraCharacteristicsCompat.toCameraCharacteristics());
+
+        for (String physicalCameraId : mCameraCharacteristicsCompat.getPhysicalCameraIds()) {
+            if (Objects.equals(physicalCameraId, mCameraId)) {
+                continue;
+            }
+            try {
+                map.put(physicalCameraId,
+                        mCameraManager.getCameraCharacteristicsCompat(physicalCameraId)
+                                .toCameraCharacteristics());
+            } catch (CameraAccessExceptionCompat e) {
+                Logger.e(TAG,
+                        "Failed to get CameraCharacteristics for cameraId " + physicalCameraId, e);
+            }
+        }
+        return map;
     }
 
     /**

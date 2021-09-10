@@ -1,44 +1,39 @@
 // Signature format: 4.0
 package androidx.window.extensions {
 
-  public class ExtensionDeviceState {
-    ctor public ExtensionDeviceState(int);
-    method public int getPosture();
-    field public static final int POSTURE_CLOSED = 1; // 0x1
-    field public static final int POSTURE_FLIPPED = 4; // 0x4
-    field public static final int POSTURE_HALF_OPENED = 2; // 0x2
-    field public static final int POSTURE_OPENED = 3; // 0x3
-    field public static final int POSTURE_UNKNOWN = 0; // 0x0
+  public class WindowLibraryInfo {
+    method public int getApiLevel();
+    method public static androidx.window.extensions.WindowLibraryInfo getInstance(android.content.Context);
   }
 
-  public class ExtensionDisplayFeature {
-    ctor public ExtensionDisplayFeature(android.graphics.Rect, int);
+}
+
+package androidx.window.extensions.layout {
+
+  public interface DisplayFeature {
     method public android.graphics.Rect getBounds();
+  }
+
+  public class FoldingFeature implements androidx.window.extensions.layout.DisplayFeature {
+    ctor public FoldingFeature(android.graphics.Rect, int, int);
+    method public android.graphics.Rect getBounds();
+    method public int getState();
     method public int getType();
+    field public static final int STATE_FLAT = 1; // 0x1
+    field public static final int STATE_HALF_OPENED = 2; // 0x2
     field public static final int TYPE_FOLD = 1; // 0x1
     field public static final int TYPE_HINGE = 2; // 0x2
   }
 
-  public interface ExtensionInterface {
-    method public void onDeviceStateListenersChanged(boolean);
-    method public void onWindowLayoutChangeListenerAdded(android.app.Activity);
-    method public void onWindowLayoutChangeListenerRemoved(android.app.Activity);
-    method public void setExtensionCallback(androidx.window.extensions.ExtensionInterface.ExtensionCallback);
+  public class WindowLayoutComponent {
+    method public void addWindowLayoutInfoListener(android.app.Activity, java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
+    method public static androidx.window.extensions.layout.WindowLayoutComponent? getInstance(android.content.Context);
+    method public void removeWindowLayoutInfoListener(java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
   }
 
-  public static interface ExtensionInterface.ExtensionCallback {
-    method public void onDeviceStateChanged(androidx.window.extensions.ExtensionDeviceState);
-    method public void onWindowLayoutChanged(android.app.Activity, androidx.window.extensions.ExtensionWindowLayoutInfo);
-  }
-
-  public final class ExtensionProvider {
-    method public static String? getApiVersion();
-    method public static androidx.window.extensions.ExtensionInterface? getExtensionImpl(android.content.Context);
-  }
-
-  public class ExtensionWindowLayoutInfo {
-    ctor public ExtensionWindowLayoutInfo(java.util.List<androidx.window.extensions.ExtensionDisplayFeature!>);
-    method public java.util.List<androidx.window.extensions.ExtensionDisplayFeature!> getDisplayFeatures();
+  public class WindowLayoutInfo {
+    ctor public WindowLayoutInfo(java.util.List<androidx.window.extensions.layout.DisplayFeature!>);
+    method public java.util.List<androidx.window.extensions.layout.DisplayFeature!> getDisplayFeatures();
   }
 
 }

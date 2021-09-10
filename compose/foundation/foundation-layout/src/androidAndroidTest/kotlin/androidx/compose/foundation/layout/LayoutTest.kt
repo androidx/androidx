@@ -22,34 +22,40 @@ import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.layout.AlignmentLine
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.node.Ref
+import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.AmbientDensity
-import androidx.compose.ui.platform.AndroidOwner
-import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.node.Ref
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.constrain
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.enforce
-import androidx.compose.ui.unit.hasFixedHeight
-import androidx.compose.ui.unit.hasFixedWidth
 import androidx.compose.ui.unit.isFinite
 import androidx.compose.ui.unit.offset
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -89,28 +95,34 @@ open class LayoutTest {
     internal fun show(composable: @Composable () -> Unit) {
         val runnable: Runnable = object : Runnable {
             override fun run() {
-                activity.setContent(Recomposer.current(), composable)
+                activity.setContent(content = composable)
             }
         }
         activityTestRule.runOnUiThread(runnable)
+        // Wait for the frame to complete before continuing
+        runBlocking {
+            Recomposer.runningRecomposers.value.forEach { recomposer ->
+                recomposer.state.first { it <= Recomposer.State.Idle }
+            }
+        }
     }
 
-    internal fun findOwnerView(): View {
-        return findOwner(activity).view
+    internal fun findComposeView(): View {
+        return findViewRootForTest(activity).view
     }
 
-    internal fun findOwner(activity: Activity): AndroidOwner {
+    internal fun findViewRootForTest(activity: Activity): ViewRootForTest {
         val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
-        return findOwner(contentViewGroup)!!
+        return findViewRootForTest(contentViewGroup)!!
     }
 
-    internal fun findOwner(parent: ViewGroup): AndroidOwner? {
+    internal fun findViewRootForTest(parent: ViewGroup): ViewRootForTest? {
         for (index in 0 until parent.childCount) {
             val child = parent.getChildAt(index)
-            if (child is AndroidOwner) {
+            if (child is ViewRootForTest) {
                 return child
             } else if (child is ViewGroup) {
-                val owner = findOwner(child)
+                val owner = findViewRootForTest(child)
                 if (owner != null) {
                     return owner
                 }
@@ -152,23 +164,47 @@ open class LayoutTest {
         layouts.forEach { layout ->
             val layoutLatch = CountDownLatch(1)
             show {
-                Layout(
-                    layout,
-                    minIntrinsicWidthMeasureBlock = { _, _ -> 0 },
-                    minIntrinsicHeightMeasureBlock = { _, _ -> 0 },
-                    maxIntrinsicWidthMeasureBlock = { _, _ -> 0 },
-                    maxIntrinsicHeightMeasureBlock = { _, _ -> 0 }
-                ) { measurables, _ ->
-                    val measurable = measurables.first()
-                    test(
-                        { h -> measurable.minIntrinsicWidth(h) },
-                        { w -> measurable.minIntrinsicHeight(w) },
-                        { h -> measurable.maxIntrinsicWidth(h) },
-                        { w -> measurable.maxIntrinsicHeight(w) }
-                    )
-                    layoutLatch.countDown()
-                    layout(0, 0) {}
+                val measurePolicy = object : MeasurePolicy {
+                    override fun MeasureScope.measure(
+                        measurables: List<Measurable>,
+                        constraints: Constraints
+                    ): MeasureResult {
+                        val measurable = measurables.first()
+                        test(
+                            { h -> measurable.minIntrinsicWidth(h) },
+                            { w -> measurable.minIntrinsicHeight(w) },
+                            { h -> measurable.maxIntrinsicWidth(h) },
+                            { w -> measurable.maxIntrinsicHeight(w) }
+                        )
+                        layoutLatch.countDown()
+
+                        return layout(0, 0) {}
+                    }
+
+                    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                        measurables: List<IntrinsicMeasurable>,
+                        height: Int
+                    ) = 0
+
+                    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                        measurables: List<IntrinsicMeasurable>,
+                        width: Int
+                    ) = 0
+
+                    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                        measurables: List<IntrinsicMeasurable>,
+                        height: Int
+                    ) = 0
+
+                    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                        measurables: List<IntrinsicMeasurable>,
+                        width: Int
+                    ) = 0
                 }
+                Layout(
+                    content = layout,
+                    measurePolicy = measurePolicy
+                )
             }
             assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         }
@@ -205,38 +241,62 @@ open class LayoutTest {
         modifier: Modifier = Modifier,
         content: @Composable () -> Unit
     ) {
-        with(AmbientDensity.current) {
+        with(LocalDensity.current) {
             val pxConstraints = Constraints(constraints)
-            Layout(
-                content,
-                modifier = modifier,
-                minIntrinsicWidthMeasureBlock = { measurables, h ->
-                    val width = measurables.firstOrNull()?.minIntrinsicWidth(h) ?: 0
-                    pxConstraints.constrainWidth(width)
-                },
-                minIntrinsicHeightMeasureBlock = { measurables, w ->
-                    val height = measurables.firstOrNull()?.minIntrinsicHeight(w) ?: 0
-                    pxConstraints.constrainHeight(height)
-                },
-                maxIntrinsicWidthMeasureBlock = { measurables, h ->
-                    val width = measurables.firstOrNull()?.maxIntrinsicWidth(h) ?: 0
-                    pxConstraints.constrainWidth(width)
-                },
-                maxIntrinsicHeightMeasureBlock = { measurables, w ->
-                    val height = measurables.firstOrNull()?.maxIntrinsicHeight(w) ?: 0
-                    pxConstraints.constrainHeight(height)
-                }
-            ) { measurables, incomingConstraints ->
-                val measurable = measurables.firstOrNull()
-                val childConstraints = Constraints(constraints).enforce(incomingConstraints)
-                val placeable = measurable?.measure(childConstraints)
+            val measurePolicy = object : MeasurePolicy {
+                @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+                override fun MeasureScope.measure(
+                    measurables: List<Measurable>,
+                    incomingConstraints: Constraints
+                ): MeasureResult {
+                    val measurable = measurables.firstOrNull()
+                    val childConstraints = incomingConstraints.constrain(Constraints(constraints))
+                    val placeable = measurable?.measure(childConstraints)
 
-                val layoutWidth = placeable?.width ?: childConstraints.minWidth
-                val layoutHeight = placeable?.height ?: childConstraints.minHeight
-                layout(layoutWidth, layoutHeight) {
-                    placeable?.placeRelative(0, 0)
+                    val layoutWidth = placeable?.width ?: childConstraints.minWidth
+                    val layoutHeight = placeable?.height ?: childConstraints.minHeight
+                    return layout(layoutWidth, layoutHeight) {
+                        placeable?.placeRelative(0, 0)
+                    }
+                }
+
+                override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                    measurables: List<IntrinsicMeasurable>,
+                    height: Int
+                ): Int {
+                    val width = measurables.firstOrNull()?.minIntrinsicWidth(height) ?: 0
+                    return pxConstraints.constrainWidth(width)
+                }
+
+                override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                    measurables: List<IntrinsicMeasurable>,
+                    width: Int
+                ): Int {
+                    val height = measurables.firstOrNull()?.minIntrinsicHeight(width) ?: 0
+                    return pxConstraints.constrainHeight(height)
+                }
+
+                override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                    measurables: List<IntrinsicMeasurable>,
+                    height: Int
+                ): Int {
+                    val width = measurables.firstOrNull()?.maxIntrinsicWidth(height) ?: 0
+                    return pxConstraints.constrainWidth(width)
+                }
+
+                override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                    measurables: List<IntrinsicMeasurable>,
+                    width: Int
+                ): Int {
+                    val height = measurables.firstOrNull()?.maxIntrinsicHeight(width) ?: 0
+                    return pxConstraints.constrainHeight(height)
                 }
             }
+            Layout(
+                content = content,
+                modifier = modifier,
+                measurePolicy = measurePolicy
+            )
         }
     }
 
@@ -255,8 +315,8 @@ open class LayoutTest {
         val maxHeight: Dp = Dp.Infinity
     ) {
         init {
-            require(minWidth.isFinite()) { "Constraints#minWidth should be finite" }
-            require(minHeight.isFinite()) { "Constraints#minHeight should be finite" }
+            require(minWidth.isFinite) { "Constraints#minWidth should be finite" }
+            require(minHeight.isFinite) { "Constraints#minHeight should be finite" }
             require(!minWidth.value.isNaN()) { "Constraints#minWidth should not be NaN" }
             require(!maxWidth.value.isNaN()) { "Constraints#maxWidth should not be NaN" }
             require(!minHeight.value.isNaN()) { "Constraints#minHeight should not be NaN" }
@@ -287,10 +347,10 @@ open class LayoutTest {
      */
     @Stable
     fun Density.Constraints(dpConstraints: DpConstraints) = Constraints(
-        minWidth = dpConstraints.minWidth.toIntPx(),
-        maxWidth = dpConstraints.maxWidth.toIntPx(),
-        minHeight = dpConstraints.minHeight.toIntPx(),
-        maxHeight = dpConstraints.maxHeight.toIntPx()
+        minWidth = dpConstraints.minWidth.roundToPx(),
+        maxWidth = dpConstraints.maxWidth.roundToPx(),
+        minHeight = dpConstraints.minHeight.roundToPx(),
+        maxHeight = dpConstraints.maxHeight.roundToPx()
     )
 
     internal fun assertEquals(expected: Size?, actual: Size?) {
@@ -366,15 +426,19 @@ open class LayoutTest {
         content: @Composable () -> Unit
     ) {
         Layout(content, modifier) { measurables, incomingConstraints ->
-            val containerConstraints = Constraints(constraints)
-                .copy(
-                    width?.toIntPx() ?: constraints.minWidth.toIntPx(),
-                    width?.toIntPx() ?: constraints.maxWidth.toIntPx(),
-                    height?.toIntPx() ?: constraints.minHeight.toIntPx(),
-                    height?.toIntPx() ?: constraints.maxHeight.toIntPx()
-                ).enforce(incomingConstraints)
-            val totalHorizontal = padding.start.toIntPx() + padding.end.toIntPx()
-            val totalVertical = padding.top.toIntPx() + padding.bottom.toIntPx()
+            val containerConstraints = incomingConstraints.constrain(
+                Constraints(constraints)
+                    .copy(
+                        width?.roundToPx() ?: constraints.minWidth.roundToPx(),
+                        width?.roundToPx() ?: constraints.maxWidth.roundToPx(),
+                        height?.roundToPx() ?: constraints.minHeight.roundToPx(),
+                        height?.roundToPx() ?: constraints.maxHeight.roundToPx()
+                    )
+            )
+            val totalHorizontal = padding.calculateLeftPadding(layoutDirection).roundToPx() +
+                padding.calculateRightPadding(layoutDirection).roundToPx()
+            val totalVertical = padding.calculateTopPadding().roundToPx() +
+                padding.calculateBottomPadding().roundToPx()
             val childConstraints = containerConstraints
                 .copy(minWidth = 0, minHeight = 0)
                 .offset(-totalHorizontal, -totalVertical)
@@ -405,9 +469,9 @@ open class LayoutTest {
                         IntSize(containerWidth, containerHeight),
                         layoutDirection
                     )
-                    it.placeRelative(
-                        padding.start.toIntPx() + position.x,
-                        padding.top.toIntPx() + position.y
+                    it.place(
+                        padding.calculateLeftPadding(layoutDirection).roundToPx() + position.x,
+                        padding.calculateTopPadding().roundToPx() + position.y
                     )
                 }
             }

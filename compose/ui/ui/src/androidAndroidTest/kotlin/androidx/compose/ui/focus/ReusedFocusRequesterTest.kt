@@ -18,11 +18,6 @@ package androidx.compose.ui.focus
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus
-import androidx.compose.ui.focus.FocusState.Active
-import androidx.compose.ui.focus.FocusState.Inactive
-import androidx.compose.ui.focusObserver
-import androidx.compose.ui.focusRequester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -32,7 +27,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
-@OptIn(ExperimentalFocus::class)
 @RunWith(AndroidJUnit4::class)
 class ReusedFocusRequesterTest {
     @get:Rule
@@ -46,9 +40,9 @@ class ReusedFocusRequesterTest {
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState = it }
+                    .onFocusChanged { focusState = it }
                     .focusRequester(focusRequester)
-                    .focus()
+                    .focusTarget()
             )
         }
 
@@ -57,7 +51,7 @@ class ReusedFocusRequesterTest {
             focusRequester.requestFocus()
 
             // Assert.
-            assertThat(focusState).isEqualTo(Active)
+            assertThat(focusState.isFocused).isTrue()
         }
     }
 
@@ -70,15 +64,15 @@ class ReusedFocusRequesterTest {
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState1 = it }
+                    .onFocusChanged { focusState1 = it }
                     .focusRequester(focusRequester)
-                    .focus()
+                    .focusTarget()
             )
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState2 = it }
+                    .onFocusChanged { focusState2 = it }
                     .focusRequester(focusRequester)
-                    .focus()
+                    .focusTarget()
             )
         }
 
@@ -87,8 +81,8 @@ class ReusedFocusRequesterTest {
             focusRequester.requestFocus()
 
             // Assert.
-            assertThat(focusState1).isEqualTo(Inactive)
-            assertThat(focusState2).isEqualTo(Active)
+            assertThat(focusState1.isFocused).isFalse()
+            assertThat(focusState2.isFocused).isTrue()
         }
     }
 
@@ -102,21 +96,21 @@ class ReusedFocusRequesterTest {
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState1 = it }
+                    .onFocusChanged { focusState1 = it }
                     .focusRequester(focusRequester)
-                    .focus()
+                    .focusTarget()
             )
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState2 = it }
+                    .onFocusChanged { focusState2 = it }
                     .focusRequester(focusRequester)
-                    .focus()
+                    .focusTarget()
             )
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState3 = it }
+                    .onFocusChanged { focusState3 = it }
                     .focusRequester(focusRequester)
-                    .focus()
+                    .focusTarget()
             )
         }
 
@@ -125,9 +119,9 @@ class ReusedFocusRequesterTest {
             focusRequester.requestFocus()
 
             // Assert.
-            assertThat(focusState1).isEqualTo(Inactive)
-            assertThat(focusState2).isEqualTo(Inactive)
-            assertThat(focusState3).isEqualTo(Active)
+            assertThat(focusState1.isFocused).isFalse()
+            assertThat(focusState2.isFocused).isFalse()
+            assertThat(focusState3.isFocused).isTrue()
         }
     }
 }

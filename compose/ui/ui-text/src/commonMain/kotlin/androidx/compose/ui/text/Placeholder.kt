@@ -18,6 +18,7 @@ package androidx.compose.ui.text
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.isUnspecified
 
 /**
  * A placeholder is a rectangle box inserted into text, which tells the text processor to leave an
@@ -33,7 +34,7 @@ import androidx.compose.ui.unit.TextUnit
  * @throws IllegalArgumentException if [TextUnit.Unspecified] is passed to [width] or [height].
  */
 @Immutable
-data class Placeholder(
+class Placeholder(
     val width: TextUnit,
     val height: TextUnit,
     val placeholderVerticalAlign: PlaceholderVerticalAlign
@@ -42,39 +43,94 @@ data class Placeholder(
         require(!width.isUnspecified) { "width cannot be TextUnit.Unspecified" }
         require(!height.isUnspecified) { "height cannot be TextUnit.Unspecified" }
     }
+
+    fun copy(
+        width: TextUnit = this.width,
+        height: TextUnit = this.height,
+        placeholderVerticalAlign: PlaceholderVerticalAlign = this.placeholderVerticalAlign
+    ): Placeholder {
+        return Placeholder(
+            width = width,
+            height = height,
+            placeholderVerticalAlign = placeholderVerticalAlign
+        )
+    }
+
+    override operator fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Placeholder) return false
+        if (width != other.width) return false
+        if (height != other.height) return false
+        if (placeholderVerticalAlign != other.placeholderVerticalAlign) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = width.hashCode()
+        result = 31 * result + height.hashCode()
+        result = 31 * result + placeholderVerticalAlign.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "Placeholder(" +
+            "width=$width, " +
+            "height=$height, " +
+            "placeholderVerticalAlign=$placeholderVerticalAlign" +
+            ")"
+    }
 }
 /**
  * The settings used to specify how a placeholder is vertically aligned within a text line.
  * @see Placeholder
  */
-enum class PlaceholderVerticalAlign {
-    /** Align the bottom of the placeholder with the baseline. */
-    AboveBaseline,
-    /** Align the top of the placeholder with the top of the entire line. */
-    Top,
-    /** Align the bottom of the placeholder with the bottom of the entire line. */
-    Bottom,
-    /** Align the center of the placeholder with the center of the entire line. */
-    Center,
-    /**
-     *  Align the top of the placeholder with the top of the proceeding text.
-     *  It is different from the [Top] when there are texts with different font size, font or other
-     *  styles in the same line. This option will use the proceeding text's top instead of the
-     *  whole line's top.
-     */
-    TextTop,
-    /**
-     * Align the bottom of the placeholder with the bottom of the proceeding text.
-     * It is different from the [TextBottom] when there are texts with different font size, font or
-     * other styles in the same line. This option will use the proceeding text's bottom instead of
-     * the whole line's bottom.
-     */
-    TextBottom,
-    /**
-     * Align the center of the placeholder with the center of the proceeding text.
-     * It is different from the [Center] when there are texts with different font size, font or
-     * other styles in the same line. This option will use the proceeding text's center instead of
-     * the whole line's center.
-     */
-    TextCenter,
+@Suppress("INLINE_CLASS_DEPRECATED")
+inline class PlaceholderVerticalAlign internal constructor(
+    @Suppress("unused") private val value: Int
+) {
+
+    override fun toString(): String {
+        return when (this) {
+            AboveBaseline -> "AboveBaseline"
+            Top -> "Top"
+            Bottom -> "Bottom"
+            Center -> "Center"
+            TextTop -> "TextTop"
+            TextBottom -> "TextBottom"
+            TextCenter -> "TextCenter"
+            else -> "Invalid"
+        }
+    }
+
+    companion object {
+        /** Align the bottom of the placeholder with the baseline. */
+        val AboveBaseline = PlaceholderVerticalAlign(1)
+        /** Align the top of the placeholder with the top of the entire line. */
+        val Top = PlaceholderVerticalAlign(2)
+        /** Align the bottom of the placeholder with the bottom of the entire line. */
+        val Bottom = PlaceholderVerticalAlign(3)
+        /** Align the center of the placeholder with the center of the entire line. */
+        val Center = PlaceholderVerticalAlign(4)
+        /**
+         *  Align the top of the placeholder with the top of the proceeding text.
+         *  It is different from the [Top] when there are texts with different font size, font or other
+         *  styles in the same line. This option will use the proceeding text's top instead of the
+         *  whole line's top.
+         */
+        val TextTop = PlaceholderVerticalAlign(5)
+        /**
+         * Align the bottom of the placeholder with the bottom of the proceeding text.
+         * It is different from the [TextBottom] when there are texts with different font size, font or
+         * other styles in the same line. This option will use the proceeding text's bottom instead of
+         * the whole line's bottom.
+         */
+        val TextBottom = PlaceholderVerticalAlign(6)
+        /**
+         * Align the center of the placeholder with the center of the proceeding text.
+         * It is different from the [Center] when there are texts with different font size, font or
+         * other styles in the same line. This option will use the proceeding text's center instead of
+         * the whole line's center.
+         */
+        val TextCenter = PlaceholderVerticalAlign(7)
+    }
 }

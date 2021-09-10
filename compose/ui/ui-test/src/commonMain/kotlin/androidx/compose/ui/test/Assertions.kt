@@ -17,33 +17,9 @@
 package androidx.compose.ui.test
 
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.semantics.AccessibilityRangeInfo
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
-
-/**
- * Asserts that the current semantics node has hidden property set to true. A hidden node is a
- * node that is not visible for accessibility. It will still be shown, but it will be skipped by
- * accessibility services.
- *
- * Note that this does not verify parents of the node. For stronger guarantees of visibility
- * see [assertIsNotDisplayed]. If you want to assert that the node is not even in the hierarchy
- * use [SemanticsNodeInteraction.assertDoesNotExist].
- *
- * Throws [AssertionError] if the node is not hidden.
- */
-fun SemanticsNodeInteraction.assertIsHidden(): SemanticsNodeInteraction = assert(isHidden())
-
-/**
- * Asserts that the current semantics node has hidden property set to false.
- *
- * Note that this does not verify parents of the node. For stronger guarantees of visibility
- * see [assertIsDisplayed]. If you only want to assert that the node is in the hierarchy use
- * [SemanticsNodeInteraction.assertExists]
- *
- * Throws [AssertionError] if the node is hidden.
- */
-fun SemanticsNodeInteraction.assertIsNotHidden(): SemanticsNodeInteraction = assert(isNotHidden())
 
 /**
  * Asserts that the current semantics node is displayed on screen.
@@ -153,51 +129,107 @@ fun SemanticsNodeInteraction.assertIsNotFocused(): SemanticsNodeInteraction =
     assert(isNotFocused())
 
 /**
- * Asserts the semantics node is in a mutually exclusive group. This is used by radio groups to
- * assert only one is selected at a given time.
+ * Asserts that the node's content description contains exactly the given [values] and nothing else.
  *
- * @Deprecated Replaced with androidx.compose.ui.test.assertIsSelectable
+ * Note that in merged semantics tree there can be a list of content descriptions that got merged
+ * from the child nodes. Typically an accessibility tooling will decide based on its heuristics
+ * which ones to announce.
+ *
+ * Throws [AssertionError] if the node's descriptions don't contain all items from [values], or
+ * if the descriptions contain extra items that are not in [values].
+ *
+ * @param values List of values to match (the order does not matter)
+ * @see SemanticsProperties.ContentDescription
  */
-@Deprecated(
-    "Replaced with androidx.compose.ui.test.assertIsSelectable",
-    ReplaceWith("assertIsSelectable()", "androidx.compose.ui.test")
-)
-fun SemanticsNodeInteraction.assertIsInMutuallyExclusiveGroup(): SemanticsNodeInteraction =
-    assertIsSelectable()
+fun SemanticsNodeInteraction.assertContentDescriptionEquals(
+    vararg values: String
+): SemanticsNodeInteraction = assert(hasContentDescriptionExactly(*values))
 
 /**
- * Asserts the node's label equals the given String.
- * For further details please check [SemanticsProperties.AccessibilityLabel].
- * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
+ * Asserts that the node's content description contains the given [value].
+ *
+ * Note that in merged semantics tree there can be a list of content descriptions that got merged
+ * from the child nodes. Typically an accessibility tooling will decide based on its heuristics
+ * which ones to announce.
+ *
+ * Throws [AssertionError] if the node's value does not contain `value`, or if the node has no value
+ *
+ * @param value Value to match as one of the items in the list of content descriptions.
+ * @param substring Whether this can be satisfied as a substring match of an item in the list of
+ * descriptions.
+ * @param ignoreCase Whether case should be ignored.
+ * @see SemanticsProperties.ContentDescription
  */
-fun SemanticsNodeInteraction.assertLabelEquals(value: String): SemanticsNodeInteraction =
-    assert(hasLabel(value))
+fun SemanticsNodeInteraction.assertContentDescriptionContains(
+    value: String,
+    substring: Boolean = false,
+    ignoreCase: Boolean = false
+): SemanticsNodeInteraction =
+    assert(hasContentDescription(value, substring = substring, ignoreCase = ignoreCase))
 
 /**
- * Asserts the node's text equals the given String.
- * For further details please check [SemanticsProperties.Text].
- * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
+ * Asserts that the node's text contains exactly the given [values] and nothing else.
+ *
+ * This will also search in [SemanticsProperties.EditableText] by default.
+ *
+ * Note that in merged semantics tree there can be a list of text items that got merged from
+ * the child nodes. Typically an accessibility tooling will decide based on its heuristics which
+ * ones to use.
+ *
+ * Throws [AssertionError] if the node's text values don't contain all items from [values], or
+ * if the text values contain extra items that are not in [values].
+ *
+ * @param values List of values to match (the order does not matter)
+ * @param includeEditableText Whether to also assert against the editable text.
+ * @see SemanticsProperties.ContentDescription
  */
-fun SemanticsNodeInteraction.assertTextEquals(value: String): SemanticsNodeInteraction =
-    assert(hasText(value))
+fun SemanticsNodeInteraction.assertTextEquals(
+    vararg values: String,
+    includeEditableText: Boolean = true
+): SemanticsNodeInteraction =
+    assert(hasTextExactly(*values, includeEditableText = includeEditableText))
+
+/**
+ * Asserts that the node's text contains the given [value].
+ *
+ * This will also search in [SemanticsProperties.EditableText].
+ *
+ * Note that in merged semantics tree there can be a list of text items that got merged from
+ * the child nodes. Typically an accessibility tooling will decide based on its heuristics which
+ * ones to use.
+ *
+ * Throws [AssertionError] if the node's value does not contain `value`, or if the node has no value
+ *
+ * @param value Value to match as one of the items in the list of text values.
+ * @param substring Whether this can be satisfied as a substring match of an item in the list of
+ * text.
+ * @param ignoreCase Whether case should be ignored.
+ * @see SemanticsProperties.Text
+ */
+fun SemanticsNodeInteraction.assertTextContains(
+    value: String,
+    substring: Boolean = false,
+    ignoreCase: Boolean = false
+): SemanticsNodeInteraction =
+    assert(hasText(value, substring = substring, ignoreCase = ignoreCase))
 
 /**
  * Asserts the node's value equals the given value.
  *
- * For further details please check [SemanticsProperties.AccessibilityValue].
+ * For further details please check [SemanticsProperties.StateDescription].
  * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
  */
 fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInteraction =
-    assert(hasValue(value))
+    assert(hasStateDescription(value))
 
 /**
  * Asserts the node's range info equals the given value.
  *
- * For further details please check [SemanticsProperties.AccessibilityRangeInfo].
+ * For further details please check [SemanticsProperties.ProgressBarRangeInfo].
  * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
  */
-fun SemanticsNodeInteraction.assertRangeInfoEquals(value: AccessibilityRangeInfo):
-    SemanticsNodeInteraction = assert(hasRangeInfo(value))
+fun SemanticsNodeInteraction.assertRangeInfoEquals(value: ProgressBarRangeInfo):
+    SemanticsNodeInteraction = assert(hasProgressBarRangeInfo(value))
 
 /**
  * Asserts that the current semantics node has a click action.
@@ -251,7 +283,10 @@ fun SemanticsNodeInteractionCollection.assertCountEquals(
     expectedSize: Int
 ): SemanticsNodeInteractionCollection {
     val errorOnFail = "Failed to assert count of nodes."
-    val matchedNodes = fetchSemanticsNodes(errorOnFail)
+    val matchedNodes = fetchSemanticsNodes(
+        atLeastOneRootRequired = expectedSize > 0,
+        errorOnFail
+    )
     if (matchedNodes.size != expectedSize) {
         throw AssertionError(
             buildErrorMessageForCountMismatch(
@@ -276,7 +311,7 @@ fun SemanticsNodeInteractionCollection.assertAny(
     matcher: SemanticsMatcher
 ): SemanticsNodeInteractionCollection {
     val errorOnFail = "Failed to assertAny(${matcher.description})"
-    val nodes = fetchSemanticsNodes(errorOnFail)
+    val nodes = fetchSemanticsNodes(errorMessageOnFail = errorOnFail)
     if (nodes.isEmpty()) {
         throw AssertionError(buildErrorMessageForAtLeastOneNodeExpected(errorOnFail, selector))
     }
@@ -300,7 +335,7 @@ fun SemanticsNodeInteractionCollection.assertAll(
     matcher: SemanticsMatcher
 ): SemanticsNodeInteractionCollection {
     val errorOnFail = "Failed to assertAll(${matcher.description})"
-    val nodes = fetchSemanticsNodes(errorOnFail)
+    val nodes = fetchSemanticsNodes(errorMessageOnFail = errorOnFail)
 
     val violations = mutableListOf<SemanticsNode>()
     nodes.forEach {

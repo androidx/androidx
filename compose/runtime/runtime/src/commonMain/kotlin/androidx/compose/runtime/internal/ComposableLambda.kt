@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-@file:Suppress("UNCHECKED_CAST")
 @file:OptIn(InternalComposeApi::class)
 package androidx.compose.runtime.internal
 
 import androidx.compose.runtime.ComposeCompilerApi
 import androidx.compose.runtime.Composer
-import androidx.compose.runtime.EMPTY
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.RecomposeScope
+import androidx.compose.runtime.RecomposeScopeImpl
 import androidx.compose.runtime.Stable
 
 private const val SLOTS_PER_INT = 10
@@ -43,1161 +42,300 @@ internal fun differentBits(slot: Int): Int = bitsForSlot(0b10, slot)
  * This allows much of the call-graph to be skipped when a composable function is passed through
  * multiple levels of composable functions.
  */
+@Suppress("NAME_SHADOWING")
 @Stable
-@ComposeCompilerApi
 /* ktlint-disable parameter-list-wrapping */ // TODO(https://github.com/pinterest/ktlint/issues/921): reenable
-class ComposableLambda<
-    P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16,
-    P17, P18, R>(
-    val key: Int,
-    private val tracked: Boolean,
-    private val sourceInformation: String?
-) :
-    Function2<Composer<*>, Int, R>,
-    Function3<P1, Composer<*>, Int, R>,
-    Function4<P1, P2, Composer<*>, Int, R>,
-    Function5<P1, P2, P3, Composer<*>, Int, R>,
-    Function6<P1, P2, P3, P4, Composer<*>, Int, R>,
-    Function7<P1, P2, P3, P4, P5, Composer<*>, Int, R>,
-    Function8<P1, P2, P3, P4, P5, P6, Composer<*>, Int, R>,
-    Function9<P1, P2, P3, P4, P5, P6, P7, Composer<*>, Int, R>,
-    Function10<P1, P2, P3, P4, P5, P6, P7, P8, Composer<*>, Int, R>,
-    Function11<P1, P2, P3, P4, P5, P6, P7, P8, P9, Composer<*>, Int, R>,
-    Function13<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, Composer<*>, Int, Int, R>,
-    Function14<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, Composer<*>, Int, Int, R>,
-    Function15<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, Composer<*>, Int, Int, R>,
-    Function16<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, Composer<*>, Int, Int, R>,
-    Function17<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, Composer<*>, Int,
-        Int, R>,
-    Function18<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, Composer<*>,
-        Int, Int, R>,
-    Function19<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16,
-        Composer<*>, Int, Int, R>,
-    Function20<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16, P17,
-        Composer<*>, Int, Int, R>,
-    Function21<P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16, P17, P18,
-        Composer<*>, Int, Int, R> {
-    private var _block: Any? = null
-    private var scope: RecomposeScope? = null
-    private var scopes: MutableList<RecomposeScope>? = null
-
-    private fun trackWrite() {
-        if (tracked) {
-            val scope = this.scope
-            if (scope != null) {
-                scope.invalidate()
-                this.scope = null
-            }
-            val scopes = this.scopes
-            if (scopes != null) {
-                for (index in 0 until scopes.size) {
-                    val item = scopes[index]
-                    item.invalidate()
-                }
-                scopes.clear()
-            }
-        }
-    }
-
-    private fun trackRead(composer: Composer<*>) {
-        if (tracked) {
-            val scope = composer.currentRecomposeScope
-            if (scope != null) {
-                // Find the first invalid scope and replace it or record it if no scopes are invalid
-                scope.used = true
-                val lastScope = this.scope
-                if (lastScope.replacableWith(scope)) {
-                    this.scope = scope
-                } else {
-                    val lastScopes = scopes
-                    if (lastScopes == null) {
-                        val newScopes = mutableListOf<RecomposeScope>()
-                        scopes = newScopes
-                        newScopes.add(scope)
-                    } else {
-                        for (index in 0 until lastScopes.size) {
-                            val scopeAtIndex = lastScopes[index]
-                            if (scopeAtIndex.replacableWith(scope)) {
-                                lastScopes[index] = scope
-                                return
-                            }
-                        }
-                        lastScopes.add(scope)
-                    }
-                }
-            }
-        }
-    }
-
-    fun update(block: Any) {
-        if (_block != block) {
-            val oldBlockNull = _block == null
-            _block = block
-            if (!oldBlockNull) {
-                trackWrite()
-            }
-        }
-    }
-
-    override operator fun invoke(c: Composer<*>, changed: Int): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed or if (c.changed(this)) differentBits(0) else sameBits(0)
-        val result = (_block as (c: Composer<*>, changed: Int) -> R)(c, dirty)
-        c.endRestartGroup()?.updateScope(this as (Composer<*>, Int) -> Unit)
-        return result
-    }
-
-    override operator fun invoke(p1: P1, c: Composer<*>, changed: Int): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed or if (c.changed(this)) differentBits(1) else sameBits(1)
-        val result = (
-            _block as (
-                p1: P1,
-                c: Composer<*>,
-                changed: Int
-            ) -> R
-            )(
-            p1,
-            c,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ -> this(p1, nc, changed or 0b1) }
-        return result
-    }
-
-    override operator fun invoke(p1: P1, p2: P2, c: Composer<*>, changed: Int): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed or if (c.changed(this)) differentBits(2) else sameBits(2)
-        val result = (_block as (p1: P1, p2: P2, c: Composer<*>, changed: Int) -> R)(
-            p1,
-            p2,
-            c,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ -> this(p1, p2, nc, changed or 0b1) }
-        return result
-    }
-
-    override operator fun invoke(p1: P1, p2: P2, p3: P3, c: Composer<*>, changed: Int): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed or if (c.changed(this)) differentBits(3) else sameBits(3)
-        val result = (
-            _block as (
-                p1: P1,
-                p2: P2,
-                p3: P3,
-                c: Composer<*>,
-                changed: Int
-            ) -> R
-            )(
-            p1,
-            p2,
-            p3,
-            c,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ -> this(p1, p2, p3, nc, changed or 0b1) }
-        return result
-    }
-
-    override operator fun invoke(
-        p1: P1,
-        p2: P2,
-        p3: P3,
-        p4: P4,
-        c: Composer<*>,
-        changed: Int
-    ): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed or if (c.changed(this)) differentBits(4) else sameBits(4)
-        val result = (
-            _block as (
-                p1: P1,
-                p2: P2,
-                p3: P3,
-                p4: P4,
-                c: Composer<*>,
-                changed: Int
-            ) -> R
-            )(
-            p1,
-            p2,
-            p3,
-            p4,
-            c,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, nc, changed or 0b1)
-        }
-        return result
-    }
-
-    override operator fun invoke(
-        p1: P1,
-        p2: P2,
-        p3: P3,
-        p4: P4,
-        p5: P5,
-        c: Composer<*>,
-        changed: Int
-    ): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed or if (c.changed(this)) differentBits(5) else sameBits(5)
-        val result = (
-            _block as (
-                p1: P1,
-                p2: P2,
-                p3: P3,
-                p4: P4,
-                p5: P5,
-                c: Composer<*>,
-                changed: Int
-            ) -> R
-            )(
-            p1,
-            p2,
-            p3,
-            p4,
-            p5,
-            c,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, nc, changed or 0b1)
-        }
-        return result
-    }
-
-    override operator fun invoke(
-        p1: P1,
-        p2: P2,
-        p3: P3,
-        p4: P4,
-        p5: P5,
-        p6: P6,
-        c: Composer<*>,
-        changed: Int
-    ): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed or if (c.changed(this)) differentBits(6) else sameBits(6)
-        val result = (
-            _block as (
-                p1: P1,
-                p2: P2,
-                p3: P3,
-                p4: P4,
-                p5: P5,
-                p6: P6,
-                c: Composer<*>,
-                changed: Int
-            ) -> R
-            )(
-            p1,
-            p2,
-            p3,
-            p4,
-            p5,
-            p6,
-            c,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, nc, changed or 0b1)
-        }
-        return result
-    }
-
-    override operator fun invoke(
-        p1: P1,
-        p2: P2,
-        p3: P3,
-        p4: P4,
-        p5: P5,
-        p6: P6,
-        p7: P7,
-        c: Composer<*>,
-        changed: Int
-    ): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed or if (c.changed(this)) differentBits(7) else sameBits(7)
-        val result = (
-            _block as (
-                p1: P1,
-                p2: P2,
-                p3: P3,
-                p4: P4,
-                p5: P5,
-                p6: P6,
-                p7: P7,
-                c: Composer<*>,
-                changed: Int
-            ) -> R
-            )(
-            p1,
-            p2,
-            p3,
-            p4,
-            p5,
-            p6,
-            p7,
-            c,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, p7, nc, changed or 0b1)
-        }
-        return result
-    }
-
-    override operator fun invoke(
-        p1: P1,
-        p2: P2,
-        p3: P3,
-        p4: P4,
-        p5: P5,
-        p6: P6,
-        p7: P7,
-        p8: P8,
-        c: Composer<*>,
-        changed: Int
-    ): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed or if (c.changed(this)) differentBits(8) else sameBits(8)
-        val result = (
-            _block as (
-                p1: P1,
-                p2: P2,
-                p3: P3,
-                p4: P4,
-                p5: P5,
-                p6: P6,
-                p7: P7,
-                p8: P8,
-                c: Composer<*>,
-                changed: Int
-            ) -> R
-            )(
-            p1,
-            p2,
-            p3,
-            p4,
-            p5,
-            p6,
-            p7,
-            p8,
-            c,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, p7, p8, nc, changed or 0b1)
-        }
-        return result
-    }
-
-    override operator fun invoke(
-        p1: P1,
-        p2: P2,
-        p3: P3,
-        p4: P4,
-        p5: P5,
-        p6: P6,
-        p7: P7,
-        p8: P8,
-        p9: P9,
-        c: Composer<*>,
-        changed: Int
-    ): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed or if (c.changed(this)) differentBits(9) else sameBits(9)
-        val result = (
-            _block as (
-                p1: P1,
-                p2: P2,
-                p3: P3,
-                p4: P4,
-                p5: P5,
-                p6: P6,
-                p7: P7,
-                p8: P8,
-                p9: P9,
-                c: Composer<*>,
-                changed: Int
-            ) -> R
-            )(
-            p1,
-            p2,
-            p3,
-            p4,
-            p5,
-            p6,
-            p7,
-            p8,
-            p9,
-            c,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, p7, p8, p9, nc, changed or 0b1)
-        }
-        return result
-    }
-
-    override operator fun invoke(
-        p1: P1,
-        p2: P2,
-        p3: P3,
-        p4: P4,
-        p5: P5,
-        p6: P6,
-        p7: P7,
-        p8: P8,
-        p9: P9,
-        p10: P10,
-        c: Composer<*>,
-        changed: Int,
-        changed1: Int
-    ): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed1 or if (c.changed(this)) differentBits(10) else sameBits(10)
-        val result = (
-            _block as (
-                p1: P1,
-                p2: P2,
-                p3: P3,
-                p4: P4,
-                p5: P5,
-                p6: P6,
-                p7: P7,
-                p8: P8,
-                p9: P9,
-                p10: P10,
-                c: Composer<*>,
-                changed: Int,
-                changed1: Int
-            ) -> R
-            )(
-            p1,
-            p2,
-            p3,
-            p4,
-            p5,
-            p6,
-            p7,
-            p8,
-            p9,
-            p10,
-            c,
-            changed,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, nc, changed or 0b1, changed)
-        }
-        return result
-    }
-
-    override operator fun invoke(
-        p1: P1,
-        p2: P2,
-        p3: P3,
-        p4: P4,
-        p5: P5,
-        p6: P6,
-        p7: P7,
-        p8: P8,
-        p9: P9,
-        p10: P10,
-        p11: P11,
-        c: Composer<*>,
-        changed: Int,
-        changed1: Int
-    ): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed1 or if (c.changed(this)) differentBits(11) else sameBits(11)
-        val result = (
-            _block as (
-                p1: P1,
-                p2: P2,
-                p3: P3,
-                p4: P4,
-                p5: P5,
-                p6: P6,
-                p7: P7,
-                p8: P8,
-                p9: P9,
-                p10: P10,
-                p11: P11,
-                c: Composer<*>,
-                changed: Int,
-                changed1: Int
-            ) -> R
-            )(
-            p1,
-            p2,
-            p3,
-            p4,
-            p5,
-            p6,
-            p7,
-            p8,
-            p9,
-            p10,
-            p11,
-            c,
-            changed,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, nc, changed or 0b1, changed1)
-        }
-        return result
-    }
-
-    override operator fun invoke(
-        p1: P1,
-        p2: P2,
-        p3: P3,
-        p4: P4,
-        p5: P5,
-        p6: P6,
-        p7: P7,
-        p8: P8,
-        p9: P9,
-        p10: P10,
-        p11: P11,
-        p12: P12,
-        c: Composer<*>,
-        changed: Int,
-        changed1: Int
-    ): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed1 or if (c.changed(this)) differentBits(12) else sameBits(12)
-        val result = (
-            _block as (
-                p1: P1,
-                p2: P2,
-                p3: P3,
-                p4: P4,
-                p5: P5,
-                p6: P6,
-                p7: P7,
-                p8: P8,
-                p9: P9,
-                p10: P10,
-                p11: P11,
-                p12: P12,
-                c: Composer<*>,
-                changed: Int,
-                changed1: Int
-            ) -> R
-            )(
-            p1,
-            p2,
-            p3,
-            p4,
-            p5,
-            p6,
-            p7,
-            p8,
-            p9,
-            p10,
-            p11,
-            p12,
-            c,
-            changed,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ ->
-            this(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, nc, changed or 0b1, changed1)
-        }
-        return result
-    }
-
-    override operator fun invoke(
-        p1: P1,
-        p2: P2,
-        p3: P3,
-        p4: P4,
-        p5: P5,
-        p6: P6,
-        p7: P7,
-        p8: P8,
-        p9: P9,
-        p10: P10,
-        p11: P11,
-        p12: P12,
-        p13: P13,
-        c: Composer<*>,
-        changed: Int,
-        changed1: Int
-    ): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed1 or if (c.changed(this)) differentBits(13) else sameBits(13)
-        val result = (
-            _block as (
-                p1: P1,
-                p2: P2,
-                p3: P3,
-                p4: P4,
-                p5: P5,
-                p6: P6,
-                p7: P7,
-                p8: P8,
-                p9: P9,
-                p10: P10,
-                p11: P11,
-                p12: P12,
-                p13: P13,
-                c: Composer<*>,
-                changed: Int,
-                changed1: Int
-            ) -> R
-            )(
-            p1,
-            p2,
-            p3,
-            p4,
-            p5,
-            p6,
-            p7,
-            p8,
-            p9,
-            p10,
-            p11,
-            p12,
-            p13,
-            c,
-            changed,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ ->
-            this(
-                p1,
-                p2,
-                p3,
-                p4,
-                p5,
-                p6,
-                p7,
-                p8,
-                p9,
-                p10,
-                p11,
-                p12,
-                p13,
-                nc,
-                changed or 0b1,
-                changed1
-            )
-        }
-        return result
-    }
-
-    override operator fun invoke(
-        p1: P1,
-        p2: P2,
-        p3: P3,
-        p4: P4,
-        p5: P5,
-        p6: P6,
-        p7: P7,
-        p8: P8,
-        p9: P9,
-        p10: P10,
-        p11: P11,
-        p12: P12,
-        p13: P13,
-        p14: P14,
-        c: Composer<*>,
-        changed: Int,
-        changed1: Int
-    ): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed1 or if (c.changed(this)) differentBits(14) else sameBits(14)
-        val result = (
-            _block as (
-                p1: P1,
-                p2: P2,
-                p3: P3,
-                p4: P4,
-                p5: P5,
-                p6: P6,
-                p7: P7,
-                p8: P8,
-                p9: P9,
-                p10: P10,
-                p11: P11,
-                p12: P12,
-                p13: P13,
-                p14: P14,
-                c: Composer<*>,
-                changed: Int,
-                changed1: Int
-            ) -> R
-            )(
-            p1,
-            p2,
-            p3,
-            p4,
-            p5,
-            p6,
-            p7,
-            p8,
-            p9,
-            p10,
-            p11,
-            p12,
-            p13,
-            p14,
-            c,
-            changed,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ ->
-            this(
-                p1,
-                p2,
-                p3,
-                p4,
-                p5,
-                p6,
-                p7,
-                p8,
-                p9,
-                p10,
-                p11,
-                p12,
-                p13,
-                p14,
-                nc,
-                changed or 0b1,
-                changed1
-            )
-        }
-        return result
-    }
-
-    override operator fun invoke(
-        p1: P1,
-        p2: P2,
-        p3: P3,
-        p4: P4,
-        p5: P5,
-        p6: P6,
-        p7: P7,
-        p8: P8,
-        p9: P9,
-        p10: P10,
-        p11: P11,
-        p12: P12,
-        p13: P13,
-        p14: P14,
-        p15: P15,
-        c: Composer<*>,
-        changed: Int,
-        changed1: Int
-    ): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed1 or if (c.changed(this)) differentBits(15) else sameBits(15)
-        val result = (
-            _block as (
-                p1: P1,
-                p2: P2,
-                p3: P3,
-                p4: P4,
-                p5: P5,
-                p6: P6,
-                p7: P7,
-                p8: P8,
-                p9: P9,
-                p10: P10,
-                p11: P11,
-                p12: P12,
-                p13: P13,
-                p14: P14,
-                p15: P15,
-                c: Composer<*>,
-                changed: Int,
-                changed1: Int
-            ) -> R
-            )(
-            p1,
-            p2,
-            p3,
-            p4,
-            p5,
-            p6,
-            p7,
-            p8,
-            p9,
-            p10,
-            p11,
-            p12,
-            p13,
-            p14,
-            p15,
-            c,
-            changed,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ ->
-            this(
-                p1,
-                p2,
-                p3,
-                p4,
-                p5,
-                p6,
-                p7,
-                p8,
-                p9,
-                p10,
-                p11,
-                p12,
-                p13,
-                p14,
-                p15,
-                nc,
-                changed or 0b1,
-                changed1
-            )
-        }
-        return result
-    }
-
-    override operator fun invoke(
-        p1: P1,
-        p2: P2,
-        p3: P3,
-        p4: P4,
-        p5: P5,
-        p6: P6,
-        p7: P7,
-        p8: P8,
-        p9: P9,
-        p10: P10,
-        p11: P11,
-        p12: P12,
-        p13: P13,
-        p14: P14,
-        p15: P15,
-        p16: P16,
-        c: Composer<*>,
-        changed: Int,
-        changed1: Int
-    ): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed1 or if (c.changed(this)) differentBits(16) else sameBits(16)
-        val result = (
-            _block as (
-                p1: P1,
-                p2: P2,
-                p3: P3,
-                p4: P4,
-                p5: P5,
-                p6: P6,
-                p7: P7,
-                p8: P8,
-                p9: P9,
-                p10: P10,
-                p11: P11,
-                p12: P12,
-                p13: P13,
-                p14: P14,
-                p15: P15,
-                p16: P16,
-                c: Composer<*>,
-                changed: Int,
-                changed1: Int
-            ) -> R
-            )(
-            p1,
-            p2,
-            p3,
-            p4,
-            p5,
-            p6,
-            p7,
-            p8,
-            p9,
-            p10,
-            p11,
-            p12,
-            p13,
-            p14,
-            p15,
-            p16,
-            c,
-            changed,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ ->
-            this(
-                p1,
-                p2,
-                p3,
-                p4,
-                p5,
-                p6,
-                p7,
-                p8,
-                p9,
-                p10,
-                p11,
-                p12,
-                p13,
-                p14,
-                p15,
-                p16,
-                nc,
-                changed or 0b1,
-                changed1
-            )
-        }
-        return result
-    }
-
-    override operator fun invoke(
-        p1: P1,
-        p2: P2,
-        p3: P3,
-        p4: P4,
-        p5: P5,
-        p6: P6,
-        p7: P7,
-        p8: P8,
-        p9: P9,
-        p10: P10,
-        p11: P11,
-        p12: P12,
-        p13: P13,
-        p14: P14,
-        p15: P15,
-        p16: P16,
-        p17: P17,
-        c: Composer<*>,
-        changed: Int,
-        changed1: Int
-    ): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed1 or if (c.changed(this)) differentBits(17) else sameBits(17)
-        val result = (
-            _block as (
-                p1: P1,
-                p2: P2,
-                p3: P3,
-                p4: P4,
-                p5: P5,
-                p6: P6,
-                p7: P7,
-                p8: P8,
-                p9: P9,
-                p10: P10,
-                p11: P11,
-                p12: P12,
-                p13: P13,
-                p14: P14,
-                p15: P15,
-                p16: P16,
-                p17: P17,
-                c: Composer<*>,
-                changed: Int,
-                changed1: Int
-            ) -> R
-            )(
-            p1,
-            p2,
-            p3,
-            p4,
-            p5,
-            p6,
-            p7,
-            p8,
-            p9,
-            p10,
-            p11,
-            p12,
-            p13,
-            p14,
-            p15,
-            p16,
-            p17,
-            c,
-            changed,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ ->
-            this(
-                p1,
-                p2,
-                p3,
-                p4,
-                p5,
-                p6,
-                p7,
-                p8,
-                p9,
-                p10,
-                p11,
-                p12,
-                p13,
-                p14,
-                p15,
-                p16,
-                p17,
-                nc,
-                changed or 0b1,
-                changed1
-            )
-        }
-        return result
-    }
-
-    override operator fun invoke(
-        p1: P1,
-        p2: P2,
-        p3: P3,
-        p4: P4,
-        p5: P5,
-        p6: P6,
-        p7: P7,
-        p8: P8,
-        p9: P9,
-        p10: P10,
-        p11: P11,
-        p12: P12,
-        p13: P13,
-        p14: P14,
-        p15: P15,
-        p16: P16,
-        p17: P17,
-        p18: P18,
-        c: Composer<*>,
-        changed: Int,
-        changed1: Int
-    ): R {
-        c.startRestartGroup(key, sourceInformation)
-        trackRead(c)
-        val dirty = changed1 or if (c.changed(this)) differentBits(18) else sameBits(18)
-        val result = (
-            _block as (
-                p1: P1,
-                p2: P2,
-                p3: P3,
-                p4: P4,
-                p5: P5,
-                p6: P6,
-                p7: P7,
-                p8: P8,
-                p9: P9,
-                p10: P10,
-                p11: P11,
-                p12: P12,
-                p13: P13,
-                p14: P14,
-                p15: P15,
-                p16: P16,
-                p17: P17,
-                p18: P18,
-                c: Composer<*>,
-                changed: Int,
-                changed1: Int
-            ) -> R
-            )(
-            p1,
-            p2,
-            p3,
-            p4,
-            p5,
-            p6,
-            p7,
-            p8,
-            p9,
-            p10,
-            p11,
-            p12,
-            p13,
-            p14,
-            p15,
-            p16,
-            p17,
-            p18,
-            c,
-            changed,
-            dirty
-        )
-        c.endRestartGroup()?.updateScope { nc, _ ->
-            this(
-                p1,
-                p2,
-                p3,
-                p4,
-                p5,
-                p6,
-                p7,
-                p8,
-                p9,
-                p10,
-                p11,
-                p12,
-                p13,
-                p14,
-                p15,
-                p16,
-                p17,
-                p18,
-                nc,
-                changed or 0b1,
-                changed1
-            )
-        }
-        return result
-    }
+internal expect class ComposableLambdaImpl(
+    key: Int,
+    tracked: Boolean
+) : ComposableLambda {
+    fun update(block: Any)
 }
 
-private fun RecomposeScope?.replacableWith(other: RecomposeScope) =
-    this == null || !this.valid || this == other || this.anchor == other.anchor
+internal fun RecomposeScope?.replacableWith(other: RecomposeScope) =
+    this == null || (
+        this is RecomposeScopeImpl && other is RecomposeScopeImpl && (
+            !this.valid || this == other || this.anchor == other.anchor
+            )
+        )
 
-@OptIn(ComposeCompilerApi::class)
-private typealias CLambda = ComposableLambda<Any, Any, Any, Any, Any, Any, Any, Any, Any, Any,
-    Any, Any, Any, Any, Any, Any, Any, Any, Any>
+@ComposeCompilerApi
+@Stable
+expect interface ComposableLambda {
+    operator fun invoke(c: Composer, changed: Int): Any?
+
+    operator fun invoke(p1: Any?, c: Composer, changed: Int): Any?
+
+    operator fun invoke(p1: Any?, p2: Any?, c: Composer, changed: Int): Any?
+
+    operator fun invoke(p1: Any?, p2: Any?, p3: Any?, c: Composer, changed: Int): Any?
+
+    operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        c: Composer,
+        changed: Int
+    ): Any?
+
+    operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        p14: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        p14: Any?,
+        p15: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        p14: Any?,
+        p15: Any?,
+        p16: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        p14: Any?,
+        p15: Any?,
+        p16: Any?,
+        p17: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+
+    operator fun invoke(
+        p1: Any?,
+        p2: Any?,
+        p3: Any?,
+        p4: Any?,
+        p5: Any?,
+        p6: Any?,
+        p7: Any?,
+        p8: Any?,
+        p9: Any?,
+        p10: Any?,
+        p11: Any?,
+        p12: Any?,
+        p13: Any?,
+        p14: Any?,
+        p15: Any?,
+        p16: Any?,
+        p17: Any?,
+        p18: Any?,
+        c: Composer,
+        changed: Int,
+        changed1: Int
+    ): Any?
+}
 
 @Suppress("unused")
 @ComposeCompilerApi
 fun composableLambda(
-    composer: Composer<*>,
+    composer: Composer,
     key: Int,
     tracked: Boolean,
-    sourceInformation: String?,
     block: Any
-): CLambda {
+): ComposableLambda {
     composer.startReplaceableGroup(key)
-    val slot = composer.nextSlot()
-    val result = if (slot === EMPTY) {
-        val value = CLambda(key, tracked, sourceInformation)
-        composer.updateValue(value)
+    val slot = composer.rememberedValue()
+    val result = if (slot === Composer.Empty) {
+        val value = ComposableLambdaImpl(key, tracked)
+        composer.updateRememberedValue(value)
         value
     } else {
-        slot as CLambda
+        slot as ComposableLambdaImpl
     }
     result.update(block)
     composer.endReplaceableGroup()
@@ -1206,5 +344,9 @@ fun composableLambda(
 
 @Suppress("unused")
 @ComposeCompilerApi
-fun composableLambdaInstance(key: Int, tracked: Boolean, block: Any) =
-    CLambda(key, tracked, null).apply { update(block) }
+fun composableLambdaInstance(
+    key: Int,
+    tracked: Boolean,
+    block: Any
+): ComposableLambda =
+    ComposableLambdaImpl(key, tracked).apply { update(block) }

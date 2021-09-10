@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Copyright (C) 2015 The Android Open Source Project
 #
@@ -75,7 +75,8 @@ for w in testcls:
 
 ####### generate XXXFragmentTest classes #######
 
-testcls = ['Browse', 'GuidedStep', 'VerticalGrid', 'Playback', 'Video', 'Details', 'Rows', 'Headers']
+testcls = ['Browse', 'GuidedStep', 'VerticalGrid', 'Playback', 'Video', 'Details', 'Rows',
+'Headers', 'Search']
 
 for w in testcls:
     print "copy {}SupporFragmentTest to {}FragmentTest".format(w, w)

@@ -29,83 +29,78 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 
 /**
- * A collection of testing utilities for the biometric integration test app.
+ * The maximum time that [UiDevice.waitForIdle] should wait for the device to become idle.
  */
-internal object TestUtils {
-    /**
-     * The maximum time that [UiDevice.waitForIdle] should wait for the device to become idle.
-     */
-    private const val IDLE_TIMEOUT_MS = 3000L
+private const val IDLE_TIMEOUT_MS = 3000L
 
-    /**
-     * The maximum time that [changeOrientation] should wait for the device to finish rotating.
-     */
-    private const val ROTATE_TIMEOUT_MS = 2000L
+/**
+ * The maximum time that [changeOrientation] should wait for the device to finish rotating.
+ */
+private const val ROTATE_TIMEOUT_MS = 2000L
 
-    /**
-     * Brings the given [activity] from the background to the foreground.
-     */
-    internal fun bringToForeground(activity: Activity) {
-        val intent = Intent(activity, activity.javaClass)
-        intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-        activity.startActivity(intent)
+/**
+ * Brings the given [activity] from the background to the foreground.
+ */
+internal fun bringToForeground(activity: Activity) {
+    val intent = Intent(activity, activity.javaClass)
+    intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+    activity.startActivity(intent)
+}
+
+/**
+ * Changes the [device] to [landscape] or portrait orientation and waits for rotation to finish.
+ */
+internal fun changeOrientation(activity: Activity, device: UiDevice, landscape: Boolean) {
+    // Create a monitor to wait for the activity to be recreated.
+    val monitor = Instrumentation.ActivityMonitor(
+        activity.javaClass.name,
+        null /* result */,
+        false /* block */
+    )
+    InstrumentationRegistry.getInstrumentation().addMonitor(monitor)
+
+    if (landscape) {
+        device.setOrientationLeft()
+    } else {
+        device.setOrientationNatural()
     }
 
-    /**
-     * Changes the [device] to [landscape] or portrait orientation and waits for rotation to finish.
-     */
-    internal fun changeOrientation(activity: Activity, device: UiDevice, landscape: Boolean) {
-        // Create a monitor to wait for the activity to be recreated.
-        val monitor = Instrumentation.ActivityMonitor(
-            activity.javaClass.name,
-            null /* result */,
-            false /* block */
-        )
-        InstrumentationRegistry.getInstrumentation().addMonitor(monitor)
+    // Wait for the rotation to complete.
+    InstrumentationRegistry.getInstrumentation().waitForMonitorWithTimeout(
+        monitor,
+        ROTATE_TIMEOUT_MS
+    )
+    InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+}
 
-        if (landscape) {
-            device.setOrientationLeft()
-        } else {
-            device.setOrientationNatural()
-        }
+/**
+ * Checks [context] to determine if the device has an enrolled biometric authentication method.
+ */
+internal fun hasEnrolledBiometric(context: Context): Boolean {
+    val biometricManager = BiometricManager.from(context)
+    return biometricManager.canAuthenticate(Authenticators.BIOMETRIC_WEAK) == BIOMETRIC_SUCCESS
+}
 
-        // Wait for the rotation to complete.
-        InstrumentationRegistry.getInstrumentation().waitForMonitorWithTimeout(
-            monitor,
-            ROTATE_TIMEOUT_MS
-        )
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+/**
+ * Checks [context] to determine if the device is currently locked.
+ */
+internal fun isDeviceLocked(context: Context): Boolean {
+    val keyguard = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        context.getSystemService(KeyguardManager::class.java)
+    else
+        context.getSystemService(Context::KEYGUARD_SERVICE.toString()) as KeyguardManager?
+
+    return when {
+        keyguard == null -> false
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 -> keyguard.isDeviceLocked
+        else -> keyguard.isKeyguardLocked
     }
+}
 
-    /**
-     * Checks [context] to determine if the device has an enrolled biometric authentication method.
-     */
-    internal fun hasEnrolledBiometric(context: Context): Boolean {
-        val biometricManager = BiometricManager.from(context)
-        return biometricManager.canAuthenticate(Authenticators.BIOMETRIC_WEAK) == BIOMETRIC_SUCCESS
-    }
-
-    /**
-     * Checks [context] to determine if the device is currently locked.
-     */
-    internal fun isDeviceLocked(context: Context): Boolean {
-        val keyguard = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            context.getSystemService(KeyguardManager::class.java)
-        else
-            context.getSystemService(Context::KEYGUARD_SERVICE.toString()) as KeyguardManager?
-
-        return when {
-            keyguard == null -> false
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 -> keyguard.isDeviceLocked
-            else -> keyguard.isKeyguardLocked
-        }
-    }
-
-    /**
-     * Presses the system home button and waits for the [device] to become idle.
-     */
-    internal fun navigateToHomeScreen(device: UiDevice) {
-        device.pressHome()
-        device.waitForIdle(IDLE_TIMEOUT_MS)
-    }
+/**
+ * Presses the system home button and waits for the [device] to become idle.
+ */
+internal fun navigateToHomeScreen(device: UiDevice) {
+    device.pressHome()
+    device.waitForIdle(IDLE_TIMEOUT_MS)
 }

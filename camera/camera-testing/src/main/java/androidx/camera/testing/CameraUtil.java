@@ -26,6 +26,10 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
+import android.media.CamcorderProfile;
+import android.media.MediaCodec;
+import android.media.MediaCodecInfo;
+import android.media.MediaFormat;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -35,6 +39,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
@@ -59,6 +64,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
+import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
@@ -67,6 +73,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 /** Utility functions for obtaining instances of camera2 classes. */
 public final class CameraUtil {
@@ -109,6 +116,29 @@ public final class CameraUtil {
         String cameraName = cameraIds.get(0);
 
         return new CameraDeviceHolder(getCameraManager(), cameraName, stateCallback);
+    }
+
+    /**
+     * Gets a new instance of a {@link CameraDevice} by given camera id.
+     *
+     * <p>This method attempts to open up a new camera. Since the camera api is asynchronous it
+     * needs to wait for camera open
+     *
+     * <p>After the camera is no longer needed {@link #releaseCameraDevice(CameraDeviceHolder)}
+     * should be called to clean up resources.
+     *
+     * @throws CameraAccessException if the device is unable to access the camera
+     * @throws InterruptedException  if a {@link CameraDevice} can not be retrieved within a set
+     *                               time
+     */
+    @RequiresPermission(Manifest.permission.CAMERA)
+    @NonNull
+    public static CameraDeviceHolder getCameraDevice(
+            @NonNull String cameraId,
+            @Nullable CameraDevice.StateCallback stateCallback)
+            throws CameraAccessException, InterruptedException, TimeoutException,
+            ExecutionException {
+        return new CameraDeviceHolder(getCameraManager(), cameraId, stateCallback);
     }
 
     /**
@@ -254,6 +284,7 @@ public final class CameraUtil {
         cameraDeviceHolder.close();
     }
 
+    @NonNull
     public static CameraManager getCameraManager() {
         return (CameraManager)
                 ApplicationProvider.getApplicationContext()
@@ -321,7 +352,7 @@ public final class CameraUtil {
             try {
                 cameraUseCaseAdapter.addUseCases(Arrays.asList(useCases));
             } catch (CameraUseCaseAdapter.CameraException e) {
-                throw new IllegalArgumentException("Unable to attach use cases to camera.");
+                throw new IllegalArgumentException("Unable to attach use cases to camera.", e);
             }
         });
 
@@ -558,6 +589,73 @@ public final class CameraUtil {
     }
 
     /**
+     * Check if the resource sufficient to recording a video.
+     */
+    @NonNull
+    public static TestRule checkVideoRecordingResource() {
+        RuleChain rule = RuleChain.outerRule((base, description) -> new Statement() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void evaluate() throws Throwable {
+                // The default resolution in VideoCapture is 1080P.
+                assumeTrue(checkVideoRecordingResource(CamcorderProfile.QUALITY_1080P));
+                base.evaluate();
+            }
+        });
+
+        return rule;
+    }
+
+    /**
+     * Check resource for video recording.
+     *
+     * <p> Tries to configure an video encoder to ensure current resource is sufficient to
+     * recording a video.
+     */
+    @SuppressWarnings("deprecation")
+    public static boolean checkVideoRecordingResource(int quality) {
+        String videoMimeType = "video/avc";
+        // Assume the device resource is sufficient.
+        boolean checkResult = true;
+
+        if (CamcorderProfile.hasProfile(quality)) {
+            CamcorderProfile profile = CamcorderProfile.get(quality);
+            MediaFormat format =
+                    MediaFormat.createVideoFormat(
+                            videoMimeType, profile.videoFrameWidth, profile.videoFrameHeight);
+            format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
+                    MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
+            format.setInteger(MediaFormat.KEY_BIT_RATE, profile.videoBitRate);
+            format.setInteger(MediaFormat.KEY_FRAME_RATE, profile.videoFrameRate);
+            format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
+
+            MediaCodec codec = null;
+
+            try {
+                codec = MediaCodec.createEncoderByType(videoMimeType);
+                codec.configure(
+                        format, /*surface*/
+                        null, /*crypto*/
+                        null,
+                        MediaCodec.CONFIGURE_FLAG_ENCODE);
+            } catch (MediaCodec.CodecException e) {
+                Logger.i(LOG_TAG,
+                        "Video encoder pre-test configured fail CodecException: " + e.getMessage());
+                // Skip tests if a video encoder cannot be configured successfully.
+                checkResult = false;
+            } catch (IOException | IllegalArgumentException | IllegalStateException e) {
+                Logger.i(LOG_TAG, "Video encoder pre-test configured fail: " + e.getMessage());
+                checkResult = false;
+            } finally {
+                Logger.i(LOG_TAG, "codec.release()");
+                codec.release();
+            }
+        }
+
+        return checkResult;
+    }
+
+    /**
      * Create a chained rule for the test cases that need to use the camera.
      *
      * <p>It will
@@ -569,33 +667,28 @@ public final class CameraUtil {
      * unavailable if PRETEST_CAMERA_TAG is loggable at the debug level (see Log#isLoggable).
      */
     @NonNull
-    public static RuleChain grantCameraPermissionAndPreTest() {
-        RuleChain rule =
-                RuleChain.outerRule(GrantPermissionRule.grant(Manifest.permission.CAMERA)).around(
-                (base, description) -> new Statement() {
-                    @Override
-                    public void evaluate() throws Throwable {
-                        dumpCameraLensFacingInfo();
-                        assumeTrue(deviceHasCamera());
-                        base.evaluate();
-                    }
-                });
-        if (shouldRunPreTest()) {
-            rule = rule.around(
-                    new CameraUtil.PreTestCamera(Log.isLoggable(PRETEST_CAMERA_TAG, Log.DEBUG)));
-        }
-        return rule;
+    public static TestRule grantCameraPermissionAndPreTest() {
+        return grantCameraPermissionAndPreTest(new PreTestCamera());
     }
 
-    private static boolean shouldRunPreTest() {
-        if (Build.MODEL.contains("pixel 2") && Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
-            // TODO(b/170070248) Pixel 2 HAL died easily if the pretest and CameraX open the
-            //  camera device at the same time. Remove the code after the pixel 2 issue fixed.
-            Logger.d(LOG_TAG, "Skip camera pretest (b/170070248)");
-            return false;
-        }
-
-        return true;
+    /**
+     * Grant the camera permission and test the camera.
+     *
+     * @param cameraTestRule the PreTestCamera rule to execute the camera test.
+     */
+    @NonNull
+    public static TestRule grantCameraPermissionAndPreTest(@NonNull PreTestCamera cameraTestRule) {
+        RuleChain rule =
+                RuleChain.outerRule(GrantPermissionRule.grant(Manifest.permission.CAMERA)).around(
+                        (base, description) -> new Statement() {
+                            @Override
+                            public void evaluate() throws Throwable {
+                                dumpCameraLensFacingInfo();
+                                assumeTrue(deviceHasCamera());
+                                base.evaluate();
+                            }
+                        }).around(cameraTestRule);
+        return rule;
     }
 
     /**
@@ -609,6 +702,11 @@ public final class CameraUtil {
      */
     public static class PreTestCamera implements TestRule {
         final boolean mThrowOnError;
+        final AtomicReference<Boolean> mCanOpenCamera = new AtomicReference<>();
+
+        public PreTestCamera() {
+            mThrowOnError = Log.isLoggable(PRETEST_CAMERA_TAG, Log.DEBUG);
+        }
 
         public PreTestCamera(boolean throwOnError) {
             mThrowOnError = throwOnError;
@@ -620,26 +718,28 @@ public final class CameraUtil {
             return new Statement() {
                 @Override
                 public void evaluate() throws Throwable {
-                    boolean backStatus = true;
-                    if (hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)) {
-                        RetryCameraOpener opener =
-                                new RetryCameraOpener(CameraSelector.LENS_FACING_BACK);
-                        backStatus = opener.openWithRetry(5, 5000);
-                        opener.shutdown();
+                    if (mCanOpenCamera.get() == null) {
+                        boolean backStatus = true;
+                        if (hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)) {
+                            RetryCameraOpener opener =
+                                    new RetryCameraOpener(CameraSelector.LENS_FACING_BACK);
+                            backStatus = opener.openWithRetry(5, 5000);
+                            opener.shutdown();
+                        }
+
+                        boolean frontStatus = true;
+                        if (hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT)) {
+                            RetryCameraOpener opener =
+                                    new RetryCameraOpener(CameraSelector.LENS_FACING_FRONT);
+                            frontStatus = opener.openWithRetry(5, 5000);
+                            opener.shutdown();
+                        }
+                        Logger.d(LOG_TAG,
+                                "PreTest Open camera result " + backStatus + " " + frontStatus);
+                        mCanOpenCamera.set(backStatus && frontStatus);
                     }
 
-                    boolean frontStatus = true;
-                    if (hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT)) {
-                        RetryCameraOpener opener =
-                                new RetryCameraOpener(CameraSelector.LENS_FACING_FRONT);
-                        frontStatus = opener.openWithRetry(5, 5000);
-                        opener.shutdown();
-                    }
-                    boolean canOpenCamera = backStatus && frontStatus;
-                    Logger.d(LOG_TAG,
-                            "PreTest Open camera result " + backStatus + " " + frontStatus);
-
-                    if (canOpenCamera) {
+                    if (mCanOpenCamera.get()) {
                         base.evaluate();
                     } else {
                         if (mThrowOnError) {
@@ -841,6 +941,7 @@ public final class CameraUtil {
      * Throw exception with a specific message if the Camera doesn't have both front/back lens
      * facing in the daily testing.
      */
+    @SuppressWarnings("ObjectToString")
     static void dumpCameraLensFacingInfo() {
         boolean error = false;
 

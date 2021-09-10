@@ -34,7 +34,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(ExperimentalTextApi::class)
 @RunWith(JUnit4::class)
 class TextInputServiceTest {
 
@@ -44,46 +43,68 @@ class TextInputServiceTest {
 
         val textInputService = TextInputService(platformService)
 
-        val firstToken = textInputService.startInput(
+        val firstSession = textInputService.startInput(
             TextFieldValue(),
             ImeOptions.Default,
             {}, // onEditCommand
             {} // onImeActionPerformed
         )
-        val secondToken = textInputService.startInput(
+        val secondSession = textInputService.startInput(
             TextFieldValue(),
             ImeOptions.Default,
             {}, // onEditCommand
             {} // onImeActionPerformed
         )
 
-        assertThat(firstToken).isNotEqualTo(secondToken)
+        assertThat(firstSession).isNotEqualTo(secondSession)
     }
 
     @Test
-    fun stopInput_with_valid_token() {
+    fun startInput_stopsOldSession_onRestart() {
+        val platformService = mock<PlatformTextInputService>()
+        val textInputService = TextInputService(platformService)
+
+        val firstSession = textInputService.startInput(
+            TextFieldValue(),
+            ImeOptions.Default,
+            {}, // onEditCommand
+            {} // onImeActionPerformed
+        )
+        val secondSession = textInputService.startInput(
+            TextFieldValue(),
+            ImeOptions.Default,
+            {}, // onEditCommand
+            {} // onImeActionPerformed
+        )
+
+        assertThat(firstSession.isOpen).isFalse()
+        assertThat(secondSession.isOpen).isTrue()
+    }
+
+    @Test
+    fun stopInput_with_valid_session() {
         val platformService = mock<PlatformTextInputService>()
 
         val textInputService = TextInputService(platformService)
 
-        val firstToken = textInputService.startInput(
+        val session = textInputService.startInput(
             TextFieldValue(),
             ImeOptions.Default,
             {}, // onEditCommand
             {} // onImeActionPerformed
         )
 
-        textInputService.stopInput(firstToken)
+        textInputService.stopInput(session)
         verify(platformService, times(1)).stopInput()
     }
 
     @Test
-    fun stopInput_with_expired_token() {
+    fun stopInput_with_expired_session() {
         val platformService = mock<PlatformTextInputService>()
 
         val textInputService = TextInputService(platformService)
 
-        val firstToken = textInputService.startInput(
+        val firstSession = textInputService.startInput(
             TextFieldValue(),
             ImeOptions.Default,
             {}, // onEditCommand
@@ -98,34 +119,34 @@ class TextInputServiceTest {
             {} // onImeActionPerformed
         )
 
-        textInputService.stopInput(firstToken)
+        textInputService.stopInput(firstSession)
         verify(platformService, never()).stopInput()
     }
 
     @Test
-    fun showSoftwareKeyboard_with_valid_token() {
+    fun showSoftwareKeyboard_with_valid_session() {
         val platformService = mock<PlatformTextInputService>()
 
         val textInputService = TextInputService(platformService)
 
-        val firstToken = textInputService.startInput(
+        textInputService.startInput(
             TextFieldValue(),
             ImeOptions.Default,
             {}, // onEditCommand
             {} // onImeActionPerformed
         )
 
-        textInputService.showSoftwareKeyboard(firstToken)
+        textInputService.showSoftwareKeyboard()
         verify(platformService, times(1)).showSoftwareKeyboard()
     }
 
     @Test
-    fun showSoftwareKeyboard_with_expired_token() {
+    fun showSoftwareKeyboard_with_a_second_valid_session() {
         val platformService = mock<PlatformTextInputService>()
 
         val textInputService = TextInputService(platformService)
 
-        val firstToken = textInputService.startInput(
+        textInputService.startInput(
             TextFieldValue(),
             ImeOptions.Default,
             {}, // onEditCommand
@@ -140,7 +161,34 @@ class TextInputServiceTest {
             {} // onImeActionPerformed
         )
 
-        textInputService.showSoftwareKeyboard(firstToken)
+        textInputService.showSoftwareKeyboard()
+        verify(platformService).showSoftwareKeyboard()
+    }
+
+    @Test
+    fun showSoftwareKeyboard_with_disposed_session() {
+        val platformService = mock<PlatformTextInputService>()
+
+        val textInputService = TextInputService(platformService)
+
+        textInputService.startInput(
+            TextFieldValue(),
+            ImeOptions.Default,
+            {}, // onEditCommand
+            {} // onImeActionPerformed
+        ).dispose()
+
+        textInputService.showSoftwareKeyboard()
+        verify(platformService, never()).showSoftwareKeyboard()
+    }
+
+    @Test
+    fun showSoftwareKeyboard_with_no_started_session() {
+        val platformService = mock<PlatformTextInputService>()
+
+        val textInputService = TextInputService(platformService)
+
+        textInputService.showSoftwareKeyboard()
         verify(platformService, never()).showSoftwareKeyboard()
     }
 
@@ -150,7 +198,7 @@ class TextInputServiceTest {
 
         val textInputService = TextInputService(platformService)
 
-        val firstToken = textInputService.startInput(
+        val firstSession = textInputService.startInput(
             TextFieldValue(),
             ImeOptions.Default,
             {}, // onEditCommand
@@ -158,8 +206,8 @@ class TextInputServiceTest {
         )
 
         val editorModel = TextFieldValue()
-        textInputService.onStateUpdated(firstToken, null, editorModel)
-        verify(platformService, times(1)).onStateUpdated(eq(null), eq(editorModel))
+        firstSession.updateState(null, editorModel)
+        verify(platformService, times(1)).updateState(eq(null), eq(editorModel))
     }
 
     @Test
@@ -168,7 +216,7 @@ class TextInputServiceTest {
 
         val textInputService = TextInputService(platformService)
 
-        val firstToken = textInputService.startInput(
+        val firstSession = textInputService.startInput(
             TextFieldValue(),
             ImeOptions.Default,
             {}, // onEditCommand
@@ -176,7 +224,7 @@ class TextInputServiceTest {
         )
 
         // Start another session. The firstToken is now expired.
-        textInputService.startInput(
+        val secondSession = textInputService.startInput(
             TextFieldValue(),
             ImeOptions.Default,
             {}, // onEditCommand
@@ -184,8 +232,11 @@ class TextInputServiceTest {
         )
 
         val editorModel = TextFieldValue()
-        textInputService.onStateUpdated(firstToken, null, editorModel)
-        verify(platformService, never()).onStateUpdated(any(), any())
+        firstSession.updateState(null, editorModel)
+        verify(platformService, never()).updateState(any(), any())
+
+        secondSession.updateState(null, editorModel)
+        verify(platformService).updateState(eq(null), eq(editorModel))
     }
 
     @Test
@@ -194,7 +245,7 @@ class TextInputServiceTest {
 
         val textInputService = TextInputService(platformService)
 
-        val firstToken = textInputService.startInput(
+        val firstSession = textInputService.startInput(
             TextFieldValue(),
             ImeOptions.Default,
             {}, // onEditCommand
@@ -202,7 +253,7 @@ class TextInputServiceTest {
         )
 
         val rect = Rect(Offset.Zero, Size(100f, 100f))
-        textInputService.notifyFocusedRect(firstToken, rect)
+        firstSession.notifyFocusedRect(rect)
         verify(platformService, times(1)).notifyFocusedRect(eq(rect))
     }
 
@@ -212,7 +263,7 @@ class TextInputServiceTest {
 
         val textInputService = TextInputService(platformService)
 
-        val firstToken = textInputService.startInput(
+        val firstSession = textInputService.startInput(
             TextFieldValue(),
             ImeOptions.Default,
             {}, // onEditCommand
@@ -220,7 +271,7 @@ class TextInputServiceTest {
         )
 
         // Start another session. The firstToken is now expired.
-        textInputService.startInput(
+        val secondSession = textInputService.startInput(
             TextFieldValue(),
             ImeOptions.Default,
             {}, // onEditCommand
@@ -228,7 +279,10 @@ class TextInputServiceTest {
         )
 
         val rect = Rect(Offset.Zero, Size(100f, 100f))
-        textInputService.notifyFocusedRect(firstToken, rect)
+        firstSession.notifyFocusedRect(rect)
         verify(platformService, never()).notifyFocusedRect(any())
+
+        secondSession.notifyFocusedRect(rect)
+        verify(platformService, times(1)).notifyFocusedRect(eq(rect))
     }
 }

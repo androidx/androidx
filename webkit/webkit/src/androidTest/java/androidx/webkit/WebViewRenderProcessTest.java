@@ -40,7 +40,7 @@ import org.junit.runner.RunWith;
 public class WebViewRenderProcessTest {
     private boolean terminateRenderProcessOnUiThread(
             final WebViewRenderProcess renderer) {
-        return WebkitUtils.onMainThreadSync(() -> renderer.terminate());
+        return WebkitUtils.onMainThreadSync(renderer::terminate);
     }
 
     WebViewRenderProcess getRenderProcessOnUiThread(final WebView webView) {
@@ -69,18 +69,14 @@ public class WebViewRenderProcessTest {
     ListenableFuture<Boolean> catchRenderProcessTermination(final WebView webView) {
         final ResolvableFuture<Boolean> future = ResolvableFuture.create();
 
-        WebkitUtils.onMainThread(() -> {
-            webView.setWebViewClient(new WebViewClient() {
-                @Override
-                public boolean onRenderProcessGone(
-                        WebView view,
-                        RenderProcessGoneDetail detail) {
-                    view.destroy();
-                    future.set(true);
-                    return true;
-                }
-            });
-        });
+        WebkitUtils.onMainThread(() -> webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                view.destroy();
+                future.set(true);
+                return true;
+            }
+        }));
 
         return future;
     }

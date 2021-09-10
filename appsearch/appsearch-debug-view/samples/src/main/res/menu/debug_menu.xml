@@ -1,0 +1,7 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/app_search_debug"
+        android:title="AppSearch Debug View"
+        >
+    </item>
+</menu>

@@ -27,6 +27,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
@@ -40,12 +41,10 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.CameraControlInternal;
@@ -93,7 +92,6 @@ import java.util.concurrent.TimeoutException;
  */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-@UseExperimental(markerClass = ExperimentalExposureCompensation.class)
 public class ExposureDeviceTest {
 
     @CameraSelector.LensFacing
@@ -147,11 +145,12 @@ public class ExposureDeviceTest {
         mSemaphore = new Semaphore(0);
         mCameraStateRegistry = new CameraStateRegistry(DEFAULT_AVAILABLE_CAMERA_COUNT);
         CameraManagerCompat cameraManagerCompat =
-                CameraManagerCompat.from(ApplicationProvider.getApplicationContext());
+                CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
         Camera2CameraInfoImpl camera2CameraInfo = new Camera2CameraInfoImpl(
-                mCameraId, cameraManagerCompat.getCameraCharacteristicsCompat(mCameraId));
+                mCameraId, cameraManagerCompat);
         mCamera2CameraImpl = new Camera2CameraImpl(
-                CameraManagerCompat.from(ApplicationProvider.getApplicationContext()), mCameraId,
+                CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext()),
+                mCameraId,
                 camera2CameraInfo,
                 mCameraStateRegistry, sCameraExecutor, sCameraHandler);
 
@@ -285,7 +284,7 @@ public class ExposureDeviceTest {
     }
 
     @Test
-    public void setExposureAndTriggerAe_theExposureSettingShouldApply()
+    public void setExposureAndStartFlashSequence_theExposureSettingShouldApply()
             throws InterruptedException, ExecutionException, TimeoutException,
             CameraUseCaseAdapter.CameraException {
         ExposureState exposureState = mCameraInfoInternal.getExposureState();
@@ -304,7 +303,8 @@ public class ExposureDeviceTest {
         // Set the exposure compensation
         int upper = exposureState.getExposureCompensationRange().getUpper();
         mCameraControlInternal.setExposureCompensationIndex(upper).get(3000, TimeUnit.MILLISECONDS);
-        mCameraControlInternal.triggerAePrecapture().get(3000, TimeUnit.MILLISECONDS);
+        mCameraControlInternal.startFlashSequence(ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH).get(3000,
+                TimeUnit.MILLISECONDS);
 
         // Verify the exposure compensation target result is in the capture result.
         verify(callback, timeout(3000).atLeastOnce()).onCaptureCompleted(

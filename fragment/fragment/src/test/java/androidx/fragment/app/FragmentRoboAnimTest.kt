@@ -39,9 +39,10 @@ class FragmentRoboAnimTest {
 
     @Test
     fun fragmentAnim() {
-        var activity = Robolectric.buildActivity(FragmentActivity::class.java)
-            .create().resume().get()
-        var container = FrameLayout(activity).apply {
+        val activityController = Robolectric.buildActivity(FragmentActivity::class.java).setup()
+        val activity = activityController.get()
+
+        val container = FrameLayout(activity).apply {
             id = 1
         }
         activity.setContentView(container)
@@ -57,6 +58,8 @@ class FragmentRoboAnimTest {
             .commitNow()
 
         assertThat(container.childCount).isEqualTo(1)
+
+        activityController.destroy()
     }
 }
 

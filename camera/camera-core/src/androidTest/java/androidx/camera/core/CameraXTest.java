@@ -186,13 +186,6 @@ public final class CameraXTest {
         assertThat(cameraX1.getCameraFactory()).isEqualTo(cameraFactory1);
     }
 
-    @Test
-    public void canGetCameraXContext() {
-        initCameraX();
-        Context context = CameraX.getContext();
-        assertThat(context).isNotNull();
-    }
-
     private void initCameraX() {
         CameraX.initialize(mContext, mConfigBuilder.build());
     }

@@ -21,7 +21,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.hardware.camera2.CameraCaptureSession;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.view.Surface;
@@ -48,13 +47,14 @@ public class SynchronizedCaptureSessionStateCallbackTest {
 
     private SynchronizedCaptureSessionBaseImpl mCaptureSessionCompatBaseImpl;
 
+    @SuppressWarnings("deprecation")
     @Before
     public void setUp() {
         mMockCameraCaptureSessionStateCallback = mock(CameraCaptureSession.StateCallback.class);
         mMockStateCallback = mock(SynchronizedCaptureSession.StateCallback.class);
 
         mCaptureSessionCompatBaseImpl = new SynchronizedCaptureSessionBaseImpl(
-                mock(CaptureSessionRepository.class), AsyncTask.THREAD_POOL_EXECUTOR,
+                mock(CaptureSessionRepository.class), android.os.AsyncTask.THREAD_POOL_EXECUTOR,
                 mScheduledExecutorService, mock(Handler.class));
         mCaptureSessionCompatBaseImpl.createCaptureSessionCompat(mock(CameraCaptureSession.class));
 

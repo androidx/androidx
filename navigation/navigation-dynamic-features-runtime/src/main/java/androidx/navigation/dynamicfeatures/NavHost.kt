@@ -23,8 +23,25 @@ import androidx.navigation.NavHost
 /**
  * Construct a new [androidx.navigation.NavGraph] that supports dynamic navigation destinations
  */
+@Suppress("Deprecation")
+@Deprecated(
+    "Use routes to create your dynamic NavGraph instead",
+    ReplaceWith(
+        "createGraph(startDestination = startDestination.toString(), route = id.toString()) " +
+            "{ builder.invoke() }"
+    )
+)
 public inline fun NavHost.createGraph(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,
     builder: DynamicNavGraphBuilder.() -> Unit
 ): NavGraph = navController.createGraph(id, startDestination, builder)
+
+/**
+ * Construct a new [androidx.navigation.NavGraph] that supports dynamic navigation destinations
+ */
+public inline fun NavHost.createGraph(
+    startDestination: String,
+    route: String? = null,
+    builder: DynamicNavGraphBuilder.() -> Unit
+): NavGraph = navController.createGraph(startDestination, route, builder)

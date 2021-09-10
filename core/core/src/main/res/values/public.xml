@@ -18,17 +18,21 @@
 <resources>
     <!-- Definitions of attributes to be exposed as public -->
     <public type="attr" name="alpha"/>
+    <public type="attr" name="lStar" />
     <public type="attr" name="fontProviderAuthority"/>
     <public type="attr" name="fontProviderPackage"/>
     <public type="attr" name="fontProviderQuery"/>
     <public type="attr" name="fontProviderCerts"/>
     <public type="attr" name="fontProviderFetchStrategy"/>
     <public type="attr" name="fontProviderFetchTimeout"/>
+    <public type="attr" name="fontProviderSystemFontFamily"/>
     <public type="attr" name="fontStyle"/>
     <public type="attr" name="font"/>
     <public type="attr" name="fontWeight"/>
     <public type="attr" name="fontVariationSettings"/>
     <public type="attr" name="ttcIndex"/>
+    <public type="attr" name="queryPatterns"/>
+    <public type="attr" name="shortcutMatchRequired"/>
 
     <!-- Definitions of styles to be exposed as public -->
     <public type="style" name="TextAppearance.Compat.Notification"/>

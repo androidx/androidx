@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.layout
 
-import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.unit.Constraints
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -30,10 +29,9 @@ import org.junit.runner.RunWith
 class PlacedChildTest {
 
     @Test
-    @OptIn(ExperimentalLayoutNodeApi::class)
     fun remeasureNotPlacedChild() {
         val root = root {
-            measureBlocks = UseChildSizeButNotPlace
+            measurePolicy = UseChildSizeButNotPlace
             add(
                 node {
                     wrapChildren = true
@@ -59,15 +57,13 @@ class PlacedChildTest {
     }
 }
 
-@OptIn(ExperimentalLayoutNodeApi::class)
-private val UseChildSizeButNotPlace = object : LayoutNode.NoIntrinsicsMeasureBlocks("") {
-    override fun measure(
-        measureScope: MeasureScope,
+private val UseChildSizeButNotPlace = object : LayoutNode.NoIntrinsicsMeasurePolicy("") {
+    override fun MeasureScope.measure(
         measurables: List<Measurable>,
         constraints: Constraints
     ): MeasureResult {
         val placeable = measurables.first().measure(constraints)
-        return measureScope.layout(placeable.width, placeable.height) {
+        return layout(placeable.width, placeable.height) {
             // do not place
         }
     }

@@ -82,6 +82,7 @@ public class MediaRouteDynamicChooserDialog extends AppCompatDialog {
     private RecyclerAdapter mAdapter;
     private RecyclerView mRecyclerView;
     private boolean mAttachedToWindow;
+    MediaRouter.RouteInfo mSelectingRoute;
     private long mUpdateRoutesDelayMs;
     private long mLastUpdateTime;
     @SuppressWarnings({"unchecked", "deprecation"})
@@ -233,6 +234,10 @@ public class MediaRouteDynamicChooserDialog extends AppCompatDialog {
      * Refreshes the list of routes that are shown in the device picker dialog.
      */
     public void refreshRoutes() {
+        if (mSelectingRoute != null) {
+            return;
+        }
+
         if (mAttachedToWindow) {
             ArrayList<MediaRouter.RouteInfo> routes = new ArrayList<>(mRouter.getRoutes());
             onFilterRoutes(routes);
@@ -477,6 +482,7 @@ public class MediaRouteDynamicChooserDialog extends AppCompatDialog {
                 mItemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        mSelectingRoute = route;
                         route.select();
                         mImageView.setVisibility(View.INVISIBLE);
                         mProgressBar.setVisibility(View.VISIBLE);

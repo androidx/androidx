@@ -15,7 +15,6 @@
  */
 package androidx.compose.ui.util
 
-import kotlin.math.PI
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
@@ -39,11 +38,3 @@ fun lerp(start: Int, stop: Int, fraction: Float): Int {
 fun lerp(start: Long, stop: Long, fraction: Float): Long {
     return start + ((stop - start) * fraction.toDouble()).roundToLong()
 }
-
-expect fun Float.toStringAsFixed(digits: Int): String
-
-@OptIn(kotlin.ExperimentalUnsignedTypes::class)
-fun Int.toHexString() = "0x${toUInt().toString(16).padStart(8, '0')}"
-
-fun Float.toRadians(): Float = this / 180f * PI.toFloat()
-fun Double.toRadians(): Double = this / 180 * PI

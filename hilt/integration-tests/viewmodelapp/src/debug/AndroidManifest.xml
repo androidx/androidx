@@ -21,6 +21,5 @@
         <activity android:name=".BaseActivityInjectionTest$TestActivity"/>
         <activity android:name=".FragmentInjectionTest$TestActivity"/>
         <activity android:name=".BaseFragmentInjectionTest$TestActivity"/>
-        <activity android:name=".ViewModelScopedTest$TestActivity"/>
     </application>
 </manifest>

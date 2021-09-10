@@ -2,22 +2,17 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     project.ext.supportRootFolder = project.projectDir.getParentFile()
-    repositories {
-        maven {
-            url "${supportRootFolder}/../../prebuilts/androidx/external"
-        }
-    }
-
-    apply from: "build_dependencies.gradle"
+    apply from: "repos.gradle"
+    repos.addMavenRepositories(repositories)
 
     dependencies {
-        classpath build_libs.kotlin.gradle_plugin
+        classpath(libs.kotlinGradlePluginz)
     }
 
     configurations.classpath.resolutionStrategy {
         eachDependency { details ->
-            if (details.requested.group == 'org.jetbrains.kotlin') {
-                details.useVersion build_versions.kotlin
+            if (details.requested.group == "org.jetbrains.kotlin") {
+                details.useVersion libs.versions.kotlin.get()
             }
         }
     }
@@ -27,150 +22,29 @@ apply from: "out.gradle"
 init.chooseOutDir()
 
 ext.supportRootFolder = project.projectDir.getParentFile()
-apply from: "local_dokka.gradle"
-apply from: 'repos.gradle'
-apply from: "build_dependencies.gradle"
+apply from: "repos.gradle"
 apply plugin: "kotlin"
-apply from: "kotlin-dsl-dependency.gradle"
 
 allprojects {
     repos.addMavenRepositories(repositories)
 
     tasks.withType(KotlinCompile).configureEach {
         kotlinOptions {
-            jvmTarget = "1.8"
+            jvmTarget = "11"
             freeCompilerArgs += [
                     "-Werror",
                     "-Xskip-runtime-version-check",
                     "-Xskip-metadata-version-check",
                     // Allow `@OptIn` and `@UseExperimental`
-                    "-Xopt-in=kotlin.RequiresOptIn"
+                    "-Xopt-in=kotlin.RequiresOptIn",
+                    // Issue where sam conversion in gradle's kts file causes task-out-of-date
+                    // Details: KT-46445 and https://github.com/gradle/gradle/issues/17052
+                    "-Xsam-conversions=class"
             ]
         }
     }
 }
 
-configurations {
-    // Dependencies added to these configurations get copied into the corresponding configuration
-    // (cacheableApi gets copied into api, etc).
-    // Because we cache the resolutions of these configurations, performance is faster when
-    // artifacts are put into these configurations than when those artifacts are put into their
-    // corresponding configuration.
-    cacheableApi
-    cacheableImplementation {
-        extendsFrom(project.configurations.cacheableApi)
-    }
-    cacheableRuntime {
-        extendsFrom(project.configurations.cacheableImplementation)
-    }
-}
-
 dependencies {
-    cacheableApi build_libs.agp
-    cacheableImplementation build_libs.dex_member_list
-    cacheableApi build_libs.kotlin.gradle_plugin
-    cacheableImplementation build_libs.kotlinpoet
-    cacheableImplementation gradleApi()
-    cacheableApi build_libs.dokka_gradle
-    // needed by inspection plugin
-    cacheableImplementation "com.google.protobuf:protobuf-gradle-plugin:0.8.13"
-    // TODO(aurimas): remove when b/173417030 is fixed
-    cacheableImplementation "org.anarres.jarjar:jarjar-gradle:1.0.1"
-    cacheableImplementation "com.github.jengelman.gradle.plugins:shadow:5.2.0"
-    // dependencies that aren't used by buildSrc directly but that we resolve here so that the
-    // root project doesn't need to re-resolve them and their dependencies on every build
-    cacheableRuntime build_libs.hilt_plugin
-    // dependencies whose resolutions we don't need to cache
-    compileOnly(findGradleKotlinDsl()) // Only one file in this configuration, no need to cache it
-    implementation project("jetpad-integration") // Doesn't have a .pom, so not slow to load
-}
-
-apply plugin: "java-gradle-plugin"
-
-sourceSets {
-    main.java.srcDirs += "${supportRootFolder}/benchmark/gradle-plugin/src/main/kotlin"
-    main.resources.srcDirs += "${supportRootFolder}/benchmark/gradle-plugin/src/main/resources"
-
-    main.java.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main/kotlin"
-    main.resources.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main" +
-            "/resources"
-
-    main.java.srcDirs += "${supportRootFolder}/compose/material/material/icons/generator/src/main" +
-            "/kotlin"
-}
-
-gradlePlugin {
-    plugins {
-        benchmark {
-            id = 'androidx.benchmark'
-            implementationClass = 'androidx.benchmark.gradle.BenchmarkPlugin'
-        }
-        inspection {
-            id = 'androidx.inspection'
-            implementationClass = 'androidx.inspection.gradle.InspectionPlugin'
-        }
-    }
-}
-
-// Saves configuration into destFile
-// Each line of destFile will be the absolute filepath of one of the files in configuration
-def saveConfigurationResolution(configuration, destFile) {
-    def resolvedConfiguration = configuration.resolvedConfiguration
-    def files = resolvedConfiguration.files
-    def paths = files.collect { f -> f.toString() }
-    def serialized = paths.join("\n")
-    destFile.text = serialized
-}
-
-// Parses a file into a list of Dependency objects representing a ResolvedConfiguration
-def parseConfigurationResolution(savedFile) {
-    def savedText = savedFile.text
-    def filenames = savedText.split("\n")
-    def dependencies = filenames.collect { filename ->
-        project.dependencies.create(project.files(filename))
-    }
-    return dependencies
-}
-
-// Resolves a Configuration into a list of Dependency objects
-def resolveConfiguration(configuration) {
-    def resolvedName = configuration.name
-    def cacheDir = new File(project.buildDir, "/" + resolvedName)
-    def inputsFile = new File(cacheDir, "/deps")
-    def outputsFile = new File(cacheDir, "/result")
-
-    def inputText = fingerprintConfiguration(configuration)
-    if (!inputsFile.exists() || inputsFile.text != inputText) {
-        cacheDir.mkdirs()
-        saveConfigurationResolution(configuration, outputsFile)
-        inputsFile.text = inputText
-    }
-    def result = parseConfigurationResolution(outputsFile)
-    return result
-}
-
-// Computes a unique string from a Configuration based on its dependencies
-// This is used for up-to-date checks
-def fingerprintConfiguration(configuration) {
-    def dependencies = configuration.allDependencies
-    def dependencyTexts = dependencies.collect { dep -> dep.group + ":" + dep.name + ":" + dep.version }
-    return dependencyTexts.join("\n")
-}
-
-// Imports the contents of fromConf into toConf
-// Uses caching to often short-circuit the resolution of fromConf
-def loadConfigurationQuicklyInto(fromConf, toConf) {
-    def resolved = resolveConfiguration(fromConf)
-    resolved.each { dep ->
-        project.dependencies.add(toConf.name, dep)
-    }
-}
-
-loadConfigurationQuicklyInto(configurations.cacheableApi, configurations.api)
-loadConfigurationQuicklyInto(configurations.cacheableImplementation, configurations.implementation)
-loadConfigurationQuicklyInto(configurations.cacheableRuntime, configurations.runtime)
-
-project.tasks.withType(Jar) { task ->
-    task.reproducibleFileOrder = true
-    task.preserveFileTimestamps = false
+  api(project("plugins"))
 }

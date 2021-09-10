@@ -29,7 +29,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.ServiceTestRule;
 import androidx.testutils.PollingCheck;
 
@@ -39,7 +38,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.TimeoutException;
-
 
 /**
  * Tests for a complete loop between a browser side {@link CustomTabsService}
@@ -52,9 +50,10 @@ import java.util.concurrent.TimeoutException;
 public class PostMessageTest {
     @Rule
     public final ServiceTestRule mServiceRule = new ServiceTestRule();
+    @SuppressWarnings("deprecation")
     @Rule
-    public final ActivityTestRule<TestActivity> mActivityTestRule =
-            new ActivityTestRule<>(TestActivity.class);
+    public final androidx.test.rule.ActivityTestRule<TestActivity> mActivityTestRule =
+            new androidx.test.rule.ActivityTestRule<>(TestActivity.class);
     @Rule
     public final EnableComponentsTestRule mEnableComponents = new EnableComponentsTestRule(
             TestActivity.class,

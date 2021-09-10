@@ -29,11 +29,15 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,13 +45,16 @@ import java.util.Objects;
  * Represents a row with a title, several lines of text, an optional image, and an optional action
  * or switch.
  */
-public class Row implements Item {
+@CarProtocol
+public final class Row implements Item {
+    /** A boat that belongs to you. */
+    private static final String YOUR_BOAT = "\uD83D\uDEA3"; // 🚣
+
     /**
      * The type of images supported within rows.
      *
      * @hide
      */
-    // TODO(shiufai): investigate how to expose IntDefs if needed.
     @RestrictTo(LIBRARY)
     @IntDef(value = {IMAGE_TYPE_SMALL, IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE})
     @Retention(RetentionPolicy.SOURCE)
@@ -57,25 +64,27 @@ public class Row implements Item {
     /**
      * Represents a small image to be displayed in the row.
      *
-     * <p>If necessary, small images will be scaled down to fit within a 36 x 36 dp bounding box,
-     * preserving their aspect ratio.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 88 x 88 dp bounding box. If necessary, the image will be scaled down while
+     * preserving its aspect ratio.
      */
     public static final int IMAGE_TYPE_SMALL = (1 << 0);
 
     /**
      * Represents a large image to be displayed in the row.
      *
-     * <p>If necessary, large images will be scaled down to fit within a 64 x 64 dp bounding box,
-     * preserving their aspect ratio.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 224 x 224 dp bounding box. If necessary, the image will be scaled down
+     * while preserving its aspect ratio.
      */
     public static final int IMAGE_TYPE_LARGE = (1 << 1);
 
     /**
      * Represents a small image to be displayed in the row.
      *
-     * <p>If necessary, icons will be scaled down to fit within a 44 x 44 dp bounding box,
-     * preserving
-     * their aspect ratios.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 88 x 88 dp bounding box. If necessary, the icon will be scaled down while
+     * preserving its aspect ratio.
      *
      * <p>A tint color is expected to be provided via {@link CarIcon.Builder#setTint}. Otherwise, a
      * default tint color as determined by the host will be applied.
@@ -86,7 +95,6 @@ public class Row implements Item {
     @Nullable
     private final CarText mTitle;
     @Keep
-    @Nullable
     private final List<CarText> mTexts;
     @Keep
     @Nullable
@@ -96,7 +104,7 @@ public class Row implements Item {
     private final Toggle mToggle;
     @Keep
     @Nullable
-    private final OnClickListenerWrapper mOnClickListener;
+    private final OnClickDelegate mOnClickDelegate;
     @Keep
     private final Metadata mMetadata;
     @Keep
@@ -105,26 +113,33 @@ public class Row implements Item {
     @RowImageType
     private final int mRowImageType;
 
-    /** Constructs a new builder of {@link Row}. */
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /** Returns the title of the row. */
-    @NonNull
+    /**
+     * Returns the title of the row or {@code null} if not set.
+     *
+     * @see Builder#setTitle(CharSequence)
+     */
+    @Nullable
     public CarText getTitle() {
-        return requireNonNull(mTitle);
+        return mTitle;
     }
 
-    /** Returns the list of text below the title. */
+    /**
+     * Returns the list of text below the title.
+     *
+     * @see Builder#addText(CharSequence)
+     */
     @NonNull
     public List<CarText> getTexts() {
-        Objects.requireNonNull(mTexts);
-        return mTexts;
+        return CollectionUtils.emptyIfNull(mTexts);
     }
 
-    /** Returns the image of the row. */
+    /**
+     * Returns the image to display in the row or {@code null} if the row does not contain an
+     * image.
+     *
+     * @see Builder#setImage(CarIcon)
+     * @see Builder#setImage(CarIcon, int)
+     */
     @Nullable
     public CarIcon getImage() {
         return mImage;
@@ -139,6 +154,8 @@ public class Row implements Item {
     /**
      * Returns the {@link Toggle} in the row or {@code null} if the row does not contain a
      * toggle.
+     *
+     * @see Builder#setToggle(Toggle)
      */
     @Nullable
     public Toggle getToggle() {
@@ -146,27 +163,30 @@ public class Row implements Item {
     }
 
     /**
-     * Returns {@code true} if the row is browsable, {@code false} otherwise.
+     * Returns whether the row is browsable.
      *
      * <p>If a row is browsable, then no {@link Action} or {@link Toggle} can be added to it.
+     *
+     * @see Builder#isBrowsable()
      */
     public boolean isBrowsable() {
         return mIsBrowsable;
     }
 
     /**
-     * Returns the {@link OnClickListener} to be called back when the row is clicked, or {@code
+     * Returns the {@link OnClickListener} to be called back when the row is clicked or {@code
      * null} if the row is non-clickable.
      */
     @Nullable
-    public OnClickListenerWrapper getOnClickListener() {
-        return mOnClickListener;
+    public OnClickDelegate getOnClickDelegate() {
+        return mOnClickDelegate;
     }
 
     /**
-     * Returns the {@link Metadata} associated with the row.
+     * Returns the {@link Metadata} associated with the row or {@code null} if there is no
+     * metadata associated with the row.
      */
-    @NonNull
+    @Nullable
     public Metadata getMetadata() {
         return mMetadata;
     }
@@ -180,7 +200,9 @@ public class Row implements Item {
      * row.row().row().yourBoat(); // gently down the stream
      * }</pre>
      */
-    public void yourBoat() {
+    @NonNull
+    public CharSequence yourBoat() {
+        return YOUR_BOAT;
     }
 
     /** Returns a {@link Row} for rowing {@link #yourBoat()} */
@@ -210,7 +232,7 @@ public class Row implements Item {
                 mTexts,
                 mImage,
                 mToggle,
-                mOnClickListener == null,
+                mOnClickDelegate == null,
                 mMetadata,
                 mIsBrowsable,
                 mRowImageType);
@@ -231,18 +253,18 @@ public class Row implements Item {
                 && Objects.equals(mTexts, otherRow.mTexts)
                 && Objects.equals(mImage, otherRow.mImage)
                 && Objects.equals(mToggle, otherRow.mToggle)
-                && Objects.equals(mOnClickListener == null, otherRow.mOnClickListener == null)
+                && Objects.equals(mOnClickDelegate == null, otherRow.mOnClickDelegate == null)
                 && Objects.equals(mMetadata, otherRow.mMetadata)
                 && mIsBrowsable == otherRow.mIsBrowsable
                 && mRowImageType == otherRow.mRowImageType;
     }
 
-    private Row(Builder builder) {
+    Row(Builder builder) {
         mTitle = builder.mTitle;
-        mTexts = new ArrayList<>(builder.mTexts);
+        mTexts = CollectionUtils.unmodifiableCopy(builder.mTexts);
         mImage = builder.mImage;
         mToggle = builder.mToggle;
-        mOnClickListener = builder.mOnClickListener;
+        mOnClickDelegate = builder.mOnClickDelegate;
         mMetadata = builder.mMetadata;
         mIsBrowsable = builder.mIsBrowsable;
         mRowImageType = builder.mRowImageType;
@@ -251,10 +273,10 @@ public class Row implements Item {
     /** Constructs an empty instance, used by serialization code. */
     private Row() {
         mTitle = null;
-        mTexts = null;
+        mTexts = Collections.emptyList();
         mImage = null;
         mToggle = null;
-        mOnClickListener = null;
+        mOnClickDelegate = null;
         mMetadata = EMPTY_METADATA;
         mIsBrowsable = false;
         mRowImageType = IMAGE_TYPE_SMALL;
@@ -263,24 +285,28 @@ public class Row implements Item {
     /** A builder of {@link Row}. */
     public static final class Builder {
         @Nullable
-        private CarText mTitle;
-        private final List<CarText> mTexts = new ArrayList<>();
+        CarText mTitle;
+        final List<CarText> mTexts = new ArrayList<>();
         @Nullable
-        private CarIcon mImage;
+        CarIcon mImage;
         @Nullable
-        private Toggle mToggle;
+        Toggle mToggle;
         @Nullable
-        private OnClickListenerWrapper mOnClickListener;
-        private Metadata mMetadata = EMPTY_METADATA;
-        private boolean mIsBrowsable;
+        OnClickDelegate mOnClickDelegate;
+        Metadata mMetadata = EMPTY_METADATA;
+        boolean mIsBrowsable;
         @RowImageType
-        private int mRowImageType = IMAGE_TYPE_SMALL;
+        int mRowImageType = IMAGE_TYPE_SMALL;
 
         /**
          * Sets the title of the row.
          *
-         * @throws NullPointerException     if {@code title} is {@code null}.
-         * @throws IllegalArgumentException if {@code title} is empty.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
+         *
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} is empty, of if it contains
+     *                                      unsupported spans
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -288,21 +314,45 @@ public class Row implements Item {
             if (titleText.isEmpty()) {
                 throw new IllegalArgumentException("The title cannot be null or empty");
             }
-            this.mTitle = titleText;
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(titleText);
+            mTitle = titleText;
+            return this;
+        }
+
+        /**
+         * Sets the title of the row, with support for multiple length variants.
+         *
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
+         *
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} is empty, of if it contains
+     *                                      unsupported spans
+         */
+        @NonNull
+        public Builder setTitle(@NonNull CarText title) {
+            if (requireNonNull(title).isEmpty()) {
+                throw new IllegalArgumentException("The title cannot be null or empty");
+            }
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(title);
+            mTitle = title;
             return this;
         }
 
         /**
          * Adds a text string to the row below the title.
          *
-         * <p>The text's color can be customized with {@link ForegroundCarColorSpan} instances.
+         * <p>The text can be customized with {@link ForegroundCarColorSpan},
+         * {@link androidx.car.app.model.DistanceSpan}, and
+         * {@link androidx.car.app.model.DurationSpan} instances, any other spans will be ignored
+         * by the host.
          *
          * <p>Most templates allow up to 2 text strings, but this may vary. This limit is
          * documented in each individual template.
          *
          * <h4>Text Wrapping</h4>
          *
-         * Each string added with {@link #addText} will not wrap more than 1 line in the UI, with
+         * Each string added with this method will not wrap more than 1 line in the UI, with
          * one exception: if the template allows a maximum number of text strings larger than 1, and
          * the app adds a single text string, then this string will wrap up to the maximum.
          *
@@ -353,39 +403,45 @@ public class Row implements Item {
          * of text
          * </pre>
          *
-         * @throws NullPointerException if {@code text} is {@code null}.
+         * @throws NullPointerException     if {@code text} is {@code null}
+         * @throws IllegalArgumentException if {@code text} contains unsupported spans
          * @see ForegroundCarColorSpan
          */
         @NonNull
         public Builder addText(@NonNull CharSequence text) {
-            this.mTexts.add(CarText.create(requireNonNull(text)));
+            CarText carText = CarText.create(requireNonNull(text));
+            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(carText);
+            mTexts.add(CarText.create(requireNonNull(text)));
             return this;
         }
 
         /**
-         * Clears any rows that may have been added with {@link #addText(CharSequence)} up to this
-         * point.
+         * Adds a text string to the row below the title, with support for multiple length variants.
+         *
+         * @throws NullPointerException     if {@code text} is {@code null}
+         * @throws IllegalArgumentException if {@code text} contains unsupported spans
+         * @see Builder#addText(CharSequence)
          */
         @NonNull
-        public Builder clearText() {
-            mTexts.clear();
+        public Builder addText(@NonNull CarText text) {
+            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(requireNonNull(text));
+            mTexts.add(text);
             return this;
         }
 
         /**
-         * Sets an image to show in the row with the default size {@link #IMAGE_TYPE_SMALL}, or
-         * {@code null} to not display an image in the row.
+         * Sets an image to show in the row with the default size {@link #IMAGE_TYPE_SMALL}.
          *
+         * @throws NullPointerException if {@code image} is {@code null}
          * @see #setImage(CarIcon, int)
          */
         @NonNull
-        public Builder setImage(@Nullable CarIcon image) {
-            return setImage(image, IMAGE_TYPE_SMALL);
+        public Builder setImage(@NonNull CarIcon image) {
+            return setImage(requireNonNull(image), IMAGE_TYPE_SMALL);
         }
 
         /**
-         * Sets an image to show in the row with the given image type, or {@code null} to not
-         * display an image in the row.
+         * Sets an image to show in the row with the given image type.
          *
          * <p>For a custom {@link CarIcon}, its {@link androidx.core.graphics.drawable.IconCompat}
          * instance can be of {@link androidx.core.graphics.drawable.IconCompat#TYPE_BITMAP},
@@ -396,30 +452,32 @@ public class Row implements Item {
          *
          * <p>If the input image's size exceeds the sizing requirements for the given image type in
          * either one of the dimensions, it will be scaled down to be centered inside the
-         * bounding box while preserving the aspect ratio.
+         * bounding box while preserving its aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
          *
-         * @param image     the {@link CarIcon} to display, or {@code null} to not display one.
+         * @param image     the {@link CarIcon} to display or {@code null} to not display one
          * @param imageType one of {@link #IMAGE_TYPE_ICON}, {@link #IMAGE_TYPE_SMALL} or {@link
          *                  #IMAGE_TYPE_LARGE}
+         * @throws NullPointerException if {@code image} is {@code null}
          */
         @NonNull
-        public Builder setImage(@Nullable CarIcon image, @RowImageType int imageType) {
-            CarIconConstraints.UNCONSTRAINED.validateOrThrow(image);
-            this.mImage = image;
-            this.mRowImageType = imageType;
+        public Builder setImage(@NonNull CarIcon image, @RowImageType int imageType) {
+            CarIconConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(image));
+            mImage = image;
+            mRowImageType = imageType;
             return this;
         }
 
         /**
-         * Sets a {@link Toggle} to show in the row, or {@code null} to not display a toggle in
-         * the row.
+         * Sets a {@link Toggle} to show in the row.
+         *
+         * @throws NullPointerException if {@code toggle} is {@code null}
          */
         @NonNull
-        public Builder setToggle(@Nullable Toggle toggle) {
-            this.mToggle = toggle;
+        public Builder setToggle(@NonNull Toggle toggle) {
+            mToggle = requireNonNull(toggle);
             return this;
         }
 
@@ -433,49 +491,46 @@ public class Row implements Item {
          */
         @NonNull
         public Builder setBrowsable(boolean isBrowsable) {
-            this.mIsBrowsable = isBrowsable;
+            mIsBrowsable = isBrowsable;
             return this;
         }
 
         /**
-         * Sets the {@link OnClickListener} to be called back when the row is clicked, or {@code
-         * null} to make the row non-clickable.
+         * Sets the {@link OnClickListener} to be called back when the row is clicked.
          *
          * <p>Note that the listener relates to UI events and will be executed on the main thread
          * using {@link Looper#getMainLooper()}.
+         *
+         * @throws NullPointerException if {@code onClickListener} is {@code null}
          */
         @NonNull
-        @SuppressLint("ExecutorRegistration")
-        public Builder setOnClickListener(@Nullable OnClickListener onClickListener) {
-            if (onClickListener == null) {
-                this.mOnClickListener = null;
-            } else {
-                this.mOnClickListener = OnClickListenerWrapperImpl.create(onClickListener);
-            }
+        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
+        public Builder setOnClickListener(@NonNull OnClickListener onClickListener) {
+            mOnClickDelegate = OnClickDelegateImpl.create(onClickListener);
             return this;
         }
+
 
         /**
          * Sets the {@link Metadata} associated with the row.
          *
          * @param metadata The metadata to set with the row. Pass {@link Metadata#EMPTY_METADATA}
-         *                 to not associate any metadata with the row.
+         *                 to not associate any metadata with the row
          */
         @NonNull
         public Builder setMetadata(@NonNull Metadata metadata) {
-            this.mMetadata = metadata;
+            mMetadata = metadata;
             return this;
         }
 
         /**
          * Constructs the {@link Row} defined by this builder.
          *
-         * @throws IllegalStateException if the row's title is not set.
-         * @throws IllegalStateException if the row is a browsable row and has a {@link Toggle}.
-         * @throws IllegalStateException if the row is a browsable row but does not have a {@link
-         *                               OnClickListener}.
-         * @throws IllegalStateException if the row has both a {@link OnClickListener} and a {@link
-         *                               Toggle}.
+         * @throws IllegalStateException if the row's title is not set, if it is a browsable
+         *                               row and has a {@link Toggle}, if it is a browsable
+         *                               row but does not have a {@link OnClickListener}, or if
+         *                               it has both a {@link OnClickListener} and a {@link
+         *                               Toggle}
          */
         @NonNull
         public Row build() {
@@ -487,13 +542,13 @@ public class Row implements Item {
                 if (mToggle != null) {
                     throw new IllegalStateException("A browsable row must not have a toggle set");
                 }
-                if (mOnClickListener == null) {
+                if (mOnClickDelegate == null) {
                     throw new IllegalStateException(
                             "A browsable row must have its onClickListener set");
                 }
             }
 
-            if (mToggle != null && mOnClickListener != null) {
+            if (mToggle != null && mOnClickDelegate != null) {
                 throw new IllegalStateException(
                         "If a row contains a toggle, it must not have a onClickListener set");
             }
@@ -501,7 +556,8 @@ public class Row implements Item {
             return new Row(this);
         }
 
-        private Builder() {
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

@@ -268,15 +268,14 @@ public class PostMessageTest {
         WebMessageCompat message =
                 new WebMessageCompat(WEBVIEW_MESSAGE, new WebMessagePortCompat[]{channel[1]});
         mOnUiThread.postWebMessageCompat(message, Uri.parse(BASE_URI));
-        WebkitUtils.onMainThreadSync(() -> {
-            channel[0].setWebMessageCallback(new WebMessageCallbackCompat() {
-                @Override
-                public void onMessage(@NonNull WebMessagePortCompat port,
-                        WebMessageCompat message) {
-                    message.getPorts()[0].postMessage(new WebMessageCompat(hello));
-                }
-            });
-        });
+        WebkitUtils.onMainThreadSync(() -> channel[0].setWebMessageCallback(
+                new WebMessageCallbackCompat() {
+                    @Override
+                    public void onMessage(@NonNull WebMessagePortCompat port,
+                            WebMessageCompat message) {
+                        message.getPorts()[0].postMessage(new WebMessageCompat(hello));
+                    }
+                }));
         waitForTitle(hello);
     }
 

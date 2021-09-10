@@ -21,7 +21,9 @@ import com.android.tools.build.jetifier.core.type.TypesMap
 import com.android.tools.build.jetifier.core.utils.Log
 import com.android.tools.build.jetifier.processor.transform.TransformationContext
 import com.android.tools.build.jetifier.processor.transform.bytecode.asm.CustomRemapper
+import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.ClassVisitor
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.commons.ClassRemapper
 import java.nio.file.Path
 
@@ -49,12 +51,30 @@ class CoreRemapperImpl(
         )
     }
 
-    private val typesMap = context.config.typesMap
-
     var changesDone = false
         private set
 
-    val classRemapper = ClassRemapper(visitor, CustomRemapper(this))
+    val remapper = CustomRemapper(this)
+    val classRemapper = object : ClassRemapper(visitor, remapper) {
+        override fun visitAnnotation(descriptor: String?, visible: Boolean): AnnotationVisitor {
+            val annotationVisitor = super.visitAnnotation(descriptor, visible)
+            return if (descriptor == "Lkotlin/Metadata;")
+                KotlinMetadataVisitor(annotationVisitor) else annotationVisitor
+        }
+    }
+
+    inner class KotlinMetadataVisitor(
+        visitor: AnnotationVisitor
+    ) : AnnotationVisitor(Opcodes.ASM8, visitor) {
+        init {
+            remapper.onKotlinAnnotationVisitStart()
+        }
+
+        override fun visitEnd() {
+            remapper.onKotlinAnnotationVisitEnd()
+            super.visitEnd()
+        }
+    }
 
     override fun rewriteType(type: JavaType): JavaType {
         val result = context.typeRewriter.rewriteType(type)

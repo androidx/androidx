@@ -24,10 +24,6 @@ import androidx.compose.ui.graphics.colorspace.ColorSpace
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.graphics.colorspace.Rgb
 import androidx.compose.ui.graphics.colorspace.connect
-import androidx.compose.ui.util.annotation.ColorInt
-import androidx.compose.ui.util.annotation.FloatRange
-import androidx.compose.ui.util.annotation.IntRange
-import androidx.compose.ui.util.annotation.Size
 import androidx.compose.ui.util.lerp
 import kotlin.math.max
 import kotlin.math.min
@@ -116,6 +112,7 @@ import kotlin.math.min
  * [color spaces][ColorSpaces] for the exact ranges.
  */
 @Immutable
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 inline class Color(val value: ULong) {
     /**
      * Returns this color's color space.
@@ -322,6 +319,72 @@ inline class Color(val value: ULong) {
          */
         @Stable
         val Unspecified = Color(0f, 0f, 0f, 0f, ColorSpaces.Unspecified)
+
+        /**
+         * Return a [Color] from [hue], [saturation], and [value] (HSV representation).
+         *
+         * @param hue The color value in the range (0..360), where 0 is red, 120 is green, and
+         * 240 is blue
+         * @param saturation The amount of [hue] represented in the color in the range (0..1),
+         * where 0 has no color and 1 is fully saturated.
+         * @param value The strength of the color, where 0 is black.
+         * @param colorSpace The RGB color space used to calculate the Color from the HSV values.
+         */
+        @ExperimentalGraphicsApi
+        fun hsv(
+            hue: Float,
+            saturation: Float,
+            value: Float,
+            alpha: Float = 1f,
+            colorSpace: Rgb = ColorSpaces.Srgb
+        ): Color {
+            require(hue in 0f..360f && saturation in 0f..1f && value in 0f..1f) {
+                "HSV ($hue, $saturation, $value) must be in range (0..360, 0..1, 0..1)"
+            }
+            val red = hsvToRgbComponent(5, hue, saturation, value)
+            val green = hsvToRgbComponent(3, hue, saturation, value)
+            val blue = hsvToRgbComponent(1, hue, saturation, value)
+            return Color(red, green, blue, alpha, colorSpace)
+        }
+
+        private fun hsvToRgbComponent(n: Int, h: Float, s: Float, v: Float): Float {
+            val k = (n.toFloat() + h / 60f) % 6f
+            return v - (v * s * max(0f, minOf(k, 4 - k, 1f)))
+        }
+
+        /**
+         * Return a [Color] from [hue], [saturation], and [lightness] (HSL representation).
+         *
+         * @param hue The color value in the range (0..360), where 0 is red, 120 is green, and
+         * 240 is blue
+         * @param saturation The amount of [hue] represented in the color in the range (0..1),
+         * where 0 has no color and 1 is fully saturated.
+         * @param lightness A range of (0..1) where 0 is black, 0.5 is fully colored, and 1 is
+         * white.
+         * @param colorSpace The RGB color space used to calculate the Color from the HSL values.
+         */
+        @ExperimentalGraphicsApi
+        fun hsl(
+            hue: Float,
+            saturation: Float,
+            lightness: Float,
+            alpha: Float = 1f,
+            colorSpace: Rgb = ColorSpaces.Srgb
+        ): Color {
+            require(hue in 0f..360f && saturation in 0f..1f && lightness in 0f..1f) {
+                "HSL ($hue, $saturation, $lightness) must be in range (0..360, 0..1, 0..1)"
+            }
+            val red = hslToRgbComponent(0, hue, saturation, lightness)
+            val green = hslToRgbComponent(8, hue, saturation, lightness)
+            val blue = hslToRgbComponent(4, hue, saturation, lightness)
+            return Color(red, green, blue, alpha, colorSpace)
+        }
+
+        private fun hslToRgbComponent(n: Int, h: Float, s: Float, l: Float): Float {
+            val k = (n.toFloat() + h / 30f) % 12f
+            val a = s * min(l, 1f - l)
+            return l - a * max(-1f, minOf(k - 3, 9 - k, 1f))
+        }
     }
 }
 
@@ -363,8 +426,7 @@ fun Color(
     }
 
     val id = colorSpace.id
-    // TODO(mount): restore MinId when const vals work in IR module
-    require(id != -1 /*ColorSpace.MinId*/) {
+    require(id != ColorSpace.MinId) {
         "Unknown color space, please use a color space in ColorSpaces"
     }
 
@@ -399,7 +461,7 @@ fun Color(
  * @return A non-null instance of {@link Color}
  */
 @Stable
-fun Color(@ColorInt color: Int): Color {
+fun Color(/*@ColorInt*/ color: Int): Color {
     return Color(value = color.toULong() shl 32)
 }
 
@@ -425,16 +487,25 @@ fun Color(color: Long): Color {
  * The resulting color is in the [sRGB][ColorSpaces.Srgb]
  * color space. The default alpha value is `0xFF` (opaque).
  *
+ * @param red The red component of the color, between 0 and 255.
+ * @param green The green component of the color, between 0 and 255.
+ * @param blue The blue component of the color, between 0 and 255.
+ * @param alpha The alpha component of the color, between 0 and 255.
+ *
  * @return A non-null instance of {@link Color}
  */
 @Stable
 fun Color(
-    @IntRange(from = 0, to = 0xFF) red: Int,
-    @IntRange(from = 0, to = 0xFF) green: Int,
-    @IntRange(from = 0, to = 0xFF) blue: Int,
-    @IntRange(from = 0, to = 0xFF) alpha: Int = 0xFF
+    /*@IntRange(from = 0, to = 0xFF)*/
+    red: Int,
+    /*@IntRange(from = 0, to = 0xFF)*/
+    green: Int,
+    /*@IntRange(from = 0, to = 0xFF)*/
+    blue: Int,
+    /*@IntRange(from = 0, to = 0xFF)*/
+    alpha: Int = 0xFF
 ): Color {
-    @ColorInt val color = ((alpha and 0xFF) shl 24) or
+    val color = ((alpha and 0xFF) shl 24) or
         ((red and 0xFF) shl 16) or
         ((green and 0xFF) shl 8) or
         (blue and 0xFF)
@@ -444,30 +515,30 @@ fun Color(
 /**
  * Linear interpolate between two [Colors][Color], [start] and [stop] with [fraction] fraction
  * between the two. The [ColorSpace] of the result is always the [ColorSpace][Color.colorSpace]
- * of [stop].
+ * of [stop]. [fraction] should be between 0 and 1, inclusive.
  */
 @Stable
-fun lerp(start: Color, stop: Color, @FloatRange(from = 0.0, to = 1.0) fraction: Float): Color {
-    val linearColorSpace = ColorSpaces.LinearExtendedSrgb
-    val startColor = start.convert(linearColorSpace)
-    val endColor = stop.convert(linearColorSpace)
+fun lerp(start: Color, stop: Color, /*@FloatRange(from = 0.0, to = 1.0)*/ fraction: Float): Color {
+    val colorSpace = ColorSpaces.Oklab
+    val startColor = start.convert(colorSpace)
+    val endColor = stop.convert(colorSpace)
 
-    val startA = startColor.alpha
-    val startR = startColor.red
-    val startG = startColor.green
+    val startAlpha = startColor.alpha
+    val startL = startColor.red
+    val startA = startColor.green
     val startB = startColor.blue
 
-    val endA = endColor.alpha
-    val endR = endColor.red
-    val endG = endColor.green
+    val endAlpha = endColor.alpha
+    val endL = endColor.red
+    val endA = endColor.green
     val endB = endColor.blue
 
     val interpolated = Color(
-        alpha = lerp(startA, endA, fraction),
-        red = lerp(startR, endR, fraction),
-        green = lerp(startG, endG, fraction),
+        alpha = lerp(startAlpha, endAlpha, fraction),
+        red = lerp(startL, endL, fraction),
+        green = lerp(startA, endA, fraction),
         blue = lerp(startB, endB, fraction),
-        colorSpace = linearColorSpace
+        colorSpace = colorSpace
     )
     return interpolated.convert(stop.colorSpace)
 }
@@ -519,7 +590,7 @@ private inline fun compositeComponent(
  *
  * @return A new, non-null array whose size is 4
  */
-@Size(value = 4)
+/*@Size(value = 4)*/
 private fun Color.getComponents(): FloatArray = floatArrayOf(red, green, blue, alpha)
 
 /**
@@ -536,7 +607,7 @@ private fun Color.getComponents(): FloatArray = floatArrayOf(red, green, blue, a
 @Stable
 fun Color.luminance(): Float {
     val colorSpace = colorSpace
-    require(colorSpace.model === ColorModel.Rgb) {
+    require(colorSpace.model == ColorModel.Rgb) {
         "The specified color must be encoded in an RGB color space. " +
             "The supplied color space is ${colorSpace.model}"
     }
@@ -561,7 +632,7 @@ private fun saturate(v: Float): Float {
  * @return An ARGB color in the sRGB color space
  */
 @Stable
-@ColorInt
+/*@ColorInt*/
 fun Color.toArgb(): Int {
     val colorSpace = colorSpace
     if (colorSpace.isSrgb) {
@@ -594,4 +665,4 @@ inline val Color.isUnspecified: Boolean get() = value == Color.Unspecified.value
  * If this [Color] [isSpecified] then this is returned, otherwise [block] is executed and its result
  * is returned.
  */
-inline fun Color.useOrElse(block: () -> Color): Color = if (isSpecified) this else block()
+inline fun Color.takeOrElse(block: () -> Color): Color = if (isSpecified) this else block()

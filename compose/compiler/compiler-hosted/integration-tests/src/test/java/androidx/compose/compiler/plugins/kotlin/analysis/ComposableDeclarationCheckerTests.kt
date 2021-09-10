@@ -18,18 +18,14 @@ package androidx.compose.compiler.plugins.kotlin.analysis
 
 import androidx.compose.compiler.plugins.kotlin.AbstractComposeDiagnosticsTest
 
-/**
- * We're strongly considering supporting try-catch-finally blocks in the future.
- * If/when we do support them, these tests should be deleted.
- */
 class ComposableDeclarationCheckerTests : AbstractComposeDiagnosticsTest() {
     fun testPropertyWithInitializer() {
         doTest(
             """
             import androidx.compose.runtime.Composable
 
-            @Composable
-            val <!COMPOSABLE_PROPERTY_BACKING_FIELD!>foo<!>: Int = 123
+            val <!COMPOSABLE_PROPERTY_BACKING_FIELD!>bar<!>: Int = 123
+                @Composable get() = field
         """
         )
     }
@@ -72,26 +68,38 @@ class ComposableDeclarationCheckerTests : AbstractComposeDiagnosticsTest() {
         )
     }
 
-    fun testPropertyWithJustGetter() {
-        doTest(
-            """
-            import androidx.compose.runtime.Composable
-
-            @Composable
-            val bar: Int get() = 123
-        """
-        )
-    }
-
     fun testPropertyWithGetterAndSetter() {
         doTest(
             """
             import androidx.compose.runtime.Composable
 
-            @Composable
-            var <!COMPOSABLE_VAR!>bam<!>: Int 
-                get() { return 123 }
+            var <!COMPOSABLE_VAR!>bam2<!>: Int
+                @Composable get() { return 123 }
                 set(value) { print(value) }
+
+            var <!COMPOSABLE_VAR!>bam3<!>: Int
+                @Composable get() { return 123 }
+                <!WRONG_ANNOTATION_TARGET!>@Composable<!> set(value) { print(value) }
+
+            var <!COMPOSABLE_VAR!>bam4<!>: Int
+                get() { return 123 }
+                <!WRONG_ANNOTATION_TARGET!>@Composable<!> set(value) { print(value) }
+        """
+        )
+    }
+
+    fun testPropertyGetterAllForms() {
+        doTest(
+            """
+            import androidx.compose.runtime.Composable
+
+            val bar2: Int @Composable get() = 123
+            @get:Composable val bar3: Int get() = 123
+
+            interface Foo {
+                val bar2: Int @Composable get() = 123
+                @get:Composable val bar3: Int get() = 123
+            }
         """
         )
     }
@@ -119,6 +127,36 @@ class ComposableDeclarationCheckerTests : AbstractComposeDiagnosticsTest() {
         )
     }
 
+    fun testComposableMainFun() {
+        doTest(
+            """
+            import androidx.compose.runtime.Composable
+
+            @Composable fun <!COMPOSABLE_FUN_MAIN!>main<!>() {}
+        """
+        )
+        doTest(
+            """
+            import androidx.compose.runtime.Composable
+
+            @Composable fun <!COMPOSABLE_FUN_MAIN!>main<!>(args: Array<String>) {
+                print(args)
+            }
+        """
+        )
+        doTest(
+            """
+            import androidx.compose.runtime.Composable
+
+            class Foo
+
+            @Composable fun main(foo: Foo) {
+                print(foo)
+            }
+        """
+        )
+    }
+
     fun testMissingComposableOnOverride() {
         doTest(
             """
@@ -127,17 +165,92 @@ class ComposableDeclarationCheckerTests : AbstractComposeDiagnosticsTest() {
             interface Foo {
                 @Composable
                 fun composableFunction(param: Boolean): Boolean
-                @Composable
-                val composableProperty: Boolean
                 fun nonComposableFunction(param: Boolean): Boolean
                 val nonComposableProperty: Boolean
             }
 
             object FakeFoo : Foo {
                 <!CONFLICTING_OVERLOADS!>override fun composableFunction(param: Boolean)<!> = true
-                <!CONFLICTING_OVERLOADS!>override val composableProperty: Boolean<!> get() = true
                 <!CONFLICTING_OVERLOADS!>@Composable override fun nonComposableFunction(param: Boolean)<!> = true
-                <!CONFLICTING_OVERLOADS!>@Composable override val nonComposableProperty: Boolean<!> get() = true
+                <!CONFLICTING_OVERLOADS!>override val nonComposableProperty: Boolean<!> <!CONFLICTING_OVERLOADS!>@Composable get()<!> = true
+            }
+
+            interface Bar {
+                @Composable
+                fun composableFunction(param: Boolean): Boolean
+                val composableProperty: Boolean @Composable get()
+                fun nonComposableFunction(param: Boolean): Boolean
+                val nonComposableProperty: Boolean
+            }
+
+            object FakeBar : Bar {
+                <!CONFLICTING_OVERLOADS!>override fun composableFunction(param: Boolean)<!> = true
+                <!CONFLICTING_OVERLOADS!>override val composableProperty: Boolean<!> <!CONFLICTING_OVERLOADS!>get()<!> = true
+                <!CONFLICTING_OVERLOADS!>@Composable override fun nonComposableFunction(param: Boolean)<!> = true
+                <!CONFLICTING_OVERLOADS!>override val nonComposableProperty: Boolean<!> <!CONFLICTING_OVERLOADS!>@Composable get()<!> = true
+            }
+        """
+        )
+    }
+
+    fun testInferenceOverComplexConstruct1() {
+        doTest(
+            """
+            import androidx.compose.runtime.Composable
+            val composable: @Composable ()->Unit = if(true) { { } } else { { } }
+        """
+        )
+    }
+
+    fun testInferenceOverComplexConstruct2() {
+        doTest(
+            """
+            import androidx.compose.runtime.Composable
+            @Composable fun foo() { }
+            val composable: @Composable ()->Unit = if(true) { { } } else { { foo() } }
+        """
+        )
+    }
+
+    fun testInterfaceComposablesWithDefaultParameters() {
+        doTest(
+            """
+            import androidx.compose.runtime.Composable
+            interface A {
+                @Composable fun foo(x: Int = <!ABSTRACT_COMPOSABLE_DEFAULT_PARAMETER_VALUE!>0<!>)
+            }
+        """
+        )
+    }
+
+    fun testAbstractComposablesWithDefaultParameters() {
+        doTest(
+            """
+            import androidx.compose.runtime.Composable
+            abstract class A {
+                @Composable abstract fun foo(x: Int = <!ABSTRACT_COMPOSABLE_DEFAULT_PARAMETER_VALUE!>0<!>)
+            }
+        """
+        )
+    }
+
+    fun testInterfaceComposablesWithoutDefaultParameters() {
+        doTest(
+            """
+            import androidx.compose.runtime.Composable
+            interface A {
+                @Composable fun foo(x: Int)
+            }
+        """
+        )
+    }
+
+    fun testAbstractComposablesWithoutDefaultParameters() {
+        doTest(
+            """
+            import androidx.compose.runtime.Composable
+            abstract class A {
+                @Composable abstract fun foo(x: Int)
             }
         """
         )

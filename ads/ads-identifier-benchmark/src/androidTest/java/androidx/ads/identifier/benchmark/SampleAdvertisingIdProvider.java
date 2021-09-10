@@ -16,11 +16,12 @@
 
 package androidx.ads.identifier.benchmark;
 
-import androidx.ads.identifier.provider.AdvertisingIdProvider;
 import androidx.annotation.NonNull;
 
 /** An example Advertising ID Provider which always returns same ID. */
-public class SampleAdvertisingIdProvider implements AdvertisingIdProvider {
+@SuppressWarnings("deprecation")
+public class SampleAdvertisingIdProvider implements
+        androidx.ads.identifier.provider.AdvertisingIdProvider {
 
     static final String DUMMY_AD_ID = "308f629d-c857-4026-8b62-7bdd71caaaaa";
 

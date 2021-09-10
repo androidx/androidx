@@ -1,0 +1,25 @@
+// Signature format: 4.0
+package androidx.security.app.authenticator {
+
+  public class AppAuthenticator {
+    method public int checkAppIdentity(String);
+    method public int checkCallingAppIdentity(String, String);
+    method public int checkCallingAppIdentity(String, String, int, int);
+    method public static androidx.security.app.authenticator.AppAuthenticator createFromInputStream(android.content.Context, java.io.InputStream) throws androidx.security.app.authenticator.AppAuthenticatorXmlException, java.io.IOException;
+    method public static androidx.security.app.authenticator.AppAuthenticator createFromResource(android.content.Context, @XmlRes int) throws androidx.security.app.authenticator.AppAuthenticatorXmlException, java.io.IOException;
+    method public void enforceAppIdentity(String);
+    method public void enforceCallingAppIdentity(String, String);
+    method public void enforceCallingAppIdentity(String, String, int, int);
+    field public static final int PERMISSION_DENIED_NO_MATCH = -3; // 0xfffffffd
+    field public static final int PERMISSION_DENIED_PACKAGE_UID_MISMATCH = -5; // 0xfffffffb
+    field public static final int PERMISSION_DENIED_UNKNOWN_PACKAGE = -4; // 0xfffffffc
+    field public static final int PERMISSION_GRANTED = 0; // 0x0
+    field public static final int SIGNATURE_MATCH = 0; // 0x0
+    field public static final int SIGNATURE_NO_MATCH = -1; // 0xffffffff
+  }
+
+  public class AppAuthenticatorXmlException extends java.lang.Exception {
+  }
+
+}
+

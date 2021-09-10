@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
-import androidx.build.AndroidXExtension
 import androidx.build.Publish
 
 plugins {
@@ -27,21 +24,22 @@ plugins {
 }
 
 dependencies {
-    api("androidx.fragment:fragment:1.2.4")
+    api(projectOrArtifact(":fragment:fragment-ktx"))
     api(project(":navigation:navigation-runtime"))
-
-    androidTestImplementation(project(":navigation:navigation-runtime-ktx"))
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation project(':internal-testutils-runtime'), {
-        exclude group: 'androidx.fragment', module: 'fragment'
-    }
-    androidTestImplementation(project(':internal-testutils-navigation'), {
-        exclude group: 'androidx.navigation', module: 'navigation-common-ktx'
+    api("androidx.slidingpanelayout:slidingpanelayout:1.2.0-beta01")
+    api(libs.kotlinStdlib)
+    androidTestImplementation(project(":navigation:navigation-testing"))
+    androidTestImplementation(projectOrArtifact(":fragment:fragment-testing"))
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":internal-testutils-runtime"), {
+        exclude group: "androidx.fragment", module: "fragment"
+    })
+    androidTestImplementation(project(":internal-testutils-navigation"), {
+        exclude group: "androidx.navigation", module: "navigation-common"
     })
 }
 

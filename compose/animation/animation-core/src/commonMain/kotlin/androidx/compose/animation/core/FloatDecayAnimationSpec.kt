@@ -16,7 +16,6 @@
 
 package androidx.compose.animation.core
 
-import androidx.compose.ui.util.annotation.FloatRange
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.ln
@@ -27,7 +26,6 @@ import kotlin.math.max
  * Animation<T>, DecayAnimation does not have an end value defined. The end value is a
  * result of the animation rather than an input.
  */
-// TODO: Figure out a better story for non-floats
 interface FloatDecayAnimationSpec {
     /**
      * This is the absolute value of a velocity threshold, below which the animation is considered
@@ -38,50 +36,51 @@ interface FloatDecayAnimationSpec {
     /**
      * Returns the value of the animation at the given time.
      *
-     * @param playTime The time elapsed in milliseconds since the start of the animation
-     * @param start The start value of the animation
-     * @param startVelocity The start velocity of the animation
+     * @param playTimeNanos The time elapsed in milliseconds since the start of the animation
+     * @param initialValue The start value of the animation
+     * @param initialVelocity The start velocity of the animation
      */
-    fun getValue(
-        playTime: Long,
-        start: Float,
-        startVelocity: Float
+    fun getValueFromNanos(
+        playTimeNanos: Long,
+        initialValue: Float,
+        initialVelocity: Float
     ): Float
 
     /**
-     * Returns the duration of the decay animation, in milliseconds.
+     * Returns the duration of the decay animation, in nanoseconds.
      *
-     * @param start start value of the animation
-     * @param startVelocity start velocity of the animation
+     * @param initialValue start value of the animation
+     * @param initialVelocity start velocity of the animation
      */
-    fun getDurationMillis(
-        start: Float,
-        startVelocity: Float
+    @Suppress("MethodNameUnits")
+    fun getDurationNanos(
+        initialValue: Float,
+        initialVelocity: Float
     ): Long
 
     /**
      * Returns the velocity of the animation at the given time.
      *
-     * @param playTime The time elapsed in milliseconds since the start of the animation
-     * @param start The start value of the animation
-     * @param startVelocity The start velocity of the animation
+     * @param playTimeNanos The time elapsed in milliseconds since the start of the animation
+     * @param initialValue The start value of the animation
+     * @param initialVelocity The start velocity of the animation
      */
-    fun getVelocity(
-        playTime: Long,
-        start: Float,
-        startVelocity: Float
+    fun getVelocityFromNanos(
+        playTimeNanos: Long,
+        initialValue: Float,
+        initialVelocity: Float
     ): Float
 
     /**
      * Returns the target value of the animation based on the starting condition of the animation (
      * i.e. start value and start velocity).
      *
-     * @param start The start value of the animation
-     * @param startVelocity The start velocity of the animation
+     * @param initialValue The start value of the animation
+     * @param initialVelocity The start velocity of the animation
      */
-    fun getTarget(
-        start: Float,
-        startVelocity: Float
+    fun getTargetValue(
+        initialValue: Float,
+        initialVelocity: Float
     ): Float
 }
 
@@ -89,63 +88,72 @@ private const val ExponentialDecayFriction = -4.2f
 
 /**
  * This is a decay animation where the friction/deceleration is always proportional to the velocity.
- * As a result, the velocity goes under an exponential decay. The constructor parameter, friction
- * multiplier, can be tuned to adjust the amount of friction applied in the decay. The higher the
+ * As a result, the velocity goes under an exponential decay. The constructor parameter,
+ * `frictionMultiplier`, can be tuned to adjust the amount of friction applied in the decay. The
+ * higher the
  * multiplier, the higher the friction, the sooner the animation will stop, and the shorter distance
  * the animation will travel with the same starting condition.
+ * @param frictionMultiplier The friction multiplier, indicating how quickly the animation should
+ * stop. This should be greater than `0`, with a default value of `1.0`.
+ * @param absVelocityThreshold The speed at which the animation is considered close enough to
+ * rest for the animation to finish.
  */
-class ExponentialDecay(
-    @FloatRange(
+class FloatExponentialDecaySpec(
+    /*@FloatRange(
         from = 0.0,
-        // TODO(b/158069385): use POSITIVE_INFINITY constant once it's possible to do in MPP code.
-        to = 3.4e38, // POSITIVE_INFINITY,
         fromInclusive = false
-    ) frictionMultiplier: Float = 1f,
-    @FloatRange(
+    )*/
+    frictionMultiplier: Float = 1f,
+    /*@FloatRange(
         from = 0.0,
-        // TODO(b/158069385): use POSITIVE_INFINITY constant once it's possible to do in MPP code.
-        to = 3.4e38, // POSITIVE_INFINITY,
         fromInclusive = false
-    ) absVelocityThreshold: Float = 0.1f
+    )*/
+    absVelocityThreshold: Float = 0.1f
 ) : FloatDecayAnimationSpec {
 
     override val absVelocityThreshold: Float = max(0.0000001f, abs(absVelocityThreshold))
     private val friction: Float = ExponentialDecayFriction * max(0.0001f, frictionMultiplier)
 
-    override fun getValue(
-        playTime: Long,
-        start: Float,
-        startVelocity: Float
+    override fun getValueFromNanos(
+        playTimeNanos: Long,
+        initialValue: Float,
+        initialVelocity: Float
     ): Float {
-        return start - startVelocity / friction +
-            startVelocity / friction * exp(friction * playTime / 1000f)
+        // TODO: Properly support nanos
+        val playTimeMillis = playTimeNanos / MillisToNanos
+        return initialValue - initialVelocity / friction +
+            initialVelocity / friction * exp(friction * playTimeMillis / 1000f)
     }
 
-    override fun getVelocity(
-        playTime: Long,
-        start: Float,
-        startVelocity: Float
+    override fun getVelocityFromNanos(
+        playTimeNanos: Long,
+        initialValue: Float,
+        initialVelocity: Float
     ): Float {
-        return (startVelocity * exp(((playTime / 1000f) * friction)))
+        // TODO: Properly support nanos
+        val playTimeMillis = playTimeNanos / MillisToNanos
+        return (initialVelocity * exp(((playTimeMillis / 1000f) * friction)))
     }
 
-    override fun getDurationMillis(start: Float, startVelocity: Float): Long {
+    @Suppress("MethodNameUnits")
+    override fun getDurationNanos(initialValue: Float, initialVelocity: Float): Long {
         // Inverse of getVelocity
-        return (1000f * ln(absVelocityThreshold / abs(startVelocity)) / friction).toLong()
+        return (1000f * ln(absVelocityThreshold / abs(initialVelocity)) / friction)
+            .toLong() * MillisToNanos
     }
 
-    override fun getTarget(
-        start: Float,
-        startVelocity: Float
+    override fun getTargetValue(
+        initialValue: Float,
+        initialVelocity: Float
     ): Float {
-        if (abs(startVelocity) <= absVelocityThreshold) {
-            return start
+        if (abs(initialVelocity) <= absVelocityThreshold) {
+            return initialValue
         }
         val duration: Double =
-            ln(abs(absVelocityThreshold / startVelocity).toDouble()) / friction * 1000
+            ln(abs(absVelocityThreshold / initialVelocity).toDouble()) / friction * 1000
 
-        return start - startVelocity / friction +
-            startVelocity / friction * exp((friction * duration / 1000f)).toFloat()
+        return initialValue - initialVelocity / friction +
+            initialVelocity / friction * exp((friction * duration / 1000f)).toFloat()
     }
 }
 

@@ -18,98 +18,124 @@ package androidx.compose.material
 
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Interaction
-import androidx.compose.foundation.InteractionState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.DragInteraction
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.emptyContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.platform.AmbientDensity
-import androidx.compose.ui.platform.AmbientLayoutDirection
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.collect
+import kotlin.math.roundToInt
 
 /**
- * A Switch is a two state toggleable component that provides on/off like options
+ * <a href="https://material.io/components/switches" class="external" target="_blank">Material Design switch</a>.
+ *
+ * Switches toggle the state of a single item on or off.
+ *
+ * ![Switches image](https://developer.android.com/images/reference/androidx/compose/material/switches.png)
  *
  * @sample androidx.compose.material.samples.SwitchSample
  *
- * @param checked whether or not this components is checked
+ * @param checked whether or not this component is checked
  * @param onCheckedChange callback to be invoked when Switch is being clicked,
- * therefore the change of checked state is requested.
+ * therefore the change of checked state is requested.  If null, then this is passive
+ * and relies entirely on a higher-level component to control the "checked" state.
  * @param modifier Modifier to be applied to the switch layout
- * @param enabled whether or not components is enabled and can be clicked to request state change
- * @param interactionState the [InteractionState] representing the different [Interaction]s
- * present on this Switch. You can create and pass in your own remembered
- * [InteractionState] if you want to read the [InteractionState] and customize the appearance /
- * behavior of this Switch in different [Interaction]s.
+ * @param enabled whether the component is enabled or grayed out
+ * @param interactionSource the [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this Switch. You can create and pass in your own remembered
+ * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
+ * appearance / behavior of this Switch in different [Interaction]s.
  * @param colors [SwitchColors] that will be used to determine the color of the thumb and track
- * in different states. See [SwitchConstants.defaultColors].
+ * in different states. See [SwitchDefaults.colors].
  */
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
 fun Switch(
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
+    onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionState: InteractionState = remember { InteractionState() },
-    colors: SwitchColors = SwitchConstants.defaultColors()
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    colors: SwitchColors = SwitchDefaults.colors()
 ) {
     val minBound = 0f
-    val maxBound = with(AmbientDensity.current) { ThumbPathLength.toPx() }
-    val swipeableState = rememberSwipeableStateFor(checked, onCheckedChange, AnimationSpec)
-    val isRtl = AmbientLayoutDirection.current == LayoutDirection.Rtl
-    Box(
-        modifier
-            .toggleable(
+    val maxBound = with(LocalDensity.current) { ThumbPathLength.toPx() }
+    val swipeableState = rememberSwipeableStateFor(checked, onCheckedChange ?: {}, AnimationSpec)
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val toggleableModifier =
+        if (onCheckedChange != null) {
+            Modifier.toggleable(
                 value = checked,
                 onValueChange = onCheckedChange,
                 enabled = enabled,
-                interactionState = interactionState,
+                role = Role.Switch,
+                interactionSource = interactionSource,
                 indication = null
             )
+        } else {
+            Modifier
+        }
+
+    Box(
+        modifier
+            .then(toggleableModifier)
             .swipeable(
                 state = swipeableState,
                 anchors = mapOf(minBound to false, maxBound to true),
                 thresholds = { _, _ -> FractionalThreshold(0.5f) },
                 orientation = Orientation.Horizontal,
-                enabled = enabled,
+                enabled = enabled && onCheckedChange != null,
                 reverseDirection = isRtl,
-                interactionState = interactionState,
+                interactionSource = interactionSource,
                 resistance = null
             )
             .wrapContentSize(Alignment.Center)
             .padding(DefaultSwitchPadding)
-            .size(SwitchWidth, SwitchHeight)
+            .requiredSize(SwitchWidth, SwitchHeight)
     ) {
         SwitchImpl(
             checked = checked,
             enabled = enabled,
             colors = colors,
             thumbValue = swipeableState.offset,
-            interactionState = interactionState
+            interactionSource = interactionSource
         )
     }
 }
@@ -117,10 +143,9 @@ fun Switch(
 /**
  * Represents the colors used by a [Switch] in different states
  *
- * See [SwitchConstants.defaultColors] for the default implementation that follows Material
+ * See [SwitchDefaults.colors] for the default implementation that follows Material
  * specifications.
  */
-@ExperimentalMaterialApi
 @Stable
 interface SwitchColors {
 
@@ -130,7 +155,8 @@ interface SwitchColors {
      * @param enabled whether the [Switch] is enabled or not
      * @param checked whether the [Switch] is checked or not
      */
-    fun thumbColor(enabled: Boolean, checked: Boolean): Color
+    @Composable
+    fun thumbColor(enabled: Boolean, checked: Boolean): State<Color>
 
     /**
      * Represents the color used for the switch's track, depending on [enabled] and [checked].
@@ -138,43 +164,63 @@ interface SwitchColors {
      * @param enabled whether the [Switch] is enabled or not
      * @param checked whether the [Switch] is checked or not
      */
-    fun trackColor(enabled: Boolean, checked: Boolean): Color
+    @Composable
+    fun trackColor(enabled: Boolean, checked: Boolean): State<Color>
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun BoxScope.SwitchImpl(
     checked: Boolean,
     enabled: Boolean,
     colors: SwitchColors,
     thumbValue: State<Float>,
-    interactionState: InteractionState
+    interactionSource: InteractionSource
 ) {
-    val hasInteraction =
-        Interaction.Pressed in interactionState || Interaction.Dragged in interactionState
+    val interactions = remember { mutableStateListOf<Interaction>() }
+
+    LaunchedEffect(interactionSource) {
+        interactionSource.interactions.collect { interaction ->
+            when (interaction) {
+                is PressInteraction.Press -> interactions.add(interaction)
+                is PressInteraction.Release -> interactions.remove(interaction.press)
+                is PressInteraction.Cancel -> interactions.remove(interaction.press)
+                is DragInteraction.Start -> interactions.add(interaction)
+                is DragInteraction.Stop -> interactions.remove(interaction.start)
+                is DragInteraction.Cancel -> interactions.remove(interaction.start)
+            }
+        }
+    }
+
+    val hasInteraction = interactions.isNotEmpty()
     val elevation = if (hasInteraction) {
         ThumbPressedElevation
     } else {
         ThumbDefaultElevation
     }
+    val trackColor by colors.trackColor(enabled, checked)
     Canvas(Modifier.align(Alignment.Center).fillMaxSize()) {
-        val trackColor = colors.trackColor(enabled, checked)
         drawTrack(trackColor, TrackWidth.toPx(), TrackStrokeWidth.toPx())
     }
-    val thumbColor = colors.thumbColor(enabled, checked)
-    Surface(
-        shape = CircleShape,
-        color = thumbColor,
-        elevation = elevation,
-        modifier = Modifier
+    val thumbColor by colors.thumbColor(enabled, checked)
+    val elevationOverlay = LocalElevationOverlay.current
+    val absoluteElevation = LocalAbsoluteElevation.current + elevation
+    val resolvedThumbColor =
+        if (thumbColor == MaterialTheme.colors.surface && elevationOverlay != null) {
+            elevationOverlay.apply(thumbColor, absoluteElevation)
+        } else {
+            thumbColor
+        }
+    Spacer(
+        Modifier
             .align(Alignment.CenterStart)
-            .offset(x = { thumbValue.value })
+            .offset { IntOffset(thumbValue.value.roundToInt(), 0) }
             .indication(
-                interactionState = interactionState,
+                interactionSource = interactionSource,
                 indication = rememberRipple(bounded = false, radius = ThumbRippleRadius)
             )
-            .size(ThumbDiameter),
-        content = emptyContent()
+            .requiredSize(ThumbDiameter)
+            .shadow(elevation, CircleShape, clip = false)
+            .background(resolvedThumbColor, CircleShape)
     )
 }
 
@@ -208,7 +254,7 @@ private val ThumbPressedElevation = 6.dp
 /**
  * Contains the default values used by [Switch]
  */
-object SwitchConstants {
+object SwitchDefaults {
     /**
      * Creates a [SwitchColors] that represents the different colors used in a [Switch] in
      * different states.
@@ -226,9 +272,8 @@ object SwitchConstants {
      * @param disabledUncheckedThumbColor the color used for the thumb when disabled and unchecked
      * @param disabledUncheckedTrackColor the color used for the track when disabled and unchecked
      */
-    @OptIn(ExperimentalMaterialApi::class)
     @Composable
-    fun defaultColors(
+    fun colors(
         checkedThumbColor: Color = MaterialTheme.colors.secondaryVariant,
         checkedTrackColor: Color = checkedThumbColor,
         checkedTrackAlpha: Float = 0.54f,
@@ -262,7 +307,6 @@ object SwitchConstants {
 /**
  * Default [SwitchColors] implementation.
  */
-@OptIn(ExperimentalMaterialApi::class)
 @Immutable
 private class DefaultSwitchColors(
     private val checkedThumbColor: Color,
@@ -274,20 +318,26 @@ private class DefaultSwitchColors(
     private val disabledUncheckedThumbColor: Color,
     private val disabledUncheckedTrackColor: Color
 ) : SwitchColors {
-    override fun thumbColor(enabled: Boolean, checked: Boolean): Color {
-        return if (enabled) {
-            if (checked) checkedThumbColor else uncheckedThumbColor
-        } else {
-            if (checked) disabledCheckedThumbColor else disabledUncheckedThumbColor
-        }
+    @Composable
+    override fun thumbColor(enabled: Boolean, checked: Boolean): State<Color> {
+        return rememberUpdatedState(
+            if (enabled) {
+                if (checked) checkedThumbColor else uncheckedThumbColor
+            } else {
+                if (checked) disabledCheckedThumbColor else disabledUncheckedThumbColor
+            }
+        )
     }
 
-    override fun trackColor(enabled: Boolean, checked: Boolean): Color {
-        return if (enabled) {
-            if (checked) checkedTrackColor else uncheckedTrackColor
-        } else {
-            if (checked) disabledCheckedTrackColor else disabledUncheckedTrackColor
-        }
+    @Composable
+    override fun trackColor(enabled: Boolean, checked: Boolean): State<Color> {
+        return rememberUpdatedState(
+            if (enabled) {
+                if (checked) checkedTrackColor else uncheckedTrackColor
+            } else {
+                if (checked) disabledCheckedTrackColor else disabledUncheckedTrackColor
+            }
+        )
     }
 
     override fun equals(other: Any?): Boolean {

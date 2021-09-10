@@ -18,12 +18,13 @@ package androidx.compose.material.icons
 
 import android.graphics.Bitmap
 import android.os.Build
+import android.view.View
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Composition
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
@@ -31,10 +32,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.VectorGroup
+import androidx.compose.ui.graphics.vector.VectorPath
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.platform.AmbientContext
-import androidx.compose.ui.platform.AmbientDensity
-import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.test.captureToImage
@@ -102,10 +104,9 @@ class IconComparisonTest(
         iconSublist.forEach { (property, drawableName) ->
             var xmlVector: ImageVector? = null
             val programmaticVector = property.get()
-            var composition: Composition? = null
 
             rule.activityRule.scenario.onActivity {
-                composition = it.setContent {
+                it.setContent {
                     xmlVector = drawableName.toImageVector()
                     DrawVectors(programmaticVector, xmlVector!!)
                 }
@@ -129,11 +130,76 @@ class IconComparisonTest(
             )
 
             // Dispose between composing each pair of icons to ensure correctness
-            rule.runOnUiThread {
-                composition?.dispose()
+            rule.activityRule.scenario.onActivity {
+                it.setContentView(View(it))
             }
         }
     }
+}
+
+/**
+ * Helper method to copy the existing [ImageVector] modifying the name
+ * for use in equality checks.
+ */
+private fun ImageVector.copy(name: String): ImageVector {
+    val builder = ImageVector.Builder(
+        name, defaultWidth, defaultHeight, viewportWidth, viewportHeight, tintColor, tintBlendMode
+    )
+    val root = this.root
+    // Stack of vector groups and current child index being traversed
+    val stack = ArrayList<Pair<Int, VectorGroup>>()
+    stack.add(Pair(0, root))
+
+    while (!stack.isEmpty()) {
+        val current = stack[stack.size - 1]
+        var currentIndex = current.first
+        var currentGroup = current.second
+        while (currentIndex < currentGroup.size) {
+            val vectorNode = currentGroup[currentIndex]
+            when (vectorNode) {
+                is VectorGroup -> {
+                    // keep track of the current index to continue parsing groups
+                    // when we eventually "pop" the stack of groups
+                    stack.add(Pair(currentIndex + 1, currentGroup))
+                    builder.addGroup(
+                        name = vectorNode.name,
+                        rotate = vectorNode.rotation,
+                        pivotX = vectorNode.pivotX,
+                        pivotY = vectorNode.pivotY,
+                        scaleX = vectorNode.scaleX,
+                        scaleY = vectorNode.scaleY,
+                        translationX = vectorNode.translationX,
+                        translationY = vectorNode.translationY,
+                        clipPathData = vectorNode.clipPathData
+                    )
+                    currentGroup = vectorNode
+                    currentIndex = 0
+                }
+                is VectorPath -> {
+                    builder.addPath(
+                        name = vectorNode.name,
+                        pathData = vectorNode.pathData,
+                        pathFillType = vectorNode.pathFillType,
+                        fill = vectorNode.fill,
+                        fillAlpha = vectorNode.fillAlpha,
+                        stroke = vectorNode.stroke,
+                        strokeAlpha = vectorNode.strokeAlpha,
+                        strokeLineWidth = vectorNode.strokeLineWidth,
+                        strokeLineCap = vectorNode.strokeLineCap,
+                        strokeLineJoin = vectorNode.strokeLineJoin,
+                        strokeLineMiter = vectorNode.strokeLineMiter,
+                        trimPathStart = vectorNode.trimPathStart,
+                        trimPathEnd = vectorNode.trimPathEnd,
+                        trimPathOffset = vectorNode.trimPathOffset
+                    )
+                }
+            }
+            currentIndex++
+        }
+        // "pop" the most recent group after we have examined each of the children
+        stack.removeAt(stack.size - 1)
+    }
+    return builder.build()
 }
 
 /**
@@ -141,9 +207,9 @@ class IconComparisonTest(
  */
 @Composable
 private fun String.toImageVector(): ImageVector {
-    val context = AmbientContext.current
+    val context = LocalContext.current
     val resId = context.resources.getIdentifier(this, "drawable", context.packageName)
-    return vectorResource(resId)
+    return ImageVector.vectorResource(resId)
 }
 
 /**
@@ -215,8 +281,8 @@ private fun DrawVectors(programmaticVector: ImageVector, xmlVector: ImageVector)
         // against in CI, on some devices using DP here causes there to be anti-aliasing issues.
         // Using ipx directly ensures that we will always have a consistent layout / drawing
         // story, so anti-aliasing should be identical.
-        val layoutSize = with(AmbientDensity.current) {
-            Modifier.preferredSize(72.toDp())
+        val layoutSize = with(LocalDensity.current) {
+            Modifier.size(72.toDp())
         }
         Row(Modifier.align(Alignment.Center)) {
             Box(

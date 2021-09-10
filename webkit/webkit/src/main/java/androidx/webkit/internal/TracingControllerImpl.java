@@ -16,8 +16,6 @@
 
 package androidx.webkit.internal;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.webkit.TracingConfig;
@@ -37,7 +35,6 @@ public class TracingControllerImpl extends TracingController {
     private android.webkit.TracingController mFrameworksImpl;
     private TracingControllerBoundaryInterface mBoundaryInterface;
 
-    @SuppressLint("NewApi")
     public TracingControllerImpl() {
         final WebViewFeatureInternal feature =
                 WebViewFeatureInternal.TRACING_CONTROLLER_BASIC_USAGE;
@@ -67,7 +64,6 @@ public class TracingControllerImpl extends TracingController {
         return mBoundaryInterface;
     }
 
-    @SuppressLint("NewApi")
     @Override
     public boolean isTracing() {
         final WebViewFeatureInternal feature =
@@ -81,7 +77,6 @@ public class TracingControllerImpl extends TracingController {
         }
     }
 
-    @SuppressLint("NewApi")
     @Override
     public void start(@NonNull TracingConfig tracingConfig) {
         if (tracingConfig == null) {
@@ -105,7 +100,6 @@ public class TracingControllerImpl extends TracingController {
         }
     }
 
-    @SuppressLint("NewApi")
     @Override
     public boolean stop(OutputStream outputStream, Executor executor) {
         final WebViewFeatureInternal feature =

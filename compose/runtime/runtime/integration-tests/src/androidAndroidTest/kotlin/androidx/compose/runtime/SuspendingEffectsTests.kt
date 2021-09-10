@@ -17,15 +17,12 @@
 package androidx.compose.runtime
 
 import android.view.Choreographer
-import androidx.compose.runtime.dispatch.MonotonicFrameClock
-import androidx.compose.runtime.dispatch.withFrameNanos
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,15 +33,9 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
-@Suppress("DEPRECATION")
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class SuspendingEffectsTests : BaseComposeTest() {
-
-    @After
-    fun teardown() {
-        clearRoots()
-    }
 
     @get:Rule
     override val activityRule = makeTestActivityRule()
@@ -56,7 +47,7 @@ class SuspendingEffectsTests : BaseComposeTest() {
         // Used as a signal that LaunchedTask will await
         val ch = Channel<Unit>(Channel.CONFLATED)
         compose {
-            LaunchedTask {
+            LaunchedEffect(Unit) {
                 counter++
                 ch.receive()
                 counter++
@@ -65,10 +56,10 @@ class SuspendingEffectsTests : BaseComposeTest() {
             }
         }.then {
             assertEquals(1, counter)
-            ch.offer(Unit)
+            ch.trySend(Unit)
         }.then {
             assertEquals(2, counter)
-            ch.offer(Unit)
+            ch.trySend(Unit)
         }.then {
             assertEquals(3, counter)
         }
@@ -79,15 +70,16 @@ class SuspendingEffectsTests : BaseComposeTest() {
         var choreographerTime by mutableStateOf(Long.MIN_VALUE)
         var awaitFrameTime by mutableStateOf(Long.MAX_VALUE)
         compose {
-            LaunchedTask {
+            LaunchedEffect(Unit) {
                 withFrameNanos {
                     awaitFrameTime = it
                 }
             }
-            onCommit(true) {
+            DisposableEffect(true) {
                 Choreographer.getInstance().postFrameCallback { frameTimeNanos ->
                     choreographerTime = frameTimeNanos
                 }
+                onDispose { }
             }
         }.then {
             assertNotEquals(choreographerTime, Long.MIN_VALUE, "Choreographer callback never ran")
@@ -105,7 +97,7 @@ class SuspendingEffectsTests : BaseComposeTest() {
         var awaitFrameTime by mutableStateOf(Long.MAX_VALUE)
         compose {
             val scope = rememberCoroutineScope()
-            onCommit(true) {
+            DisposableEffect(true) {
                 scope.launch {
                     withFrameNanos {
                         awaitFrameTime = it
@@ -114,6 +106,7 @@ class SuspendingEffectsTests : BaseComposeTest() {
                 Choreographer.getInstance().postFrameCallback { frameTimeNanos ->
                     choreographerTime = frameTimeNanos
                 }
+                onDispose { }
             }
         }.then {
             assertNotEquals(choreographerTime, Long.MIN_VALUE, "Choreographer callback never ran")
@@ -128,16 +121,12 @@ class SuspendingEffectsTests : BaseComposeTest() {
     @Test
     fun testRememberCoroutineScopeActiveWithComposition() {
         lateinit var coroutineScope: CoroutineScope
-        val tester = compose {
+        compose {
             coroutineScope = rememberCoroutineScope()
         }.then {
             assertTrue(coroutineScope.isActive, "coroutine scope was active before dispose")
-        }
-        val composition = tester.composition
-        tester.then {
-            composition.dispose()
-            assertFalse(coroutineScope.isActive, "coroutine scope was inactive after dispose")
-        }
+        }.done()
+        assertFalse(coroutineScope.isActive, "coroutine scope was inactive after dispose")
     }
 
     @Test
@@ -163,7 +152,7 @@ class SuspendingEffectsTests : BaseComposeTest() {
         }
     }
 
-    @OptIn(ExperimentalComposeApi::class)
+    @OptIn(InternalComposeApi::class)
     @Test
     fun testCoroutineScopesHaveCorrectFrameClock() {
         var recomposerClock: MonotonicFrameClock? = null
@@ -172,11 +161,11 @@ class SuspendingEffectsTests : BaseComposeTest() {
 
         compose {
             recomposerClock = currentComposer.applyCoroutineContext[MonotonicFrameClock]
-            LaunchedTask {
+            LaunchedEffect(Unit) {
                 launchedTaskClock = coroutineContext[MonotonicFrameClock]
             }
             val rememberedScope = rememberCoroutineScope()
-            onCommit {
+            SideEffect {
                 rememberCoroutineScopeFrameClock =
                     rememberedScope.coroutineContext[MonotonicFrameClock]
             }
@@ -197,10 +186,10 @@ class SuspendingEffectsTests : BaseComposeTest() {
         compose {
             // Confirms that these run "out of order" with respect to one another because
             // the launch runs dispatched.
-            LaunchedTask {
+            LaunchedEffect(Unit) {
                 launchRanAfter = onCommitRan
             }
-            onCommit {
+            SideEffect {
                 onCommitRan = true
             }
         }.then {

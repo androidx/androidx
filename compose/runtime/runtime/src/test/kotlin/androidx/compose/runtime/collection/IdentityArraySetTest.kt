@@ -19,6 +19,7 @@ package androidx.compose.runtime.collection
 import androidx.compose.runtime.identityHashCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotSame
 import kotlin.test.assertNull
@@ -89,8 +90,9 @@ class IdentityArraySetTest {
         list.forEach { set.add(it) }
 
         // remove a value that doesn't exist:
-        set.remove(Stuff(10))
+        val removed = set.remove(Stuff(10))
         assertEquals(list.size, set.size)
+        assertFalse(removed)
 
         // remove a value in the middle:
         testRemoveValueAtIndex(set.size / 2)
@@ -128,11 +130,40 @@ class IdentityArraySetTest {
         assertEquals(0, verifierSet.size)
     }
 
+    @Test
+    fun canUseAsSetOfT() {
+        val stuff = Array(100) { Stuff(it) }
+        for (i in 0 until 100 step 2) {
+            set.add(stuff[i])
+        }
+        val setOfT: Set<Stuff> = set
+        for (i in 0 until 100) {
+            val expected = i % 2 == 0
+            if (expected) {
+                assertTrue(stuff[i] in set)
+                assertTrue(stuff[i] in setOfT)
+            } else {
+                assertFalse(stuff[i] in set)
+                assertFalse(stuff[i] in setOfT)
+            }
+        }
+        for (element in setOfT) {
+            assertTrue(element.item % 2 == 0)
+            assertEquals(element, stuff[element.item])
+        }
+
+        set.add(stuff[1])
+        assertTrue(stuff[1] in setOfT)
+
+        assertTrue(setOfT.containsAll(listOf(stuff[0], stuff[1], stuff[2])))
+    }
+
     private fun testRemoveValueAtIndex(index: Int) {
         val value = set[index]
         val initialSize = set.size
-        set.remove(value)
+        val removed = set.remove(value)
         assertEquals(initialSize - 1, set.size)
+        assertTrue(removed)
         assertNull(set.values[set.size])
         set.forEach { assertNotSame(value, it) }
     }

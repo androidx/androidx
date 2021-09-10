@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 /**
  * Interface for receiving notification when a child of this ViewGroup has been selected.
  * There are two methods:
+ * <ul>
  * <li>
  *     {link {@link #onChildViewHolderSelected(RecyclerView, RecyclerView.ViewHolder, int, int)}}
  *     is called when the view holder is about to be selected.  The listener could change size
@@ -29,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
  *     int, int)} is called when view holder has been selected and laid out in RecyclerView.
  *
  * </li>
+ * </ul>
  */
 public abstract class OnChildViewHolderSelectedListener {
     /**

@@ -57,6 +57,7 @@ public class Proxy {
      * @param port port number
      * @param callback callback run when this proxy serves a request
      */
+    @SuppressWarnings("CatchAndPrintStackTrace")
     public Proxy(int port, ProxyRequestCallback callback) {
         mRequestCount = 0;
         mCallback = callback;
@@ -111,6 +112,7 @@ public class Proxy {
         }).start();
     }
 
+    @SuppressWarnings("CatchAndPrintStackTrace")
     private void listen() {
         try {
             Socket socket = mServerSocket.accept();
@@ -129,6 +131,7 @@ public class Proxy {
     /**
      * Shutdown.
      */
+    @SuppressWarnings("CatchAndPrintStackTrace")
     public void shutdown() {
         if (!mRunning) return;
         mRunning = false;
@@ -154,6 +157,7 @@ public class Proxy {
         private BufferedReader mReader;
         private BufferedWriter mWriter;
 
+        @SuppressWarnings("CatchAndPrintStackTrace")
         RequestHandler(Socket socket) {
             mSocket = socket;
             try {
@@ -168,6 +172,7 @@ public class Proxy {
         }
 
         @Override
+        @SuppressWarnings("CatchAndPrintStackTrace")
         public void run() {
             try {
                 StringBuilder sb = new StringBuilder();

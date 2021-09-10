@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.AppOpsManagerCompat;
+import androidx.core.util.ObjectsCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -111,12 +112,20 @@ public final class PermissionChecker {
             packageName = packageNames[0];
         }
 
-        if (AppOpsManagerCompat.noteProxyOpNoThrow(context, op, packageName)
-                != AppOpsManagerCompat.MODE_ALLOWED) {
-            return PERMISSION_DENIED_APP_OP;
+        int proxyUid = android.os.Process.myUid();
+        String proxyPackageName = context.getPackageName();
+        boolean isCheckSelfPermission =
+                proxyUid == uid && ObjectsCompat.equals(proxyPackageName, packageName);
+
+        int checkOpResult;
+        if (isCheckSelfPermission) {
+            checkOpResult = AppOpsManagerCompat.checkOrNoteProxyOp(context, uid, op, packageName);
+        } else {
+            checkOpResult = AppOpsManagerCompat.noteProxyOpNoThrow(context, op, packageName);
         }
 
-        return PERMISSION_GRANTED;
+        return checkOpResult == AppOpsManagerCompat.MODE_ALLOWED ? PERMISSION_GRANTED :
+                PERMISSION_DENIED_APP_OP;
     }
 
     /**

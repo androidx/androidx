@@ -19,7 +19,9 @@ package androidx.camera.core.impl;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.Preview;
 
 /**
  * A processing step of the image capture pipeline.
@@ -38,8 +40,9 @@ public interface CaptureProcessor {
      * Process a {@link ImageProxyBundle} for the set of captures that were
      * requested.
      *
-     * <p> The result of the processing step should be written to the {@link Surface} that was
-     * received by {@link #onOutputSurface(Surface, int)}.
+     * <p> A result of the processing step must be written to the {@link Surface} that was
+     * received by {@link #onOutputSurface(Surface, int)}. Otherwise, it might cause the
+     * {@link ImageCapture#takePicture} can't be complete or frame lost in {@link Preview}.
      * @param bundle The set of images to process. The ImageProxyBundle and the {@link ImageProxy}
      *               that are retrieved from it will become invalid after this method completes, so
      *               no references to them should be kept.

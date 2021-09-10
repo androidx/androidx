@@ -24,6 +24,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Message;
 
 import androidx.test.filters.MediumTest;
@@ -36,21 +37,26 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 @MediumTest
 public final class HandlerCompatTest {
     private final HandlerThread mThread = new HandlerThread("handler-compat-test");
 
-    @Before public void before() {
+    @Before
+    public void before() {
         mThread.start();
     }
 
-    @After public void after() {
+    @After
+    public void after() {
         assertTrue(mThread.quit());
     }
 
-    @Test public void postDelayedWithToken() throws InterruptedException {
+    @Test
+    public void postDelayedWithToken() throws InterruptedException {
         final Handler handler = new Handler(mThread.getLooper());
 
         // Schedule a latch at 300ms to block the test thread.
@@ -94,7 +100,8 @@ public final class HandlerCompatTest {
         assertEquals(asList("0", "100"), events);
     }
 
-    @Test public void createAsyncAllApiLevels() throws InterruptedException {
+    @Test
+    public void createAsyncAllApiLevels() throws InterruptedException {
         Handler handler = HandlerCompat.createAsync(mThread.getLooper());
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -110,8 +117,9 @@ public final class HandlerCompatTest {
         assertTrue(latch.await(1, SECONDS));
     }
 
-    @SdkSuppress(minSdkVersion = 16)
-    @Test public void createAsyncWhenAsyncAvailable() throws InterruptedException {
+    @SdkSuppress(minSdkVersion = 17)
+    @Test
+    public void createAsyncWhenAsyncAvailable() throws InterruptedException {
         Handler handler = HandlerCompat.createAsync(mThread.getLooper());
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -132,7 +140,8 @@ public final class HandlerCompatTest {
         assertTrue(isAsync.get());
     }
 
-    @Test public void createAsyncWithCallbackAllApiLevels() throws InterruptedException {
+    @Test
+    public void createAsyncWithCallbackAllApiLevels() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         Handler handler = HandlerCompat.createAsync(mThread.getLooper(), new Handler.Callback() {
             @Override
@@ -146,8 +155,9 @@ public final class HandlerCompatTest {
         assertTrue(latch.await(1, SECONDS));
     }
 
-    @SdkSuppress(minSdkVersion = 16)
-    @Test public void createAsyncWithCallbackWhenAsyncAvailable() throws InterruptedException {
+    @SdkSuppress(minSdkVersion = 17)
+    @Test
+    public void createAsyncWithCallbackWhenAsyncAvailable() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicReference<Boolean> isAsync = new AtomicReference<>();
         Handler handler = HandlerCompat.createAsync(mThread.getLooper(), new Handler.Callback() {
@@ -162,5 +172,44 @@ public final class HandlerCompatTest {
         handler.sendEmptyMessage(0);
         assertTrue(latch.await(1, SECONDS));
         assertTrue(isAsync.get());
+    }
+
+    @SdkSuppress(minSdkVersion = 16)
+    @Test
+    public void testHasCallbacks() {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                // Meh?
+            }
+        };
+
+        PausedLooper looperThread = new PausedLooper();
+        looperThread.start();
+
+        Handler handler = looperThread.getHandler(1000);
+        handler.post(r);
+
+        assertTrue("Handler has callback for r", HandlerCompat.hasCallbacks(handler, r));
+    }
+
+    private static class PausedLooper extends Thread {
+        private final Semaphore mHandlerLock = new Semaphore(0);
+        private Handler mHandler;
+
+        @Override
+        public void run() {
+            Looper.prepare();
+            mHandler = new Handler(Looper.myLooper());
+            mHandlerLock.release();
+        }
+
+        public Handler getHandler(long timeout) {
+            try {
+                mHandlerLock.tryAcquire(1, timeout, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException ignored) {
+            }
+            return mHandler;
+        }
     }
 }

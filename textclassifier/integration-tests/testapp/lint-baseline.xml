@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="AllowBackup"
-        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
-        errorLine1="&lt;application"
-        errorLine2=" ~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="20"
-            column="2"/>
-    </issue>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
         id="SyntheticAccessor"
@@ -43,79 +32,6 @@
             file="src/main/java/androidx/textclassifier/integration/testapp/MainActivity.java"
             line="78"
             column="17"/>
-    </issue>
-
-    <issue
-        id="IconLocation"
-        message="Found bitmap drawable `res/drawable/android.png` in densityless folder">
-        <location
-            file="src/main/res/drawable/android.png"/>
-    </issue>
-
-    <issue
-        id="MissingApplicationIcon"
-        message="Should explicitly set `android:icon`, there is no default"
-        errorLine1="&lt;application"
-        errorLine2=" ~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="20"
-            column="2"/>
-    </issue>
-
-    <issue
-        id="TextFields"
-        message="This text field does not specify an `inputType`"
-        errorLine1="    &lt;EditText"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="39"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="Autofill"
-        message="Missing `autofillHints` attribute"
-        errorLine1="    &lt;EditText"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="39"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;TextClassifier in use&quot;, should use `@string` resource"
-        errorLine1="        android:hint=&quot;TextClassifier in use&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="28"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Text to be classified&quot;, should use `@string` resource"
-        errorLine1="        android:hint=&quot;Text to be classified&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="43"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Linkify&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Linkify&quot;/>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="55"
-            column="13"/>
     </issue>
 
     <issue

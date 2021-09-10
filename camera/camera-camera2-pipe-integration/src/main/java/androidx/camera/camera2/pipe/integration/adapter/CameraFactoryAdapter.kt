@@ -17,11 +17,11 @@ package androidx.camera.camera2.pipe.integration.adapter
 
 import android.content.Context
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.impl.Debug
-import androidx.camera.camera2.pipe.impl.Log.debug
-import androidx.camera.camera2.pipe.impl.Timestamps
-import androidx.camera.camera2.pipe.impl.Timestamps.measureNow
-import androidx.camera.camera2.pipe.impl.Timestamps.formatMs
+import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.core.Timestamps
+import androidx.camera.camera2.pipe.core.Timestamps.measureNow
+import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.camera2.pipe.integration.config.CameraAppConfig

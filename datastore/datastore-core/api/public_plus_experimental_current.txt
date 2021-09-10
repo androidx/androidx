@@ -2,11 +2,7 @@
 package androidx.datastore.core {
 
   public final class CorruptionException extends java.io.IOException {
-    ctor public CorruptionException(String message, Throwable? cause);
-  }
-
-  public interface CorruptionHandler<T> {
-    method public suspend Object? handleCorruption(androidx.datastore.core.CorruptionException ex, kotlin.coroutines.Continuation<? super T> p);
+    ctor public CorruptionException(String message, optional Throwable? cause);
   }
 
   public interface DataMigration<T> {
@@ -31,8 +27,8 @@ package androidx.datastore.core {
 
   public interface Serializer<T> {
     method public T! getDefaultValue();
-    method public T! readFrom(java.io.InputStream input);
-    method public void writeTo(T? t, java.io.OutputStream output);
+    method public suspend Object? readFrom(java.io.InputStream input, kotlin.coroutines.Continuation<? super T> p);
+    method public suspend Object? writeTo(T? t, java.io.OutputStream output, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     property public abstract T! defaultValue;
   }
 
@@ -40,7 +36,7 @@ package androidx.datastore.core {
 
 package androidx.datastore.core.handlers {
 
-  public final class ReplaceFileCorruptionHandler<T> implements androidx.datastore.core.CorruptionHandler<T> {
+  public final class ReplaceFileCorruptionHandler<T> {
     ctor public ReplaceFileCorruptionHandler(kotlin.jvm.functions.Function1<? super androidx.datastore.core.CorruptionException,? extends T> produceNewData);
     method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? handleCorruption(androidx.datastore.core.CorruptionException ex, kotlin.coroutines.Continuation<? super T> p) throws java.io.IOException;
   }

@@ -4,12 +4,22 @@ package androidx.camera.view {
   public abstract class CameraController {
     method @MainThread public void clearImageAnalysisAnalyzer();
     method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enableTorch(boolean);
+    method @MainThread public androidx.camera.core.CameraControl? getCameraControl();
+    method @MainThread public androidx.camera.core.CameraInfo? getCameraInfo();
     method @MainThread public androidx.camera.core.CameraSelector getCameraSelector();
-    method @MainThread @androidx.camera.core.ImageAnalysis.BackpressureStrategy public int getImageAnalysisBackpressureStrategy();
+    method @MainThread public java.util.concurrent.Executor? getImageAnalysisBackgroundExecutor();
+    method @MainThread public int getImageAnalysisBackpressureStrategy();
     method @MainThread public int getImageAnalysisImageQueueDepth();
-    method @MainThread @androidx.camera.core.ImageCapture.FlashMode public int getImageCaptureFlashMode();
+    method @MainThread public androidx.camera.view.CameraController.OutputSize? getImageAnalysisTargetSize();
+    method @MainThread public int getImageCaptureFlashMode();
+    method @MainThread public java.util.concurrent.Executor? getImageCaptureIoExecutor();
+    method @MainThread public int getImageCaptureMode();
+    method @MainThread public androidx.camera.view.CameraController.OutputSize? getImageCaptureTargetSize();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> getInitializationFuture();
+    method @MainThread public androidx.camera.view.CameraController.OutputSize? getPreviewTargetSize();
+    method @MainThread public androidx.lifecycle.LiveData<java.lang.Integer!> getTapToFocusState();
     method @MainThread public androidx.lifecycle.LiveData<java.lang.Integer!> getTorchState();
+    method @MainThread @androidx.camera.view.video.ExperimentalVideo public androidx.camera.view.CameraController.OutputSize? getVideoCaptureTargetSize();
     method @MainThread public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
     method @MainThread public boolean hasCamera(androidx.camera.core.CameraSelector);
     method @MainThread public boolean isImageAnalysisEnabled();
@@ -21,12 +31,19 @@ package androidx.camera.view {
     method @MainThread public void setCameraSelector(androidx.camera.core.CameraSelector);
     method @MainThread public void setEnabledUseCases(int);
     method @MainThread public void setImageAnalysisAnalyzer(java.util.concurrent.Executor, androidx.camera.core.ImageAnalysis.Analyzer);
-    method @MainThread public void setImageAnalysisBackpressureStrategy(@androidx.camera.core.ImageAnalysis.BackpressureStrategy int);
+    method @MainThread public void setImageAnalysisBackgroundExecutor(java.util.concurrent.Executor?);
+    method @MainThread public void setImageAnalysisBackpressureStrategy(int);
     method @MainThread public void setImageAnalysisImageQueueDepth(int);
-    method @MainThread public void setImageCaptureFlashMode(@androidx.camera.core.ImageCapture.FlashMode int);
-    method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setLinearZoom(float);
+    method @MainThread public void setImageAnalysisTargetSize(androidx.camera.view.CameraController.OutputSize?);
+    method @MainThread public void setImageCaptureFlashMode(int);
+    method @MainThread public void setImageCaptureIoExecutor(java.util.concurrent.Executor?);
+    method @MainThread public void setImageCaptureMode(int);
+    method @MainThread public void setImageCaptureTargetSize(androidx.camera.view.CameraController.OutputSize?);
+    method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setLinearZoom(@FloatRange(from=0.0f, to=1.0f) float);
     method @MainThread public void setPinchToZoomEnabled(boolean);
+    method @MainThread public void setPreviewTargetSize(androidx.camera.view.CameraController.OutputSize?);
     method @MainThread public void setTapToFocusEnabled(boolean);
+    method @MainThread @androidx.camera.view.video.ExperimentalVideo public void setVideoCaptureTargetSize(androidx.camera.view.CameraController.OutputSize?);
     method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setZoomRatio(float);
     method @MainThread @androidx.camera.view.video.ExperimentalVideo public void startRecording(androidx.camera.view.video.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.view.video.OnVideoSavedCallback);
     method @MainThread @androidx.camera.view.video.ExperimentalVideo public void stopRecording();
@@ -34,48 +51,20 @@ package androidx.camera.view {
     method @MainThread public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
     field public static final int IMAGE_ANALYSIS = 2; // 0x2
     field public static final int IMAGE_CAPTURE = 1; // 0x1
+    field public static final int TAP_TO_FOCUS_FAILED = 4; // 0x4
+    field public static final int TAP_TO_FOCUS_FOCUSED = 2; // 0x2
+    field public static final int TAP_TO_FOCUS_NOT_FOCUSED = 3; // 0x3
+    field public static final int TAP_TO_FOCUS_NOT_STARTED = 0; // 0x0
+    field public static final int TAP_TO_FOCUS_STARTED = 1; // 0x1
     field @androidx.camera.view.video.ExperimentalVideo public static final int VIDEO_CAPTURE = 4; // 0x4
   }
 
-  public final class CameraView extends android.widget.FrameLayout {
-    ctor public CameraView(android.content.Context);
-    ctor public CameraView(android.content.Context, android.util.AttributeSet?);
-    ctor public CameraView(android.content.Context, android.util.AttributeSet?, int);
-    ctor @RequiresApi(21) public CameraView(android.content.Context, android.util.AttributeSet?, int, int);
-    method @RequiresPermission(android.Manifest.permission.CAMERA) public void bindToLifecycle(androidx.lifecycle.LifecycleOwner);
-    method public void enableTorch(boolean);
-    method public Integer? getCameraLensFacing();
-    method public androidx.camera.view.CameraView.CaptureMode getCaptureMode();
-    method @androidx.camera.core.ImageCapture.FlashMode public int getFlash();
-    method public float getMaxZoomRatio();
-    method public float getMinZoomRatio();
-    method public androidx.lifecycle.LiveData<androidx.camera.view.PreviewView.StreamState!> getPreviewStreamState();
-    method public androidx.camera.view.PreviewView.ScaleType getScaleType();
-    method public float getZoomRatio();
-    method @RequiresPermission(android.Manifest.permission.CAMERA) public boolean hasCameraWithLensFacing(@androidx.camera.core.CameraSelector.LensFacing int);
-    method public boolean isPinchToZoomEnabled();
-    method @androidx.camera.view.video.ExperimentalVideo public boolean isRecording();
-    method public boolean isTorchOn();
-    method public boolean isZoomSupported();
-    method public void setCameraLensFacing(Integer?);
-    method public void setCaptureMode(androidx.camera.view.CameraView.CaptureMode);
-    method public void setFlash(@androidx.camera.core.ImageCapture.FlashMode int);
-    method public void setPinchToZoomEnabled(boolean);
-    method public void setScaleType(androidx.camera.view.PreviewView.ScaleType);
-    method public void setZoomRatio(float);
-    method @androidx.camera.view.video.ExperimentalVideo public void startRecording(java.io.File, java.util.concurrent.Executor, androidx.camera.view.video.OnVideoSavedCallback);
-    method @androidx.camera.view.video.ExperimentalVideo public void startRecording(android.os.ParcelFileDescriptor, java.util.concurrent.Executor, androidx.camera.view.video.OnVideoSavedCallback);
-    method @androidx.camera.view.video.ExperimentalVideo public void startRecording(androidx.camera.view.video.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.view.video.OnVideoSavedCallback);
-    method @androidx.camera.view.video.ExperimentalVideo public void stopRecording();
-    method public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
-    method public void takePicture(androidx.camera.core.ImageCapture.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
-    method public void toggleCamera();
-  }
-
-  public enum CameraView.CaptureMode {
-    enum_constant public static final androidx.camera.view.CameraView.CaptureMode IMAGE;
-    enum_constant @androidx.camera.view.video.ExperimentalVideo public static final androidx.camera.view.CameraView.CaptureMode MIXED;
-    enum_constant @androidx.camera.view.video.ExperimentalVideo public static final androidx.camera.view.CameraView.CaptureMode VIDEO;
+  public static final class CameraController.OutputSize {
+    ctor public CameraController.OutputSize(int);
+    ctor public CameraController.OutputSize(android.util.Size);
+    method public int getAspectRatio();
+    method public android.util.Size? getResolution();
+    field public static final int UNASSIGNED_ASPECT_RATIO = -1; // 0xffffffff
   }
 
   public final class LifecycleCameraController extends androidx.camera.view.CameraController {
@@ -93,11 +82,12 @@ package androidx.camera.view {
     method @UiThread public androidx.camera.view.CameraController? getController();
     method @UiThread public androidx.camera.view.PreviewView.ImplementationMode getImplementationMode();
     method @UiThread public androidx.camera.core.MeteringPointFactory getMeteringPointFactory();
+    method public androidx.camera.view.transform.OutputTransform? getOutputTransform();
     method public androidx.lifecycle.LiveData<androidx.camera.view.PreviewView.StreamState!> getPreviewStreamState();
     method @UiThread public androidx.camera.view.PreviewView.ScaleType getScaleType();
     method @UiThread public androidx.camera.core.Preview.SurfaceProvider getSurfaceProvider();
-    method @UiThread @androidx.camera.core.ExperimentalUseCaseGroup public androidx.camera.core.ViewPort? getViewPort();
-    method @UiThread @androidx.camera.core.ExperimentalUseCaseGroup public androidx.camera.core.ViewPort? getViewPort(@androidx.camera.core.impl.ImageOutputConfig.RotationValue int);
+    method @UiThread public androidx.camera.core.ViewPort? getViewPort();
+    method @UiThread public androidx.camera.core.ViewPort? getViewPort(int);
     method @UiThread public void setController(androidx.camera.view.CameraController?);
     method @UiThread public void setImplementationMode(androidx.camera.view.PreviewView.ImplementationMode);
     method @UiThread public void setScaleType(androidx.camera.view.PreviewView.ScaleType);
@@ -122,11 +112,54 @@ package androidx.camera.view {
     enum_constant public static final androidx.camera.view.PreviewView.StreamState STREAMING;
   }
 
+  public final class RotationProvider {
+    ctor public RotationProvider(android.content.Context);
+    method @CheckResult public boolean addListener(java.util.concurrent.Executor, androidx.camera.view.RotationProvider.Listener);
+    method public void removeListener(androidx.camera.view.RotationProvider.Listener);
+  }
+
+  public static interface RotationProvider.Listener {
+    method public void onRotationChanged(int);
+  }
+
+}
+
+package androidx.camera.view.transform {
+
+  public final class CoordinateTransform {
+    ctor public CoordinateTransform(androidx.camera.view.transform.OutputTransform, androidx.camera.view.transform.OutputTransform);
+    method public void mapPoint(android.graphics.PointF);
+    method public void mapPoints(float[]);
+    method public void mapRect(android.graphics.RectF);
+    method public void transform(android.graphics.Matrix);
+  }
+
+  public final class FileTransformFactory {
+    ctor public FileTransformFactory();
+    method public androidx.camera.view.transform.OutputTransform getOutputTransform(android.content.ContentResolver, android.net.Uri) throws java.io.IOException;
+    method public androidx.camera.view.transform.OutputTransform getOutputTransform(java.io.File) throws java.io.IOException;
+    method public androidx.camera.view.transform.OutputTransform getOutputTransform(java.io.InputStream) throws java.io.IOException;
+    method public boolean isUsingExifOrientation();
+    method public void setUsingExifOrientation(boolean);
+  }
+
+  public final class ImageProxyTransformFactory {
+    ctor public ImageProxyTransformFactory();
+    method public androidx.camera.view.transform.OutputTransform getOutputTransform(androidx.camera.core.ImageProxy);
+    method public boolean isUsingCropRect();
+    method public boolean isUsingRotationDegrees();
+    method public void setUsingCropRect(boolean);
+    method public void setUsingRotationDegrees(boolean);
+  }
+
+  public final class OutputTransform {
+  }
+
 }
 
 package androidx.camera.view.video {
 
-  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalVideo {
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalVideo {
   }
 
   @androidx.camera.view.video.ExperimentalVideo @com.google.auto.value.AutoValue public abstract class Metadata {

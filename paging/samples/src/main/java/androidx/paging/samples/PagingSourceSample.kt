@@ -21,6 +21,7 @@ package androidx.paging.samples
 import androidx.annotation.Sampled
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadResult
+import androidx.paging.PagingState
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -48,9 +49,9 @@ internal class MyBackendService {
 }
 
 @Sampled
-fun pageKeyedPagingSourceSample() {
+fun itemKeyedPagingSourceSample() {
     /**
-     * Sample Page-Keyed PagingSource, which uses String tokens to load pages.
+     * Sample item-keyed [PagingSource], which uses String tokens to load pages.
      *
      * Loads Items from network requests via Retrofit to a backend service.
      */
@@ -77,13 +78,17 @@ fun pageKeyedPagingSourceSample() {
                 LoadResult.Error(e)
             }
         }
+
+        override fun getRefreshKey(state: PagingState<String, Item>): String? {
+            return state.anchorPosition?.let { state.closestItemToPosition(it)?.id }
+        }
     }
 }
 
 @Sampled
-fun pageIndexedPagingSourceSample() {
+fun pageKeyedPagingSourceSample() {
     /**
-     * Sample Page-Indexed PagingSource, which uses Int page number to load pages.
+     * Sample page-keyed PagingSource, which uses Int page number to load pages.
      *
      * Loads Items from network requests via Retrofit to a backend service.
      *
@@ -123,6 +128,13 @@ fun pageIndexedPagingSourceSample() {
                 LoadResult.Error(e)
             } catch (e: HttpException) {
                 LoadResult.Error(e)
+            }
+        }
+
+        override fun getRefreshKey(state: PagingState<Int, Item>): Int? {
+            return state.anchorPosition?.let {
+                state.closestPageToPosition(it)?.prevKey?.plus(1)
+                    ?: state.closestPageToPosition(it)?.nextKey?.minus(1)
             }
         }
     }

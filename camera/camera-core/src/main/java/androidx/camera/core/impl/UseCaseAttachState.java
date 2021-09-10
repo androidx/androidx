@@ -22,7 +22,7 @@ import androidx.camera.core.Logger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +40,8 @@ public final class UseCaseAttachState {
     /** The name of the camera the use cases are attached to. */
     private final String mCameraId;
     /** A map of the use cases to the corresponding state information. */
-    private final Map<String, UseCaseAttachInfo> mAttachedUseCasesToInfoMap = new HashMap<>();
+    // Use LinkedHashMap to retain the attached order for bug fixing and unit testing.
+    private final Map<String, UseCaseAttachInfo> mAttachedUseCasesToInfoMap = new LinkedHashMap<>();
 
     /** Constructs an instance of the attach state which corresponds to the named camera. */
     public UseCaseAttachState(@NonNull String cameraId) {
@@ -52,9 +53,8 @@ public final class UseCaseAttachState {
      *
      * <p>Adds the use case to the collection if not already in it.
      */
-    public void setUseCaseActive(@NonNull String useCaseName,
-            @NonNull SessionConfig sessionConfig) {
-        UseCaseAttachInfo useCaseAttachInfo = getOrCreateUseCaseAttachInfo(useCaseName,
+    public void setUseCaseActive(@NonNull String useCaseId, @NonNull SessionConfig sessionConfig) {
+        UseCaseAttachInfo useCaseAttachInfo = getOrCreateUseCaseAttachInfo(useCaseId,
                 sessionConfig);
         useCaseAttachInfo.setActive(true);
     }
@@ -64,15 +64,15 @@ public final class UseCaseAttachState {
      *
      * <p>Removes the use case from the collection if also offline.
      */
-    public void setUseCaseInactive(@NonNull String useCaseName) {
-        if (!mAttachedUseCasesToInfoMap.containsKey(useCaseName)) {
+    public void setUseCaseInactive(@NonNull String useCaseId) {
+        if (!mAttachedUseCasesToInfoMap.containsKey(useCaseId)) {
             return;
         }
 
-        UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCaseName);
+        UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCaseId);
         useCaseAttachInfo.setActive(false);
         if (!useCaseAttachInfo.getAttached()) {
-            mAttachedUseCasesToInfoMap.remove(useCaseName);
+            mAttachedUseCasesToInfoMap.remove(useCaseId);
         }
     }
 
@@ -81,9 +81,9 @@ public final class UseCaseAttachState {
      *
      * <p>Adds the use case to the collection if not already in it.
      */
-    public void setUseCaseAttached(@NonNull String useCaseName,
+    public void setUseCaseAttached(@NonNull String useCaseId,
             @NonNull SessionConfig sessionConfig) {
-        UseCaseAttachInfo useCaseAttachInfo = getOrCreateUseCaseAttachInfo(useCaseName,
+        UseCaseAttachInfo useCaseAttachInfo = getOrCreateUseCaseAttachInfo(useCaseId,
                 sessionConfig);
         useCaseAttachInfo.setAttached(true);
     }
@@ -93,24 +93,24 @@ public final class UseCaseAttachState {
      *
      * <p>Removes the use case from the collection if also inactive.
      */
-    public void setUseCaseDetached(@NonNull String useCaseName) {
-        if (!mAttachedUseCasesToInfoMap.containsKey(useCaseName)) {
+    public void setUseCaseDetached(@NonNull String useCaseId) {
+        if (!mAttachedUseCasesToInfoMap.containsKey(useCaseId)) {
             return;
         }
-        UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCaseName);
+        UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCaseId);
         useCaseAttachInfo.setAttached(false);
         if (!useCaseAttachInfo.getActive()) {
-            mAttachedUseCasesToInfoMap.remove(useCaseName);
+            mAttachedUseCasesToInfoMap.remove(useCaseId);
         }
     }
 
     /** Returns if the use case is attached or not. */
-    public boolean isUseCaseAttached(@NonNull String useCaseName) {
-        if (!mAttachedUseCasesToInfoMap.containsKey(useCaseName)) {
+    public boolean isUseCaseAttached(@NonNull String useCaseId) {
+        if (!mAttachedUseCasesToInfoMap.containsKey(useCaseId)) {
             return false;
         }
 
-        UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCaseName);
+        UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCaseId);
         return useCaseAttachInfo.getAttached();
     }
 
@@ -132,8 +132,8 @@ public final class UseCaseAttachState {
      *
      * <p>If the use case is not already in the collection, nothing is done.
      */
-    public void updateUseCase(@NonNull String useCaseName, @NonNull SessionConfig sessionConfig) {
-        if (!mAttachedUseCasesToInfoMap.containsKey(useCaseName)) {
+    public void updateUseCase(@NonNull String useCaseId, @NonNull SessionConfig sessionConfig) {
+        if (!mAttachedUseCasesToInfoMap.containsKey(useCaseId)) {
             return;
         }
 
@@ -142,17 +142,17 @@ public final class UseCaseAttachState {
                 new UseCaseAttachInfo(sessionConfig);
 
         // Retain the attached and active flags.
-        UseCaseAttachInfo oldUseCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCaseName);
+        UseCaseAttachInfo oldUseCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCaseId);
         newUseCaseAttachInfo.setAttached(oldUseCaseAttachInfo.getAttached());
         newUseCaseAttachInfo.setActive(oldUseCaseAttachInfo.getActive());
-        mAttachedUseCasesToInfoMap.put(useCaseName, newUseCaseAttachInfo);
+        mAttachedUseCasesToInfoMap.put(useCaseId, newUseCaseAttachInfo);
     }
 
     /**
      * Removes the item from the map.
      */
-    public void removeUseCase(@NonNull String useCaseName) {
-        mAttachedUseCasesToInfoMap.remove(useCaseName);
+    public void removeUseCase(@NonNull String useCaseId) {
+        mAttachedUseCasesToInfoMap.remove(useCaseId);
     }
 
     /** Returns a session configuration builder for use cases which are both active and attached. */
@@ -165,9 +165,9 @@ public final class UseCaseAttachState {
                 mAttachedUseCasesToInfoMap.entrySet()) {
             UseCaseAttachInfo useCaseAttachInfo = attachedUseCase.getValue();
             if (useCaseAttachInfo.getActive() && useCaseAttachInfo.getAttached()) {
-                String useCaseName = attachedUseCase.getKey();
+                String useCaseId = attachedUseCase.getKey();
                 validatingBuilder.add(useCaseAttachInfo.getSessionConfig());
-                list.add(useCaseName);
+                list.add(useCaseId);
             }
         }
         Logger.d(TAG, "Active and attached use case: " + list + " for camera: " + mCameraId);
@@ -184,20 +184,20 @@ public final class UseCaseAttachState {
             UseCaseAttachInfo useCaseAttachInfo = attachedUseCase.getValue();
             if (useCaseAttachInfo.getAttached()) {
                 validatingBuilder.add(useCaseAttachInfo.getSessionConfig());
-                String useCaseName = attachedUseCase.getKey();
-                list.add(useCaseName);
+                String useCaseId = attachedUseCase.getKey();
+                list.add(useCaseId);
             }
         }
         Logger.d(TAG, "All use case: " + list + " for camera: " + mCameraId);
         return validatingBuilder;
     }
 
-    private UseCaseAttachInfo getOrCreateUseCaseAttachInfo(@NonNull String useCaseName,
+    private UseCaseAttachInfo getOrCreateUseCaseAttachInfo(@NonNull String useCaseId,
             @NonNull SessionConfig sessionConfig) {
-        UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCaseName);
+        UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCaseId);
         if (useCaseAttachInfo == null) {
             useCaseAttachInfo = new UseCaseAttachInfo(sessionConfig);
-            mAttachedUseCasesToInfoMap.put(useCaseName, useCaseAttachInfo);
+            mAttachedUseCasesToInfoMap.put(useCaseId, useCaseAttachInfo);
         }
         return useCaseAttachInfo;
     }

@@ -248,6 +248,7 @@ public class CoordinatorLayoutNestedScrollingParentTest {
         assertThat(consumed, is(new int[]{24, 225}));
     }
 
+    @SuppressWarnings("unchecked")
     private static CoordinatorLayout.Behavior<View> setupMockBehavior() {
         CoordinatorLayout.Behavior<View> mockBehavior = mock(CoordinatorLayout.Behavior.class);
         when(mockBehavior.onStartNestedScroll(

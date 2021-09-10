@@ -18,16 +18,19 @@ package androidx.compose.animation
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.onDispose
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.test.ExperimentalTesting
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -35,7 +38,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-@OptIn(ExperimentalTesting::class)
+@OptIn(ExperimentalTestApi::class)
 class CrossfadeTest {
 
     @get:Rule
@@ -43,7 +46,7 @@ class CrossfadeTest {
 
     @Test
     fun crossfadeTest_showsContent() {
-        rule.clockTestRule.pauseClock()
+        rule.mainClock.autoAdvance = false
 
         rule.setContent {
             val showFirst by remember { mutableStateOf(true) }
@@ -51,38 +54,37 @@ class CrossfadeTest {
                 BasicText(if (it) First else Second)
             }
         }
-        rule.clockTestRule.advanceClock(DefaultDurationMillis.toLong())
+        rule.mainClock.advanceTimeBy(DefaultDurationMillis.toLong())
 
         rule.onNodeWithText(First).assertExists()
     }
 
     @Test
     fun crossfadeTest_disposesContentOnChange() {
-        rule.clockTestRule.pauseClock()
+        rule.mainClock.autoAdvance = false
 
         var showFirst by mutableStateOf(true)
         var disposed = false
         rule.setContent {
             Crossfade(showFirst) {
                 BasicText(if (it) First else Second)
-                onDispose {
-                    disposed = true
+                DisposableEffect(Unit) {
+                    onDispose {
+                        disposed = true
+                    }
                 }
             }
         }
-        rule.clockTestRule.advanceClock(DefaultDurationMillis.toLong())
 
-        rule.runOnIdle {
+        rule.mainClock.advanceTimeByFrame() // Kick off the animation
+        rule.mainClock.advanceTimeBy(DefaultDurationMillis.toLong())
+
+        rule.runOnUiThread {
             showFirst = false
         }
 
-        rule.waitForIdle()
-
-        rule.clockTestRule.advanceClock(DefaultDurationMillis.toLong())
-
-        rule.runOnIdle {
-            assertTrue(disposed)
-        }
+        // Wait for content to be disposed
+        rule.mainClock.advanceTimeUntil { disposed }
 
         rule.onNodeWithText(First).assertDoesNotExist()
         rule.onNodeWithText(Second).assertExists()
@@ -90,7 +92,7 @@ class CrossfadeTest {
 
     @Test
     fun crossfadeTest_durationCanBeModifierUsingAnimationSpec() {
-        rule.clockTestRule.pauseClock()
+        rule.mainClock.autoAdvance = false
 
         val duration = 100 // smaller than default 300
         var showFirst by mutableStateOf(true)
@@ -98,32 +100,34 @@ class CrossfadeTest {
         rule.setContent {
             Crossfade(
                 showFirst,
-                animation = TweenSpec(durationMillis = duration)
+                animationSpec = TweenSpec(durationMillis = duration)
             ) {
                 BasicText(if (it) First else Second)
-                onDispose {
-                    disposed = true
+                DisposableEffect(Unit) {
+                    onDispose {
+                        disposed = true
+                    }
                 }
             }
         }
-        rule.clockTestRule.advanceClock(duration.toLong())
 
-        rule.runOnIdle {
+        rule.mainClock.advanceTimeByFrame() // Kick off the animation
+        rule.mainClock.advanceTimeBy(duration.toLong())
+
+        rule.runOnUiThread {
             showFirst = false
         }
 
-        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(duration.toLong())
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame() // Wait for changes to propagate
 
-        rule.clockTestRule.advanceClock(duration.toLong())
-
-        rule.runOnIdle {
-            assertTrue(disposed)
-        }
+        assertTrue(disposed)
     }
 
     @Test
     fun nullInitialValue() {
-        rule.clockTestRule.pauseClock()
+        rule.mainClock.autoAdvance = false
         var current by mutableStateOf<String?>(null)
 
         rule.setContent {
@@ -131,21 +135,73 @@ class CrossfadeTest {
                 BasicText(if (value == null) First else Second)
             }
         }
-        rule.clockTestRule.advanceClock(DefaultDurationMillis.toLong())
+
+        rule.mainClock.advanceTimeByFrame() // Kick off the animation
+        rule.mainClock.advanceTimeBy(DefaultDurationMillis.toLong())
 
         rule.onNodeWithText(First).assertExists()
         rule.onNodeWithText(Second).assertDoesNotExist()
 
-        rule.runOnIdle {
+        rule.runOnUiThread {
             current = "other"
         }
 
-        rule.waitForIdle()
-
-        rule.clockTestRule.advanceClock(DefaultDurationMillis.toLong())
+        rule.mainClock.advanceTimeBy(DefaultDurationMillis.toLong())
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame() // Wait for changes to propagate
 
         rule.onNodeWithText(First).assertDoesNotExist()
         rule.onNodeWithText(Second).assertExists()
+    }
+
+    @Test
+    fun crossfadeTest_rememberSaveableIsNotRecreatedForScreens() {
+        rule.mainClock.autoAdvance = false
+
+        val duration = 100
+        var showFirst by mutableStateOf(true)
+        var counter = 1
+        var counter1 = 0
+        var counter2 = 0
+        rule.setContent {
+            val saveableStateHolder = rememberSaveableStateHolder()
+            Crossfade(
+                showFirst,
+                animationSpec = TweenSpec(durationMillis = duration)
+            ) {
+                saveableStateHolder.SaveableStateProvider(it) {
+                    if (it) {
+                        counter1 = rememberSaveable { counter++ }
+                    } else {
+                        counter2 = rememberSaveable { counter++ }
+                    }
+                }
+            }
+        }
+
+        rule.mainClock.advanceTimeByFrame() // Kick off the animation
+        rule.mainClock.advanceTimeBy(duration.toLong())
+
+        rule.runOnUiThread {
+            showFirst = false
+        }
+
+        rule.mainClock.advanceTimeBy(duration.toLong())
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame() // Wait for changes to propagate
+
+        // and go back to the second screen
+
+        rule.runOnUiThread {
+            showFirst = true
+        }
+
+        rule.mainClock.advanceTimeBy(duration.toLong())
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame() // Wait for changes to propagate
+
+        assertEquals(1, counter1)
+        assertEquals(2, counter2)
     }
 
     companion object {

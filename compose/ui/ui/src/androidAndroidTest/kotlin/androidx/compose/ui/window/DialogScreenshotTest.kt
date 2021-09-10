@@ -17,7 +17,7 @@ package androidx.compose.ui.window
 
 import android.os.Build
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.GOLDEN_UI
@@ -25,7 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.AmbientDensity
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -56,7 +56,7 @@ class DialogScreenshotTest {
                 Box(
                     Modifier
                         .graphicsLayer(shape = RoundedCornerShape(percent = 15), clip = true)
-                        .preferredSize(200.dp)
+                        .size(200.dp)
                         .background(Color(0xFFA896B0))
                 )
             }
@@ -71,7 +71,7 @@ class DialogScreenshotTest {
     fun dialogWithElevation() {
         rule.setContent {
             Dialog(onDismissRequest = {}) {
-                val elevation = with(AmbientDensity.current) { 16.dp.toPx() }
+                val elevation = with(LocalDensity.current) { 16.dp.toPx() }
                 Box(
                     Modifier
                         .graphicsLayer(
@@ -79,7 +79,7 @@ class DialogScreenshotTest {
                             shape = RoundedCornerShape(percent = 15),
                             clip = true
                         )
-                        .preferredSize(200.dp)
+                        .size(200.dp)
                         .background(Color(0xFFA896B0))
                 )
             }

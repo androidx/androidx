@@ -17,12 +17,11 @@
 package androidx.navigation.dynamicfeatures
 
 import android.content.Context
-import android.os.Bundle
 import android.util.AttributeSet
 import androidx.annotation.RestrictTo
 import androidx.core.content.withStyledAttributes
 import androidx.navigation.ActivityNavigator
-import androidx.navigation.NavDestination
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider
@@ -43,21 +42,30 @@ public class DynamicActivityNavigator(
     public val packageName: String = context.packageName
 
     override fun navigate(
-        destination: ActivityNavigator.Destination,
-        args: Bundle?,
+        entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
         navigatorExtras: Navigator.Extras?
-    ): NavDestination? {
+    ) {
+        for (entry in entries) {
+            navigate(entry, navOptions, navigatorExtras)
+        }
+    }
+
+    private fun navigate(
+        entry: NavBackStackEntry,
+        navOptions: NavOptions?,
+        navigatorExtras: Navigator.Extras?
+    ) {
+        val destination = entry.destination
         val extras = navigatorExtras as? DynamicExtras
         if (destination is Destination) {
             val moduleName = destination.moduleName
             if (moduleName != null && installManager.needsInstall(moduleName)) {
-                return installManager.performInstall(destination, args, extras, moduleName)
+                installManager.performInstall(entry, extras, moduleName)
             }
         }
-        return super.navigate(
-            destination,
-            args,
+        super.navigate(
+            listOf(entry),
             navOptions,
             if (extras != null) extras.destinationExtras else navigatorExtras
         )
@@ -94,6 +102,17 @@ public class DynamicActivityNavigator(
             context.withStyledAttributes(attrs, R.styleable.DynamicActivityNavigator) {
                 moduleName = getString(R.styleable.DynamicActivityNavigator_moduleName)
             }
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is Destination) return false
+            return super.equals(other) && moduleName == other.moduleName
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + moduleName.hashCode()
+            return result
         }
     }
 }

@@ -16,15 +16,21 @@
 
 package androidx.car.app.utils;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 /**
  * Utility functions to handle running functions on the main thread.
+ *
+ * @hide
  */
-public class ThreadUtils {
+@RestrictTo(LIBRARY_GROUP)
+public final class ThreadUtils {
     private static final Handler HANDLER = new Handler(Looper.getMainLooper());
 
     /** Executes the {@code action} on the main thread. */
@@ -39,11 +45,11 @@ public class ThreadUtils {
     /**
      * Checks that currently running on the main thread.
      *
-     * @throws IllegalStateException if the current thread is not the main thread.
+     * @throws IllegalStateException if the current thread is not the main thread
      */
     public static void checkMainThread() {
         if (Looper.getMainLooper() != Looper.myLooper()) {
-            throw new IllegalStateException("Not running on main thread when it is required to.");
+            throw new IllegalStateException("Not running on main thread when it is required to");
         }
     }
 

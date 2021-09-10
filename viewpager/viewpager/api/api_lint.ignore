@@ -5,6 +5,10 @@ ConcreteCollection: androidx.viewpager.widget.ViewPager#addTouchables(java.util.
     Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
 
 
+GetterSetterNames: androidx.viewpager.widget.PagerTabStrip#getDrawFullUnderline():
+    Symmetric method for `setDrawFullUnderline` must be named `isDrawFullUnderline`; was `getDrawFullUnderline`
+
+
 ListenerInterface: androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener:
     Listeners should be an interface, or otherwise renamed Callback: SimpleOnPageChangeListener
 
@@ -57,8 +61,6 @@ MissingNullability: androidx.viewpager.widget.ViewPager#onTouchEvent(android.vie
     Missing nullability on parameter `ev` in method `onTouchEvent`
 MissingNullability: androidx.viewpager.widget.ViewPager#removeView(android.view.View) parameter #0:
     Missing nullability on parameter `view` in method `removeView`
-MissingNullability: androidx.viewpager.widget.ViewPager#setOnPageChangeListener(androidx.viewpager.widget.ViewPager.OnPageChangeListener) parameter #0:
-    Missing nullability on parameter `listener` in method `setOnPageChangeListener`
 MissingNullability: androidx.viewpager.widget.ViewPager#verifyDrawable(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `who` in method `verifyDrawable`
 MissingNullability: androidx.viewpager.widget.ViewPager.LayoutParams#LayoutParams(android.content.Context, android.util.AttributeSet) parameter #0:

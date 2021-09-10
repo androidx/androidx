@@ -1,0 +1,73 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.Publish
+import androidx.build.RunApiTasks
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+}
+
+dependencies {
+    // Classes and types that are needed at compile & runtime
+    api("androidx.annotation:annotation:1.1.0")
+
+    // Classes and types that are only needed at runtime
+    implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinCoroutinesGuava)
+    implementation(project(":camera:camera-camera2-pipe"))
+
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinCoroutinesTest)
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+
+    // Use Robolectric 4.+
+    testOptions.unitTests.includeAndroidResources = true
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
+}
+
+androidx {
+    name = "Jetpack Camera Camera Pipe Testing Library"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.CAMERA
+    mavenVersion = LibraryVersions.CAMERA_PIPE
+    runApiTasks = new RunApiTasks.No("CameraPipe is an implementation detail of other libraries.")
+    inceptionYear = "2020"
+    description = "Testing components for the Jetpack CameraPipe Library, a library providing a " +
+            "consistent and reliable camera foundation that enables great camera driven " +
+            "experiences across all of Android."
+}

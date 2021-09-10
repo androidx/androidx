@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedThrows: androidx.security.crypto.EncryptedFile#openFileInput():
+    Method androidx.security.crypto.EncryptedFile.openFileInput added thrown exception java.io.FileNotFoundException

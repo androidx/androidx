@@ -31,7 +31,7 @@
     <string name="abc_activity_chooser_view_see_all" msgid="1189761859438369441">"عرض الكل"</string>
     <string name="abc_shareactionprovider_share_with_application" msgid="9055268688411532828">"مشاركة مع <xliff:g id="APPLICATION_NAME">%s</xliff:g>"</string>
     <string name="abc_shareactionprovider_share_with" msgid="8875138169939072951">"مشاركة مع"</string>
-    <string name="abc_capital_on" msgid="884982626291842264">"تفعيل"</string>
+    <string name="abc_capital_on" msgid="884982626291842264">"مفعّلة"</string>
     <string name="abc_capital_off" msgid="4215997306490295099">"إيقاف"</string>
     <string name="search_menu_title" msgid="6264217191555673260">"البحث"</string>
     <string name="abc_prepend_shortcut_label" msgid="5520303668377388990">"القائمة+"</string>

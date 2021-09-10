@@ -88,6 +88,7 @@ public class KeyguardUtilsTest {
         assertThat(KeyguardUtils.isDeviceSecuredWithCredential(mContext)).isFalse();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     @Config(minSdk = Build.VERSION_CODES.M)
     public void testIsDeviceSecuredWithCredential_CorrectlyReturnsTrue_OnApi23AndAbove() {

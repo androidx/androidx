@@ -17,7 +17,7 @@
 package androidx.compose.ui.text.input
 
 import androidx.compose.ui.text.AnnotatedString
-import org.junit.Assert.assertEquals
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -28,12 +28,14 @@ class PasswordVisualTransformationTest {
     fun check_visual_output_is_masked_with_asterisk() {
         val transformation = PasswordVisualTransformation(mask = '*')
         val text = AnnotatedString("12345")
-        val (transformedText, map) = transformation.filter(text)
+        val transformedText = transformation.filter(text)
+        val visualText = transformedText.text
+        val offsetMapping = transformedText.offsetMapping
 
-        assertEquals("*****", transformedText.text)
-        for (i in 0..transformedText.text.length) {
-            assertEquals(i, map.originalToTransformed(i))
-            assertEquals(i, map.transformedToOriginal(i))
+        assertThat(visualText.text).isEqualTo("*****")
+        for (i in 0..visualText.text.length) {
+            assertThat(offsetMapping.originalToTransformed(i)).isEqualTo(i)
+            assertThat(offsetMapping.transformedToOriginal(i)).isEqualTo(i)
         }
     }
 
@@ -41,12 +43,14 @@ class PasswordVisualTransformationTest {
     fun check_visual_output_is_masked_with_default() {
         val filter = PasswordVisualTransformation()
         val text = AnnotatedString("1234567890")
-        val (filtered, map) = filter.filter(text)
+        val transformedText = filter.filter(text)
+        val visualText = transformedText.text
+        val offsetMapping = transformedText.offsetMapping
 
-        assertEquals("\u2022".repeat(10), filtered.text)
-        for (i in 0..filtered.text.length) {
-            assertEquals(i, map.originalToTransformed(i))
-            assertEquals(i, map.transformedToOriginal(i))
+        assertThat(visualText.text).isEqualTo("\u2022".repeat(10))
+        for (i in 0..visualText.text.length) {
+            assertThat(offsetMapping.originalToTransformed(i)).isEqualTo(i)
+            assertThat(offsetMapping.transformedToOriginal(i)).isEqualTo(i)
         }
     }
 }

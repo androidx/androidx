@@ -63,7 +63,7 @@ public class ServiceWorkerWebSettingsCompatTest {
     public void testAllowContentAccess() {
         WebkitUtils.checkFeature(WebViewFeature.SERVICE_WORKER_CONTENT_ACCESS);
 
-        Assert.assertEquals(mSettings.getAllowContentAccess(), true);
+        Assert.assertTrue(mSettings.getAllowContentAccess());
         for (boolean b : new boolean[]{false, true}) {
             mSettings.setAllowContentAccess(b);
             Assert.assertEquals(b, mSettings.getAllowContentAccess());
@@ -79,7 +79,7 @@ public class ServiceWorkerWebSettingsCompatTest {
     public void testAllowFileAccess() {
         WebkitUtils.checkFeature(WebViewFeature.SERVICE_WORKER_FILE_ACCESS);
 
-        Assert.assertEquals(mSettings.getAllowFileAccess(), true);
+        Assert.assertTrue(mSettings.getAllowFileAccess());
         for (boolean b : new boolean[]{false, true}) {
             mSettings.setAllowFileAccess(b);
             Assert.assertEquals(b, mSettings.getAllowFileAccess());

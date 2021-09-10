@@ -433,12 +433,22 @@ class AppCompatTextHelper {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void onAsyncTypefaceReceived(WeakReference<TextView> textViewWeak, Typeface typeface) {
+    void onAsyncTypefaceReceived(WeakReference<TextView> textViewWeak, final Typeface typeface) {
         if (mAsyncFontPending) {
             mFontTypeface = typeface;
             final TextView textView = textViewWeak.get();
             if (textView != null) {
-                textView.setTypeface(typeface, mStyle);
+                if (ViewCompat.isAttachedToWindow(textView)) {
+                    final int style = mStyle;
+                    textView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            textView.setTypeface(typeface, style);
+                        }
+                    });
+                } else {
+                    textView.setTypeface(typeface, mStyle);
+                }
             }
         }
     }

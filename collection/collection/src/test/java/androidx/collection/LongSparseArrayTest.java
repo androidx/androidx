@@ -18,6 +18,7 @@ package androidx.collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -273,5 +274,20 @@ public class LongSparseArrayTest {
         assertEquals(2, dest.size());
         assertEquals(1L, dest.get(1L));
         assertEquals("two", dest.get(2L));
+    }
+
+    @Test
+    public void cloning() {
+        LongSparseArray<String> source = new LongSparseArray<>();
+        source.put(10L, "hello");
+        source.put(20L, "world");
+
+        LongSparseArray<String> dest = source.clone();
+        assertNotSame(source, dest);
+
+        for (int i = 0; i < source.size(); i++) {
+            assertEquals(source.keyAt(i), dest.keyAt(i));
+            assertEquals(source.valueAt(i), dest.valueAt(i));
+        }
     }
 }

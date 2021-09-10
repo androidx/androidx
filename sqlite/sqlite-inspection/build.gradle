@@ -18,8 +18,6 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -32,12 +30,12 @@ dependencies {
     compileOnly(project(":inspection:inspection"))
 
     androidTestImplementation(project(":inspection:inspection-testing"))
-    androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
-    androidTestImplementation(KOTLIN_COROUTINES_TEST)
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinCoroutinesAndroid)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
 }
 
 androidx {
@@ -55,12 +53,6 @@ android {
         // studio pipeline works only starting with Android O
         minSdkVersion 26
     }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
-    }
-
     sourceSets {
         main.resources.srcDirs += "src/main/proto"
     }

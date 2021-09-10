@@ -22,6 +22,7 @@ import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOL
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
@@ -31,7 +32,6 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_P
 import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_AUDIO_BIT_RATE;
 import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_AUDIO_CHANNEL_COUNT;
 import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_AUDIO_MIN_BUFFER_SIZE;
-import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_AUDIO_RECORD_SOURCE;
 import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_AUDIO_SAMPLE_RATE;
 import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_BIT_RATE;
 import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_INTRA_FRAME_INTERVAL;
@@ -41,7 +41,7 @@ import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 import static androidx.camera.core.internal.UseCaseEventConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 
-import android.annotation.SuppressLint;
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.location.Location;
@@ -57,6 +57,7 @@ import android.media.MediaMuxer;
 import android.media.MediaRecorder.AudioSource;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -67,13 +68,17 @@ import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
@@ -94,6 +99,7 @@ import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.internal.utils.VideoUtil;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
+import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -104,6 +110,7 @@ import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -152,6 +159,11 @@ public final class VideoCapture extends UseCase {
      * An error indicating this VideoCapture is not bound to a camera.
      */
     public static final int ERROR_INVALID_CAMERA = 5;
+    /**
+     * An error indicating the video file is too short.
+     * <p> The output file will be deleted if the OutputFileOptions is backed by File or uri.
+     */
+    public static final int ERROR_RECORDING_TOO_SHORT = 6;
 
     /**
      * Provides a static configuration with implementation-agnostic options.
@@ -173,16 +185,6 @@ public final class VideoCapture extends UseCase {
             CamcorderProfile.QUALITY_720P,
             CamcorderProfile.QUALITY_480P
     };
-    /**
-     * Audio encoding
-     *
-     * <p>the result of PCM_8BIT and PCM_FLOAT are not good. Set PCM_16BIT as the first option.
-     */
-    private static final short[] sAudioEncoding = {
-            AudioFormat.ENCODING_PCM_16BIT,
-            AudioFormat.ENCODING_PCM_8BIT,
-            AudioFormat.ENCODING_PCM_FLOAT
-    };
 
     private final BufferInfo mVideoBufferInfo = new BufferInfo();
     private final Object mMuxerLock = new Object();
@@ -191,8 +193,10 @@ public final class VideoCapture extends UseCase {
     private final AtomicBoolean mEndOfAudioVideoSignal = new AtomicBoolean(true);
     private final BufferInfo mAudioBufferInfo = new BufferInfo();
     /** For record the first sample written time. */
-    private final AtomicBoolean mIsFirstVideoSampleWrite = new AtomicBoolean(false);
-    private final AtomicBoolean mIsFirstAudioSampleWrite = new AtomicBoolean(false);
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public final AtomicBoolean mIsFirstVideoKeyFrameWrite = new AtomicBoolean(false);
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public final AtomicBoolean mIsFirstAudioSampleWrite = new AtomicBoolean(false);
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached constant] - Is only valid when the UseCase is attached to a camera.
@@ -211,6 +215,8 @@ public final class VideoCapture extends UseCase {
     private MediaCodec mAudioEncoder;
     @Nullable
     private ListenableFuture<Void> mRecordingFuture = null;
+    @NonNull
+    private SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
@@ -219,26 +225,34 @@ public final class VideoCapture extends UseCase {
     /** The muxer that writes the encoding data to file. */
     @GuardedBy("mMuxerLock")
     private MediaMuxer mMuxer;
-    private boolean mMuxerStarted = false;
+    private final AtomicBoolean mMuxerStarted = new AtomicBoolean(false);
     /** The index of the video track used by the muxer. */
+    @GuardedBy("mMuxerLock")
     private int mVideoTrackIndex;
     /** The index of the audio track used by the muxer. */
+    @GuardedBy("mMuxerLock")
     private int mAudioTrackIndex;
     /** Surface the camera writes to, which the videoEncoder uses as input. */
     Surface mCameraSurface;
 
     /** audio raw data */
-    @NonNull
-    private AudioRecord mAudioRecorder;
-    private int mAudioBufferSize;
-    private boolean mIsRecording = false;
+    @Nullable
+    private volatile AudioRecord mAudioRecorder;
+    private volatile int mAudioBufferSize;
+    private volatile boolean mIsRecording = false;
     private int mAudioChannelCount;
     private int mAudioSampleRate;
     private int mAudioBitRate;
     private DeferrableSurface mDeferrableSurface;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    Uri mSavedVideoUri;
-    private ParcelFileDescriptor mParcelFileDescriptor;
+    volatile Uri mSavedVideoUri;
+    private volatile ParcelFileDescriptor mParcelFileDescriptor;
+    private final AtomicBoolean mIsAudioEnabled = new AtomicBoolean(true);
+
+    private VideoEncoderInitStatus mVideoEncoderInitStatus =
+            VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_UNINITIALIZED;
+    @Nullable
+    private Throwable mVideoEncoderErrorMessage;
 
     /**
      * Creates a new video capture use case from the given configuration.
@@ -250,7 +264,7 @@ public final class VideoCapture extends UseCase {
     }
 
     /** Creates a {@link MediaFormat} using parameters from the configuration */
-    private static MediaFormat createMediaFormat(VideoCaptureConfig config, Size resolution) {
+    private static MediaFormat createVideoMediaFormat(VideoCaptureConfig config, Size resolution) {
         MediaFormat format =
                 MediaFormat.createVideoFormat(
                         VIDEO_MIME_TYPE, resolution.getWidth(), resolution.getHeight());
@@ -309,6 +323,7 @@ public final class VideoCapture extends UseCase {
      * @hide
      */
     @Override
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
@@ -328,6 +343,8 @@ public final class VideoCapture extends UseCase {
         }
 
         setupEncoder(getCameraId(), suggestedResolution);
+        // VideoCapture has to be active to apply SessionConfig's template type.
+        notifyActive();
         return suggestedResolution;
     }
 
@@ -342,6 +359,8 @@ public final class VideoCapture extends UseCase {
      * @param executor          The executor in which the callback methods will be run.
      * @param callback          Callback for when the recorded video saving completion or failure.
      */
+    @SuppressWarnings("ObjectToString")
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     public void startRecording(
             @NonNull OutputFileOptions outputFileOptions, @NonNull Executor executor,
             @NonNull OnVideoSavedCallback callback) {
@@ -351,7 +370,7 @@ public final class VideoCapture extends UseCase {
             return;
         }
         Logger.i(TAG, "startRecording");
-        mIsFirstVideoSampleWrite.set(false);
+        mIsFirstVideoKeyFrameWrite.set(false);
         mIsFirstAudioSampleWrite.set(false);
 
         OnVideoSavedCallback postListener = new VideoSavedListenerWrapper(executor, callback);
@@ -364,6 +383,19 @@ public final class VideoCapture extends UseCase {
             return;
         }
 
+        // Check video encoder initialization status, if there is any error happened
+        // return error callback directly.
+        if (mVideoEncoderInitStatus
+                == VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_INSUFFICIENT_RESOURCE
+                || mVideoEncoderInitStatus
+                == VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_INITIALIZED_FAILED
+                || mVideoEncoderInitStatus
+                == VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_RESOURCE_RECLAIMED) {
+            postListener.onError(ERROR_ENCODER, "Video encoder initialization failed before start"
+                    + " recording ", mVideoEncoderErrorMessage);
+            return;
+        }
+
         if (!mEndOfAudioVideoSignal.get()) {
             postListener.onError(
                     ERROR_RECORDING_IN_PROGRESS, "It is still in video recording!",
@@ -371,12 +403,29 @@ public final class VideoCapture extends UseCase {
             return;
         }
 
-        try {
-            // audioRecord start
-            mAudioRecorder.startRecording();
-        } catch (IllegalStateException e) {
-            postListener.onError(ERROR_ENCODER, "AudioRecorder start fail", e);
-            return;
+        if (mIsAudioEnabled.get()) {
+            try {
+                // Audio input start
+                if (mAudioRecorder.getState() == AudioRecord.STATE_INITIALIZED) {
+                    mAudioRecorder.startRecording();
+                }
+            } catch (IllegalStateException e) {
+                // Disable the audio if the audio input cannot start. And Continue the recording
+                // without audio.
+                Logger.i(TAG,
+                        "AudioRecorder cannot start recording, disable audio." + e.getMessage());
+                mIsAudioEnabled.set(false);
+                releaseAudioInputResource();
+            }
+
+            // Gets the AudioRecorder's state
+            if (mAudioRecorder.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING) {
+                Logger.i(TAG,
+                        "AudioRecorder startRecording failed - incorrect state: "
+                                + mAudioRecorder.getRecordingState());
+                mIsAudioEnabled.set(false);
+                releaseAudioInputResource();
+            }
         }
 
         AtomicReference<Completer<Void>> recordingCompleterRef = new AtomicReference<>();
@@ -405,10 +454,12 @@ public final class VideoCapture extends UseCase {
             // video encoder start
             Logger.i(TAG, "videoEncoder start");
             mVideoEncoder.start();
-            // audio encoder start
-            Logger.i(TAG, "audioEncoder start");
-            mAudioEncoder.start();
 
+            // audio encoder start
+            if (mIsAudioEnabled.get()) {
+                Logger.i(TAG, "audioEncoder start");
+                mAudioEncoder.start();
+            }
         } catch (IllegalStateException e) {
             recordingCompleter.set(null);
             postListener.onError(ERROR_ENCODER, "Audio/Video encoder start fail", e);
@@ -439,14 +490,22 @@ public final class VideoCapture extends UseCase {
         mEndOfAudioVideoSignal.set(false);
         mIsRecording = true;
 
-        notifyActive();
-        mAudioHandler.post(() -> audioEncode(postListener));
+        // Attach Surface to repeating request.
+        mSessionConfigBuilder.clearSurfaces();
+        mSessionConfigBuilder.addSurface(mDeferrableSurface);
+        updateSessionConfig(mSessionConfigBuilder.build());
+        notifyUpdated();
+
+        if (mIsAudioEnabled.get()) {
+            mAudioHandler.post(() -> audioEncode(postListener));
+        }
 
         String cameraId = getCameraId();
         Size resolution = getAttachedSurfaceResolution();
         mVideoHandler.post(
                 () -> {
-                    boolean errorOccurred = videoEncode(postListener, cameraId, resolution);
+                    boolean errorOccurred = videoEncode(postListener, cameraId, resolution,
+                            outputFileOptions);
                     if (!errorOccurred) {
                         postListener.onVideoSaved(new OutputFileResults(mSavedVideoUri));
                         mSavedVideoUri = null;
@@ -471,10 +530,20 @@ public final class VideoCapture extends UseCase {
             return;
         }
         Logger.i(TAG, "stopRecording");
-        notifyInactive();
-        if (!mEndOfAudioVideoSignal.get() && mIsRecording) {
-            // stop audio encoder thread, and wait video encoder and muxer stop.
-            mEndOfAudioStreamSignal.set(true);
+
+        mSessionConfigBuilder.clearSurfaces();
+        mSessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
+        updateSessionConfig(mSessionConfigBuilder.build());
+        notifyUpdated();
+
+        if (mIsRecording) {
+            if (mIsAudioEnabled.get()) {
+                // Stop audio encoder thread, and wait video encoder and muxer stop.
+                mEndOfAudioStreamSignal.set(true);
+            } else {
+                // Audio is disabled, stop video encoder thread directly.
+                mEndOfVideoStreamSignal.set(true);
+            }
         }
     }
 
@@ -500,6 +569,14 @@ public final class VideoCapture extends UseCase {
         mVideoHandlerThread.quitSafely();
 
         // audio encoder release
+        releaseAudioInputResource();
+
+        if (mCameraSurface != null) {
+            releaseCameraSurface(true);
+        }
+    }
+
+    private void releaseAudioInputResource() {
         mAudioHandlerThread.quitSafely();
         if (mAudioEncoder != null) {
             mAudioEncoder.release();
@@ -509,10 +586,6 @@ public final class VideoCapture extends UseCase {
         if (mAudioRecorder != null) {
             mAudioRecorder.release();
             mAudioRecorder = null;
-        }
-
-        if (mCameraSurface != null) {
-            releaseCameraSurface(true);
         }
     }
 
@@ -565,7 +638,6 @@ public final class VideoCapture extends UseCase {
         mDeferrableSurface = null;
     }
 
-
     /**
      * Sets the desired rotation of the output video.
      *
@@ -584,36 +656,73 @@ public final class VideoCapture extends UseCase {
      */
     @UiThread
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     void setupEncoder(@NonNull String cameraId, @NonNull Size resolution) {
         VideoCaptureConfig config = (VideoCaptureConfig) getCurrentConfig();
 
         // video encoder setup
         mVideoEncoder.reset();
-        mVideoEncoder.configure(
-                createMediaFormat(config, resolution), /*surface*/
-                null, /*crypto*/
-                null,
-                MediaCodec.CONFIGURE_FLAG_ENCODE);
+        mVideoEncoderInitStatus = VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_UNINITIALIZED;
+
+        // Configures a Video encoder, if there is any exception, will abort follow up actions
+        try {
+            mVideoEncoder.configure(
+                    createVideoMediaFormat(config, resolution), /*surface*/
+                    null, /*crypto*/
+                    null,
+                    MediaCodec.CONFIGURE_FLAG_ENCODE);
+        } catch (MediaCodec.CodecException e) {
+            int errorCode = 0;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                errorCode = Api23Impl.getCodecExceptionErrorCode(e);
+                String diagnosticInfo = e.getDiagnosticInfo();
+                if (errorCode == MediaCodec.CodecException.ERROR_INSUFFICIENT_RESOURCE) {
+                    Logger.i(TAG,
+                            "CodecException: code: " + errorCode + " diagnostic: "
+                                    + diagnosticInfo);
+                    mVideoEncoderInitStatus =
+                            VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_INSUFFICIENT_RESOURCE;
+                } else if (errorCode == MediaCodec.CodecException.ERROR_RECLAIMED) {
+                    Logger.i(TAG,
+                            "CodecException: code: " + errorCode + " diagnostic: "
+                                    + diagnosticInfo);
+                    mVideoEncoderInitStatus =
+                            VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_RESOURCE_RECLAIMED;
+                }
+            } else {
+                mVideoEncoderInitStatus =
+                        VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_INITIALIZED_FAILED;
+            }
+            mVideoEncoderErrorMessage = e;
+            return;
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            mVideoEncoderInitStatus =
+                    VideoEncoderInitStatus.VIDEO_ENCODER_INIT_STATUS_INITIALIZED_FAILED;
+            mVideoEncoderErrorMessage = e;
+            return;
+        }
+
         if (mCameraSurface != null) {
             releaseCameraSurface(false);
         }
         Surface cameraSurface = mVideoEncoder.createInputSurface();
         mCameraSurface = cameraSurface;
 
-        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
+        mSessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
         }
-        mDeferrableSurface = new ImmediateSurface(mCameraSurface);
+        mDeferrableSurface = new ImmediateSurface(mCameraSurface, resolution, getImageFormat());
         mDeferrableSurface.getTerminationFuture().addListener(
                 cameraSurface::release, CameraXExecutors.mainThreadExecutor()
         );
 
-        sessionConfigBuilder.addSurface(mDeferrableSurface);
+        mSessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
 
-        sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
+        mSessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
             @Override
+            @RequiresPermission(Manifest.permission.RECORD_AUDIO)
             public void onError(@NonNull SessionConfig sessionConfig,
                     @NonNull SessionConfig.SessionError error) {
                 // Ensure the attached camera has not changed before calling setupEncoder.
@@ -627,9 +736,12 @@ public final class VideoCapture extends UseCase {
             }
         });
 
-        updateSessionConfig(sessionConfigBuilder.build());
+        updateSessionConfig(mSessionConfigBuilder.build());
 
         // audio encoder setup
+        // reset audio inout flag
+        mIsAudioEnabled.set(true);
+
         setAudioParametersByCamcorderProfile(resolution, cameraId);
         mAudioEncoder.reset();
         mAudioEncoder.configure(
@@ -642,10 +754,13 @@ public final class VideoCapture extends UseCase {
         // check mAudioRecorder
         if (mAudioRecorder == null) {
             Logger.e(TAG, "AudioRecord object cannot initialized correctly!");
+            mIsAudioEnabled.set(false);
         }
 
-        mVideoTrackIndex = -1;
-        mAudioTrackIndex = -1;
+        synchronized (mMuxerLock) {
+            mVideoTrackIndex = -1;
+            mAudioTrackIndex = -1;
+        }
         mIsRecording = false;
     }
 
@@ -670,17 +785,31 @@ public final class VideoCapture extends UseCase {
         }
 
         // Write data to mMuxer if available
-        if (mAudioTrackIndex >= 0 && mVideoTrackIndex >= 0 && mVideoBufferInfo.size > 0) {
-            outputBuffer.position(mVideoBufferInfo.offset);
-            outputBuffer.limit(mVideoBufferInfo.offset + mVideoBufferInfo.size);
-            mVideoBufferInfo.presentationTimeUs = (System.nanoTime() / 1000);
+        if (mMuxerStarted.get()) {
+            if (mVideoBufferInfo.size > 0) {
+                outputBuffer.position(mVideoBufferInfo.offset);
+                outputBuffer.limit(mVideoBufferInfo.offset + mVideoBufferInfo.size);
+                mVideoBufferInfo.presentationTimeUs = (System.nanoTime() / 1000);
 
-            synchronized (mMuxerLock) {
-                if (!mIsFirstVideoSampleWrite.get()) {
-                    Logger.i(TAG, "First video sample written.");
-                    mIsFirstVideoSampleWrite.set(true);
+                synchronized (mMuxerLock) {
+                    if (!mIsFirstVideoKeyFrameWrite.get()) {
+                        boolean isKeyFrame =
+                                (mVideoBufferInfo.flags & MediaCodec.BUFFER_FLAG_KEY_FRAME) != 0;
+                        if (isKeyFrame) {
+                            Logger.i(TAG,
+                                    "First video key frame written.");
+                            mIsFirstVideoKeyFrameWrite.set(true);
+                        } else {
+                            // Request a sync frame immediately
+                            final Bundle syncFrame = new Bundle();
+                            syncFrame.putInt(MediaCodec.PARAMETER_KEY_REQUEST_SYNC_FRAME, 0);
+                            mVideoEncoder.setParameters(syncFrame);
+                        }
+                    }
+                    mMuxer.writeSampleData(mVideoTrackIndex, outputBuffer, mVideoBufferInfo);
                 }
-                mMuxer.writeSampleData(mVideoTrackIndex, outputBuffer, mVideoBufferInfo);
+            } else {
+                Logger.i(TAG, "mVideoBufferInfo.size <= 0, index " + bufferIndex);
             }
         }
 
@@ -694,17 +823,19 @@ public final class VideoCapture extends UseCase {
     private boolean writeAudioEncodedBuffer(int bufferIndex) {
         ByteBuffer buffer = getOutputBuffer(mAudioEncoder, bufferIndex);
         buffer.position(mAudioBufferInfo.offset);
-        if (mAudioTrackIndex >= 0
-                && mVideoTrackIndex >= 0
-                && mAudioBufferInfo.size > 0
-                && mAudioBufferInfo.presentationTimeUs > 0) {
+        if (mMuxerStarted.get()) {
             try {
-                synchronized (mMuxerLock) {
-                    if (!mIsFirstAudioSampleWrite.get()) {
-                        Logger.i(TAG, "First audio sample written.");
-                        mIsFirstAudioSampleWrite.set(true);
+                if (mAudioBufferInfo.size > 0 && mAudioBufferInfo.presentationTimeUs > 0) {
+                    synchronized (mMuxerLock) {
+                        if (!mIsFirstAudioSampleWrite.get()) {
+                            Logger.i(TAG, "First audio sample written.");
+                            mIsFirstAudioSampleWrite.set(true);
+                        }
+                        mMuxer.writeSampleData(mAudioTrackIndex, buffer, mAudioBufferInfo);
                     }
-                    mMuxer.writeSampleData(mAudioTrackIndex, buffer, mAudioBufferInfo);
+                } else {
+                    Logger.i(TAG, "mAudioBufferInfo size: " + mAudioBufferInfo.size + " "
+                            + "presentationTimeUs: " + mAudioBufferInfo.presentationTimeUs);
                 }
             } catch (Exception e) {
                 Logger.e(
@@ -729,7 +860,8 @@ public final class VideoCapture extends UseCase {
      * @return returns {@code true} if an error condition occurred, otherwise returns {@code false}
      */
     boolean videoEncode(@NonNull OnVideoSavedCallback videoSavedCallback, @NonNull String cameraId,
-            @NonNull Size resolution) {
+            @NonNull Size resolution,
+            @NonNull OutputFileOptions outputFileOptions) {
         // Main encoding loop. Exits on end of stream.
         boolean errorOccurred = false;
         boolean videoEos = false;
@@ -745,7 +877,7 @@ public final class VideoCapture extends UseCase {
                     mVideoEncoder.dequeueOutputBuffer(mVideoBufferInfo, DEQUE_TIMEOUT_USEC);
             switch (outputBufferId) {
                 case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
-                    if (mMuxerStarted) {
+                    if (mMuxerStarted.get()) {
                         videoSavedCallback.onError(
                                 ERROR_ENCODER,
                                 "Unexpected change in video encoding format.",
@@ -755,10 +887,14 @@ public final class VideoCapture extends UseCase {
 
                     synchronized (mMuxerLock) {
                         mVideoTrackIndex = mMuxer.addTrack(mVideoEncoder.getOutputFormat());
-                        if (mAudioTrackIndex >= 0 && mVideoTrackIndex >= 0) {
-                            mMuxerStarted = true;
-                            Logger.i(TAG, "media mMuxer start");
+
+                        if ((mIsAudioEnabled.get() && mAudioTrackIndex >= 0
+                                && mVideoTrackIndex >= 0)
+                                || (!mIsAudioEnabled.get() && mVideoTrackIndex >= 0)) {
+                            Logger.i(TAG, "MediaMuxer started on video encode thread and audio "
+                                    + "enabled: " + mIsAudioEnabled);
                             mMuxer.start();
+                            mMuxerStarted.set(true);
                         }
                     }
                     break;
@@ -783,15 +919,41 @@ public final class VideoCapture extends UseCase {
             // new MediaMuxer instance required for each new file written, and release current one.
             synchronized (mMuxerLock) {
                 if (mMuxer != null) {
-                    if (mMuxerStarted) {
+                    if (mMuxerStarted.get()) {
+                        Logger.i(TAG, "Muxer already started");
                         mMuxer.stop();
                     }
                     mMuxer.release();
                     mMuxer = null;
                 }
             }
+
+            // A final checking for recording result, if the recorded file has no key
+            // frame, then the video file is not playable, needs to call
+            // onError() and will be removed.
+
+            boolean checkResult = removeRecordingResultIfNoVideoKeyFrameArrived(outputFileOptions);
+
+            if (!checkResult) {
+                videoSavedCallback.onError(ERROR_RECORDING_TOO_SHORT,
+                        "The file has no video key frame.", null);
+                errorOccurred = true;
+            }
         } catch (IllegalStateException e) {
-            videoSavedCallback.onError(ERROR_MUXER, "Muxer stop failed!", e);
+            // The video encoder has not got the key frame yet.
+            Logger.i(TAG, "muxer stop IllegalStateException: " + System.currentTimeMillis());
+            Logger.i(TAG,
+                    "muxer stop exception, mIsFirstVideoKeyFrameWrite: "
+                            + mIsFirstVideoKeyFrameWrite.get());
+            if (mIsFirstVideoKeyFrameWrite.get()) {
+                // If muxer throws IllegalStateException at this moment and also the key frame
+                // has received, this will reported as a Muxer stop failed.
+                // Otherwise, this error will be ERROR_RECORDING_TOO_SHORT.
+                videoSavedCallback.onError(ERROR_MUXER, "Muxer stop failed!", e);
+            } else {
+                videoSavedCallback.onError(ERROR_RECORDING_TOO_SHORT,
+                        "The file has no video key frame.", null);
+            }
             errorOccurred = true;
         }
 
@@ -805,10 +967,11 @@ public final class VideoCapture extends UseCase {
             }
         }
 
-        mMuxerStarted = false;
+        mMuxerStarted.set(false);
 
         // notify the UI thread that the video recording has finished
         mEndOfAudioVideoSignal.set(true);
+        mIsFirstVideoKeyFrameWrite.set(false);
 
         Logger.i(TAG, "Video encode thread end.");
         return errorOccurred;
@@ -818,6 +981,7 @@ public final class VideoCapture extends UseCase {
         // Audio encoding loop. Exits on end of stream.
         boolean audioEos = false;
         int outIndex;
+        long lastAudioTimestamp = 0;
         while (!audioEos && mIsRecording) {
             // Check for end of stream from main thread
             if (mEndOfAudioStreamSignal.get()) {
@@ -827,19 +991,26 @@ public final class VideoCapture extends UseCase {
 
             // get audio deque input buffer
             if (mAudioEncoder != null && mAudioRecorder != null) {
-                int index = mAudioEncoder.dequeueInputBuffer(-1);
-                if (index >= 0) {
-                    final ByteBuffer buffer = getInputBuffer(mAudioEncoder, index);
-                    buffer.clear();
-                    int length = mAudioRecorder.read(buffer, mAudioBufferSize);
-                    if (length > 0) {
-                        mAudioEncoder.queueInputBuffer(
-                                index,
-                                0,
-                                length,
-                                (System.nanoTime() / 1000),
-                                mIsRecording ? 0 : MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+                try {
+                    int index = mAudioEncoder.dequeueInputBuffer(-1);
+                    if (index >= 0) {
+                        final ByteBuffer buffer = getInputBuffer(mAudioEncoder, index);
+                        buffer.clear();
+                        int length = mAudioRecorder.read(buffer, mAudioBufferSize);
+                        if (length > 0) {
+                            mAudioEncoder.queueInputBuffer(
+                                    index,
+                                    0,
+                                    length,
+                                    (System.nanoTime() / 1000),
+                                    mIsRecording ? 0 : MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+                        }
                     }
+                } catch (MediaCodec.CodecException e) {
+                    Logger.i(TAG, "audio dequeueInputBuffer CodecException " + e.getMessage());
+                } catch (IllegalStateException e) {
+                    Logger.i(TAG,
+                            "audio dequeueInputBuffer IllegalStateException " + e.getMessage());
                 }
 
                 // start to dequeue audio output buffer
@@ -850,15 +1021,29 @@ public final class VideoCapture extends UseCase {
                             synchronized (mMuxerLock) {
                                 mAudioTrackIndex = mMuxer.addTrack(mAudioEncoder.getOutputFormat());
                                 if (mAudioTrackIndex >= 0 && mVideoTrackIndex >= 0) {
-                                    mMuxerStarted = true;
+                                    Logger.i(TAG, "MediaMuxer start on audio encoder thread.");
                                     mMuxer.start();
+                                    mMuxerStarted.set(true);
                                 }
                             }
                             break;
                         case MediaCodec.INFO_TRY_AGAIN_LATER:
                             break;
                         default:
-                            audioEos = writeAudioEncodedBuffer(outIndex);
+                            // Drops out of order audio frame if the frame's earlier than last
+                            // frame.
+                            if (mAudioBufferInfo.presentationTimeUs > lastAudioTimestamp) {
+                                audioEos = writeAudioEncodedBuffer(outIndex);
+                                lastAudioTimestamp = mAudioBufferInfo.presentationTimeUs;
+                            } else {
+                                Logger.w(TAG,
+                                        "Drops frame, current frame's timestamp "
+                                                + mAudioBufferInfo.presentationTimeUs
+                                                + " is earlier that last frame "
+                                                + lastAudioTimestamp);
+                                // Releases this frame from output buffer
+                                mAudioEncoder.releaseOutputBuffer(outIndex, false);
+                            }
                     }
                 } while (outIndex >= 0 && !audioEos); // end of dequeue output buffer
             }
@@ -909,57 +1094,56 @@ public final class VideoCapture extends UseCase {
     }
 
     /** Create a AudioRecord object to get raw data */
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     private AudioRecord autoConfigAudioRecordSource(VideoCaptureConfig config) {
-        for (short audioFormat : sAudioEncoding) {
+        // Use channel count to determine stereo vs mono
+        int channelConfig =
+                mAudioChannelCount == 1
+                        ? AudioFormat.CHANNEL_IN_MONO
+                        : AudioFormat.CHANNEL_IN_STEREO;
 
-            // Use channel count to determine stereo vs mono
-            int channelConfig =
-                    mAudioChannelCount == 1
-                            ? AudioFormat.CHANNEL_IN_MONO
-                            : AudioFormat.CHANNEL_IN_STEREO;
-            int source = config.getAudioRecordSource();
+        try {
+            // Use only ENCODING_PCM_16BIT because it mandatory supported.
+            int bufferSize =
+                    AudioRecord.getMinBufferSize(mAudioSampleRate, channelConfig,
+                            AudioFormat.ENCODING_PCM_16BIT);
 
-            try {
-                int bufferSize =
-                        AudioRecord.getMinBufferSize(mAudioSampleRate, channelConfig, audioFormat);
-
-                if (bufferSize <= 0) {
-                    bufferSize = config.getAudioMinBufferSize();
-                }
-
-                AudioRecord recorder =
-                        new AudioRecord(
-                                source,
-                                mAudioSampleRate,
-                                channelConfig,
-                                audioFormat,
-                                bufferSize * 2);
-
-                if (recorder.getState() == AudioRecord.STATE_INITIALIZED) {
-                    mAudioBufferSize = bufferSize;
-                    Logger.i(
-                            TAG,
-                            "source: "
-                                    + source
-                                    + " audioSampleRate: "
-                                    + mAudioSampleRate
-                                    + " channelConfig: "
-                                    + channelConfig
-                                    + " audioFormat: "
-                                    + audioFormat
-                                    + " bufferSize: "
-                                    + bufferSize);
-                    return recorder;
-                }
-            } catch (Exception e) {
-                Logger.e(TAG, "Exception, keep trying.", e);
+            if (bufferSize <= 0) {
+                bufferSize = config.getAudioMinBufferSize();
             }
-        }
 
+            AudioRecord recorder =
+                    new AudioRecord(
+                            AudioSource.CAMCORDER,
+                            mAudioSampleRate,
+                            channelConfig,
+                            AudioFormat.ENCODING_PCM_16BIT,
+                            bufferSize * 2);
+
+            if (recorder.getState() == AudioRecord.STATE_INITIALIZED) {
+                mAudioBufferSize = bufferSize;
+                Logger.i(
+                        TAG,
+                        "source: "
+                                + AudioSource.CAMCORDER
+                                + " audioSampleRate: "
+                                + mAudioSampleRate
+                                + " channelConfig: "
+                                + channelConfig
+                                + " audioFormat: "
+                                + AudioFormat.ENCODING_PCM_16BIT
+                                + " bufferSize: "
+                                + bufferSize);
+                return recorder;
+            }
+        } catch (Exception e) {
+            Logger.e(TAG, "Exception, keep trying.", e);
+        }
         return null;
     }
 
     /** Set audio record parameters by CamcorderProfile */
+    @SuppressWarnings("deprecation")
     private void setAudioParametersByCamcorderProfile(Size currentResolution, String cameraId) {
         CamcorderProfile profile;
         boolean isCamcorderProfileFound = false;
@@ -993,7 +1177,41 @@ public final class VideoCapture extends UseCase {
         }
     }
 
-    @SuppressLint("UnsafeNewApiCall")
+    private boolean removeRecordingResultIfNoVideoKeyFrameArrived(
+            @NonNull OutputFileOptions outputFileOptions) {
+        boolean checkKeyFrame;
+
+        // 1. There should be one video key frame at least.
+        Logger.i(TAG,
+                "check Recording Result First Video Key Frame Write: "
+                        + mIsFirstVideoKeyFrameWrite.get());
+        if (!mIsFirstVideoKeyFrameWrite.get()) {
+            Logger.i(TAG, "The recording result has no key frame.");
+            checkKeyFrame = false;
+        } else {
+            checkKeyFrame = true;
+        }
+
+        // 2. If no key frame, remove file except the target is a file descriptor case.
+        if (outputFileOptions.isSavingToFile()) {
+            File outputFile = outputFileOptions.getFile();
+            if (!checkKeyFrame) {
+                Logger.i(TAG, "Delete file.");
+                outputFile.delete();
+            }
+        } else if (outputFileOptions.isSavingToMediaStore()) {
+            if (!checkKeyFrame) {
+                Logger.i(TAG, "Delete file.");
+                if (mSavedVideoUri != null) {
+                    ContentResolver contentResolver = outputFileOptions.getContentResolver();
+                    contentResolver.delete(mSavedVideoUri, null, null);
+                }
+            }
+        }
+
+        return checkKeyFrame;
+    }
+
     @NonNull
     private MediaMuxer initMediaMuxer(@NonNull OutputFileOptions outputFileOptions)
             throws IOException {
@@ -1011,7 +1229,7 @@ public final class VideoCapture extends UseCase {
                         + "only supported for Android 8.0 or above.");
             }
 
-            mediaMuxer = new MediaMuxer(outputFileOptions.getFileDescriptor(),
+            mediaMuxer = Api26Impl.createMediaMuxer(outputFileOptions.getFileDescriptor(),
                     MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         } else if (outputFileOptions.isSavingToMediaStore()) {
             ContentValues values = outputFileOptions.getContentValues() != null
@@ -1038,7 +1256,8 @@ public final class VideoCapture extends UseCase {
                     mParcelFileDescriptor =
                             outputFileOptions.getContentResolver().openFileDescriptor(
                                     mSavedVideoUri, "rw");
-                    mediaMuxer = new MediaMuxer(mParcelFileDescriptor.getFileDescriptor(),
+                    mediaMuxer = Api26Impl.createMediaMuxer(
+                            mParcelFileDescriptor.getFileDescriptor(),
                             MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
                 }
             } catch (IOException e) {
@@ -1064,10 +1283,17 @@ public final class VideoCapture extends UseCase {
      * @hide
      */
     @IntDef({ERROR_UNKNOWN, ERROR_ENCODER, ERROR_MUXER, ERROR_RECORDING_IN_PROGRESS,
-            ERROR_FILE_IO, ERROR_INVALID_CAMERA})
+            ERROR_FILE_IO, ERROR_INVALID_CAMERA, ERROR_RECORDING_TOO_SHORT})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(Scope.LIBRARY_GROUP)
     public @interface VideoCaptureError {
+    }
+
+    enum VideoEncoderInitStatus {
+        VIDEO_ENCODER_INIT_STATUS_UNINITIALIZED,
+        VIDEO_ENCODER_INIT_STATUS_INITIALIZED_FAILED,
+        VIDEO_ENCODER_INIT_STATUS_INSUFFICIENT_RESOURCE,
+        VIDEO_ENCODER_INIT_STATUS_RESOURCE_RECLAIMED,
     }
 
     /** Listener containing callbacks for video file I/O events. */
@@ -1102,13 +1328,11 @@ public final class VideoCapture extends UseCase {
         private static final int DEFAULT_AUDIO_SAMPLE_RATE = 8000;
         /** audio channel count */
         private static final int DEFAULT_AUDIO_CHANNEL_COUNT = 1;
-        /** audio record source */
-        private static final int DEFAULT_AUDIO_RECORD_SOURCE = AudioSource.MIC;
         /** audio default minimum buffer size */
         private static final int DEFAULT_AUDIO_MIN_BUFFER_SIZE = 1024;
         /** Current max resolution of VideoCapture is set as FHD */
         private static final Size DEFAULT_MAX_RESOLUTION = new Size(1920, 1080);
-        /** Surface occupancy prioirty to this use case */
+        /** Surface occupancy priority to this use case */
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 3;
         private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_16_9;
 
@@ -1122,7 +1346,6 @@ public final class VideoCapture extends UseCase {
                     .setAudioBitRate(DEFAULT_AUDIO_BIT_RATE)
                     .setAudioSampleRate(DEFAULT_AUDIO_SAMPLE_RATE)
                     .setAudioChannelCount(DEFAULT_AUDIO_CHANNEL_COUNT)
-                    .setAudioRecordSource(DEFAULT_AUDIO_RECORD_SOURCE)
                     .setAudioMinBufferSize(DEFAULT_AUDIO_MIN_BUFFER_SIZE)
                     .setMaxResolution(DEFAULT_MAX_RESOLUTION)
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
@@ -1181,6 +1404,7 @@ public final class VideoCapture extends UseCase {
     }
 
     /** Builder for a {@link VideoCapture}. */
+    @SuppressWarnings("ObjectToString")
     public static final class Builder
             implements
             UseCaseConfig.Builder<VideoCapture, VideoCaptureConfig, Builder>,
@@ -1359,20 +1583,6 @@ public final class VideoCapture extends UseCase {
         @NonNull
         public Builder setAudioChannelCount(int channelCount) {
             getMutableConfig().insertOption(OPTION_AUDIO_CHANNEL_COUNT, channelCount);
-            return this;
-        }
-
-        /**
-         * Sets the audio source.
-         *
-         * @param source The audio source. Currently only AudioSource.MIC is supported.
-         * @return The current Builder.
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public Builder setAudioRecordSource(int source) {
-            getMutableConfig().insertOption(OPTION_AUDIO_RECORD_SOURCE, source);
             return this;
         }
 
@@ -1626,6 +1836,18 @@ public final class VideoCapture extends UseCase {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
             return this;
         }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setAttachedUseCasesUpdateListener(
+                @NonNull Consumer<Collection<UseCase>> attachedUseCasesUpdateListener) {
+            getMutableConfig().insertOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER,
+                    attachedUseCasesUpdateListener);
+            return this;
+        }
+
     }
 
     /**
@@ -1838,6 +2060,38 @@ public final class VideoCapture extends UseCase {
                 return new OutputFileOptions(mFile, mFileDescriptor, mContentResolver,
                         mSaveCollection, mContentValues, mMetadata);
             }
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 8.0 (API 26).
+     */
+    @RequiresApi(26)
+    private static class Api26Impl {
+
+        private Api26Impl() {
+        }
+
+        @DoNotInline
+        @NonNull
+        static MediaMuxer createMediaMuxer(@NonNull FileDescriptor fileDescriptor, int format)
+                throws IOException {
+            return new MediaMuxer(fileDescriptor, format);
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23).
+     */
+    @RequiresApi(23)
+    private static class Api23Impl {
+
+        private Api23Impl() {
+        }
+
+        @DoNotInline
+        static int getCodecExceptionErrorCode(MediaCodec.CodecException e) {
+            return e.getErrorCode();
         }
     }
 }

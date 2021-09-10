@@ -2,8 +2,8 @@
 package androidx.lifecycle {
 
   public final class CoroutineLiveDataKt {
-    method public static <T> androidx.lifecycle.LiveData<T> liveData(optional kotlin.coroutines.CoroutineContext context, optional long timeoutInMs, @kotlin.BuilderInference kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static <T> androidx.lifecycle.LiveData<T> liveData(optional kotlin.coroutines.CoroutineContext context, java.time.Duration timeout, @kotlin.BuilderInference kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method public static <T> androidx.lifecycle.LiveData<T> liveData(optional kotlin.coroutines.CoroutineContext context, optional long timeoutInMs, kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static <T> androidx.lifecycle.LiveData<T> liveData(optional kotlin.coroutines.CoroutineContext context, java.time.Duration timeout, kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
   }
 
   public final class FlowLiveDataConversions {

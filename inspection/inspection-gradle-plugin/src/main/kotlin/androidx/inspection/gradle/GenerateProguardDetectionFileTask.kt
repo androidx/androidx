@@ -18,7 +18,6 @@ package androidx.inspection.gradle
 
 import androidx.inspection.gradle.GenerateProguardDetectionFileTask.Language.JAVA
 import androidx.inspection.gradle.GenerateProguardDetectionFileTask.Language.KOTLIN
-import com.android.build.gradle.api.BaseVariant
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -85,7 +84,10 @@ abstract class GenerateProguardDetectionFileTask : DefaultTask() {
 }
 
 @ExperimentalStdlibApi
-fun Project.registerGenerateProguardDetectionFileTask(variant: BaseVariant) {
+@Suppress("DEPRECATION") // BaseVariant
+fun Project.registerGenerateProguardDetectionFileTask(
+    variant: com.android.build.gradle.api.BaseVariant
+) {
     val outputDir = taskWorkingDir(variant, "generateProguardDetection")
     val taskName = variant.taskName("generateProguardDetection")
     val mavenGroup = project.group as? String
@@ -97,7 +99,7 @@ fun Project.registerGenerateProguardDetectionFileTask(variant: BaseVariant) {
         it.mavenArtifactId.set(mavenArtifactId)
         it.targetLanguage.set(if (plugins.hasPlugin("kotlin-android")) KOTLIN else JAVA)
     }
-    variant.registerJavaGeneratingTask(task.get(), outputDir)
+    variant.registerJavaGeneratingTask(task, outputDir)
 }
 
 /**
@@ -114,5 +116,7 @@ internal fun generatePackageName(mavenGroup: String, mavenArtifact: String): Str
     val strippedArtifact = mavenArtifact.removePrefix(mavenGroup.split('.').last())
         .removePrefix("-").replace('-', '.')
     val group = mavenGroup.removePrefix("androidx.")
-    return "androidx.inspection.$group.$strippedArtifact"
+    // It's possible for strippedArtifact to be empty, e.g. "compose.ui/ui" has no hyphen
+    return "androidx.inspection.$group" +
+        if (strippedArtifact.isNotEmpty()) ".$strippedArtifact" else ""
 }

@@ -19,13 +19,16 @@ package androidx.core.view;
 import static android.os.Build.VERSION.SDK_INT;
 
 import android.content.Context;
-import android.graphics.Insets;
+import android.inputmethodservice.InputMethodService;
+import android.os.CancellationSignal;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowInsets;
+import android.view.WindowInsetsAnimationControlListener;
 import android.view.WindowInsetsAnimationController;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
+import android.view.animation.Interpolator;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.IntDef;
@@ -33,10 +36,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.collection.SimpleArrayMap;
+import androidx.core.graphics.Insets;
 import androidx.core.view.WindowInsetsCompat.Type.InsetsType;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Provide simple controls of windows that generate insets.
@@ -48,36 +54,31 @@ public final class WindowInsetsControllerCompat {
 
     /**
      * The default option for {@link #setSystemBarsBehavior(int)}. System bars will be forcibly
-     * shown on any user interaction on the corresponding display if navigation bars are
-     * hidden by
-     * {@link #hide(int)} or
-     * {@link WindowInsetsAnimationController#setInsetsAndAlpha(Insets, float, float)}.
+     * shown on any user interaction on the corresponding display if navigation bars are hidden
+     * by {@link #hide(int)} or
+     * {@link WindowInsetsAnimationControllerCompat#setInsetsAndAlpha(Insets, float, float)}.
      */
     public static final int BEHAVIOR_SHOW_BARS_BY_TOUCH = 0;
 
     /**
-     * Option for {@link #setSystemBarsBehavior(int)}: Window would like to remain
-     * interactive when
-     * hiding navigation bars by calling {@link #hide(int)} or
-     * {@link WindowInsetsAnimationController#setInsetsAndAlpha(Insets, float, float)}.
-     *
-     * <p>When system bars are hidden in this mode, they can be revealed with system
-     * gestures, such
-     * as swiping from the edge of the screen where the bar is hidden from.</p>
+     * Option for {@link #setSystemBarsBehavior(int)}: Window would like to remain interactive
+     * when hiding navigation bars by calling {@link #hide(int)} or
+     * {@link WindowInsetsAnimationControllerCompat#setInsetsAndAlpha(Insets, float, float)}.
+     * <p>
+     * When system bars are hidden in this mode, they can be revealed with system
+     * gestures, such as swiping from the edge of the screen where the bar is hidden from.
      */
     public static final int BEHAVIOR_SHOW_BARS_BY_SWIPE = 1;
 
     /**
      * Option for {@link #setSystemBarsBehavior(int)}: Window would like to remain
-     * interactive when
-     * hiding navigation bars by calling {@link #hide(int)} or
-     * {@link WindowInsetsAnimationController#setInsetsAndAlpha(Insets, float, float)}.
-     *
-     * <p>When system bars are hidden in this mode, they can be revealed temporarily with system
+     * interactive when hiding navigation bars by calling {@link #hide(int)} or
+     * {@link WindowInsetsAnimationControllerCompat#setInsetsAndAlpha(Insets, float, float)}.
+     * <p>
+     * When system bars are hidden in this mode, they can be revealed temporarily with system
      * gestures, such as swiping from the edge of the screen where the bar is hidden from. These
      * transient system bars will overlay app’s content, may have some degree of
-     * transparency, and
-     * will automatically hide after a short timeout.</p>
+     * transparency, and will automatically hide after a short timeout.
      */
     public static final int BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE = 2;
 
@@ -86,7 +87,7 @@ public final class WindowInsetsControllerCompat {
     @RequiresApi(30)
     private WindowInsetsControllerCompat(@NonNull WindowInsetsController insetsController) {
         if (SDK_INT >= 30) {
-            mImpl = new Impl30(insetsController);
+            mImpl = new Impl30(insetsController, this);
         } else {
             mImpl = new Impl();
         }
@@ -94,7 +95,7 @@ public final class WindowInsetsControllerCompat {
 
     public WindowInsetsControllerCompat(@NonNull Window window, @NonNull View view) {
         if (SDK_INT >= 30) {
-            mImpl = new Impl30(window);
+            mImpl = new Impl30(window, this);
         } else if (SDK_INT >= 26) {
             mImpl = new Impl26(window, view);
         } else if (SDK_INT >= 23) {
@@ -211,6 +212,49 @@ public final class WindowInsetsControllerCompat {
     }
 
     /**
+     * Lets the application control window inset animations in a frame-by-frame manner by
+     * modifying the position of the windows in the system causing insets directly using
+     * {@link WindowInsetsAnimationControllerCompat#setInsetsAndAlpha} in the controller provided
+     * by the given listener.
+     * <p>
+     * This method only works on API >= 30 since there is no way to control the window in the
+     * system on prior APIs.
+     *
+     * @param types              The {@link WindowInsetsCompat.Type}s the application has
+     *                           requested to control.
+     * @param durationMillis     Duration of animation in {@link TimeUnit#MILLISECONDS}, or -1 if
+     *                           the animation doesn't have a predetermined duration. This value
+     *                           will be passed to
+     *                           {@link WindowInsetsAnimationCompat#getDurationMillis()}
+     * @param interpolator       The interpolator used for this animation, or {@code null } if
+     *                           this animation doesn't follow an interpolation curve. This value
+     *                           will be passed to
+     *                           {@link WindowInsetsAnimationCompat#getInterpolator()} and used
+     *                           to calculate
+     *                           {@link WindowInsetsAnimationCompat#getInterpolatedFraction()}.
+     * @param cancellationSignal A cancellation signal that the caller can use to cancel the
+     *                           request to obtain control, or once they have control, to cancel
+     *                           the control.
+     * @param listener           The {@link WindowInsetsAnimationControlListener} that gets
+     *                           called when the windows are ready to be controlled, among other
+     *                           callbacks.
+     * @see WindowInsetsAnimationCompat#getFraction()
+     * @see WindowInsetsAnimationCompat#getInterpolatedFraction()
+     * @see WindowInsetsAnimationCompat#getInterpolator()
+     * @see WindowInsetsAnimationCompat#getDurationMillis()
+     */
+    public void controlWindowInsetsAnimation(@InsetsType int types, long durationMillis,
+            @Nullable Interpolator interpolator,
+            @Nullable CancellationSignal cancellationSignal,
+            @NonNull WindowInsetsAnimationControlListenerCompat listener) {
+        mImpl.controlWindowInsetsAnimation(types,
+                durationMillis,
+                interpolator,
+                cancellationSignal,
+                listener);
+    }
+
+    /**
      * Controls the behavior of system bars.
      *
      * @param behavior Determines how the bars behave when being hidden by the application.
@@ -231,6 +275,68 @@ public final class WindowInsetsControllerCompat {
         return mImpl.getSystemBarsBehavior();
     }
 
+    /**
+     * Adds a {@link WindowInsetsController.OnControllableInsetsChangedListener} to the window
+     * insets controller.
+     *
+     * @param listener The listener to add.
+     * @see WindowInsetsControllerCompat.OnControllableInsetsChangedListener
+     * @see #removeOnControllableInsetsChangedListener(
+     *WindowInsetsControllerCompat.OnControllableInsetsChangedListener)
+     */
+    public void addOnControllableInsetsChangedListener(
+            @NonNull WindowInsetsControllerCompat.OnControllableInsetsChangedListener listener) {
+        mImpl.addOnControllableInsetsChangedListener(listener);
+    }
+
+    /**
+     * Removes a {@link WindowInsetsController.OnControllableInsetsChangedListener} from the
+     * window insets controller.
+     *
+     * @param listener The listener to remove.
+     * @see WindowInsetsControllerCompat.OnControllableInsetsChangedListener
+     * @see #addOnControllableInsetsChangedListener(
+     *WindowInsetsControllerCompat.OnControllableInsetsChangedListener)
+     */
+    public void removeOnControllableInsetsChangedListener(
+            @NonNull WindowInsetsControllerCompat.OnControllableInsetsChangedListener
+                    listener) {
+        mImpl.removeOnControllableInsetsChangedListener(listener);
+    }
+
+    /**
+     * Listener to be notified when the set of controllable {@link WindowInsetsCompat.Type}
+     * controlled by a {@link WindowInsetsController} changes.
+     * <p>
+     * Once a {@link WindowInsetsCompat.Type} becomes controllable, the app will be able to
+     * control the window that is causing this type of insets by calling
+     * {@link #controlWindowInsetsAnimation}.
+     * <p>
+     * Note: When listening to cancellability of the {@link WindowInsets.Type#ime},
+     * {@link #controlWindowInsetsAnimation} may still fail in case the {@link InputMethodService}
+     * decides to cancel the show request. This could happen when there is a hardware keyboard
+     * attached.
+     *
+     * @see #addOnControllableInsetsChangedListener(
+     *WindowInsetsControllerCompat.OnControllableInsetsChangedListener)
+     * @see #removeOnControllableInsetsChangedListener(
+     *WindowInsetsControllerCompat.OnControllableInsetsChangedListener)
+     */
+    public interface OnControllableInsetsChangedListener {
+
+        /**
+         * Called when the set of controllable {@link WindowInsetsCompat.Type} changes.
+         *
+         * @param controller The controller for which the set of controllable
+         *                   {@link WindowInsetsCompat.Type}s
+         *                   are changing.
+         * @param typeMask   Bitwise behavior type-mask of the {@link WindowInsetsCompat.Type}s
+         *                   the controller is currently able to control.
+         */
+        void onControllableInsetsChanged(@NonNull WindowInsetsControllerCompat controller,
+                @InsetsType int typeMask);
+    }
+
     private static class Impl {
         Impl() {
             //privatex
@@ -240,6 +346,11 @@ public final class WindowInsetsControllerCompat {
         }
 
         void hide(int types) {
+        }
+
+        void controlWindowInsetsAnimation(int types, long durationMillis,
+                Interpolator interpolator, CancellationSignal cancellationSignal,
+                WindowInsetsAnimationControlListenerCompat listener) {
         }
 
         void setSystemBarsBehavior(int behavior) {
@@ -261,6 +372,15 @@ public final class WindowInsetsControllerCompat {
         }
 
         public void setAppearanceLightNavigationBars(boolean isLight) {
+        }
+
+        void addOnControllableInsetsChangedListener(
+                WindowInsetsControllerCompat.OnControllableInsetsChangedListener listener) {
+        }
+
+        void removeOnControllableInsetsChangedListener(
+                @NonNull WindowInsetsControllerCompat.OnControllableInsetsChangedListener
+                        listener) {
         }
     }
 
@@ -348,7 +468,6 @@ public final class WindowInsetsControllerCompat {
             switch (type) {
                 case WindowInsetsCompat.Type.STATUS_BARS:
                     setSystemUiFlag(View.SYSTEM_UI_FLAG_FULLSCREEN);
-                    setWindowFlag(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                     return;
                 case WindowInsetsCompat.Type.NAVIGATION_BARS:
                     setSystemUiFlag(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
@@ -384,12 +503,43 @@ public final class WindowInsetsControllerCompat {
         }
 
         @Override
+        void controlWindowInsetsAnimation(int types, long durationMillis,
+                Interpolator interpolator, CancellationSignal cancellationSignal,
+                WindowInsetsAnimationControlListenerCompat listener) {
+        }
+
+        @Override
         void setSystemBarsBehavior(int behavior) {
+            switch (behavior) {
+                case BEHAVIOR_SHOW_BARS_BY_SWIPE:
+                    unsetSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                    setSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE);
+                    break;
+                case BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE:
+                    unsetSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE);
+                    setSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                    break;
+                case BEHAVIOR_SHOW_BARS_BY_TOUCH:
+                    unsetSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                    break;
+            }
         }
 
         @Override
         int getSystemBarsBehavior() {
             return 0;
+        }
+
+        @Override
+        void addOnControllableInsetsChangedListener(
+                WindowInsetsControllerCompat.OnControllableInsetsChangedListener listener) {
+        }
+
+        @Override
+        void removeOnControllableInsetsChangedListener(
+                @NonNull WindowInsetsControllerCompat.OnControllableInsetsChangedListener
+                        listener) {
         }
     }
 
@@ -446,14 +596,24 @@ public final class WindowInsetsControllerCompat {
     @RequiresApi(30)
     private static class Impl30 extends Impl {
 
-        private final WindowInsetsController mInsetsController;
+        final WindowInsetsControllerCompat mCompatController;
+        final WindowInsetsController mInsetsController;
+        private final SimpleArrayMap<
+                WindowInsetsControllerCompat.OnControllableInsetsChangedListener,
+                WindowInsetsController.OnControllableInsetsChangedListener>
+                mListeners = new SimpleArrayMap<>();
 
-        Impl30(Window window) {
-            mInsetsController = window.getInsetsController();
+        protected Window mWindow;
+
+        Impl30(@NonNull Window window, @NonNull WindowInsetsControllerCompat compatController) {
+            this(window.getInsetsController(), compatController);
+            mWindow = window;
         }
 
-        Impl30(WindowInsetsController insetsController) {
+        Impl30(@NonNull WindowInsetsController insetsController,
+                @NonNull WindowInsetsControllerCompat compatController) {
             mInsetsController = insetsController;
+            mCompatController = compatController;
         }
 
         @Override
@@ -475,6 +635,10 @@ public final class WindowInsetsControllerCompat {
         @Override
         public void setAppearanceLightStatusBars(boolean isLight) {
             if (isLight) {
+                if (mWindow != null) {
+                    unsetSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                }
+
                 mInsetsController.setSystemBarsAppearance(
                         WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
                         WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
@@ -504,6 +668,45 @@ public final class WindowInsetsControllerCompat {
             }
         }
 
+        @Override
+        void controlWindowInsetsAnimation(@InsetsType int types, long durationMillis,
+                @Nullable Interpolator interpolator,
+                @Nullable CancellationSignal cancellationSignal,
+                @NonNull final WindowInsetsAnimationControlListenerCompat listener) {
+
+            WindowInsetsAnimationControlListener fwListener =
+                    new WindowInsetsAnimationControlListener() {
+
+                        private WindowInsetsAnimationControllerCompat mCompatAnimController = null;
+
+                        @Override
+                        public void onReady(@NonNull WindowInsetsAnimationController controller,
+                                int types) {
+                            mCompatAnimController =
+                                    new WindowInsetsAnimationControllerCompat(controller);
+                            listener.onReady(mCompatAnimController, types);
+                        }
+
+                        @Override
+                        public void onFinished(
+                                @NonNull WindowInsetsAnimationController controller) {
+                            listener.onFinished(mCompatAnimController);
+                        }
+
+                        @Override
+                        public void onCancelled(
+                                @Nullable WindowInsetsAnimationController controller) {
+                            listener.onCancelled(controller == null ? null : mCompatAnimController);
+                        }
+                    };
+
+            mInsetsController.controlWindowInsetsAnimation(types,
+                    durationMillis,
+                    interpolator,
+                    cancellationSignal,
+                    fwListener);
+        }
+
         /**
          * Controls the behavior of system bars.
          *
@@ -525,6 +728,51 @@ public final class WindowInsetsControllerCompat {
         @Behavior
         int getSystemBarsBehavior() {
             return mInsetsController.getSystemBarsBehavior();
+        }
+
+        @Override
+        void addOnControllableInsetsChangedListener(
+                @NonNull final WindowInsetsControllerCompat.OnControllableInsetsChangedListener
+                        listener) {
+
+            if (mListeners.containsKey(listener)) {
+                // The listener has already been added.
+                return;
+            }
+            WindowInsetsController.OnControllableInsetsChangedListener
+                    fwListener =
+                    new WindowInsetsController.OnControllableInsetsChangedListener() {
+                        @Override
+                        public void onControllableInsetsChanged(
+                                @NonNull WindowInsetsController controller,
+                                int typeMask) {
+
+                            if (mInsetsController == controller) {
+                                listener.onControllableInsetsChanged(
+                                        mCompatController, typeMask);
+                            }
+                        }
+                    };
+            mListeners.put(listener, fwListener);
+            mInsetsController.addOnControllableInsetsChangedListener(fwListener);
+        }
+
+        @Override
+        void removeOnControllableInsetsChangedListener(
+                @NonNull WindowInsetsControllerCompat.OnControllableInsetsChangedListener
+                        listener) {
+            WindowInsetsController.OnControllableInsetsChangedListener
+                    fwListener = mListeners.remove(listener);
+            if (fwListener != null) {
+                mInsetsController.removeOnControllableInsetsChangedListener(fwListener);
+            }
+        }
+
+        protected void unsetSystemUiFlag(int systemUiFlag) {
+            View decorView = mWindow.getDecorView();
+            decorView.setSystemUiVisibility(
+                    decorView.getSystemUiVisibility()
+                            & ~systemUiFlag);
         }
     }
 }

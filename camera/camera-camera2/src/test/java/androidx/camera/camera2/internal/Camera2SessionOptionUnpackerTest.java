@@ -27,7 +27,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.interop.Camera2Interop;
@@ -47,7 +47,8 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@org.robolectric.annotation.Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@org.robolectric.annotation.Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
+        instrumentedPackages = { "androidx.camera.camera2.impl" })
 public final class Camera2SessionOptionUnpackerTest {
 
     private Camera2SessionOptionUnpacker mUnpacker;
@@ -58,7 +59,7 @@ public final class Camera2SessionOptionUnpackerTest {
     }
 
     @Test
-    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     public void unpackerExtractsInteropCallbacks() {
         ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder();
         CaptureCallback captureCallback = mock(CaptureCallback.class);
@@ -97,7 +98,7 @@ public final class Camera2SessionOptionUnpackerTest {
     }
 
     @Test
-    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     public void unpackerExtractsOptions() {
         ImageCapture.Builder imageCaptureConfigBuilder = new ImageCapture.Builder();
 

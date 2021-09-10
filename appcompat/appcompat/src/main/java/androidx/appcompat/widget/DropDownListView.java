@@ -114,6 +114,7 @@ class DropDownListView extends ListView {
      *
      * @param context this view's context
      */
+    @SuppressWarnings("CatchAndPrintStackTrace")
     DropDownListView(@NonNull Context context, boolean hijackFocus) {
         super(context, null, R.attr.dropDownListViewStyle);
         mHijackFocus = hijackFocus;
@@ -598,6 +599,7 @@ class DropDownListView extends ListView {
         }
     }
 
+    @SuppressWarnings("CatchAndPrintStackTrace")
     private void positionSelectorCompat(int position, View sel) {
         final Rect selectorRect = mSelectorRect;
         selectorRect.set(sel.getLeft(), sel.getTop(), sel.getRight(), sel.getBottom());

@@ -17,7 +17,6 @@
 package androidx.compose.animation.core
 
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -25,13 +24,6 @@ import java.lang.Long.max
 
 @RunWith(JUnit4::class)
 class AnimationTest {
-    private lateinit var clock: ManualAnimationClock
-
-    @Before
-    fun setup() {
-        clock = ManualAnimationClock(0L)
-    }
-
     @Test
     fun testSnap() {
         val snap1D = VectorizedSnapSpec<AnimationVector1D>(200)
@@ -41,30 +33,66 @@ class AnimationTest {
 
         val start1D = AnimationVector(0f)
         val end1D = AnimationVector(1f)
-        assertEquals(start1D, snap1D.getValue(0L, start1D, end1D, start1D))
-        assertEquals(start1D, snap1D.getValue(snap1D.delayMillis - 1L, start1D, end1D, start1D))
-        assertEquals(end1D, snap1D.getValue(snap1D.delayMillis.toLong(), start1D, end1D, start1D))
-        assertEquals(end1D, snap1D.getValue(snap1D.delayMillis + 100L, start1D, end1D, start1D))
+        assertEquals(start1D, snap1D.getValueFromMillis(0L, start1D, end1D, start1D))
+        assertEquals(
+            start1D,
+            snap1D.getValueFromMillis(snap1D.delayMillis - 1L, start1D, end1D, start1D)
+        )
+        assertEquals(
+            end1D,
+            snap1D.getValueFromMillis(snap1D.delayMillis.toLong(), start1D, end1D, start1D)
+        )
+        assertEquals(
+            end1D,
+            snap1D.getValueFromMillis(snap1D.delayMillis + 100L, start1D, end1D, start1D)
+        )
 
         val start2D = AnimationVector(0f, 50f)
         val end2D = AnimationVector(1f, -50f)
-        assertEquals(start2D, snap2D.getValue(0L, start2D, end2D, start2D))
-        assertEquals(start2D, snap2D.getValue(snap2D.delayMillis - 1L, start2D, end2D, start2D))
-        assertEquals(end2D, snap2D.getValue(snap2D.delayMillis.toLong(), start2D, end2D, start2D))
-        assertEquals(end2D, snap2D.getValue(snap2D.delayMillis + 100L, start2D, end2D, start2D))
+        assertEquals(start2D, snap2D.getValueFromMillis(0L, start2D, end2D, start2D))
+        assertEquals(
+            start2D,
+            snap2D.getValueFromMillis(snap2D.delayMillis - 1L, start2D, end2D, start2D)
+        )
+        assertEquals(
+            end2D,
+            snap2D.getValueFromMillis(snap2D.delayMillis.toLong(), start2D, end2D, start2D)
+        )
+        assertEquals(
+            end2D,
+            snap2D.getValueFromMillis(snap2D.delayMillis + 100L, start2D, end2D, start2D)
+        )
 
         val start3D = AnimationVector(0f, 20f, -100f)
         val end3D = AnimationVector(-40f, 0f, 200f)
-        assertEquals(start3D, snap3D.getValue(snap3D.delayMillis - 1L, start3D, end3D, start3D))
-        assertEquals(end3D, snap3D.getValue(snap3D.delayMillis.toLong(), start3D, end3D, start3D))
-        assertEquals(end3D, snap3D.getValue(snap3D.delayMillis + 100L, start3D, end3D, start3D))
+        assertEquals(
+            start3D,
+            snap3D.getValueFromMillis(snap3D.delayMillis - 1L, start3D, end3D, start3D)
+        )
+        assertEquals(
+            end3D,
+            snap3D.getValueFromMillis(snap3D.delayMillis.toLong(), start3D, end3D, start3D)
+        )
+        assertEquals(
+            end3D,
+            snap3D.getValueFromMillis(snap3D.delayMillis + 100L, start3D, end3D, start3D)
+        )
 
         val start4D = AnimationVector(48f, 26f, 88f, 177f)
         val end4D = AnimationVector(64f, 286f, -999f, 40f)
-        assertEquals(start4D, snap4D.getValue(0L, start4D, end4D, start4D))
-        assertEquals(start4D, snap4D.getValue(snap4D.delayMillis - 1L, start4D, end4D, start4D))
-        assertEquals(end4D, snap4D.getValue(snap4D.delayMillis.toLong(), start4D, end4D, start4D))
-        assertEquals(end4D, snap4D.getValue(snap4D.delayMillis + 100L, start4D, end4D, start4D))
+        assertEquals(start4D, snap4D.getValueFromMillis(0L, start4D, end4D, start4D))
+        assertEquals(
+            start4D,
+            snap4D.getValueFromMillis(snap4D.delayMillis - 1L, start4D, end4D, start4D)
+        )
+        assertEquals(
+            end4D,
+            snap4D.getValueFromMillis(snap4D.delayMillis.toLong(), start4D, end4D, start4D)
+        )
+        assertEquals(
+            end4D,
+            snap4D.getValueFromMillis(snap4D.delayMillis + 100L, start4D, end4D, start4D)
+        )
     }
 
     @Test
@@ -81,17 +109,20 @@ class AnimationTest {
             delay
         )
 
-        assertEquals(startValue, keyframes.getValue(0L, startValue, endValue, startValue))
         assertEquals(
             startValue,
-            keyframes.getValue(delay.toLong(), startValue, endValue, startValue)
+            keyframes.getValueFromMillis(0L, startValue, endValue, startValue)
+        )
+        assertEquals(
+            startValue,
+            keyframes.getValueFromMillis(delay.toLong(), startValue, endValue, startValue)
         )
         for (i in 0..200 step 50) {
             val fraction: Float
             if (i <= 100) {
                 fraction = 0f
             } else {
-                fraction = FastOutLinearInEasing.invoke((i - 100) / 100f)
+                fraction = FastOutLinearInEasing.transform((i - 100) / 100f)
             }
             val animValue = AnimationVector(
                 lerp(startValue.v1, endValue.v1, fraction),
@@ -100,7 +131,7 @@ class AnimationTest {
             )
             assertEquals(
                 animValue,
-                keyframes.getValue(
+                keyframes.getValueFromMillis(
                     delay + i.toLong(),
                     startValue, endValue, startValue
                 )
@@ -108,7 +139,10 @@ class AnimationTest {
         }
 
         // Test playtime > duration + delay
-        assertEquals(endValue, keyframes.getValue(500L, startValue, endValue, startValue))
+        assertEquals(
+            endValue,
+            keyframes.getValueFromMillis(500L, startValue, endValue, startValue)
+        )
     }
 
     @Test
@@ -122,31 +156,37 @@ class AnimationTest {
         // 1D vector
         val start1D = AnimationVector(0f)
         val end1D = AnimationVector(1f)
-        assertEquals(start1D, tween1D.getValue(0L, start1D, end1D, start1D))
-        assertEquals(start1D, tween1D.getValue(tween1D.delayMillis - 1L, start1D, end1D, start1D))
+        assertEquals(start1D, tween1D.getValueFromMillis(0L, start1D, end1D, start1D))
         assertEquals(
             start1D,
-            tween1D.getValue(tween1D.delayMillis.toLong(), start1D, end1D, start1D)
+            tween1D.getValueFromMillis(tween1D.delayMillis - 1L, start1D, end1D, start1D)
+        )
+        assertEquals(
+            start1D,
+            tween1D.getValueFromMillis(tween1D.delayMillis.toLong(), start1D, end1D, start1D)
         )
         val animValue1D = AnimationVector(
             lerp(
                 start1D.value, end1D.value,
-                FastOutSlowInEasing.invoke(100f / tween1D.durationMillis)
+                FastOutSlowInEasing.transform(100f / tween1D.durationMillis)
             )
         )
         assertEquals(
             animValue1D,
-            tween1D.getValue(tween1D.delayMillis + 100L, start1D, end1D, start1D)
+            tween1D.getValueFromMillis(tween1D.delayMillis + 100L, start1D, end1D, start1D)
         )
 
         // 2D vector
         val start2D = AnimationVector(0f, 50f)
         val end2D = AnimationVector(1f, -50f)
-        assertEquals(start2D, tween2D.getValue(0L, start2D, end2D, start2D))
-        assertEquals(start2D, tween2D.getValue(tween2D.delayMillis - 1L, start2D, end2D, start2D))
+        assertEquals(start2D, tween2D.getValueFromMillis(0L, start2D, end2D, start2D))
         assertEquals(
             start2D,
-            tween2D.getValue(tween2D.delayMillis.toLong(), start2D, end2D, start2D)
+            tween2D.getValueFromMillis(tween2D.delayMillis - 1L, start2D, end2D, start2D)
+        )
+        assertEquals(
+            start2D,
+            tween2D.getValueFromMillis(tween2D.delayMillis.toLong(), start2D, end2D, start2D)
         )
         val animValue2D = AnimationVector(
             lerp(start2D.v1, end2D.v1, 100f / tween2D.durationMillis),
@@ -154,46 +194,76 @@ class AnimationTest {
         )
         assertEquals(
             animValue2D,
-            tween2D.getValue(tween2D.delayMillis + 100L, start2D, end2D, start2D)
+            tween2D.getValueFromMillis(tween2D.delayMillis + 100L, start2D, end2D, start2D)
         )
 
         // 3D Vector
         val start3D = AnimationVector(0f, 20f, -100f)
         val end3D = AnimationVector(-40f, 0f, 200f)
-        assertEquals(start3D, tween3D.getValue(0L, start3D, end3D, start3D))
-        assertEquals(start3D, tween3D.getValue(tween3D.delayMillis - 1L, start3D, end3D, start3D))
+        assertEquals(start3D, tween3D.getValueFromMillis(0L, start3D, end3D, start3D))
         assertEquals(
             start3D,
-            tween3D.getValue(tween3D.delayMillis.toLong(), start3D, end3D, start3D)
+            tween3D.getValueFromMillis(tween3D.delayMillis - 1L, start3D, end3D, start3D)
+        )
+        assertEquals(
+            start3D,
+            tween3D.getValueFromMillis(tween3D.delayMillis.toLong(), start3D, end3D, start3D)
         )
         val animValue3D = AnimationVector(
-            lerp(start3D.v1, end3D.v1, FastOutLinearInEasing.invoke(100f / tween3D.durationMillis)),
-            lerp(start3D.v2, end3D.v2, FastOutLinearInEasing.invoke(100f / tween3D.durationMillis)),
-            lerp(start3D.v3, end3D.v3, FastOutLinearInEasing.invoke(100f / tween3D.durationMillis))
+            lerp(
+                start3D.v1,
+                end3D.v1,
+                FastOutLinearInEasing.transform(100f / tween3D.durationMillis)
+            ),
+            lerp(
+                start3D.v2,
+                end3D.v2,
+                FastOutLinearInEasing.transform(100f / tween3D.durationMillis)
+            ),
+            lerp(
+                start3D.v3,
+                end3D.v3,
+                FastOutLinearInEasing.transform(100f / tween3D.durationMillis)
+            )
         )
         assertEquals(
             animValue3D,
-            tween3D.getValue(tween3D.delayMillis + 100L, start3D, end3D, start3D)
+            tween3D.getValueFromMillis(tween3D.delayMillis + 100L, start3D, end3D, start3D)
         )
 
         // 4D Vector
         val start4D = AnimationVector(48f, 26f, 88f, 177f)
         val end4D = AnimationVector(64f, 286f, -999f, 40f)
-        assertEquals(start4D, tween4D.getValue(0L, start4D, end4D, start4D))
-        assertEquals(start4D, tween4D.getValue(tween4D.delayMillis - 1L, start4D, end4D, start4D))
+        assertEquals(start4D, tween4D.getValueFromMillis(0L, start4D, end4D, start4D))
         assertEquals(
             start4D,
-            tween4D.getValue(tween4D.delayMillis.toLong(), start4D, end4D, start4D)
+            tween4D.getValueFromMillis(tween4D.delayMillis - 1L, start4D, end4D, start4D)
+        )
+        assertEquals(
+            start4D,
+            tween4D.getValueFromMillis(tween4D.delayMillis.toLong(), start4D, end4D, start4D)
         )
         val animValue4D = AnimationVector(
-            lerp(start4D.v1, end4D.v1, FastOutSlowInEasing.invoke(100f / tween4D.durationMillis)),
-            lerp(start4D.v2, end4D.v2, FastOutSlowInEasing.invoke(100f / tween4D.durationMillis)),
-            lerp(start4D.v3, end4D.v3, FastOutSlowInEasing.invoke(100f / tween4D.durationMillis)),
-            lerp(start4D.v4, end4D.v4, FastOutSlowInEasing.invoke(100f / tween4D.durationMillis))
+            lerp(
+                start4D.v1,
+                end4D.v1,
+                FastOutSlowInEasing.transform(100f / tween4D.durationMillis)
+            ),
+            lerp(
+                start4D.v2,
+                end4D.v2,
+                FastOutSlowInEasing.transform(100f / tween4D.durationMillis)
+            ),
+            lerp(
+                start4D.v3,
+                end4D.v3,
+                FastOutSlowInEasing.transform(100f / tween4D.durationMillis)
+            ),
+            lerp(start4D.v4, end4D.v4, FastOutSlowInEasing.transform(100f / tween4D.durationMillis))
         )
         assertEquals(
             animValue4D,
-            tween4D.getValue(tween4D.delayMillis + 100L, start4D, end4D, start4D)
+            tween4D.getValueFromMillis(tween4D.delayMillis + 100L, start4D, end4D, start4D)
         )
     }
 
@@ -224,11 +294,11 @@ class AnimationTest {
         for (i in 0..duration step 100) {
             assertEquals(
                 AnimationVector(
-                    floatAnim.getValue(i, start.v1, end.v1, startVelocity.v1),
-                    floatAnim.getValue(i, start.v2, end.v2, startVelocity.v2),
-                    floatAnim.getValue(i, start.v3, end.v3, startVelocity.v3)
+                    floatAnim.getValueFromMillis(i, start.v1, end.v1, startVelocity.v1),
+                    floatAnim.getValueFromMillis(i, start.v2, end.v2, startVelocity.v2),
+                    floatAnim.getValueFromMillis(i, start.v3, end.v3, startVelocity.v3)
                 ),
-                anim3D.getValue(i, start, end, startVelocity)
+                anim3D.getValueFromMillis(i, start, end, startVelocity)
             )
         }
     }
@@ -271,16 +341,22 @@ class AnimationTest {
         end: AnimationVector4D,
         startVelocity: AnimationVector4D
     ) {
-        val fixedAnim = anim.createAnimation(start, end, startVelocity)
+        val fixedAnim = TargetBasedAnimation(
+            anim,
+            TwoWayConverter({ it }, { it }),
+            start,
+            end,
+            startVelocity
+        )
         for (playtime in 0..fixedAnim.durationMillis step 100) {
             assertEquals(
-                anim.getValue(playtime, start, end, startVelocity),
-                fixedAnim.getValue(playtime)
+                anim.getValueFromMillis(playtime, start, end, startVelocity),
+                fixedAnim.getValueFromMillis(playtime)
             )
 
             assertEquals(
-                anim.getVelocity(playtime, start, end, startVelocity),
-                fixedAnim.getVelocity(playtime)
+                anim.getVelocityFromNanos(playtime * MillisToNanos, start, end, startVelocity),
+                fixedAnim.getVelocityFromMillis(playtime)
             )
         }
         assertEquals(

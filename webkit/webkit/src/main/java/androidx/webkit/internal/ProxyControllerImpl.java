@@ -36,13 +36,23 @@ public class ProxyControllerImpl extends ProxyController {
     @Override
     public void setProxyOverride(@NonNull ProxyConfig proxyConfig, @NonNull Executor executor,
             @NonNull Runnable listener) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.PROXY_OVERRIDE;
-        if (feature.isSupportedByWebView()) {
-            // A 2D String array representation is required by reflection
-            String[][] proxyRuleArray = proxyRulesToStringArray(proxyConfig.getProxyRules());
-            String[] bypassRuleArray = proxyConfig.getBypassRules().toArray(new String[0]);
+        WebViewFeatureInternal proxyOverride = WebViewFeatureInternal.PROXY_OVERRIDE;
+        WebViewFeatureInternal reverseBypass = WebViewFeatureInternal.PROXY_OVERRIDE_REVERSE_BYPASS;
+
+        // A 2D String array representation is required by reflection
+        String[][] proxyRuleArray = proxyRulesToStringArray(proxyConfig.getProxyRules());
+        String[] bypassRuleArray = proxyConfig.getBypassRules().toArray(new String[0]);
+
+        if (proxyOverride.isSupportedByWebView() && !proxyConfig.isReverseBypassEnabled()) {
             getBoundaryInterface().setProxyOverride(
                     proxyRuleArray, bypassRuleArray, listener, executor);
+        } else if (proxyOverride.isSupportedByWebView() && reverseBypass.isSupportedByWebView()) {
+            getBoundaryInterface().setProxyOverride(
+                    proxyRuleArray,
+                    bypassRuleArray,
+                    listener,
+                    executor,
+                    proxyConfig.isReverseBypassEnabled());
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

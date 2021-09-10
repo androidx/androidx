@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -30,11 +28,11 @@ android {
         versionName "1.35"
     }
     sourceSets {
-        main.manifest.srcFile 'src/main/AndroidManifest.xml'
-        main.java.srcDirs = ['src/main/java']
-        main.java.excludes = ['**/build/**']
-        main.java.includes = ['**/*.java']
-        main.res.srcDirs = ['src/main/res']
+        main.manifest.srcFile "src/main/AndroidManifest.xml"
+        main.java.srcDirs = ["src/main/java"]
+        main.java.excludes = ["**/build/**"]
+        main.java.includes = ["**/*.java"]
+        main.res.srcDirs = ["src/main/res"]
     }
     buildTypes {
         release {
@@ -47,6 +45,9 @@ android {
     buildFeatures {
         viewBinding true
     }
+    kotlinOptions {
+        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+    }
 }
 
 dependencies {
@@ -57,25 +58,25 @@ dependencies {
 
     // Android support library
     implementation(project(":concurrent:concurrent-futures-ktx"))
-    implementation(project(":fragment:fragment-ktx"))
+    implementation("androidx.fragment:fragment-ktx:1.3.0")
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.collection:collection:1.0.0")
     implementation("androidx.preference:preference:1.1.0")
     implementation("androidx.exifinterface:exifinterface:1.0.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0-rc02")
-    implementation(CONSTRAINT_LAYOUT, { transitive = true })
-    implementation(KOTLIN_STDLIB)
-    implementation(KOTLIN_COROUTINES_ANDROID)
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0")
+    implementation(libs.constraintLayout)
+    implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinCoroutinesAndroid)
 
     // Testing framework
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ESPRESSO_CORE)
-    implementation(ESPRESSO_IDLING_RESOURCE)
-    implementation(TRUTH)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore)
+    implementation(libs.espressoIdlingResource)
+    implementation(libs.truth)
 
     // Statistics library
-    implementation(GUAVA_ANDROID)
+    implementation(libs.guavaAndroid)
 }

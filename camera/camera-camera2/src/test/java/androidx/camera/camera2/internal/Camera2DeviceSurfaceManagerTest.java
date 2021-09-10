@@ -18,10 +18,9 @@ package androidx.camera.camera2.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -33,6 +32,7 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.CamcorderProfile;
 import android.os.Build;
 import android.util.Size;
 import android.view.WindowManager;
@@ -63,6 +63,7 @@ import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.apache.maven.artifact.ant.shaded.ReflectionUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -102,6 +103,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     private final Size mMaximumVideoSize = new Size(1920, 1080);
     private final CamcorderProfileHelper mMockCamcorderProfileHelper =
             Mockito.mock(CamcorderProfileHelper.class);
+    private final CamcorderProfile mMockCamcorderProfile = Mockito.mock(CamcorderProfile.class);
     /**
      * Except for ImageFormat.JPEG or ImageFormat.YUV, other image formats will be mapped to
      * ImageFormat.PRIVATE (0x22) including SurfaceTexture or MediaCodec classes. Before Android
@@ -134,13 +136,16 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     @Before
     @SuppressWarnings("deprecation")  /* defaultDisplay */
-    public void setUp() {
+    public void setUp() throws IllegalAccessException {
         WindowManager windowManager =
                 (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         Shadows.shadowOf(windowManager.getDefaultDisplay()).setRealWidth(mDisplaySize.getWidth());
         Shadows.shadowOf(windowManager.getDefaultDisplay()).setRealHeight(mDisplaySize.getHeight());
 
         when(mMockCamcorderProfileHelper.hasProfile(anyInt(), anyInt())).thenReturn(true);
+        ReflectionUtils.setVariableValueInObject(mMockCamcorderProfile, "videoFrameWidth", 3840);
+        ReflectionUtils.setVariableValueInObject(mMockCamcorderProfile, "videoFrameHeight", 2160);
+        when(mMockCamcorderProfileHelper.get(anyInt(), anyInt())).thenReturn(mMockCamcorderProfile);
 
         setupCamera();
     }
@@ -151,7 +156,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     private CameraManagerCompat getCameraManagerCompat() {
-        return CameraManagerCompat.from(ApplicationProvider.getApplicationContext());
+        return CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
     }
 
     private CameraCharacteristicsCompat getCameraCharacteristicsCompat(String cameraId)
@@ -372,7 +377,9 @@ public final class Camera2DeviceSurfaceManagerTest {
         useCases.add(preview);
 
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases,
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
+                        mCameraFactory.getCamera(LEGACY_CAMERA_ID).getCameraInfoInternal(),
+                        useCases,
                         mUseCaseConfigFactory);
         // A legacy level camera device can't support JPEG (ImageCapture) + PRIV (VideoCapture) +
         // PRIV (Preview) combination. An IllegalArgumentException will be thrown when trying to
@@ -399,7 +406,9 @@ public final class Camera2DeviceSurfaceManagerTest {
         useCases.add(preview);
 
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases,
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
+                        mCameraFactory.getCamera(LIMITED_CAMERA_ID).getCameraInfoInternal(),
+                        useCases,
                         mUseCaseConfigFactory);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 mSurfaceManager.getSuggestedResolutions(LIMITED_CAMERA_ID, Collections.emptyList(),
@@ -560,6 +569,8 @@ public final class Camera2DeviceSurfaceManagerTest {
         ((ShadowCameraManager) Shadow.extract(cameraManager))
                 .addCamera(cameraId, characteristics);
 
+        CameraManagerCompat cameraManagerCompat =
+                CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
         StreamConfigurationMap mockMap = mock(StreamConfigurationMap.class);
         when(mockMap.getOutputSizes(anyInt())).thenReturn(mSupportedSizes);
         // ImageFormat.PRIVATE was supported since API level 23. Before that, the supported
@@ -570,7 +581,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         @CameraSelector.LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
                 lensFacing);
         mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId, null,
-                new Camera2CameraInfoImpl(cameraId, getCameraCharacteristicsCompat(cameraId))));
+                new Camera2CameraInfoImpl(cameraId, cameraManagerCompat)));
     }
 
     private void initCameraX() {
@@ -592,7 +603,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
                 (context, cameraManager, availableCameraIds) -> {
                     try {
-                        return new Camera2DeviceSurfaceManager(mContext,
+                        return new Camera2DeviceSurfaceManager(context,
                                 mMockCamcorderProfileHelper,
                                 (CameraManagerCompat) cameraManager, availableCameraIds);
                     } catch (CameraUnavailableException e) {

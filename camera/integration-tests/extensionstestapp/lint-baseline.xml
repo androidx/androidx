@@ -1,70 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
-        id="ScopedStorage"
-        message="WRITE_EXTERNAL_STORAGE no longer provides write access when targeting Android 10+"
-        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot; />"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.os.Handler#hasCallbacks`"
+        errorLine1="        if (!mIdle &amp;&amp; !mHandler.hasCallbacks(mRunnable)) {"
+        errorLine2="                                ~~~~~~~~~~~~">
         <location
-            file="src/main/AndroidManifest.xml"
-            line="21"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="AllowBackup"
-        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
-        errorLine1="    &lt;application"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="26"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="AllowBackup"
-        message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
-        errorLine1="    &lt;application"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="26"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="MissingApplicationIcon"
-        message="Should explicitly set `android:icon`, there is no default"
-        errorLine1="    &lt;application"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="26"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Take Picture&quot;, should use `@string` resource"
-        errorLine1="        android:text=&quot;Take Picture&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_extensions.xml"
-            line="57"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;DEFAULT&quot;, should use `@string` resource"
-        errorLine1="        android:text=&quot;DEFAULT&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_camera_extensions.xml"
-            line="70"
-            column="9"/>
+            file="src/androidTest/java/androidx/camera/integration/extensions/idlingresource/ViewIdlingResource.java"
+            line="78"
+            column="33"/>
     </issue>
 
     <issue
@@ -74,7 +19,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/extensions/CameraExtensionsActivity.java"
-            line="261"
+            line="265"
             column="29"/>
     </issue>
 

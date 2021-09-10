@@ -15,20 +15,18 @@
  */
 package androidx.compose.foundation.gestures
 
-import androidx.compose.ui.gesture.ExperimentalPointerInput
-import androidx.compose.ui.input.pointer.HandlePointerInputScope
+import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.util.fastAny
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.NonCancellable.isActive
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.isActive
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * A gesture was canceled and cannot continue, likely because another gesture has taken
  * over the pointer input stream.
  */
-@OptIn(ExperimentalStdlibApi::class)
 class GestureCancellationException(message: String? = null) : CancellationException(message)
 
 /**
@@ -36,10 +34,9 @@ class GestureCancellationException(message: String? = null) : CancellationExcept
  * it will wait until all pointers are raised before another gesture is detected, or it
  * exits if [isActive] is `false`.
  */
-@OptIn(InternalCoroutinesApi::class, ExperimentalStdlibApi::class)
-@ExperimentalPointerInput
 suspend fun PointerInputScope.forEachGesture(block: suspend PointerInputScope.() -> Unit) {
-    while (isActive) {
+    val currentContext = currentCoroutineContext()
+    while (currentContext.isActive) {
         try {
             block()
 
@@ -47,7 +44,7 @@ suspend fun PointerInputScope.forEachGesture(block: suspend PointerInputScope.()
             awaitAllPointersUp()
         } catch (e: CancellationException) {
             // The gesture was canceled. Wait for all fingers to be "up" before looping again.
-            if (isActive) {
+            if (currentContext.isActive) {
                 awaitAllPointersUp()
                 throw e
             }
@@ -59,26 +56,23 @@ suspend fun PointerInputScope.forEachGesture(block: suspend PointerInputScope.()
  * Returns `true` if the current state of the pointer events has all pointers up and `false`
  * if any of the pointers are down.
  */
-@ExperimentalPointerInput
-internal fun HandlePointerInputScope.allPointersUp(): Boolean =
-    !currentEvent.changes.fastAny { it.current.down }
+internal fun AwaitPointerEventScope.allPointersUp(): Boolean =
+    !currentEvent.changes.fastAny { it.pressed }
 
 /**
  * Waits for all pointers to be up before returning.
  */
-@ExperimentalPointerInput
 internal suspend fun PointerInputScope.awaitAllPointersUp() {
-    handlePointerInput { awaitAllPointersUp() }
+    awaitPointerEventScope { awaitAllPointersUp() }
 }
 
 /**
  * Waits for all pointers to be up before returning.
  */
-@ExperimentalPointerInput
-internal suspend fun HandlePointerInputScope.awaitAllPointersUp() {
+internal suspend fun AwaitPointerEventScope.awaitAllPointersUp() {
     if (!allPointersUp()) {
         do {
             val events = awaitPointerEvent(PointerEventPass.Final)
-        } while (events.changes.fastAny { it.current.down })
+        } while (events.changes.fastAny { it.pressed })
     }
 }

@@ -26,6 +26,11 @@ import androidx.annotation.Nullable;
  * Interface which allows a {@link android.widget.CompoundButton} to receive tinting
  * calls from {@code CompoundButtonCompat} when running on API v20 devices or lower.
  */
+/*
+ * When used with androidx.resourceinspection.annotation.AppCompatShadowedAttributes, this
+ * interface implies that AppCompat shadows the platform's button tint attributes.
+ * See androidx.resourceinspection.processor for more details and a full mapping of attributes.
+ */
 public interface TintableCompoundButton {
 
     /**

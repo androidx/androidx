@@ -155,11 +155,11 @@ public class OptionsBundle implements Config {
     }
 
     @Override
-    public void findOptions(@NonNull String idStem, @NonNull OptionMatcher matcher) {
-        Option<Void> query = Option.create(idStem, Void.class);
+    public void findOptions(@NonNull String idSearchString, @NonNull OptionMatcher matcher) {
+        Option<Void> query = Option.create(idSearchString, Void.class);
         for (Map.Entry<Option<?>, Map<OptionPriority, Object>> entry :
                 mOptions.tailMap(query).entrySet()) {
-            if (!entry.getKey().getId().startsWith(idStem)) {
+            if (!entry.getKey().getId().startsWith(idSearchString)) {
                 // We've reached the end of the range that contains our search stem.
                 break;
             }

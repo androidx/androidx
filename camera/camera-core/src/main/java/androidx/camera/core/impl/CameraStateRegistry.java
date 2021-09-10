@@ -24,10 +24,7 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.Logger;
 import androidx.core.util.Preconditions;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -37,8 +34,8 @@ import java.util.concurrent.RejectedExecutionException;
  * A registry that tracks the state of cameras.
  *
  * <p>The registry tracks internally how many cameras are open and how many are available to open.
- * Cameras that are in a PENDING_OPEN can be be notified when there is a slot available to
- * open a camera.
+ * Cameras that are in a {@link CameraInternal.State#PENDING_OPEN} state can be notified when
+ * there is a slot available to open a camera.
  */
 public final class CameraStateRegistry {
     private static final String TAG = "CameraStateRegistry";
@@ -56,7 +53,7 @@ public final class CameraStateRegistry {
     /**
      * Creates a new registry with a limit of {@code maxAllowedOpenCameras} allowed to be opened.
      *
-     * @param maxAllowedOpenedCameras The limit of number of simultaneous open cameras.
+     * @param maxAllowedOpenedCameras The limit for number of simultaneous open cameras.
      */
     public CameraStateRegistry(int maxAllowedOpenedCameras) {
         mMaxAllowedOpenedCameras = maxAllowedOpenedCameras;
@@ -74,7 +71,7 @@ public final class CameraStateRegistry {
      * <p>Before attempting to open a camera, {@link #tryOpenCamera(Camera)} must be called and
      * callers should only continue to open the camera if it returns {@code true}.
      *
-     * <p>Cameras will be automatically unregistered when the are marked as being in a
+     * <p>Cameras will be automatically unregistered when they are marked as being in a
      * {@link CameraInternal.State#RELEASED} state.
      *
      * @param camera The camera to register.
@@ -143,9 +140,35 @@ public final class CameraStateRegistry {
      *
      * <p>This is used to track the states of all cameras in order to determine how many cameras
      * are available to be opened.
+     *
+     * @param camera Registered camera whose state is being set
+     * @param state  New state of the registered camera
      */
     public void markCameraState(@NonNull Camera camera, @NonNull CameraInternal.State state) {
-        List<CameraRegistration> camerasToNotify = null;
+        markCameraState(camera, state, true);
+    }
+
+    /**
+     * Mark the state of a registered camera.
+     *
+     * <p>This is used to track the states of all cameras in order to determine how many cameras
+     * are available to be opened.
+     *
+     * <p>If a camera slot if found to be available for opening during the execution of this
+     * method, the caller will not be notified of it if {@code notifyImmediately} is set to
+     * {@code false}. This can be useful if a camera moves its state to
+     * {@link CameraInternal.State#PENDING_OPEN} but doesn't wish to be opened even if a camera
+     * slot is available for opening, for example after the camera has continuously failed to open.
+     *
+     * @param camera            Registered camera whose state is being set
+     * @param state             New state of the registered camera
+     * @param notifyImmediately {@code true} if the registered camera should be notified
+     *                          immediately if a new slot for opening is available, {@code false}
+     *                          otherwise.
+     */
+    public void markCameraState(@NonNull Camera camera, @NonNull CameraInternal.State state,
+            boolean notifyImmediately) {
+        Map<Camera, CameraRegistration> camerasToNotify = null;
         synchronized (mLock) {
             CameraInternal.State previousState = null;
             int previousAvailableCameras = mAvailableCameras;
@@ -162,22 +185,28 @@ public final class CameraStateRegistry {
 
             if (previousAvailableCameras < 1 && mAvailableCameras > 0) {
                 // Cameras are now available, notify ALL cameras in a PENDING_OPEN state.
-                camerasToNotify = new ArrayList<>();
+                camerasToNotify = new HashMap<>();
                 for (Map.Entry<Camera, CameraRegistration> entry : mCameraStates.entrySet()) {
                     if (entry.getValue().getState() == CameraInternal.State.PENDING_OPEN) {
-                        camerasToNotify.add(entry.getValue());
+                        camerasToNotify.put(entry.getKey(), entry.getValue());
                     }
                 }
             } else if (state == CameraInternal.State.PENDING_OPEN && mAvailableCameras > 0) {
                 // This camera entered a PENDING_OPEN state while there are available cameras,
                 // only notify the single camera.
-                camerasToNotify = Collections.singletonList(mCameraStates.get(camera));
+                camerasToNotify = new HashMap<>();
+                camerasToNotify.put(camera, mCameraStates.get(camera));
+            }
+
+            // Omit notifying this camera if `notifyImmediately` is false
+            if (camerasToNotify != null && !notifyImmediately) {
+                camerasToNotify.remove(camera);
             }
         }
 
         // Notify pending cameras unlocked.
         if (camerasToNotify != null) {
-            for (CameraRegistration registration : camerasToNotify) {
+            for (CameraRegistration registration : camerasToNotify.values()) {
                 registration.notifyListener();
             }
         }
@@ -203,14 +232,14 @@ public final class CameraStateRegistry {
             @NonNull CameraInternal.State state) {
         CameraInternal.State previousState = Preconditions.checkNotNull(mCameraStates.get(camera),
                 "Cannot update state of camera which has not yet been registered. Register with "
-                        + "CameraAvailabilityRegistry.registerCamera()").setState(state);
+                        + "CameraStateRegistry.registerCamera()").setState(state);
 
         if (state == CameraInternal.State.OPENING) {
             // A camera should only enter an OPENING state if it is already in an open state or
-            // it has been allowed to by tryOpen().
+            // it has been allowed to by tryOpenCamera().
             Preconditions.checkState(isOpen(state) || previousState == CameraInternal.State.OPENING,
                     "Cannot mark camera as opening until camera was successful at calling "
-                            + "CameraAvailabilityRegistry.tryOpen()");
+                            + "CameraStateRegistry.tryOpenCamera()");
         }
 
         // Only update the available camera count if the camera state has changed.
@@ -235,9 +264,9 @@ public final class CameraStateRegistry {
             mDebugString.append(
                     "-------------------------------------------------------------------\n");
         }
-        // Count the number of cameras that are not in a closed state state. Closed states are
+        // Count the number of cameras that are not in a closed state. Closed states are
         // considered to be CLOSED, PENDING_OPEN or OPENING, since we can't guarantee a camera
-        // has actually be open in these states. All cameras that are in a CLOSING or RELEASING
+        // has actually been open in these states. All cameras that are in a CLOSING or RELEASING
         // state may have previously been open, so we will count them as open.
         int openCount = 0;
         for (Map.Entry<Camera, CameraRegistration> entry : mCameraStates.entrySet()) {
@@ -264,6 +293,18 @@ public final class CameraStateRegistry {
 
         // Calculate available cameras value (clamped to 0 or more)
         mAvailableCameras = Math.max(mMaxAllowedOpenedCameras - openCount, 0);
+    }
+
+    /** Returns whether at least 1 camera is closing. */
+    public boolean isCameraClosing() {
+        synchronized (mLock) {
+            for (Map.Entry<Camera, CameraRegistration> entry : mCameraStates.entrySet()) {
+                if (entry.getValue().getState() == CameraInternal.State.CLOSING) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     /**

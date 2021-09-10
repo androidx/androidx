@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -91,12 +91,10 @@ public final class InputContentInfoCompat {
 
         @Override
         public void requestPermission() {
-            return;
         }
 
         @Override
         public void releasePermission() {
-            return;
         }
     }
 
@@ -134,7 +132,7 @@ public final class InputContentInfoCompat {
         }
 
         @Override
-        @Nullable
+        @NonNull
         public Object getInputContentInfo() {
             return mObject;
         }
@@ -240,6 +238,10 @@ public final class InputContentInfoCompat {
 
     /**
      * Requests a temporary read-only access permission for content URI associated with this object.
+     *
+     * <p>The lifecycle of the permission granted here is tied to this object instance. If the
+     * permission is not released explicitly via {@link #releasePermission()}, it will be
+     * released automatically when there are no more references to this object.</p>
      *
      * <p>Does nothing if the temporary permission is already granted.</p>
      */

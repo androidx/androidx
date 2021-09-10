@@ -1,14 +1,4 @@
 // Baseline format: 1.0
-ArrayReturn: androidx.compose.ui.graphics.BrushKt#HorizontalGradient(kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>[], float, float, androidx.compose.ui.graphics.TileMode) parameter #0:
-    Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>[]`
-ArrayReturn: androidx.compose.ui.graphics.BrushKt#LinearGradient(kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>[], float, float, float, float, androidx.compose.ui.graphics.TileMode) parameter #0:
-    Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>[]`
-ArrayReturn: androidx.compose.ui.graphics.BrushKt#RadialGradient(kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>[], float, float, float, androidx.compose.ui.graphics.TileMode) parameter #0:
-    Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>[]`
-ArrayReturn: androidx.compose.ui.graphics.BrushKt#VerticalGradient(kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>[], float, float, androidx.compose.ui.graphics.TileMode) parameter #0:
-    Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>[]`
-
-
 BuilderSetStyle: androidx.compose.ui.graphics.vector.PathBuilder#arcTo(float, float, float, boolean, boolean, float, float):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.compose.ui.graphics.vector.PathBuilder.arcTo(float,float,float,boolean,boolean,float,float)
 BuilderSetStyle: androidx.compose.ui.graphics.vector.PathBuilder#arcToRelative(float, float, float, boolean, boolean, float, float):
@@ -55,20 +45,6 @@ GetterOnBuilder: androidx.compose.ui.graphics.vector.PathBuilder#getNodes():
 
 MissingBuildMethod: androidx.compose.ui.graphics.vector.PathBuilder:
     androidx.compose.ui.graphics.vector.PathBuilder does not declare a `build()` method, but builder classes are expected to
-
-
-MissingNullability: androidx.compose.ui.graphics.Matrix#constructor-impl(float[]):
-    Missing nullability on method `constructor-impl` return
-MissingNullability: androidx.compose.ui.graphics.Matrix#equals-impl(float[], Object) parameter #0:
-    Missing nullability on parameter `p` in method `equals-impl`
-MissingNullability: androidx.compose.ui.graphics.Matrix#hashCode-impl(float[]) parameter #0:
-    Missing nullability on parameter `p` in method `hashCode-impl`
-MissingNullability: androidx.compose.ui.graphics.Matrix#invert-impl(float[]) parameter #0:
-    Missing nullability on parameter `$this` in method `invert-impl`
-MissingNullability: androidx.compose.ui.graphics.Matrix#reset-impl(float[]) parameter #0:
-    Missing nullability on parameter `$this` in method `reset-impl`
-MissingNullability: androidx.compose.ui.graphics.Matrix#toString-impl(float[]) parameter #0:
-    Missing nullability on parameter `$this` in method `toString-impl`
 
 
 NotCloseable: androidx.compose.ui.graphics.AndroidPath:

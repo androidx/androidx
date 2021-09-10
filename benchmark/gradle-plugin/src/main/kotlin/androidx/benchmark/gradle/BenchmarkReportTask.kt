@@ -23,8 +23,11 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 
+@Suppress("UnstableApiUsage")
+@DisableCachingByDefault(because = "Benchmark measurements are performed each task execution.")
 open class BenchmarkReportTask : DefaultTask() {
     private val benchmarkReportDir: File
 

@@ -19,15 +19,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.samples.BottomNavigationSample
+import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.globalPosition
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsEqualTo
-import androidx.compose.ui.test.assertIsEqualTo
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
@@ -38,6 +45,7 @@ import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
@@ -57,6 +65,61 @@ import org.junit.runner.RunWith
 class BottomNavigationTest {
     @get:Rule
     val rule = createComposeRule()
+
+    @Test
+    fun defaultSemantics() {
+        rule.setMaterialContent {
+            BottomNavigation {
+                BottomNavigationItem(
+                    modifier = Modifier.testTag("item"),
+                    icon = {
+                        Icon(Icons.Filled.Favorite, null)
+                    },
+                    label = {
+                        Text("ItemText")
+                    },
+                    selected = true,
+                    onClick = {}
+                )
+            }
+        }
+
+        rule.onNodeWithTag("item")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
+            .assertIsSelected()
+            .assertIsEnabled()
+            .assertHasClickAction()
+
+        rule.onNodeWithTag("item")
+            .onParent()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.SelectableGroup))
+    }
+
+    @Test
+    fun disabledSemantics() {
+        rule.setMaterialContent {
+            BottomNavigation {
+                BottomNavigationItem(
+                    enabled = false,
+                    modifier = Modifier.testTag("item"),
+                    icon = {
+                        Icon(Icons.Filled.Favorite, null)
+                    },
+                    label = {
+                        Text("ItemText")
+                    },
+                    selected = true,
+                    onClick = {}
+                )
+            }
+        }
+
+        rule.onNodeWithTag("item")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
+            .assertIsSelected()
+            .assertIsNotEnabled()
+            .assertHasClickAction()
+    }
 
     @Test
     fun bottomNavigation_size() {
@@ -81,7 +144,7 @@ class BottomNavigationTest {
                 BottomNavigation {
                     repeat(4) { index ->
                         BottomNavigationItem(
-                            icon = { Icon(Icons.Filled.Favorite) },
+                            icon = { Icon(Icons.Filled.Favorite, null) },
                             label = { Text("Item $index") },
                             selected = index == 0,
                             onClick = {},
@@ -98,14 +161,14 @@ class BottomNavigationTest {
             val totalWidth = parentCoords.size.width
 
             val expectedItemWidth = totalWidth / 4
-            val expectedItemHeight = 56.dp.toIntPx()
+            val expectedItemHeight = 56.dp.roundToPx()
 
             Truth.assertThat(itemCoords.size).isEqualTo(4)
 
             itemCoords.forEach { (index, coord) ->
                 Truth.assertThat(coord.size.width).isEqualTo(expectedItemWidth)
                 Truth.assertThat(coord.size.height).isEqualTo(expectedItemHeight)
-                Truth.assertThat(coord.globalPosition.x)
+                Truth.assertThat(coord.positionInWindow().x)
                     .isEqualTo((expectedItemWidth * index).toFloat())
             }
         }
@@ -119,7 +182,7 @@ class BottomNavigationTest {
                     BottomNavigationItem(
                         modifier = Modifier.testTag("item"),
                         icon = {
-                            Icon(Icons.Filled.Favorite, Modifier.testTag("icon"))
+                            Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon"))
                         },
                         label = {
                             Text("ItemText")
@@ -164,14 +227,14 @@ class BottomNavigationTest {
                     BottomNavigationItem(
                         modifier = Modifier.testTag("item"),
                         icon = {
-                            Icon(Icons.Filled.Favorite, Modifier.testTag("icon"))
+                            Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon"))
                         },
                         label = {
                             Text("ItemText")
                         },
                         selected = false,
                         onClick = {},
-                        alwaysShowLabels = false
+                        alwaysShowLabel = false
                     )
                 }
             }
@@ -198,9 +261,9 @@ class BottomNavigationTest {
                     BottomNavigationItem(
                         modifier = Modifier.testTag("item"),
                         icon = {
-                            Icon(Icons.Filled.Favorite, Modifier.testTag("icon"))
+                            Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon"))
                         },
-                        label = {},
+                        label = null,
                         selected = false,
                         onClick = {}
                     )
@@ -242,5 +305,33 @@ class BottomNavigationTest {
                 get(1).assertIsNotSelected()
                 get(2).assertIsSelected()
             }
+    }
+
+    @Test
+    fun disabled_noClicks() {
+        var clicks = 0
+        rule.setMaterialContent {
+            BottomNavigation {
+                BottomNavigationItem(
+                    enabled = false,
+                    modifier = Modifier.testTag("item"),
+                    icon = {
+                        Icon(Icons.Filled.Favorite, null)
+                    },
+                    label = {
+                        Text("ItemText")
+                    },
+                    selected = true,
+                    onClick = { clicks++ }
+                )
+            }
+        }
+
+        rule.onNodeWithTag("item")
+            .performClick()
+
+        rule.runOnIdle {
+            Truth.assertThat(clicks).isEqualTo(0)
+        }
     }
 }

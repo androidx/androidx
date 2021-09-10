@@ -29,12 +29,12 @@ class SnapAnimationTest {
         val animation = VectorizedSnapSpec<AnimationVector1D>()
         val animationWrapper = TargetBasedAnimation(
             animation,
+            Float.VectorConverter,
             0f,
-            0f,
-            Float.VectorConverter
+            0f
         )
 
         assertThat(animation.at(0)).isEqualTo(1f)
-        assertThat(animationWrapper.isFinished(0)).isTrue()
+        assertThat(animationWrapper.isFinishedFromMillis(0)).isTrue()
     }
 }

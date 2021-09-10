@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+ExecutorRegistration: androidx.health.services.client.ExerciseClient#clearUpdateListener(androidx.health.services.client.ExerciseUpdateListener):
+    Registration methods should have overload that accepts delivery Executor: `clearUpdateListener`
+ExecutorRegistration: androidx.health.services.client.PassiveMonitoringClient#registerDataCallback(androidx.health.services.client.data.PassiveMonitoringConfig, androidx.health.services.client.PassiveMonitoringCallback):
+    Registration methods should have overload that accepts delivery Executor: `registerDataCallback`

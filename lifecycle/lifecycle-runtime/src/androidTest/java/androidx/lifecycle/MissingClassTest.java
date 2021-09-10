@@ -29,6 +29,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
 @SmallTest
+@SuppressWarnings("deprecation")
 public class MissingClassTest {
     public static class ObserverWithMissingClasses {
         @SuppressWarnings("unused")

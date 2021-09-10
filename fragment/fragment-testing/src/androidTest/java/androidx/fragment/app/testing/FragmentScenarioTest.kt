@@ -483,4 +483,19 @@ class FragmentScenarioTest {
         openActionBarOverflowOrOptionsMenu(getApplicationContext())
         onView(withText("Item1")).check(matches(isDisplayed()))
     }
+
+    @Test
+    fun autoCloseFragment() {
+        var destroyed = false
+        launchFragment<StateRecordingFragment>().use {
+            it.onFragment { fragment ->
+                fragment.lifecycle.addObserver(
+                    LifecycleEventObserver { _, event ->
+                        destroyed = event == Lifecycle.Event.ON_DESTROY
+                    }
+                )
+            }
+        }
+        assertThat(destroyed).isTrue()
+    }
 }

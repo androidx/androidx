@@ -32,6 +32,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
 import androidx.core.view.ViewCompat;
+import androidx.fragment.app.strictmode.FragmentStrictMode;
 import androidx.lifecycle.Lifecycle;
 
 import java.lang.annotation.Retention;
@@ -63,6 +64,7 @@ public abstract class FragmentTransaction {
     static final class Op {
         int mCmd;
         Fragment mFragment;
+        boolean mFromExpandedOp;
         int mEnterAnim;
         int mExitAnim;
         int mPopEnterAnim;
@@ -76,6 +78,15 @@ public abstract class FragmentTransaction {
         Op(int cmd, Fragment fragment) {
             this.mCmd = cmd;
             this.mFragment = fragment;
+            this.mFromExpandedOp = false;
+            this.mOldMaxState = Lifecycle.State.RESUMED;
+            this.mCurrentMaxState = Lifecycle.State.RESUMED;
+        }
+
+        Op(int cmd, Fragment fragment, boolean fromExpandedOp) {
+            this.mCmd = cmd;
+            this.mFragment = fragment;
+            this.mFromExpandedOp = fromExpandedOp;
             this.mOldMaxState = Lifecycle.State.RESUMED;
             this.mCurrentMaxState = Lifecycle.State.RESUMED;
         }
@@ -83,8 +94,21 @@ public abstract class FragmentTransaction {
         Op(int cmd, @NonNull Fragment fragment, Lifecycle.State state) {
             this.mCmd = cmd;
             this.mFragment = fragment;
+            this.mFromExpandedOp = false;
             this.mOldMaxState = fragment.mMaxState;
             this.mCurrentMaxState = state;
+        }
+
+        Op(Op op) {
+            this.mCmd = op.mCmd;
+            this.mFragment = op.mFragment;
+            this.mFromExpandedOp = op.mFromExpandedOp;
+            this.mEnterAnim = op.mEnterAnim;
+            this.mExitAnim = op.mExitAnim;
+            this.mPopEnterAnim = op.mPopEnterAnim;
+            this.mPopExitAnim = op.mPopExitAnim;
+            this.mOldMaxState = op.mOldMaxState;
+            this.mCurrentMaxState = op.mCurrentMaxState;
         }
     }
 
@@ -126,6 +150,35 @@ public abstract class FragmentTransaction {
             @Nullable ClassLoader classLoader) {
         mFragmentFactory = fragmentFactory;
         mClassLoader = classLoader;
+    }
+
+    FragmentTransaction(@NonNull FragmentFactory fragmentFactory,
+            @Nullable ClassLoader classLoader, @NonNull FragmentTransaction ft) {
+        this(fragmentFactory, classLoader);
+        for (Op op : ft.mOps) {
+            mOps.add(new Op(op));
+        }
+        mEnterAnim = ft.mEnterAnim;
+        mExitAnim = ft.mExitAnim;
+        mPopEnterAnim = ft.mPopEnterAnim;
+        mPopExitAnim = ft.mPopExitAnim;
+        mTransition = ft.mTransition;
+        mAddToBackStack = ft.mAddToBackStack;
+        mAllowAddToBackStack = ft.mAllowAddToBackStack;
+        mName = ft.mName;
+        mBreadCrumbShortTitleRes = ft.mBreadCrumbShortTitleRes;
+        mBreadCrumbShortTitleText = ft.mBreadCrumbShortTitleText;
+        mBreadCrumbTitleRes = ft.mBreadCrumbTitleRes;
+        mBreadCrumbTitleText = ft.mBreadCrumbTitleText;
+        if (ft.mSharedElementSourceNames != null) {
+            mSharedElementSourceNames = new ArrayList<>();
+            mSharedElementSourceNames.addAll(ft.mSharedElementSourceNames);
+        }
+        if (ft.mSharedElementTargetNames != null) {
+            mSharedElementTargetNames = new ArrayList<>();
+            mSharedElementTargetNames.addAll(ft.mSharedElementTargetNames);
+        }
+        mReorderingAllowed = ft.mReorderingAllowed;
     }
 
     void addOp(Op op) {
@@ -242,6 +295,9 @@ public abstract class FragmentTransaction {
     }
 
     void doAddOp(int containerViewId, Fragment fragment, @Nullable String tag, int opcmd) {
+        if (fragment.mPreviousWho != null) {
+            FragmentStrictMode.onFragmentReuse(fragment, fragment.mPreviousWho);
+        }
         final Class<?> fragmentClass = fragment.getClass();
         final int modifiers = fragmentClass.getModifiers();
         if (fragmentClass.isAnonymousClass() || !Modifier.isPublic(modifiers)
@@ -493,7 +549,8 @@ public abstract class FragmentTransaction {
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @IntDef({TRANSIT_NONE, TRANSIT_FRAGMENT_OPEN, TRANSIT_FRAGMENT_CLOSE, TRANSIT_FRAGMENT_FADE})
+    @IntDef({TRANSIT_NONE, TRANSIT_FRAGMENT_OPEN, TRANSIT_FRAGMENT_CLOSE, TRANSIT_FRAGMENT_FADE,
+            TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN, TRANSIT_FRAGMENT_MATCH_ACTIVITY_CLOSE})
     @Retention(RetentionPolicy.SOURCE)
     private @interface Transit {}
 
@@ -510,6 +567,22 @@ public abstract class FragmentTransaction {
     public static final int TRANSIT_FRAGMENT_FADE = 3 | TRANSIT_ENTER_MASK;
 
     /**
+     * Fragment is being added onto the stack with Activity open transition.
+     *
+     * @see android.R.attr#activityOpenEnterAnimation
+     * @see android.R.attr#activityOpenExitAnimation
+     */
+    public static final int TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN = 4 | TRANSIT_ENTER_MASK;
+
+    /**
+     * Fragment is being removed from the stack with Activity close transition.
+     *
+     * @see android.R.attr#activityCloseEnterAnimation
+     * @see android.R.attr#activityCloseExitAnimation
+     */
+    public static final int TRANSIT_FRAGMENT_MATCH_ACTIVITY_CLOSE = 5 | TRANSIT_EXIT_MASK;
+
+    /**
      * Set specific animation resources to run for the fragments that are
      * entering and exiting in this transaction. These animations will not be
      * played when popping the back stack.
@@ -519,7 +592,7 @@ public abstract class FragmentTransaction {
      * set different animations by calling this method prior to each operation, e.g:
      *
      * <pre class="prettyprint">
-     *  fragmentManager.beingTransaction()
+     *  fragmentManager.beginTransaction()
      *      .setCustomAnimations(enter1, exit1)
      *      .add(MyFragmentClass, args, tag1) // this fragment gets the first animations
      *      .setCustomAnimations(enter2, exit2)
@@ -549,7 +622,7 @@ public abstract class FragmentTransaction {
      * set different animations by calling this method prior to each operation, e.g:
      *
      * <pre class="prettyprint">
-     *  fragmentManager.beingTransaction()
+     *  fragmentManager.beginTransaction()
      *      .setCustomAnimations(enter1, exit1, popEnter1, popExit1)
      *      .add(MyFragmentClass, args, tag1) // this fragment gets the first animations
      *      .setCustomAnimations(enter2, exit2, popEnter2, popExit2)

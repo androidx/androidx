@@ -1,0 +1,46 @@
+// A timeline with entries representing content that should be displayed within
+// given time intervals.
+syntax = "proto3";
+
+package androidx.wear.tiles.testing.proto;
+
+import "layout.proto";
+
+option java_package = "androidx.wear.tiles.testing.proto";
+option java_outer_classname = "TimelineProto";
+
+// A time interval, typically used to describe the validity period of a
+// TimelineEntry
+message TimeInterval {
+  // Starting point of the time interval, in milliseconds since the Unix epoch.
+  int64 start_millis = 1;
+
+  // End point of the time interval, in milliseconds since the Unix epoch.
+  int64 end_millis = 2;
+}
+
+// One piece of renderable content along with the time that it is valid for.
+message TimelineEntry {
+  // The validity period for this timeline entry.
+  TimeInterval validity = 1;
+
+  // The contents of this timeline entry.
+  Layout layout = 2;
+}
+
+// A collection of TimelineEntry items.
+//
+// TimelineEntry items can be used to update a layout on-screen at known times,
+// without having to explicitly update a layout. This allows for cases where,
+// say, a calendar can be used to show the next event, and automatically switch
+// to showing the next event when one has passed.
+//
+// The active TimelineEntry is switched, at most, once a minute. In the case
+// where the validity periods of TimelineEntry items overlap, the item with the
+// *shortest* validity period will be shown. This allows a layout provider to
+// show a "default" layout, and override it at set points without having to
+// explicitly insert the default layout between the "override" layout.
+message Timeline {
+  // The entries in a timeline.
+  repeated TimelineEntry timeline_entries = 1;
+}

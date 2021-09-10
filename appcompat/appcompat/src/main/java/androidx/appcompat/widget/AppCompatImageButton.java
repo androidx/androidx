@@ -36,6 +36,7 @@ import androidx.appcompat.R;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.widget.ImageViewCompat;
 import androidx.core.widget.TintableImageSourceView;
+import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
 
 /**
  * A {@link ImageButton} which supports compatible features on older versions of the platform,
@@ -56,11 +57,13 @@ import androidx.core.widget.TintableImageSourceView;
  * <a href="{@docRoot}topic/libraries/support-library/packages.html#v7-appcompat">appcompat</a>.
  * You should only need to manually use this class when writing custom views.</p>
  */
+@AppCompatShadowedAttributes
 public class AppCompatImageButton extends ImageButton implements TintableBackgroundView,
         TintableImageSourceView {
 
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatImageHelper mImageHelper;
+    private boolean mHasLevel = false;
 
     public AppCompatImageButton(@NonNull Context context) {
         this(context, null);
@@ -91,9 +94,17 @@ public class AppCompatImageButton extends ImageButton implements TintableBackgro
 
     @Override
     public void setImageDrawable(@Nullable Drawable drawable) {
+        if (mImageHelper != null && drawable != null && !mHasLevel) {
+            // If there is no level set already then obtain the level from the drawable
+            mImageHelper.obtainLevelFromDrawable(drawable);
+        }
         super.setImageDrawable(drawable);
         if (mImageHelper != null) {
             mImageHelper.applySupportImageTint();
+            if (!mHasLevel) {
+                // Apply the level from drawable
+                mImageHelper.applyImageLevel();
+            }
         }
     }
 
@@ -254,5 +265,11 @@ public class AppCompatImageButton extends ImageButton implements TintableBackgro
     @Override
     public boolean hasOverlappingRendering() {
         return mImageHelper.hasOverlappingRendering() && super.hasOverlappingRendering();
+    }
+
+    @Override
+    public void setImageLevel(int level) {
+        super.setImageLevel(level);
+        mHasLevel = true;
     }
 }

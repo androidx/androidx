@@ -50,7 +50,7 @@ public final class SingleImageProxyBundle implements ImageProxyBundle {
             throw new IllegalArgumentException("ImageProxy has no associated ImageInfo");
         }
 
-        Integer tagValue = imageInfo.getTagBundle().getTag(tagBundleKey);
+        Integer tagValue = (Integer) imageInfo.getTagBundle().getTag(tagBundleKey);
 
         if (tagValue == null) {
             throw new IllegalArgumentException("ImageProxy has no associated tag");

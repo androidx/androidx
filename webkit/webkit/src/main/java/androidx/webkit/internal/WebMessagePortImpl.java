@@ -16,7 +16,6 @@
 
 package androidx.webkit.internal;
 
-import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.webkit.WebMessage;
 import android.webkit.WebMessagePort;
@@ -70,7 +69,6 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
         return mBoundaryInterface;
     }
 
-    @SuppressLint("NewApi")
     @Override
     public void postMessage(@NonNull WebMessageCompat message) {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_MESSAGE_PORT_POST_MESSAGE;
@@ -85,7 +83,6 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
         }
     }
 
-    @SuppressLint("NewApi")
     @Override
     public void close() {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_MESSAGE_PORT_CLOSE;
@@ -98,7 +95,6 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
         }
     }
 
-    @SuppressLint("NewApi")
     @Override
     public void setWebMessageCallback(@NonNull final WebMessageCallbackCompat callback) {
         final WebViewFeatureInternal feature =
@@ -106,7 +102,6 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
         if (feature.isSupportedByFramework()) {
             getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
                 @Override
-                @SuppressWarnings("NewApi")
                 public void onMessage(WebMessagePort port, WebMessage message) {
                     callback.onMessage(new WebMessagePortImpl(port),
                             frameworkMessageToCompat(message));
@@ -121,7 +116,6 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
         }
     }
 
-    @SuppressLint("NewApi")
     @Override
     public void setWebMessageCallback(Handler handler,
             @NonNull final WebMessageCallbackCompat callback) {
@@ -129,7 +123,6 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
         if (feature.isSupportedByFramework()) {
             getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
                 @Override
-                @SuppressWarnings("NewApi")
                 public void onMessage(WebMessagePort port, WebMessage message) {
                     callback.onMessage(new WebMessagePortImpl(port),
                             frameworkMessageToCompat(message));

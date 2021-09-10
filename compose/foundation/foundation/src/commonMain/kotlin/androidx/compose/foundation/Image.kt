@@ -17,7 +17,6 @@
 package androidx.compose.foundation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.emptyContent
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.Layout
@@ -26,13 +25,19 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.DefaultAlpha
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.drawscope.DrawScope.Companion.DefaultFilterQuality
 import androidx.compose.ui.graphics.painter.ColorPainter
-import androidx.compose.ui.graphics.painter.ImagePainter
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 
 /**
  * A composable that lays out and draws a given [ImageBitmap]. This will attempt to
@@ -47,32 +52,106 @@ import androidx.compose.ui.layout.ContentScale
  *
  * For use cases that require drawing a rectangular subset of the [ImageBitmap] consumers can use
  * overload that consumes a [Painter] parameter shown in this sample
- * @sample androidx.compose.foundation.samples.ImagePainterSubsectionSample
+ * @sample androidx.compose.foundation.samples.BitmapPainterSubsectionSample
  *
- * @param bitmap The [ImageBitmap] to draw.
+ * @param bitmap The [ImageBitmap] to draw
+ * @param contentDescription text used by accessibility services to describe what this image
+ * represents. This should always be provided unless this image is used for decorative purposes,
+ * and does not represent a meaningful action that a user can take. This text should be
+ * localized, such as by using [androidx.compose.ui.res.stringResource] or similar
  * @param modifier Modifier used to adjust the layout algorithm or draw decoration content (ex.
  * background)
  * @param alignment Optional alignment parameter used to place the [ImageBitmap] in the given
- * bounds defined by the width and height.
+ * bounds defined by the width and height
  * @param contentScale Optional scale parameter used to determine the aspect ratio scaling to be used
- * if the bounds are a different size from the intrinsic size of the [ImageBitmap].
+ * if the bounds are a different size from the intrinsic size of the [ImageBitmap]
  * @param alpha Optional opacity to be applied to the [ImageBitmap] when it is rendered onscreen
  * @param colorFilter Optional ColorFilter to apply for the [ImageBitmap] when it is rendered
  * onscreen
  */
-@Suppress("NOTHING_TO_INLINE")
 @Composable
-inline fun Image(
+@Deprecated(
+    "Consider usage of the Image composable that consumes an optional FilterQuality parameter",
+    level = DeprecationLevel.HIDDEN,
+    replaceWith = ReplaceWith(
+        expression = "Image(bitmap, contentDescription, modifier, alignment, contentScale, " +
+            "alpha, colorFilter, DefaultFilterQuality)",
+        "androidx.compose.foundation",
+        "androidx.compose.ui.graphics.DefaultAlpha",
+        "androidx.compose.ui.Alignment",
+        "androidx.compose.ui.graphics.drawscope.DrawScope.Companion.DefaultFilterQuality",
+        "androidx.compose.ui.layout.ContentScale.Fit"
+    )
+)
+fun Image(
     bitmap: ImageBitmap,
+    contentDescription: String?,
     modifier: Modifier = Modifier,
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Fit,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null
 ) {
-    val imagePainter = remember(bitmap) { ImagePainter(bitmap) }
     Image(
-        painter = imagePainter,
+        bitmap,
+        contentDescription,
+        modifier,
+        alignment,
+        contentScale,
+        alpha,
+        colorFilter,
+        FilterQuality.Low
+    )
+}
+
+/**
+ * A composable that lays out and draws a given [ImageBitmap]. This will attempt to
+ * size the composable according to the [ImageBitmap]'s given width and height. However, an
+ * optional [Modifier] parameter can be provided to adjust sizing or draw additional content (ex.
+ * background). Any unspecified dimension will leverage the [ImageBitmap]'s size as a minimum
+ * constraint.
+ *
+ * The following sample shows basic usage of an Image composable to position and draw an
+ * [ImageBitmap] on screen
+ * @sample androidx.compose.foundation.samples.ImageSample
+ *
+ * For use cases that require drawing a rectangular subset of the [ImageBitmap] consumers can use
+ * overload that consumes a [Painter] parameter shown in this sample
+ * @sample androidx.compose.foundation.samples.BitmapPainterSubsectionSample
+ *
+ * @param bitmap The [ImageBitmap] to draw
+ * @param contentDescription text used by accessibility services to describe what this image
+ * represents. This should always be provided unless this image is used for decorative purposes,
+ * and does not represent a meaningful action that a user can take. This text should be
+ * localized, such as by using [androidx.compose.ui.res.stringResource] or similar
+ * @param modifier Modifier used to adjust the layout algorithm or draw decoration content (ex.
+ * background)
+ * @param alignment Optional alignment parameter used to place the [ImageBitmap] in the given
+ * bounds defined by the width and height
+ * @param contentScale Optional scale parameter used to determine the aspect ratio scaling to be used
+ * if the bounds are a different size from the intrinsic size of the [ImageBitmap]
+ * @param alpha Optional opacity to be applied to the [ImageBitmap] when it is rendered onscreen
+ * @param colorFilter Optional ColorFilter to apply for the [ImageBitmap] when it is rendered
+ * onscreen
+ * @param filterQuality Sampling algorithm applied to the [bitmap] when it is scaled and drawn
+ * into the destination. The default is [FilterQuality.Low] which scales using a bilinear
+ * sampling algorithm
+ */
+@Composable
+fun Image(
+    bitmap: ImageBitmap,
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+    alignment: Alignment = Alignment.Center,
+    contentScale: ContentScale = ContentScale.Fit,
+    alpha: Float = DefaultAlpha,
+    colorFilter: ColorFilter? = null,
+    filterQuality: FilterQuality = DefaultFilterQuality
+) {
+    val bitmapPainter = remember(bitmap) { BitmapPainter(bitmap, filterQuality = filterQuality) }
+    Image(
+        painter = bitmapPainter,
+        contentDescription = contentDescription,
         modifier = modifier,
         alignment = alignment,
         contentScale = contentScale,
@@ -88,23 +167,25 @@ inline fun Image(
  * background). Any unspecified dimension will leverage the [ImageVector]'s size as a minimum
  * constraint.
  *
- * @sample androidx.compose.foundation.samples.ImageVectorSample
- *
- * @param imageVector The [ImageVector] to draw.
+ * @param imageVector The [ImageVector] to draw
+ * @param contentDescription text used by accessibility services to describe what this image
+ * represents. This should always be provided unless this image is used for decorative purposes,
+ * and does not represent a meaningful action that a user can take. This text should be
+ * localized, such as by using [androidx.compose.ui.res.stringResource] or similar
  * @param modifier Modifier used to adjust the layout algorithm or draw decoration content (ex.
  * background)
  * @param alignment Optional alignment parameter used to place the [ImageVector] in the given
- * bounds defined by the width and height.
+ * bounds defined by the width and height
  * @param contentScale Optional scale parameter used to determine the aspect ratio scaling to be used
- * if the bounds are a different size from the intrinsic size of the [ImageVector].
+ * if the bounds are a different size from the intrinsic size of the [ImageVector]
  * @param alpha Optional opacity to be applied to the [ImageVector] when it is rendered onscreen
  * @param colorFilter Optional ColorFilter to apply for the [ImageVector] when it is rendered
  * onscreen
  */
-@Suppress("NOTHING_TO_INLINE")
 @Composable
-inline fun Image(
+fun Image(
     imageVector: ImageVector,
+    contentDescription: String?,
     modifier: Modifier = Modifier,
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Fit,
@@ -112,6 +193,7 @@ inline fun Image(
     colorFilter: ColorFilter? = null
 ) = Image(
     painter = rememberVectorPainter(imageVector),
+    contentDescription = contentDescription,
     modifier = modifier,
     alignment = alignment,
     contentScale = contentScale,
@@ -129,15 +211,19 @@ inline fun Image(
  * of zero and will not draw any content. This can happen for Painter implementations that
  * always attempt to fill the bounds like [ColorPainter]
  *
- * @sample androidx.compose.foundation.samples.ImagePainterSample
+ * @sample androidx.compose.foundation.samples.BitmapPainterSample
  *
  * @param painter to draw
+ * @param contentDescription text used by accessibility services to describe what this image
+ * represents. This should always be provided unless this image is used for decorative purposes,
+ * and does not represent a meaningful action that a user can take. This text should be
+ * localized, such as by using [androidx.compose.ui.res.stringResource] or similar
  * @param modifier Modifier used to adjust the layout algorithm or draw decoration content (ex.
  * background)
  * @param alignment Optional alignment parameter used to place the [Painter] in the given
  * bounds defined by the width and height.
  * @param contentScale Optional scale parameter used to determine the aspect ratio scaling to be used
- * if the bounds are a different size from the intrinsic size of the [Painter].
+ * if the bounds are a different size from the intrinsic size of the [Painter]
  * @param alpha Optional opacity to be applied to the [Painter] when it is rendered onscreen
  * the default renders the [Painter] completely opaque
  * @param colorFilter Optional colorFilter to apply for the [Painter] when it is rendered onscreen
@@ -145,17 +231,27 @@ inline fun Image(
 @Composable
 fun Image(
     painter: Painter,
+    contentDescription: String?,
     modifier: Modifier = Modifier,
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Fit,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null
 ) {
+    val semantics = if (contentDescription != null) {
+        Modifier.semantics {
+            this.contentDescription = contentDescription
+            this.role = Role.Image
+        }
+    } else {
+        Modifier
+    }
+
     // Explicitly use a simple Layout implementation here as Spacer squashes any non fixed
     // constraint with zero
     Layout(
-        emptyContent(),
-        modifier.clipToBounds().paint(
+        {},
+        modifier.then(semantics).clipToBounds().paint(
             painter,
             alignment = alignment,
             contentScale = contentScale,

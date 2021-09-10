@@ -16,17 +16,11 @@
   -->
 <manifest
         xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
         package="androidx.recyclerview.benchmark">
-
-    <!-- Important: disable debuggable for accurate performance results -->
-    <application
-            android:requestLegacyExternalStorage="true"
-            android:debuggable="false"
-            tools:replace="android:debuggable">
-            <!-- enable profileableByShell for non-intrusive profiling tools -->
-            <!--suppress AndroidElementNotAllowed -->
+    <application>
+            <!-- enable profiling by shell for non-intrusive profiling tools -->
             <profileable android:shell="true"/>
+
             <activity
                     android:name=".RecyclerViewActivity"
                     android:theme="@style/BenchmarkTheme"/>

@@ -30,8 +30,6 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Typeface
 import android.graphics.drawable.Icon
-import android.icu.util.Calendar
-import android.icu.util.GregorianCalendar
 import android.text.format.DateFormat
 import android.util.FloatProperty
 import android.util.SparseArray
@@ -39,25 +37,28 @@ import android.view.SurfaceHolder
 import android.view.animation.AnimationUtils
 import android.view.animation.PathInterpolator
 import androidx.annotation.ColorInt
-import androidx.wear.complications.ComplicationBounds
-import androidx.wear.complications.DefaultComplicationProviderPolicy
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.ComplicationSlotBounds
+import androidx.wear.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationType
+import androidx.wear.watchface.CanvasComplicationFactory
 import androidx.wear.watchface.CanvasType
-import androidx.wear.watchface.Complication
-import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.ComplicationSlot
+import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.DrawMode
-import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.style.Layer
+import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
+import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.Option
+import androidx.wear.watchface.style.WatchFaceLayer
+import java.time.ZonedDateTime
 import kotlin.math.max
 import kotlin.math.min
 
@@ -247,13 +248,13 @@ internal class DigitStrings {
     private var secondUnits = ""
 
     /** Sets the time represented by this instance. */
-    fun set(time: Calendar, is24Hour: Boolean) {
+    fun set(zonedDateTime: ZonedDateTime, is24Hour: Boolean) {
         if (is24Hour) {
-            val hourValue = time.get(Calendar.HOUR_OF_DAY)
+            val hourValue = zonedDateTime.hour
             hourTens = getTensDigitString(hourValue, true)
             hourUnits = getUnitsDigitString(hourValue)
         } else {
-            var hourValue = time.get(Calendar.HOUR)
+            var hourValue = zonedDateTime.hour % 12
             // We should show 12 for noon and midnight.
             if (hourValue == 0) {
                 hourValue = 12
@@ -262,10 +263,10 @@ internal class DigitStrings {
             hourUnits = getUnitsDigitString(hourValue)
         }
 
-        val minuteValue = time.get(Calendar.MINUTE)
+        val minuteValue = zonedDateTime.minute
         minuteTens = getTensDigitString(minuteValue, true)
         minuteUnits = getUnitsDigitString(minuteValue)
-        val secondsValue = time.get(Calendar.SECOND)
+        val secondsValue = zonedDateTime.second
         secondTens = getTensDigitString(secondsValue, true)
         secondUnits = getUnitsDigitString(secondsValue)
     }
@@ -464,168 +465,198 @@ fun Byte.toUnsigned(): Int {
 
 /** A simple example canvas based digital watch face. */
 class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
-    override fun createWatchFace(
-        surfaceHolder: SurfaceHolder,
-        watchState: WatchState
-    ): WatchFace {
-        val watchFaceStyle = WatchFaceColorStyle.create(this, RED_STYLE)
-        val colorStyleSetting = UserStyleSetting.ListUserStyleSetting(
-            COLOR_STYLE_SETTING,
-            getString(R.string.colors_style_setting),
-            getString(R.string.colors_style_setting_description),
+    // Lazy because the context isn't initialized til later.
+    private val watchFaceStyle by lazy { WatchFaceColorStyle.create(this, RED_STYLE) }
+
+    private val colorStyleSetting by lazy {
+        UserStyleSetting.ListUserStyleSetting(
+            UserStyleSetting.Id(COLOR_STYLE_SETTING),
+            resources,
+            R.string.colors_style_setting,
+            R.string.colors_style_setting_description,
             icon = null,
             options = listOf(
                 UserStyleSetting.ListUserStyleSetting.ListOption(
-                    RED_STYLE,
-                    getString(R.string.colors_style_red),
+                    Option.Id(RED_STYLE),
+                    resources,
+                    R.string.colors_style_red,
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
                 UserStyleSetting.ListUserStyleSetting.ListOption(
-                    GREEN_STYLE,
-                    getString(R.string.colors_style_green),
+                    Option.Id(GREEN_STYLE),
+                    resources,
+                    R.string.colors_style_green,
                     Icon.createWithResource(this, R.drawable.green_style)
                 ),
                 UserStyleSetting.ListUserStyleSetting.ListOption(
-                    BLUE_STYLE,
-                    getString(R.string.colors_style_blue),
+                    Option.Id(BLUE_STYLE),
+                    resources,
+                    R.string.colors_style_blue,
                     Icon.createWithResource(this, R.drawable.blue_style)
                 )
             ),
-            listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
-        )
-        val userStyleRepository = UserStyleRepository(
-            UserStyleSchema(listOf(colorStyleSetting))
-        )
-        val leftComplication = Complication.createRoundRectComplicationBuilder(
-            ComplicationID.LEFT.ordinal,
-            watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
             listOf(
-                ComplicationType.RANGED_VALUE,
-                ComplicationType.SHORT_TEXT,
-                ComplicationType.MONOCHROMATIC_IMAGE,
-                ComplicationType.SMALL_IMAGE
-            ),
-            DefaultComplicationProviderPolicy(SystemProviders.WATCH_BATTERY),
-            ComplicationBounds(
-                createBoundsRect(
-                    LEFT_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                    CIRCLE_COMPLICATION_DIAMETER_FRACTION
-                )
+                WatchFaceLayer.BASE,
+                WatchFaceLayer.COMPLICATIONS,
+                WatchFaceLayer.COMPLICATIONS_OVERLAY
             )
-        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
-            .build()
-        val rightComplication = Complication.createRoundRectComplicationBuilder(
-            ComplicationID.RIGHT.ordinal,
-            watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
-            listOf(
-                ComplicationType.RANGED_VALUE,
-                ComplicationType.SHORT_TEXT,
-                ComplicationType.MONOCHROMATIC_IMAGE,
-                ComplicationType.SMALL_IMAGE
-            ),
-            DefaultComplicationProviderPolicy(SystemProviders.DATE),
-            ComplicationBounds(
-                createBoundsRect(
-                    RIGHT_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                    CIRCLE_COMPLICATION_DIAMETER_FRACTION
-                )
-            )
-        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
-            .build()
+        )
+    }
 
-        val upperAndLowerComplicationTypes = listOf(
-            ComplicationType.LONG_TEXT,
+    private val canvasComplicationFactory =
+        CanvasComplicationFactory { watchState, listener ->
+            CanvasComplicationDrawable(
+                watchFaceStyle.getDrawable(this@ExampleCanvasDigitalWatchFaceService)!!,
+                watchState,
+                listener
+            )
+        }
+
+    private val leftComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
+        ComplicationID.LEFT.ordinal,
+        canvasComplicationFactory,
+        listOf(
             ComplicationType.RANGED_VALUE,
             ComplicationType.SHORT_TEXT,
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
-        )
-        // The upper and lower complications change shape depending on the complication's type.
-        val upperComplication = Complication.createRoundRectComplicationBuilder(
-            ComplicationID.UPPER.ordinal,
-            watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
-            upperAndLowerComplicationTypes,
-            DefaultComplicationProviderPolicy(SystemProviders.WORLD_CLOCK),
-            ComplicationBounds(
-                ComplicationType.values().associateWith {
-                    if (it == ComplicationType.LONG_TEXT) {
-                        createBoundsRect(
-                            UPPER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
-                            ROUND_RECT_COMPLICATION_SIZE_FRACTION
-                        )
-                    } else {
-                        createBoundsRect(
-                            UPPER_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                            CIRCLE_COMPLICATION_DIAMETER_FRACTION
-                        )
-                    }
-                }
+        ),
+        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_WATCH_BATTERY),
+        ComplicationSlotBounds(
+            createBoundsRect(
+                LEFT_CIRCLE_COMPLICATION_CENTER_FRACTION,
+                CIRCLE_COMPLICATION_DIAMETER_FRACTION
             )
-        ).setDefaultProviderType(ComplicationType.LONG_TEXT)
-            .build()
-        val lowerComplication = Complication.createRoundRectComplicationBuilder(
-            ComplicationID.LOWER.ordinal,
-            watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
-            upperAndLowerComplicationTypes,
-            DefaultComplicationProviderPolicy(SystemProviders.NEXT_EVENT),
-            ComplicationBounds(
-                ComplicationType.values().associateWith {
-                    if (it == ComplicationType.LONG_TEXT) {
-                        createBoundsRect(
-                            LOWER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
-                            ROUND_RECT_COMPLICATION_SIZE_FRACTION
-                        )
-                    } else {
-                        createBoundsRect(
-                            LOWER_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                            CIRCLE_COMPLICATION_DIAMETER_FRACTION
-                        )
-                    }
-                }
-            )
-        ).setDefaultProviderType(ComplicationType.LONG_TEXT)
-            .build()
-        val backgroundComplication = Complication.createBackgroundComplicationBuilder(
-            ComplicationID.BACKGROUND.ordinal,
-            watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
-            listOf(ComplicationType.PHOTO_IMAGE),
-            DefaultComplicationProviderPolicy()
-        ).build()
-        val complicationsManager = ComplicationsManager(
-            listOf(
-                leftComplication,
-                rightComplication,
-                upperComplication,
-                lowerComplication,
-                backgroundComplication
-            ),
-            userStyleRepository
         )
+    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+        .build()
+
+    private val rightComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
+        ComplicationID.RIGHT.ordinal,
+        canvasComplicationFactory,
+        listOf(
+            ComplicationType.RANGED_VALUE,
+            ComplicationType.SHORT_TEXT,
+            ComplicationType.MONOCHROMATIC_IMAGE,
+            ComplicationType.SMALL_IMAGE
+        ),
+        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DATE),
+        ComplicationSlotBounds(
+            createBoundsRect(
+                RIGHT_CIRCLE_COMPLICATION_CENTER_FRACTION,
+                CIRCLE_COMPLICATION_DIAMETER_FRACTION
+            )
+        )
+    ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+        .build()
+
+    private val upperAndLowerComplicationTypes = listOf(
+        ComplicationType.LONG_TEXT,
+        ComplicationType.RANGED_VALUE,
+        ComplicationType.SHORT_TEXT,
+        ComplicationType.MONOCHROMATIC_IMAGE,
+        ComplicationType.SMALL_IMAGE
+    )
+    // The upper and lower complicationSlots change shape depending on the complication's type.
+    private val upperComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
+        ComplicationID.UPPER.ordinal,
+        canvasComplicationFactory,
+        upperAndLowerComplicationTypes,
+        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_WORLD_CLOCK),
+        ComplicationSlotBounds(
+            ComplicationType.values().associateWith {
+                if (it == ComplicationType.LONG_TEXT) {
+                    createBoundsRect(
+                        UPPER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
+                        ROUND_RECT_COMPLICATION_SIZE_FRACTION
+                    )
+                } else {
+                    createBoundsRect(
+                        UPPER_CIRCLE_COMPLICATION_CENTER_FRACTION,
+                        CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                    )
+                }
+            }
+        )
+    ).setDefaultDataSourceType(ComplicationType.LONG_TEXT)
+        .build()
+
+    private val lowerComplication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
+        ComplicationID.LOWER.ordinal,
+        canvasComplicationFactory,
+        upperAndLowerComplicationTypes,
+        DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_NEXT_EVENT),
+        ComplicationSlotBounds(
+            ComplicationType.values().associateWith {
+                if (it == ComplicationType.LONG_TEXT) {
+                    createBoundsRect(
+                        LOWER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
+                        ROUND_RECT_COMPLICATION_SIZE_FRACTION
+                    )
+                } else {
+                    createBoundsRect(
+                        LOWER_CIRCLE_COMPLICATION_CENTER_FRACTION,
+                        CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                    )
+                }
+            }
+        )
+    ).setDefaultDataSourceType(ComplicationType.LONG_TEXT)
+        .build()
+
+    private val backgroundComplication = ComplicationSlot.createBackgroundComplicationSlotBuilder(
+        ComplicationID.BACKGROUND.ordinal,
+        canvasComplicationFactory,
+        listOf(ComplicationType.PHOTO_IMAGE),
+        DefaultComplicationDataSourcePolicy()
+    ).build()
+
+    override fun createUserStyleSchema() = UserStyleSchema(listOf(colorStyleSetting))
+
+    override fun createComplicationSlotsManager(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = ComplicationSlotsManager(
+        listOf(
+            leftComplication,
+            rightComplication,
+            upperComplication,
+            lowerComplication,
+            backgroundComplication
+        ),
+        currentUserStyleRepository
+    )
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): WatchFace {
         val renderer = ExampleDigitalWatchCanvasRenderer(
             surfaceHolder,
             this,
             watchFaceStyle,
-            userStyleRepository,
+            currentUserStyleRepository,
             watchState,
             colorStyleSetting,
-            complicationsManager
+            complicationSlotsManager
         )
-        upperComplication.complicationData.addObserver {
-            // Force bounds recalculation, because this can affect the size of the central time
-            // display.
-            renderer.oldBounds.set(0, 0, 0, 0)
+
+        // createWatchFace is called on a worker thread but the observers should be called from the
+        // UiThread.
+        getUiThreadHandler().post {
+            upperComplication.complicationData.addObserver {
+                // Force bounds recalculation, because this can affect the size of the central time
+                // display.
+                renderer.oldBounds.set(0, 0, 0, 0)
+            }
+            lowerComplication.complicationData.addObserver {
+                // Force bounds recalculation, because this can affect the size of the central time
+                // display.
+                renderer.oldBounds.set(0, 0, 0, 0)
+            }
         }
-        lowerComplication.complicationData.addObserver {
-            // Force bounds recalculation, because this can affect the size of the central time
-            // display.
-            renderer.oldBounds.set(0, 0, 0, 0)
-        }
-        return WatchFace(
-            WatchFaceType.ANALOG,
-            userStyleRepository,
-            complicationsManager,
-            renderer
-        )
+        return WatchFace(WatchFaceType.DIGITAL, renderer)
     }
 }
 
@@ -633,13 +664,13 @@ class ExampleDigitalWatchCanvasRenderer(
     surfaceHolder: SurfaceHolder,
     private val context: Context,
     private var watchFaceColorStyle: WatchFaceColorStyle,
-    userStyleRepository: UserStyleRepository,
-    private val watchState: WatchState,
+    currentUserStyleRepository: CurrentUserStyleRepository,
+    watchState: WatchState,
     private val colorStyleSetting: UserStyleSetting.ListUserStyleSetting,
-    private val complicationsManager: ComplicationsManager
+    private val complicationSlotsManager: ComplicationSlotsManager
 ) : Renderer.CanvasRenderer(
     surfaceHolder,
-    userStyleRepository,
+    currentUserStyleRepository,
     watchState,
     CanvasType.HARDWARE,
     INTERACTIVE_UPDATE_RATE_MS
@@ -648,6 +679,7 @@ class ExampleDigitalWatchCanvasRenderer(
 
     private fun getBaseDigitPaint() = Paint().apply {
         typeface = Typeface.create(DIGITAL_TYPE_FACE, Typeface.NORMAL)
+        isAntiAlias = true
     }
 
     private val digitTextHoursPaint = getBaseDigitPaint()
@@ -672,7 +704,6 @@ class ExampleDigitalWatchCanvasRenderer(
     private var smallDigitWidth = 0
     private var digitVerticalPadding = 0
     private var gapWidth = 0f
-    private val nextSecondTime = GregorianCalendar()
     private val currentDigitStrings = DigitStrings()
     private val nextDigitStrings = DigitStrings()
     private val digitDrawProperties = DigitDrawProperties()
@@ -745,22 +776,22 @@ class ExampleDigitalWatchCanvasRenderer(
 
     init {
         // Listen for style changes.
-        userStyleRepository.addUserStyleListener(
-            object : UserStyleRepository.UserStyleListener {
+        currentUserStyleRepository.addUserStyleChangeListener(
+            object : CurrentUserStyleRepository.UserStyleChangeListener {
                 @SuppressLint("SyntheticAccessor")
                 override fun onUserStyleChanged(userStyle: UserStyle) {
                     watchFaceColorStyle =
                         WatchFaceColorStyle.create(
                             context,
-                            userStyle.selectedOptions[colorStyleSetting]!!.id
+                            userStyle[colorStyleSetting]!!.toString()
                         )
 
-                    // Apply the userStyle to the complications. ComplicationDrawables for each of
-                    // the styles are defined in XML so we need to replace the complication's
+                    // Apply the userStyle to the complicationSlots. ComplicationDrawables for each
+                    // of the styles are defined in XML so we need to replace the complication's
                     // drawables.
-                    for ((_, complication) in complicationsManager.complications) {
-                        complication.renderer =
-                            watchFaceColorStyle.getComplicationDrawableRenderer(context, watchState)
+                    for ((_, complication) in complicationSlotsManager.complicationSlots) {
+                        (complication.renderer as CanvasComplicationDrawable).drawable =
+                            watchFaceColorStyle.getDrawable(context)!!
                     }
 
                     clearDigitBitmapCache()
@@ -777,6 +808,10 @@ class ExampleDigitalWatchCanvasRenderer(
 
             // Trigger recomputation of bounds.
             oldBounds.set(0, 0, 0, 0)
+            val antiAlias = !(it && watchState.hasLowBitAmbient)
+            digitTextHoursPaint.setAntiAlias(antiAlias)
+            digitTextMinutesPaint.setAntiAlias(antiAlias)
+            digitTextSecondsPaint.setAntiAlias(antiAlias)
         }
     }
 
@@ -816,28 +851,24 @@ class ExampleDigitalWatchCanvasRenderer(
         }
     }
 
-    override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {
-        recalculateBoundsIfChanged(bounds, calendar)
+    override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+        recalculateBoundsIfChanged(bounds, zonedDateTime)
 
         applyColorStyleAndDrawMode(renderParameters.drawMode)
 
-        if (renderParameters.layerParameters[Layer.BASE_LAYER] != LayerMode.HIDE) {
+        if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.BASE)) {
             drawBackground(canvas)
         }
 
-        drawComplications(canvas, calendar)
+        drawComplications(canvas, zonedDateTime)
 
-        if (renderParameters.layerParameters[Layer.BASE_LAYER] != LayerMode.HIDE) {
+        if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.BASE)) {
             val is24Hour: Boolean = DateFormat.is24HourFormat(context)
 
-            nextSecondTime.timeInMillis = calendar.timeInMillis
-            nextSecondTime.timeZone = calendar.timeZone
-            nextSecondTime.add(Calendar.SECOND, 1)
+            currentDigitStrings.set(zonedDateTime, is24Hour)
+            nextDigitStrings.set(zonedDateTime.plusSeconds(1), is24Hour)
 
-            currentDigitStrings.set(calendar, is24Hour)
-            nextDigitStrings.set(nextSecondTime, is24Hour)
-
-            val secondProgress = calendar.get(Calendar.MILLISECOND) / 1000f
+            val secondProgress = (zonedDateTime.nano.toDouble() / 1000000000.0).toFloat()
 
             val animationStartFraction = DIGIT_ANIMATION_START_TIME_FRACTION[DigitMode.OUTGOING]!!
             this.interactiveDrawModeUpdateDelayMillis =
@@ -971,25 +1002,31 @@ class ExampleDigitalWatchCanvasRenderer(
         }
     }
 
+    override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+        canvas.drawColor(renderParameters.highlightLayer!!.backgroundTint)
+
+        drawComplicationHighlights(canvas, zonedDateTime)
+    }
+
     override fun getMainClockElementBounds() = clockBounds
 
-    private fun recalculateBoundsIfChanged(bounds: Rect, calendar: Calendar) {
+    private fun recalculateBoundsIfChanged(bounds: Rect, zonedDateTime: ZonedDateTime) {
         if (oldBounds == bounds) {
             return
         }
 
         oldBounds.set(bounds)
-        calculateClockBound(bounds, calendar)
+        calculateClockBound(bounds, zonedDateTime)
     }
 
-    private fun calculateClockBound(bounds: Rect, calendar: Calendar) {
+    private fun calculateClockBound(bounds: Rect, zonedDateTime: ZonedDateTime) {
         val hasVerticalComplication =
             VERTICAL_COMPLICATION_IDS.any {
-                complicationsManager[it]!!.isActiveAt(calendar.timeInMillis)
+                complicationSlotsManager[it]!!.isActiveAt(zonedDateTime.toInstant())
             }
         val hasHorizontalComplication =
             HORIZONTAL_COMPLICATION_IDS.any {
-                complicationsManager[it]!!.isActiveAt(calendar.timeInMillis)
+                complicationSlotsManager[it]!!.isActiveAt(zonedDateTime.toInstant())
             }
 
         val marginX = if (hasHorizontalComplication) {
@@ -1074,18 +1111,25 @@ class ExampleDigitalWatchCanvasRenderer(
         )
     }
 
-    private fun drawComplications(canvas: Canvas, calendar: Calendar) {
+    private fun drawComplications(canvas: Canvas, zonedDateTime: ZonedDateTime) {
         // First, draw the background complication if not in ambient mode
         if (renderParameters.drawMode != DrawMode.AMBIENT) {
-            complicationsManager[ComplicationID.BACKGROUND.ordinal]!!.render(
+            complicationSlotsManager[ComplicationID.BACKGROUND.ordinal]!!.render(
                 canvas,
-                calendar,
+                zonedDateTime,
                 renderParameters
             )
         }
         for (i in FOREGROUND_COMPLICATION_IDS) {
-            val complication = complicationsManager[i] as Complication
-            complication.render(canvas, calendar, renderParameters)
+            val complication = complicationSlotsManager[i] as ComplicationSlot
+            complication.render(canvas, zonedDateTime, renderParameters)
+        }
+    }
+
+    private fun drawComplicationHighlights(canvas: Canvas, zonedDateTime: ZonedDateTime) {
+        for (i in FOREGROUND_COMPLICATION_IDS) {
+            val complication = complicationSlotsManager[i] as ComplicationSlot
+            complication.renderHighlightLayer(canvas, zonedDateTime, renderParameters)
         }
     }
 

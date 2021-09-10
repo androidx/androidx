@@ -26,7 +26,6 @@ import androidx.annotation.NonNull;
  *
  * <p>Applications can retrieve an instance via {@link CameraInfo#getExposureState()}.
  */
-@ExperimentalExposureCompensation
 public interface ExposureState {
 
     /**

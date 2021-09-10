@@ -1,235 +1,114 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" version="4.2.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
-        id="LintImplTextFormat"
-        message="Single sentence error messages should not end with a period"
-        errorLine1="                        &quot;Detected &quot; +"
-        errorLine2="                        ^">
+        id="BanConcurrentHashMap"
+        message="Detected ConcurrentHashMap usage."
+        errorLine1="import java.util.concurrent.ConcurrentHashMap;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/build/lint/BanConcurrentHashMap.kt"
-            line="51"
-            column="25"/>
+            file="integration-tests/src/main/java/androidx/ConcurrentHashMapUsageJava.java"
+            line="22"
+            column="1"/>
     </issue>
 
     <issue
-        id="LintImplTextFormat"
-        message="&quot;ConcurrentHashMap&quot; looks like a code reference; surround with backtics in string to display as symbol, e.g. \`ConcurrentHashMap\`"
-        errorLine1="                            &quot;ConcurrentHashMap usage.&quot;"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        id="BanConcurrentHashMap"
+        message="Detected ConcurrentHashMap usage."
+        errorLine1="import java.util.concurrent.ConcurrentHashMap;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/build/lint/BanConcurrentHashMap.kt"
-            line="52"
-            column="30"/>
+            file="integration-tests/src/main/java/androidx/ConcurrentHashMapUsageKotlin.kt"
+            line="19"
+            column="1"/>
     </issue>
 
     <issue
-        id="LintImplTextFormat"
-        message="Single sentence error messages should not end with a period"
-        errorLine1="                        &quot;Detected &quot; +"
-        errorLine2="                        ^">
+        id="BanConcurrentHashMap"
+        message="Detected ConcurrentHashMap usage."
+        errorLine1="import java.util.concurrent.ConcurrentHashMap;"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/build/lint/BanConcurrentHashMap.kt"
-            line="72"
-            column="25"/>
+            file="integration-tests/src/main/java/androidx/Sample.java"
+            line="19"
+            column="1"/>
     </issue>
 
     <issue
-        id="LintImplTextFormat"
-        message="&quot;ConcurrentHashMap&quot; looks like a code reference; surround with backtics in string to display as symbol, e.g. \`ConcurrentHashMap\`"
-        errorLine1="                            &quot;ConcurrentHashMap usage.&quot;"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    public synchronized void someMethod() {"
+        errorLine2="    ^">
         <location
-            file="src/main/java/androidx/build/lint/BanConcurrentHashMap.kt"
-            line="73"
-            column="30"/>
+            file="integration-tests/src/main/java/androidx/SynchronizedMethodJava.java"
+            line="22"
+            column="5"/>
     </issue>
 
     <issue
-        id="LintImplTextFormat"
-        message="&quot;ConcurrentHashMap&quot; looks like a code reference; surround with backtics in string to display as symbol, e.g. \`ConcurrentHashMap\`"
-        errorLine1="            &quot;ConcurrentHashMap has an issue on Android’s Lollipop release that can lead to lost&quot; +"
-        errorLine2="             ~~~~~~~~~~~~~~~~~">
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Synchronized"
+        errorLine2="    ^">
         <location
-            file="src/main/java/androidx/build/lint/BanConcurrentHashMap.kt"
-            line="84"
-            column="14"/>
+            file="integration-tests/src/main/java/androidx/SynchronizedMethodKotlin.kt"
+            line="22"
+            column="5"/>
     </issue>
 
     <issue
-        id="LintImplTextFormat"
-        message="&quot;VersionedParcelable&quot; looks like a code reference; surround with backtics in string to display as symbol, e.g. \`VersionedParcelable\`"
-        errorLine1="                &quot; please use VersionedParcelable instead.&quot;,"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
+        id="IdeaSuppression"
+        message="Uses IntelliJ-specific suppression, should use `@SuppressWarnings(&quot;deprecation&quot;)`"
+        errorLine1="        //noinspection deprecation"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/build/lint/BanParcelableUsage.kt"
-            line="63"
-            column="30"/>
+            file="integration-tests/src/main/java/androidx/IdeaSuppressionJava.java"
+            line="29"
+            column="9"/>
     </issue>
 
     <issue
-        id="LintImplTextFormat"
-        message="&quot;TargetApi&quot; looks like a code reference; surround with backtics in string to display as symbol, e.g. \`TargetApi\`"
-        errorLine1="                    &quot;Uses @TargetApi annotation&quot;"
-        errorLine2="                           ~~~~~~~~~">
+        id="IdeaSuppression"
+        message="Uses IntelliJ-specific suppression, should use `@SuppressWarnings(&quot;deprecation&quot;)`"
+        errorLine1="        //noinspection deprecation"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/build/lint/BanTargetApiAnnotation.kt"
-            line="43"
+            file="integration-tests/src/main/java/androidx/IdeaSuppressionKotlin.kt"
+            line="25"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="    static class DefaultInnerClass {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"
+            line="37"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="    protected static class ProtectedInnerClass {"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"
+            line="46"
             column="28"/>
     </issue>
 
     <issue
-        id="LintImplTextFormat"
-        message="&quot;TargetApi&quot; looks like a code reference; surround with backtics in string to display as symbol, e.g. \`TargetApi\`"
-        errorLine1="            &quot;Use of @TargetApi annotation is not allowed, please consider &quot; +"
-        errorLine2="                     ~~~~~~~~~">
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="    public static class PublicInnerClass {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/build/lint/BanTargetApiAnnotation.kt"
-            line="53"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="LintImplTextFormat"
-        message="&quot;isAtLeast&quot; looks like a code reference; surround with backtics in string to display as symbol, e.g. \`isAtLeast\`"
-        errorLine1="                &quot;methods such as isAtLeastP etc...)&quot; +"
-        errorLine2="                                 ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/build/lint/BanUncheckedReflection.kt"
-            line="60"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="LintImplTextFormat"
-        message="Single sentence error messages should not end with a period"
-        errorLine1="                &quot;Detected &quot; +"
-        errorLine2="                ^">
-        <location
-            file="src/main/java/androidx/build/lint/MetadataTagInsideApplicationTagDetector.kt"
-            line="40"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="LintImplTextFormat"
-        message="&quot;&lt;application>&quot; looks like an XML reference; surround with backtics in string to display as symbol, e.g. \`&lt;application>\`"
-        errorLine1="                    &quot;&lt;application>-level meta-data tag.&quot;"
-        errorLine2="                     ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/build/lint/MetadataTagInsideApplicationTagDetector.kt"
-            line="41"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="LintImplTextFormat"
-        message="The issue summary should be shorter; typically just a 3-6 words; it&apos;s used as a topic header in HTML reports and in the IDE inspections window"
-        errorLine1="            &quot;Detected &lt;application>-level &lt;meta-data> tag in library manifest&quot;,"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/build/lint/MetadataTagInsideApplicationTagDetector.kt"
-            line="49"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="LintImplTextFormat"
-        message="&quot;&lt;application>-level &lt;meta-data> tags to library manifests because doing so may inadvertently cause denial-of-service attacks against other apps. Instead, developers may consider adding &lt;metadata> nested inside of placeholder &lt;service>&quot; looks like an XML reference; surround with backtics in string to display as symbol, e.g. \`&lt;application>-level &lt;meta-data> tags to library manifests because doing so may inadvertently cause denial-of-service attacks against other apps. Instead, developers may consider adding &lt;metadata> nested inside of placeholder &lt;service>\`"
-        errorLine1="            &quot;Developers should not add &lt;application>-level &lt;meta-data> tags to library manifests&quot; +"
-        errorLine2="            ^">
-        <location
-            file="src/main/java/androidx/build/lint/MetadataTagInsideApplicationTagDetector.kt"
-            line="50"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="LintImplTextFormat"
-        message="&quot;BuildCompat&quot; looks like a code reference; surround with backtics in string to display as symbol, e.g. \`BuildCompat\`"
-        errorLine1="            &quot;Using deprecated BuildCompat methods&quot;, fix"
-        errorLine2="                              ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/build/lint/ObsoleteBuildCompatUsageDetector.kt"
-            line="58"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="LintImplTextFormat"
-        message="&quot;BuildConfig&quot; looks like a code reference; surround with backtics in string to display as symbol, e.g. \`BuildConfig\`"
-        errorLine1="            &quot;BuildConfig methods should only be used prior to an API level&apos;s finalization. &quot; +"
-        errorLine2="             ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/build/lint/ObsoleteBuildCompatUsageDetector.kt"
-            line="66"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="LintImplTextFormat"
-        message="Single sentence error messages should not end with a period"
-        errorLine1="                        &quot;${function.name} is annotated with @$SAMPLED_ANNOTATION&quot; +"
-        errorLine2="                        ^">
-        <location
-            file="src/main/java/androidx/build/lint/SampledAnnotationEnforcer.kt"
-            line="348"
+            file="integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"
+            line="55"
             column="25"/>
-    </issue>
-
-    <issue
-        id="LintImplTextFormat"
-        message="Single sentence error messages should not end with a period"
-        errorLine1="                        &quot;${function.name} is annotated with @$SAMPLED_ANNOTATION, but is not &quot; +"
-        errorLine2="                        ^">
-        <location
-            file="src/main/java/androidx/build/lint/SampledAnnotationEnforcer.kt"
-            line="364"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="LintImplTextFormat"
-        message="&quot;SmallTest&quot; looks like a code reference; surround with backtics in string to display as symbol, e.g. \`SmallTest\`"
-        errorLine1="                &quot;\nYou must use at least one of: @SmallTest, @MediumTest or @LargeTest.&quot; +"
-        errorLine2="                                                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/build/lint/TestSizeAnnotationEnforcer.kt"
-            line="199"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="LintImplTextFormat"
-        message="&quot;RequiresApi(x) where x is at least . Either annotate the containing class with at least @RequiresApi() or move the call to a static method in a wrapper class annotated with at least @RequiresApi()&quot; looks like a call; surround with backtics in string to display as symbol, e.g. \`RequiresApi(x) where x is at least . Either annotate the containing class with at least @RequiresApi() or move the call to a static method in a wrapper class annotated with at least @RequiresApi()\`"
-        errorLine1="                    &quot;This call is to a method from API $api, the call containing &quot; +"
-        errorLine2="                    ^">
-        <location
-            file="src/main/java/androidx/build/lint/UnsafeNewApiCallsDetector.kt"
-            line="361"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="LintImplTextFormat"
-        message="The issue summary should be shorter; typically just a 3-6 words; it&apos;s used as a topic header in HTML reports and in the IDE inspections window"
-        errorLine1="            &quot;Calling method with API level higher than minSdk outside a &quot; +"
-        errorLine2="            ^">
-        <location
-            file="src/main/java/androidx/build/lint/UnsafeNewApiCallsDetector.kt"
-            line="460"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="LintImplTextFormat"
-        message="&quot;&lt;methods>&quot; looks like an XML reference; surround with backtics in string to display as symbol, e.g. \`&lt;methods>\`"
-        errorLine1="                  &lt;methods>;"
-        errorLine2="                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/build/lint/UnsafeNewApiCallsDetector.kt"
-            line="494"
-            column="19"/>
     </issue>
 
 </issues>

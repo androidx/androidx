@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.sqlite.db.SupportSQLiteOpenHelper.Callback is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
-        errorLine1="                    SQLiteDatabase.deleteDatabase(new File(fileName));"
-        errorLine2="                                   ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
-            line="284"
-            column="36"/>
-    </issue>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
         id="UnknownNullness"
@@ -85,7 +74,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="47"
+            line="50"
             column="5"/>
     </issue>
 
@@ -96,7 +85,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="47"
+            line="50"
             column="45"/>
     </issue>
 
@@ -107,7 +96,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="119"
+            line="122"
             column="39"/>
     </issue>
 
@@ -118,7 +107,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="145"
+            line="148"
             column="51"/>
     </issue>
 
@@ -129,7 +118,7 @@
         errorLine2="    ~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="268"
+            line="311"
             column="5"/>
     </issue>
 
@@ -140,7 +129,7 @@
         errorLine2="                 ~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="268"
+            line="311"
             column="18"/>
     </issue>
 
@@ -151,7 +140,7 @@
         errorLine2="    ~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="281"
+            line="324"
             column="5"/>
     </issue>
 
@@ -162,7 +151,7 @@
         errorLine2="                 ~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="281"
+            line="324"
             column="18"/>
     </issue>
 
@@ -173,7 +162,7 @@
         errorLine2="                               ~~~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="281"
+            line="324"
             column="32"/>
     </issue>
 
@@ -184,7 +173,7 @@
         errorLine2="    ~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="294"
+            line="337"
             column="5"/>
     </issue>
 
@@ -195,7 +184,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="294"
+            line="337"
             column="18"/>
     </issue>
 
@@ -206,7 +195,7 @@
         errorLine2="    ~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="310"
+            line="353"
             column="5"/>
     </issue>
 
@@ -217,7 +206,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="310"
+            line="353"
             column="18"/>
     </issue>
 
@@ -228,7 +217,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="310"
+            line="353"
             column="44"/>
     </issue>
 
@@ -239,7 +228,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="326"
+            line="369"
             column="17"/>
     </issue>
 
@@ -250,7 +239,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="326"
+            line="369"
             column="54"/>
     </issue>
 
@@ -261,7 +250,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="341"
+            line="384"
             column="16"/>
     </issue>
 
@@ -272,7 +261,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="341"
+            line="384"
             column="30"/>
     </issue>
 
@@ -283,7 +272,7 @@
         errorLine2="                                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="341"
+            line="384"
             column="50"/>
     </issue>
 
@@ -294,7 +283,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="360"
+            line="403"
             column="16"/>
     </issue>
 
@@ -305,7 +294,7 @@
         errorLine2="            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="361"
+            line="404"
             column="13"/>
     </issue>
 
@@ -316,7 +305,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="361"
+            line="404"
             column="35"/>
     </issue>
 
@@ -327,7 +316,7 @@
         errorLine2="                                                      ~~~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="361"
+            line="404"
             column="55"/>
     </issue>
 
@@ -338,7 +327,7 @@
         errorLine2="                 ~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="377"
+            line="420"
             column="18"/>
     </issue>
 
@@ -349,7 +338,7 @@
         errorLine2="                 ~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="395"
+            line="438"
             column="18"/>
     </issue>
 
@@ -360,7 +349,7 @@
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="395"
+            line="438"
             column="30"/>
     </issue>
 
@@ -371,7 +360,7 @@
         errorLine2="    ~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="424"
+            line="467"
             column="5"/>
     </issue>
 
@@ -382,7 +371,7 @@
         errorLine2="                   ~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="436"
+            line="479"
             column="20"/>
     </issue>
 
@@ -393,7 +382,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
-            line="590"
+            line="633"
             column="5"/>
     </issue>
 

@@ -14,42 +14,29 @@
  * limitations under the License.
  */
 
-
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.getKOTLIN_STDLIB
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("AndroidXUiPlugin")
+    id("AndroidXComposePlugin")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
 }
 
 dependencies {
-    kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
-    implementation(KOTLIN_STDLIB)
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
+    implementation(libs.kotlinStdlib)
 
-    implementation projectOrArtifact(":compose:integration-tests:demos:common")
-    implementation projectOrArtifact(":compose:foundation:foundation")
-    implementation projectOrArtifact(":compose:material:material")
-    implementation projectOrArtifact(":paging:paging-compose")
-    implementation projectOrArtifact(":paging:paging-compose:paging-compose-samples")
+    implementation(projectOrArtifact(":compose:integration-tests:demos:common"))
+    implementation(projectOrArtifact(":compose:foundation:foundation"))
+    implementation(projectOrArtifact(":compose:material:material"))
+    implementation(projectOrArtifact(":paging:paging-compose"))
+    implementation(projectOrArtifact(":paging:paging-compose:paging-compose-samples"))
 
-    def room_version = "2.3.0-alpha02"
-    api "androidx.room:room-runtime:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
-    implementation "androidx.room:room-ktx:$room_version"
-}
-
-android {
-    tasks.withType(KotlinCompile).configureEach {
-        kotlinOptions {
-            useIR = true
-        }
-    }
+    kapt(projectOrArtifact(":room:room-compiler"))
+    implementation(projectOrArtifact(":room:room-ktx"))
+    implementation(projectOrArtifact(":room:room-paging"))
 }
 
 androidx {

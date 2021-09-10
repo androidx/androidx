@@ -16,31 +16,32 @@
 
 package androidx.compose.animation.demos
 
-import androidx.compose.animation.core.FloatPropKey
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.repeatable
-import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.transition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.gesture.tapGestureFilter
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @Composable
 fun RepeatedRotationDemo() {
@@ -50,23 +51,40 @@ fun RepeatedRotationDemo() {
             .wrapContentSize(Alignment.Center),
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        val textStyle = TextStyle(fontSize = 18.sp)
-        Text(
-            modifier = Modifier.tapGestureFilter(onTap = { state.value = RotationStates.Rotated }),
-            text = "Rotate 10 times",
-            style = textStyle
-        )
-        Text(
-            modifier = Modifier.tapGestureFilter(onTap = { state.value = RotationStates.Original }),
-            text = "Reset",
-            style = textStyle
-        )
-        val transitionState = transition(
-            definition = definition,
-            toState = state.value
-        )
-        Canvas(Modifier.preferredSize(100.dp)) {
-            rotate(transitionState[rotation], Offset.Zero) {
+        Button(
+            { state.value = RotationStates.Rotated }
+        ) {
+            Text(text = "Rotate 10 times")
+        }
+        Spacer(Modifier.requiredHeight(10.dp))
+        Button(
+            { state.value = RotationStates.Original }
+        ) {
+            Text(text = "Reset")
+        }
+        Spacer(Modifier.requiredHeight(10.dp))
+        val transition = updateTransition(state.value)
+        @Suppress("UnusedTransitionTargetStateParameter")
+        val rotation by transition.animateFloat(
+            transitionSpec = {
+                if (initialState == RotationStates.Original) {
+                    repeatable(
+                        iterations = 10,
+                        animation = keyframes {
+                            durationMillis = 1000
+                            0f at 0 with LinearEasing
+                            360f at 1000
+                        }
+                    )
+                } else {
+                    tween(durationMillis = 300)
+                }
+            }
+        ) {
+            0f
+        }
+        Canvas(Modifier.size(100.dp)) {
+            rotate(rotation, Offset.Zero) {
                 drawRect(Color(0xFF00FF00))
             }
         }
@@ -76,29 +94,4 @@ fun RepeatedRotationDemo() {
 private enum class RotationStates {
     Original,
     Rotated
-}
-
-private val rotation = FloatPropKey()
-
-private val definition = transitionDefinition<RotationStates> {
-    state(RotationStates.Original) {
-        this[rotation] = 0f
-    }
-    state(RotationStates.Rotated) {
-        this[rotation] = 360f
-    }
-    transition(RotationStates.Original to RotationStates.Rotated) {
-        rotation using repeatable(
-            iterations = 10,
-            animation = tween(
-                easing = LinearEasing,
-                durationMillis = 1000
-            )
-        )
-    }
-    transition(RotationStates.Rotated to RotationStates.Original) {
-        rotation using tween(
-            durationMillis = 300
-        )
-    }
 }

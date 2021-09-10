@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions;
-import androidx.build.AndroidXExtension;
 import androidx.build.Publish
 
 plugins {
@@ -29,14 +26,13 @@ dependencies {
     api(project(":lifecycle:lifecycle-common"))
     api("androidx.annotation:annotation:1.1.0")
 
-    testImplementation(JUNIT)
-    testImplementation(MOCKITO_CORE)
+    testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore)
 }
 
 androidx {
     name = "Android Lifecycle-Common for Java 8 Language"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle-Common for Java 8 Language"

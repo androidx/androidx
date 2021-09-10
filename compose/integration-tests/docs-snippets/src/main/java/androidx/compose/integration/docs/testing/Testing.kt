@@ -21,16 +21,19 @@ package androidx.compose.integration.docs.testing
 
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.integration.docs.testing.TestingSemanticsSnippets1.PickedDateKey
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.ExperimentalKeyInput
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.semantics.AccessibilityAction
 import androidx.compose.ui.semantics.SemanticsPropertyKey
-import androidx.compose.ui.semantics.accessibilityLabel
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.test.IdlingResource
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
@@ -47,23 +50,30 @@ import androidx.compose.ui.test.hasParent
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodesWithLabel
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onFirst
-import androidx.compose.ui.test.onNodeWithLabel
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performGesture
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.printToLog
 import androidx.compose.ui.test.swipeLeft
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import android.view.KeyEvent as AndroidKeyEvent
+import android.view.KeyEvent.ACTION_DOWN as ActionDown
+import android.view.KeyEvent.KEYCODE_A as KeyCodeA
 
 /**
  * This file lets DevRel track changes to snippets present in
@@ -73,11 +83,11 @@ import org.junit.Test
  */
 
 @Composable private fun TestingSnippet1() {
-    MyButton(modifier = Modifier.semantics { accessibilityLabel = "Like button" })
+    MyButton(modifier = Modifier.semantics { contentDescription = "Like button" })
 }
 
 private object TestingSnippet3 {
-    // file: app/src/androidTest/java/com/package/MyComposeTest.kt
+    // file: app/src/androidTest/kotlin/com/package/MyComposeTest.kt
 
     class MyComposeTest {
 
@@ -134,19 +144,18 @@ private object TestingSnippet3 {
 
 @Composable private fun TestingSnippets7() {
     // Single matcher:
-    composeTestRule.onNode(matcher).assert(hasText("Button")) // hasText is a
-    // SemanticsMatcher
+    composeTestRule.onNode(matcher).assert(hasText("Button")) // hasText is a SemanticsMatcher
     // Multiple matchers can use and / or
     composeTestRule.onNode(matcher).assert(hasText("Button") or hasText("Button2"))
 }
 
 @Composable private fun TestingSnippets8() {
     // Check number of matched nodes
-    composeTestRule.onAllNodesWithLabel("Beatle").assertCountEquals(4)
+    composeTestRule.onAllNodesWithContentDescription("Beatle").assertCountEquals(4)
     // At least one matches
-    composeTestRule.onAllNodesWithLabel("Beatle").assertAny(hasTestTag("Drummer"))
+    composeTestRule.onAllNodesWithContentDescription("Beatle").assertAny(hasTestTag("Drummer"))
     // All of them match
-    composeTestRule.onAllNodesWithLabel("Beatle").assertAll(hasClickAction())
+    composeTestRule.onAllNodesWithContentDescription("Beatle").assertAll(hasClickAction())
 }
 
 @Composable private fun SemanticsNodeInteraction.TestingSnippets9() {
@@ -155,7 +164,7 @@ private object TestingSnippet3 {
         performClick(),
         performSemanticsAction(key),
         performKeyPress(keyEvent),
-        performGesture { swipeLeft() }
+        performTouchInput { swipeLeft() }
         // end snippet
     )
 }
@@ -183,7 +192,75 @@ private object TestingSnippet3 {
         .assert(hasText("John"))
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
+private object TestingSyncSnippets1 {
+    @Test
+    fun counterTest() {
+        val myCounter = mutableStateOf(0) // State that can cause recompositions
+        var lastSeenValue = 0 // Used to track recompositions
+        composeTestRule.setContent {
+            Text(myCounter.value.toString())
+            lastSeenValue = myCounter.value
+        }
+        myCounter.value = 1 // The state changes, but there is no recomposition
+
+        // Fails because nothing triggered a recomposition
+        assertTrue(lastSeenValue == 1)
+
+        // Passes because the assertion triggers recomposition
+        composeTestRule.onNodeWithText("1").assertExists()
+    }
+}
+
+private fun TestingSyncSnippets2And3() {
+    composeTestRule.mainClock.autoAdvance = false
+
+    composeTestRule.mainClock.advanceTimeByFrame()
+    composeTestRule.mainClock.advanceTimeBy(milliseconds)
+}
+
+private fun TestingSyncSnippets4() {
+    composeTestRule.registerIdlingResource(idlingResource)
+    composeTestRule.unregisterIdlingResource(idlingResource)
+}
+
+private fun TestingSyncSnippets5() {
+    composeTestRule.mainClock.autoAdvance = true // default
+    composeTestRule.waitForIdle() // Advances the clock until Compose is idle
+
+    composeTestRule.mainClock.autoAdvance = false
+    composeTestRule.waitForIdle() // Only waits for Idling Resources to become idle
+}
+
+private fun TestingSyncSnippets6and7() {
+    composeTestRule.mainClock.advanceTimeUntil(timeoutMs) { condition }
+
+    composeTestRule.waitUntil(timeoutMs) { condition }
+}
+
+private object TestingSemanticsSnippets1 {
+    // Creates a Semantics property of type boolean
+    val PickedDateKey = SemanticsPropertyKey<Long>("PickedDate")
+    var SemanticsPropertyReceiver.pickedDate by PickedDateKey
+}
+
+private fun TestingSemanticsSnippets2() {
+    composeTestRule
+        .onNode(SemanticsMatcher.expectValue(PickedDateKey, 1445378400)) // 2015-10-21
+        .assertExists()
+}
+
+private object TestingSemanticsSnippet3 {
+    @Test
+    fun androidViewInteropTest() {
+        // Check the initial state of a TextView that depends on a Compose state:
+        Espresso.onView(withText("Hello Views")).check(matches(isDisplayed()))
+        // Click on the Compose button that changes the state
+        composeTestRule.onNodeWithText("Click here").performClick()
+        // Check the new value
+        Espresso.onView(withText("Hello Compose")).check(matches(isDisplayed()))
+    }
+}
+
 private object TestingSnippets13 {
     class MyTest() {
 
@@ -202,13 +279,13 @@ private object TestingSnippets13 {
 
         @Test
         fun changeTheme_scrollIsPersisted() {
-            composeTestRule.onNodeWithLabel("Continue").performClick()
+            composeTestRule.onNodeWithContentDescription("Continue").performClick()
 
             // Set theme to dark
             themeIsDark.value = true
 
             // Check that we're still on the same page
-            composeTestRule.onNodeWithLabel("Welcome").assertIsDisplayed()
+            composeTestRule.onNodeWithContentDescription("Welcome").assertIsDisplayed()
         }
     }
 }
@@ -228,5 +305,11 @@ private val exampleUiState = Unit
 private class MyActivity : ComponentActivity()
 @Composable private fun MyButton(content: @Composable RowScope.() -> Unit) { }
 private lateinit var key: SemanticsPropertyKey<AccessibilityAction<() -> Boolean>>
-@OptIn(ExperimentalKeyInput::class)
-private lateinit var keyEvent: KeyEvent
+private var keyEvent = KeyEvent(AndroidKeyEvent(ActionDown, KeyCodeA))
+private const val milliseconds = 10L
+private const val timeoutMs = 10L
+private val idlingResource = object : IdlingResource {
+    override val isIdleNow: Boolean
+        get() = TODO("Stub!")
+}
+private val condition = true

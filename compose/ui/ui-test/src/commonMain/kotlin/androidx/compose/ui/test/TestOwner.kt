@@ -16,10 +16,10 @@
 
 package androidx.compose.ui.test
 
-import androidx.compose.ui.node.Owner
+import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.getAllSemanticsNodes
-import androidx.compose.ui.text.input.EditOperation
+import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 
 /**
@@ -27,13 +27,17 @@ import androidx.compose.ui.text.input.ImeAction
  *
  * This is typically implemented by entities like test rule.
  */
-@InternalTestingApi
+@InternalTestApi
 interface TestOwner {
+    /**
+     * Clock that drives frames and recompositions in compose tests.
+     */
+    val mainClock: MainTestClock
 
     /**
      * Sends the given list of text commands to the given semantics node.
      */
-    fun sendTextInputCommand(node: SemanticsNode, command: List<EditOperation>)
+    fun sendTextInputCommand(node: SemanticsNode, command: List<EditCommand>)
 
     /**
      * Sends the given IME action to the given semantics node.
@@ -49,43 +53,53 @@ interface TestOwner {
     fun <T> runOnUiThread(action: () -> T): T
 
     /**
-     * Collects all [Owner]s from all compose hierarchies.
+     * Collects all [RootForTest]s from all compose hierarchies.
+     *
+     * This is a blocking call. Returns only after compose is idle.
+     *
+     * Can crash in case it hits time out. This is not supposed to be handled as it
+     * surfaces only in incorrect tests.
+     *
+     * @param atLeastOneRootExpected Whether the caller expects that at least one compose root is
+     * present in the tested app. This affects synchronization efforts / timeouts of this API.
+     */
+    fun getRoots(atLeastOneRootExpected: Boolean): Set<RootForTest>
+}
+
+@InternalTestApi
+fun createTestContext(owner: TestOwner): TestContext {
+    return TestContext(owner)
+}
+
+@OptIn(InternalTestApi::class)
+class TestContext internal constructor(internal val testOwner: TestOwner) {
+
+    /**
+     * Stores the [InputDispatcherState] of each [RootForTest]. The state will be restored in an
+     * [InputDispatcher] when it is created for an owner that has a state stored.
+     */
+    internal val states = mutableMapOf<RootForTest, InputDispatcherState>()
+
+    /**
+     * Collects all [SemanticsNode]s from all compose hierarchies.
      *
      * This is a blocking call. Returns only after compose is idle.
      *
      * Can crash in case it hits time out. This is not supposed to be handled as it
      * surfaces only in incorrect tests.
      */
-    fun getOwners(): Set<Owner>
-}
+    internal fun getAllSemanticsNodes(
+        atLeastOneRootRequired: Boolean,
+        useUnmergedTree: Boolean
+    ): Iterable<SemanticsNode> {
+        val roots = testOwner.getRoots(atLeastOneRootRequired).also {
+            check(!atLeastOneRootRequired || it.isNotEmpty()) {
+                "No compose views found in the app. Is your Activity resumed?"
+            }
+        }
 
-/**
- * Collects all [SemanticsNode]s from all compose hierarchies.
- *
- * This is a blocking call. Returns only after compose is idle.
- *
- * Can crash in case it hits time out. This is not supposed to be handled as it
- * surfaces only in incorrect tests.
- */
-@OptIn(InternalTestingApi::class)
-internal fun TestOwner.getAllSemanticsNodes(useUnmergedTree: Boolean): List<SemanticsNode> {
-    return getOwners().flatMap { it.semanticsOwner.getAllSemanticsNodes(useUnmergedTree) }
-}
-
-@InternalTestingApi
-fun createTestContext(owner: TestOwner): TestContext {
-    return TestContext(owner)
-}
-
-@OptIn(InternalTestingApi::class)
-class TestContext internal constructor(internal val testOwner: TestOwner) {
-
-    /**
-     * Stores the [InputDispatcherState] of each [Owner]. The state will be restored in an
-     * [InputDispatcher] when it is created for an owner that has a state stored.
-     */
-    internal val states = mutableMapOf<Owner, InputDispatcherState>()
-
-    internal fun getAllSemanticsNodes(mergingEnabled: Boolean) =
-        testOwner.getAllSemanticsNodes(mergingEnabled)
+        return roots.flatMap {
+            it.semanticsOwner.getAllSemanticsNodes(mergingEnabled = !useUnmergedTree)
+        }
+    }
 }

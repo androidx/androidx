@@ -44,6 +44,7 @@ public class AeFpsRangeTest {
 
     private static final String ANY_CAMERA_ID = "0";
 
+    @SuppressWarnings("unchecked")
     @Test
     public void validEntryExists_correctRangeIsSelected() {
         Range<Integer>[] availableFpsRanges = new Range[]{
@@ -62,6 +63,7 @@ public class AeFpsRangeTest {
         assertThat(pick).isEqualTo(new Range<>(15, 30));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void noValidEntry_doesNotSetFpsRange() {
         Range<Integer>[] availableFpsRanges = new Range[]{
@@ -87,6 +89,7 @@ public class AeFpsRangeTest {
         assertThat(pick).isNull();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void limitedDevices_doesNotSetFpsRange() {
         Range<Integer>[] availableFpsRanges = new Range[]{
@@ -101,6 +104,7 @@ public class AeFpsRangeTest {
         assertThat(pick).isNull();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void fullDevices_doesNotSetFpsRange() {
         Range<Integer>[] availableFpsRanges = new Range[]{
@@ -115,6 +119,7 @@ public class AeFpsRangeTest {
         assertThat(pick).isNull();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void level3Devices_doesNotSetFpsRange() {
         Range<Integer>[] availableFpsRanges = new Range[]{

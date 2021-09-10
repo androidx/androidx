@@ -1,7 +1,7 @@
 # androidx.webkit
 
 **See this page rendered in [Gitiles
-markdown](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/webkit/README.md).**
+markdown](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/webkit/README.md).**
 
 The androidx.webkit library is a static library you can add to your Android
 application in order to use android.webkit APIs that are not available for older
@@ -11,7 +11,7 @@ platform versions.
 
 * [Library owners](OWNERS)
 * [Release notes](https://developer.android.com/jetpack/androidx/releases/webkit)
-* [Browse source](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/webkit/)
+* [Browse source](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/webkit/)
 * [Reference docs and guide to import the library](https://developer.android.com/reference/androidx/webkit/package-summary)
 * [Existing open bugs](https://issuetracker.google.com/issues?q=componentid:460423%20status:open)
 * [File a new bug](https://issuetracker.google.com/issues/new?component=460423)

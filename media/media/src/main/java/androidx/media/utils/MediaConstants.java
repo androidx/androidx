@@ -112,9 +112,11 @@ public final class MediaConstants {
 
     /**
      * Bundle key used for media content id in {@link MediaMetadataCompat metadata}, should contain
-     * the same ID provided to Media Actions Catalog in reference to this title (e.g., episode,
-     * movie). Google uses this information to allow users to resume watching this title on your app
-     * across the supported surfaces (e.g., Android TV's Play Next row)
+     * the same ID provided to
+     * <a href="https://developers.google.com/actions/media">Media Actions Catalog</a> in reference
+     * to this title (e.g., episode, movie). This key can contain the content ID of the currently
+     * playing episode or movie and can be used to help users continue watching after this
+     * session is paused or stopped.
      *
      * <p>TYPE: String
      *
@@ -123,6 +125,38 @@ public final class MediaConstants {
     @SuppressLint("IntentName")
     public static final String METADATA_KEY_CONTENT_ID =
             "androidx.media.MediaMetadatCompat.METADATA_KEY_CONTENT_ID";
+
+    /**
+     * Bundle key used for next episode's media content ID in {@link MediaMetadataCompat metadata},
+     * following the same ID and format provided to
+     * <a href="https://developers.google.com/actions/media">Media Actions Catalog</a> in reference
+     * to the next episode of the current title episode. This key can contain the content ID of
+     * the episode immediately following the currently playing episode and can be used to help
+     * users continue watching after this episode is over. This value is only valid for TV
+     * Episode content type and should be left blank for other content.
+     *
+     * <p>TYPE: String
+     *
+     * @see MediaMetadataCompat
+     */
+    @SuppressLint("IntentName")
+    public static final String METADATA_KEY_NEXT_EPISODE_CONTENT_ID =
+            "androidx.media.MediaMetadatCompat.METADATA_KEY_NEXT_EPISODE_CONTENT_ID";
+
+    /**
+     * Bundle key used for the TV series's media content ID in {@link MediaMetadataCompat metadata},
+     * following the same ID and format provided to
+     * <a href="https://developers.google.com/actions/media">Media Actions Catalog</a> in reference
+     * to the TV series of the current title episode. This value is only valid for TV Episode
+     * content type and should be left blank for other content.
+     *
+     * <p>TYPE: String
+     *
+     * @see MediaMetadataCompat
+     */
+    @SuppressLint("IntentName")
+    public static final String METADATA_KEY_SERIES_CONTENT_ID =
+            "androidx.media.MediaMetadatCompat.METADATA_KEY_SERIES_CONTENT_ID";
 
     /**
      * Key sent through a key-value mapping in {@link MediaMetadataCompat#getLong(String)} or in the
@@ -447,6 +481,54 @@ public final class MediaConstants {
     @SuppressLint("IntentName")
     public static final String PLAYBACK_STATE_EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT =
             "android.media.extras.ERROR_RESOLUTION_ACTION_INTENT";
+
+    /**
+     * Bundle key passed through the {@code extras} of
+     * {@link MediaControllerCompat.TransportControls#prepareFromMediaId(String, Bundle)},
+     * {@link MediaControllerCompat.TransportControls#prepareFromSearch(String, Bundle)},
+     * {@link MediaControllerCompat.TransportControls#prepareFromUri(Uri, Bundle)},
+     * {@link MediaControllerCompat.TransportControls#playFromMediaId(String, Bundle)},
+     * {@link MediaControllerCompat.TransportControls#playFromSearch(String, Bundle)}, or
+     * {@link MediaControllerCompat.TransportControls#playFromUri(Uri, Bundle)} to indicate the
+     * stream type to be used by the session when playing or preparing the media.
+     *
+     * <p>TYPE: int
+     *
+     * @see MediaControllerCompat.TransportControls#prepareFromMediaId(String, Bundle)
+     * @see MediaControllerCompat.TransportControls#prepareFromSearch(String, Bundle)
+     * @see MediaControllerCompat.TransportControls#prepareFromUri(Uri, Bundle)
+     * @see MediaControllerCompat.TransportControls#playFromMediaId(String, Bundle)
+     * @see MediaControllerCompat.TransportControls#playFromSearch(String, Bundle)
+     * @see MediaControllerCompat.TransportControls#playFromUri(Uri, Bundle)
+     */
+    @SuppressLint("IntentName")
+    public static final String TRANSPORT_CONTROLS_EXTRAS_KEY_LEGACY_STREAM_TYPE =
+            "android.media.session.extra.LEGACY_STREAM_TYPE";
+
+    /**
+     * Bundle key passed through the {@code extras} of
+     * {@link MediaControllerCompat.TransportControls#prepareFromMediaId(String, Bundle)},
+     * {@link MediaControllerCompat.TransportControls#prepareFromSearch(String, Bundle)},
+     * {@link MediaControllerCompat.TransportControls#prepareFromUri(Uri, Bundle)},
+     * {@link MediaControllerCompat.TransportControls#playFromMediaId(String, Bundle)},
+     * {@link MediaControllerCompat.TransportControls#playFromSearch(String, Bundle)}, or
+     * {@link MediaControllerCompat.TransportControls#playFromUri(Uri, Bundle)} to indicate whether
+     * the session should shuffle the media to be played or not. The extra parameter is limited to
+     * the current request and doesn't affect the {@link MediaSessionCompat#setShuffleMode(int)
+     * shuffle mode}.
+     *
+     * <p>TYPE: boolean
+     *
+     * @see MediaControllerCompat.TransportControls#prepareFromMediaId(String, Bundle)
+     * @see MediaControllerCompat.TransportControls#prepareFromSearch(String, Bundle)
+     * @see MediaControllerCompat.TransportControls#prepareFromUri(Uri, Bundle)
+     * @see MediaControllerCompat.TransportControls#playFromMediaId(String, Bundle)
+     * @see MediaControllerCompat.TransportControls#playFromSearch(String, Bundle)
+     * @see MediaControllerCompat.TransportControls#playFromUri(Uri, Bundle)
+     */
+    @SuppressLint("IntentName")
+    public static final String TRANSPORT_CONTROLS_EXTRAS_KEY_SHUFFLE =
+            "androidx.media.MediaControllerCompat.TransportControls.extras.KEY_SHUFFLE";
 
     private MediaConstants() {}
 }

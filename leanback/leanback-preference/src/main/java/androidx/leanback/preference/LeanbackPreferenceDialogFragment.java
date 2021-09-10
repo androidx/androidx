@@ -17,7 +17,6 @@
 package androidx.leanback.preference;
 
 import android.app.Fragment;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.preference.DialogPreference;
@@ -33,9 +32,7 @@ public class LeanbackPreferenceDialogFragment extends Fragment {
     private DialogPreference mPreference;
 
     public LeanbackPreferenceDialogFragment() {
-        if (Build.VERSION.SDK_INT >= 21) {
-            LeanbackPreferenceFragmentTransitionHelperApi21.addTransitions(this);
-        }
+        LeanbackPreferenceFragmentTransitionHelperApi21.addTransitions(this);
     }
 
     @Override

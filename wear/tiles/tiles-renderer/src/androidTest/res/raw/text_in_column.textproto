@@ -1,0 +1,38 @@
+column {
+  contents {
+    text {
+      text {
+        value: "Hello World"
+      }
+      font_style {
+        color {
+          argb: 0xFFFF0000
+        }
+      }
+    }
+  }
+  contents {
+    text {
+      text {
+        value: "More text"
+      }
+      font_style {
+        color {
+          argb: 0xFF00FF00
+        }
+      }
+    }
+  }
+  contents {
+    text {
+      text {
+        value: "Yet more text"
+      }
+      font_style {
+        color {
+          argb: 0xFF0000FF
+        }
+      }
+    }
+  }
+}

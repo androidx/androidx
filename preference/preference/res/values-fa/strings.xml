@@ -7,5 +7,5 @@
     <string name="summary_collapsed_preference_list" msgid="9167775378838880170">"<xliff:g id="CURRENT_ITEMS">%1$s</xliff:g>، <xliff:g id="ADDED_ITEMS">%2$s</xliff:g>"</string>
     <string name="copy" msgid="6083905920877235314">"کپی"</string>
     <string name="preference_copied" msgid="6685851473431805375">"«<xliff:g id="SUMMARY">%1$s</xliff:g>» در بریده‌دان کپی شد."</string>
-    <string name="not_set" msgid="6573031135582639649">"تنظیم نشده است"</string>
+    <string name="not_set" msgid="6573031135582639649">"تنظیم نشده"</string>
 </resources>

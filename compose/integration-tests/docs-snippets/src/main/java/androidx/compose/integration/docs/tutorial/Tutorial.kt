@@ -18,13 +18,14 @@
 package androidx.compose.integration.docs.tutorial
 
 import android.os.Bundle
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -32,8 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.setContent
-import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.dp
  * https://developer.android.com/jetpack/compose/tutorial
  *
  * No action required if it's modified.
+ *
+ * Tech writers: on DAC, these snippets contain html formatting that is omitted here.
  */
 
 private object TutorialSnippet1 {
@@ -152,12 +154,12 @@ private object TutorialSnippet6 {
 private object TutorialSnippet7 {
     @Composable
     fun NewsStory() {
-        val image = imageResource(R.drawable.header)
+        val image = painterResource(R.drawable.header)
 
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            Image(image)
+            Image(image, contentDescription = null)
 
             Text("A day in Shark Fin Cove")
             Text("Davenport, California")
@@ -169,16 +171,20 @@ private object TutorialSnippet7 {
 private object TutorialSnippet8 {
     @Composable
     fun NewsStory() {
-        val image = imageResource(R.drawable.header)
+        val image = painterResource(R.drawable.header)
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
             val imageModifier = Modifier
-                .preferredHeight(180.dp)
+                .height(180.dp)
                 .fillMaxWidth()
 
-            Image(image, modifier = imageModifier,
-                contentScale = ContentScale.Crop)
+            Image(
+                image,
+                contentDescription = null,
+                modifier = imageModifier,
+                contentScale = ContentScale.Crop
+            )
 
             Text("A day in Shark Fin Cove")
             Text("Davenport, California")
@@ -193,18 +199,22 @@ Lesson 3
 private object TutorialSnippet9 {
     @Composable
     fun NewsStory() {
-        val image = imageResource(R.drawable.header)
+        val image = painterResource(R.drawable.header)
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
             val imageModifier = Modifier
-                .preferredHeight(180.dp)
+                .height(180.dp)
                 .fillMaxWidth()
                 .clip(shape = RoundedCornerShape(4.dp))
 
-            Image(image, modifier = imageModifier,
-                contentScale = ContentScale.Crop)
-            Spacer(Modifier.preferredHeight(16.dp))
+            Image(
+                image,
+                contentDescription = null,
+                modifier = imageModifier,
+                contentScale = ContentScale.Crop
+            )
+            Spacer(Modifier.height(16.dp))
 
             Text("A day in Shark Fin Cove")
             Text("Davenport, California")
@@ -216,19 +226,23 @@ private object TutorialSnippet9 {
 private object TutorialSnippet10 {
     @Composable
     fun NewsStory() {
-        val image = imageResource(R.drawable.header)
+        val image = painterResource(R.drawable.header)
         MaterialTheme {
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
                 val imageModifier = Modifier
-                    .preferredHeight(180.dp)
+                    .height(180.dp)
                     .fillMaxWidth()
                     .clip(shape = RoundedCornerShape(4.dp))
 
-                Image(image, modifier = imageModifier,
-                    contentScale = ContentScale.Crop)
-                Spacer(Modifier.preferredHeight(16.dp))
+                Image(
+                    image,
+                    contentDescription = null,
+                    modifier = imageModifier,
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(Modifier.height(16.dp))
 
                 Text("A day in Shark Fin Cove")
                 Text("Davenport, California")
@@ -241,20 +255,24 @@ private object TutorialSnippet10 {
 private object TutorialSnippet11 {
     @Composable
     fun NewsStory() {
-        val image = imageResource(R.drawable.header)
+        val image = painterResource(R.drawable.header)
         MaterialTheme {
             val typography = MaterialTheme.typography
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
                 val imageModifier = Modifier
-                    .preferredHeight(180.dp)
+                    .height(180.dp)
                     .fillMaxWidth()
                     .clip(shape = RoundedCornerShape(4.dp))
 
-                Image(image, modifier = imageModifier,
-                    contentScale = ContentScale.Crop)
-                Spacer(Modifier.preferredHeight(16.dp))
+                Image(
+                    image,
+                    contentDescription = null,
+                    modifier = imageModifier,
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(Modifier.height(16.dp))
 
                 Text("A day in Shark Fin Cove",
                     style = typography.h6)
@@ -270,20 +288,24 @@ private object TutorialSnippet11 {
 private object TutorialSnippet12 {
     @Composable
     fun NewsStory() {
-        val image = imageResource(R.drawable.header)
+        val image = painterResource(R.drawable.header)
         MaterialTheme {
             val typography = MaterialTheme.typography
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
                 val imageModifier = Modifier
-                    .preferredHeight(180.dp)
+                    .height(180.dp)
                     .fillMaxWidth()
                     .clip(shape = RoundedCornerShape(4.dp))
 
-                Image(image, modifier = imageModifier,
-                    contentScale = ContentScale.Crop)
-                Spacer(Modifier.preferredHeight(16.dp))
+                Image(
+                    image,
+                    contentDescription = null,
+                    modifier = imageModifier,
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(Modifier.height(16.dp))
 
                 Text(
                     "A day wandering through the sandhills " +
@@ -303,20 +325,23 @@ private object TutorialSnippet12 {
 private object TutorialSnippet13 {
     @Composable
     fun NewsStory() {
-        val image = imageResource(R.drawable.header)
+        val image = painterResource(R.drawable.header)
         MaterialTheme {
             val typography = MaterialTheme.typography
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
                 val imageModifier = Modifier
-                    .preferredHeight(180.dp)
+                    .height(180.dp)
                     .fillMaxWidth()
                     .clip(shape = RoundedCornerShape(4.dp))
 
-                Image(image, modifier = imageModifier,
-                    contentScale = ContentScale.Crop)
-                Spacer(Modifier.preferredHeight(16.dp))
+                Image(
+                    image, null,
+                    modifier = imageModifier,
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(Modifier.height(16.dp))
 
                 Text(
                     "A day wandering through the sandhills " +

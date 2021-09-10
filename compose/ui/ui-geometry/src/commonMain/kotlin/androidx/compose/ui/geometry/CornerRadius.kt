@@ -20,7 +20,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.util.packFloats
-import androidx.compose.ui.util.toStringAsFixed
 import androidx.compose.ui.util.unpackFloat1
 import androidx.compose.ui.util.unpackFloat2
 
@@ -30,9 +29,8 @@ import androidx.compose.ui.util.unpackFloat2
  * the radius along the Y axis matches that of the given x-axis
  * unless otherwise specified. Negative radii values are clamped to 0.
  */
-@Suppress("NOTHING_TO_INLINE")
 @Stable
-inline fun CornerRadius(x: Float, y: Float = x) = CornerRadius(packFloats(x, y))
+fun CornerRadius(x: Float, y: Float = x) = CornerRadius(packFloats(x, y))
 
 /**
  * A radius for either circular or elliptical (oval) shapes.
@@ -41,9 +39,9 @@ inline fun CornerRadius(x: Float, y: Float = x) = CornerRadius(packFloats(x, y))
  * function constructor as it is represented as an inline class with 2 float
  * parameters packed into a single long to reduce allocation overhead
  **/
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class CornerRadius(@PublishedApi internal val packedValue: Long) {
+inline class CornerRadius internal constructor(@PublishedApi internal val packedValue: Long) {
 
     /** The radius value on the horizontal axis. */
     @Stable

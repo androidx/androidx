@@ -157,7 +157,6 @@ package androidx.transition {
     method public abstract void captureStartValues(androidx.transition.TransitionValues);
     method public androidx.transition.Transition! clone();
     method public android.animation.Animator? createAnimator(android.view.ViewGroup, androidx.transition.TransitionValues?, androidx.transition.TransitionValues?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected void createAnimators(android.view.ViewGroup!, androidx.transition.TransitionValuesMaps!, androidx.transition.TransitionValuesMaps!, java.util.ArrayList<androidx.transition.TransitionValues!>!, java.util.ArrayList<androidx.transition.TransitionValues!>!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected void end();
     method public androidx.transition.Transition excludeChildren(android.view.View, boolean);
     method public androidx.transition.Transition excludeChildren(@IdRes int, boolean);

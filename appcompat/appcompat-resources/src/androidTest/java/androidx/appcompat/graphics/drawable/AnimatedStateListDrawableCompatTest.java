@@ -228,6 +228,7 @@ public class AnimatedStateListDrawableCompatTest {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public class MockDrawable extends Drawable {
         @Override
         public void draw(Canvas canvas) {

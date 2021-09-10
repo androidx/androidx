@@ -14,66 +14,58 @@
  * limitations under the License.
  */
 
-
-import androidx.build.AndroidXUiPlugin
+import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
-import androidx.build.Publish
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("AndroidXUiPlugin")
+    id("AndroidXComposePlugin")
 }
 
-AndroidXUiPlugin.applyAndConfigureKotlinPlugin(project)
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
-if(!AndroidXUiPlugin.isMultiplatformEnabled(project)) {
+if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     dependencies {
         /*
          * When updating dependencies, make sure to make the an an analogous update in the
          * corresponding block below
          */
-        implementation(KOTLIN_STDLIB_COMMON)
+        implementation(libs.kotlinStdlibCommon)
 
-        api project(":compose:ui:ui-graphics")
-        api project(":compose:ui:ui-unit")
-        api "androidx.annotation:annotation:1.1.0"
+        api(project(":compose:ui:ui-graphics"))
+        api(project(":compose:ui:ui-unit"))
+        api("androidx.annotation:annotation:1.1.0")
 
-        implementation project(":compose:runtime:runtime")
-        implementation project(":compose:runtime:runtime-saved-instance-state")
-        implementation project(":compose:ui:ui-util")
-        implementation(KOTLIN_STDLIB)
-        implementation "androidx.collection:collection:1.1.0"
-        implementation "androidx.core:core:1.5.0-alpha01"
+        implementation(project(":compose:runtime:runtime"))
+        implementation(project(":compose:runtime:runtime-saveable"))
+        implementation(project(":compose:ui:ui-util"))
+        implementation(libs.kotlinStdlib)
+        implementation("androidx.collection:collection:1.1.0")
+        implementation("androidx.core:core:1.5.0-rc02")
 
-        testImplementation project(":compose:ui:ui-test-font")
-        testImplementation(ANDROIDX_TEST_RULES)
-        testImplementation(ANDROIDX_TEST_RUNNER)
-        testImplementation(JUNIT)
-        testImplementation(MOCKITO_CORE)
-        testImplementation(TRUTH)
-        testImplementation(KOTLIN_REFLECT)
-        testImplementation MOCKITO_KOTLIN, {
-            exclude group: 'org.mockito' // to keep control on the mockito version
-        }
+        testImplementation(project(":compose:ui:ui-test-font"))
+        testImplementation(libs.testRules)
+        testImplementation(libs.testRunner)
+        testImplementation(libs.junit)
+        testImplementation(libs.mockitoCore)
+        testImplementation(libs.truth)
+        testImplementation(libs.kotlinReflect)
+        testImplementation(libs.mockitoKotlin)
 
-        androidTestImplementation project(":compose:ui:ui-test-font")
-        androidTestImplementation project(":compose:ui:ui-test-junit4")
-        androidTestImplementation(ANDROIDX_TEST_RULES)
-        androidTestImplementation(ANDROIDX_TEST_RUNNER)
-        androidTestImplementation(ESPRESSO_CORE)
-        androidTestImplementation(JUNIT)
-        androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
-        // DexMaker has it"s own MockMaker
-        androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
-        androidTestImplementation(TRUTH)
-        androidTestImplementation MOCKITO_KOTLIN, {
-            exclude group: 'org.mockito' // to keep control on the mockito version
-        }
+        androidTestImplementation(project(":compose:ui:ui-test-font"))
+        androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+        androidTestImplementation(libs.testCore)
+        androidTestImplementation(libs.testRules)
+        androidTestImplementation(libs.testRunner)
+        androidTestImplementation(libs.espressoCore)
+        androidTestImplementation(libs.junit)
+        androidTestImplementation(libs.dexmakerMockito)
+        androidTestImplementation(libs.mockitoCore)
+        androidTestImplementation(libs.truth)
+        androidTestImplementation(libs.mockitoKotlin)
     }
 
     android {
@@ -85,7 +77,7 @@ if(!AndroidXUiPlugin.isMultiplatformEnabled(project)) {
     }
 }
 
-if(AndroidXUiPlugin.isMultiplatformEnabled(project)) {
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     kotlin {
         android()
         jvm("desktop")
@@ -96,57 +88,62 @@ if(AndroidXUiPlugin.isMultiplatformEnabled(project)) {
          */
         sourceSets {
             commonMain.dependencies {
-                implementation(KOTLIN_STDLIB_COMMON)
+                implementation(libs.kotlinStdlibCommon)
 
-                api project(":compose:ui:ui-graphics")
-                api project(":compose:ui:ui-unit")
+                api(project(":compose:ui:ui-graphics"))
+                api(project(":compose:ui:ui-unit"))
 
-                implementation project(":compose:runtime:runtime")
-                implementation project(":compose:runtime:runtime-saved-instance-state")
-                implementation project(":compose:ui:ui-util")
+                implementation(project(":compose:runtime:runtime"))
+                implementation(project(":compose:runtime:runtime-saveable"))
+                implementation(project(":compose:ui:ui-util"))
             }
 
             jvmMain.dependencies {
-                implementation(KOTLIN_STDLIB)
+                implementation(libs.kotlinStdlib)
             }
 
-            desktopMain.dependsOn jvmMain
+            desktopMain.dependsOn(jvmMain)
+            androidMain.dependsOn(jvmMain)
 
             androidMain.dependencies {
-                api "androidx.annotation:annotation:1.1.0"
-                implementation "androidx.collection:collection:1.1.0"
-                implementation "androidx.core:core:1.5.0-alpha01"
+                api("androidx.annotation:annotation:1.1.0")
+                implementation("androidx.collection:collection:1.1.0")
+                implementation("androidx.core:core:1.5.0-rc02")
             }
 
             androidMain.kotlin.srcDirs("../../../text/text/src/main/java")
 
             androidTest.dependencies {
-                implementation project(":compose:ui:ui-test-font")
-                implementation(ANDROIDX_TEST_RULES)
-                implementation(ANDROIDX_TEST_RUNNER)
-                implementation(JUNIT)
-                implementation(MOCKITO_CORE)
-                implementation(TRUTH)
-                implementation(KOTLIN_REFLECT)
-                implementation MOCKITO_KOTLIN, {
-                    exclude group: 'org.mockito' // to keep control on the mockito version
-                }
+                implementation(project(":compose:ui:ui-test-font"))
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+                implementation(libs.mockitoCore)
+                implementation(libs.truth)
+                implementation(libs.kotlinReflect)
+                implementation(libs.mockitoKotlin)
             }
 
             androidAndroidTest.dependencies {
-                implementation project(":compose:ui:ui-test-junit4")
-                implementation project(":compose:ui:ui-test-font")
-                implementation(ANDROIDX_TEST_RULES)
-                implementation(ANDROIDX_TEST_RUNNER)
-                implementation(ESPRESSO_CORE)
-                implementation(JUNIT)
-                implementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
-                // DexMaker has it"s own MockMaker
-                implementation(MOCKITO_CORE, libs.exclude_bytebuddy)
-                implementation(TRUTH)
-                implementation MOCKITO_KOTLIN, {
-                    exclude group: 'org.mockito' // to keep control on the mockito version
-                }
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":compose:ui:ui-test-font"))
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.espressoCore)
+                implementation(libs.junit)
+                implementation(libs.dexmakerMockito)
+                implementation(libs.mockitoCore)
+                implementation(libs.truth)
+                implementation(libs.mockitoKotlin)
+            }
+
+            desktopTest.dependencies {
+                implementation(libs.truth)
+                implementation(libs.junit)
+                implementation(libs.skikoCurrentOs)
+                implementation(project(":compose:foundation:foundation"))
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":compose:ui:ui-test-font"))
             }
         }
     }
@@ -154,7 +151,7 @@ if(AndroidXUiPlugin.isMultiplatformEnabled(project)) {
 
 androidx {
     name = "Compose UI Text"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.Compose.UI
     inceptionYear = "2019"
     description = "Compose Text primitives and utilities"
@@ -163,11 +160,6 @@ androidx {
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        useIR = true
         freeCompilerArgs += ["-XXLanguage:+InlineClasses"]
     }
-}
-
-android.buildTypes.all {
-    testCoverageEnabled = false
 }

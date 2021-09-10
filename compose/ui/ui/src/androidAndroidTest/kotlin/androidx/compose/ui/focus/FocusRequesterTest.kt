@@ -19,13 +19,9 @@ package androidx.compose.ui.focus
 import android.view.View
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus
-import androidx.compose.ui.focus.FocusState.Active
-import androidx.compose.ui.focus.FocusState.Inactive
-import androidx.compose.ui.focusObserver
-import androidx.compose.ui.focusRequester
-import androidx.compose.ui.platform.AmbientView
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -35,21 +31,20 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
-@OptIn(ExperimentalFocus::class)
 @RunWith(AndroidJUnit4::class)
 class FocusRequesterTest {
     @get:Rule
     val rule = createComposeRule()
 
     @Test
-    fun requestFocus_noFocusModifierInLayoutNode() {
+    fun requestFocus_noFocusTargetInLayoutNode() {
         // Arrange.
-        var focusState = Inactive
+        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState = it }
+                    .onFocusChanged { focusState = it }
                     .focusRequester(focusRequester)
             )
         }
@@ -59,20 +54,20 @@ class FocusRequesterTest {
             focusRequester.requestFocus()
 
             // Assert.
-            assertThat(focusState).isEqualTo(Inactive)
+            assertThat(focusState.isFocused).isFalse()
         }
     }
 
     @Test
-    fun requestFocus_focusModifierInLayoutNode_butBeforeFocusRequester() {
+    fun requestFocus_focusTargetInLayoutNode_butBeforeFocusRequester() {
         // Arrange.
-        var focusState = Inactive
+        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState = it }
-                    .focus()
+                    .onFocusChanged { focusState = it }
+                    .focusTarget()
                     .focusRequester(focusRequester)
             )
         }
@@ -82,21 +77,21 @@ class FocusRequesterTest {
             focusRequester.requestFocus()
 
             // Assert.
-            assertThat(focusState).isEqualTo(Inactive)
+            assertThat(focusState.isFocused).isFalse()
         }
     }
 
     @Test
-    fun requestFocus_focusModifierInLayoutNode() {
+    fun requestFocus_focusTargetInLayoutNode() {
         // Arrange.
-        var focusState = Inactive
+        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState = it }
+                    .onFocusChanged { focusState = it }
                     .focusRequester(focusRequester)
-                    .focus()
+                    .focusTarget()
             )
         }
 
@@ -105,22 +100,22 @@ class FocusRequesterTest {
             focusRequester.requestFocus()
 
             // Assert.
-            assertThat(focusState).isEqualTo(Active)
+            assertThat(focusState.isFocused).isTrue()
         }
     }
 
     @Test
-    fun requestFocus_focusModifierInChildLayoutNode() {
+    fun requestFocus_focusTargetInChildLayoutNode() {
         // Arrange.
-        var focusState = Inactive
+        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
                     .focusRequester(focusRequester)
-                    .focusObserver { focusState = it }
+                    .onFocusChanged { focusState = it }
             ) {
-                Box(modifier = Modifier.focus())
+                Box(modifier = Modifier.focusTarget())
             }
         }
 
@@ -129,23 +124,23 @@ class FocusRequesterTest {
             focusRequester.requestFocus()
 
             // Assert.
-            assertThat(focusState).isEqualTo(Active)
+            assertThat(focusState.isFocused).isTrue()
         }
     }
 
     @Test
-    fun requestFocus_focusModifierAndRequesterInChildLayoutNode() {
+    fun requestFocus_focusTargetAndReferenceInChildLayoutNode() {
         // Arrange.
-        var focusState = Inactive
+        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
-                modifier = Modifier.focusObserver { focusState = it }
+                modifier = Modifier.onFocusChanged { focusState = it }
             ) {
                 Box(
                     modifier = Modifier
                         .focusRequester(focusRequester)
-                        .focus()
+                        .focusTarget()
                 )
             }
         }
@@ -155,14 +150,14 @@ class FocusRequesterTest {
             focusRequester.requestFocus()
 
             // Assert.
-            assertThat(focusState).isEqualTo(Active)
+            assertThat(focusState.isFocused).isTrue()
         }
     }
 
     @Test
-    fun requestFocus_focusModifierAndObserverInChildLayoutNode() {
+    fun requestFocus_focusTargetAndObserverInChildLayoutNode() {
         // Arrange.
-        var focusState = Inactive
+        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
@@ -170,8 +165,8 @@ class FocusRequesterTest {
             ) {
                 Box(
                     modifier = Modifier
-                        .focusObserver { focusState = it }
-                        .focus()
+                        .onFocusChanged { focusState = it }
+                        .focusTarget()
                 )
             }
         }
@@ -181,19 +176,19 @@ class FocusRequesterTest {
             focusRequester.requestFocus()
 
             // Assert.
-            assertThat(focusState).isEqualTo(Active)
+            assertThat(focusState.isFocused).isTrue()
         }
     }
 
     @Test
-    fun requestFocus_focusModifierInDistantDescendantLayoutNode() {
+    fun requestFocus_focusTargetInDistantDescendantLayoutNode() {
         // Arrange.
-        var focusState = Inactive
+        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState = it }
+                    .onFocusChanged { focusState = it }
                     .focusRequester(focusRequester)
             ) {
                 Box {
@@ -202,7 +197,7 @@ class FocusRequesterTest {
                             Box {
                                 Box {
                                     Box(
-                                        modifier = Modifier.focus()
+                                        modifier = Modifier.focusTarget()
                                     )
                                 }
                             }
@@ -217,15 +212,15 @@ class FocusRequesterTest {
             focusRequester.requestFocus()
 
             // Assert.
-            assertThat(focusState).isEqualTo(Active)
+            assertThat(focusState.isFocused).isTrue()
         }
     }
 
     @Test
     fun requestFocus_firstFocusableChildIsFocused() {
         // Arrange.
-        var focusState1 = Inactive
-        var focusState2 = Inactive
+        lateinit var focusState1: FocusState
+        lateinit var focusState2: FocusState
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Column(
@@ -233,13 +228,13 @@ class FocusRequesterTest {
             ) {
                 Box(
                     modifier = Modifier
-                        .focusObserver { focusState1 = it }
-                        .focus()
+                        .onFocusChanged { focusState1 = it }
+                        .focusTarget()
                 )
                 Box(
                     modifier = Modifier
-                        .focusObserver { focusState2 = it }
-                        .focus()
+                        .onFocusChanged { focusState2 = it }
+                        .focusTarget()
                 )
             }
         }
@@ -249,32 +244,32 @@ class FocusRequesterTest {
             focusRequester.requestFocus()
 
             // Assert.
-            assertThat(focusState1).isEqualTo(Active)
-            assertThat(focusState2).isEqualTo(Inactive)
+            assertThat(focusState1.isFocused).isTrue()
+            assertThat(focusState2.isFocused).isFalse()
         }
     }
 
+    @ExperimentalComposeUiApi
     @Test
-    fun requestFocusForAnyChild_triggersFocusObserverInParent() {
+    fun requestFocusForAnyChild_triggersOnFocusChangedInParent() {
         // Arrange.
         lateinit var hostView: View
-        var focusState = Inactive
-        val focusRequester1 = FocusRequester()
-        val focusRequester2 = FocusRequester()
+        lateinit var focusState: FocusState
+        val (focusRequester1, focusRequester2) = FocusRequester.createRefs()
         rule.setFocusableContent {
-            hostView = AmbientView.current
+            hostView = LocalView.current
             Column(
-                modifier = Modifier.focusObserver { focusState = it }
+                modifier = Modifier.onFocusChanged { focusState = it }
             ) {
                 Box(
                     modifier = Modifier
                         .focusRequester(focusRequester1)
-                        .focus()
+                        .focusTarget()
                 )
                 Box(
                     modifier = Modifier
                         .focusRequester(focusRequester2)
-                        .focus()
+                        .focusTarget()
                 )
             }
         }
@@ -283,26 +278,26 @@ class FocusRequesterTest {
         rule.runOnIdle {
             // Arrange.
             hostView.clearFocus()
-            assertThat(focusState).isEqualTo(Inactive)
+            assertThat(focusState.isFocused).isFalse()
 
             // Act.
             focusRequester1.requestFocus()
 
             // Assert.
-            assertThat(focusState).isEqualTo(Active)
+            assertThat(focusState.isFocused).isTrue()
         }
 
         // Request focus for second child.
         rule.runOnIdle {
             // Arrange.
             hostView.clearFocus()
-            assertThat(focusState).isEqualTo(Inactive)
+            assertThat(focusState.isFocused).isFalse()
 
             // Act.
             focusRequester2.requestFocus()
 
             // Assert.
-            assertThat(focusState).isEqualTo(Active)
+            assertThat(focusState.isFocused).isTrue()
         }
     }
 }

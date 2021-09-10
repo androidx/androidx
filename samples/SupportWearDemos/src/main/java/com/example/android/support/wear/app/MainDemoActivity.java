@@ -16,6 +16,7 @@
 
 package com.example.android.support.wear.app;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -102,7 +103,8 @@ public class MainDemoActivity extends Activity {
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, final int position) {
+        public void onBindViewHolder(ViewHolder holder,
+                @SuppressLint("RecyclerView") final int position) {
             holder.mView.setText(mKeys[position].toString());
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override

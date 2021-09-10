@@ -20,7 +20,7 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 
 import android.media.Image;
 
-import androidx.annotation.experimental.Experimental;
+import androidx.annotation.RequiresOptIn;
 
 import java.lang.annotation.Retention;
 
@@ -37,6 +37,6 @@ import java.lang.annotation.Retention;
  * should be called on the ImageProxy from which the Image was retrieved.
  */
 @Retention(CLASS)
-@Experimental
+@RequiresOptIn
 public @interface ExperimentalGetImage {
 }

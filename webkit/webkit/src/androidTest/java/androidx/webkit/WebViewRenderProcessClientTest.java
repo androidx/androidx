@@ -54,7 +54,7 @@ public class WebViewRenderProcessClientTest {
     }
 
     private static class JSBlocker {
-        // A CoundDownLatch is used here, instead of a Future, because that makes it
+        // A CountDownLatch is used here, instead of a Future, because that makes it
         // easier to support requiring variable numbers of releaseBlock() calls
         // to unblock.
         private CountDownLatch mLatch;
@@ -136,9 +136,7 @@ public class WebViewRenderProcessClientTest {
         final ResolvableFuture<Void> rendererUnblocked = ResolvableFuture.create();
 
         WebViewRenderProcessClient client = makeWebViewRenderProcessClient(
-                () -> blocker.releaseBlock(),
-                () -> rendererUnblocked.set(null)
-            );
+                blocker::releaseBlock, () -> rendererUnblocked.set(null));
         if (executor == null) {
             mWebViewOnUiThread.setWebViewRenderProcessClient(client);
         } else {
@@ -159,12 +157,9 @@ public class WebViewRenderProcessClientTest {
     @Test
     public void testWebViewRenderProcessClientWithExecutor() throws Throwable {
         final AtomicInteger executorCount = new AtomicInteger();
-        testWebViewRenderProcessClientOnExecutor(new Executor() {
-            @Override
-            public void execute(Runnable r) {
-                executorCount.incrementAndGet();
-                r.run();
-            }
+        testWebViewRenderProcessClientOnExecutor(r -> {
+            executorCount.incrementAndGet();
+            r.run();
         });
         Assert.assertEquals(2, executorCount.get());
     }

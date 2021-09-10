@@ -22,11 +22,11 @@ import static androidx.contentpager.content.TestContentProvider.UNPAGED_URI;
 import android.app.Activity;
 import android.database.Cursor;
 
+import androidx.annotation.NonNull;
 import androidx.contentpager.content.ContentPager.ContentCallback;
 import androidx.contentpager.content.ContentPager.QueryRunner;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,8 +37,10 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class LoaderQueryRunnerTest {
 
+    @SuppressWarnings("deprecation")
     @Rule
-    public ActivityTestRule<Activity> mActivityRule = new ActivityTestRule(TestActivity.class);
+    public androidx.test.rule.ActivityTestRule<TestActivity> mActivityRule =
+            new androidx.test.rule.ActivityTestRule<>(TestActivity.class);
 
     private Activity mActivity;
     private QueryRunner mRunner;
@@ -58,7 +60,7 @@ public class LoaderQueryRunnerTest {
 
         ContentCallback dummyContentCallback = new ContentCallback() {
             @Override
-            public void onCursorReady(Query query, Cursor cursor) {
+            public void onCursorReady(@NonNull Query query, Cursor cursor) {
                 // Nothing to see here. Move along.
             }
         };

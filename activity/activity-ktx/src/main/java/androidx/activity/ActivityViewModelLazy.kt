@@ -29,7 +29,7 @@ import androidx.lifecycle.ViewModelProvider.Factory
  *
  * ```
  * class MyComponentActivity : ComponentActivity() {
- *     val viewmodel: MyViewModel by viewmodels()
+ *     val viewmodel: MyViewModel by viewModels()
  * }
  * ```
  *

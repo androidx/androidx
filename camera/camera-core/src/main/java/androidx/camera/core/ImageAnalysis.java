@@ -19,11 +19,14 @@ package androidx.camera.core;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_BACKPRESSURE_STRATEGY;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_IMAGE_QUEUE_DEPTH;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_IMAGE_READER_PROXY_PROVIDER;
+import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_ONE_PIXEL_SHIFT_ENABLED;
+import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
@@ -35,6 +38,9 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 
+import android.graphics.ImageFormat;
+import android.graphics.PixelFormat;
+import android.media.CamcorderProfile;
 import android.media.ImageReader;
 import android.util.Pair;
 import android.util.Size;
@@ -47,6 +53,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
@@ -66,10 +73,14 @@ import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
+import androidx.camera.core.internal.compat.quirk.OnePixelShiftQuirk;
+import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
+import androidx.lifecycle.LifecycleOwner;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -134,6 +145,26 @@ public final class ImageAnalysis extends UseCase {
     public static final int STRATEGY_BLOCK_PRODUCER = 1;
 
     /**
+     * Images sent to the analyzer will have YUV format.
+     *
+     * <p>All {@link ImageProxy} sent to {@link Analyzer#analyze(ImageProxy)} will have
+     * format {@link android.graphics.ImageFormat#YUV_420_888}
+     *
+     * @see Builder#setOutputImageFormat(int)
+     */
+    public static final int OUTPUT_IMAGE_FORMAT_YUV_420_888 = 1;
+
+    /**
+     * Images sent to the analyzer will have RGBA format.
+     *
+     * <p>All {@link ImageProxy} sent to {@link Analyzer#analyze(ImageProxy)} will have
+     * format {@link android.graphics.PixelFormat#RGBA_8888}
+     *
+     * @see Builder#setOutputImageFormat(int)
+     */
+    public static final int OUTPUT_IMAGE_FORMAT_RGBA_8888 = 2;
+
+    /**
      * Provides a static configuration with implementation-agnostic options.
      *
      * @hide
@@ -146,6 +177,10 @@ public final class ImageAnalysis extends UseCase {
     @BackpressureStrategy
     private static final int DEFAULT_BACKPRESSURE_STRATEGY = STRATEGY_KEEP_ONLY_LATEST;
     private static final int DEFAULT_IMAGE_QUEUE_DEPTH = 6;
+    // Default to YUV_420_888 format for output.
+    private static final int DEFAULT_OUTPUT_IMAGE_FORMAT = OUTPUT_IMAGE_FORMAT_YUV_420_888;
+    // One pixel shift for YUV.
+    private static final Boolean DEFAULT_ONE_PIXEL_SHIFT_ENABLED = null;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ImageAnalysisAbstractAnalyzer mImageAnalysisAbstractAnalyzer;
@@ -185,6 +220,31 @@ public final class ImageAnalysis extends UseCase {
             mImageAnalysisAbstractAnalyzer = new ImageAnalysisNonBlockingAnalyzer(
                     config.getBackgroundExecutor(CameraXExecutors.highPriorityExecutor()));
         }
+        mImageAnalysisAbstractAnalyzer.setOutputImageFormat(getOutputImageFormat());
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    @Override
+    protected UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
+            @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
+
+        // Flag to enable or disable one pixel shift. It will override the flag set by device info.
+        // If enabled, the workaround will be applied for all devices.
+        // If disabled, the workaround will be disabled for all devices.
+        // If not configured, the workaround will be applied to the problem devices only.
+        Boolean isOnePixelShiftEnabled = getOnePixelShiftEnabled();
+        boolean isOnePixelShiftIssueDevice = cameraInfo.getCameraQuirks().contains(
+                OnePixelShiftQuirk.class) ? true : false;
+        mImageAnalysisAbstractAnalyzer.setOnePixelShiftEnabled(
+                isOnePixelShiftEnabled == null ? isOnePixelShiftIssueDevice
+                        : isOnePixelShiftEnabled);
+        return super.onMergeConfig(cameraInfo, builder);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -213,9 +273,24 @@ public final class ImageAnalysis extends UseCase {
                             imageQueueDepth));
         }
 
+        // TODO(b/195021586): to support RGB format input for image analysis for devices already
+        // supporting RGB natively. The logic here will check if the specific configured size is
+        // available in RGB and if not, fall back to YUV-RGB conversion.
+        final SafeCloseImageReaderProxy rgbImageReaderProxy =
+                (getImageFormat() == ImageFormat.YUV_420_888
+                        && getOutputImageFormat() == OUTPUT_IMAGE_FORMAT_RGBA_8888)
+                        ? new SafeCloseImageReaderProxy(
+                                ImageReaderProxys.createIsolatedReader(
+                                        resolution.getWidth(),
+                                        resolution.getHeight(),
+                                        PixelFormat.RGBA_8888,
+                                        imageReaderProxy.getMaxImages())) : null;
+        if (rgbImageReaderProxy != null) {
+            mImageAnalysisAbstractAnalyzer.setRGBImageReaderProxy(rgbImageReaderProxy);
+        }
+
         tryUpdateRelativeRotation();
 
-        mImageAnalysisAbstractAnalyzer.open();
         imageReaderProxy.setOnImageAvailableListener(mImageAnalysisAbstractAnalyzer,
                 backgroundExecutor);
 
@@ -224,8 +299,15 @@ public final class ImageAnalysis extends UseCase {
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
         }
-        mDeferrableSurface = new ImmediateSurface(imageReaderProxy.getSurface());
-        mDeferrableSurface.getTerminationFuture().addListener(imageReaderProxy::safeClose,
+        mDeferrableSurface = new ImmediateSurface(imageReaderProxy.getSurface(), resolution,
+                getImageFormat());
+        mDeferrableSurface.getTerminationFuture().addListener(
+                () -> {
+                    imageReaderProxy.safeClose();
+                    if (rgbImageReaderProxy != null) {
+                        rgbImageReaderProxy.safeClose();
+                    }
+                },
                 CameraXExecutors.mainThreadExecutor());
 
         sessionConfigBuilder.addSurface(mDeferrableSurface);
@@ -233,7 +315,8 @@ public final class ImageAnalysis extends UseCase {
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
             clearPipeline();
-
+            // Clear cache so app won't get a outdated image.
+            mImageAnalysisAbstractAnalyzer.clearCache();
             // Ensure the attached camera has not changed before resetting.
             // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
             //  to this use case so we don't need to do this check.
@@ -256,8 +339,6 @@ public final class ImageAnalysis extends UseCase {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void clearPipeline() {
         Threads.checkMainThread();
-        mImageAnalysisAbstractAnalyzer.close();
-
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
             mDeferrableSurface = null;
@@ -272,7 +353,6 @@ public final class ImageAnalysis extends UseCase {
     public void clearAnalyzer() {
         synchronized (mAnalysisLock) {
             mImageAnalysisAbstractAnalyzer.setAnalyzer(null, null);
-            mImageAnalysisAbstractAnalyzer.close();
             if (mSubscribedAnalyzer != null) {
                 notifyInactive();
             }
@@ -363,7 +443,6 @@ public final class ImageAnalysis extends UseCase {
      */
     public void setAnalyzer(@NonNull Executor executor, @NonNull Analyzer analyzer) {
         synchronized (mAnalysisLock) {
-            mImageAnalysisAbstractAnalyzer.open();
             mImageAnalysisAbstractAnalyzer.setAnalyzer(executor, image -> {
                 if (getViewPortCropRect() != null) {
                     image.setCropRect(getViewPortCropRect());
@@ -415,6 +494,53 @@ public final class ImageAnalysis extends UseCase {
                 DEFAULT_IMAGE_QUEUE_DEPTH);
     }
 
+    /**
+     * Gets output image format.
+     *
+     * <p>The returned image format will be
+     * {@link ImageAnalysis#OUTPUT_IMAGE_FORMAT_YUV_420_888} or
+     * {@link ImageAnalysis#OUTPUT_IMAGE_FORMAT_RGBA_8888}.
+     *
+     * @return output image format.
+     */
+    @ImageAnalysis.OutputImageFormat
+    public int getOutputImageFormat() {
+        return ((ImageAnalysisConfig) getCurrentConfig()).getOutputImageFormat(
+                DEFAULT_OUTPUT_IMAGE_FORMAT);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Boolean getOnePixelShiftEnabled() {
+        return ((ImageAnalysisConfig) getCurrentConfig()).getOnePixelShiftEnabled(
+                DEFAULT_ONE_PIXEL_SHIFT_ENABLED);
+    }
+
+    /**
+     * Gets resolution related information of the {@link ImageAnalysis}.
+     *
+     * <p>The returned {@link ResolutionInfo} will be expressed in the coordinates of the camera
+     * sensor. It will be the same as the resolution of the {@link ImageProxy} received from
+     * {@link ImageAnalysis.Analyzer#analyze}.
+     *
+     * <p>The resolution information might change if the use case is unbound and then rebound or
+     * {@link #setTargetRotation(int)} is called to change the target rotation setting. The
+     * application needs to call {@link #getResolutionInfo()} again to get the latest
+     * {@link ResolutionInfo} for the changes.
+     *
+     * @return the resolution information if the use case has been bound by the
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner
+     * , CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
+     */
+    @Nullable
+    @Override
+    public ResolutionInfo getResolutionInfo() {
+        return super.getResolutionInfo();
+    }
+
     @Override
     @NonNull
     public String toString() {
@@ -430,6 +556,7 @@ public final class ImageAnalysis extends UseCase {
     @Override
     public void onDetached() {
         clearPipeline();
+        mImageAnalysisAbstractAnalyzer.detach();
     }
 
     /**
@@ -460,14 +587,7 @@ public final class ImageAnalysis extends UseCase {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void onAttached() {
-        synchronized (mAnalysisLock) {
-            // The use case should be reused so that mSubscribedAnalyzer is not null but
-            // mImageAnalysisAbstractAnalyzer is closed. Re-open mImageAnalysisAbstractAnalyzer
-            // after the use case is attached to make it work again.
-            if (mSubscribedAnalyzer != null && mImageAnalysisAbstractAnalyzer.isClosed()) {
-                mImageAnalysisAbstractAnalyzer.open();
-            }
-        }
+        mImageAnalysisAbstractAnalyzer.attach();
     }
 
     /**
@@ -531,6 +651,24 @@ public final class ImageAnalysis extends UseCase {
     }
 
     /**
+     * Supported output image format for image analysis.
+     *
+     * <p>The supported output image format
+     * is {@link ImageAnalysis#OUTPUT_IMAGE_FORMAT_YUV_420_888} and
+     * {@link ImageAnalysis#OUTPUT_IMAGE_FORMAT_RGBA_8888}.
+     *
+     * <p>By default, {@link ImageAnalysis#OUTPUT_IMAGE_FORMAT_YUV_420_888} will be used.
+     *
+     * @hide
+     * @see Builder#setOutputImageFormat(int)
+     */
+    @IntDef({OUTPUT_IMAGE_FORMAT_YUV_420_888, OUTPUT_IMAGE_FORMAT_RGBA_8888})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public @interface OutputImageFormat {
+    }
+
+    /**
      * Interface for analyzing images.
      *
      * <p>Implement Analyzer and pass it to {@link ImageAnalysis#setAnalyzer(Executor, Analyzer)}
@@ -587,7 +725,6 @@ public final class ImageAnalysis extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<ImageAnalysisConfig> {
         private static final Size DEFAULT_TARGET_RESOLUTION = new Size(640, 480);
-        private static final Size DEFAULT_MAX_RESOLUTION = new Size(1920, 1080);
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 1;
         private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3;
 
@@ -596,7 +733,6 @@ public final class ImageAnalysis extends UseCase {
         static {
             Builder builder = new Builder()
                     .setDefaultResolution(DEFAULT_TARGET_RESOLUTION)
-                    .setMaxResolution(DEFAULT_MAX_RESOLUTION)
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setTargetAspectRatio(DEFAULT_ASPECT_RATIO);
 
@@ -611,6 +747,7 @@ public final class ImageAnalysis extends UseCase {
     }
 
     /** Builder for a {@link ImageAnalysis}. */
+    @SuppressWarnings("ObjectToString")
     public static final class Builder
             implements ImageOutputConfig.Builder<Builder>,
             ThreadConfig.Builder<Builder>,
@@ -712,6 +849,36 @@ public final class ImageAnalysis extends UseCase {
         @NonNull
         public Builder setImageQueueDepth(int depth) {
             getMutableConfig().insertOption(OPTION_IMAGE_QUEUE_DEPTH, depth);
+            return this;
+        }
+
+        /**
+         * Sets output image format.
+         *
+         * <p>The supported output image format
+         * is {@link OutputImageFormat#OUTPUT_IMAGE_FORMAT_YUV_420_888} and
+         * {@link OutputImageFormat#OUTPUT_IMAGE_FORMAT_RGBA_8888}.
+         *
+         * <p>If not set, {@link OutputImageFormat#OUTPUT_IMAGE_FORMAT_YUV_420_888} will be used.
+         *
+         * Requesting {@link OutputImageFormat#OUTPUT_IMAGE_FORMAT_RGBA_8888} will have extra
+         * overhead because format conversion takes time.
+         *
+         * @param outputImageFormat The output image format.
+         * @return The current Builder.
+         */
+        @NonNull
+        public Builder setOutputImageFormat(@OutputImageFormat int outputImageFormat) {
+            getMutableConfig().insertOption(OPTION_OUTPUT_IMAGE_FORMAT, outputImageFormat);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setOnePixelShiftEnabled(boolean onePixelShiftEnabled) {
+            getMutableConfig().insertOption(OPTION_ONE_PIXEL_SHIFT_ENABLED,
+                    Boolean.valueOf(onePixelShiftEnabled));
             return this;
         }
 
@@ -877,12 +1044,30 @@ public final class ImageAnalysis extends UseCase {
          * may specify 480x640, and the same device, rotated 90 degrees and targeting landscape
          * orientation may specify 640x480.
          *
-         * <p>The maximum available resolution that could be selected for an {@link ImageAnalysis}
-         * is limited to be under 1080p. The limitation of 1080p for {@link ImageAnalysis} has
-         * considered both performance and quality factors so that users can obtain reasonable
-         * quality and smooth output stream under 1080p.
-         *
          * <p>If not set, resolution of 640x480 will be selected to use in priority.
+         *
+         * <p>When using the <code>camera-camera2</code> CameraX implementation, which resolution
+         * will be finally selected will depend on the camera device's hardware level and the
+         * bound use cases combination. The device hardware level information can be retrieved by
+         * {@link android.hardware.camera2.CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL}
+         * from the interop class
+         * {@link androidx.camera.camera2.interop.Camera2CameraInfo#getCameraCharacteristic(CameraCharacteristics.Key)}.
+         * A <code>LIMITED-level</code> above device can support a <code>RECORD</code> size
+         * resolution for {@link ImageAnalysis} when it is bound together with {@link Preview}
+         * and {@link ImageCapture}. The trade-off is the selected resolution for the
+         * {@link ImageCapture} will also be restricted by the <code>RECORD</code> size. To
+         * successfully select a <code>RECORD</code> size resolution for {@link ImageAnalysis}, a
+         * <code>RECORD</code> size target resolution should be set on both {@link ImageCapture}
+         * and {@link ImageAnalysis}. This indicates that the application clearly understand the
+         * trade-off and prefer the {@link ImageAnalysis} to have a larger resolution rather than
+         * the {@link ImageCapture} to have a <code>MAXIMUM</code> size resolution. For the
+         * definitions of <code>RECORD</code>, <code>MAXIMUM</code> sizes and more details see the
+         * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a>
+         * section in {@link android.hardware.camera2.CameraDevice}'s. The <code>RECORD</code>
+         * size refers to the camera device's maximum supported recording resolution, as
+         * determined by {@link CamcorderProfile}. The <code>MAXIMUM</code> size refers to the
+         * camera device's maximum output resolution for that format or target from
+         * {@link android.hardware.camera2.params.StreamConfigurationMap#getOutputSizes}.
          *
          * @param resolution The target resolution to choose from supported output sizes list.
          * @return The current Builder.
@@ -1022,6 +1207,17 @@ public final class ImageAnalysis extends UseCase {
                 @NonNull ImageReaderProxyProvider imageReaderProxyProvider) {
             getMutableConfig().insertOption(OPTION_IMAGE_READER_PROXY_PROVIDER,
                     imageReaderProxyProvider);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setAttachedUseCasesUpdateListener(
+                @NonNull Consumer<Collection<UseCase>> attachedUseCasesUpdateListener) {
+            getMutableConfig().insertOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER,
+                    attachedUseCasesUpdateListener);
             return this;
         }
     }

@@ -22,6 +22,6 @@ package androidx.camera.camera2.pipe
  * be useful for compatibility and testing, but it is extremely risky if the lifetime of the object
  * is managed by Camera Pipe and the wrapped object is closed, released, or altered.
  */
-interface UnsafeWrapper<T> {
-    fun unwrap(): T?
+public interface UnsafeWrapper<T> {
+    public fun unwrap(): T?
 }

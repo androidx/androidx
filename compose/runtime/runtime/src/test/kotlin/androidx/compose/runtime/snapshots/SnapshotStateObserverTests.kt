@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalComposeApi::class)
-
 package androidx.compose.runtime.snapshots
 
-import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import kotlin.concurrent.thread
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class SnapshotStateObserverTests {
 
@@ -34,7 +36,7 @@ class SnapshotStateObserverTests {
         val state = mutableStateOf(0)
         val stateObserver = SnapshotStateObserver { it() }
         try {
-            stateObserver.enableStateUpdatesObserving(true)
+            stateObserver.start()
 
             val onChangeListener: (String) -> Unit = { affected ->
                 assertEquals(data, affected)
@@ -53,7 +55,7 @@ class SnapshotStateObserverTests {
 
             assertEquals(1, changes)
         } finally {
-            stateObserver.dispose()
+            stateObserver.stop()
         }
     }
 
@@ -86,7 +88,7 @@ class SnapshotStateObserverTests {
         }
         val stateObserver = SnapshotStateObserver { it() }
         try {
-            stateObserver.enableStateUpdatesObserving(true)
+            stateObserver.start()
 
             stateObserver.observeReads(strStage1, onChangeStage1) {
                 stage1Model.value
@@ -112,7 +114,7 @@ class SnapshotStateObserverTests {
             assertEquals(1, stage2Changes)
             assertEquals(1, stage3Changes)
         } finally {
-            stateObserver.dispose()
+            stateObserver.stop()
         }
     }
 
@@ -151,7 +153,7 @@ class SnapshotStateObserverTests {
 
         val stateObserver = SnapshotStateObserver { it() }
         try {
-            stateObserver.enableStateUpdatesObserving(true)
+            stateObserver.start()
 
             stateObserver.observeReads(stage2Info1, onChangeState2Listener) {
                 stage2Data1.value
@@ -175,7 +177,7 @@ class SnapshotStateObserverTests {
             assertEquals(1, stage2Changes1)
             assertEquals(1, stage2Changes2)
         } finally {
-            stateObserver.dispose()
+            stateObserver.stop()
         }
     }
 
@@ -192,12 +194,12 @@ class SnapshotStateObserverTests {
 
         val stateObserver = SnapshotStateObserver { it() }
         try {
-            stateObserver.enableStateUpdatesObserving(true)
+            stateObserver.start()
 
             stateObserver.observeReads(info, onChangeListener) {
                 // Create a sub-snapshot
                 // this will be done by subcomposition, for example.
-                val snapshot = takeMutableSnapshot()
+                val snapshot = Snapshot.takeMutableSnapshot()
                 try {
                     // read the value
                     snapshot.enter { state.value }
@@ -213,7 +215,7 @@ class SnapshotStateObserverTests {
 
             assertEquals(1, changes)
         } finally {
-            stateObserver.dispose()
+            stateObserver.stop()
         }
     }
 
@@ -224,7 +226,7 @@ class SnapshotStateObserverTests {
 
         runSimpleTest { stateObserver, state ->
             stateObserver.observeReads(data, { _ -> changes++ }) {
-                stateObserver.pauseObservingReads {
+                stateObserver.withNoObservations {
                     state.value
                 }
             }
@@ -240,8 +242,8 @@ class SnapshotStateObserverTests {
 
         runSimpleTest { stateObserver, state ->
             stateObserver.observeReads(data, { _ -> changes++ }) {
-                stateObserver.pauseObservingReads {
-                    stateObserver.pauseObservingReads {
+                stateObserver.withNoObservations {
+                    stateObserver.withNoObservations {
                         state.value
                     }
                     state.value
@@ -274,7 +276,7 @@ class SnapshotStateObserverTests {
 
         runSimpleTest { stateObserver, state ->
             stateObserver.observeReads(data, { _ -> changes1++ }) {
-                stateObserver.pauseObservingReads {
+                stateObserver.withNoObservations {
                     stateObserver.observeReads(data, { _ -> changes2++ }) {
                         state.value
                     }
@@ -285,19 +287,158 @@ class SnapshotStateObserverTests {
         assertEquals(1, changes2)
     }
 
+    @Test // regression test for 192677711
+    fun tryToReproduceRaceCondition() {
+        var running = true
+        var threadException: Exception? = null
+        try {
+            thread {
+                try {
+                    while (running) {
+                        Snapshot.sendApplyNotifications()
+                    }
+                } catch (e: Exception) {
+                    threadException = e
+                }
+            }
+
+            for (i in 1..10000) {
+                val state1 by mutableStateOf(0)
+                var state2 by mutableStateOf(true)
+                val observer = SnapshotStateObserver({}).apply {
+                    start()
+                }
+                repeat(1000) {
+                    observer.observeReads(Unit, {}) {
+                        @Suppress("UNUSED_EXPRESSION")
+                        state1
+                        if (state2) {
+                            state2 = false
+                        }
+                    }
+                }
+                assertNull(threadException)
+            }
+        } finally {
+            running = false
+        }
+        assertNull(threadException)
+    }
+
+    @Test // regression test for 192677711, second case
+    fun tryToReproduceSecondRaceCondtion() {
+        var running = true
+        var threadException: Exception? = null
+        try {
+            thread {
+                try {
+                    while (running) {
+                        Snapshot.sendApplyNotifications()
+                    }
+                } catch (e: Exception) {
+                    threadException = e
+                }
+            }
+
+            for (i in 1..10000) {
+                val state1 by mutableStateOf(0)
+                var state2 by mutableStateOf(true)
+                val observer = SnapshotStateObserver({}).apply {
+                    start()
+                }
+                observer.observeReads(Unit, {}) {
+                    repeat(1000) {
+                        @Suppress("UNUSED_EXPRESSION")
+                        state1
+                        if (state2) {
+                            state2 = false
+                        }
+                    }
+                }
+                assertNull(threadException)
+            }
+        } finally {
+            running = false
+        }
+        assertNull(threadException)
+    }
+
+    @Test
+    fun stateChangeTriggersUpdateWhenDerivedStateIsUsedRightAfter() {
+        val data = "data"
+        var changes = 0
+        val derivedState = derivedStateOf { 0 }
+
+        runSimpleTest { stateObserver, state ->
+            stateObserver.observeReads(data, { _ -> changes++ }) {
+                if (state.value == 0) {
+                    state.value++
+                }
+                // derived state read internally calls notifyObjectsInitialized() which triggers
+                // the first onValueChanged invocation.
+                derivedState.value
+            }
+        }
+
+        assertEquals(2, changes)
+    }
+
+    @Test
+    fun nestedObservationIsClearingThePreviousScopesBeforeReexecuting() {
+        val data1 = "data1"
+        val data2 = "data2"
+        var changes = 0
+
+        val stateObserver = SnapshotStateObserver { it() }
+        val state1 = mutableStateOf(true)
+        val state2 = mutableStateOf(0)
+        val onChanged1: (String) -> Unit = { }
+        val onChanged2: (String) -> Unit = { _ -> changes++ }
+
+        fun runObservedBlocks() {
+            // we have nested observations
+            stateObserver.observeReads(data1, onChanged1) {
+                stateObserver.observeReads(data2, onChanged2) {
+                    if (state1.value) {
+                        state2.value++
+                    }
+                }
+            }
+        }
+
+        try {
+            stateObserver.start()
+            Snapshot.notifyObjectsInitialized()
+
+            runObservedBlocks()
+            assertEquals(0, changes)
+
+            state1.value = false
+            Snapshot.sendApplyNotifications()
+            runObservedBlocks()
+            assertEquals(1, changes)
+
+            state2.value++
+            Snapshot.sendApplyNotifications()
+            assertEquals(1, changes)
+        } finally {
+            stateObserver.stop()
+        }
+    }
+
     private fun runSimpleTest(
         block: (modelObserver: SnapshotStateObserver, data: MutableState<Int>) -> Unit
     ) {
         val stateObserver = SnapshotStateObserver { it() }
         val state = mutableStateOf(0)
         try {
-            stateObserver.enableStateUpdatesObserving(true)
+            stateObserver.start()
             Snapshot.notifyObjectsInitialized()
             block(stateObserver, state)
             state.value++
             Snapshot.sendApplyNotifications()
         } finally {
-            stateObserver.dispose()
+            stateObserver.stop()
         }
     }
 }

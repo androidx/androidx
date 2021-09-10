@@ -16,6 +16,7 @@
 
 from build_log_simplifier import collapse_consecutive_blank_lines
 from build_log_simplifier import collapse_tasks_having_no_output
+from build_log_simplifier import extract_task_names
 from build_log_simplifier import remove_unmatched_exemptions
 from build_log_simplifier import suggest_missing_exemptions
 from build_log_simplifier import normalize_paths
@@ -69,6 +70,23 @@ def test_regexes_matcher_index_first_matching_regex():
     assert(matcher.index_first_matching_regex("double") == 1)
     assert(matcher.index_first_matching_regex("single") == 2)
     assert(matcher.index_first_matching_regex("absent") is None)
+
+def test_detect_task_names():
+    print("test_detect_task_names")
+    lines = [
+        "> Task :one\n",
+        "some output\n",
+        "> Task :two\n",
+        "more output\n"
+    ]
+    task_names = [":one", ":two"]
+    detected_names = extract_task_names(lines)
+    if detected_names != task_names:
+        fail("extract_task_names returned incorrect response\n" +
+            "Input   : " + str(lines) + "\n" +
+            "Output  : " + str(detected_names) + "\n" +
+            "Expected: " + str(task_names)
+        )
 
 def test_remove_unmatched_exemptions():
     print("test_remove_unmatched_exemptions")
@@ -188,8 +206,9 @@ def test_collapse_tasks_having_no_output():
         "",
         "output inside blanks",
         "",
-        "> Task :no-output2"
-        "> Task :no-output3"
+        "> Task :no-output2",
+        "> Task :no-output3",
+        "FAILURE: Build failed with an exception.\n"
     ]
     expected = [
         "> Task :some-output1",
@@ -201,7 +220,9 @@ def test_collapse_tasks_having_no_output():
     ]
     actual = collapse_tasks_having_no_output(lines)
     if (actual != expected):
-        fail("collapse_tasks_having_no_output gave incorrect error. Expected: " + str(expected) + ", actual = " + str(actual))
+        fail("collapse_tasks_having_no_output gave incorrect error.\n" +
+            "Expected: " + str(expected) + "\n" +
+            "Actual = " + str(actual))
 
 def test_collapse_consecutive_blank_lines():
     print("test_collapse_consecutive_blank_lines")
@@ -261,6 +282,7 @@ def test_remove_control_characters():
 def main():
     test_collapse_consecutive_blank_lines()
     test_collapse_tasks_having_no_output()
+    test_detect_task_names()
     test_suggest_missing_exemptions()
     test_normalize_paths()
     test_regexes_matcher_get_matching_regexes()

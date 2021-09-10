@@ -19,13 +19,15 @@ package androidx.compose.material
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.testutils.assertAgainstGolden
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -37,6 +39,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@OptIn(ExperimentalComposeUiApi::class)
 class AlertDialogScreenshotTest {
 
     @get:Rule
@@ -61,7 +64,8 @@ class AlertDialogScreenshotTest {
                     TextButton(onClick = {}) {
                         Text("Dismiss")
                     }
-                }
+                },
+                properties = DialogProperties(usePlatformDefaultWidth = true)
             )
         }
 
@@ -86,7 +90,8 @@ class AlertDialogScreenshotTest {
                     TextButton(onClick = {}) {
                         Text("Very long dismiss button")
                     }
-                }
+                },
+                properties = DialogProperties(usePlatformDefaultWidth = true)
             )
         }
 
@@ -105,7 +110,8 @@ class AlertDialogScreenshotTest {
                     TextButton(onClick = {}) {
                         Text("Ok")
                     }
-                }
+                },
+                properties = DialogProperties(usePlatformDefaultWidth = true)
             )
         }
 
@@ -124,7 +130,8 @@ class AlertDialogScreenshotTest {
                     TextButton(onClick = {}) {
                         Text("Ok")
                     }
-                }
+                },
+                properties = DialogProperties(usePlatformDefaultWidth = true)
             )
         }
 
@@ -142,7 +149,8 @@ class AlertDialogScreenshotTest {
                     TextButton(onClick = {}) {
                         Text("Ok")
                     }
-                }
+                },
+                properties = DialogProperties(usePlatformDefaultWidth = true)
             )
         }
 
@@ -157,14 +165,17 @@ class AlertDialogScreenshotTest {
             AlertDialog(
                 onDismissRequest = {},
                 title = {
-                    Box(Modifier.size(75.dp, 25.dp).background(MaterialTheme.colors.primary))
+                    Box(
+                        Modifier.requiredSize(75.dp, 25.dp).background(MaterialTheme.colors.primary)
+                    )
                 },
                 text = { Text("Text") },
                 confirmButton = {
                     TextButton(onClick = {}) {
                         Text("Ok")
                     }
-                }
+                },
+                properties = DialogProperties(usePlatformDefaultWidth = true)
             )
         }
 
@@ -180,13 +191,17 @@ class AlertDialogScreenshotTest {
                 onDismissRequest = {},
                 title = { Text("Title") },
                 text = {
-                    Box(Modifier.size(300.dp, 50.dp).background(MaterialTheme.colors.primary))
+                    Box(
+                        Modifier.requiredSize(300.dp, 50.dp)
+                            .background(MaterialTheme.colors.primary)
+                    )
                 },
                 confirmButton = {
                     TextButton(onClick = {}) {
                         Text("Ok")
                     }
-                }
+                },
+                properties = DialogProperties(usePlatformDefaultWidth = true)
             )
         }
 
@@ -201,16 +216,23 @@ class AlertDialogScreenshotTest {
             AlertDialog(
                 onDismissRequest = {},
                 title = {
-                    Box(Modifier.size(75.dp, 25.dp).background(MaterialTheme.colors.primary))
+                    Box(
+                        Modifier.requiredSize(75.dp, 25.dp)
+                            .background(MaterialTheme.colors.primary)
+                    )
                 },
                 text = {
-                    Box(Modifier.size(300.dp, 50.dp).background(MaterialTheme.colors.primary))
+                    Box(
+                        Modifier.requiredSize(300.dp, 50.dp)
+                            .background(MaterialTheme.colors.primary)
+                    )
                 },
                 confirmButton = {
                     TextButton(onClick = {}) {
                         Text("Ok")
                     }
-                }
+                },
+                properties = DialogProperties(usePlatformDefaultWidth = true)
             )
         }
 

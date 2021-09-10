@@ -1,13 +1,5 @@
 // Baseline format: 1.0
-MissingGetterMatchingBuilder: androidx.wear.watchface.Complication.Builder#setAsBackgroundComplication():
-    androidx.wear.watchface.Complication does not declare a `getAsBackgroundComplication()` method matching method androidx.wear.watchface.Complication.Builder.setAsBackgroundComplication()
-MissingGetterMatchingBuilder: androidx.wear.watchface.WatchFace.Builder#setPreviewReferenceTimeMillis(long):
-    androidx.wear.watchface.WatchFace does not declare a `getPreviewReferenceTimeMillis()` method matching method androidx.wear.watchface.WatchFace.Builder.setPreviewReferenceTimeMillis(long)
-MissingGetterMatchingBuilder: androidx.wear.watchface.WatchFace.Builder#setWear2AccentColor(int):
-    androidx.wear.watchface.WatchFace does not declare a `getWear2AccentColor()` method matching method androidx.wear.watchface.WatchFace.Builder.setWear2AccentColor(int)
-MissingGetterMatchingBuilder: androidx.wear.watchface.WatchFace.Builder#setWear2AcceptsTapEvents(boolean):
-    androidx.wear.watchface.WatchFace does not declare a `isWear2AcceptsTapEvents()` method matching method androidx.wear.watchface.WatchFace.Builder.setWear2AcceptsTapEvents(boolean)
-MissingGetterMatchingBuilder: androidx.wear.watchface.WatchFace.Builder#setWear2StatusBarGravity(int):
-    androidx.wear.watchface.WatchFace does not declare a `getWear2StatusBarGravity()` method matching method androidx.wear.watchface.WatchFace.Builder.setWear2StatusBarGravity(int)
-MissingGetterMatchingBuilder: androidx.wear.watchface.WatchFace.Builder#setWear2ViewProtectionMode(int):
-    androidx.wear.watchface.WatchFace does not declare a `getWear2ViewProtectionMode()` method matching method androidx.wear.watchface.WatchFace.Builder.setWear2ViewProtectionMode(int)
+GetterSetterNames: androidx.wear.watchface.CanvasComplication#setIsHighlighted(boolean):
+    Symmetric method for `isHighlighted` must be named `setHighlighted`; was `setIsHighlighted`
+GetterSetterNames: androidx.wear.watchface.ObservableWatchData#setValue(T):
+    Symmetric method for `hasValue` must be named `setHasValue`; was `setValue`

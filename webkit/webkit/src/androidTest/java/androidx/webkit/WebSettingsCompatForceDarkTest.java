@@ -18,6 +18,8 @@ package androidx.webkit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Bitmap;
@@ -29,8 +31,10 @@ import android.webkit.WebView;
 import androidx.core.graphics.ColorUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.rule.ActivityTestRule;
 
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -61,9 +65,10 @@ public class WebSettingsCompatForceDarkTest {
     // LayoutParams are null until WebView has a parent Activity.
     // Test testForceDark_rendersDark requires LayoutParams to define
     // width and height of WebView to capture its bitmap representation.
+    @SuppressWarnings("deprecation")
     @Rule
-    public final ActivityTestRule<WebViewTestActivity> mActivityRule =
-            new ActivityTestRule<>(WebViewTestActivity.class);
+    public final androidx.test.rule.ActivityTestRule<WebViewTestActivity> mActivityRule =
+            new androidx.test.rule.ActivityTestRule<>(WebViewTestActivity.class);
     private WebViewOnUiThread mWebViewOnUiThread;
 
     @Before
@@ -89,8 +94,8 @@ public class WebSettingsCompatForceDarkTest {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
 
         assertEquals("The default force dark state should be AUTO",
-                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()),
-                WebSettingsCompat.FORCE_DARK_AUTO);
+                WebSettingsCompat.FORCE_DARK_AUTO,
+                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()));
     }
 
     /**
@@ -108,8 +113,8 @@ public class WebSettingsCompatForceDarkTest {
         WebSettingsCompat.setForceDark(
                 mWebViewOnUiThread.getSettings(), WebSettingsCompat.FORCE_DARK_ON);
         assertEquals("Force dark should have been set to ON",
-                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()),
-                WebSettingsCompat.FORCE_DARK_ON);
+                WebSettingsCompat.FORCE_DARK_ON,
+                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()));
 
         mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
         assertTrue("Bitmap colour should be dark",
@@ -119,8 +124,8 @@ public class WebSettingsCompatForceDarkTest {
         WebSettingsCompat.setForceDark(
                 mWebViewOnUiThread.getSettings(), WebSettingsCompat.FORCE_DARK_OFF);
         assertEquals("Force dark should have been set to OFF",
-                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()),
-                WebSettingsCompat.FORCE_DARK_OFF);
+                WebSettingsCompat.FORCE_DARK_OFF,
+                WebSettingsCompat.getForceDark(mWebViewOnUiThread.getSettings()));
 
         mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
         assertTrue("Bitmap colour should be light",
@@ -183,7 +188,7 @@ public class WebSettingsCompatForceDarkTest {
         // Loading a page with dark-theme support should result in a green background (as
         // specified in media-query)
         mWebViewOnUiThread.loadDataAndWaitForCompletion(mDarkThemeSupport, "text/html", "base64");
-        assertTrue("Bitmap colour should be green", isGreen(getWebPageColor()));
+        assertThat("Bitmap colour should be green", getWebPageColor(), isGreen());
         assertTrue(prefersDarkTheme());
     }
 
@@ -215,8 +220,7 @@ public class WebSettingsCompatForceDarkTest {
         // Loading a page with dark-theme support should result in a green background (as
         // specified in media-query)
         mWebViewOnUiThread.loadDataAndWaitForCompletion(mDarkThemeSupport, "text/html", "base64");
-        assertTrue("Bitmap colour should be green",
-                isGreen(getWebPageColor()));
+        assertThat("Bitmap colour should be green", getWebPageColor(), isGreen());
         assertTrue(prefersDarkTheme());
     }
 
@@ -233,14 +237,19 @@ public class WebSettingsCompatForceDarkTest {
     // Requires {@link WebViewFeature.OFF_SCREEN_PRERASTER} for {@link
     // WebViewOnUiThread#captureBitmap}.
     private int getWebPageColor() {
-        Map<Integer, Integer> histogram;
-        Integer[] colourValues;
-
-        histogram = getBitmapHistogram(mWebViewOnUiThread.captureBitmap(), 0, 0, 64, 64);
-        assertEquals("Bitmap should have a single colour", histogram.size(), 1);
-        colourValues = histogram.keySet().toArray(new Integer[0]);
-
-        return colourValues[0];
+        Map<Integer, Integer> histogram =
+                getBitmapHistogram(mWebViewOnUiThread.captureBitmap(), 0, 0, 64, 64);
+        Map.Entry<Integer, Integer> maxEntry = null;
+        for (Map.Entry<Integer, Integer> entry : histogram.entrySet()) {
+            if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0) {
+                maxEntry = entry;
+            }
+        }
+        assertNotNull("There must be at least one color on the screen", maxEntry);
+        assertTrue(
+                "The majority color should be at least 90% of the pixels",
+                1.0 * maxEntry.getValue() / (64 * 64) > 0.9);
+        return maxEntry.getKey();
     }
 
     private Map<Integer, Integer> getBitmapHistogram(
@@ -267,9 +276,30 @@ public class WebSettingsCompatForceDarkTest {
         return "true".equals(result);
     }
 
-    private boolean isGreen(int color) {
-        return Color.green(color) > 200
-                && Color.red(color) < 50
-                && Color.blue(color) < 50;
+    /**
+     * Returns a matcher to check if a color int is mostly green.
+     */
+    private static Matcher<Integer> isGreen() {
+        return new TypeSafeMatcher<Integer>() {
+            private int mPageColor;
+            @Override
+            public boolean matchesSafely(Integer pageColor) {
+                mPageColor = pageColor;
+                return Color.green(pageColor) > 200
+                        && Color.red(pageColor) < 90
+                        && Color.blue(pageColor) < 90;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("expected color to be green but was "
+                        + toHex(mPageColor) + " (in ARGB format)");
+            }
+        };
+    }
+
+    private static String toHex(int i) {
+        long l = Integer.toUnsignedLong(i);
+        return "0x" + Long.toString(l, 16);
     }
 }

@@ -25,7 +25,7 @@ plugins {
 
 dependencies {
     api(project(":wear:wear-input"))
-    compileOnly fileTree(dir: '../wear_stubs', include: ['com.google.android.wearable-stubs.jar'])
+    compileOnly fileTree(dir: "../wear_stubs", include: ["com.google.android.wearable-stubs.jar"])
 }
 
 android {
@@ -38,7 +38,7 @@ androidx {
     name = "Android Wear Support Input Testing Helpers"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.WEAR
-    mavenVersion = LibraryVersions.WEAR_INPUT
+    mavenVersion = LibraryVersions.WEAR_INPUT_TESTING
     inceptionYear = "2020"
     description = "Android Wear Support Input  Testing Helpers"
 }

@@ -23,7 +23,6 @@ import androidx.compose.ui.node.LayoutNode.LayoutState.NeedsRemeasure
 import androidx.compose.ui.node.LayoutNode.LayoutState.Ready
 import androidx.compose.ui.node.LayoutNode.UsageByParent.InLayoutBlock
 import androidx.compose.ui.node.LayoutNode.UsageByParent.InMeasureBlock
-import androidx.compose.ui.node.LayoutNode.UsageByParent.NotUsed
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.util.fastForEach
 
@@ -36,7 +35,6 @@ import androidx.compose.ui.util.fastForEach
  * dispatch [OnPositionedModifier] callbacks for the nodes affected by the previous
  * [measureAndLayout] execution.
  */
-@OptIn(ExperimentalLayoutNodeApi::class)
 internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     /**
      * LayoutNodes that need measure or layout.
@@ -114,8 +112,8 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         Measuring, NeedsRemeasure -> {
             // requestMeasure has already been called for this node or
             // we're currently measuring it, let's swallow. example when it happens: we compose
-            // DataNode inside WithConstraints, this calls onRequestMeasure on DataNode's
-            // parent, but this parent is WithConstraints which is currently measuring.
+            // DataNode inside BoxWithConstraints, this calls onRequestMeasure on DataNode's
+            // parent, but this parent is BoxWithConstraints which is currently measuring.
             false
         }
         LayingOut -> {
@@ -190,7 +188,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      * Iterates through all LayoutNodes that have requested layout and measures and lays them out
      */
     fun measureAndLayout(): Boolean {
-        require(root.isAttached())
+        require(root.isAttached)
         require(root.isPlaced)
         require(!duringMeasureLayout)
         // we don't need to measure any children unless we have the correct root constraints
@@ -199,42 +197,41 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         var rootNodeResized = false
         if (relayoutNodes.isNotEmpty()) {
             duringMeasureLayout = true
-            relayoutNodes.popEach { layoutNode ->
-                val alignmentLinesOwner = layoutNode.alignmentLinesQueryOwner
-                if (layoutNode.isPlaced ||
-                    layoutNode.canAffectParent ||
-                    (
-                        alignmentLinesOwner != null && alignmentLinesOwner
-                            .alignmentUsageByParent != NotUsed
-                        )
-                ) {
-                    if (layoutNode.layoutState == NeedsRemeasure) {
-                        if (doRemeasure(layoutNode, rootConstraints)) {
-                            rootNodeResized = true
-                        }
-                    }
-                    if (layoutNode.layoutState == NeedsRelayout && layoutNode.isPlaced) {
-                        if (layoutNode === root) {
-                            layoutNode.place(0, 0)
-                        } else {
-                            layoutNode.replace()
-                        }
-                        onPositionedDispatcher.onNodePositioned(layoutNode)
-                        consistencyChecker?.assertConsistent()
-                    }
-                    measureIteration++
-                    // execute postponed `onRequestMeasure`
-                    if (postponedMeasureRequests.isNotEmpty()) {
-                        postponedMeasureRequests.fastForEach {
-                            if (it.isAttached()) {
-                                requestRemeasure(it)
+            try {
+                relayoutNodes.popEach { layoutNode ->
+                    if (layoutNode.isPlaced ||
+                        layoutNode.canAffectParent ||
+                        layoutNode.alignmentLines.required
+                    ) {
+                        if (layoutNode.layoutState == NeedsRemeasure) {
+                            if (doRemeasure(layoutNode, rootConstraints)) {
+                                rootNodeResized = true
                             }
                         }
-                        postponedMeasureRequests.clear()
+                        if (layoutNode.layoutState == NeedsRelayout && layoutNode.isPlaced) {
+                            if (layoutNode === root) {
+                                layoutNode.place(0, 0)
+                            } else {
+                                layoutNode.replace()
+                            }
+                            onPositionedDispatcher.onNodePositioned(layoutNode)
+                            consistencyChecker?.assertConsistent()
+                        }
+                        measureIteration++
+                        // execute postponed `onRequestMeasure`
+                        if (postponedMeasureRequests.isNotEmpty()) {
+                            postponedMeasureRequests.fastForEach {
+                                if (it.isAttached) {
+                                    requestRemeasure(it)
+                                }
+                            }
+                            postponedMeasureRequests.clear()
+                        }
                     }
                 }
+            } finally {
+                duringMeasureLayout = false
             }
-            duringMeasureLayout = false
             consistencyChecker?.assertConsistent()
         }
         return rootNodeResized
@@ -264,5 +261,5 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
 
     private val LayoutNode.canAffectParent
         get() = layoutState == NeedsRemeasure &&
-            (measuredByParent == InMeasureBlock || alignmentLinesQueryOwner != null)
+            (measuredByParent == InMeasureBlock || alignmentLines.required)
 }

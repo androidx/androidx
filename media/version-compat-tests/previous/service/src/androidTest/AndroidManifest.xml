@@ -15,35 +15,44 @@
    limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.mediacompat.service.test">
-    <queries>
-        <package android:name="android.support.mediacompat.client.test" />
-    </queries>
+    package="android.support.mediacompat.service.test">
 
     <application>
-        <receiver android:name="android.support.mediacompat.service.ServiceBroadcastReceiver">
+        <receiver
+            android:name="android.support.mediacompat.service.ServiceBroadcastReceiver"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.support.mediacompat.service.action.CALL_MEDIA_BROWSER_SERVICE_METHOD"/>
-                <action android:name="android.support.mediacompat.service.action.CALL_MEDIA_SESSION_METHOD"/>
+                <action android:name="android.support.mediacompat.service.action.CALL_MEDIA_BROWSER_SERVICE_METHOD" />
+                <action android:name="android.support.mediacompat.service.action.CALL_MEDIA_SESSION_METHOD" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver" >
+        <receiver
+            android:name="androidx.media.session.MediaButtonReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
 
-        <service android:name="android.support.mediacompat.service.StubMediaBrowserServiceCompat">
+        <service
+            android:name="android.support.mediacompat.service.StubMediaBrowserServiceCompat"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.media.browse.MediaBrowserService"/>
+                <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
 
-        <service android:name="android.support.mediacompat.service.StubMediaBrowserServiceCompatWithDelayedMediaSession">
+        <service
+            android:name="android.support.mediacompat.service.StubMediaBrowserServiceCompatWithDelayedMediaSession"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.media.browse.MediaBrowserService"/>
+                <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
     </application>
+
+    <queries>
+        <package android:name="android.support.mediacompat.client.test" />
+    </queries>
 </manifest>

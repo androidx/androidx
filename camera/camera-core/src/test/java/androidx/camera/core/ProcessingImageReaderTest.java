@@ -26,7 +26,6 @@ import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.graphics.ImageFormat;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Pair;
 import android.util.Size;
@@ -63,7 +62,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-@SuppressWarnings("UnstableApiUsage") // Needed because PausedExecutorService is marked @Beta
+// UnstableApiUsage is needed because PausedExecutorService is marked @Beta
+@SuppressWarnings({"UnstableApiUsage", "deprecation"})
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -130,9 +130,9 @@ public final class ProcessingImageReaderTest {
             throws InterruptedException, TimeoutException, ExecutionException {
         // Sets the callback from ProcessingImageReader to start processing
         CaptureProcessor captureProcessor = mock(CaptureProcessor.class);
-        ProcessingImageReader processingImageReader = new ProcessingImageReader(
-                mMetadataImageReader, sPausedExecutor, mCaptureBundle,
-                captureProcessor);
+        ProcessingImageReader processingImageReader = new ProcessingImageReader.Builder(
+                mMetadataImageReader, mCaptureBundle, captureProcessor).setPostProcessExecutor(
+                sPausedExecutor).build();
         processingImageReader.setOnImageAvailableListener(mock(
                 ImageReaderProxy.OnImageAvailableListener.class),
                 CameraXExecutors.mainThreadExecutor());
@@ -193,9 +193,8 @@ public final class ProcessingImageReaderTest {
             throws InterruptedException {
         // Sets the callback from ProcessingImageReader to start processing
         WaitingCaptureProcessor waitingCaptureProcessor = new WaitingCaptureProcessor();
-        ProcessingImageReader processingImageReader = new ProcessingImageReader(
-                mMetadataImageReader, AsyncTask.THREAD_POOL_EXECUTOR, mCaptureBundle,
-                waitingCaptureProcessor);
+        ProcessingImageReader processingImageReader = new ProcessingImageReader.Builder(
+                mMetadataImageReader, mCaptureBundle, waitingCaptureProcessor).build();
         processingImageReader.setOnImageAvailableListener(mock(
                 ImageReaderProxy.OnImageAvailableListener.class),
                 CameraXExecutors.mainThreadExecutor());
@@ -234,9 +233,9 @@ public final class ProcessingImageReaderTest {
     @Test
     public void closeImageHalfway() throws InterruptedException {
         // Sets the callback from ProcessingImageReader to start processing
-        ProcessingImageReader processingImageReader = new ProcessingImageReader(
-                mMetadataImageReader, sPausedExecutor, mCaptureBundle,
-                NOOP_PROCESSOR);
+        ProcessingImageReader processingImageReader = new ProcessingImageReader.Builder(
+                mMetadataImageReader, mCaptureBundle, NOOP_PROCESSOR).setPostProcessExecutor(
+                sPausedExecutor).build();
         processingImageReader.setOnImageAvailableListener(mock(
                 ImageReaderProxy.OnImageAvailableListener.class),
                 CameraXExecutors.mainThreadExecutor());
@@ -263,22 +262,30 @@ public final class ProcessingImageReaderTest {
         MetadataImageReader metadataImageReader = new MetadataImageReader(imageReaderProxy);
 
         // Expects to throw exception when creating ProcessingImageReader.
-        new ProcessingImageReader(metadataImageReader, AsyncTask.THREAD_POOL_EXECUTOR,
-                mCaptureBundle,
-                NOOP_PROCESSOR);
+        new ProcessingImageReader.Builder(metadataImageReader, mCaptureBundle,
+                NOOP_PROCESSOR).build();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void captureStageExceedMaxCaptureStage_setCaptureBundleThrowsException() {
         // Creates a ProcessingImageReader with maximum Image number.
-        ProcessingImageReader processingImageReader = new ProcessingImageReader(100, 100,
-                ImageFormat.YUV_420_888, 2, AsyncTask.THREAD_POOL_EXECUTOR, mCaptureBundle,
-                mock(CaptureProcessor.class));
+        ProcessingImageReader processingImageReader = new ProcessingImageReader.Builder(100, 100,
+                ImageFormat.YUV_420_888, 2, mCaptureBundle, mock(CaptureProcessor.class)).build();
 
         // Expects to throw exception when invoke the setCaptureBundle method with a
         // CaptureBundle size greater than maximum image number.
         processingImageReader.setCaptureBundle(
                 CaptureBundles.createCaptureBundle(mCaptureStage1, mCaptureStage2, mCaptureStage3));
+    }
+
+    @Test
+    public void imageReaderFormatIsOutputFormat() {
+        // Creates a ProcessingImageReader with input format YUV_420_888 and output JPEG
+        ProcessingImageReader processingImageReader = new ProcessingImageReader.Builder(100, 100,
+                ImageFormat.YUV_420_888, 2, mCaptureBundle,
+                mock(CaptureProcessor.class)).setOutputFormat(ImageFormat.JPEG).build();
+
+        assertThat(processingImageReader.getImageFormat()).isEqualTo(ImageFormat.JPEG);
     }
 
     private void triggerImageAvailable(int captureId, long timestamp) throws InterruptedException {

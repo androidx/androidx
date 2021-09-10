@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Χρήση κωδικού πρόσβασης"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Δεν έχει οριστεί PIN, μοτίβο ή κωδικός πρόσβασης."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Αυτή η συσκευή δεν υποστηρίζει PIN, μοτίβο ή κωδικό πρόσβασης."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Εικονίδιο δακτυλικών αποτυπωμάτων"</string>
 </resources>

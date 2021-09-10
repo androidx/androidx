@@ -14,30 +14,27 @@
  * limitations under the License.
  */
 
+
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("AndroidXUiPlugin")
+    id("AndroidXComposePlugin")
     id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    kotlinPlugin project(":compose:compiler:compiler")
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.kotlinStdlib)
 
-    compileOnly project(":annotation:annotation-sampled")
-    implementation project(":compose:foundation:foundation-layout")
-    implementation project(":compose:material:material")
-    implementation project(":compose:runtime:runtime")
-    implementation project(":compose:ui:ui")
+    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
+    implementation("androidx.compose.foundation:foundation-layout:1.0.0")
+    implementation("androidx.compose.material:material:1.0.0")
+    implementation(project(":compose:runtime:runtime"))
+    implementation("androidx.compose.ui:ui:1.0.0")
 }
 
 androidx {
@@ -46,10 +43,4 @@ androidx {
     mavenGroup = LibraryGroups.Compose.RUNTIME
     inceptionYear = "2019"
     description = "Contains the sample code for the Compose runtime"
-}
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        useIR = true
-    }
 }

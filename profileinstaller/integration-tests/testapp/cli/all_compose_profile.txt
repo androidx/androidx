@@ -1,0 +1,5 @@
+# This reference file is only for testing profgen, and should not be used in production
+# Any method inside of androidx.compose should be marked as "hot" and "startup"
+HSLandroidx/compose/**->**(**)**
+# Any class inside of androidx.compose.runtime should be marked as "startup"
+Landroidx/compose/runtime/*;

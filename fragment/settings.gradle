@@ -20,7 +20,7 @@ apply from: "../playground-common/playground-include-settings.gradle"
 setupPlayground(this, "..")
 selectProjectsFromAndroidX({ name ->
     if (name.startsWith(":fragment")) return true
-    if (name.startsWith(":internal-testutils-runtime")) return true
-    if (name.startsWith(":internal-testutils-truth")) return true
+    if (name == ":internal-testutils-runtime") return true
+    if (name == ":internal-testutils-truth") return true
     return false
 })

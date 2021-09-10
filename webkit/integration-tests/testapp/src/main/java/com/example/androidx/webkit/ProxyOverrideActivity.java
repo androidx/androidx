@@ -18,19 +18,17 @@ package com.example.androidx.webkit;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.EditText;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.webkit.ProxyConfig;
 import androidx.webkit.ProxyController;
+import androidx.webkit.WebViewClientCompat;
 import androidx.webkit.WebViewFeature;
 
 /**
@@ -38,10 +36,12 @@ import androidx.webkit.WebViewFeature;
  */
 public class ProxyOverrideActivity extends AppCompatActivity {
     private Proxy mProxy;
+    private Button mSetProxyOverrideButton;
+    private Button mLoadURLButton;
+    private Button mLoadBypassURLButton;
     private WebView mWebView;
+    private CheckBox mReverseBypassCheckBox;
     private TextView mRequestCountTextView;
-    private EditText mNavigationBar;
-    private InputMethodManager mInputMethodManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,69 +50,72 @@ public class ProxyOverrideActivity extends AppCompatActivity {
         setTitle(R.string.proxy_override_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
-        // Initialize proxy server
-        // Skip this step if you already have a proxy url
-        mProxy = new Proxy(0, () -> runOnUiThread(() -> mRequestCountTextView.setText(
-                getResources().getString(R.string.proxy_override_requests_served,
-                        mProxy.getRequestCount()))));
-        mProxy.start();
+        // Check for proxy override feature
+        if (!WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE)) {
+            WebkitHelpers.showMessageInActivity(this, R.string.webkit_api_not_available);
+            return;
+        }
 
         // Initialize views
         mRequestCountTextView = findViewById(R.id.proxy_override_textview);
         mRequestCountTextView.setText(getResources().getString(
                 R.string.proxy_override_requests_served, 0));
         mWebView = findViewById(R.id.proxy_override_webview);
-        mWebView.setWebViewClient(new WebViewClient());
-        mInputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-        mNavigationBar = findViewById(R.id.proxy_override_edittext);
-        mNavigationBar.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
-            // Listen to actions in the navigation bar (i.e. tapping enter on the soft keyboard)
-            if (actionId == EditorInfo.IME_ACTION_NEXT) {
-                // If action equals to IME_ACTION_NEXT, get the typed url, clear the navigation bar
-                // and return true
-                String url = mNavigationBar.getText().toString();
-                if (!url.isEmpty()) {
-                    // If the retrieved url is not empty, call WebView.loadUrl passing it
-                    if (!url.startsWith("http")) url = "http://" + url;
-                    mWebView.loadUrl(url);
-                    mNavigationBar.setText("");
-                }
-                mInputMethodManager.hideSoftInputFromWindow(mNavigationBar.getWindowToken(), 0);
-                mWebView.requestFocus();
-                return true;
-            }
-            return false;
+        mWebView.setWebViewClient(new WebViewClientCompat());
+        mReverseBypassCheckBox = findViewById(R.id.proxy_override_reverse_bypass_checkbox);
+        mSetProxyOverrideButton = findViewById(R.id.proxy_override_button);
+        mSetProxyOverrideButton.setOnClickListener(v -> {
+            mReverseBypassCheckBox.setEnabled(false);
+            mSetProxyOverrideButton.setEnabled(false);
+            setProxyOverride();
         });
+        mLoadURLButton = findViewById(R.id.proxy_override_load_url_button);
+        mLoadURLButton.setOnClickListener(v -> mWebView.loadUrl("http://www.google.com/"));
+        mLoadBypassURLButton = findViewById(R.id.proxy_override_load_bypass_button);
+        mLoadBypassURLButton.setOnClickListener(v -> mWebView.loadUrl("http://example.com/"));
 
-        // Check for proxy override feature
-        if (!WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE)) {
-            // If feature is not supported, just show a warning in the webview
-            mRequestCountTextView.setVisibility(View.GONE);
-            mNavigationBar.setVisibility(View.GONE);
-            WebkitHelpers.showMessageInActivity(this, R.string.webkit_api_not_available);
-            return;
+        // Check for reverse bypass feature
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE_REVERSE_BYPASS)) {
+            mReverseBypassCheckBox.setVisibility(View.VISIBLE);
         }
 
-        // Set proxy override
-        // Use your proxy url here
-        setProxyOverride("localhost:" + mProxy.getPort());
+        // Initialize proxy server
+        // Skip this step if you already have a proxy url
+        mProxy = new Proxy(/*port=*/0, () -> runOnUiThread(() -> mRequestCountTextView.setText(
+                getResources().getString(R.string.proxy_override_requests_served,
+                        mProxy.getRequestCount()))));
+        mProxy.start();
     }
 
-    private void setProxyOverride(String proxyUrl) {
-        ProxyController proxyController = ProxyController.getInstance();
-        ProxyConfig proxyConfig = new ProxyConfig.Builder().addProxyRule(proxyUrl).build();
-        proxyController.setProxyOverride(proxyConfig, (Runnable r) -> r.run(),
-                () -> onProxyOverrideComplete());
+    private void setProxyOverride() {
+        // Construct a ProxyConfig object using your proxy URL and your bypass list
+        ProxyConfig proxyConfig = new ProxyConfig.Builder()
+                // Use your proxy URL here
+                .addProxyRule("localhost:" + mProxy.getPort())
+                // Add as many URLs to the bypass list as you need
+                .addBypassRule("example.com")
+                .addBypassRule("www.anotherbypassurl.com")
+                // Set reverse bypass if the checkbox was checked. With reverse bypass, only
+                // the URLs in the bypass list will use the proxy settings.
+                .setReverseBypassEnabled(mReverseBypassCheckBox.isChecked())
+                .build();
+
+        // Call setProxyOverride and specify a callback
+        ProxyController.getInstance()
+                .setProxyOverride(proxyConfig, Runnable::run, this::onProxyOverrideComplete);
     }
 
     private void onProxyOverrideComplete() {
         // Your code goes here, after the proxy override callback was executed
-        mWebView.loadUrl("http://www.google.com");
+        mLoadURLButton.setEnabled(true);
+        mLoadBypassURLButton.setEnabled(true);
     }
 
     @Override
     protected void onDestroy() {
-        mProxy.shutdown();
+        if (mProxy != null) {
+            mProxy.shutdown();
+        }
         super.onDestroy();
     }
 }

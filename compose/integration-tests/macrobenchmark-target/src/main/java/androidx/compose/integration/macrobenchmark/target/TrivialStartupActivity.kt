@@ -18,8 +18,8 @@ package androidx.compose.integration.macrobenchmark.target
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.compose.material.Text
-import androidx.compose.ui.platform.setContent
 
 class TrivialStartupActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +28,5 @@ class TrivialStartupActivity : ComponentActivity() {
         setContent {
             Text("Compose Macrobenchmark Target")
         }
-
-        reportFullyDrawn()
     }
 }

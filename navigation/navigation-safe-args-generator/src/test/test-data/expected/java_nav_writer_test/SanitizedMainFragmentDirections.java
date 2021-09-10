@@ -43,6 +43,7 @@ public class SanitizedMainFragmentDirections {
     public static class PreviousAction implements NavDirections {
         private final HashMap arguments = new HashMap();
 
+        @SuppressWarnings("unchecked")
         private PreviousAction(@NonNull String arg1, @NonNull String arg2) {
             if (arg1 == null) {
                 throw new IllegalArgumentException("Argument \"arg_1\" is marked as non-null but was passed a null value.");
@@ -55,6 +56,7 @@ public class SanitizedMainFragmentDirections {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public PreviousAction setArg1(@NonNull String arg1) {
             if (arg1 == null) {
                 throw new IllegalArgumentException("Argument \"arg_1\" is marked as non-null but was passed a null value.");
@@ -64,6 +66,7 @@ public class SanitizedMainFragmentDirections {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public PreviousAction setArg2(@NonNull String arg2) {
             if (arg2 == null) {
                 throw new IllegalArgumentException("Argument \"arg.2\" is marked as non-null but was passed a null value.");
@@ -153,6 +156,7 @@ public class SanitizedMainFragmentDirections {
     public static class NextAction implements NavDirections {
         private final HashMap arguments = new HashMap();
 
+        @SuppressWarnings("unchecked")
         private NextAction(@NonNull String mainArg) {
             if (mainArg == null) {
                 throw new IllegalArgumentException("Argument \"main_arg\" is marked as non-null but was passed a null value.");
@@ -161,6 +165,7 @@ public class SanitizedMainFragmentDirections {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public NextAction setMainArg(@NonNull String mainArg) {
             if (mainArg == null) {
                 throw new IllegalArgumentException("Argument \"main_arg\" is marked as non-null but was passed a null value.");
@@ -170,6 +175,7 @@ public class SanitizedMainFragmentDirections {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public NextAction setOptionalArg(@NonNull String optionalArg) {
             if (optionalArg == null) {
                 throw new IllegalArgumentException("Argument \"optional.arg\" is marked as non-null but was passed a null value.");

@@ -17,6 +17,7 @@
 package androidx.camera.integration.view;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,18 +29,20 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 /** The main activity. */
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    // Possible values for this intent key (case-insensitive): "PreviewView", "CameraView".
+    // Possible values for this intent key (case-insensitive): "PreviewView"
     private static final String INTENT_EXTRA_VIEW_TYPE = "view_type";
     private static final String VIEW_TYPE_PREVIEW_VIEW = "PreviewView";
-    private static final String VIEW_TYPE_CAMERA_VIEW = "CameraView";
 
     private static final String[] REQUIRED_PERMISSIONS =
             new String[]{
@@ -50,21 +53,17 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_PERMISSIONS = 10;
 
     private boolean mCheckedPermissions = false;
-    private Mode mMode = Mode.CAMERA_VIEW;
+    private Mode mMode = Mode.CAMERA_CONTROLLER;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // Get extra option for checking whether it need to be implemented with PreviewView
+        // Get extra option for checking whether it needs to be implemented with PreviewView
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             final String viewTypeString = bundle.getString(INTENT_EXTRA_VIEW_TYPE);
-            final boolean isViewTypeValid =
-                    viewTypeString != null && (viewTypeString.equalsIgnoreCase(
-                            VIEW_TYPE_PREVIEW_VIEW) || viewTypeString.equalsIgnoreCase(
-                            VIEW_TYPE_CAMERA_VIEW));
-            if (isViewTypeValid && viewTypeString.equalsIgnoreCase(VIEW_TYPE_PREVIEW_VIEW)) {
+            if (VIEW_TYPE_PREVIEW_VIEW.equalsIgnoreCase(viewTypeString)) {
                 mMode = Mode.PREVIEW_VIEW;
             }
         }
@@ -77,7 +76,8 @@ public class MainActivity extends AppCompatActivity {
                 if (allPermissionsGranted()) {
                     startFragment();
                 } else if (!mCheckedPermissions) {
-                    requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
+                    ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS,
+                            REQUEST_CODE_PERMISSIONS);
                     mCheckedPermissions = true;
                 }
             } else {
@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
                 startFragment();
@@ -105,17 +106,21 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.camera_view:
-                mMode = Mode.CAMERA_VIEW;
-                break;
             case R.id.preview_view:
                 mMode = Mode.PREVIEW_VIEW;
                 break;
             case R.id.camera_controller:
                 mMode = Mode.CAMERA_CONTROLLER;
+                break;
+            case R.id.transform:
+                mMode = Mode.TRANSFORM;
+                break;
+            case R.id.compose_ui:
+                mMode = Mode.COMPOSE_UI;
                 break;
         }
         startFragment();
@@ -134,24 +139,30 @@ public class MainActivity extends AppCompatActivity {
 
     private void startFragment() {
         switch (mMode) {
-            case CAMERA_VIEW:
-                startFragment(R.string.camera_view, new CameraViewFragment());
-                break;
             case PREVIEW_VIEW:
                 startFragment(R.string.preview_view, new PreviewViewFragment());
                 break;
             case CAMERA_CONTROLLER:
                 startFragment(R.string.camera_controller, new CameraControllerFragment());
                 break;
+            case TRANSFORM:
+                startFragment(R.string.transform, new TransformFragment());
+                break;
+            case COMPOSE_UI:
+                startFragment(R.string.compose_ui, new ComposeUiFragment());
         }
     }
 
     private void startFragment(int titleRes, Fragment fragment) {
         getSupportActionBar().setTitle(titleRes);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content, fragment)
-                .commit();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.content, fragment);
+        if (mCheckedPermissions && Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
+            // For the codes, check the b/182981155 for the detail.
+            fragmentTransaction.commitAllowingStateLoss();
+        } else {
+            fragmentTransaction.commit();
+        }
     }
 
     private void report(String msg) {
@@ -160,6 +171,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private enum Mode {
-        CAMERA_VIEW, PREVIEW_VIEW, CAMERA_CONTROLLER
+        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM, COMPOSE_UI
     }
 }

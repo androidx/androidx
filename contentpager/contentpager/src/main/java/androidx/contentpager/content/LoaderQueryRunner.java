@@ -19,7 +19,6 @@ package androidx.contentpager.content;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import android.app.LoaderManager;
-import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
@@ -48,11 +47,12 @@ public final class LoaderQueryRunner implements ContentPager.QueryRunner {
     }
 
     @Override
-    @SuppressWarnings("unchecked")  // feels spurious. But can't commit line :80 w/o this.
+    @SuppressWarnings({"unchecked", "deprecation"})
     public void query(final @NonNull Query query, @NonNull final Callback callback) {
         if (DEBUG) Log.d(TAG, "Handling query: " + query);
 
-        LoaderCallbacks callbacks = new LoaderCallbacks<Cursor>() {
+        android.app.LoaderManager.LoaderCallbacks<Cursor> callbacks =
+                new android.app.LoaderManager.LoaderCallbacks<Cursor>() {
             @Override
             public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
                 if (DEBUG) Log.i(TAG, "Loading results for query: " + query);

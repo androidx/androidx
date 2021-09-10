@@ -17,6 +17,7 @@
 package androidx.compose.compiler.plugins.kotlin.analysis
 
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
+import androidx.compose.compiler.plugins.kotlin.lower.annotationClass
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrAnnotationContainer
 import org.jetbrains.kotlin.ir.declarations.IrClass
@@ -26,12 +27,15 @@ import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrTypeParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
+import org.jetbrains.kotlin.ir.expressions.IrComposite
 import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetObjectValue
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
+import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrClassifierSymbol
+import org.jetbrains.kotlin.ir.symbols.IrScriptSymbol
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.types.IrDynamicType
 import org.jetbrains.kotlin.ir.types.IrErrorType
@@ -45,6 +49,7 @@ import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.classifierOrFail
 import org.jetbrains.kotlin.ir.types.classifierOrNull
 import org.jetbrains.kotlin.ir.types.isAny
+import org.jetbrains.kotlin.ir.types.isMarkedNullable
 import org.jetbrains.kotlin.ir.types.isNullable
 import org.jetbrains.kotlin.ir.types.isPrimitiveType
 import org.jetbrains.kotlin.ir.types.isString
@@ -52,7 +57,7 @@ import org.jetbrains.kotlin.ir.types.isUnit
 import org.jetbrains.kotlin.ir.types.makeNotNull
 import org.jetbrains.kotlin.ir.util.fqNameForIrSerialization
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
-import org.jetbrains.kotlin.ir.util.getInlinedClass
+import org.jetbrains.kotlin.ir.util.getInlineClassUnderlyingType
 import org.jetbrains.kotlin.ir.util.isEnumClass
 import org.jetbrains.kotlin.ir.util.isEnumEntry
 import org.jetbrains.kotlin.ir.util.isFunctionOrKFunction
@@ -198,7 +203,7 @@ class StabilityInferencer(val context: IrPluginContext) {
     private val stable = context.referenceClass(ComposeFqNames.Stable)
 
     fun IrAnnotationContainer.hasStableAnnotation(): Boolean {
-        return annotations.any { it.type.classOrNull == stable }
+        return annotations.any { it.annotationClass == stable }
     }
 
     fun IrAnnotationContainer.hasStableMarker(): Boolean {
@@ -206,9 +211,9 @@ class StabilityInferencer(val context: IrPluginContext) {
     }
 
     fun IrConstructorCall.isStableMarker(): Boolean {
-        val symbol = type.classOrNull ?: return false
+        val symbol = annotationClass ?: return false
         val owner = if (symbol.isBound) symbol.owner else return false
-        return owner.annotations.any { it.type.classOrNull == stableMarker }
+        return owner.annotations.any { it.annotationClass == stableMarker }
     }
 
     fun IrClass.hasStableMarkedDescendant(): Boolean {
@@ -426,6 +431,7 @@ class StabilityInferencer(val context: IrPluginContext) {
         val stability = stabilityOf(expr.type)
         if (stability.knownStable()) return stability
         return when (expr) {
+            is IrConst<*> -> Stability.Stable
             is IrGetObjectValue ->
                 if (expr.symbol.owner.superTypes.any { stabilityOf(it).knownStable() })
                     Stability.Stable
@@ -440,7 +446,55 @@ class StabilityInferencer(val context: IrPluginContext) {
                     stability
                 }
             }
+            // some default parameters and consts can be wrapped in composite
+            is IrComposite -> {
+                if (expr.statements.all { it is IrExpression && stabilityOf(it).knownStable() }) {
+                    Stability.Stable
+                } else {
+                    stability
+                }
+            }
             else -> stability
         }
+    }
+}
+
+/**
+ * Returns inline class for given class or null of type is not inlined
+ * TODO: Make this configurable for different backends (currently implements logic of JS BE)
+ */
+// From Kotin's InlineClasses.kt
+private fun IrType.getInlinedClass(): IrClass? {
+    if (this is IrSimpleType) {
+        val erased = erase(this) ?: return null
+        if (erased.isInline) {
+            if (this.isMarkedNullable()) {
+                var fieldType: IrType
+                var fieldInlinedClass = erased
+                while (true) {
+                    fieldType = getInlineClassUnderlyingType(fieldInlinedClass)
+                    if (fieldType.isMarkedNullable()) {
+                        return null
+                    }
+
+                    fieldInlinedClass = fieldType.getInlinedClass() ?: break
+                }
+            }
+
+            return erased
+        }
+    }
+    return null
+}
+
+// From Kotin's InlineClasses.kt
+private tailrec fun erase(type: IrType): IrClass? {
+    val classifier = type.classifierOrFail
+
+    return when (classifier) {
+        is IrClassSymbol -> classifier.owner
+        is IrScriptSymbol -> null // TODO: check if correct
+        is IrTypeParameterSymbol -> erase(classifier.owner.superTypes.first())
+        else -> error(classifier)
     }
 }

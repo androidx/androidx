@@ -16,14 +16,16 @@
 
 package androidx.compose.foundation.demos
 
+import android.graphics.Matrix
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.gestures.detectMultitouchGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,12 +33,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.preferredHeight
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -46,23 +48,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.gesture.ExperimentalPointerInput
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerInputScope
-import androidx.compose.ui.input.pointer.consumeAllChanges
-import androidx.compose.ui.input.pointer.consumePositionChange
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import kotlin.math.atan2
 import kotlin.math.roundToInt
+import kotlin.math.sqrt
 import kotlin.random.Random
 
 val CoroutineGestureDemos = listOf(
@@ -72,6 +74,7 @@ val CoroutineGestureDemos = listOf(
     ComposableDemo("Drag 2D") { Drag2DGestures() },
     ComposableDemo("Rotation/Pan/Zoom") { MultitouchGestureDetector() },
     ComposableDemo("Rotation/Pan/Zoom with Lock") { MultitouchLockGestureDetector() },
+    ComposableDemo("Pointer type input") { PointerTypeInput() },
 )
 
 fun hueToColor(hue: Float): Color {
@@ -104,7 +107,6 @@ fun anotherRandomHue(hue: Float): Float {
 /**
  * Gesture detector for tap, double-tap, and long-press.
  */
-@OptIn(ExperimentalPointerInput::class)
 @Composable
 fun CoroutineTapDemo() {
     var tapHue by remember { mutableStateOf(randomHue()) }
@@ -116,12 +118,12 @@ fun CoroutineTapDemo() {
 
     Column {
         Text("The boxes change color when you tap the white box.")
-        Spacer(Modifier.size(5.dp))
+        Spacer(Modifier.requiredSize(5.dp))
         Box(
             Modifier
                 .fillMaxWidth()
-                .preferredHeight(50.dp)
-                .pointerInput {
+                .height(50.dp)
+                .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = { tapHue = anotherRandomHue(tapHue) },
                         onDoubleTap = { doubleTapHue = anotherRandomHue(doubleTapHue) },
@@ -141,65 +143,65 @@ fun CoroutineTapDemo() {
         ) {
             Text("Tap, double-tap, or long-press", Modifier.align(Alignment.Center))
         }
-        Spacer(Modifier.size(5.dp))
+        Spacer(Modifier.requiredSize(5.dp))
         Row {
             Box(
                 Modifier
-                    .preferredSize(50.dp)
+                    .size(50.dp)
                     .background(hueToColor(tapHue))
                     .border(BorderStroke(2.dp, Color.Black))
             )
             Text("Changes color on tap", Modifier.align(Alignment.CenterVertically))
         }
-        Spacer(Modifier.size(5.dp))
+        Spacer(Modifier.requiredSize(5.dp))
         Row {
             Box(
                 Modifier
-                    .preferredSize(50.dp)
+                    .size(50.dp)
                     .clipToBounds()
                     .background(hueToColor(doubleTapHue))
                     .border(BorderStroke(2.dp, Color.Black))
             )
             Text("Changes color on double-tap", Modifier.align(Alignment.CenterVertically))
         }
-        Spacer(Modifier.size(5.dp))
+        Spacer(Modifier.requiredSize(5.dp))
         Row {
             Box(
                 Modifier
-                    .preferredSize(50.dp)
+                    .size(50.dp)
                     .clipToBounds()
                     .background(hueToColor(longPressHue))
                     .border(BorderStroke(2.dp, Color.Black))
             )
             Text("Changes color on long press", Modifier.align(Alignment.CenterVertically))
         }
-        Spacer(Modifier.size(5.dp))
+        Spacer(Modifier.requiredSize(5.dp))
         Row {
             Box(
                 Modifier
-                    .preferredSize(50.dp)
+                    .size(50.dp)
                     .clipToBounds()
                     .background(hueToColor(pressHue))
                     .border(BorderStroke(2.dp, Color.Black))
             )
             Text("Changes color on press", Modifier.align(Alignment.CenterVertically))
         }
-        Spacer(Modifier.size(5.dp))
+        Spacer(Modifier.requiredSize(5.dp))
         Row {
             Box(
                 Modifier
-                    .preferredSize(50.dp)
+                    .size(50.dp)
                     .clipToBounds()
                     .background(hueToColor(releaseHue))
                     .border(BorderStroke(2.dp, Color.Black))
             )
             Text("Changes color on release", Modifier.align(Alignment.CenterVertically))
         }
-        Spacer(Modifier.size(5.dp))
+        Spacer(Modifier.requiredSize(5.dp))
         Row {
             Box(
                 Modifier
-                    .preferredSize(50.dp)
+                    .size(50.dp)
                     .clipToBounds()
                     .background(hueToColor(cancelHue))
                     .border(BorderStroke(2.dp, Color.Black))
@@ -209,7 +211,6 @@ fun CoroutineTapDemo() {
     }
 }
 
-@OptIn(ExperimentalPointerInput::class)
 @Composable
 fun TouchSlopDragGestures() {
     Column {
@@ -222,16 +223,15 @@ fun TouchSlopDragGestures() {
             var offset by remember { mutableStateOf(0.dp) }
             Box(
                 Modifier.offset(offset, 0.dp)
-                    .size(50.dp)
+                    .requiredSize(50.dp)
                     .background(Color.Blue)
-                    .pointerInput {
-                        detectHorizontalDragGestures { change, dragDistance ->
+                    .pointerInput(Unit) {
+                        detectHorizontalDragGestures { _, dragDistance ->
                             val offsetPx = offset.toPx()
                             val newOffset =
                                 (offsetPx + dragDistance).coerceIn(0f, width - 50.dp.toPx())
                             val consumed = newOffset - offsetPx
                             if (consumed != 0f) {
-                                change.consumePositionChange(change.positionChange().x, 0f)
                                 offset = newOffset.toDp()
                             }
                         }
@@ -250,19 +250,15 @@ fun TouchSlopDragGestures() {
                 var offset by remember { mutableStateOf(0.dp) }
                 Box(
                     Modifier.offset(0.dp, offset)
-                        .size(50.dp)
+                        .requiredSize(50.dp)
                         .background(Color.Red)
-                        .pointerInput {
-                            detectVerticalDragGestures { change, dragDistance ->
+                        .pointerInput(Unit) {
+                            detectVerticalDragGestures { _, dragDistance ->
                                 val offsetPx = offset.toPx()
                                 val newOffset = (offsetPx + dragDistance)
                                     .coerceIn(0f, height - 50.dp.toPx())
                                 val consumed = newOffset - offsetPx
                                 if (consumed != 0f) {
-                                    change.consumePositionChange(
-                                        0f,
-                                        change.positionChange().y
-                                    )
                                     offset = newOffset.toDp()
                                 }
                             }
@@ -270,7 +266,7 @@ fun TouchSlopDragGestures() {
                 )
             }
             Box(
-                Modifier.height(50.dp)
+                Modifier.requiredHeight(50.dp)
                     .fillMaxWidth()
                     .align(Alignment.TopStart)
                     .graphicsLayer(
@@ -287,7 +283,6 @@ fun TouchSlopDragGestures() {
     }
 }
 
-@OptIn(ExperimentalPointerInput::class)
 @Composable
 fun OrientationLockDragGestures() {
     var size by remember { mutableStateOf(IntSize.Zero) }
@@ -296,9 +291,8 @@ fun OrientationLockDragGestures() {
     Box(
         Modifier.onSizeChanged {
             size = it
-        }.pointerInput {
-            detectVerticalDragGestures { change, dragAmount ->
-                change.consumePositionChange(0f, change.positionChange().y)
+        }.pointerInput(Unit) {
+            detectVerticalDragGestures { _, dragAmount ->
                 offsetY = (offsetY.toPx() + dragAmount)
                     .coerceIn(0f, size.height.toFloat() - 50.dp.toPx()).toDp()
             }
@@ -308,11 +302,10 @@ fun OrientationLockDragGestures() {
         Box(
             Modifier.offset(offsetX, 0.dp)
                 .background(Color.Blue.copy(alpha = 0.5f))
-                .width(50.dp)
+                .requiredWidth(50.dp)
                 .fillMaxHeight()
-                .pointerInput {
-                    detectHorizontalDragGestures { change, dragAmount ->
-                        change.consumePositionChange(change.positionChange().x, 0f)
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures { _, dragAmount ->
                         offsetX = (offsetX.toPx() + dragAmount)
                             .coerceIn(0f, size.width.toFloat() - 50.dp.toPx()).toDp()
                     }
@@ -321,7 +314,7 @@ fun OrientationLockDragGestures() {
         Box(
             Modifier.offset(0.dp, offsetY)
                 .background(Color.Red.copy(alpha = 0.5f))
-                .height(50.dp)
+                .requiredHeight(50.dp)
                 .fillMaxWidth()
         )
 
@@ -332,7 +325,6 @@ fun OrientationLockDragGestures() {
     }
 }
 
-@OptIn(ExperimentalPointerInput::class)
 @Composable
 fun Drag2DGestures() {
     var size by remember { mutableStateOf(IntSize.Zero) }
@@ -344,12 +336,11 @@ fun Drag2DGestures() {
         }.fillMaxSize()
     ) {
         Box(
-            Modifier.offset({ offsetX.value }, { offsetY.value })
+            Modifier.offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
                 .background(Color.Blue)
-                .size(50.dp)
-                .pointerInput {
-                    detectDragGestures { change, dragAmount ->
-                        change.consumeAllChanges()
+                .requiredSize(50.dp)
+                .pointerInput(Unit) {
+                    detectDragGestures { _, dragAmount ->
                         offsetX.value = (offsetX.value + dragAmount.x)
                             .coerceIn(0f, size.width.toFloat() - 50.dp.toPx())
 
@@ -362,24 +353,41 @@ fun Drag2DGestures() {
     }
 }
 
-@OptIn(ExperimentalPointerInput::class)
 @Composable
 fun MultitouchArea(
     text: String,
     gestureDetector: suspend PointerInputScope.(
-        (angle: Float) -> Unit,
-        (zoom: Float) -> Unit,
-        (pan: Offset) -> Unit
+        (centroid: Offset, pan: Offset, zoom: Float, angle: Float) -> Unit,
     ) -> Unit
 ) {
+    val matrix by remember { mutableStateOf(Matrix()) }
     var angle by remember { mutableStateOf(0f) }
     var zoom by remember { mutableStateOf(1f) }
-    val offsetX = remember { mutableStateOf(0f) }
-    val offsetY = remember { mutableStateOf(0f) }
+    var offsetX by remember { mutableStateOf(0f) }
+    var offsetY by remember { mutableStateOf(0f) }
 
-    Box(Modifier.fillMaxSize()) {
+    Box(
+        Modifier.fillMaxSize().pointerInput(Unit) {
+            gestureDetector { centroid, pan, gestureZoom, gestureAngle ->
+                val anchorX = centroid.x - size.width / 2f
+                val anchorY = centroid.y - size.height / 2f
+                matrix.postRotate(gestureAngle, anchorX, anchorY)
+                matrix.postScale(gestureZoom, gestureZoom, anchorX, anchorY)
+                matrix.postTranslate(pan.x, pan.y)
+
+                val v = FloatArray(9)
+                matrix.getValues(v)
+                offsetX = v[Matrix.MTRANS_X]
+                offsetY = v[Matrix.MTRANS_Y]
+                val scaleX = v[Matrix.MSCALE_X]
+                val skewY = v[Matrix.MSKEW_Y]
+                zoom = sqrt(scaleX * scaleX + skewY * skewY)
+                angle = atan2(v[Matrix.MSKEW_X], v[Matrix.MSCALE_X]) * (-180 / Math.PI.toFloat())
+            }
+        }
+    ) {
         Box(
-            Modifier.offset({ offsetX.value }, { offsetY.value })
+            Modifier.offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
                 .graphicsLayer(
                     scaleX = zoom,
                     scaleY = zoom,
@@ -408,15 +416,6 @@ fun MultitouchArea(
                             drawRect(color = color, topLeft = topLeft, size = rectangleSize)
                         }
                     }
-                }.pointerInput {
-                    gestureDetector(
-                        { angle += it },
-                        { zoom *= it },
-                        {
-                            offsetX.value += it.x
-                            offsetY.value += it.y
-                        }
-                    )
                 }
                 .fillMaxSize()
         )
@@ -428,17 +427,14 @@ fun MultitouchArea(
  * This is a multi-touch gesture detector, including pan, zoom, and rotation.
  * The user can pan, zoom, and rotate once touch slop has been reached.
  */
-@OptIn(ExperimentalPointerInput::class)
 @Composable
 fun MultitouchGestureDetector() {
     MultitouchArea(
         "Zoom, Pan, and Rotate"
-    ) { onRotate, onZoom, onPan ->
-        detectMultitouchGestures(
+    ) {
+        detectTransformGestures(
             panZoomLock = false,
-            onRotate = onRotate,
-            onZoom = onZoom,
-            onPan = onPan
+            onGesture = it
         )
     }
 }
@@ -448,17 +444,36 @@ fun MultitouchGestureDetector() {
  * It is common to want to lean toward zoom over rotation, so this gesture detector will
  * lock into zoom if the first unless the rotation passes touch slop first.
  */
-@OptIn(ExperimentalPointerInput::class)
 @Composable
 fun MultitouchLockGestureDetector() {
     MultitouchArea(
         "Zoom, Pan, and Rotate Locking to Zoom"
-    ) { onRotate, onZoom, onPan ->
-        detectMultitouchGestures(
+    ) {
+        detectTransformGestures(
             panZoomLock = true,
-            onRotate = onRotate,
-            onZoom = onZoom,
-            onPan = onPan
+            onGesture = it
         )
+    }
+}
+
+@Composable
+fun PointerTypeInput() {
+    var pointerType by remember { mutableStateOf<PointerType?>(null) }
+    Box(
+        Modifier.pointerInput(Unit) {
+            forEachGesture {
+                awaitPointerEventScope {
+                    val pointer = awaitPointerEvent().changes.first()
+                    pointerType = pointer.type
+                    do {
+                        val event = awaitPointerEvent()
+                    } while (event.changes.first().pressed)
+                    pointerType = null
+                }
+            }
+        }
+    ) {
+        Text("Touch or click the area to see what type of input it is.")
+        Text("PointerType: ${pointerType ?: ""}", Modifier.align(Alignment.BottomStart))
     }
 }

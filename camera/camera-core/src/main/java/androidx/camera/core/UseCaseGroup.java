@@ -32,7 +32,6 @@ import java.util.List;
  * {@link UseCaseGroup} usually share some common properties like the FOV defined by
  * {@link ViewPort}.
  */
-@ExperimentalUseCaseGroup
 public final class UseCaseGroup {
 
     @Nullable
@@ -65,7 +64,6 @@ public final class UseCaseGroup {
     /**
      * A builder for generating {@link UseCaseGroup}.
      */
-    @ExperimentalUseCaseGroup
     public static final class Builder {
 
         private ViewPort mViewPort;

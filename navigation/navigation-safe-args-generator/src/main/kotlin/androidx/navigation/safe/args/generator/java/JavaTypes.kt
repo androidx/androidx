@@ -56,6 +56,8 @@ internal val ACTION_ONLY_NAV_DIRECTION_CLASSNAME: ClassName =
 internal val NAV_ARGS_CLASSNAME: ClassName = ClassName.get("androidx.navigation", "NavArgs")
 internal val HASHMAP_CLASSNAME: ClassName = ClassName.get("java.util", "HashMap")
 internal val BUNDLE_CLASSNAME: ClassName = ClassName.get("android.os", "Bundle")
+internal val SAVED_STATE_HANDLE_CLASSNAME: ClassName =
+    ClassName.get("androidx.lifecycle", "SavedStateHandle")
 internal val PARCELABLE_CLASSNAME = ClassName.get("android.os", "Parcelable")
 internal val SERIALIZABLE_CLASSNAME = ClassName.get("java.io", "Serializable")
 internal val SYSTEM_CLASSNAME = ClassName.get("java.lang", "System")
@@ -193,6 +195,65 @@ internal fun NavType.addBundlePutStatement(
         "$N.$N($S, $L)",
         bundle,
         bundlePutMethod(),
+        arg.name,
+        argValue
+    )
+}
+
+internal fun NavType.addSavedStateHandleSetStatement(
+    builder: MethodSpec.Builder,
+    arg: Argument,
+    savedStateHandle: String,
+    argValue: String
+): MethodSpec.Builder = when (this) {
+    is ObjectType -> builder.apply {
+        beginControlFlow(
+            "if ($T.class.isAssignableFrom($T.class) || $N == null)",
+            PARCELABLE_CLASSNAME, arg.type.typeName(), argValue
+        ).apply {
+            addStatement(
+                "$N.set($S, $T.class.cast($N))",
+                savedStateHandle, arg.name, PARCELABLE_CLASSNAME, argValue
+            )
+        }.nextControlFlow(
+            "else if ($T.class.isAssignableFrom($T.class))",
+            SERIALIZABLE_CLASSNAME, arg.type.typeName()
+        ).apply {
+            addStatement(
+                "$N.set($S, $T.class.cast($N))",
+                savedStateHandle, arg.name, SERIALIZABLE_CLASSNAME, argValue
+            )
+        }.nextControlFlow("else").apply {
+            addStatement(
+                "throw new UnsupportedOperationException($T.class.getName() + " +
+                    "\" must implement Parcelable or Serializable or must be an Enum.\")",
+                arg.type.typeName()
+            )
+        }.endControlFlow()
+    }
+    else -> builder.addStatement(
+        "$N.set($S, $N)",
+        savedStateHandle,
+        arg.name,
+        argValue
+    )
+}
+
+internal fun NavType.addSavedStateHandleSetStatement(
+    builder: MethodSpec.Builder,
+    arg: Argument,
+    savedStateHandle: String,
+    argValue: CodeBlock
+): MethodSpec.Builder = when (this) {
+    is ObjectType -> builder.apply {
+        addStatement(
+            "$N.set($S, $L)",
+            savedStateHandle, arg.name, argValue
+        )
+    }
+    else -> builder.addStatement(
+        "$N.set($S, $L)",
+        savedStateHandle,
         arg.name,
         argValue
     )

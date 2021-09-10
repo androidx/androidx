@@ -266,7 +266,7 @@ public class BiometricManager {
     @Nullable private final android.hardware.biometrics.BiometricManager mBiometricManager;
 
     /**
-     * The framework fingerprint manager. Should be non-null on Android 9.0 (API 28) and below.
+     * The framework fingerprint manager. Should be non-null on Android 10 (API 29) and below.
      */
     @Nullable private final androidx.core.hardware.fingerprint.FingerprintManagerCompat
             mFingerprintManager;
@@ -290,13 +290,12 @@ public class BiometricManager {
     @VisibleForTesting
     BiometricManager(@NonNull Injector injector) {
         mInjector = injector;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            mBiometricManager = injector.getBiometricManager();
-            mFingerprintManager = null;
-        } else {
-            mBiometricManager = null;
-            mFingerprintManager = injector.getFingerprintManager();
-        }
+        mBiometricManager = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                ? injector.getBiometricManager()
+                : null;
+        mFingerprintManager = Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
+                ? injector.getFingerprintManager()
+                : null;
     }
 
     /**
@@ -372,14 +371,12 @@ public class BiometricManager {
             return BIOMETRIC_ERROR_NO_HARDWARE;
         }
 
-        // No authenticators are enrolled if the device is not secured.
-        if (!mInjector.isDeviceSecuredWithCredential()) {
-            return BIOMETRIC_ERROR_NONE_ENROLLED;
-        }
-
-        // Credential authentication is always possible if the device is secured.
+        // Credential authentication is always possible if the device is secured. Conversely, no
+        // form of authentication is possible if the device is not secured.
         if (AuthenticatorUtils.isDeviceCredentialAllowed(authenticators)) {
-            return BIOMETRIC_SUCCESS;
+            return mInjector.isDeviceSecuredWithCredential()
+                    ? BIOMETRIC_SUCCESS
+                    : BIOMETRIC_ERROR_NONE_ENROLLED;
         }
 
         // The class of some non-fingerprint biometrics can be checked on API 29.
@@ -394,7 +391,7 @@ public class BiometricManager {
             // Having fingerprint hardware is a prerequisite, since BiometricPrompt internally
             // calls FingerprintManager#getErrorString() on API 28 (b/151443237).
             return mInjector.isFingerprintHardwarePresent()
-                    ? canAuthenticateWithFingerprintOrUnknown()
+                    ? canAuthenticateWithFingerprintOrUnknownBiometric()
                     : BIOMETRIC_ERROR_NO_HARDWARE;
         }
 
@@ -423,7 +420,9 @@ public class BiometricManager {
             if (crypto != null) {
                 try {
                     final Object result =
-                            canAuthenticateWithCrypto.invoke(mBiometricManager, crypto);
+                            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q
+                                    ? canAuthenticateWithCrypto.invoke(mBiometricManager, crypto)
+                                    : null;
                     if (result instanceof Integer) {
                         return (int) result;
                     }
@@ -442,7 +441,7 @@ public class BiometricManager {
         }
 
         // If all else fails, check if fingerprint authentication is available.
-        return canAuthenticateWithFingerprintOrUnknown();
+        return canAuthenticateWithFingerprintOrUnknownBiometric();
     }
 
     /**
@@ -464,14 +463,23 @@ public class BiometricManager {
     }
 
     /**
-     * Checks if the user can authenticate with fingerprint, falling back to
-     * {@link #BIOMETRIC_STATUS_UNKNOWN} for any error condition.
+     * Checks if the user can authenticate with fingerprint or with a biometric sensor for which
+     * there is no platform method to check availability.
      *
-     * @return {@link #BIOMETRIC_SUCCESS} if the user can authenticate with fingerprint, or
-     * {@link #BIOMETRIC_STATUS_UNKNOWN} otherwise.
+     * @return {@link #BIOMETRIC_SUCCESS} if the user can authenticate with fingerprint. Otherwise,
+     * returns an error code indicating why the user can't authenticate, or
+     * {@link #BIOMETRIC_STATUS_UNKNOWN} if it is unknown whether the user can authenticate.
      */
     @AuthenticationStatus
-    private int canAuthenticateWithFingerprintOrUnknown() {
+    private int canAuthenticateWithFingerprintOrUnknownBiometric() {
+        // If the device is not secured, authentication is definitely not possible. Use
+        // FingerprintManager to distinguish between the "no hardware" and "none enrolled" cases.
+        if (!mInjector.isDeviceSecuredWithCredential()) {
+            return canAuthenticateWithFingerprint();
+        }
+
+        // Check for definite availability of fingerprint. Otherwise, return "unknown" to allow for
+        // non-fingerprint biometrics (e.g. iris) that may be available via BiometricPrompt.
         return canAuthenticateWithFingerprint() == BIOMETRIC_SUCCESS
                 ? BIOMETRIC_SUCCESS
                 : BIOMETRIC_STATUS_UNKNOWN;

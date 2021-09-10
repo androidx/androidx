@@ -16,6 +16,7 @@
 
 package androidx.versionedparcelable;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.ElementType;
@@ -36,5 +37,6 @@ public @interface ParcelField {
     /**
      * Specifies the default value of this field.
      */
+    @NonNull
     String defaultValue() default "";
 }

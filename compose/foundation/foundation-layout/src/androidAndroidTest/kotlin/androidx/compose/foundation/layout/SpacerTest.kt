@@ -49,7 +49,7 @@ class SpacerTest : LayoutTest() {
         show {
             Container(constraints = bigConstraints) {
                 Spacer(
-                    Modifier.preferredSize(width = width, height = height)
+                    Modifier.size(width = width, height = height)
                         .onGloballyPositioned { position: LayoutCoordinates ->
                             size = position.size
                             drawLatch.countDown()
@@ -60,8 +60,8 @@ class SpacerTest : LayoutTest() {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
-            Truth.assertThat(size?.height).isEqualTo(height.toIntPx())
-            Truth.assertThat(size?.width).isEqualTo(width.toIntPx())
+            Truth.assertThat(size?.height).isEqualTo(height.roundToPx())
+            Truth.assertThat(size?.width).isEqualTo(width.roundToPx())
         }
     }
 
@@ -83,7 +83,7 @@ class SpacerTest : LayoutTest() {
                     )
                 ) {
                     Spacer(
-                        Modifier.preferredSize(width = width, height = height)
+                        Modifier.size(width = width, height = height)
                             .onGloballyPositioned { position: LayoutCoordinates ->
                                 size = position.size
                                 drawLatch.countDown()
@@ -95,8 +95,8 @@ class SpacerTest : LayoutTest() {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
-            Truth.assertThat(size?.height).isEqualTo(containerHeight.toIntPx())
-            Truth.assertThat(size?.width).isEqualTo(containerWidth.toIntPx())
+            Truth.assertThat(size?.height).isEqualTo(containerHeight.roundToPx())
+            Truth.assertThat(size?.width).isEqualTo(containerWidth.roundToPx())
         }
     }
 
@@ -109,7 +109,7 @@ class SpacerTest : LayoutTest() {
         show {
             Container(constraints = bigConstraints) {
                 Spacer(
-                    Modifier.preferredWidth(width).onGloballyPositioned { position ->
+                    Modifier.width(width).onGloballyPositioned { position ->
                         size = position.size
                         drawLatch.countDown()
                     }
@@ -120,7 +120,7 @@ class SpacerTest : LayoutTest() {
 
         with(density) {
             Truth.assertThat(size?.height).isEqualTo(0)
-            Truth.assertThat(size?.width).isEqualTo(width.toIntPx())
+            Truth.assertThat(size?.width).isEqualTo(width.roundToPx())
         }
     }
 
@@ -141,7 +141,7 @@ class SpacerTest : LayoutTest() {
                     )
                 ) {
                     Spacer(
-                        Modifier.preferredWidth(width)
+                        Modifier.width(width)
                             .onGloballyPositioned { position: LayoutCoordinates ->
                                 size = position.size
                                 drawLatch.countDown()
@@ -154,7 +154,7 @@ class SpacerTest : LayoutTest() {
 
         with(density) {
             Truth.assertThat(size?.height).isEqualTo(0)
-            Truth.assertThat(size?.width).isEqualTo(containerWidth.toIntPx())
+            Truth.assertThat(size?.width).isEqualTo(containerWidth.roundToPx())
         }
     }
 
@@ -167,7 +167,7 @@ class SpacerTest : LayoutTest() {
         show {
             Container(constraints = bigConstraints) {
                 Spacer(
-                    Modifier.preferredHeight(height)
+                    Modifier.height(height)
                         .onGloballyPositioned { position: LayoutCoordinates ->
                             size = position.size
                             drawLatch.countDown()
@@ -178,7 +178,7 @@ class SpacerTest : LayoutTest() {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
-            Truth.assertThat(size?.height).isEqualTo(height.toIntPx())
+            Truth.assertThat(size?.height).isEqualTo(height.roundToPx())
             Truth.assertThat(size?.width).isEqualTo(0)
         }
     }
@@ -200,7 +200,7 @@ class SpacerTest : LayoutTest() {
                     )
                 ) {
                     Spacer(
-                        Modifier.preferredHeight(height)
+                        Modifier.height(height)
                             .onGloballyPositioned { position: LayoutCoordinates ->
                                 size = position.size
                                 drawLatch.countDown()
@@ -212,7 +212,7 @@ class SpacerTest : LayoutTest() {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
-            Truth.assertThat(size?.height).isEqualTo(containerHeight.toIntPx())
+            Truth.assertThat(size?.height).isEqualTo(containerHeight.roundToPx())
             Truth.assertThat(size?.width).isEqualTo(0)
         }
     }

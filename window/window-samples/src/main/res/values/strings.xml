@@ -20,8 +20,6 @@
     <string name="stateUpdateLog">State update log</string>
     <string name="deviceState">Device state</string>
     <string name="windowLayout">Window layout</string>
-    <string name="hinge">Hinge</string>
-    <string name="unknown">Unknown</string>
     <string name="fold">Fold</string>
     <string name="legend">Legend:</string>
     <string name="content_title">Content title</string>

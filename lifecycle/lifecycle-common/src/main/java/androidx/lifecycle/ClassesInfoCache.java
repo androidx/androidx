@@ -29,7 +29,11 @@ import java.util.Map;
  * Reflection is expensive, so we cache information about methods
  * for {@link ReflectiveGenericLifecycleObserver}, so it can call them,
  * and for {@link Lifecycling} to determine which observer adapter to use.
+ *
+ * @deprecated internal infra to support deprecated {@link OnLifecycleEvent}
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 final class ClassesInfoCache {
 
     static ClassesInfoCache sInstance = new ClassesInfoCache();
@@ -162,6 +166,7 @@ final class ClassesInfoCache {
     }
 
     @SuppressWarnings("WeakerAccess")
+    @Deprecated
     static class CallbackInfo {
         final Map<Lifecycle.Event, List<MethodReference>> mEventToHandlers;
         final Map<MethodReference, Lifecycle.Event> mHandlerToEvent;
@@ -198,6 +203,7 @@ final class ClassesInfoCache {
     }
 
     @SuppressWarnings("WeakerAccess")
+    @Deprecated
     static final class MethodReference {
         final int mCallType;
         final Method mMethod;

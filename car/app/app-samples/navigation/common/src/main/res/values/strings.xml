@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+  <string name="app_name" translatable="false">Navigation</string>
+  <string name="navigation_active" translatable="false">Navigating...</string>
+  <string name="navigation_rerouting" translatable="false">Rerouting...</string>
+  <string name="navigation_arrived" translatable="false">Arrived!</string>
+  <string name="home_destination_label" translatable="false">Home</string>
+  <string name="work_destination_label" translatable="false">Work</string>
+  <string name="route_preview" translatable="false">Routes</string>
+  <string name="settings_section_a_label" translatable="false">Section A</string>
+  <string name="settings_section_b_label" translatable="false">Section B</string>
+  <string name="settings_title" translatable="false">Settings</string>
+  <string name="settings_one_label" translatable="false">Setting One</string>
+  <string name="settings_one_pref" translatable="false">setting_one</string>
+  <string name="settings_two_label" translatable="false">Setting Two</string>
+  <string name="settings_two_pref" translatable="false">setting_two</string>
+  <string name="settings_three_label" translatable="false">Setting Three</string>
+  <string name="settings_three_pref" translatable="false">setting_three</string>
+  <string name="settings_four_label" translatable="false">Setting Four</string>
+  <string name="settings_four_pref" translatable="false">setting_four</string>
+  <string name="settings_five_label" translatable="false">Setting Five</string>
+  <string name="settings_five_pref" translatable="false">setting_five</string>
+  <string name="settings_six_label" translatable="false">Setting Six</string>
+  <string name="settings_six_pref" translatable="false">setting_six</string>
+</resources>

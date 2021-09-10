@@ -16,16 +16,20 @@
 
 package androidx.compose.compiler.plugins.kotlin
 
+import org.intellij.lang.annotations.Language
+
 abstract class AbstractControlFlowTransformTests : ComposeIrTransformTest() {
     protected fun controlFlow(
+        @Language("kotlin")
         source: String,
         expectedTransformed: String,
-        dumpTree: Boolean = false
+        dumpTree: Boolean = false,
+        compilation: Compilation = JvmCompilation()
     ) = verifyComposeIrTransform(
         """
             import androidx.compose.runtime.Composable
             import androidx.compose.runtime.key
-            import androidx.compose.runtime.ComposableContract
+            import androidx.compose.runtime.NonRestartableComposable
 
             $source
         """.trimIndent(),
@@ -34,6 +38,7 @@ abstract class AbstractControlFlowTransformTests : ComposeIrTransformTest() {
             import androidx.compose.runtime.Composable
 
             inline class InlineClass(val value: Int)
+            fun used(x: Any?) {}
 
             @Composable fun A() {}
             @Composable fun A(x: Int) { }
@@ -53,6 +58,7 @@ abstract class AbstractControlFlowTransformTests : ComposeIrTransformTest() {
             var b = 2
             var c = 3
         """.trimIndent(),
-        dumpTree = dumpTree
+        dumpTree = dumpTree,
+        compilation = compilation
     )
 }

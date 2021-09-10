@@ -229,7 +229,7 @@
         <item>337</item>
         <item>600</item>
         <item>800</item>
-        <item>1</item>
+        <item>0</item>
         <item>0</item>
         <item>true</item>
         <item>826</item>
@@ -367,7 +367,7 @@
         <item>0</item>
         <item>0</item>
     </array>
-    <array name="heic_with_exif">
+    <array name="heif_with_exif">
         <!--Whether thumbnail exists-->
         <item>false</item>
         <item>0</item>

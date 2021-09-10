@@ -7,9 +7,6 @@ plugins {
     id("java-library")
 }
 
-targetCompatibility = JavaVersion.VERSION_1_7
-sourceCompatibility = JavaVersion.VERSION_1_7
-
 jar {
     from sourceSets.main.output
     // Strip out typedef classes. For Android libraries, this is done
@@ -18,8 +15,8 @@ jar {
     // themselves have been manually extracted into the
     // external-annotations directory, and those are packaged separately
     // below by the annotationsZip task.
-    exclude('androidx/annotation/ProductionVisibility.class')
-    exclude('androidx/annotation/DimensionUnit.class')
+    exclude("androidx/annotation/ProductionVisibility.class")
+    exclude("androidx/annotation/DimensionUnit.class")
 }
 
 task annotationsZip(type: Zip) {

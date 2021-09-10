@@ -1,28 +1,28 @@
 // Signature format: 4.0
 package androidx.compose.ui.graphics {
 
-  public final class AndroidBlendModeKt {
-    method public static boolean isSupported(androidx.compose.ui.graphics.BlendMode);
+  public final class AndroidBlendMode_androidKt {
+    method public static boolean isSupported(int);
   }
 
   @kotlin.PublishedApi internal final class AndroidCanvas implements androidx.compose.ui.graphics.Canvas {
     ctor public AndroidCanvas();
-    method public void clipPath(androidx.compose.ui.graphics.Path path, androidx.compose.ui.graphics.ClipOp clipOp);
-    method public void clipRect(float left, float top, float right, float bottom, androidx.compose.ui.graphics.ClipOp clipOp);
-    method public void concat-58bKbWc(float[] matrix);
+    method public void clipPath(androidx.compose.ui.graphics.Path path, int clipOp);
+    method public void clipRect(float left, float top, float right, float bottom, int clipOp);
+    method public void concat(float[] matrix);
     method public void disableZ();
     method public void drawArc(float left, float top, float right, float bottom, float startAngle, float sweepAngle, boolean useCenter, androidx.compose.ui.graphics.Paint paint);
-    method public void drawCircle-tVKstsI(long center, float radius, androidx.compose.ui.graphics.Paint paint);
-    method public void drawImage-uwcbMjI(androidx.compose.ui.graphics.ImageBitmap image, long topLeftOffset, androidx.compose.ui.graphics.Paint paint);
-    method public void drawImageRect-bgE79EM(androidx.compose.ui.graphics.ImageBitmap image, long srcOffset, long srcSize, long dstOffset, long dstSize, androidx.compose.ui.graphics.Paint paint);
-    method public void drawLine-bYPfCD8(long p1, long p2, androidx.compose.ui.graphics.Paint paint);
+    method public void drawCircle(long center, float radius, androidx.compose.ui.graphics.Paint paint);
+    method public void drawImage(androidx.compose.ui.graphics.ImageBitmap image, long topLeftOffset, androidx.compose.ui.graphics.Paint paint);
+    method public void drawImageRect(androidx.compose.ui.graphics.ImageBitmap image, long srcOffset, long srcSize, long dstOffset, long dstSize, androidx.compose.ui.graphics.Paint paint);
+    method public void drawLine(long p1, long p2, androidx.compose.ui.graphics.Paint paint);
     method public void drawOval(float left, float top, float right, float bottom, androidx.compose.ui.graphics.Paint paint);
     method public void drawPath(androidx.compose.ui.graphics.Path path, androidx.compose.ui.graphics.Paint paint);
-    method public void drawPoints(androidx.compose.ui.graphics.PointMode pointMode, java.util.List<androidx.compose.ui.geometry.Offset> points, androidx.compose.ui.graphics.Paint paint);
-    method public void drawRawPoints(androidx.compose.ui.graphics.PointMode pointMode, float[] points, androidx.compose.ui.graphics.Paint paint);
+    method public void drawPoints(int pointMode, java.util.List<androidx.compose.ui.geometry.Offset> points, androidx.compose.ui.graphics.Paint paint);
+    method public void drawRawPoints(int pointMode, float[] points, androidx.compose.ui.graphics.Paint paint);
     method public void drawRect(float left, float top, float right, float bottom, androidx.compose.ui.graphics.Paint paint);
     method public void drawRoundRect(float left, float top, float right, float bottom, float radiusX, float radiusY, androidx.compose.ui.graphics.Paint paint);
-    method public void drawVertices(androidx.compose.ui.graphics.Vertices vertices, androidx.compose.ui.graphics.BlendMode blendMode, androidx.compose.ui.graphics.Paint paint);
+    method public void drawVertices(androidx.compose.ui.graphics.Vertices vertices, int blendMode, androidx.compose.ui.graphics.Paint paint);
     method public void enableZ();
     method public void restore();
     method public void rotate(float degrees);
@@ -30,114 +30,115 @@ package androidx.compose.ui.graphics {
     method public void saveLayer(androidx.compose.ui.geometry.Rect bounds, androidx.compose.ui.graphics.Paint paint);
     method public void scale(float sx, float sy);
     method public void skew(float sx, float sy);
-    method public android.graphics.Region.Op toRegionOp(androidx.compose.ui.graphics.ClipOp);
+    method public android.graphics.Region.Op toRegionOp(int);
     method public void translate(float dx, float dy);
     field @kotlin.PublishedApi internal android.graphics.Canvas internalCanvas;
   }
 
-  public final class AndroidCanvasKt {
+  public final class AndroidCanvas_androidKt {
     method public static androidx.compose.ui.graphics.Canvas Canvas(android.graphics.Canvas c);
     method public static android.graphics.Canvas getNativeCanvas(androidx.compose.ui.graphics.Canvas);
   }
 
-  public final class AndroidImageBitmapKt {
-    method public static android.graphics.Bitmap asAndroidBitmap(androidx.compose.ui.graphics.ImageBitmap);
-    method @Deprecated public static androidx.compose.ui.graphics.ImageBitmap asImageAsset(android.graphics.Bitmap);
-    method public static androidx.compose.ui.graphics.ImageBitmap asImageBitmap(android.graphics.Bitmap);
-    method public static androidx.compose.ui.graphics.ImageBitmap imageFromResource(android.content.res.Resources res, int resId);
+  public final class AndroidColorFilter_androidKt {
+    method public static android.graphics.ColorFilter asAndroidColorFilter(androidx.compose.ui.graphics.ColorFilter);
+    method public static androidx.compose.ui.graphics.ColorFilter asComposeColorFilter(android.graphics.ColorFilter);
   }
 
-  public final class AndroidMatrixConversionsKt {
-    method public static void setFrom-7lL006A(float[], android.graphics.Matrix matrix);
-    method public static void setFrom-8AuSnpc(android.graphics.Matrix, float[] matrix);
+  public final class AndroidImageBitmap_androidKt {
+    method public static android.graphics.Bitmap asAndroidBitmap(androidx.compose.ui.graphics.ImageBitmap);
+    method public static androidx.compose.ui.graphics.ImageBitmap asImageBitmap(android.graphics.Bitmap);
+  }
+
+  public final class AndroidMatrixConversions_androidKt {
+    method public static void setFrom(float[], android.graphics.Matrix matrix);
+    method public static void setFrom(android.graphics.Matrix, float[] matrix);
   }
 
   public final class AndroidPaint implements androidx.compose.ui.graphics.Paint {
     ctor public AndroidPaint();
     method public android.graphics.Paint asFrameworkPaint();
     method public float getAlpha();
-    method public androidx.compose.ui.graphics.BlendMode getBlendMode();
-    method public long getColor-0d7_KjU();
+    method public int getBlendMode();
+    method public long getColor();
     method public androidx.compose.ui.graphics.ColorFilter? getColorFilter();
-    method public androidx.compose.ui.graphics.FilterQuality getFilterQuality();
-    method public android.graphics.PathEffect? getNativePathEffect();
+    method public int getFilterQuality();
+    method public androidx.compose.ui.graphics.PathEffect? getPathEffect();
     method public android.graphics.Shader? getShader();
-    method public androidx.compose.ui.graphics.StrokeCap getStrokeCap();
-    method public androidx.compose.ui.graphics.StrokeJoin getStrokeJoin();
+    method public int getStrokeCap();
+    method public int getStrokeJoin();
     method public float getStrokeMiterLimit();
     method public float getStrokeWidth();
-    method public androidx.compose.ui.graphics.PaintingStyle getStyle();
+    method public int getStyle();
     method public boolean isAntiAlias();
     method public void setAlpha(float value);
     method public void setAntiAlias(boolean value);
-    method public void setBlendMode(androidx.compose.ui.graphics.BlendMode value);
-    method public void setColor-8_81llA(long color);
+    method public void setBlendMode(int value);
+    method public void setColor(long color);
     method public void setColorFilter(androidx.compose.ui.graphics.ColorFilter? value);
-    method public void setFilterQuality(androidx.compose.ui.graphics.FilterQuality value);
-    method public void setNativePathEffect(android.graphics.PathEffect? value);
+    method public void setFilterQuality(int value);
+    method public void setPathEffect(androidx.compose.ui.graphics.PathEffect? value);
     method public void setShader(android.graphics.Shader? value);
-    method public void setStrokeCap(androidx.compose.ui.graphics.StrokeCap value);
-    method public void setStrokeJoin(androidx.compose.ui.graphics.StrokeJoin value);
+    method public void setStrokeCap(int value);
+    method public void setStrokeJoin(int value);
     method public void setStrokeMiterLimit(float value);
     method public void setStrokeWidth(float value);
-    method public void setStyle(androidx.compose.ui.graphics.PaintingStyle value);
+    method public void setStyle(int value);
     property public float alpha;
-    property public androidx.compose.ui.graphics.BlendMode blendMode;
+    property public int blendMode;
     property public long color;
     property public androidx.compose.ui.graphics.ColorFilter? colorFilter;
-    property public androidx.compose.ui.graphics.FilterQuality filterQuality;
+    property public int filterQuality;
     property public boolean isAntiAlias;
-    property public android.graphics.PathEffect? nativePathEffect;
+    property public androidx.compose.ui.graphics.PathEffect? pathEffect;
     property public android.graphics.Shader? shader;
-    property public androidx.compose.ui.graphics.StrokeCap strokeCap;
-    property public androidx.compose.ui.graphics.StrokeJoin strokeJoin;
+    property public int strokeCap;
+    property public int strokeJoin;
     property public float strokeMiterLimit;
     property public float strokeWidth;
-    property public androidx.compose.ui.graphics.PaintingStyle style;
+    property public int style;
   }
 
-  public final class AndroidPaintKt {
+  public final class AndroidPaint_androidKt {
     method public static androidx.compose.ui.graphics.Paint Paint();
   }
 
   public final class AndroidPath implements androidx.compose.ui.graphics.Path {
-    ctor public AndroidPath(android.graphics.Path internalPath);
-    ctor public AndroidPath();
+    ctor public AndroidPath(optional android.graphics.Path internalPath);
     method public void addArc(androidx.compose.ui.geometry.Rect oval, float startAngleDegrees, float sweepAngleDegrees);
     method public void addArcRad(androidx.compose.ui.geometry.Rect oval, float startAngleRadians, float sweepAngleRadians);
     method public void addOval(androidx.compose.ui.geometry.Rect oval);
-    method public void addPath-ej0GBII(androidx.compose.ui.graphics.Path path, long offset);
+    method public void addPath(androidx.compose.ui.graphics.Path path, long offset);
     method public void addRect(androidx.compose.ui.geometry.Rect rect);
     method public void addRoundRect(androidx.compose.ui.geometry.RoundRect roundRect);
     method public void arcTo(androidx.compose.ui.geometry.Rect rect, float startAngleDegrees, float sweepAngleDegrees, boolean forceMoveTo);
     method public void close();
     method public void cubicTo(float x1, float y1, float x2, float y2, float x3, float y3);
     method public androidx.compose.ui.geometry.Rect getBounds();
-    method public androidx.compose.ui.graphics.PathFillType getFillType();
+    method public int getFillType();
     method public android.graphics.Path getInternalPath();
     method public boolean isConvex();
     method public boolean isEmpty();
     method public void lineTo(float x, float y);
     method public void moveTo(float x, float y);
-    method public boolean op(androidx.compose.ui.graphics.Path path1, androidx.compose.ui.graphics.Path path2, androidx.compose.ui.graphics.PathOperation operation);
+    method public boolean op(androidx.compose.ui.graphics.Path path1, androidx.compose.ui.graphics.Path path2, int operation);
     method public void quadraticBezierTo(float x1, float y1, float x2, float y2);
     method public void relativeCubicTo(float dx1, float dy1, float dx2, float dy2, float dx3, float dy3);
     method public void relativeLineTo(float dx, float dy);
     method public void relativeMoveTo(float dx, float dy);
     method public void relativeQuadraticBezierTo(float dx1, float dy1, float dx2, float dy2);
     method public void reset();
-    method public void setFillType(androidx.compose.ui.graphics.PathFillType value);
-    method public void translate-k-4lQ0M(long offset);
-    property public androidx.compose.ui.graphics.PathFillType fillType;
+    method public void setFillType(int value);
+    method public void translate(long offset);
+    property public int fillType;
     property public final android.graphics.Path internalPath;
     property public boolean isConvex;
     property public boolean isEmpty;
   }
 
-  public final class AndroidPathKt {
-    method public static androidx.compose.ui.graphics.Path Path();
-    method public static inline android.graphics.Path asAndroidPath(androidx.compose.ui.graphics.Path);
-    method public static androidx.compose.ui.graphics.Path asComposePath(android.graphics.Path);
+  public final class AndroidPathEffect_androidKt {
+    method public static android.graphics.PathEffect asAndroidPathEffect(androidx.compose.ui.graphics.PathEffect);
+    method public static androidx.compose.ui.graphics.PathEffect toComposePathEffect(android.graphics.PathEffect);
   }
 
   public final class AndroidPathMeasure implements androidx.compose.ui.graphics.PathMeasure {
@@ -147,92 +148,149 @@ package androidx.compose.ui.graphics {
     property public float length;
   }
 
-  public final class AndroidPathMeasureKt {
+  public final class AndroidPathMeasure_androidKt {
     method public static androidx.compose.ui.graphics.PathMeasure PathMeasure();
   }
 
-  public final class AndroidShaderKt {
+  public final class AndroidPath_androidKt {
+    method public static androidx.compose.ui.graphics.Path Path();
+    method public static inline android.graphics.Path asAndroidPath(androidx.compose.ui.graphics.Path);
+    method public static androidx.compose.ui.graphics.Path asComposePath(android.graphics.Path);
   }
 
-  public final class AndroidTileModeKt {
-    method public static android.graphics.Shader.TileMode toNativeTileMode(androidx.compose.ui.graphics.TileMode);
+  public final class AndroidRenderEffect_androidKt {
+    method public static androidx.compose.ui.graphics.RenderEffect asComposeRenderEffect(android.graphics.RenderEffect);
   }
 
-  public final class AndroidVertexModeKt {
-    method public static android.graphics.Canvas.VertexMode toNativeVertexMode(androidx.compose.ui.graphics.VertexMode);
+  public final class AndroidShader_androidKt {
   }
 
-  public enum BlendMode {
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Clear;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Color;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode ColorBurn;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode ColorDodge;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Darken;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Difference;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Dst;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode DstAtop;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode DstIn;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode DstOut;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode DstOver;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Exclusion;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Hardlight;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Hue;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Lighten;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Luminosity;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Modulate;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Multiply;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Overlay;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Plus;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Saturation;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Screen;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Softlight;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Src;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode SrcAtop;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode SrcIn;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode SrcOut;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode SrcOver;
-    enum_constant public static final androidx.compose.ui.graphics.BlendMode Xor;
+  public final class AndroidTileMode_androidKt {
+    method public static boolean isSupported(int);
+    method public static android.graphics.Shader.TileMode toAndroidTileMode(int);
+    method public static int toComposeTileMode(android.graphics.Shader.TileMode);
+  }
+
+  public final class AndroidVertexMode_androidKt {
+    method public static android.graphics.Canvas.VertexMode toAndroidVertexMode(int);
+  }
+
+  @androidx.compose.runtime.Immutable public final inline class BlendMode {
+    ctor public BlendMode();
+  }
+
+  public static final class BlendMode.Companion {
+    method public int getClear();
+    method public int getColor();
+    method public int getColorBurn();
+    method public int getColorDodge();
+    method public int getDarken();
+    method public int getDifference();
+    method public int getDst();
+    method public int getDstAtop();
+    method public int getDstIn();
+    method public int getDstOut();
+    method public int getDstOver();
+    method public int getExclusion();
+    method public int getHardlight();
+    method public int getHue();
+    method public int getLighten();
+    method public int getLuminosity();
+    method public int getModulate();
+    method public int getMultiply();
+    method public int getOverlay();
+    method public int getPlus();
+    method public int getSaturation();
+    method public int getScreen();
+    method public int getSoftlight();
+    method public int getSrc();
+    method public int getSrcAtop();
+    method public int getSrcIn();
+    method public int getSrcOut();
+    method public int getSrcOver();
+    method public int getXor();
+    property public final int Clear;
+    property public final int Color;
+    property public final int ColorBurn;
+    property public final int ColorDodge;
+    property public final int Darken;
+    property public final int Difference;
+    property public final int Dst;
+    property public final int DstAtop;
+    property public final int DstIn;
+    property public final int DstOut;
+    property public final int DstOver;
+    property public final int Exclusion;
+    property public final int Hardlight;
+    property public final int Hue;
+    property public final int Lighten;
+    property public final int Luminosity;
+    property public final int Modulate;
+    property public final int Multiply;
+    property public final int Overlay;
+    property public final int Plus;
+    property public final int Saturation;
+    property public final int Screen;
+    property public final int Softlight;
+    property public final int Src;
+    property public final int SrcAtop;
+    property public final int SrcIn;
+    property public final int SrcOut;
+    property public final int SrcOver;
+    property public final int Xor;
+  }
+
+  @androidx.compose.runtime.Immutable public final class BlurEffect extends androidx.compose.ui.graphics.RenderEffect {
+    ctor public BlurEffect(androidx.compose.ui.graphics.RenderEffect? renderEffect, float radiusX, float radiusY, int edgeTreatment);
+    method @RequiresApi(android.os.Build.VERSION_CODES.S) protected android.graphics.RenderEffect createRenderEffect();
   }
 
   @androidx.compose.runtime.Immutable public abstract sealed class Brush {
-    method public abstract void applyTo(androidx.compose.ui.graphics.Paint p, float alpha);
+    method public abstract void applyTo(long size, androidx.compose.ui.graphics.Paint p, float alpha);
+    method public long getIntrinsicSize();
+    property public long intrinsicSize;
+    field public static final androidx.compose.ui.graphics.Brush.Companion Companion;
+  }
+
+  public static final class Brush.Companion {
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.Brush horizontalGradient(java.util.List<androidx.compose.ui.graphics.Color> colors, optional float startX, optional float endX, optional int tileMode);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.Brush horizontalGradient(kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, optional float startX, optional float endX, optional int tileMode);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.Brush linearGradient(kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, optional long start, optional long end, optional int tileMode);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.Brush linearGradient(java.util.List<androidx.compose.ui.graphics.Color> colors, optional long start, optional long end, optional int tileMode);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.Brush radialGradient(kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, optional long center, optional float radius, optional int tileMode);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.Brush radialGradient(java.util.List<androidx.compose.ui.graphics.Color> colors, optional long center, optional float radius, optional int tileMode);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.Brush sweepGradient(kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, optional long center);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.Brush sweepGradient(java.util.List<androidx.compose.ui.graphics.Color> colors, optional long center);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.Brush verticalGradient(java.util.List<androidx.compose.ui.graphics.Color> colors, optional float startY, optional float endY, optional int tileMode);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.Brush verticalGradient(kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, optional float startY, optional float endY, optional int tileMode);
   }
 
   public final class BrushKt {
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.LinearGradient HorizontalGradient(java.util.List<androidx.compose.ui.graphics.Color> colors, float startX, float endX, optional androidx.compose.ui.graphics.TileMode tileMode);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.LinearGradient HorizontalGradient(kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, float startX, float endX, optional androidx.compose.ui.graphics.TileMode tileMode);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.LinearGradient LinearGradient(java.util.List<androidx.compose.ui.graphics.Color> colors, float startX, float startY, float endX, float endY, optional androidx.compose.ui.graphics.TileMode tileMode);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.LinearGradient LinearGradient(kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, float startX, float startY, float endX, float endY, optional androidx.compose.ui.graphics.TileMode tileMode);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.RadialGradient RadialGradient(kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, float centerX, float centerY, float radius, optional androidx.compose.ui.graphics.TileMode tileMode);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.RadialGradient RadialGradient(java.util.List<androidx.compose.ui.graphics.Color> colors, float centerX, float centerY, float radius, optional androidx.compose.ui.graphics.TileMode tileMode);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.SweepGradient SweepGradient-PvDSl28(kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, long center);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.SweepGradient SweepGradient-acbAMd8(java.util.List<androidx.compose.ui.graphics.Color> colors, long center);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.LinearGradient VerticalGradient(java.util.List<androidx.compose.ui.graphics.Color> colors, float startY, float endY, optional androidx.compose.ui.graphics.TileMode tileMode);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.LinearGradient VerticalGradient(kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, float startY, float endY, optional androidx.compose.ui.graphics.TileMode tileMode);
+    method public static androidx.compose.ui.graphics.ShaderBrush ShaderBrush(android.graphics.Shader shader);
   }
 
   public interface Canvas {
-    method public void clipPath(androidx.compose.ui.graphics.Path path, optional androidx.compose.ui.graphics.ClipOp clipOp);
-    method public default void clipRect(androidx.compose.ui.geometry.Rect rect, optional androidx.compose.ui.graphics.ClipOp clipOp);
-    method public void clipRect(float left, float top, float right, float bottom, optional androidx.compose.ui.graphics.ClipOp clipOp);
-    method public void concat-58bKbWc(float[] matrix);
+    method public void clipPath(androidx.compose.ui.graphics.Path path, optional int clipOp);
+    method public default void clipRect(androidx.compose.ui.geometry.Rect rect, optional int clipOp);
+    method public void clipRect(float left, float top, float right, float bottom, optional int clipOp);
+    method public void concat(float[] matrix);
     method public void disableZ();
     method public default void drawArc(androidx.compose.ui.geometry.Rect rect, float startAngle, float sweepAngle, boolean useCenter, androidx.compose.ui.graphics.Paint paint);
     method public void drawArc(float left, float top, float right, float bottom, float startAngle, float sweepAngle, boolean useCenter, androidx.compose.ui.graphics.Paint paint);
     method public default void drawArcRad(androidx.compose.ui.geometry.Rect rect, float startAngleRad, float sweepAngleRad, boolean useCenter, androidx.compose.ui.graphics.Paint paint);
-    method public void drawCircle-tVKstsI(long center, float radius, androidx.compose.ui.graphics.Paint paint);
-    method public void drawImage-uwcbMjI(androidx.compose.ui.graphics.ImageBitmap image, long topLeftOffset, androidx.compose.ui.graphics.Paint paint);
-    method public void drawImageRect-bgE79EM(androidx.compose.ui.graphics.ImageBitmap image, optional long srcOffset, optional long srcSize, optional long dstOffset, optional long dstSize, androidx.compose.ui.graphics.Paint paint);
-    method public void drawLine-bYPfCD8(long p1, long p2, androidx.compose.ui.graphics.Paint paint);
+    method public void drawCircle(long center, float radius, androidx.compose.ui.graphics.Paint paint);
+    method public void drawImage(androidx.compose.ui.graphics.ImageBitmap image, long topLeftOffset, androidx.compose.ui.graphics.Paint paint);
+    method public void drawImageRect(androidx.compose.ui.graphics.ImageBitmap image, optional long srcOffset, optional long srcSize, optional long dstOffset, optional long dstSize, androidx.compose.ui.graphics.Paint paint);
+    method public void drawLine(long p1, long p2, androidx.compose.ui.graphics.Paint paint);
     method public default void drawOval(androidx.compose.ui.geometry.Rect rect, androidx.compose.ui.graphics.Paint paint);
     method public void drawOval(float left, float top, float right, float bottom, androidx.compose.ui.graphics.Paint paint);
     method public void drawPath(androidx.compose.ui.graphics.Path path, androidx.compose.ui.graphics.Paint paint);
-    method public void drawPoints(androidx.compose.ui.graphics.PointMode pointMode, java.util.List<androidx.compose.ui.geometry.Offset> points, androidx.compose.ui.graphics.Paint paint);
-    method public void drawRawPoints(androidx.compose.ui.graphics.PointMode pointMode, float[] points, androidx.compose.ui.graphics.Paint paint);
+    method public void drawPoints(int pointMode, java.util.List<androidx.compose.ui.geometry.Offset> points, androidx.compose.ui.graphics.Paint paint);
+    method public void drawRawPoints(int pointMode, float[] points, androidx.compose.ui.graphics.Paint paint);
     method public default void drawRect(androidx.compose.ui.geometry.Rect rect, androidx.compose.ui.graphics.Paint paint);
     method public void drawRect(float left, float top, float right, float bottom, androidx.compose.ui.graphics.Paint paint);
     method public void drawRoundRect(float left, float top, float right, float bottom, float radiusX, float radiusY, androidx.compose.ui.graphics.Paint paint);
-    method public void drawVertices(androidx.compose.ui.graphics.Vertices vertices, androidx.compose.ui.graphics.BlendMode blendMode, androidx.compose.ui.graphics.Paint paint);
+    method public void drawVertices(androidx.compose.ui.graphics.Vertices vertices, int blendMode, androidx.compose.ui.graphics.Paint paint);
     method public void enableZ();
     method public void restore();
     method public void rotate(float degrees);
@@ -259,49 +317,37 @@ package androidx.compose.ui.graphics {
     method public static inline void withSaveLayer(androidx.compose.ui.graphics.Canvas, androidx.compose.ui.geometry.Rect bounds, androidx.compose.ui.graphics.Paint paint, kotlin.jvm.functions.Function0<kotlin.Unit> block);
   }
 
-  public enum ClipOp {
-    enum_constant public static final androidx.compose.ui.graphics.ClipOp Difference;
-    enum_constant public static final androidx.compose.ui.graphics.ClipOp Intersect;
+  @androidx.compose.runtime.Immutable public final inline class ClipOp {
+    ctor public ClipOp();
+  }
+
+  public static final class ClipOp.Companion {
+    method public int getDifference();
+    method public int getIntersect();
+    property public final int Difference;
+    property public final int Intersect;
   }
 
   @androidx.compose.runtime.Immutable public final inline class Color {
     ctor public Color();
-    method @androidx.compose.runtime.Stable public static operator float component1-impl(long $this);
-    method @androidx.compose.runtime.Stable public static operator float component2-impl(long $this);
-    method @androidx.compose.runtime.Stable public static operator float component3-impl(long $this);
-    method @androidx.compose.runtime.Stable public static operator float component4-impl(long $this);
-    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.graphics.colorspace.ColorSpace component5-impl(long $this);
-    method public static long constructor-impl(long value);
-    method public static long convert-0d7_KjU(long $this, androidx.compose.ui.graphics.colorspace.ColorSpace colorSpace);
-    method @androidx.compose.runtime.Stable public static long copy-0d7_KjU(long $this, optional float alpha, optional float red, optional float green, optional float blue);
-    method @androidx.compose.runtime.Immutable public static inline boolean equals-impl(long p, Object? p1);
-    method public static boolean equals-impl0(long p1, long p2);
-    method public static float getAlpha-impl(long $this);
-    method public static float getBlue-impl(long $this);
-    method public static androidx.compose.ui.graphics.colorspace.ColorSpace getColorSpace-impl(long $this);
-    method public static float getGreen-impl(long $this);
-    method public static float getRed-impl(long $this);
-    method public long getValue-s-VKNKU();
-    method @androidx.compose.runtime.Immutable public static inline int hashCode-impl(long p);
-    method public static String toString-impl(long $this);
+    method public long getValue();
     property public final long value;
-    field public static final androidx.compose.ui.graphics.Color.Companion Companion;
   }
 
   public static final class Color.Companion {
-    method public long getBlack-0d7_KjU();
-    method public long getBlue-0d7_KjU();
-    method public long getCyan-0d7_KjU();
-    method public long getDarkGray-0d7_KjU();
-    method public long getGray-0d7_KjU();
-    method public long getGreen-0d7_KjU();
-    method public long getLightGray-0d7_KjU();
-    method public long getMagenta-0d7_KjU();
-    method public long getRed-0d7_KjU();
-    method public long getTransparent-0d7_KjU();
-    method public long getUnspecified-0d7_KjU();
-    method public long getWhite-0d7_KjU();
-    method public long getYellow-0d7_KjU();
+    method public long getBlack();
+    method public long getBlue();
+    method public long getCyan();
+    method public long getDarkGray();
+    method public long getGray();
+    method public long getGreen();
+    method public long getLightGray();
+    method public long getMagenta();
+    method public long getRed();
+    method public long getTransparent();
+    method public long getUnspecified();
+    method public long getWhite();
+    method public long getYellow();
     property public final long Black;
     property public final long Blue;
     property public final long Cyan;
@@ -318,43 +364,54 @@ package androidx.compose.ui.graphics {
   }
 
   @androidx.compose.runtime.Immutable public final class ColorFilter {
-    method public long component1-0d7_KjU();
-    method public androidx.compose.ui.graphics.BlendMode component2();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.ColorFilter copy-aamYUWA(long color, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public androidx.compose.ui.graphics.BlendMode getBlendMode();
-    method public long getColor-0d7_KjU();
-    property public final androidx.compose.ui.graphics.BlendMode blendMode;
-    property public final long color;
     field public static final androidx.compose.ui.graphics.ColorFilter.Companion Companion;
   }
 
   public static final class ColorFilter.Companion {
-    method @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.ColorFilter tint-8_81llA(long color);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.ColorFilter colorMatrix(float[] colorMatrix);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.ColorFilter lighting(long multiply, long add);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.ColorFilter tint(long color, optional int blendMode);
   }
 
   public final class ColorKt {
     method @androidx.compose.runtime.Stable public static long Color(float red, float green, float blue, optional float alpha, optional androidx.compose.ui.graphics.colorspace.ColorSpace colorSpace);
-    method @androidx.compose.runtime.Stable public static long Color(@ColorInt int color);
+    method @androidx.compose.runtime.Stable public static long Color(int color);
     method @androidx.compose.runtime.Stable public static long Color(long color);
-    method @androidx.compose.runtime.Stable public static long Color(@IntRange(from=0, to=255) int red, @IntRange(from=0, to=255) int green, @IntRange(from=0, to=255) int blue, optional @IntRange(from=0, to=255) int alpha);
-    method @androidx.compose.runtime.Stable public static long compositeOver-6xK2E-Q(long, long background);
-    method public static inline boolean isSpecified-8_81llA(long);
-    method public static inline boolean isUnspecified-8_81llA(long);
-    method @androidx.compose.runtime.Stable public static long lerp-m18UwgE(long start, long stop, @FloatRange(from=0.0, to=1.0) float fraction);
-    method @androidx.compose.runtime.Stable public static float luminance-8_81llA(long);
-    method @ColorInt @androidx.compose.runtime.Stable public static int toArgb-8_81llA(long);
-    method public static inline long useOrElse-iYUlWp8(long, kotlin.jvm.functions.Function0<androidx.compose.ui.graphics.Color> block);
+    method @androidx.compose.runtime.Stable public static long Color(int red, int green, int blue, optional int alpha);
+    method @androidx.compose.runtime.Stable public static long compositeOver(long, long background);
+    method public static inline boolean isSpecified(long);
+    method public static inline boolean isUnspecified(long);
+    method @androidx.compose.runtime.Stable public static long lerp(long start, long stop, float fraction);
+    method @androidx.compose.runtime.Stable public static float luminance(long);
+    method public static inline long takeOrElse(long, kotlin.jvm.functions.Function0<androidx.compose.ui.graphics.Color> block);
+    method @androidx.compose.runtime.Stable public static int toArgb(long);
+  }
+
+  public final inline class ColorMatrix {
+    ctor public ColorMatrix();
+    method public float[] getValues();
+    property public final float[] values;
   }
 
   public final class DegreesKt {
     method @kotlin.PublishedApi internal static float degrees(float radians);
   }
 
-  public enum FilterQuality {
-    enum_constant public static final androidx.compose.ui.graphics.FilterQuality High;
-    enum_constant public static final androidx.compose.ui.graphics.FilterQuality Low;
-    enum_constant public static final androidx.compose.ui.graphics.FilterQuality Medium;
-    enum_constant public static final androidx.compose.ui.graphics.FilterQuality None;
+  @androidx.compose.runtime.Immutable public final inline class FilterQuality {
+    ctor public FilterQuality();
+    method public int getValue();
+    property public final int value;
+  }
+
+  public static final class FilterQuality.Companion {
+    method public int getHigh();
+    method public int getLow();
+    method public int getMedium();
+    method public int getNone();
+    property public final int High;
+    property public final int Low;
+    property public final int Medium;
+    property public final int None;
   }
 
   public final class Float16Kt {
@@ -362,156 +419,169 @@ package androidx.compose.ui.graphics {
 
   public interface ImageBitmap {
     method public androidx.compose.ui.graphics.colorspace.ColorSpace getColorSpace();
-    method public androidx.compose.ui.graphics.ImageBitmapConfig getConfig();
+    method public int getConfig();
     method public boolean getHasAlpha();
     method public int getHeight();
     method public int getWidth();
     method public void prepareToDraw();
     method public void readPixels(int[] buffer, optional int startX, optional int startY, optional int width, optional int height, optional int bufferOffset, optional int stride);
     property public abstract androidx.compose.ui.graphics.colorspace.ColorSpace colorSpace;
-    property public abstract androidx.compose.ui.graphics.ImageBitmapConfig config;
+    property public abstract int config;
     property public abstract boolean hasAlpha;
     property public abstract int height;
     property public abstract int width;
+    field public static final androidx.compose.ui.graphics.ImageBitmap.Companion Companion;
   }
 
-  public enum ImageBitmapConfig {
-    enum_constant public static final androidx.compose.ui.graphics.ImageBitmapConfig Alpha8;
-    enum_constant public static final androidx.compose.ui.graphics.ImageBitmapConfig Argb8888;
-    enum_constant public static final androidx.compose.ui.graphics.ImageBitmapConfig F16;
-    enum_constant public static final androidx.compose.ui.graphics.ImageBitmapConfig Gpu;
-    enum_constant public static final androidx.compose.ui.graphics.ImageBitmapConfig Rgb565;
+  public static final class ImageBitmap.Companion {
+  }
+
+  @androidx.compose.runtime.Immutable public final inline class ImageBitmapConfig {
+    ctor public ImageBitmapConfig();
+    method public int getValue();
+    property public final int value;
+  }
+
+  public static final class ImageBitmapConfig.Companion {
+    method public int getAlpha8();
+    method public int getArgb8888();
+    method public int getF16();
+    method public int getGpu();
+    method public int getRgb565();
+    property public final int Alpha8;
+    property public final int Argb8888;
+    property public final int F16;
+    property public final int Gpu;
+    property public final int Rgb565;
   }
 
   public final class ImageBitmapKt {
-    method @Deprecated public static androidx.compose.ui.graphics.ImageBitmap ImageAsset(int width, int height, optional androidx.compose.ui.graphics.ImageBitmapConfig config, optional boolean hasAlpha, optional androidx.compose.ui.graphics.colorspace.ColorSpace colorSpace);
-    method public static androidx.compose.ui.graphics.ImageBitmap ImageBitmap(int width, int height, optional androidx.compose.ui.graphics.ImageBitmapConfig config, optional boolean hasAlpha, optional androidx.compose.ui.graphics.colorspace.ColorSpace colorSpace);
+    method public static androidx.compose.ui.graphics.ImageBitmap ImageBitmap(int width, int height, optional int config, optional boolean hasAlpha, optional androidx.compose.ui.graphics.colorspace.ColorSpace colorSpace);
     method public static androidx.compose.ui.graphics.PixelMap toPixelMap(androidx.compose.ui.graphics.ImageBitmap, optional int startX, optional int startY, optional int width, optional int height, optional int[] buffer, optional int bufferOffset, optional int stride);
   }
 
   @androidx.compose.runtime.Immutable public final class LinearGradient extends androidx.compose.ui.graphics.ShaderBrush {
+    method public android.graphics.Shader createShader(long size);
+    property public long intrinsicSize;
   }
 
   public final inline class Matrix {
     ctor public Matrix();
-    method public static float[]! constructor-impl(float[] values);
-    method public static inline boolean equals-impl(float[]! p, Object? p1);
-    method public static boolean equals-impl0(float[] p1, float[] p2);
-    method public static inline operator float get-impl(float[] $this, int row, int column);
     method public float[] getValues();
-    method public static inline int hashCode-impl(float[]! p);
-    method public static void invert-impl(float[]! $this);
-    method public static androidx.compose.ui.geometry.Rect map-impl(float[] $this, androidx.compose.ui.geometry.Rect rect);
-    method public static void map-impl(float[] $this, androidx.compose.ui.geometry.MutableRect rect);
-    method public static long map-k-4lQ0M(float[] $this, long point);
-    method public static void reset-impl(float[]! $this);
-    method public static void rotateX-impl(float[] $this, float degrees);
-    method public static void rotateY-impl(float[] $this, float degrees);
-    method public static void rotateZ-impl(float[] $this, float degrees);
-    method public static void scale-impl(float[] $this, optional float x, optional float y, optional float z);
-    method public static inline operator void set-impl(float[] $this, int row, int column, float v);
-    method public static void setFrom-58bKbWc(float[] $this, float[] matrix);
-    method public static operator void timesAssign-58bKbWc(float[] $this, float[] m);
-    method public static String toString-impl(float[]! $this);
-    method public static void translate-impl(float[] $this, optional float x, optional float y, optional float z);
     property public final float[] values;
   }
 
+  public static final class Matrix.Companion {
+  }
+
   public final class MatrixKt {
-    method public static boolean isIdentity-58bKbWc(float[]);
+    method public static boolean isIdentity(float[]);
+  }
+
+  @androidx.compose.runtime.Immutable public final class OffsetEffect extends androidx.compose.ui.graphics.RenderEffect {
+    ctor public OffsetEffect(androidx.compose.ui.graphics.RenderEffect? renderEffect, long offset);
+    method @RequiresApi(android.os.Build.VERSION_CODES.S) protected android.graphics.RenderEffect createRenderEffect();
   }
 
   public abstract sealed class Outline {
+    method public abstract androidx.compose.ui.geometry.Rect getBounds();
+    property public abstract androidx.compose.ui.geometry.Rect bounds;
   }
 
   public static final class Outline.Generic extends androidx.compose.ui.graphics.Outline {
     ctor public Outline.Generic(androidx.compose.ui.graphics.Path path);
-    method public androidx.compose.ui.graphics.Path component1();
-    method public androidx.compose.ui.graphics.Outline.Generic copy(androidx.compose.ui.graphics.Path path);
+    method public androidx.compose.ui.geometry.Rect getBounds();
     method public androidx.compose.ui.graphics.Path getPath();
+    property public androidx.compose.ui.geometry.Rect bounds;
     property public final androidx.compose.ui.graphics.Path path;
   }
 
   @androidx.compose.runtime.Immutable public static final class Outline.Rectangle extends androidx.compose.ui.graphics.Outline {
     ctor public Outline.Rectangle(androidx.compose.ui.geometry.Rect rect);
-    method public androidx.compose.ui.geometry.Rect component1();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.Outline.Rectangle copy(androidx.compose.ui.geometry.Rect rect);
+    method public androidx.compose.ui.geometry.Rect getBounds();
     method public androidx.compose.ui.geometry.Rect getRect();
+    property public androidx.compose.ui.geometry.Rect bounds;
     property public final androidx.compose.ui.geometry.Rect rect;
   }
 
   @androidx.compose.runtime.Immutable public static final class Outline.Rounded extends androidx.compose.ui.graphics.Outline {
     ctor public Outline.Rounded(androidx.compose.ui.geometry.RoundRect roundRect);
-    method public androidx.compose.ui.geometry.RoundRect component1();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.Outline.Rounded copy(androidx.compose.ui.geometry.RoundRect roundRect);
+    method public androidx.compose.ui.geometry.Rect getBounds();
     method public androidx.compose.ui.geometry.RoundRect getRoundRect();
+    property public androidx.compose.ui.geometry.Rect bounds;
     property public final androidx.compose.ui.geometry.RoundRect roundRect;
   }
 
   public final class OutlineKt {
     method public static void addOutline(androidx.compose.ui.graphics.Path, androidx.compose.ui.graphics.Outline outline);
-    method public static void drawOutline(androidx.compose.ui.graphics.drawscope.DrawScope, androidx.compose.ui.graphics.Outline outline, androidx.compose.ui.graphics.Brush brush, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
+    method public static void drawOutline(androidx.compose.ui.graphics.drawscope.DrawScope, androidx.compose.ui.graphics.Outline outline, long color, optional float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public static void drawOutline(androidx.compose.ui.graphics.drawscope.DrawScope, androidx.compose.ui.graphics.Outline outline, androidx.compose.ui.graphics.Brush brush, optional float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
     method public static void drawOutline(androidx.compose.ui.graphics.Canvas, androidx.compose.ui.graphics.Outline outline, androidx.compose.ui.graphics.Paint paint);
-    method public static void drawOutline-mlewCHg(androidx.compose.ui.graphics.drawscope.DrawScope, androidx.compose.ui.graphics.Outline outline, long color, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
   }
 
   public interface Paint {
     method public android.graphics.Paint asFrameworkPaint();
     method public float getAlpha();
-    method public androidx.compose.ui.graphics.BlendMode getBlendMode();
-    method public long getColor-0d7_KjU();
+    method public int getBlendMode();
+    method public long getColor();
     method public androidx.compose.ui.graphics.ColorFilter? getColorFilter();
-    method public androidx.compose.ui.graphics.FilterQuality getFilterQuality();
-    method public android.graphics.PathEffect? getNativePathEffect();
+    method public int getFilterQuality();
+    method public androidx.compose.ui.graphics.PathEffect? getPathEffect();
     method public android.graphics.Shader? getShader();
-    method public androidx.compose.ui.graphics.StrokeCap getStrokeCap();
-    method public androidx.compose.ui.graphics.StrokeJoin getStrokeJoin();
+    method public int getStrokeCap();
+    method public int getStrokeJoin();
     method public float getStrokeMiterLimit();
     method public float getStrokeWidth();
-    method public androidx.compose.ui.graphics.PaintingStyle getStyle();
+    method public int getStyle();
     method public boolean isAntiAlias();
-    method public void setAlpha(float p);
-    method public void setAntiAlias(boolean p);
-    method public void setBlendMode(androidx.compose.ui.graphics.BlendMode p);
-    method public void setColor-8_81llA(long p);
-    method public void setColorFilter(androidx.compose.ui.graphics.ColorFilter? p);
-    method public void setFilterQuality(androidx.compose.ui.graphics.FilterQuality p);
-    method public void setNativePathEffect(android.graphics.PathEffect? p);
-    method public void setShader(android.graphics.Shader? p);
-    method public void setStrokeCap(androidx.compose.ui.graphics.StrokeCap p);
-    method public void setStrokeJoin(androidx.compose.ui.graphics.StrokeJoin p);
-    method public void setStrokeMiterLimit(float p);
-    method public void setStrokeWidth(float p);
-    method public void setStyle(androidx.compose.ui.graphics.PaintingStyle p);
+    method public void setAlpha(float alpha);
+    method public void setAntiAlias(boolean isAntiAlias);
+    method public void setBlendMode(int blendMode);
+    method public void setColor(long color);
+    method public void setColorFilter(androidx.compose.ui.graphics.ColorFilter? colorFilter);
+    method public void setFilterQuality(int filterQuality);
+    method public void setPathEffect(androidx.compose.ui.graphics.PathEffect? pathEffect);
+    method public void setShader(android.graphics.Shader? shader);
+    method public void setStrokeCap(int strokeCap);
+    method public void setStrokeJoin(int strokeJoin);
+    method public void setStrokeMiterLimit(float strokeMiterLimit);
+    method public void setStrokeWidth(float strokeWidth);
+    method public void setStyle(int style);
     property public abstract float alpha;
-    property public abstract androidx.compose.ui.graphics.BlendMode blendMode;
+    property public abstract int blendMode;
     property public abstract long color;
     property public abstract androidx.compose.ui.graphics.ColorFilter? colorFilter;
-    property public abstract androidx.compose.ui.graphics.FilterQuality filterQuality;
+    property public abstract int filterQuality;
     property public abstract boolean isAntiAlias;
-    property public abstract android.graphics.PathEffect? nativePathEffect;
+    property public abstract androidx.compose.ui.graphics.PathEffect? pathEffect;
     property public abstract android.graphics.Shader? shader;
-    property public abstract androidx.compose.ui.graphics.StrokeCap strokeCap;
-    property public abstract androidx.compose.ui.graphics.StrokeJoin strokeJoin;
+    property public abstract int strokeCap;
+    property public abstract int strokeJoin;
     property public abstract float strokeMiterLimit;
     property public abstract float strokeWidth;
-    property public abstract androidx.compose.ui.graphics.PaintingStyle style;
+    property public abstract int style;
   }
 
   public final class PaintKt {
     field public static final float DefaultAlpha = 1.0f;
   }
 
-  public enum PaintingStyle {
-    enum_constant public static final androidx.compose.ui.graphics.PaintingStyle Fill;
-    enum_constant public static final androidx.compose.ui.graphics.PaintingStyle Stroke;
+  @androidx.compose.runtime.Immutable public final inline class PaintingStyle {
+    ctor public PaintingStyle();
+  }
+
+  public static final class PaintingStyle.Companion {
+    method public int getFill();
+    method public int getStroke();
+    property public final int Fill;
+    property public final int Stroke;
   }
 
   public interface Path {
     method public void addArc(androidx.compose.ui.geometry.Rect oval, float startAngleDegrees, float sweepAngleDegrees);
     method public void addArcRad(androidx.compose.ui.geometry.Rect oval, float startAngleRadians, float sweepAngleRadians);
     method public void addOval(androidx.compose.ui.geometry.Rect oval);
-    method public void addPath-ej0GBII(androidx.compose.ui.graphics.Path path, optional long offset);
+    method public void addPath(androidx.compose.ui.graphics.Path path, optional long offset);
     method public void addRect(androidx.compose.ui.geometry.Rect rect);
     method public void addRoundRect(androidx.compose.ui.geometry.RoundRect roundRect);
     method public void arcTo(androidx.compose.ui.geometry.Rect rect, float startAngleDegrees, float sweepAngleDegrees, boolean forceMoveTo);
@@ -519,33 +589,50 @@ package androidx.compose.ui.graphics {
     method public void close();
     method public void cubicTo(float x1, float y1, float x2, float y2, float x3, float y3);
     method public androidx.compose.ui.geometry.Rect getBounds();
-    method public androidx.compose.ui.graphics.PathFillType getFillType();
+    method public int getFillType();
     method public boolean isConvex();
     method public boolean isEmpty();
     method public void lineTo(float x, float y);
     method public void moveTo(float x, float y);
-    method public boolean op(androidx.compose.ui.graphics.Path path1, androidx.compose.ui.graphics.Path path2, androidx.compose.ui.graphics.PathOperation operation);
+    method public boolean op(androidx.compose.ui.graphics.Path path1, androidx.compose.ui.graphics.Path path2, int operation);
     method public void quadraticBezierTo(float x1, float y1, float x2, float y2);
     method public void relativeCubicTo(float dx1, float dy1, float dx2, float dy2, float dx3, float dy3);
     method public void relativeLineTo(float dx, float dy);
     method public void relativeMoveTo(float dx, float dy);
     method public void relativeQuadraticBezierTo(float dx1, float dy1, float dx2, float dy2);
     method public void reset();
-    method public void setFillType(androidx.compose.ui.graphics.PathFillType p);
-    method public void translate-k-4lQ0M(long offset);
-    property public abstract androidx.compose.ui.graphics.PathFillType fillType;
+    method public void setFillType(int fillType);
+    method public void translate(long offset);
+    property public abstract int fillType;
     property public abstract boolean isConvex;
     property public abstract boolean isEmpty;
     field public static final androidx.compose.ui.graphics.Path.Companion Companion;
   }
 
   public static final class Path.Companion {
-    method public androidx.compose.ui.graphics.Path combine(androidx.compose.ui.graphics.PathOperation operation, androidx.compose.ui.graphics.Path path1, androidx.compose.ui.graphics.Path path2);
+    method public androidx.compose.ui.graphics.Path combine(int operation, androidx.compose.ui.graphics.Path path1, androidx.compose.ui.graphics.Path path2);
   }
 
-  public enum PathFillType {
-    enum_constant public static final androidx.compose.ui.graphics.PathFillType EvenOdd;
-    enum_constant public static final androidx.compose.ui.graphics.PathFillType NonZero;
+  public interface PathEffect {
+    field public static final androidx.compose.ui.graphics.PathEffect.Companion Companion;
+  }
+
+  public static final class PathEffect.Companion {
+    method public androidx.compose.ui.graphics.PathEffect chainPathEffect(androidx.compose.ui.graphics.PathEffect outer, androidx.compose.ui.graphics.PathEffect inner);
+    method public androidx.compose.ui.graphics.PathEffect cornerPathEffect(float radius);
+    method public androidx.compose.ui.graphics.PathEffect dashPathEffect(float[] intervals, optional float phase);
+    method public androidx.compose.ui.graphics.PathEffect stampedPathEffect(androidx.compose.ui.graphics.Path shape, float advance, float phase, int style);
+  }
+
+  @androidx.compose.runtime.Immutable public final inline class PathFillType {
+    ctor public PathFillType();
+  }
+
+  public static final class PathFillType.Companion {
+    method public int getEvenOdd();
+    method public int getNonZero();
+    property public final int EvenOdd;
+    property public final int NonZero;
   }
 
   public interface PathMeasure {
@@ -555,17 +642,34 @@ package androidx.compose.ui.graphics {
     property public abstract float length;
   }
 
-  public enum PathOperation {
-    enum_constant public static final androidx.compose.ui.graphics.PathOperation difference;
-    enum_constant public static final androidx.compose.ui.graphics.PathOperation intersect;
-    enum_constant public static final androidx.compose.ui.graphics.PathOperation reverseDifference;
-    enum_constant public static final androidx.compose.ui.graphics.PathOperation union;
-    enum_constant public static final androidx.compose.ui.graphics.PathOperation xor;
+  @androidx.compose.runtime.Immutable public final inline class PathOperation {
+    ctor public PathOperation();
+  }
+
+  public static final class PathOperation.Companion {
+    method public int getDifference();
+    method public int getIntersect();
+    method public int getReverseDifference();
+    method public int getUnion();
+    method public int getXor();
+    property public final int Difference;
+    property public final int Intersect;
+    property public final int ReverseDifference;
+    property public final int Union;
+    property public final int Xor;
+  }
+
+  public final class PathOperationKt {
+    method @Deprecated public static int getDifference(androidx.compose.ui.graphics.PathOperation.Companion);
+    method @Deprecated public static int getIntersect(androidx.compose.ui.graphics.PathOperation.Companion);
+    method @Deprecated public static int getReverseDifference(androidx.compose.ui.graphics.PathOperation.Companion);
+    method @Deprecated public static int getUnion(androidx.compose.ui.graphics.PathOperation.Companion);
+    method @Deprecated public static int getXor(androidx.compose.ui.graphics.PathOperation.Companion);
   }
 
   public final class PixelMap {
     ctor public PixelMap(int[] buffer, int width, int height, int bufferOffset, int stride);
-    method public operator long get-0d7_KjU(@IntRange(from=0) int x, @IntRange(from=0) int y);
+    method public operator long get(int x, int y);
     method public int[] getBuffer();
     method public int getBufferOffset();
     method public int getHeight();
@@ -578,16 +682,25 @@ package androidx.compose.ui.graphics {
     property public final int width;
   }
 
-  public enum PointMode {
-    enum_constant public static final androidx.compose.ui.graphics.PointMode Lines;
-    enum_constant public static final androidx.compose.ui.graphics.PointMode Points;
-    enum_constant public static final androidx.compose.ui.graphics.PointMode Polygon;
+  @androidx.compose.runtime.Immutable public final inline class PointMode {
+    ctor public PointMode();
+  }
+
+  public static final class PointMode.Companion {
+    method public int getLines();
+    method public int getPoints();
+    method public int getPolygon();
+    property public final int Lines;
+    property public final int Points;
+    property public final int Polygon;
   }
 
   @androidx.compose.runtime.Immutable public final class RadialGradient extends androidx.compose.ui.graphics.ShaderBrush {
+    method public android.graphics.Shader createShader(long size);
+    property public long intrinsicSize;
   }
 
-  public final class RectHelperKt {
+  public final class RectHelper_androidKt {
     method public static android.graphics.Rect toAndroidRect(androidx.compose.ui.geometry.Rect);
     method public static android.graphics.RectF toAndroidRectF(androidx.compose.ui.geometry.Rect);
     method public static androidx.compose.ui.geometry.Rect toComposeRect(android.graphics.Rect);
@@ -597,28 +710,36 @@ package androidx.compose.ui.graphics {
     method public static androidx.compose.ui.graphics.Shape getRectangleShape();
   }
 
-  @androidx.compose.runtime.Immutable public class ShaderBrush extends androidx.compose.ui.graphics.Brush {
-    ctor public ShaderBrush(android.graphics.Shader shader);
-    method public final void applyTo(androidx.compose.ui.graphics.Paint p, float alpha);
-    method public final android.graphics.Shader getShader();
-    property public final android.graphics.Shader shader;
+  @androidx.compose.runtime.Immutable public abstract sealed class RenderEffect {
+    method @RequiresApi(android.os.Build.VERSION_CODES.S) public final android.graphics.RenderEffect asAndroidRenderEffect();
+    method @RequiresApi(android.os.Build.VERSION_CODES.S) protected abstract android.graphics.RenderEffect createRenderEffect();
+    method public boolean isSupported();
+  }
+
+  public final class RenderEffectKt {
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.BlurEffect BlurEffect(float radiusX, float radiusY, optional int edgeTreatment);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.OffsetEffect OffsetEffect(float offsetX, float offsetY);
+  }
+
+  @androidx.compose.runtime.Immutable public abstract class ShaderBrush extends androidx.compose.ui.graphics.Brush {
+    ctor public ShaderBrush();
+    method public final void applyTo(long size, androidx.compose.ui.graphics.Paint p, float alpha);
+    method public abstract android.graphics.Shader createShader(long size);
   }
 
   public final class ShaderKt {
-    method public static android.graphics.Shader ImageShader(androidx.compose.ui.graphics.ImageBitmap image, optional androidx.compose.ui.graphics.TileMode tileModeX, optional androidx.compose.ui.graphics.TileMode tileModeY);
-    method public static android.graphics.Shader LinearGradientShader-GfyHbQM(long from, long to, java.util.List<androidx.compose.ui.graphics.Color> colors, optional java.util.List<java.lang.Float>? colorStops, optional androidx.compose.ui.graphics.TileMode tileMode);
-    method public static android.graphics.Shader RadialGradientShader-cY6o93o(long center, float radius, java.util.List<androidx.compose.ui.graphics.Color> colors, optional java.util.List<java.lang.Float>? colorStops, optional androidx.compose.ui.graphics.TileMode tileMode);
-    method public static android.graphics.Shader SweepGradientShader-GpNgDDw(long center, java.util.List<androidx.compose.ui.graphics.Color> colors, optional java.util.List<java.lang.Float>? colorStops);
+    method public static android.graphics.Shader ImageShader(androidx.compose.ui.graphics.ImageBitmap image, optional int tileModeX, optional int tileModeY);
+    method public static android.graphics.Shader LinearGradientShader(long from, long to, java.util.List<androidx.compose.ui.graphics.Color> colors, optional java.util.List<java.lang.Float>? colorStops, optional int tileMode);
+    method public static android.graphics.Shader RadialGradientShader(long center, float radius, java.util.List<androidx.compose.ui.graphics.Color> colors, optional java.util.List<java.lang.Float>? colorStops, optional int tileMode);
+    method public static android.graphics.Shader SweepGradientShader(long center, java.util.List<androidx.compose.ui.graphics.Color> colors, optional java.util.List<java.lang.Float>? colorStops);
   }
 
   @androidx.compose.runtime.Immutable public final class Shadow {
-    method public long component1-0d7_KjU();
-    method public long component2-F1C5BW0();
-    method public float component3();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.Shadow copy-vQQzcCI(long color, long offset, float blurRadius);
+    ctor public Shadow(optional @androidx.compose.runtime.Stable long color, optional @androidx.compose.runtime.Stable long offset, optional @androidx.compose.runtime.Stable float blurRadius);
+    method public androidx.compose.ui.graphics.Shadow copy(optional long color, optional long offset, optional float blurRadius);
     method public float getBlurRadius();
-    method public long getColor-0d7_KjU();
-    method public long getOffset-F1C5BW0();
+    method public long getColor();
+    method public long getOffset();
     property public final float blurRadius;
     property public final long color;
     property public final long offset;
@@ -635,99 +756,157 @@ package androidx.compose.ui.graphics {
   }
 
   @androidx.compose.runtime.Immutable public interface Shape {
-    method public androidx.compose.ui.graphics.Outline createOutline-lwCvPpU(long size, androidx.compose.ui.unit.Density density);
+    method public androidx.compose.ui.graphics.Outline createOutline(long size, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.unit.Density density);
   }
 
   @androidx.compose.runtime.Immutable public final class SolidColor extends androidx.compose.ui.graphics.Brush {
-    method public void applyTo(androidx.compose.ui.graphics.Paint p, float alpha);
-    method public long getValue-0d7_KjU();
+    ctor public SolidColor(long value);
+    method public void applyTo(long size, androidx.compose.ui.graphics.Paint p, float alpha);
+    method public long getValue();
     property public final long value;
   }
 
-  public enum StrokeCap {
-    enum_constant public static final androidx.compose.ui.graphics.StrokeCap Butt;
-    enum_constant public static final androidx.compose.ui.graphics.StrokeCap Round;
-    enum_constant public static final androidx.compose.ui.graphics.StrokeCap Square;
+  @androidx.compose.runtime.Immutable public final inline class StampedPathEffectStyle {
+    ctor public StampedPathEffectStyle();
   }
 
-  public enum StrokeJoin {
-    enum_constant public static final androidx.compose.ui.graphics.StrokeJoin Bevel;
-    enum_constant public static final androidx.compose.ui.graphics.StrokeJoin Miter;
-    enum_constant public static final androidx.compose.ui.graphics.StrokeJoin Round;
+  public static final class StampedPathEffectStyle.Companion {
+    method public int getMorph();
+    method public int getRotate();
+    method public int getTranslate();
+    property public final int Morph;
+    property public final int Rotate;
+    property public final int Translate;
+  }
+
+  @androidx.compose.runtime.Immutable public final inline class StrokeCap {
+    ctor public StrokeCap();
+  }
+
+  public static final class StrokeCap.Companion {
+    method public int getButt();
+    method public int getRound();
+    method public int getSquare();
+    property public final int Butt;
+    property public final int Round;
+    property public final int Square;
+  }
+
+  @androidx.compose.runtime.Immutable public final inline class StrokeJoin {
+    ctor public StrokeJoin();
+  }
+
+  public static final class StrokeJoin.Companion {
+    method public int getBevel();
+    method public int getMiter();
+    method public int getRound();
+    property public final int Bevel;
+    property public final int Miter;
+    property public final int Round;
   }
 
   @androidx.compose.runtime.Immutable public final class SweepGradient extends androidx.compose.ui.graphics.ShaderBrush {
+    method public android.graphics.Shader createShader(long size);
   }
 
-  public enum TileMode {
-    enum_constant public static final androidx.compose.ui.graphics.TileMode Clamp;
-    enum_constant public static final androidx.compose.ui.graphics.TileMode Mirror;
-    enum_constant public static final androidx.compose.ui.graphics.TileMode Repeated;
+  @androidx.compose.runtime.Immutable public final inline class TileMode {
+    ctor public TileMode();
   }
 
-  public enum VertexMode {
-    enum_constant public static final androidx.compose.ui.graphics.VertexMode TriangleFan;
-    enum_constant public static final androidx.compose.ui.graphics.VertexMode TriangleStrip;
-    enum_constant public static final androidx.compose.ui.graphics.VertexMode Triangles;
+  public static final class TileMode.Companion {
+    method public int getClamp();
+    method public int getDecal();
+    method public int getMirror();
+    method public int getRepeated();
+    property public final int Clamp;
+    property public final int Decal;
+    property public final int Mirror;
+    property public final int Repeated;
+  }
+
+  @androidx.compose.runtime.Immutable public final inline class VertexMode {
+    ctor public VertexMode();
+  }
+
+  public static final class VertexMode.Companion {
+    method public int getTriangleFan();
+    method public int getTriangleStrip();
+    method public int getTriangles();
+    property public final int TriangleFan;
+    property public final int TriangleStrip;
+    property public final int Triangles;
   }
 
   public final class Vertices {
-    ctor public Vertices(androidx.compose.ui.graphics.VertexMode vertexMode, java.util.List<androidx.compose.ui.geometry.Offset> positions, java.util.List<androidx.compose.ui.geometry.Offset> textureCoordinates, java.util.List<androidx.compose.ui.graphics.Color> colors, java.util.List<java.lang.Integer> indices);
+    ctor public Vertices(int vertexMode, java.util.List<androidx.compose.ui.geometry.Offset> positions, java.util.List<androidx.compose.ui.geometry.Offset> textureCoordinates, java.util.List<androidx.compose.ui.graphics.Color> colors, java.util.List<java.lang.Integer> indices);
     method public int[] getColors();
     method public short[] getIndices();
     method public float[] getPositions();
     method public float[] getTextureCoordinates();
-    method public androidx.compose.ui.graphics.VertexMode getVertexMode();
+    method public int getVertexMode();
     property public final int[] colors;
     property public final short[] indices;
     property public final float[] positions;
     property public final float[] textureCoordinates;
-    property public final androidx.compose.ui.graphics.VertexMode vertexMode;
+    property public final int vertexMode;
   }
 
 }
 
 package androidx.compose.ui.graphics.colorspace {
 
-  public enum Adaptation {
-    enum_constant public static final androidx.compose.ui.graphics.colorspace.Adaptation Bradford;
-    enum_constant public static final androidx.compose.ui.graphics.colorspace.Adaptation Ciecat02;
-    enum_constant public static final androidx.compose.ui.graphics.colorspace.Adaptation VonKries;
+  public abstract class Adaptation {
+    field public static final androidx.compose.ui.graphics.colorspace.Adaptation.Companion Companion;
   }
 
-  public enum ColorModel {
-    method public final int getComponentCount();
-    property public final int componentCount;
-    enum_constant public static final androidx.compose.ui.graphics.colorspace.ColorModel Cmyk;
-    enum_constant public static final androidx.compose.ui.graphics.colorspace.ColorModel Lab;
-    enum_constant public static final androidx.compose.ui.graphics.colorspace.ColorModel Rgb;
-    enum_constant public static final androidx.compose.ui.graphics.colorspace.ColorModel Xyz;
+  public static final class Adaptation.Companion {
+    method public androidx.compose.ui.graphics.colorspace.Adaptation getBradford();
+    method public androidx.compose.ui.graphics.colorspace.Adaptation getCiecat02();
+    method public androidx.compose.ui.graphics.colorspace.Adaptation getVonKries();
+    property public final androidx.compose.ui.graphics.colorspace.Adaptation Bradford;
+    property public final androidx.compose.ui.graphics.colorspace.Adaptation Ciecat02;
+    property public final androidx.compose.ui.graphics.colorspace.Adaptation VonKries;
+  }
+
+  @androidx.compose.runtime.Immutable public final inline class ColorModel {
+    ctor public ColorModel();
+  }
+
+  public static final class ColorModel.Companion {
+    method public long getCmyk();
+    method public long getLab();
+    method public long getRgb();
+    method public long getXyz();
+    property public final long Cmyk;
+    property public final long Lab;
+    property public final long Rgb;
+    property public final long Xyz;
   }
 
   public abstract class ColorSpace {
-    ctor public ColorSpace(String name, androidx.compose.ui.graphics.colorspace.ColorModel model);
-    method @Size(min=3) public final float[] fromXyz(float x, float y, float z);
-    method @Size(min=3) public abstract float[] fromXyz(@Size(min=3) float[] v);
-    method @IntRange(from=1, to=4) public final int getComponentCount();
-    method public abstract float getMaxValue(@IntRange(from=0, to=3) int component);
-    method public abstract float getMinValue(@IntRange(from=0, to=3) int component);
-    method public final androidx.compose.ui.graphics.colorspace.ColorModel getModel();
+    ctor public ColorSpace(String name, long model);
+    method public final float[] fromXyz(float x, float y, float z);
+    method public abstract float[] fromXyz(float[] v);
+    method public final int getComponentCount();
+    method public abstract float getMaxValue(int component);
+    method public abstract float getMinValue(int component);
+    method public final long getModel();
     method public final String getName();
     method public boolean isSrgb();
     method public abstract boolean isWideGamut();
-    method @Size(3) public final float[] toXyz(float r, float g, float b);
-    method @Size(min=3) public abstract float[] toXyz(@Size(min=3) float[] v);
-    property @IntRange(from=1, to=4) public final int componentCount;
+    method public final float[] toXyz(float r, float g, float b);
+    method public abstract float[] toXyz(float[] v);
+    property public final int componentCount;
     property public boolean isSrgb;
     property public abstract boolean isWideGamut;
-    property public final androidx.compose.ui.graphics.colorspace.ColorModel model;
+    property public final long model;
     property public final String name;
   }
 
   public final class ColorSpaceKt {
     method public static androidx.compose.ui.graphics.colorspace.ColorSpace adapt(androidx.compose.ui.graphics.colorspace.ColorSpace, androidx.compose.ui.graphics.colorspace.WhitePoint whitePoint, optional androidx.compose.ui.graphics.colorspace.Adaptation adaptation);
     method public static androidx.compose.ui.graphics.colorspace.ColorSpace adapt(androidx.compose.ui.graphics.colorspace.ColorSpace, androidx.compose.ui.graphics.colorspace.WhitePoint whitePoint);
-    method public static androidx.compose.ui.graphics.colorspace.Connector connect(androidx.compose.ui.graphics.colorspace.ColorSpace, optional androidx.compose.ui.graphics.colorspace.ColorSpace destination, optional androidx.compose.ui.graphics.colorspace.RenderIntent intent);
+    method public static androidx.compose.ui.graphics.colorspace.Connector connect(androidx.compose.ui.graphics.colorspace.ColorSpace, optional androidx.compose.ui.graphics.colorspace.ColorSpace destination, optional int intent);
   }
 
   public final class ColorSpaces {
@@ -747,7 +926,7 @@ package androidx.compose.ui.graphics.colorspace {
     method public androidx.compose.ui.graphics.colorspace.Rgb getProPhotoRgb();
     method public androidx.compose.ui.graphics.colorspace.Rgb getSmpteC();
     method public androidx.compose.ui.graphics.colorspace.Rgb getSrgb();
-    method public androidx.compose.ui.graphics.colorspace.ColorSpace? match(@Size(9) float[] toXYZD50, androidx.compose.ui.graphics.colorspace.TransferParameters function);
+    method public androidx.compose.ui.graphics.colorspace.ColorSpace? match(float[] toXYZD50, androidx.compose.ui.graphics.colorspace.TransferParameters function);
     property public final androidx.compose.ui.graphics.colorspace.Rgb Aces;
     property public final androidx.compose.ui.graphics.colorspace.Rgb Acescg;
     property public final androidx.compose.ui.graphics.colorspace.Rgb AdobeRgb;
@@ -769,12 +948,12 @@ package androidx.compose.ui.graphics.colorspace {
 
   public class Connector {
     method public final androidx.compose.ui.graphics.colorspace.ColorSpace getDestination();
-    method public final androidx.compose.ui.graphics.colorspace.RenderIntent getRenderIntent();
+    method public final int getRenderIntent();
     method public final androidx.compose.ui.graphics.colorspace.ColorSpace getSource();
-    method @Size(3) public final float[] transform(float r, float g, float b);
-    method @Size(min=3) public float[] transform(@Size(min=3) float[] v);
+    method public final float[] transform(float r, float g, float b);
+    method public float[] transform(float[] v);
     property public final androidx.compose.ui.graphics.colorspace.ColorSpace destination;
-    property public final androidx.compose.ui.graphics.colorspace.RenderIntent renderIntent;
+    property public final int renderIntent;
     property public final androidx.compose.ui.graphics.colorspace.ColorSpace source;
   }
 
@@ -800,39 +979,47 @@ package androidx.compose.ui.graphics.colorspace {
     field public static final androidx.compose.ui.graphics.colorspace.Illuminant INSTANCE;
   }
 
-  public enum RenderIntent {
-    enum_constant public static final androidx.compose.ui.graphics.colorspace.RenderIntent Absolute;
-    enum_constant public static final androidx.compose.ui.graphics.colorspace.RenderIntent Perceptual;
-    enum_constant public static final androidx.compose.ui.graphics.colorspace.RenderIntent Relative;
-    enum_constant public static final androidx.compose.ui.graphics.colorspace.RenderIntent Saturation;
+  @androidx.compose.runtime.Immutable public final inline class RenderIntent {
+    ctor public RenderIntent();
+  }
+
+  public static final class RenderIntent.Companion {
+    method public int getAbsolute();
+    method public int getPerceptual();
+    method public int getRelative();
+    method public int getSaturation();
+    property public final int Absolute;
+    property public final int Perceptual;
+    property public final int Relative;
+    property public final int Saturation;
   }
 
   public final class Rgb extends androidx.compose.ui.graphics.colorspace.ColorSpace {
-    ctor public Rgb(@Size(min=1) String name, @Size(9) float[] toXYZ, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> oetf, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> eotf);
-    ctor public Rgb(@Size(min=1) String name, @Size(min=6, max=9) float[] primaries, androidx.compose.ui.graphics.colorspace.WhitePoint whitePoint, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> oetf, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> eotf, float min, float max);
-    ctor public Rgb(@Size(min=1) String name, @Size(9) float[] toXYZ, androidx.compose.ui.graphics.colorspace.TransferParameters function);
-    ctor public Rgb(@Size(min=1) String name, @Size(min=6, max=9) float[] primaries, androidx.compose.ui.graphics.colorspace.WhitePoint whitePoint, androidx.compose.ui.graphics.colorspace.TransferParameters function);
-    ctor public Rgb(@Size(min=1) String name, @Size(9) float[] toXYZ, double gamma);
-    ctor public Rgb(@Size(min=1) String name, @Size(min=6, max=9) float[] primaries, androidx.compose.ui.graphics.colorspace.WhitePoint whitePoint, double gamma);
-    method @Size(3) public float[] fromLinear(float r, float g, float b);
-    method @Size(min=3) public float[] fromLinear(@Size(min=3) float[] v);
-    method @Size(min=3) public float[] fromXyz(@Size(min=3) float[] v);
+    ctor public Rgb(String name, float[] toXYZ, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> oetf, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> eotf);
+    ctor public Rgb(String name, float[] primaries, androidx.compose.ui.graphics.colorspace.WhitePoint whitePoint, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> oetf, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> eotf, float min, float max);
+    ctor public Rgb(String name, float[] toXYZ, androidx.compose.ui.graphics.colorspace.TransferParameters function);
+    ctor public Rgb(String name, float[] primaries, androidx.compose.ui.graphics.colorspace.WhitePoint whitePoint, androidx.compose.ui.graphics.colorspace.TransferParameters function);
+    ctor public Rgb(String name, float[] toXYZ, double gamma);
+    ctor public Rgb(String name, float[] primaries, androidx.compose.ui.graphics.colorspace.WhitePoint whitePoint, double gamma);
+    method public float[] fromLinear(float r, float g, float b);
+    method public float[] fromLinear(float[] v);
+    method public float[] fromXyz(float[] v);
     method public kotlin.jvm.functions.Function1<java.lang.Double,java.lang.Double> getEotf();
-    method @Size(9) public float[] getInverseTransform();
-    method @Size(min=9) public float[] getInverseTransform(@Size(min=9) float[] inverseTransform);
+    method public float[] getInverseTransform();
+    method public float[] getInverseTransform(float[] inverseTransform);
     method public float getMaxValue(int component);
     method public float getMinValue(int component);
     method public kotlin.jvm.functions.Function1<java.lang.Double,java.lang.Double> getOetf();
-    method @Size(6) public float[] getPrimaries();
-    method @Size(min=6) public float[] getPrimaries(@Size(min=6) float[] primaries);
+    method public float[] getPrimaries();
+    method public float[] getPrimaries(float[] primaries);
     method public androidx.compose.ui.graphics.colorspace.TransferParameters? getTransferParameters();
-    method @Size(9) public float[] getTransform();
-    method @Size(min=9) public float[] getTransform(@Size(min=9) float[] transform);
+    method public float[] getTransform();
+    method public float[] getTransform(float[] transform);
     method public androidx.compose.ui.graphics.colorspace.WhitePoint getWhitePoint();
     method public boolean isWideGamut();
-    method @Size(3) public float[] toLinear(float r, float g, float b);
-    method @Size(min=3) public float[] toLinear(@Size(min=3) float[] v);
-    method @Size(min=3) public float[] toXyz(@Size(min=3) float[] v);
+    method public float[] toLinear(float r, float g, float b);
+    method public float[] toLinear(float[] v);
+    method public float[] toXyz(float[] v);
     property public final kotlin.jvm.functions.Function1<java.lang.Double,java.lang.Double> eotf;
     property public boolean isSrgb;
     property public boolean isWideGamut;
@@ -842,7 +1029,7 @@ package androidx.compose.ui.graphics.colorspace {
   }
 
   public final class TransferParameters {
-    ctor public TransferParameters(double gamma, double a, double b, double c, double d, double e, double f);
+    ctor public TransferParameters(double gamma, double a, double b, double c, double d, optional double e, optional double f);
     method public double component1();
     method public double component2();
     method public double component3();
@@ -885,25 +1072,25 @@ package androidx.compose.ui.graphics.drawscope {
 
   public final class CanvasDrawScope implements androidx.compose.ui.graphics.drawscope.DrawScope {
     ctor public CanvasDrawScope();
-    method public inline void draw-jkGVKLE(androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.graphics.Canvas canvas, long size, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
-    method public void drawArc-BcZ8TnY(long color, float startAngle, float sweepAngle, boolean useCenter, long topLeft, long size, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawArc-C-Io9bM(androidx.compose.ui.graphics.Brush brush, float startAngle, float sweepAngle, boolean useCenter, long topLeft, long size, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawCircle-NGaRamM(long color, float radius, long center, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawCircle-m-UMHxE(androidx.compose.ui.graphics.Brush brush, float radius, long center, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawImage-JUiai_k(androidx.compose.ui.graphics.ImageBitmap image, long topLeft, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawImage-Yc2aOMw(androidx.compose.ui.graphics.ImageBitmap image, long srcOffset, long srcSize, long dstOffset, long dstSize, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawLine-1-s4MmQ(long color, long start, long end, float strokeWidth, androidx.compose.ui.graphics.StrokeCap cap, android.graphics.PathEffect? pathEffect, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawLine-IQGCKvc(androidx.compose.ui.graphics.Brush brush, long start, long end, float strokeWidth, androidx.compose.ui.graphics.StrokeCap cap, android.graphics.PathEffect? pathEffect, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawOval-0a6MmAQ(androidx.compose.ui.graphics.Brush brush, long topLeft, long size, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawOval-IdEHoqk(long color, long topLeft, long size, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawPath(androidx.compose.ui.graphics.Path path, androidx.compose.ui.graphics.Brush brush, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawPath-tilSWAQ(androidx.compose.ui.graphics.Path path, long color, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawPoints(java.util.List<androidx.compose.ui.geometry.Offset> points, androidx.compose.ui.graphics.PointMode pointMode, androidx.compose.ui.graphics.Brush brush, float strokeWidth, androidx.compose.ui.graphics.StrokeCap cap, android.graphics.PathEffect? pathEffect, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawPoints-8s8raUw(java.util.List<androidx.compose.ui.geometry.Offset> points, androidx.compose.ui.graphics.PointMode pointMode, long color, float strokeWidth, androidx.compose.ui.graphics.StrokeCap cap, android.graphics.PathEffect? pathEffect, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawRect-0a6MmAQ(androidx.compose.ui.graphics.Brush brush, long topLeft, long size, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawRect-IdEHoqk(long color, long topLeft, long size, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawRoundRect-fNghmuc(long color, long topLeft, long size, long cornerRadius, androidx.compose.ui.graphics.drawscope.DrawStyle style, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawRoundRect-sDDzLXA(androidx.compose.ui.graphics.Brush brush, long topLeft, long size, long cornerRadius, @FloatRange(from=0.0, to=1.0) float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, androidx.compose.ui.graphics.BlendMode blendMode);
+    method public inline void draw(androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.graphics.Canvas canvas, long size, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
+    method public void drawArc(androidx.compose.ui.graphics.Brush brush, float startAngle, float sweepAngle, boolean useCenter, long topLeft, long size, float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
+    method public void drawArc(long color, float startAngle, float sweepAngle, boolean useCenter, long topLeft, long size, float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
+    method public void drawCircle(androidx.compose.ui.graphics.Brush brush, float radius, long center, float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
+    method public void drawCircle(long color, float radius, long center, float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
+    method public void drawImage(androidx.compose.ui.graphics.ImageBitmap image, long topLeft, float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
+    method public void drawImage(androidx.compose.ui.graphics.ImageBitmap image, long srcOffset, long srcSize, long dstOffset, long dstSize, float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
+    method public void drawLine(androidx.compose.ui.graphics.Brush brush, long start, long end, float strokeWidth, int cap, androidx.compose.ui.graphics.PathEffect? pathEffect, float alpha, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
+    method public void drawLine(long color, long start, long end, float strokeWidth, int cap, androidx.compose.ui.graphics.PathEffect? pathEffect, float alpha, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
+    method public void drawOval(androidx.compose.ui.graphics.Brush brush, long topLeft, long size, float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
+    method public void drawOval(long color, long topLeft, long size, float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
+    method public void drawPath(androidx.compose.ui.graphics.Path path, long color, float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
+    method public void drawPath(androidx.compose.ui.graphics.Path path, androidx.compose.ui.graphics.Brush brush, float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
+    method public void drawPoints(java.util.List<androidx.compose.ui.geometry.Offset> points, int pointMode, long color, float strokeWidth, int cap, androidx.compose.ui.graphics.PathEffect? pathEffect, float alpha, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
+    method public void drawPoints(java.util.List<androidx.compose.ui.geometry.Offset> points, int pointMode, androidx.compose.ui.graphics.Brush brush, float strokeWidth, int cap, androidx.compose.ui.graphics.PathEffect? pathEffect, float alpha, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
+    method public void drawRect(androidx.compose.ui.graphics.Brush brush, long topLeft, long size, float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
+    method public void drawRect(long color, long topLeft, long size, float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
+    method public void drawRoundRect(androidx.compose.ui.graphics.Brush brush, long topLeft, long size, long cornerRadius, float alpha, androidx.compose.ui.graphics.drawscope.DrawStyle style, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
+    method public void drawRoundRect(long color, long topLeft, long size, long cornerRadius, androidx.compose.ui.graphics.drawscope.DrawStyle style, float alpha, androidx.compose.ui.graphics.ColorFilter? colorFilter, int blendMode);
     method public float getDensity();
     method public androidx.compose.ui.graphics.drawscope.DrawContext getDrawContext();
     method public float getFontScale();
@@ -916,22 +1103,22 @@ package androidx.compose.ui.graphics.drawscope {
   }
 
   @kotlin.PublishedApi internal static final class CanvasDrawScope.DrawParams {
+    ctor public CanvasDrawScope.DrawParams(optional androidx.compose.ui.unit.Density density, optional androidx.compose.ui.unit.LayoutDirection layoutDirection, optional androidx.compose.ui.graphics.Canvas canvas, optional long size);
     method public androidx.compose.ui.unit.Density component1();
     method public androidx.compose.ui.unit.LayoutDirection component2();
     method public androidx.compose.ui.graphics.Canvas component3();
     method public long component4-NH-jbRc();
-    method @kotlin.PublishedApi internal androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams copy-xYU37iA(androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.graphics.Canvas canvas, long size);
-    method @kotlin.PublishedApi internal boolean equals(Object? p);
+    method internal boolean equals(Object? other);
     method public androidx.compose.ui.graphics.Canvas getCanvas();
     method public androidx.compose.ui.unit.Density getDensity();
     method public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
-    method public long getSize-NH-jbRc();
-    method @kotlin.PublishedApi internal int hashCode();
-    method public void setCanvas(androidx.compose.ui.graphics.Canvas p);
-    method public void setDensity(androidx.compose.ui.unit.Density p);
-    method public void setLayoutDirection(androidx.compose.ui.unit.LayoutDirection p);
-    method public void setSize-uvyYCjk(long p);
-    method @kotlin.PublishedApi internal String toString();
+    method public long getSize();
+    method internal int hashCode();
+    method public void setCanvas(androidx.compose.ui.graphics.Canvas canvas);
+    method public void setDensity(androidx.compose.ui.unit.Density density);
+    method public void setLayoutDirection(androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public void setSize(long size);
+    method internal String toString();
     property public final androidx.compose.ui.graphics.Canvas canvas;
     property public final androidx.compose.ui.unit.Density density;
     property public final androidx.compose.ui.unit.LayoutDirection layoutDirection;
@@ -947,37 +1134,38 @@ package androidx.compose.ui.graphics.drawscope {
 
   public interface DrawContext {
     method public androidx.compose.ui.graphics.Canvas getCanvas();
-    method public long getSize-NH-jbRc();
+    method public long getSize();
     method public androidx.compose.ui.graphics.drawscope.DrawTransform getTransform();
-    method public void setSize-uvyYCjk(long p);
+    method public void setSize(long size);
     property public abstract androidx.compose.ui.graphics.Canvas canvas;
     property public abstract long size;
     property public abstract androidx.compose.ui.graphics.drawscope.DrawTransform transform;
   }
 
   @androidx.compose.ui.graphics.drawscope.DrawScopeMarker public interface DrawScope extends androidx.compose.ui.unit.Density {
-    method public void drawArc-BcZ8TnY(long color, float startAngle, float sweepAngle, boolean useCenter, optional long topLeft, optional long size, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawArc-C-Io9bM(androidx.compose.ui.graphics.Brush brush, float startAngle, float sweepAngle, boolean useCenter, optional long topLeft, optional long size, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawCircle-NGaRamM(long color, optional float radius, optional long center, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawCircle-m-UMHxE(androidx.compose.ui.graphics.Brush brush, optional float radius, optional long center, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawImage-JUiai_k(androidx.compose.ui.graphics.ImageBitmap image, optional long topLeft, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawImage-Yc2aOMw(androidx.compose.ui.graphics.ImageBitmap image, optional long srcOffset, optional long srcSize, optional long dstOffset, optional long dstSize, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawLine-1-s4MmQ(long color, long start, long end, optional float strokeWidth, optional androidx.compose.ui.graphics.StrokeCap cap, optional android.graphics.PathEffect? pathEffect, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawLine-IQGCKvc(androidx.compose.ui.graphics.Brush brush, long start, long end, optional float strokeWidth, optional androidx.compose.ui.graphics.StrokeCap cap, optional android.graphics.PathEffect? pathEffect, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawOval-0a6MmAQ(androidx.compose.ui.graphics.Brush brush, optional long topLeft, optional long size, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawOval-IdEHoqk(long color, optional long topLeft, optional long size, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawPath(androidx.compose.ui.graphics.Path path, androidx.compose.ui.graphics.Brush brush, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawPath-tilSWAQ(androidx.compose.ui.graphics.Path path, long color, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawPoints(java.util.List<androidx.compose.ui.geometry.Offset> points, androidx.compose.ui.graphics.PointMode pointMode, androidx.compose.ui.graphics.Brush brush, optional float strokeWidth, optional androidx.compose.ui.graphics.StrokeCap cap, optional android.graphics.PathEffect? pathEffect, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawPoints-8s8raUw(java.util.List<androidx.compose.ui.geometry.Offset> points, androidx.compose.ui.graphics.PointMode pointMode, long color, optional float strokeWidth, optional androidx.compose.ui.graphics.StrokeCap cap, optional android.graphics.PathEffect? pathEffect, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawRect-0a6MmAQ(androidx.compose.ui.graphics.Brush brush, optional long topLeft, optional long size, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawRect-IdEHoqk(long color, optional long topLeft, optional long size, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawRoundRect-fNghmuc(long color, optional long topLeft, optional long size, optional long cornerRadius, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public void drawRoundRect-sDDzLXA(androidx.compose.ui.graphics.Brush brush, optional long topLeft, optional long size, optional long cornerRadius, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional androidx.compose.ui.graphics.BlendMode blendMode);
-    method public default long getCenter-F1C5BW0();
+    method public void drawArc(androidx.compose.ui.graphics.Brush brush, float startAngle, float sweepAngle, boolean useCenter, optional long topLeft, optional long size, optional float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public void drawArc(long color, float startAngle, float sweepAngle, boolean useCenter, optional long topLeft, optional long size, optional float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public void drawCircle(androidx.compose.ui.graphics.Brush brush, optional float radius, optional long center, optional float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public void drawCircle(long color, optional float radius, optional long center, optional float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public void drawImage(androidx.compose.ui.graphics.ImageBitmap image, optional long topLeft, optional float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public default void drawImage(androidx.compose.ui.graphics.ImageBitmap image, optional long srcOffset, optional long srcSize, optional long dstOffset, optional long dstSize, optional float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode, optional int filterQuality);
+    method public void drawImage(androidx.compose.ui.graphics.ImageBitmap image, optional long srcOffset, optional long srcSize, optional long dstOffset, optional long dstSize, optional float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public void drawLine(androidx.compose.ui.graphics.Brush brush, long start, long end, optional float strokeWidth, optional int cap, optional androidx.compose.ui.graphics.PathEffect? pathEffect, optional float alpha, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public void drawLine(long color, long start, long end, optional float strokeWidth, optional int cap, optional androidx.compose.ui.graphics.PathEffect? pathEffect, optional float alpha, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public void drawOval(androidx.compose.ui.graphics.Brush brush, optional long topLeft, optional long size, optional float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public void drawOval(long color, optional long topLeft, optional long size, optional float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public void drawPath(androidx.compose.ui.graphics.Path path, long color, optional float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public void drawPath(androidx.compose.ui.graphics.Path path, androidx.compose.ui.graphics.Brush brush, optional float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public void drawPoints(java.util.List<androidx.compose.ui.geometry.Offset> points, int pointMode, long color, optional float strokeWidth, optional int cap, optional androidx.compose.ui.graphics.PathEffect? pathEffect, optional float alpha, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public void drawPoints(java.util.List<androidx.compose.ui.geometry.Offset> points, int pointMode, androidx.compose.ui.graphics.Brush brush, optional float strokeWidth, optional int cap, optional androidx.compose.ui.graphics.PathEffect? pathEffect, optional float alpha, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public void drawRect(androidx.compose.ui.graphics.Brush brush, optional long topLeft, optional long size, optional float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public void drawRect(long color, optional long topLeft, optional long size, optional float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public void drawRoundRect(androidx.compose.ui.graphics.Brush brush, optional long topLeft, optional long size, optional long cornerRadius, optional float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public void drawRoundRect(long color, optional long topLeft, optional long size, optional long cornerRadius, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional float alpha, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
+    method public default long getCenter();
     method public androidx.compose.ui.graphics.drawscope.DrawContext getDrawContext();
     method public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
-    method public default long getSize-NH-jbRc();
+    method public default long getSize();
     method public long offsetSize(long, long offset);
     property public default long center;
     property public abstract androidx.compose.ui.graphics.drawscope.DrawContext drawContext;
@@ -987,21 +1175,23 @@ package androidx.compose.ui.graphics.drawscope {
   }
 
   public static final class DrawScope.Companion {
-    method public androidx.compose.ui.graphics.BlendMode getDefaultBlendMode();
-    property public final androidx.compose.ui.graphics.BlendMode DefaultBlendMode;
+    method public int getDefaultBlendMode();
+    method public int getDefaultFilterQuality();
+    property public final int DefaultBlendMode;
+    property public final int DefaultFilterQuality;
   }
 
   public final class DrawScopeKt {
-    method public static inline void clipPath(androidx.compose.ui.graphics.drawscope.DrawScope, androidx.compose.ui.graphics.Path path, optional androidx.compose.ui.graphics.ClipOp clipOp, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
-    method public static inline void clipRect(androidx.compose.ui.graphics.drawscope.DrawScope, optional float left, optional float top, optional float right, optional float bottom, optional androidx.compose.ui.graphics.ClipOp clipOp, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
+    method public static inline void clipPath(androidx.compose.ui.graphics.drawscope.DrawScope, androidx.compose.ui.graphics.Path path, optional int clipOp, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
+    method public static inline void clipRect(androidx.compose.ui.graphics.drawscope.DrawScope, optional float left, optional float top, optional float right, optional float bottom, optional int clipOp, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public static inline void drawIntoCanvas(androidx.compose.ui.graphics.drawscope.DrawScope, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.Canvas,kotlin.Unit> block);
     method public static inline void inset(androidx.compose.ui.graphics.drawscope.DrawScope, float left, float top, float right, float bottom, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public static inline void inset(androidx.compose.ui.graphics.drawscope.DrawScope, float inset, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public static inline void inset(androidx.compose.ui.graphics.drawscope.DrawScope, optional float horizontal, optional float vertical, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
-    method public static inline void rotate-FvlOZkk(androidx.compose.ui.graphics.drawscope.DrawScope, float degrees, optional long pivot, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
-    method public static inline void rotateRad-FvlOZkk(androidx.compose.ui.graphics.drawscope.DrawScope, float radians, optional long pivot, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
-    method public static inline void scale-FvlOZkk(androidx.compose.ui.graphics.drawscope.DrawScope, float scale, optional long pivot, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
-    method public static inline void scale-LCqtnZ0(androidx.compose.ui.graphics.drawscope.DrawScope, float scaleX, float scaleY, optional long pivot, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
+    method public static inline void rotate(androidx.compose.ui.graphics.drawscope.DrawScope, float degrees, optional long pivot, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
+    method public static inline void rotateRad(androidx.compose.ui.graphics.drawscope.DrawScope, float radians, optional long pivot, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
+    method public static inline void scale(androidx.compose.ui.graphics.drawscope.DrawScope, float scaleX, float scaleY, optional long pivot, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
+    method public static inline void scale(androidx.compose.ui.graphics.drawscope.DrawScope, float scale, optional long pivot, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public static inline void translate(androidx.compose.ui.graphics.drawscope.DrawScope, optional float left, optional float top, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public static inline void withTransform(androidx.compose.ui.graphics.drawscope.DrawScope, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawTransform,kotlin.Unit> transformBlock, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> drawBlock);
   }
@@ -1013,14 +1203,14 @@ package androidx.compose.ui.graphics.drawscope {
   }
 
   @androidx.compose.ui.graphics.drawscope.DrawScopeMarker public interface DrawTransform {
-    method public void clipPath(androidx.compose.ui.graphics.Path path, optional androidx.compose.ui.graphics.ClipOp clipOp);
-    method public void clipRect(optional float left, optional float top, optional float right, optional float bottom, optional androidx.compose.ui.graphics.ClipOp clipOp);
-    method public default long getCenter-F1C5BW0();
-    method public long getSize-NH-jbRc();
+    method public void clipPath(androidx.compose.ui.graphics.Path path, optional int clipOp);
+    method public void clipRect(optional float left, optional float top, optional float right, optional float bottom, optional int clipOp);
+    method public default long getCenter();
+    method public long getSize();
     method public void inset(float left, float top, float right, float bottom);
-    method public void rotate-KYFOyyg(float degrees, optional long pivot);
-    method public void scale-QguGWxw(float scaleX, float scaleY, optional long pivot);
-    method public void transform-58bKbWc(float[] matrix);
+    method public void rotate(float degrees, optional long pivot);
+    method public void scale(float scaleX, float scaleY, optional long pivot);
+    method public void transform(float[] matrix);
     method public void translate(optional float left, optional float top);
     property public default long center;
     property public abstract long size;
@@ -1029,8 +1219,8 @@ package androidx.compose.ui.graphics.drawscope {
   public final class DrawTransformKt {
     method public static inline void inset(androidx.compose.ui.graphics.drawscope.DrawTransform, optional float horizontal, optional float vertical);
     method public static inline void inset(androidx.compose.ui.graphics.drawscope.DrawTransform, float inset);
-    method public static inline void rotateRad-kdYHfaE(androidx.compose.ui.graphics.drawscope.DrawTransform, float radians, optional long pivot);
-    method public static inline void scale-kdYHfaE(androidx.compose.ui.graphics.drawscope.DrawTransform, float scale, optional long pivot);
+    method public static inline void rotateRad(androidx.compose.ui.graphics.drawscope.DrawTransform, float radians, optional long pivot);
+    method public static inline void scale(androidx.compose.ui.graphics.drawscope.DrawTransform, float scale, optional long pivot);
   }
 
   public final class Fill extends androidx.compose.ui.graphics.drawscope.DrawStyle {
@@ -1038,23 +1228,16 @@ package androidx.compose.ui.graphics.drawscope {
   }
 
   public final class Stroke extends androidx.compose.ui.graphics.drawscope.DrawStyle {
-    ctor public Stroke(float width, float miter, androidx.compose.ui.graphics.StrokeCap cap, androidx.compose.ui.graphics.StrokeJoin join, android.graphics.PathEffect? pathEffect);
-    ctor public Stroke();
-    method public float component1();
-    method public float component2();
-    method public androidx.compose.ui.graphics.StrokeCap component3();
-    method public androidx.compose.ui.graphics.StrokeJoin component4();
-    method public android.graphics.PathEffect? component5();
-    method public androidx.compose.ui.graphics.drawscope.Stroke copy(float width, float miter, androidx.compose.ui.graphics.StrokeCap cap, androidx.compose.ui.graphics.StrokeJoin join, android.graphics.PathEffect? pathEffect);
-    method public androidx.compose.ui.graphics.StrokeCap getCap();
-    method public androidx.compose.ui.graphics.StrokeJoin getJoin();
+    ctor public Stroke(optional float width, optional float miter, optional int cap, optional int join, optional androidx.compose.ui.graphics.PathEffect? pathEffect);
+    method public int getCap();
+    method public int getJoin();
     method public float getMiter();
-    method public android.graphics.PathEffect? getPathEffect();
+    method public androidx.compose.ui.graphics.PathEffect? getPathEffect();
     method public float getWidth();
-    property public final androidx.compose.ui.graphics.StrokeCap cap;
-    property public final androidx.compose.ui.graphics.StrokeJoin join;
+    property public final int cap;
+    property public final int join;
     property public final float miter;
-    property public final android.graphics.PathEffect? pathEffect;
+    property public final androidx.compose.ui.graphics.PathEffect? pathEffect;
     property public final float width;
     field public static final androidx.compose.ui.graphics.drawscope.Stroke.Companion Companion;
     field public static final float DefaultMiter = 4.0f;
@@ -1062,30 +1245,42 @@ package androidx.compose.ui.graphics.drawscope {
   }
 
   public static final class Stroke.Companion {
-    method public androidx.compose.ui.graphics.StrokeCap getDefaultCap();
-    method public androidx.compose.ui.graphics.StrokeJoin getDefaultJoin();
-    property public final androidx.compose.ui.graphics.StrokeCap DefaultCap;
-    property public final androidx.compose.ui.graphics.StrokeJoin DefaultJoin;
+    method public int getDefaultCap();
+    method public int getDefaultJoin();
+    property public final int DefaultCap;
+    property public final int DefaultJoin;
   }
 
 }
 
 package androidx.compose.ui.graphics.painter {
 
-  public final class ColorPainter extends androidx.compose.ui.graphics.painter.Painter {
-    method public long component1-0d7_KjU();
-    method public androidx.compose.ui.graphics.painter.ColorPainter copy-8_81llA(long color);
-    method public long getColor-0d7_KjU();
-    method public long getIntrinsicSize-NH-jbRc();
+  public final class BitmapPainter extends androidx.compose.ui.graphics.painter.Painter {
+    ctor public BitmapPainter(androidx.compose.ui.graphics.ImageBitmap image, optional long srcOffset, optional long srcSize);
+    method public long getIntrinsicSize();
     method protected void onDraw(androidx.compose.ui.graphics.drawscope.DrawScope);
-    property public final long color;
     property public long intrinsicSize;
   }
 
-  public final class ImagePainter extends androidx.compose.ui.graphics.painter.Painter {
-    method public androidx.compose.ui.graphics.painter.ImagePainter copy-MHcbwps(androidx.compose.ui.graphics.ImageBitmap image, long srcOffset, long srcSize);
-    method public long getIntrinsicSize-NH-jbRc();
+  public final class BitmapPainterKt {
+    method public static androidx.compose.ui.graphics.painter.BitmapPainter BitmapPainter(androidx.compose.ui.graphics.ImageBitmap image, optional long srcOffset, optional long srcSize, optional int filterQuality);
+  }
+
+  public final class BrushPainter extends androidx.compose.ui.graphics.painter.Painter {
+    ctor public BrushPainter(androidx.compose.ui.graphics.Brush brush);
+    method public androidx.compose.ui.graphics.Brush getBrush();
+    method public long getIntrinsicSize();
     method protected void onDraw(androidx.compose.ui.graphics.drawscope.DrawScope);
+    property public final androidx.compose.ui.graphics.Brush brush;
+    property public long intrinsicSize;
+  }
+
+  public final class ColorPainter extends androidx.compose.ui.graphics.painter.Painter {
+    ctor public ColorPainter(long color);
+    method public long getColor();
+    method public long getIntrinsicSize();
+    method protected void onDraw(androidx.compose.ui.graphics.drawscope.DrawScope);
+    property public final long color;
     property public long intrinsicSize;
   }
 
@@ -1094,8 +1289,8 @@ package androidx.compose.ui.graphics.painter {
     method protected boolean applyAlpha(float alpha);
     method protected boolean applyColorFilter(androidx.compose.ui.graphics.ColorFilter? colorFilter);
     method protected boolean applyLayoutDirection(androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public final void draw-ty3CEPU(androidx.compose.ui.graphics.drawscope.DrawScope, long size, optional float alpha, optional androidx.compose.ui.graphics.ColorFilter? colorFilter);
-    method public abstract long getIntrinsicSize-NH-jbRc();
+    method public final void draw(androidx.compose.ui.graphics.drawscope.DrawScope, long size, optional float alpha, optional androidx.compose.ui.graphics.ColorFilter? colorFilter);
+    method public abstract long getIntrinsicSize();
     method protected abstract void onDraw(androidx.compose.ui.graphics.drawscope.DrawScope);
     property public abstract long intrinsicSize;
   }
@@ -1144,7 +1339,7 @@ package androidx.compose.ui.graphics.vector {
     method public boolean component5();
     method public float component6();
     method public float component7();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.ArcTo copy(float horizontalEllipseRadius, float verticalEllipseRadius, float theta, boolean isMoreThanHalf, boolean isPositiveArc, float arcStartX, float arcStartY);
+    method public androidx.compose.ui.graphics.vector.PathNode.ArcTo copy(float horizontalEllipseRadius, float verticalEllipseRadius, float theta, boolean isMoreThanHalf, boolean isPositiveArc, float arcStartX, float arcStartY);
     method public float getArcStartX();
     method public float getArcStartY();
     method public float getHorizontalEllipseRadius();
@@ -1173,7 +1368,7 @@ package androidx.compose.ui.graphics.vector {
     method public float component4();
     method public float component5();
     method public float component6();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.CurveTo copy(float x1, float y1, float x2, float y2, float x3, float y3);
+    method public androidx.compose.ui.graphics.vector.PathNode.CurveTo copy(float x1, float y1, float x2, float y2, float x3, float y3);
     method public float getX1();
     method public float getX2();
     method public float getX3();
@@ -1191,7 +1386,7 @@ package androidx.compose.ui.graphics.vector {
   @androidx.compose.runtime.Immutable public static final class PathNode.HorizontalTo extends androidx.compose.ui.graphics.vector.PathNode {
     ctor public PathNode.HorizontalTo(float x);
     method public float component1();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.HorizontalTo copy(float x);
+    method public androidx.compose.ui.graphics.vector.PathNode.HorizontalTo copy(float x);
     method public float getX();
     property public final float x;
   }
@@ -1200,7 +1395,7 @@ package androidx.compose.ui.graphics.vector {
     ctor public PathNode.LineTo(float x, float y);
     method public float component1();
     method public float component2();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.LineTo copy(float x, float y);
+    method public androidx.compose.ui.graphics.vector.PathNode.LineTo copy(float x, float y);
     method public float getX();
     method public float getY();
     property public final float x;
@@ -1211,7 +1406,7 @@ package androidx.compose.ui.graphics.vector {
     ctor public PathNode.MoveTo(float x, float y);
     method public float component1();
     method public float component2();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.MoveTo copy(float x, float y);
+    method public androidx.compose.ui.graphics.vector.PathNode.MoveTo copy(float x, float y);
     method public float getX();
     method public float getY();
     property public final float x;
@@ -1224,7 +1419,7 @@ package androidx.compose.ui.graphics.vector {
     method public float component2();
     method public float component3();
     method public float component4();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.QuadTo copy(float x1, float y1, float x2, float y2);
+    method public androidx.compose.ui.graphics.vector.PathNode.QuadTo copy(float x1, float y1, float x2, float y2);
     method public float getX1();
     method public float getX2();
     method public float getY1();
@@ -1241,7 +1436,7 @@ package androidx.compose.ui.graphics.vector {
     method public float component2();
     method public float component3();
     method public float component4();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.ReflectiveCurveTo copy(float x1, float y1, float x2, float y2);
+    method public androidx.compose.ui.graphics.vector.PathNode.ReflectiveCurveTo copy(float x1, float y1, float x2, float y2);
     method public float getX1();
     method public float getX2();
     method public float getY1();
@@ -1256,7 +1451,7 @@ package androidx.compose.ui.graphics.vector {
     ctor public PathNode.ReflectiveQuadTo(float x, float y);
     method public float component1();
     method public float component2();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.ReflectiveQuadTo copy(float x, float y);
+    method public androidx.compose.ui.graphics.vector.PathNode.ReflectiveQuadTo copy(float x, float y);
     method public float getX();
     method public float getY();
     property public final float x;
@@ -1272,7 +1467,7 @@ package androidx.compose.ui.graphics.vector {
     method public boolean component5();
     method public float component6();
     method public float component7();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.RelativeArcTo copy(float horizontalEllipseRadius, float verticalEllipseRadius, float theta, boolean isMoreThanHalf, boolean isPositiveArc, float arcStartDx, float arcStartDy);
+    method public androidx.compose.ui.graphics.vector.PathNode.RelativeArcTo copy(float horizontalEllipseRadius, float verticalEllipseRadius, float theta, boolean isMoreThanHalf, boolean isPositiveArc, float arcStartDx, float arcStartDy);
     method public float getArcStartDx();
     method public float getArcStartDy();
     method public float getHorizontalEllipseRadius();
@@ -1297,7 +1492,7 @@ package androidx.compose.ui.graphics.vector {
     method public float component4();
     method public float component5();
     method public float component6();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.RelativeCurveTo copy(float dx1, float dy1, float dx2, float dy2, float dx3, float dy3);
+    method public androidx.compose.ui.graphics.vector.PathNode.RelativeCurveTo copy(float dx1, float dy1, float dx2, float dy2, float dx3, float dy3);
     method public float getDx1();
     method public float getDx2();
     method public float getDx3();
@@ -1315,7 +1510,7 @@ package androidx.compose.ui.graphics.vector {
   @androidx.compose.runtime.Immutable public static final class PathNode.RelativeHorizontalTo extends androidx.compose.ui.graphics.vector.PathNode {
     ctor public PathNode.RelativeHorizontalTo(float dx);
     method public float component1();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.RelativeHorizontalTo copy(float dx);
+    method public androidx.compose.ui.graphics.vector.PathNode.RelativeHorizontalTo copy(float dx);
     method public float getDx();
     property public final float dx;
   }
@@ -1324,7 +1519,7 @@ package androidx.compose.ui.graphics.vector {
     ctor public PathNode.RelativeLineTo(float dx, float dy);
     method public float component1();
     method public float component2();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.RelativeLineTo copy(float dx, float dy);
+    method public androidx.compose.ui.graphics.vector.PathNode.RelativeLineTo copy(float dx, float dy);
     method public float getDx();
     method public float getDy();
     property public final float dx;
@@ -1335,7 +1530,7 @@ package androidx.compose.ui.graphics.vector {
     ctor public PathNode.RelativeMoveTo(float dx, float dy);
     method public float component1();
     method public float component2();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.RelativeMoveTo copy(float dx, float dy);
+    method public androidx.compose.ui.graphics.vector.PathNode.RelativeMoveTo copy(float dx, float dy);
     method public float getDx();
     method public float getDy();
     property public final float dx;
@@ -1348,7 +1543,7 @@ package androidx.compose.ui.graphics.vector {
     method public float component2();
     method public float component3();
     method public float component4();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.RelativeQuadTo copy(float dx1, float dy1, float dx2, float dy2);
+    method public androidx.compose.ui.graphics.vector.PathNode.RelativeQuadTo copy(float dx1, float dy1, float dx2, float dy2);
     method public float getDx1();
     method public float getDx2();
     method public float getDy1();
@@ -1365,7 +1560,7 @@ package androidx.compose.ui.graphics.vector {
     method public float component2();
     method public float component3();
     method public float component4();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveCurveTo copy(float dx1, float dy1, float dx2, float dy2);
+    method public androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveCurveTo copy(float dx1, float dy1, float dx2, float dy2);
     method public float getDx1();
     method public float getDx2();
     method public float getDy1();
@@ -1380,7 +1575,7 @@ package androidx.compose.ui.graphics.vector {
     ctor public PathNode.RelativeReflectiveQuadTo(float dx, float dy);
     method public float component1();
     method public float component2();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveQuadTo copy(float dx, float dy);
+    method public androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveQuadTo copy(float dx, float dy);
     method public float getDx();
     method public float getDy();
     property public final float dx;
@@ -1390,7 +1585,7 @@ package androidx.compose.ui.graphics.vector {
   @androidx.compose.runtime.Immutable public static final class PathNode.RelativeVerticalTo extends androidx.compose.ui.graphics.vector.PathNode {
     ctor public PathNode.RelativeVerticalTo(float dy);
     method public float component1();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.RelativeVerticalTo copy(float dy);
+    method public androidx.compose.ui.graphics.vector.PathNode.RelativeVerticalTo copy(float dy);
     method public float getDy();
     property public final float dy;
   }
@@ -1398,7 +1593,7 @@ package androidx.compose.ui.graphics.vector {
   @androidx.compose.runtime.Immutable public static final class PathNode.VerticalTo extends androidx.compose.ui.graphics.vector.PathNode {
     ctor public PathNode.VerticalTo(float y);
     method public float component1();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.vector.PathNode.VerticalTo copy(float y);
+    method public androidx.compose.ui.graphics.vector.PathNode.VerticalTo copy(float y);
     method public float getY();
     property public final float y;
   }

@@ -79,6 +79,7 @@ import java.lang.ref.WeakReference;
 // TODO: support for multiple app processes requires a proper android service
 // instead of the shared memory "service" implemented here. Such a service could
 // support continuity between fragments of different applications if desired.
+@SuppressWarnings("ObjectToString")
 public final class BackgroundManager {
 
     static final String TAG = "BackgroundManager";
@@ -447,6 +448,7 @@ public final class BackgroundManager {
     /**
      * Shared memory continuity service.
      */
+    @SuppressWarnings("ObjectToString")
     private static class BackgroundContinuityService {
         private static final String TAG = "BackgroundContinuity";
         private static final boolean DEBUG = BackgroundManager.DEBUG;

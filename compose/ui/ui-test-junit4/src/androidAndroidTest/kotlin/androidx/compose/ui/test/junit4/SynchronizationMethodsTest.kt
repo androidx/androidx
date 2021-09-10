@@ -18,10 +18,8 @@ package androidx.compose.ui.test.junit4
 
 import androidx.activity.ComponentActivity
 import androidx.compose.testutils.expectError
-import androidx.compose.ui.platform.AndroidOwner
+import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -42,16 +40,16 @@ class SynchronizationMethodsTest {
     // Note: don't add `@get:Rule` to avoid the Rule from being applied. Except for the
     // AndroidOwnerRegistry, it doesn't need to be initialized in these tests.
     private val rule = createAndroidComposeRule<ComponentActivity>()
-    private val androidOwnerRegistry = rule.composeIdlingResource.androidOwnerRegistry
+    private val composeRootRegistry = rule.composeRootRegistry
 
     @get:Rule
     val registryRule: TestRule = RuleChain.outerRule { base, _ ->
-        androidOwnerRegistry.getStatementFor(base)
+        composeRootRegistry.getStatementFor(base)
     }
 
     @Before
-    fun addMockResumedOwner() {
-        androidOwnerRegistry.registerOwner(mockResumedAndroidOwner())
+    fun addResumedComposeRootMock() {
+        composeRootRegistry.registerComposeRoot(mockResumedComposeRoot())
     }
 
     @Test
@@ -96,7 +94,7 @@ class SynchronizationMethodsTest {
     fun runOnIdle_assert_fails() {
         rule.runOnIdle {
             expectError<IllegalStateException> {
-                rule.onNodeWithTag("dummy").assertExists()
+                rule.onNodeWithTag("placeholder").assertExists()
             }
         }
     }
@@ -119,21 +117,9 @@ class SynchronizationMethodsTest {
         }
     }
 
-    private fun mockResumedAndroidOwner(): AndroidOwner {
-        val lifecycle = mock<Lifecycle>()
-        doReturn(Lifecycle.State.RESUMED).whenever(lifecycle).currentState
-
-        val lifecycleOwner = mock<LifecycleOwner>()
-        doReturn(lifecycle).whenever(lifecycleOwner).lifecycle
-
-        val viewTreeOwners = AndroidOwner.ViewTreeOwners(
-            lifecycleOwner = lifecycleOwner,
-            viewModelStoreOwner = mock(),
-            savedStateRegistryOwner = mock()
-        )
-        val owner = mock<AndroidOwner>()
-        doReturn(viewTreeOwners).whenever(owner).viewTreeOwners
-
-        return owner
+    private fun mockResumedComposeRoot(): ViewRootForTest {
+        val composeRoot = mock<ViewRootForTest>()
+        doReturn(true).whenever(composeRoot).isLifecycleInResumedState
+        return composeRoot
     }
 }

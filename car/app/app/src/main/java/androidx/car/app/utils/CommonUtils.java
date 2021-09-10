@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,15 @@
 
 package androidx.car.app.utils;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static android.content.pm.PackageManager.FEATURE_AUTOMOTIVE;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
+import static java.util.Objects.requireNonNull;
+
+import android.content.Context;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -25,11 +32,17 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
-@RestrictTo(LIBRARY)
+@RestrictTo(LIBRARY_GROUP)
 public final class CommonUtils {
-    /** Tag to use for logging in the library. */
-    public static final String TAG = "car.app";
 
-    private CommonUtils() {
+    /**
+     * Returns whether the {@code context} is for an Automotive OS device.
+     *
+     * @throws NullPointerException if {@code context} is {@code null}
+     */
+    public static boolean isAutomotiveOS(@NonNull Context context) {
+        return requireNonNull(context).getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE);
     }
+
+    private CommonUtils() {}
 }

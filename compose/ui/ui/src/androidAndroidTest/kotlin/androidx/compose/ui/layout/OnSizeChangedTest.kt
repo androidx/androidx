@@ -16,22 +16,24 @@
 
 package androidx.compose.ui.layout
 
+import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.AmbientDensity
-import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -64,14 +66,14 @@ class OnSizeChangedTest {
 
         rule.runOnUiThread {
             activity.setContent {
-                with(AmbientDensity.current) {
+                with(LocalDensity.current) {
                     Box(
                         Modifier.padding(10.toDp()).onSizeChanged {
                             changedSize = it
                             latch.countDown()
                         }
                     ) {
-                        Box(Modifier.size(sizePx.toDp()))
+                        Box(Modifier.requiredSize(sizePx.toDp()))
                     }
                 }
             }
@@ -92,6 +94,43 @@ class OnSizeChangedTest {
     }
 
     @Test
+    @SmallTest
+    fun internalSizeChange() {
+        var latch = CountDownLatch(1)
+        var changedSize = IntSize.Zero
+        var sizePx by mutableStateOf(10)
+
+        rule.runOnUiThread {
+            activity.setContent {
+                with(LocalDensity.current) {
+                    Box(
+                        Modifier.padding(10.toDp())
+                            .onSizeChanged {
+                                changedSize = it
+                                latch.countDown()
+                            }.padding(sizePx.toDp())
+                    ) {
+                        Box(Modifier.requiredSize(10.toDp()))
+                    }
+                }
+            }
+        }
+
+        // Initial setting will call onSizeChanged
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertEquals(30, changedSize.height)
+        assertEquals(30, changedSize.width)
+
+        latch = CountDownLatch(1)
+        sizePx = 20
+
+        // We've changed the size of the contents, so we should receive a onSizeChanged call
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertEquals(50, changedSize.height)
+        assertEquals(50, changedSize.width)
+    }
+
+    @Test
     fun onlyInnerSizeChange() {
         var latch = CountDownLatch(1)
         var changedSize = IntSize.Zero
@@ -99,14 +138,14 @@ class OnSizeChangedTest {
 
         rule.runOnUiThread {
             activity.setContent {
-                with(AmbientDensity.current) {
+                with(LocalDensity.current) {
                     Box(
                         Modifier.padding(sizePx.toDp()).onSizeChanged {
                             changedSize = it
                             latch.countDown()
                         }
                     ) {
-                        Box(Modifier.size(10.toDp()))
+                        Box(Modifier.requiredSize(10.toDp()))
                     }
                 }
             }
@@ -120,8 +159,10 @@ class OnSizeChangedTest {
         latch = CountDownLatch(1)
         sizePx = 5
 
+        assertTrue(latch.await(500, TimeUnit.MILLISECONDS))
         // We've changed the padding, but the size of the contents didn't change
-        assertFalse(latch.await(500, TimeUnit.MILLISECONDS))
+        assertEquals(10, changedSize.height)
+        assertEquals(10, changedSize.width)
     }
 
     @Test
@@ -132,14 +173,22 @@ class OnSizeChangedTest {
 
         rule.runOnUiThread {
             activity.setContent {
-                with(AmbientDensity.current) {
+                with(LocalDensity.current) {
                     Box(
                         Modifier.padding(10.toDp()).onSizeChanged {
                             changedSize = it
                             latch.countDown()
                         }
                     ) {
-                        Box(Modifier.size(sizePx.toDp()))
+                        Box(
+                            Modifier.layout { measurable, _ ->
+                                val placeable =
+                                    measurable.measure(Constraints.fixed(sizePx, sizePx))
+                                layout(placeable.width, placeable.height) {
+                                    placeable.place(0, 0)
+                                }
+                            }
+                        )
                     }
                 }
             }
@@ -171,7 +220,7 @@ class OnSizeChangedTest {
 
         rule.runOnUiThread {
             activity.setContent {
-                with(AmbientDensity.current) {
+                with(LocalDensity.current) {
                     val mod = if (addModifier) Modifier.onSizeChanged {
                         changedSize2 = it
                         latch2.countDown()
@@ -182,7 +231,7 @@ class OnSizeChangedTest {
                             latch1.countDown()
                         }.then(mod)
                     ) {
-                        Box(Modifier.size(10.toDp()))
+                        Box(Modifier.requiredSize(10.toDp()))
                     }
                 }
             }
@@ -197,10 +246,27 @@ class OnSizeChangedTest {
         addModifier = true
 
         // We've added an onSizeChanged modifier, so it must trigger another size change
-        // notification, but only for the new one.
         assertTrue(latch2.await(1, TimeUnit.SECONDS))
         assertEquals(10, changedSize2.height)
         assertEquals(10, changedSize2.width)
-        assertFalse(latch1.await(200, TimeUnit.MILLISECONDS))
+    }
+
+    @Test
+    @SmallTest
+    fun modifierIsReturningEqualObjectForTheSameLambda() {
+        val lambda: (IntSize) -> Unit = { }
+        assertEquals(Modifier.onSizeChanged(lambda), Modifier.onSizeChanged(lambda))
+    }
+
+    @Test
+    @SmallTest
+    fun modifierIsReturningNotEqualObjectForDifferentLambdas() {
+        val lambda1: (IntSize) -> Unit = {
+            it.height
+        }
+        val lambda2: (IntSize) -> Unit = {
+            it.width
+        }
+        assertNotEquals(Modifier.onSizeChanged(lambda1), Modifier.onSizeChanged(lambda2))
     }
 }

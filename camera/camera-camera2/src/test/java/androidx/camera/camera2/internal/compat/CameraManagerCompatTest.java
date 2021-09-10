@@ -222,7 +222,7 @@ public final class CameraManagerCompatTest {
             value = CameraManager.class,
             minSdk = 21
     )
-    static final class ShadowInteractionCameraManager {
+    public static final class ShadowInteractionCameraManager {
 
         private static final String[] EMPTY_ID_LIST = new String[]{};
         private final List<Callback> mCallbacks = new ArrayList<>();

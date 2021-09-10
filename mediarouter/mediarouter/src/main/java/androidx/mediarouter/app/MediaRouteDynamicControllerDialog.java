@@ -210,6 +210,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
     Bitmap mArtIconLoadedBitmap;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mArtIconBackgroundColor;
+    final boolean mEnableGroupVolumeUX;
 
     public MediaRouteDynamicControllerDialog(@NonNull Context context) {
         this(context, 0);
@@ -221,6 +222,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         mContext = getContext();
 
         mRouter = MediaRouter.getInstance(mContext);
+        mEnableGroupVolumeUX = MediaRouter.isGroupVolumeUxEnabled();
         mCallback = new MediaRouterCallback();
         mSelectedRoute = mRouter.getSelectedRoute();
         mControllerCallback = new MediaControllerCallback();
@@ -473,7 +475,8 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         }
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "ObjectToString"})
     void updateMetadataViews() {
         if (shouldDeferUpdateViews()) {
             mUpdateMetadataViewsDeferred = true;
@@ -789,7 +792,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         }
 
         boolean isGroupVolumeNeeded() {
-            return mSelectedRoute.getMemberRoutes().size() > 1;
+            return mEnableGroupVolumeUX && mSelectedRoute.getMemberRoutes().size() > 1;
         }
 
         void animateLayoutHeight(final View view, int targetHeight) {
@@ -842,7 +845,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
 
             boolean wasShown = isGroupVolumeNeeded();
             // Group volume is shown when two or more members are in the selected route.
-            boolean shouldShow = memberCount >= 2;
+            boolean shouldShow = mEnableGroupVolumeUX && memberCount >= 2;
 
             if (wasShown != shouldShow) {
                 RecyclerView.ViewHolder viewHolder =
@@ -1444,6 +1447,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         }
 
         @Override
+        @SuppressWarnings("ObjectToString")
         protected Bitmap doInBackground(Void... arg) {
             Bitmap art = null;
             if (mIconBitmap != null) {

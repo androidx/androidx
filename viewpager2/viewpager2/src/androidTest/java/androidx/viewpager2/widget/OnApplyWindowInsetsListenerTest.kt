@@ -177,8 +177,8 @@ class OnApplyWindowInsetsListenerTest : BaseTest() {
                 layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                 ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
                     recordedInsets.add(insets)
-                    insets.consumeSystemWindowInsets()!!
-                        .consumeStableInsets()!!
+                    insets.consumeSystemWindowInsets()
+                        .consumeStableInsets()
                         .consumeDisplayCutout()
                 }
             }

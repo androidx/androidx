@@ -16,11 +16,10 @@
 
 package androidx.compose.animation.core
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.State
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.unit.Uptime
+import androidx.compose.runtime.setValue
 
 /**
  * [AnimationState] contains the necessary information to indicate the state of an animation.
@@ -28,21 +27,24 @@ import androidx.compose.ui.unit.Uptime
  * there's a need to mutate some of the fields of an [AnimationState], consider using [copy]
  * functions.
  *
- * @param initialValue initial value of the [AnimationState]
  * @param typeConverter [TwoWayConverter] to convert type [T] from and to [AnimationVector]
+ * @param initialValue initial value of the [AnimationState]
  * @param initialVelocityVector initial velocity of the [AnimationState], null (i.e. no velocity)
  *                              by default.
- * @param lastFrameTime last frame time of the animation, [Uptime.Unspecified] by default
- * @param finishedTime the time that the animation finished, [Uptime.Unspecified] by default.
+ * @param lastFrameTimeNanos last frame time of the animation, [AnimationConstants.UnspecifiedTime]
+ *                           by default
+ * @param finishedTimeNanos the time that the animation finished successfully,
+ *                          [AnimationConstants.UnspecifiedTime] until then
+ *
  * @param isRunning whether the [AnimationState] is currently being updated by an animation.
  *                  False by default
  */
 class AnimationState<T, V : AnimationVector>(
-    initialValue: T,
     val typeConverter: TwoWayConverter<T, V>,
+    initialValue: T,
     initialVelocityVector: V? = null,
-    lastFrameTime: Uptime = Uptime.Unspecified,
-    finishedTime: Uptime = Uptime.Unspecified,
+    lastFrameTimeNanos: Long = AnimationConstants.UnspecifiedTime,
+    finishedTimeNanos: Long = AnimationConstants.UnspecifiedTime,
     isRunning: Boolean = false
 ) : State<T> {
     /**
@@ -54,27 +56,32 @@ class AnimationState<T, V : AnimationVector>(
     /**
      * Current velocity vector of the [AnimationState].
      */
-    var velocityVector: V = initialVelocityVector ?: typeConverter.createZeroVector(initialValue)
+    var velocityVector: V =
+        initialVelocityVector?.copy() ?: typeConverter.createZeroVectorFrom(initialValue)
         internal set
 
     /**
      * Last frame time of the animation.
      *
-     * If the animation has never started, this will be [Uptime.Unspecified], unless specified
-     * otherwise in the [AnimationState] constructor. [lastFrameTime] is updated every frame
-     * during an animation. It is also used for starting a sequential animation in
-     * [AnimationState.animateTo]. This allows the sequential animation to set its start time
-     * to when the previous animation is interrupted or finished.
+     * If the animation has never started, this will be [AnimationConstants.UnspecifiedTime], unless
+     * specified otherwise in the [AnimationState] constructor. [lastFrameTimeNanos] is the frame
+     * time when the animation is last updated, in the [System.nanoTime] timebase. It is also used
+     * for starting a sequential animation in [AnimationState.animateTo]. This allows the sequential
+     * animation to set its start time to when the previous animation is interrupted or finished.
      */
-    var lastFrameTime: Uptime = lastFrameTime
+    @get:Suppress("MethodNameUnits")
+    var lastFrameTimeNanos: Long = lastFrameTimeNanos
         internal set
 
     /**
-     * The time when the animation is finished. If the animation has never finished
-     * (i.e. currently running, interrupted, or never started), this will be [Uptime.Unspecified],
-     * unless specified otherwise in [AnimationState] constructor.
+     * The time when the animation finished successfully in the [System.nanoTime] timebase.
+     *
+     * If the animation has never finished (i.e. currently running, interrupted, or never started),
+     * this will be [AnimationConstants.UnspecifiedTime], unless specified otherwise in
+     * [AnimationState] constructor.
      */
-    var finishedTime: Uptime = finishedTime
+    @get:Suppress("MethodNameUnits")
+    var finishedTimeNanos: Long = finishedTimeNanos
         internal set
 
     /**
@@ -82,26 +89,20 @@ class AnimationState<T, V : AnimationVector>(
      */
     var isRunning: Boolean = isRunning
         internal set
+
+    /**
+     * Velocity of type [T], converted from [velocityVector].
+     */
+    val velocity: T
+        get() = typeConverter.convertFromVector(velocityVector)
 }
 
 /**
  * Indicates whether the given [AnimationState] is for an animation that has finished, indicated by
- * [AnimationState.finishedTime] having a specified value.
+ * [AnimationState.finishedTimeNanos] having a specified value.
  */
 val AnimationState<*, *>.isFinished
-    get() = finishedTime != Uptime.Unspecified
-
-/**
- * Returns the [Float] velocity of the [AnimationState].
- */
-val AnimationState<Float, AnimationVector1D>.velocity
-    get() = velocityVector.value
-
-/**
- * Returns the [Float] velocity of the [AnimationScope].
- */
-val AnimationScope<Float, AnimationVector1D>.velocity
-    get() = velocityVector.value
+    get() = finishedTimeNanos != AnimationConstants.UnspecifiedTime
 
 /**
  * [AnimationScope] provides all the animation related info specific to an animation run. An
@@ -116,29 +117,65 @@ class AnimationScope<T, V : AnimationVector> internal constructor(
      */
     val typeConverter: TwoWayConverter<T, V>,
     initialVelocityVector: V,
-    lastFrameTime: Uptime,
+    lastFrameTimeNanos: Long,
     /**
      * Target value of the animation.
      */
     val targetValue: T,
     /**
-     * Start time of the animation.
+     * Start time of the animation in the [System.nanoTime] timebase.
      */
-    val startTime: Uptime,
+    @get:Suppress("MethodNameUnits")
+    val startTimeNanos: Long,
     isRunning: Boolean,
     private val onCancel: () -> Unit
 ) {
     // Externally immutable fields
+    /**
+     * Current value of the [AnimationScope].
+     */
     var value: T by mutableStateOf(initialValue)
         internal set
-    var velocityVector: V = initialVelocityVector
+    /**
+     * Current velocity vector of the [AnimationScope].
+     */
+    var velocityVector: V = initialVelocityVector.copy()
         internal set
-    var lastFrameTime: Uptime = lastFrameTime
+
+    /**
+     * Last frame time of the animation.
+     *
+     * If the animation has never started, this will be [AnimationConstants.UnspecifiedTime], unless
+     * specified otherwise in the [AnimationState] constructor. [lastFrameTimeNanos] is the frame
+     * time when the animation is last updated, in the [System.nanoTime] timebase. It is also used
+     * for starting a sequential animation in [AnimationState.animateTo]. This allows the sequential
+     * animation to set its start time to when the previous animation is interrupted or finished.
+     */
+    @get:Suppress("MethodNameUnits")
+    var lastFrameTimeNanos: Long = lastFrameTimeNanos
         internal set
-    var finishedTime: Uptime = Uptime.Unspecified
+
+    /**
+     * The time when the animation finished successfully in the [System.nanoTime] timebase.
+     *
+     * If the animation has never finished (i.e. currently running, interrupted, or never started),
+     * this will be [AnimationConstants.UnspecifiedTime], unless specified otherwise in
+     * [AnimationState] constructor.
+     */
+    @get:Suppress("MethodNameUnits")
+    var finishedTimeNanos: Long = AnimationConstants.UnspecifiedTime
         internal set
+    /**
+     * Indicates whether the animation is currently running.
+     */
     var isRunning: Boolean by mutableStateOf(isRunning)
         internal set
+
+    /**
+     * Velocity of type [T], converted from [velocityVector].
+     */
+    val velocity
+        get() = typeConverter.convertFromVector(velocityVector)
 
     /**
      * Cancels the animation that this [AnimationScope] corresponds to. The scope will not be
@@ -154,7 +191,7 @@ class AnimationScope<T, V : AnimationVector> internal constructor(
      * [AnimationScope].
      */
     fun toAnimationState() = AnimationState(
-        value, typeConverter, velocityVector, lastFrameTime, finishedTime, isRunning
+        typeConverter, value, velocityVector, lastFrameTimeNanos, finishedTimeNanos, isRunning
     )
 }
 
@@ -165,11 +202,12 @@ class AnimationScope<T, V : AnimationVector> internal constructor(
  * @param value value of the [AnimationState], using the value of the given [AnimationState] by
  *              default
  * @param velocityVector velocity of the [AnimationState], using the velocity of the given
- *                 [AnimationState] by default.
- * @param lastFrameTime last frame time of the animation, same as the given [AnimationState] by
- *                      default
- * @param endTime the time that the animation ended. This will be [Uptime.Unspecified] until the
- *                animation ends. Default value is the same as the given [AnimationState].
+ *                       [AnimationState] by default.
+ * @param lastFrameTimeNanos last frame time of the animation, same as the given [AnimationState] by
+ *                           default
+ * @param finishedTimeNanos the time that the animation finished successfully,
+ *                          [AnimationConstants.UnspecifiedTime] until then. Default value is the
+ *                          same as the given [AnimationState].
  * @param isRunning whether the [AnimationState] is currently being updated by an animation.
  *                  Same as the given [AnimationState] by default
  *
@@ -178,12 +216,14 @@ class AnimationScope<T, V : AnimationVector> internal constructor(
  */
 fun <T, V : AnimationVector> AnimationState<T, V>.copy(
     value: T = this.value,
-    velocityVector: V? = this.velocityVector,
-    lastFrameTime: Uptime = this.lastFrameTime,
-    endTime: Uptime = this.finishedTime,
+    velocityVector: V? = this.velocityVector.copy(),
+    lastFrameTimeNanos: Long = this.lastFrameTimeNanos,
+    finishedTimeNanos: Long = this.finishedTimeNanos,
     isRunning: Boolean = this.isRunning
 ): AnimationState<T, V> =
-    AnimationState(value, this.typeConverter, velocityVector, lastFrameTime, endTime, isRunning)
+    AnimationState(
+        this.typeConverter, value, velocityVector, lastFrameTimeNanos, finishedTimeNanos, isRunning
+    )
 
 /**
  * Creates a new [AnimationState] of Float [value] type from a given [AnimationState] of the same
@@ -193,10 +233,10 @@ fun <T, V : AnimationVector> AnimationState<T, V>.copy(
  *              default
  * @param velocity velocity of the [AnimationState], using the velocity of the given
  *                 [AnimationState] by default.
- * @param lastFrameTime last frame time of the animation, same as the given [AnimationState] by
+ * @param lastFrameTimeNanos last frame time of the animation, same as the given [AnimationState] by
  *                      default
- * @param endTime the time that the animation ended, same as the given [AnimationState] by
- *                     default.
+ * @param finishedTimeNanos the time that the animation finished successfully, same as the given
+ *                     [AnimationState] by default.
  * @param isRunning whether the [AnimationState] is currently being updated by an animation.
  *                  Same as the given [AnimationState] by default
  *
@@ -206,21 +246,28 @@ fun <T, V : AnimationVector> AnimationState<T, V>.copy(
 fun AnimationState<Float, AnimationVector1D>.copy(
     value: Float = this.value,
     velocity: Float = this.velocityVector.value,
-    lastFrameTime: Uptime = this.lastFrameTime,
-    endTime: Uptime = this.finishedTime,
+    lastFrameTimeNanos: Long = this.lastFrameTimeNanos,
+    finishedTimeNanos: Long = this.finishedTimeNanos,
     isRunning: Boolean = this.isRunning
 ): AnimationState<Float, AnimationVector1D> =
     AnimationState(
-        value, this.typeConverter, AnimationVector(velocity), lastFrameTime, endTime, isRunning
+        this.typeConverter,
+        value,
+        AnimationVector(velocity),
+        lastFrameTimeNanos,
+        finishedTimeNanos,
+        isRunning
     )
 
-/*
- * Factory method for creating an [AnimationState] for Float [value].
+/**
+ * Factory method for creating an [AnimationState] for Float [initialValue].
  *
  * @param initialValue initial value of the [AnimationState]
  * @param initialVelocity initial velocity of the [AnimationState], 0 (i.e. no velocity) by default
- * @param lastFrameTime last frame time of the animation, [Uptime.UnSpecified] by default
- * @param endTime the time that the animation ended, [Uptime.Unspecified] by default.
+ * @param lastFrameTimeNanos last frame time of the animation, [AnimationConstants.UnspecifiedTime]
+ *                           by default
+ * @param finishedTimeNanos the time that the animation finished successfully,
+ *                          [AnimationConstants.UnspecifiedTime] by default.
  * @param isRunning whether the [AnimationState] is currently being updated by an animation.
  *                  False by default
  *
@@ -229,19 +276,57 @@ fun AnimationState<Float, AnimationVector1D>.copy(
 fun AnimationState(
     initialValue: Float,
     initialVelocity: Float = 0f,
-    lastFrameTime: Uptime = Uptime.Unspecified,
-    endTime: Uptime = Uptime.Unspecified,
+    lastFrameTimeNanos: Long = AnimationConstants.UnspecifiedTime,
+    finishedTimeNanos: Long = AnimationConstants.UnspecifiedTime,
     isRunning: Boolean = false
 ): AnimationState<Float, AnimationVector1D> {
     return AnimationState(
-        initialValue,
         Float.VectorConverter,
+        initialValue,
         AnimationVector(initialVelocity),
-        lastFrameTime,
-        endTime,
+        lastFrameTimeNanos,
+        finishedTimeNanos,
         isRunning
     )
 }
 
-private fun <T, V : AnimationVector> TwoWayConverter<T, V>.createZeroVector(value: T) =
+/**
+ * Factory method for creating an [AnimationState] with an [initialValue] and an [initialVelocity].
+ *
+ * @param typeConverter [TwoWayConverter] to convert type [T] from and to [AnimationVector]
+ * @param initialValue initial value of the [AnimationState]
+ * @param initialVelocity initial velocity of the [AnimationState]
+ * @param lastFrameTimeNanos last frame time of the animation, [AnimationConstants.UnspecifiedTime] by default
+ * @param finishedTimeNanos the time that the animation finished successfully, [AnimationConstants.UnspecifiedTime] by
+ *                     default.
+ * @param isRunning whether the [AnimationState] is currently being updated by an animation.
+ *                  False by default
+ *
+ * @return A new [AnimationState] instance
+ */
+fun <T, V : AnimationVector> AnimationState(
+    typeConverter: TwoWayConverter<T, V>,
+    initialValue: T,
+    initialVelocity: T,
+    lastFrameTimeNanos: Long = AnimationConstants.UnspecifiedTime,
+    finishedTimeNanos: Long = AnimationConstants.UnspecifiedTime,
+    isRunning: Boolean = false
+): AnimationState<T, V> {
+    return AnimationState(
+        typeConverter,
+        initialValue,
+        typeConverter.convertToVector(initialVelocity),
+        lastFrameTimeNanos,
+        finishedTimeNanos,
+        isRunning
+    )
+}
+
+/**
+ * Creates an AnimationVector with all the values set to 0 using the provided [TwoWayConverter]
+ * and the [value].
+ *
+ * @return a new AnimationVector instance of type [V].
+ */
+fun <T, V : AnimationVector> TwoWayConverter<T, V>.createZeroVectorFrom(value: T) =
     convertToVector(value).newInstance()

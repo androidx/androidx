@@ -35,6 +35,7 @@ import static org.mockito.Mockito.when;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.view.Menu;
 import android.view.View;
 import android.view.WindowManager;
@@ -81,6 +82,11 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
 
     @Test
     public void testActionBarOverflowVisibilityListener() {
+        if ("ranchu".equals(Build.HARDWARE)) {
+            // Skip this test on Android TV due to a bug in Espresso's menu handling.
+            return;
+        }
+
         ActionBar actionBar = mActivityTestRule.getActivity().getSupportActionBar();
         final boolean[] madeVisible = new boolean[] {false};
         actionBar.addOnMenuVisibilityListener(new ActionBar.OnMenuVisibilityListener() {
@@ -119,11 +125,25 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
 
     @UiThreadTest
     @Test
-    public void testSetActionBarTitle() {
+    public void testSetActionBarTitleByActivity() {
         final String newTitle = "hello";
         mActivityTestRule.getActivity().setTitle(newTitle);
         assertEquals("New title is set to ActionBar",
                 newTitle, mActivityTestRule.getActivity().getSupportActionBar().getTitle());
+    }
+
+    @UiThreadTest
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testSetActionBarTitleByActionBar() {
+        final String newTitle = "hello";
+        mActivityTestRule.getActivity().getSupportActionBar().setTitle(newTitle);
+        assertEquals("New title is set to ActionBar",
+                newTitle, mActivityTestRule.getActivity().getSupportActionBar().getTitle());
+        assertEquals("New title is set to root view's accessibilityPaneTitle",
+                newTitle,
+                ViewCompat.getAccessibilityPaneTitle(
+                        mActivityTestRule.getActivity().getWindow().getDecorView()));
     }
 
     @Test

@@ -21,16 +21,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,24 +47,34 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
-import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsEqualTo
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTouchHeightIsEqualTo
+import androidx.compose.ui.test.assertTouchWidthIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -91,6 +102,7 @@ class ButtonTest {
         }
 
         rule.onNodeWithTag("myButton")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assertIsEnabled()
     }
 
@@ -105,6 +117,7 @@ class ButtonTest {
         }
 
         rule.onNodeWithTag("myButton")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assertIsNotEnabled()
     }
 
@@ -133,7 +146,6 @@ class ButtonTest {
     }
 
     @Test
-    @FlakyTest // TODO: b/158341686
     fun canBeDisabled() {
         val tag = "myButton"
 
@@ -151,8 +163,8 @@ class ButtonTest {
             .assertHasClickAction()
             .assertIsEnabled()
             .performClick()
-            // Then confirm it's disabled with no click action after clicking it
-            .assertHasNoClickAction()
+            // Then confirm it's disabled with click action after clicking it
+            .assertHasClickAction()
             .assertIsNotEnabled()
     }
 
@@ -197,7 +209,7 @@ class ButtonTest {
     }
 
     @Test
-    fun buttonHeightIsFromSpec() {
+    fun buttonHeightIsFromSpec(): Unit = with(rule.density) {
         if (rule.density.fontScale > 1f) {
             // This test can be reasonable failing on the non default font scales
             // so lets skip it.
@@ -210,7 +222,7 @@ class ButtonTest {
         }
 
         rule.onNode(hasClickAction())
-            .assertHeightIsEqualTo(36.dp)
+            .getBoundsInRoot().height.assertIsEqualTo(36.dp, "height")
     }
 
     @Test
@@ -232,7 +244,7 @@ class ButtonTest {
     fun containedButtonPropagateDefaultTextStyle() {
         rule.setMaterialContent {
             Button(onClick = {}) {
-                assertThat(AmbientTextStyle.current).isEqualTo(MaterialTheme.typography.button)
+                assertThat(LocalTextStyle.current).isEqualTo(MaterialTheme.typography.button)
             }
         }
     }
@@ -241,7 +253,7 @@ class ButtonTest {
     fun outlinedButtonPropagateDefaultTextStyle() {
         rule.setMaterialContent {
             OutlinedButton(onClick = {}) {
-                assertThat(AmbientTextStyle.current).isEqualTo(MaterialTheme.typography.button)
+                assertThat(LocalTextStyle.current).isEqualTo(MaterialTheme.typography.button)
             }
         }
     }
@@ -250,7 +262,7 @@ class ButtonTest {
     fun textButtonPropagateDefaultTextStyle() {
         rule.setMaterialContent {
             TextButton(onClick = {}) {
-                assertThat(AmbientTextStyle.current).isEqualTo(MaterialTheme.typography.button)
+                assertThat(LocalTextStyle.current).isEqualTo(MaterialTheme.typography.button)
             }
         }
     }
@@ -286,9 +298,9 @@ class ButtonTest {
         rule.setMaterialContent {
             surface = MaterialTheme.colors.surface
             primary = MaterialTheme.colors.primary
-            Providers(AmbientShapes provides Shapes(small = shape)) {
+            CompositionLocalProvider(LocalShapes provides Shapes(small = shape)) {
                 Button(modifier = Modifier.testTag("myButton"), onClick = {}, elevation = null) {
-                    Box(Modifier.preferredSize(10.dp, 10.dp))
+                    Box(Modifier.size(10.dp, 10.dp))
                 }
             }
         }
@@ -311,7 +323,7 @@ class ButtonTest {
         rule.setMaterialContent {
             onPrimary = MaterialTheme.colors.onPrimary
             Button(onClick = {}) {
-                content = AmbientContentColor.current
+                content = LocalContentColor.current
             }
         }
 
@@ -325,7 +337,7 @@ class ButtonTest {
         rule.setMaterialContent {
             primary = MaterialTheme.colors.primary
             OutlinedButton(onClick = {}) {
-                content = AmbientContentColor.current
+                content = LocalContentColor.current
             }
         }
 
@@ -339,7 +351,7 @@ class ButtonTest {
         rule.setMaterialContent {
             primary = MaterialTheme.colors.primary
             TextButton(onClick = {}) {
-                content = AmbientContentColor.current
+                content = LocalContentColor.current
             }
         }
 
@@ -395,7 +407,7 @@ class ButtonTest {
                     Button(
                         onClick = {},
                         enabled = false,
-                        colors = ButtonConstants.defaultButtonColors(
+                        colors = ButtonDefaults.buttonColors(
                             backgroundColor = Color.Red
                         ),
                         shape = RectangleShape
@@ -482,7 +494,7 @@ class ButtonTest {
             onSurface = MaterialTheme.colors.onSurface
             disabledAlpha = ContentAlpha.disabled
             Button(onClick = {}, enabled = false) {
-                content = AmbientContentColor.current.copy(alpha = AmbientContentAlpha.current)
+                content = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
             }
         }
 
@@ -498,7 +510,7 @@ class ButtonTest {
             onSurface = MaterialTheme.colors.onSurface
             disabledAlpha = ContentAlpha.disabled
             OutlinedButton(onClick = {}, enabled = false) {
-                content = AmbientContentColor.current.copy(alpha = AmbientContentAlpha.current)
+                content = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
             }
         }
 
@@ -514,7 +526,7 @@ class ButtonTest {
             onSurface = MaterialTheme.colors.onSurface
             disabledAlpha = ContentAlpha.disabled
             TextButton(onClick = {}, enabled = false) {
-                content = AmbientContentColor.current.copy(alpha = AmbientContentAlpha.current)
+                content = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
             }
         }
 
@@ -529,7 +541,7 @@ class ButtonTest {
             Box {
                 Button({}, Modifier.onGloballyPositioned { buttonCoordinates = it }) {
                     Box(
-                        Modifier.preferredSize(2.dp)
+                        Modifier.size(2.dp)
                             .onGloballyPositioned { contentCoordinates = it }
                     )
                 }
@@ -537,13 +549,13 @@ class ButtonTest {
         }
 
         rule.runOnIdle {
-            val buttonBounds = buttonCoordinates!!.boundsInRoot
-            val contentBounds = contentCoordinates!!.boundsInRoot
+            val buttonBounds = buttonCoordinates!!.boundsInRoot()
+            val contentBounds = contentCoordinates!!.boundsInRoot()
             assertThat(contentBounds.width).isLessThan(buttonBounds.width)
             assertThat(contentBounds.height).isLessThan(buttonBounds.height)
             with(rule.density) {
-                assertThat(contentBounds.width).isEqualTo(2.dp.toIntPx().toFloat())
-                assertThat(contentBounds.height).isEqualTo(2.dp.toIntPx().toFloat())
+                assertThat(contentBounds.width).isEqualTo(2.dp.roundToPx().toFloat())
+                assertThat(contentBounds.height).isEqualTo(2.dp.roundToPx().toFloat())
             }
             assertWithinOnePixel(buttonBounds.center, contentBounds.center)
         }
@@ -555,15 +567,19 @@ class ButtonTest {
             Button(
                 onClick = {},
                 contentPadding = PaddingValues(),
-                modifier = Modifier.widthIn(20.dp).heightIn(15.dp).testTag("button")
+                modifier = Modifier.requiredWidthIn(20.dp).requiredHeightIn(15.dp).testTag("button")
             ) {
-                Spacer(Modifier.size(10.dp))
+                Spacer(Modifier.requiredSize(10.dp))
             }
         }
 
         rule.onNodeWithTag("button")
-            .assertWidthIsEqualTo(20.dp)
-            .assertHeightIsEqualTo(15.dp)
+            .apply {
+                with(getBoundsInRoot()) {
+                    width.assertIsEqualTo(20.dp, "width")
+                    height.assertIsEqualTo(15.dp, "height")
+                }
+            }
     }
 
     @Test
@@ -573,21 +589,21 @@ class ButtonTest {
         rule.setMaterialContent {
             Column {
                 Spacer(
-                    Modifier.size(10.dp).weight(1f).onGloballyPositioned {
-                        item1Bounds = it.boundsInRoot
+                    Modifier.requiredSize(10.dp).weight(1f).onGloballyPositioned {
+                        item1Bounds = it.boundsInRoot()
                     }
                 )
 
                 Button(
                     onClick = {},
                     modifier = Modifier.weight(1f).onGloballyPositioned {
-                        buttonBounds = it.boundsInRoot
+                        buttonBounds = it.boundsInRoot()
                     }
                 ) {
                     Text("Button")
                 }
 
-                Spacer(Modifier.size(10.dp).weight(1f))
+                Spacer(Modifier.requiredSize(10.dp).weight(1f))
             }
         }
 
@@ -604,17 +620,17 @@ class ButtonTest {
             Button(
                 onClick = {},
                 modifier = Modifier.onGloballyPositioned {
-                    buttonBounds = it.boundsInRoot
+                    buttonBounds = it.boundsInRoot()
                 }
             ) {
                 Spacer(
-                    Modifier.size(10.dp).onGloballyPositioned {
-                        item1Bounds = it.boundsInRoot
+                    Modifier.requiredSize(10.dp).onGloballyPositioned {
+                        item1Bounds = it.boundsInRoot()
                     }
                 )
                 Spacer(
-                    Modifier.width(10.dp).height(5.dp).onGloballyPositioned {
-                        item2Bounds = it.boundsInRoot
+                    Modifier.requiredWidth(10.dp).requiredHeight(5.dp).onGloballyPositioned {
+                        item2Bounds = it.boundsInRoot()
                     }
                 )
             }
@@ -624,6 +640,33 @@ class ButtonTest {
         assertThat(item2Bounds.center.y).isWithin(1f).of(buttonBounds.center.y)
         assertThat(item1Bounds.right).isWithin(1f).of(buttonBounds.center.x)
         assertThat(item2Bounds.left).isWithin(1f).of(buttonBounds.center.x)
+    }
+
+    @Test
+    fun buttonClickableInMinimumTouchTarget() {
+        var clicked = false
+        val tag = "button"
+        rule.setMaterialContent {
+            Box(Modifier.fillMaxSize()) {
+                Button(
+                    modifier = Modifier.testTag(tag).requiredSize(10.dp),
+                    onClick = { clicked = !clicked }
+                ) {
+                    Box(Modifier.size(10.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(tag)
+            .assertWidthIsEqualTo(10.dp)
+            .assertHeightIsEqualTo(10.dp)
+            .assertTouchWidthIsEqualTo(48.dp)
+            .assertTouchHeightIsEqualTo(48.dp)
+            .performTouchInput {
+                click(Offset(-1f, -1f))
+            }
+
+        assertThat(clicked).isTrue()
     }
 
     private fun assertLeftPaddingIs(
@@ -644,10 +687,10 @@ class ButtonTest {
         }
 
         rule.runOnIdle {
-            val topLeft = childCoordinates!!.localToGlobal(Offset.Zero).x -
-                parentCoordinates!!.localToGlobal(Offset.Zero).x
+            val topLeft = childCoordinates!!.localToWindow(Offset.Zero).x -
+                parentCoordinates!!.localToWindow(Offset.Zero).x
             val currentPadding = with(rule.density) {
-                padding.toIntPx().toFloat()
+                padding.roundToPx().toFloat()
             }
             assertThat(currentPadding).isEqualTo(topLeft)
         }

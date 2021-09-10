@@ -24,7 +24,7 @@ import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
 import android.view.MotionEvent.TOOL_TYPE_UNKNOWN
-import androidx.activity.ComponentActivity
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -35,9 +35,9 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
+import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.milliseconds
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -49,9 +49,10 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalComposeUiApi::class)
 class PointerInteropFilterTest {
     @get:Rule
-    val rule = createAndroidComposeRule<ComponentActivity>()
+    val rule = createAndroidComposeRule<TestActivity>()
 
     private lateinit var pointerInteropFilter: PointerInteropFilter
     private val dispatchedMotionEvents = mutableListOf<MotionEvent>()
@@ -84,7 +85,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_1PointerDown_correctMotionEventDispatched() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val expected =
             MotionEvent(
                 2,
@@ -105,7 +106,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_1PointerUp_correctMotionEventDispatched() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val downMotionEvent =
             MotionEvent(
                 2,
@@ -115,7 +116,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val up = down.up(5.milliseconds)
+        val up = down.up(5)
         val expected =
             MotionEvent(
                 5,
@@ -142,7 +143,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val downMotionEvent =
             MotionEvent(
                 2,
@@ -153,8 +154,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(8, 7.milliseconds, 10f, 11f)
+        val aMove = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(8, 7, 10f, 11f)
 
         val expected =
             MotionEvent(
@@ -193,7 +194,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val downMotionEvent =
             MotionEvent(
                 2,
@@ -204,8 +205,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(8, 7.milliseconds, 10f, 11f)
+        val aMove = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(8, 7, 10f, 11f)
 
         val expected =
             MotionEvent(
@@ -243,7 +244,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -254,8 +255,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(8, 7.milliseconds, 10f, 11f)
+        val aMove1 = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(8, 7, 10f, 11f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -272,8 +273,8 @@ class PointerInteropFilterTest {
                 )
             )
 
-        val aMove2 = aMove1.moveTo(13.milliseconds, 3f, 4f)
-        val bUp = bDown.up(13.milliseconds)
+        val aMove2 = aMove1.moveTo(13, 3f, 4f)
+        val bUp = bDown.up(13)
 
         val expected =
             MotionEvent(
@@ -315,7 +316,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -326,8 +327,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(8, 7.milliseconds, 10f, 11f)
+        val aMove1 = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(8, 7, 10f, 11f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -344,8 +345,8 @@ class PointerInteropFilterTest {
                 )
             )
 
-        val aMove2 = aMove1.moveTo(13.milliseconds, 3f, 4f)
-        val bUp = bDown.up(13.milliseconds)
+        val aMove2 = aMove1.moveTo(13, 3f, 4f)
+        val bUp = bDown.up(13)
         val expected =
             MotionEvent(
                 13,
@@ -383,7 +384,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_1PointerMove_correctMotionEventDispatched() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -393,7 +394,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val move = down.moveTo(7.milliseconds, 8f, 9f)
+        val move = down.moveTo(7, 8f, 9f)
         val expected =
             MotionEvent(
                 7,
@@ -420,7 +421,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -431,8 +432,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(11, 7.milliseconds, 13f, 14f)
+        val aMove1 = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(11, 7, 13f, 14f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -449,8 +450,8 @@ class PointerInteropFilterTest {
                 )
             )
 
-        val aMove2 = aMove1.moveTo(15.milliseconds, 8f, 9f)
-        val bMove1 = bDown.moveTo(15.milliseconds, 18f, 19f)
+        val aMove2 = aMove1.moveTo(15, 8f, 9f)
+        val bMove1 = bDown.moveTo(15, 18f, 19f)
 
         val expected =
             MotionEvent(
@@ -493,7 +494,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -504,8 +505,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(11, 7.milliseconds, 13f, 14f)
+        val aMove1 = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(11, 7, 13f, 14f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -522,8 +523,8 @@ class PointerInteropFilterTest {
                 )
             )
 
-        val aMove2 = aMove1.moveTo(15.milliseconds, 8f, 9f)
-        val bMove1 = bDown.moveTo(15.milliseconds, 18f, 19f)
+        val aMove2 = aMove1.moveTo(15, 8f, 9f)
+        val bMove1 = bDown.moveTo(15, 18f, 19f)
         val expected =
             MotionEvent(
                 15,
@@ -564,7 +565,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_1PointerUpConsumed_correctCancelDispatched() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -574,7 +575,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val upConsumed = down.up(5.milliseconds).apply { consumeDownChange() }
+        val upConsumed = down.up(5).apply { consumeDownChange() }
         val expected =
             MotionEvent(
                 5,
@@ -601,7 +602,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -612,8 +613,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDownConsumed = down(8, 7.milliseconds, 10f, 11f).apply { consumeDownChange() }
+        val aMove = aDown.moveTo(7, 3f, 4f)
+        val bDownConsumed = down(8, 7, 10f, 11f).apply { consumeDownChange() }
         val expected =
             MotionEvent(
                 7,
@@ -651,7 +652,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -662,8 +663,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(8, 7.milliseconds, 10f, 11f)
+        val aMove1 = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(8, 7, 10f, 11f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -680,8 +681,8 @@ class PointerInteropFilterTest {
                 )
             )
 
-        val aMove2 = aMove1.moveTo(13.milliseconds, 3f, 4f)
-        val bUpConsumed = bDown.up(13.milliseconds).apply { consumeDownChange() }
+        val aMove2 = aMove1.moveTo(13, 3f, 4f)
+        val bUpConsumed = bDown.up(13).apply { consumeDownChange() }
         val expected =
             MotionEvent(
                 13,
@@ -720,7 +721,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_1PointerMoveConsumed_correctCancelDispatched() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -731,8 +732,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
         val moveConsumed =
-            down.moveTo(7.milliseconds, 8f, 9f)
-                .apply { consumePositionChange(1f, 0f) }
+            down.moveTo(7, 8f, 9f)
+                .apply { consumePositionChange() }
         val expected =
             MotionEvent(
                 7,
@@ -759,7 +760,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -770,8 +771,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(11, 7.milliseconds, 13f, 14f)
+        val aMove1 = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(11, 7, 13f, 14f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -788,9 +789,9 @@ class PointerInteropFilterTest {
                 )
             )
 
-        val aMove2 = aMove1.moveTo(15.milliseconds, 8f, 9f)
+        val aMove2 = aMove1.moveTo(15, 8f, 9f)
         val bMoveConsumed =
-            bDown.moveTo(15.milliseconds, 18f, 19f).apply { consumePositionChange(1f, 0f) }
+            bDown.moveTo(15, 18f, 19f).apply { consumePositionChange() }
 
         val expected =
             MotionEvent(
@@ -832,7 +833,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_downConsumed_nothingDispatched() {
-        val downConsumed = down(1, 2.milliseconds, 3f, 4f).apply { consumeDownChange() }
+        val downConsumed = down(1, 2, 3f, 4f).apply { consumeDownChange() }
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -852,7 +853,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_downConsumedThenMoveThenUp_nothingDispatched() {
-        val aDownConsumed = down(1, 2.milliseconds, 3f, 4f).apply { consumeDownChange() }
+        val aDownConsumed = down(1, 2, 3f, 4f).apply { consumeDownChange() }
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -863,7 +864,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove = aDownConsumed.moveTo(5.milliseconds, 6f, 7f)
+        val aMove = aDownConsumed.moveTo(5, 6f, 7f)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -874,7 +875,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(6f, 7f))
             )
 
-        val aUp = aMove.up(10.milliseconds)
+        val aUp = aMove.up(10)
         val motionEvent3 =
             MotionEvent(
                 10,
@@ -900,7 +901,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_down1ConsumedThenDown2ThenMove2ThenUp2_nothingDispatched() {
-        val aDownConsumed = down(1, 2.milliseconds, 3f, 4f).apply { consumeDownChange() }
+        val aDownConsumed = down(1, 2, 3f, 4f).apply { consumeDownChange() }
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -911,8 +912,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDownConsumed.moveTo(5.milliseconds, 3f, 4f)
-        val bDown = down(11, 5.milliseconds, 13f, 14f)
+        val aMove1 = aDownConsumed.moveTo(5, 3f, 4f)
+        val bDown = down(11, 5, 13f, 14f)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -923,8 +924,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(13f, 14f))
             )
 
-        val aMove2 = aDownConsumed.moveTo(21.milliseconds, 6f, 7f)
-        val bMove = bDown.moveTo(21.milliseconds, 22f, 23f)
+        val aMove2 = aDownConsumed.moveTo(21, 6f, 7f)
+        val bMove = bDown.moveTo(21, 22f, 23f)
         val motionEvent3 =
             MotionEvent(
                 21,
@@ -935,8 +936,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(6f, 7f), PointerCoords(22f, 23f))
             )
 
-        val aMove3 = aDownConsumed.moveTo(31.milliseconds, 6f, 7f)
-        val bUp = bMove.up(31.milliseconds)
+        val aMove3 = aDownConsumed.moveTo(31, 6f, 7f)
+        val bUp = bMove.up(31)
         val motionEvent4 =
             MotionEvent(
                 31,
@@ -965,7 +966,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_down1ConsumedThenDown2ThenUp1ThenDown3_nothingDispatched() {
-        val aDownConsumed = down(1, 2.milliseconds, 3f, 4f).apply { consumeDownChange() }
+        val aDownConsumed = down(1, 2, 3f, 4f).apply { consumeDownChange() }
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -976,8 +977,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDownConsumed.moveTo(22.milliseconds, 3f, 4f)
-        val bDown = down(21, 22.milliseconds, 23f, 24f)
+        val aMove1 = aDownConsumed.moveTo(22, 3f, 4f)
+        val bDown = down(21, 22, 23f, 24f)
         val motionEvent2 =
             MotionEvent(
                 22,
@@ -988,8 +989,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val aUp = aMove1.up(31.milliseconds)
-        val bMove1 = bDown.moveTo(31.milliseconds, 23f, 24f)
+        val aUp = aMove1.up(31)
+        val bMove1 = bDown.moveTo(31, 23f, 24f)
         val motionEvent3 =
             MotionEvent(
                 31,
@@ -1000,8 +1001,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val bMove2 = bMove1.moveTo(41.milliseconds, 23f, 24f)
-        val cDown = down(51, 41.milliseconds, 52f, 53f)
+        val bMove2 = bMove1.moveTo(41, 23f, 24f)
+        val cDown = down(51, 41, 52f, 53f)
         val motionEvent4 =
             MotionEvent(
                 41,
@@ -1030,7 +1031,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_downThenMoveConsumedThenMoveThenUp_afterConsumeNoDispatch() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -1042,7 +1043,7 @@ class PointerInteropFilterTest {
             )
 
         val move1Consumed =
-            down.moveTo(5.milliseconds, 6f, 7f).apply { consumePositionChange(0f, 1f) }
+            down.moveTo(5, 6f, 7f).apply { consumePositionChange() }
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -1052,7 +1053,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(6f, 47f))
             )
-        val move2 = move1Consumed.moveTo(10.milliseconds, 11f, 12f)
+        val move2 = move1Consumed.moveTo(10, 11f, 12f)
         val motionEvent3 =
             MotionEvent(
                 10,
@@ -1062,7 +1063,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(11f, 12f))
             )
-        val up = move2.up(15.milliseconds)
+        val up = move2.up(15)
         val motionEvent4 =
             MotionEvent(
                 15,
@@ -1094,7 +1095,7 @@ class PointerInteropFilterTest {
     fun onPointerEvent_down1ThenDown2ConsumedThenMoveThenUp1ThenUp2_afterConsumeNoDispatch() {
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -1105,8 +1106,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(11.milliseconds, 3f, 4f)
-        val bDownConsumed = down(21, 11.milliseconds, 23f, 24f).apply { consumeDownChange() }
+        val aMove1 = aDown.moveTo(11, 3f, 4f)
+        val bDownConsumed = down(21, 11, 23f, 24f).apply { consumeDownChange() }
         val motionEvent2 =
             MotionEvent(
                 11,
@@ -1117,8 +1118,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val aMove2 = aMove1.moveTo(31.milliseconds, 31f, 32f)
-        val bMove = bDownConsumed.moveTo(31.milliseconds, 33f, 34f)
+        val aMove2 = aMove1.moveTo(31, 31f, 32f)
+        val bMove = bDownConsumed.moveTo(31, 33f, 34f)
         val motionEvent3 =
             MotionEvent(
                 11,
@@ -1129,8 +1130,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(31f, 32f), PointerCoords(33f, 34f))
             )
 
-        val aMove3 = aMove2.moveTo(41.milliseconds, 31f, 32f)
-        val bUp = bMove.up(41.milliseconds)
+        val aMove3 = aMove2.moveTo(41, 31f, 32f)
+        val bUp = bMove.up(41)
         val motionEvent4 =
             MotionEvent(
                 41,
@@ -1141,7 +1142,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(31f, 32f), PointerCoords(33f, 34f))
             )
 
-        val aUp = aMove3.up(51.milliseconds)
+        val aUp = aMove3.up(51)
         val motionEvent5 =
             MotionEvent(
                 51,
@@ -1176,7 +1177,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_down1ConsumedThenUp1ThenDown2_finalDownDispatched() {
-        val aDownConsumed = down(1, 2.milliseconds, 3f, 4f).apply { consumeDownChange() }
+        val aDownConsumed = down(1, 2, 3f, 4f).apply { consumeDownChange() }
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -1187,7 +1188,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aUp = aDownConsumed.up(5.milliseconds)
+        val aUp = aDownConsumed.up(5)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -1202,7 +1203,7 @@ class PointerInteropFilterTest {
                 )
             )
 
-        val bDown = down(11, 12.milliseconds, 13f, 14f)
+        val bDown = down(11, 12, 13f, 14f)
         val expected =
             MotionEvent(
                 12,
@@ -1236,7 +1237,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDownConsumed = down(1, 2.milliseconds, 3f, 4f).apply { consumeDownChange() }
+        val aDownConsumed = down(1, 2, 3f, 4f).apply { consumeDownChange() }
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -1247,8 +1248,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDownConsumed.moveTo(22.milliseconds, 3f, 4f)
-        val bDown = down(21, 22.milliseconds, 23f, 24f)
+        val aMove1 = aDownConsumed.moveTo(22, 3f, 4f)
+        val bDown = down(21, 22, 23f, 24f)
         val motionEvent2 =
             MotionEvent(
                 22,
@@ -1259,8 +1260,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val aUp = aMove1.up(31.milliseconds)
-        val bMove1 = bDown.moveTo(31.milliseconds, 23f, 24f)
+        val aUp = aMove1.up(31)
+        val bMove1 = bDown.moveTo(31, 23f, 24f)
         val motionEvent3 =
             MotionEvent(
                 31,
@@ -1271,7 +1272,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val bUp = bMove1.up(41.milliseconds)
+        val bUp = bMove1.up(41)
         val motionEvent4 =
             MotionEvent(
                 41,
@@ -1282,7 +1283,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(23f, 24f))
             )
 
-        val cDown = down(51, 52.milliseconds, 53f, 54f)
+        val cDown = down(51, 52, 53f, 54f)
         val expected =
             MotionEvent(
                 52,
@@ -1322,7 +1323,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_downViewRetsFalseThenMoveThenUp_noDispatchAfterRetFalse() {
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -1333,7 +1334,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove = aDown.moveTo(5.milliseconds, 6f, 7f)
+        val aMove = aDown.moveTo(5, 6f, 7f)
         val motionEvent2 =
             MotionEvent(
                 2,
@@ -1344,7 +1345,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(6f, 7f))
             )
 
-        val aUp = aMove.up(10.milliseconds)
+        val aUp = aMove.up(10)
         val motionEvent3 =
             MotionEvent(
                 10,
@@ -1376,7 +1377,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -1387,8 +1388,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(5.milliseconds, 3f, 4f)
-        val bDown = down(11, 5.milliseconds, 13f, 14f)
+        val aMove1 = aDown.moveTo(5, 3f, 4f)
+        val bDown = down(11, 5, 13f, 14f)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -1399,8 +1400,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(13f, 14f))
             )
 
-        val aMove2 = aDown.moveTo(21.milliseconds, 6f, 7f)
-        val bMove = bDown.moveTo(21.milliseconds, 22f, 23f)
+        val aMove2 = aDown.moveTo(21, 6f, 7f)
+        val bMove = bDown.moveTo(21, 22f, 23f)
         val motionEvent3 =
             MotionEvent(
                 21,
@@ -1411,8 +1412,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(6f, 7f), PointerCoords(22f, 23f))
             )
 
-        val aMove3 = aDown.moveTo(31.milliseconds, 6f, 7f)
-        val bUp = bMove.up(31.milliseconds)
+        val aMove3 = aDown.moveTo(31, 6f, 7f)
+        val bUp = bMove.up(31)
         val motionEvent4 =
             MotionEvent(
                 31,
@@ -1448,7 +1449,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_down1ViewRetsFalseThenDown2ThenUp1ThenDown3_noDispatchAfterRetFalse() {
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -1459,8 +1460,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(11.milliseconds, 3f, 4f)
-        val bDown = down(21, 11.milliseconds, 23f, 24f)
+        val aMove1 = aDown.moveTo(11, 3f, 4f)
+        val bDown = down(21, 11, 23f, 24f)
         val motionEvent2 =
             MotionEvent(
                 11,
@@ -1471,8 +1472,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val aUp = aMove1.up(31.milliseconds)
-        val bMove1 = bDown.moveTo(31.milliseconds, 23f, 24f)
+        val aUp = aMove1.up(31)
+        val bMove1 = bDown.moveTo(31, 23f, 24f)
         val motionEvent3 =
             MotionEvent(
                 31,
@@ -1483,8 +1484,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val bMove2 = bMove1.moveTo(41.milliseconds, 23f, 24f)
-        val cDown = down(51, 41.milliseconds, 52f, 53f)
+        val bMove2 = bMove1.moveTo(41, 23f, 24f)
+        val cDown = down(51, 41, 52f, 53f)
         val motionEvent4 =
             MotionEvent(
                 41,
@@ -1516,7 +1517,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_downThenMoveViewRetsFalseThenMove_moveDispatched() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -1527,7 +1528,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val move1 = down.moveTo(5.milliseconds, 6f, 7f)
+        val move1 = down.moveTo(5, 6f, 7f)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -1538,7 +1539,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(6f, 47f))
             )
 
-        val move2 = move1.moveTo(10.milliseconds, 11f, 12f)
+        val move2 = move1.moveTo(10, 11f, 12f)
         val motionEvent3 =
             MotionEvent(
                 10,
@@ -1567,7 +1568,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_downThenMoveViewRetsFalseThenUp_upDispatched() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -1578,7 +1579,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val move1 = down.moveTo(5.milliseconds, 6f, 7f)
+        val move1 = down.moveTo(5, 6f, 7f)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -1589,7 +1590,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(6f, 47f))
             )
 
-        val up = move1.up(10.milliseconds)
+        val up = move1.up(10)
         val motionEvent3 =
             MotionEvent(
                 10,
@@ -1620,7 +1621,7 @@ class PointerInteropFilterTest {
     fun onPointerEvent_down1ThenDown2ViewRetsFalseThenMove_moveIsDispatched() {
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -1631,8 +1632,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(11.milliseconds, 3f, 4f)
-        val bDown = down(21, 11.milliseconds, 23f, 24f)
+        val aMove1 = aDown.moveTo(11, 3f, 4f)
+        val bDown = down(21, 11, 23f, 24f)
         val motionEvent2 =
             MotionEvent(
                 11,
@@ -1643,8 +1644,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val aMove2 = aMove1.moveTo(21.milliseconds, 31f, 32f)
-        val bMove = bDown.moveTo(21.milliseconds, 33f, 34f)
+        val aMove2 = aMove1.moveTo(21, 31f, 32f)
+        val bMove = bDown.moveTo(21, 33f, 34f)
         val motionEvent3 =
             MotionEvent(
                 21,
@@ -1677,7 +1678,7 @@ class PointerInteropFilterTest {
     fun onPointerEvent_down1ThenDown2ViewRetsFalseThenUp1_up1IsDispatched() {
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -1688,8 +1689,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(11.milliseconds, 3f, 4f)
-        val bDown = down(21, 11.milliseconds, 23f, 24f)
+        val aMove1 = aDown.moveTo(11, 3f, 4f)
+        val bDown = down(21, 11, 23f, 24f)
         val motionEvent2 =
             MotionEvent(
                 11,
@@ -1700,8 +1701,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val aMove2 = aMove1.moveTo(21.milliseconds, 3f, 4f)
-        val bUp = bDown.up(21.milliseconds)
+        val aMove2 = aMove1.moveTo(21, 3f, 4f)
+        val bUp = bDown.up(21)
         val motionEvent3 =
             MotionEvent(
                 21,
@@ -1734,7 +1735,7 @@ class PointerInteropFilterTest {
     fun onPointerEvent_down1ThenDown2ViewRetsFalseThenUp2_up2Dispatched() {
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -1745,8 +1746,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(11.milliseconds, 3f, 4f)
-        val bDown = down(21, 11.milliseconds, 23f, 24f)
+        val aMove1 = aDown.moveTo(11, 3f, 4f)
+        val bDown = down(21, 11, 23f, 24f)
         val motionEvent2 =
             MotionEvent(
                 11,
@@ -1757,8 +1758,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val aUp = aMove1.up(31.milliseconds)
-        val bMove = bDown.moveTo(31.milliseconds)
+        val aUp = aMove1.up(31)
+        val bMove = bDown.moveTo(31)
         val motionEvent3 =
             MotionEvent(
                 31,
@@ -1791,7 +1792,7 @@ class PointerInteropFilterTest {
     fun onPointerEvent_down1ThenDown2ViewRetsFalseThenMoveThenUp1ThenUp2_allFollowingDispatched() {
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -1802,8 +1803,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(11.milliseconds, 3f, 4f)
-        val bDown = down(21, 11.milliseconds, 23f, 24f)
+        val aMove1 = aDown.moveTo(11, 3f, 4f)
+        val bDown = down(21, 11, 23f, 24f)
         val motionEvent2 =
             MotionEvent(
                 11,
@@ -1814,8 +1815,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val aMove2 = aMove1.moveTo(31.milliseconds, 31f, 32f)
-        val bMove = bDown.moveTo(31.milliseconds, 33f, 34f)
+        val aMove2 = aMove1.moveTo(31, 31f, 32f)
+        val bMove = bDown.moveTo(31, 33f, 34f)
         val motionEvent3 =
             MotionEvent(
                 31,
@@ -1826,8 +1827,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(31f, 32f), PointerCoords(33f, 34f))
             )
 
-        val aMove3 = aMove2.moveTo(41.milliseconds, 31f, 32f)
-        val bUp = bMove.up(41.milliseconds)
+        val aMove3 = aMove2.moveTo(41, 31f, 32f)
+        val bUp = bMove.up(41)
         val motionEvent4 =
             MotionEvent(
                 41,
@@ -1838,7 +1839,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(31f, 32f), PointerCoords(33f, 34f))
             )
 
-        val aUp = aMove3.up(51.milliseconds)
+        val aUp = aMove3.up(51)
         val motionEvent5 =
             MotionEvent(
                 51,
@@ -1877,7 +1878,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_down1ViewRetsFalseThenUp1ThenDown2_finalDownDispatched() {
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -1888,7 +1889,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aUp = aDown.up(5.milliseconds)
+        val aUp = aDown.up(5)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -1899,7 +1900,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val bDown = down(11, 12.milliseconds, 13f, 14f)
+        val bDown = down(11, 12, 13f, 14f)
         retVal = false
         val expected =
             MotionEvent(
@@ -1935,7 +1936,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -1946,8 +1947,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(11.milliseconds, 3f, 4f)
-        val bDown = down(21, 11.milliseconds, 23f, 24f)
+        val aMove1 = aDown.moveTo(11, 3f, 4f)
+        val bDown = down(21, 11, 23f, 24f)
         val motionEvent2 =
             MotionEvent(
                 11,
@@ -1958,8 +1959,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val aUp = aMove1.up(31.milliseconds)
-        val bMove1 = bDown.moveTo(31.milliseconds, 23f, 24f)
+        val aUp = aMove1.up(31)
+        val bMove1 = bDown.moveTo(31, 23f, 24f)
         val motionEvent3 =
             MotionEvent(
                 31,
@@ -1970,7 +1971,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val bUp = bMove1.up(41.milliseconds)
+        val bUp = bMove1.up(41)
         val motionEvent4 =
             MotionEvent(
                 41,
@@ -1981,7 +1982,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(23f, 24f))
             )
 
-        val cDown = down(51, 52.milliseconds, 53f, 54f)
+        val cDown = down(51, 52, 53f, 54f)
         val expected =
             MotionEvent(
                 52,
@@ -2023,7 +2024,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_1PointerDownViewRetsFalse_nothingConsumed() {
-        val change = down(1, 2.milliseconds, 3f, 4f)
+        val change = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2044,7 +2045,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_1PointerDownViewRetsTrue_everythingConsumed() {
-        val change = down(1, 2.milliseconds, 3f, 4f)
+        val change = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2066,7 +2067,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_1PointerUpViewRetsFalse_everythingConsumed() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2076,7 +2077,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val upActual = down.up(5.milliseconds)
+        val upActual = down.up(5)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -2102,7 +2103,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_1PointerUpViewRetsTrue_everythingConsumed() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2112,7 +2113,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val upActual = down.up(5.milliseconds)
+        val upActual = down.up(5)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -2140,7 +2141,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2151,8 +2152,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(8, 7.milliseconds, 10f, 11f)
+        val aMove = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(8, 7, 10f, 11f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -2189,7 +2190,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2200,8 +2201,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(8, 7.milliseconds, 10f, 11f)
+        val aMove = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(8, 7, 10f, 11f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -2236,7 +2237,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2247,8 +2248,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(8, 7.milliseconds, 10f, 11f)
+        val aMove1 = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(8, 7, 10f, 11f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -2259,8 +2260,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(10f, 11f))
             )
 
-        val aMove2 = aMove1.moveTo(13.milliseconds, 3f, 4f)
-        val bUp = bDown.up(13.milliseconds)
+        val aMove2 = aMove1.moveTo(13, 3f, 4f)
+        val bUp = bDown.up(13)
         val motionEvent3 =
             MotionEvent(
                 13,
@@ -2299,7 +2300,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2310,8 +2311,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(8, 7.milliseconds, 10f, 11f)
+        val aMove1 = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(8, 7, 10f, 11f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -2322,8 +2323,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(10f, 11f))
             )
 
-        val aMove2 = aMove1.moveTo(13.milliseconds, 3f, 4f)
-        val bUp = bDown.up(13.milliseconds)
+        val aMove2 = aMove1.moveTo(13, 3f, 4f)
+        val bUp = bDown.up(13)
         val motionEvent3 =
             MotionEvent(
                 13,
@@ -2358,7 +2359,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_1PointerMoveViewRetsFalse_everythingConsumed() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2368,7 +2369,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val move = down.moveTo(7.milliseconds, 8f, 9f)
+        val move = down.moveTo(7, 8f, 9f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -2389,12 +2390,12 @@ class PointerInteropFilterTest {
         )
 
         PointerInputChangeSubject.assertThat(move).downNotConsumed()
-        PointerInputChangeSubject.assertThat(move).positionChangeConsumed(Offset(5f, 5f))
+        PointerInputChangeSubject.assertThat(move).positionChangeConsumed()
     }
 
     @Test
     fun onPointerEvent_1PointerMoveViewRetsTrue_everythingConsumed() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2404,7 +2405,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val move = down.moveTo(7.milliseconds, 8f, 9f)
+        val move = down.moveTo(7, 8f, 9f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -2424,7 +2425,7 @@ class PointerInteropFilterTest {
         )
 
         PointerInputChangeSubject.assertThat(move).downNotConsumed()
-        PointerInputChangeSubject.assertThat(move).positionChangeConsumed(Offset(5f, 5f))
+        PointerInputChangeSubject.assertThat(move).positionChangeConsumed()
     }
 
     @Test
@@ -2432,7 +2433,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2443,8 +2444,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(11, 7.milliseconds, 13f, 14f)
+        val aMove1 = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(11, 7, 13f, 14f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -2461,8 +2462,8 @@ class PointerInteropFilterTest {
                 )
             )
 
-        val aMove2 = aMove1.moveBy(15.milliseconds, 8f, 9f)
-        val bMove1 = bDown.moveBy(15.milliseconds, 18f, 19f)
+        val aMove2 = aMove1.moveBy(15, 8f, 9f)
+        val bMove1 = bDown.moveBy(15, 18f, 19f)
         val motionEvent3 =
             MotionEvent(
                 15,
@@ -2498,9 +2499,9 @@ class PointerInteropFilterTest {
         // Assert
 
         PointerInputChangeSubject.assertThat(aMove2).downNotConsumed()
-        PointerInputChangeSubject.assertThat(aMove2).positionChangeConsumed(Offset(8f, 9f))
+        PointerInputChangeSubject.assertThat(aMove2).positionChangeConsumed()
         PointerInputChangeSubject.assertThat(bMove1).downNotConsumed()
-        PointerInputChangeSubject.assertThat(bMove1).positionChangeConsumed(Offset(18f, 19f))
+        PointerInputChangeSubject.assertThat(bMove1).positionChangeConsumed()
     }
 
     @Test
@@ -2508,7 +2509,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2519,8 +2520,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(11, 7.milliseconds, 13f, 14f)
+        val aMove1 = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(11, 7, 13f, 14f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -2537,8 +2538,8 @@ class PointerInteropFilterTest {
                 )
             )
 
-        val aMove2 = aMove1.moveBy(15.milliseconds, 8f, 9f)
-        val bMove1 = bDown.moveBy(15.milliseconds, 18f, 19f)
+        val aMove2 = aMove1.moveBy(15, 8f, 9f)
+        val bMove1 = bDown.moveBy(15, 18f, 19f)
         val motionEvent3 =
             MotionEvent(
                 15,
@@ -2573,9 +2574,9 @@ class PointerInteropFilterTest {
         // Assert
 
         PointerInputChangeSubject.assertThat(aMove2).downNotConsumed()
-        PointerInputChangeSubject.assertThat(aMove2).positionChangeConsumed(Offset(8f, 9f))
+        PointerInputChangeSubject.assertThat(aMove2).positionChangeConsumed()
         PointerInputChangeSubject.assertThat(bMove1).downNotConsumed()
-        PointerInputChangeSubject.assertThat(bMove1).positionChangeConsumed(Offset(18f, 19f))
+        PointerInputChangeSubject.assertThat(bMove1).positionChangeConsumed()
     }
 
     // Verification of no further consumption after initial consumption (because if something was
@@ -2584,7 +2585,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_downConsumedThenMove_noAdditionalConsumption() {
-        val aDownConsumed = down(1, 2.milliseconds, 3f, 4f).apply { consumeDownChange() }
+        val aDownConsumed = down(1, 2, 3f, 4f).apply { consumeDownChange() }
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2594,7 +2595,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val aMove = aDownConsumed.moveTo(5.milliseconds, 6f, 7f)
+        val aMove = aDownConsumed.moveTo(5, 6f, 7f)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -2618,7 +2619,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_downConsumedThenUp_noAdditionalConsumption() {
-        val aDownConsumed = down(1, 2.milliseconds, 3f, 4f).apply { consumeDownChange() }
+        val aDownConsumed = down(1, 2, 3f, 4f).apply { consumeDownChange() }
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2629,7 +2630,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aUp = aDownConsumed.up(5.milliseconds)
+        val aUp = aDownConsumed.up(5)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -2657,7 +2658,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_down1ConsumedThenDown2_noAdditionalConsumption() {
-        val aDownConsumed = down(1, 2.milliseconds, 3f, 4f).apply { consumeDownChange() }
+        val aDownConsumed = down(1, 2, 3f, 4f).apply { consumeDownChange() }
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2667,8 +2668,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val aMove1 = aDownConsumed.moveTo(5.milliseconds, 3f, 4f)
-        val bDown = down(11, 5.milliseconds, 13f, 14f)
+        val aMove1 = aDownConsumed.moveTo(5, 3f, 4f)
+        val bDown = down(11, 5, 13f, 14f)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -2692,7 +2693,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_down1ConsumedThenDown2ThenMove_noAdditionalConsumption() {
-        val aDownConsumed = down(1, 2.milliseconds, 3f, 4f).apply { consumeDownChange() }
+        val aDownConsumed = down(1, 2, 3f, 4f).apply { consumeDownChange() }
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2702,8 +2703,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val aMove1 = aDownConsumed.moveTo(5.milliseconds, 3f, 4f)
-        val bDown = down(11, 5.milliseconds, 13f, 14f)
+        val aMove1 = aDownConsumed.moveTo(5, 3f, 4f)
+        val bDown = down(11, 5, 13f, 14f)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -2713,8 +2714,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0), PointerProperties(1)),
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(13f, 14f))
             )
-        val aMove2 = aDownConsumed.moveTo(21.milliseconds, 6f, 7f)
-        val bMove = bDown.moveTo(21.milliseconds, 22f, 23f)
+        val aMove2 = aDownConsumed.moveTo(21, 6f, 7f)
+        val bMove = bDown.moveTo(21, 22f, 23f)
         val motionEvent3 =
             MotionEvent(
                 5,
@@ -2744,7 +2745,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2755,8 +2756,10 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(11, 7.milliseconds, 13f, 14f)
+        val aMove1 = aDown.moveTo(7, 3f, 4f)
+        val xDown = 13f
+        val yDown = 14f
+        val bDown = down(11, 7, xDown, yDown)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -2773,10 +2776,12 @@ class PointerInteropFilterTest {
                 )
             )
 
-        val aMove2 = aMove1.moveTo(15.milliseconds, 8f, 9f)
+        val aMove2 = aMove1.moveTo(15, 8f, 9f)
+        val xMove = 18f
+        val yMove = 19f
         val bMoveConsumed =
-            bDown.moveTo(15.milliseconds, 18f, 19f)
-                .apply { consumePositionChange(1f, 0f) }
+            bDown.moveTo(15, xMove, yMove)
+                .apply { consumePositionChange() }
         val motionEvent3 =
             MotionEvent(
                 7,
@@ -2808,14 +2813,14 @@ class PointerInteropFilterTest {
         // Assert
         PointerInputChangeSubject.assertThat(aMove2).nothingConsumed()
         PointerInputChangeSubject.assertThat(bMoveConsumed).downNotConsumed()
-        PointerInputChangeSubject.assertThat(bMoveConsumed).positionChangeConsumed(Offset(1f, 0f))
+        PointerInputChangeSubject.assertThat(bMoveConsumed).positionChangeConsumed()
     }
 
     @Test
     fun onPointerEvent_down1ThenDown2ConsumedThenMove_noAdditionalConsumption() {
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2826,8 +2831,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(11.milliseconds, 3f, 4f)
-        val bDownConsumed = down(21, 11.milliseconds, 23f, 24f).apply { consumeDownChange() }
+        val aMove1 = aDown.moveTo(11, 3f, 4f)
+        val bDownConsumed = down(21, 11, 23f, 24f).apply { consumeDownChange() }
         val motionEvent2 =
             MotionEvent(
                 11,
@@ -2838,8 +2843,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val aMove2 = aMove1.moveTo(31.milliseconds, 31f, 32f)
-        val bMove = bDownConsumed.moveTo(31.milliseconds, 33f, 34f)
+        val aMove2 = aMove1.moveTo(31, 31f, 32f)
+        val bMove = bDownConsumed.moveTo(31, 33f, 34f)
         val motionEvent3 =
             MotionEvent(
                 11,
@@ -2870,7 +2875,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_down1ConsumedThenUp1ThenDown2_finalDownConsumed() {
-        val aDownConsumed = down(1, 2.milliseconds, 3f, 4f).apply { consumeDownChange() }
+        val aDownConsumed = down(1, 2, 3f, 4f).apply { consumeDownChange() }
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2880,7 +2885,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val aUp = aDownConsumed.up(5.milliseconds)
+        val aUp = aDownConsumed.up(5)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -2894,7 +2899,7 @@ class PointerInteropFilterTest {
                     PointerCoords(3f, 4f)
                 )
             )
-        val bDown = down(11, 12.milliseconds, 13f, 14f)
+        val bDown = down(11, 12, 13f, 14f)
         val motionEvent3 =
             MotionEvent(
                 12,
@@ -2924,7 +2929,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDownConsumed = down(1, 2.milliseconds, 3f, 4f).apply { consumeDownChange() }
+        val aDownConsumed = down(1, 2, 3f, 4f).apply { consumeDownChange() }
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -2935,8 +2940,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDownConsumed.moveTo(22.milliseconds, 3f, 4f)
-        val bDown = down(21, 22.milliseconds, 23f, 24f)
+        val aMove1 = aDownConsumed.moveTo(22, 3f, 4f)
+        val bDown = down(21, 22, 23f, 24f)
         val motionEvent2 =
             MotionEvent(
                 22,
@@ -2947,8 +2952,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val aUp = aMove1.up(31.milliseconds)
-        val bMove1 = bDown.moveTo(31.milliseconds, 23f, 24f)
+        val aUp = aMove1.up(31)
+        val bMove1 = bDown.moveTo(31, 23f, 24f)
         val motionEvent3 =
             MotionEvent(
                 31,
@@ -2959,7 +2964,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val bUp = bMove1.up(41.milliseconds)
+        val bUp = bMove1.up(41)
         val motionEvent4 =
             MotionEvent(
                 41,
@@ -2970,7 +2975,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(23f, 24f))
             )
 
-        val cDown = down(51, 52.milliseconds, 53f, 54f)
+        val cDown = down(51, 52, 53f, 54f)
         val motionEvent5 =
             MotionEvent(
                 52,
@@ -3009,7 +3014,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_viewRetsFalseDownThenViewRetsTrueMove_noConsumptionOfMove() {
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3019,7 +3024,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val aMove = aDown.moveTo(5.milliseconds, 6f, 7f)
+        val aMove = aDown.moveTo(5, 6f, 7f)
         val motionEvent2 =
             MotionEvent(
                 2,
@@ -3044,7 +3049,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_viewRetsFalseDownThenViewRetsTrueUp_noConsumptionOfUp() {
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3054,7 +3059,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val aUp = aDown.up(5.milliseconds)
+        val aUp = aDown.up(5)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -3082,7 +3087,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3093,8 +3098,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(5.milliseconds, 3f, 4f)
-        val bDown = down(11, 5.milliseconds, 13f, 14f)
+        val aMove1 = aDown.moveTo(5, 3f, 4f)
+        val bDown = down(11, 5, 13f, 14f)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -3128,7 +3133,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3139,8 +3144,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(5.milliseconds, 3f, 4f)
-        val bDown = down(11, 5.milliseconds, 13f, 14f)
+        val aMove1 = aDown.moveTo(5, 3f, 4f)
+        val bDown = down(11, 5, 13f, 14f)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -3151,8 +3156,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(13f, 14f))
             )
 
-        val aMove2 = aMove1.moveTo(21.milliseconds, 22f, 23f)
-        val bMove1 = bDown.moveBy(21.milliseconds, 24f, 25f)
+        val aMove2 = aMove1.moveTo(21, 22f, 23f)
+        val bMove1 = bDown.moveBy(21, 24f, 25f)
         val motionEvent3 =
             MotionEvent(
                 5,
@@ -3189,7 +3194,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3200,8 +3205,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(5.milliseconds, 3f, 4f)
-        val bDown = down(11, 5.milliseconds, 13f, 14f)
+        val aMove1 = aDown.moveTo(5, 3f, 4f)
+        val bDown = down(11, 5, 13f, 14f)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -3212,8 +3217,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(13f, 14f))
             )
 
-        val aMove2 = aMove1.moveTo(21.milliseconds, 3f, 4f)
-        val bUp = bDown.up(21.milliseconds)
+        val aMove2 = aMove1.moveTo(21, 3f, 4f)
+        val bUp = bDown.up(21)
         val motionEvent3 =
             MotionEvent(
                 21,
@@ -3247,7 +3252,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_down1ViewRetsFalseThenViewRetsTrueDown2ThenUp1ThenDown3_down3NotConsumed() {
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3258,8 +3263,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(11.milliseconds, 3f, 4f)
-        val bDown = down(21, 11.milliseconds, 23f, 24f)
+        val aMove1 = aDown.moveTo(11, 3f, 4f)
+        val bDown = down(21, 11, 23f, 24f)
         val motionEvent2 =
             MotionEvent(
                 2,
@@ -3270,8 +3275,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val aUp = aMove1.up(31.milliseconds)
-        val bMove1 = bDown.moveTo(31.milliseconds, 23f, 24f)
+        val aUp = aMove1.up(31)
+        val bMove1 = bDown.moveTo(31, 23f, 24f)
         val motionEvent3 =
             MotionEvent(
                 31,
@@ -3282,8 +3287,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(23f, 24f))
             )
 
-        val bMove2 = bMove1.moveTo(41.milliseconds, 23f, 24f)
-        val cDown = down(51, 41.milliseconds, 52f, 53f)
+        val bMove2 = bMove1.moveTo(41, 23f, 24f)
+        val cDown = down(51, 41, 52f, 53f)
         val motionEvent4 =
             MotionEvent(
                 41,
@@ -3318,7 +3323,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_1PointerDown_dispatchedDuringInitialTunnel() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3339,7 +3344,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_1PointerUp_dispatchedDuringInitialTunnel() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3349,7 +3354,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val up = down.up(5.milliseconds)
+        val up = down.up(5)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -3376,7 +3381,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3387,8 +3392,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(8, 7.milliseconds, 10f, 11f)
+        val aMove = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(8, 7, 10f, 11f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -3420,7 +3425,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3431,8 +3436,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(8, 7.milliseconds, 10f, 11f)
+        val aMove1 = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(8, 7, 10f, 11f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -3443,8 +3448,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(10f, 11f))
             )
 
-        val aMove2 = aMove1.moveTo(13.milliseconds, 3f, 4f)
-        val bUp = bDown.up(13.milliseconds)
+        val aMove2 = aMove1.moveTo(13, 3f, 4f)
+        val bUp = bDown.up(13)
         val motionEvent3 =
             MotionEvent(
                 13,
@@ -3476,7 +3481,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_pointerMove_dispatchedDuringPostTunnel() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3486,7 +3491,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val move = down.moveTo(7.milliseconds, 8f, 9f)
+        val move = down.moveTo(7, 8f, 9f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -3518,7 +3523,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_downDisallowInterceptRequestedMove_moveDispatchedDuringInitialTunnel() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3528,7 +3533,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val move = down.moveTo(7.milliseconds, 8f, 9f)
+        val move = down.moveTo(7, 8f, 9f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -3556,7 +3561,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_disallowInterceptRequestedUpDownMove_moveDispatchedDuringPostTunnel() {
-        val downA = down(1, 2.milliseconds, 3f, 4f)
+        val downA = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3566,7 +3571,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val upA = downA.up(11.milliseconds)
+        val upA = downA.up(11)
         val motionEvent2 =
             MotionEvent(
                 11,
@@ -3576,7 +3581,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val downB = down(21, 22.milliseconds, 23f, 24f)
+        val downB = down(21, 22, 23f, 24f)
         val motionEvent3 =
             MotionEvent(
                 21,
@@ -3586,7 +3591,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(23f, 24f))
             )
-        val moveB = downB.moveTo(31.milliseconds, 32f, 33f)
+        val moveB = downB.moveTo(31, 32f, 33f)
         val motionEvent4 =
             MotionEvent(
                 31,
@@ -3627,7 +3632,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_disallowInterceptTrueThenFalseThenMove_moveDispatchedDuringPostTunnel() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3637,7 +3642,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val move = down.moveTo(7.milliseconds, 8f, 9f)
+        val move = down.moveTo(7, 8f, 9f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -3672,7 +3677,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_1PointerUpConsumed_dispatchDuringInitialTunnel() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3682,7 +3687,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val upConsumed = down.up(5.milliseconds).apply { consumeDownChange() }
+        val upConsumed = down.up(5).apply { consumeDownChange() }
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -3709,7 +3714,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3720,8 +3725,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDownConsumed = down(8, 7.milliseconds, 10f, 11f).apply { consumeDownChange() }
+        val aMove = aDown.moveTo(7, 3f, 4f)
+        val bDownConsumed = down(8, 7, 10f, 11f).apply { consumeDownChange() }
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -3759,7 +3764,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3770,8 +3775,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(8, 7.milliseconds, 10f, 11f)
+        val aMove1 = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(8, 7, 10f, 11f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -3782,8 +3787,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(10f, 11f))
             )
 
-        val aMove2 = aMove1.moveTo(13.milliseconds, 3f, 4f)
-        val bUpConsumed = bDown.up(13.milliseconds).apply { consumeDownChange() }
+        val aMove2 = aMove1.moveTo(13, 3f, 4f)
+        val bUpConsumed = bDown.up(13).apply { consumeDownChange() }
         val motionEvent3 =
             MotionEvent(
                 13,
@@ -3815,7 +3820,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_1PointerMoveConsumed_dispatchDuringPostTunnel() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3826,8 +3831,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
         val moveConsumed =
-            down.moveTo(7.milliseconds, 8f, 9f)
-                .apply { consumePositionChange(1f, 0f) }
+            down.moveTo(7, 8f, 9f)
+                .apply { consumePositionChange() }
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -3862,7 +3867,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3873,8 +3878,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(11, 7.milliseconds, 13f, 14f)
+        val aMove1 = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(11, 7, 13f, 14f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -3885,9 +3890,9 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(13f, 14f))
             )
 
-        val aMove2 = aMove1.moveTo(15.milliseconds, 8f, 9f)
+        val aMove2 = aMove1.moveTo(15, 8f, 9f)
         val bMoveConsumed =
-            bDown.moveTo(15.milliseconds, 18f, 19f).apply { consumePositionChange(1f, 0f) }
+            bDown.moveTo(15, 18f, 19f).apply { consumePositionChange() }
         val motionEvent3 =
             MotionEvent(
                 7,
@@ -3931,7 +3936,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_1PointerDown_consumedDuringInitialTunnel() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3953,7 +3958,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_1PointerUp_consumedDuringInitialTunnel() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -3963,7 +3968,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val up = down.up(5.milliseconds)
+        val up = down.up(5)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -3991,7 +3996,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -4002,8 +4007,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(8, 7.milliseconds, 10f, 11f)
+        val aMove = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(8, 7, 10f, 11f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -4037,7 +4042,7 @@ class PointerInteropFilterTest {
 
         // Arrange
 
-        val aDown = down(1, 2.milliseconds, 3f, 4f)
+        val aDown = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -4048,8 +4053,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f))
             )
 
-        val aMove1 = aDown.moveTo(7.milliseconds, 3f, 4f)
-        val bDown = down(8, 7.milliseconds, 10f, 11f)
+        val aMove1 = aDown.moveTo(7, 3f, 4f)
+        val bDown = down(8, 7, 10f, 11f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -4060,8 +4065,8 @@ class PointerInteropFilterTest {
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(10f, 11f))
             )
 
-        val aMove2 = aMove1.moveTo(13.milliseconds, 3f, 4f)
-        val bUp = bDown.up(13.milliseconds)
+        val aMove2 = aMove1.moveTo(13, 3f, 4f)
+        val bUp = bDown.up(13)
         val motionEvent3 =
             MotionEvent(
                 13,
@@ -4095,7 +4100,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onPointerEvent_pointerMove_consumedDuringPostTunnel() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -4105,7 +4110,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val move = down.moveTo(7.milliseconds, 8f, 9f)
+        val move = down.moveTo(7, 8f, 9f)
         val motionEvent2 =
             MotionEvent(
                 7,
@@ -4134,12 +4139,12 @@ class PointerInteropFilterTest {
         )
 
         PointerInputChangeSubject.assertThat(move).downNotConsumed()
-        PointerInputChangeSubject.assertThat(move).positionChangeConsumed(Offset(5f, 5f))
+        PointerInputChangeSubject.assertThat(move).positionChangeConsumed()
     }
 
     @Test
     fun onCancel_cancelEventIsCorrect() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -4181,7 +4186,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onCancel_downConsumedCancel_cancelNotDispatched() {
-        val downConsumed = down(1, 2.milliseconds, 3f, 4f).apply { consumeDownChange() }
+        val downConsumed = down(1, 2, 3f, 4f).apply { consumeDownChange() }
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -4204,7 +4209,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onCancel_downViewRetsFalseThenCancel_cancelNotDispatched() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -4227,7 +4232,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onCancel_downThenUpOnCancel_cancelNotDispatched() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -4237,7 +4242,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val up = down.up(5.milliseconds)
+        val up = down.up(5)
         val motionEvent2 =
             MotionEvent(
                 5,
@@ -4262,7 +4267,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onCancel_downThenOnCancel_cancelDispatchedOnce() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -4284,7 +4289,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onCancel_downThenOnCancelThenOnCancel_cancelDispatchedOnce() {
-        val down = down(1, 2.milliseconds, 3f, 4f)
+        val down = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -4307,7 +4312,7 @@ class PointerInteropFilterTest {
 
     @Test
     fun onCancel_downThenOnCancelThenDownThenOnCancel_cancelDispatchedTwice() {
-        val down1 = down(1, 2.milliseconds, 3f, 4f)
+        val down1 = down(1, 2, 3f, 4f)
         val motionEvent1 =
             MotionEvent(
                 2,
@@ -4317,7 +4322,7 @@ class PointerInteropFilterTest {
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val down2 = down(1, 2.milliseconds, 3f, 4f)
+        val down2 = down(1, 2, 3f, 4f)
         val motionEvent2 =
             MotionEvent(
                 2,
@@ -4364,23 +4369,29 @@ class PointerInteropFilterTest {
             get() = IntSize.Zero
         override val providedAlignmentLines: Set<AlignmentLine>
             get() = emptySet()
+        override val parentLayoutCoordinates: LayoutCoordinates?
+            get() = null
         override val parentCoordinates: LayoutCoordinates?
             get() = null
         override val isAttached: Boolean
             get() = true
 
-        override fun globalToLocal(global: Offset): Offset = Offset.Zero
+        override fun windowToLocal(relativeToWindow: Offset): Offset = Offset.Zero
 
-        override fun localToGlobal(local: Offset): Offset = Offset.Zero
+        override fun localToWindow(relativeToLocal: Offset): Offset = Offset.Zero
 
-        override fun localToRoot(local: Offset): Offset = Offset.Zero
+        override fun localToRoot(relativeToLocal: Offset): Offset = Offset.Zero
+        override fun localPositionOf(
+            sourceCoordinates: LayoutCoordinates,
+            relativeToSource: Offset
+        ): Offset = Offset.Zero
 
-        override fun childToLocal(child: LayoutCoordinates, childLocal: Offset): Offset =
-            Offset.Zero
+        override fun localBoundingBoxOf(
+            sourceCoordinates: LayoutCoordinates,
+            clipBounds: Boolean
+        ): Rect = Rect.Zero
 
-        override fun childBoundingBox(child: LayoutCoordinates): Rect = Rect.Zero
-
-        override fun get(line: AlignmentLine): Int = 0
+        override fun get(alignmentLine: AlignmentLine): Int = 0
     }
 }
 

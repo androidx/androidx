@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <string name="main_activity_title">WebView AndroidX Demos</string>
+    <string name="webkit_api_not_available">This feature is not available. This may be available if you update WebView.</string>
+    <string name="safebrowsing_activity_title">Safe Browsing</string>
+    <string name="not_updateable_webview">not updatable</string>
+    <string name="asset_loader_ajax_activity_title">Asset Loader AJAX Demo</string>
+    <string name="asset_loader_internal_storage_activity_title">Load from internal storage</string>
+    <string name="asset_loader_list_activity_title">WebView Asset Loader Demos</string>
+    <string name="asset_loader_simple_activity_title">Simple Asset Loader</string>
+    <string name="small_interstitial_activity_title">Small Interstitial</string>
+    <string name="medium_tall_interstitial_activity_title">Medium (Tall) Interstitials</string>
+    <string name="medium_wide_interstitial_activity_title">Medium (Wide) Interstitials</string>
+    <string name="loud_interstitial_activity_title">Loud (Red) Interstitials</string>
+    <string name="giant_interstitial_activity_title">Giant Interstitial</string>
+    <string name="per_web_view_enable_activity_title">Per-WebView Enable APIs</string>
+    <string name="cannot_start_safe_browsing">Unable to start Safe Browsing, this is unexpected. Tap for more info.</string>
+    <string name="safebrowsing_enabled_caption">Safe Browsing enabled</string>
+    <string name="safebrowsing_disabled_caption">Safe Browsing disabled</string>
+    <string name="default_safebrowsing_caption">Default Safe Browsing setting</string>
+    <string name="invisible_activity_title">Invisible WebView</string>
+    <string name="invisible_webview_description">The WebView in this Activity is invisible and attached to the view hierarchy</string>
+    <string name="unattached_activity_title">Unattached WebView</string>
+    <string name="unattached_webview_description">The WebView in this Activity is visible and unattached to the view hierarchy</string>
+    <string name="custom_interstitial_activity_title">Customized Interstitials</string>
+    <string name="back_to_safety_text">Back to safety</string>
+    <string name="proceed_text">Proceed</string>
+    <string name="custom_interstitial_title">Security error!</string>
+    <string name="view_privacy_policy_text">Reports will be sent according to the &lt;a href="%1$s"&gt;Safe Browsing privacy policy&lt;/a&gt;</string>
+    <string name="send_report_text">Send a Safe Browsing report?</string>
+    <string name="allowlist_activity_title">Allowlist</string>
+    <string name="invalid_allowlist_input_message">Unable to configure Safe Browsing allowlist due to invalid input</string>
+    <string name="clear_allowlist_button_text">Clear the allowlist</string>
+    <string name="set_allowlist_button_text">Allowlist the test domain</string>
+    <string name="allowlist_switch_text">Allowlist the test domain (won\'t show interstitials)</string>
+    <string name="force_dark_activity_title">Force Dark</string>
+    <string name="error_log_title">Network errors:</string>
+    <string name="multi_process_enabled_activity_title">Multi Process Enabled</string>
+    <string name="multi_process_enabled">Multi Process is enabled</string>
+    <string name="multi_process_disabled">Multi Process is disabled</string>
+    <string name="multi_process_unavailable">Multi Process not available</string>
+    <string name="tracing_controller_activity_title">Tracing Controller Demo</string>
+    <string name="tracing_controller_start_tracing">Start tracing</string>
+    <string name="tracing_controller_stop_tracing">Stop tracing</string>
+    <string name="tracing_controller_invalid_log">Log is invalid</string>
+    <string name="tracing_controller_log_path">Wrote log to %1$s. This file can be loaded in
+        chrome://tracing for further analysis.</string>
+    <string name="renderer_termination_activity_title">Renderer Termination Demo</string>
+    <string name="renderer_termination_button_terminate_text">Terminate</string>
+    <string name="renderer_termination_button_block_text">Block</string>
+    <string name="renderer_termination_button_block_transient_text">Block (10 sec)</string>
+    <string name="renderer_termination_button_unblock_text">Unblock</string>
+    <string name="renderer_terminated_description">WebView renderer was terminated.</string>
+    <string name="renderer_unresponsive_description">WebView renderer has become unresponsive.</string>
+    <string name="fullscreen_activity_title">Fullscreen web contents Demo</string>
+    <string name="js_java_interaction_activity_title">JavaScript - Java communication</string>
+    <string name="web_message_listener_activity_title">WebMessageListener Demo</string>
+    <string name="web_message_listener_malicious_website_activity_title">Malicious Website Demo</string>
+    <string name="document_start_javascript_activity_title">DocumentStartJavaScript Demo</string>
+    <string name="native_view_title">Native View</string>
+    <string name="force_dark_strategy_activity_title">Force Dark Strategy Demo</string>
+    <string name="force_dark_strategy_switch_title">Force Dark</string>
+    <string-array name="force_dark_strategy_selection">
+        <item>UA darkening only</item>
+        <item>Web theme darkening only</item>
+        <item>Prefer Web theme over UA darkening</item>
+    </string-array>
+
+    <!-- Proxy Override -->
+    <string name="proxy_override_activity_title">Proxy Override</string>
+    <string name="proxy_override_requests_served">Requests served: %d</string>
+    <string name="proxy_override_reverse_bypass">Reverse bypass</string>
+    <string name="proxy_override_set">Set proxy override</string>
+    <string name="proxy_override_load_url">Load URL</string>
+    <string name="proxy_override_load_bypass_url">Load bypass URL</string>
+
+</resources>

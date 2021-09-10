@@ -226,7 +226,7 @@ class AuthenticationCallbackProvider {
                         android.hardware.biometrics.BiometricPrompt.AuthenticationResult result) {
 
                     final BiometricPrompt.CryptoObject crypto = result != null
-                            ? CryptoObjectUtils.unwrapFromBiometricPrompt(result.getCryptoObject())
+                            ? CryptoObjectUtils.unwrapFromBiometricPrompt(getCryptoObject(result))
                             : null;
 
                     @BiometricPrompt.AuthenticationResultType final int authenticationType;
@@ -251,6 +251,21 @@ class AuthenticationCallbackProvider {
                     listener.onFailure();
                 }
             };
+        }
+
+        /**
+         * Gets the crypto object from the given framework authentication result.
+         *
+         * @param result An instance of
+         *               {@link android.hardware.biometrics.BiometricPrompt.AuthenticationResult}.
+         * @return The value returned by calling {@link
+         * android.hardware.biometrics.BiometricPrompt.AuthenticationResult#getCryptoObject()} for
+         * the given result object.
+         */
+        @Nullable
+        static android.hardware.biometrics.BiometricPrompt.CryptoObject getCryptoObject(
+                @NonNull android.hardware.biometrics.BiometricPrompt.AuthenticationResult result) {
+            return result.getCryptoObject();
         }
     }
 }

@@ -1,0 +1,58 @@
+/*
+ * Copyright 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+apply(from: "../constants.gradle")
+
+dependencies {
+    api(project(":media2:media2-common"))
+    api(libs.guavaListenableFuture)
+    implementation("androidx.collection:collection:" + COLLECTION_VERSION)
+    implementation("androidx.concurrent:concurrent-futures:" + CONCURRENT_FUTURE_VERSION)
+    compileOnly(libs.checkerframework)
+    // Depend on media2-exoplayer so that the library groupId is set to match media2.
+    implementation(project(":media2:media2-exoplayer"))
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(project(":internal-testutils-runtime"))
+    annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 16
+    }
+}
+
+androidx {
+    name = "AndroidX media2 player library"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.MEDIA2
+    inceptionYear = "2018"
+    description = "Media2 Player"
+    failOnDeprecationWarnings = false
+}

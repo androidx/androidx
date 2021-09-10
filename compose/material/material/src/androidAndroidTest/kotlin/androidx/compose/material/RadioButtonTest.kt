@@ -16,15 +16,21 @@
 
 package androidx.compose.material
 
-import androidx.compose.foundation.Strings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.focused
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
-import androidx.compose.ui.test.assertValueEquals
+import androidx.compose.ui.test.isFocusable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -48,10 +54,10 @@ class RadioButtonTest {
     private val itemThree = "Sap"
 
     private fun SemanticsNodeInteraction.assertHasSelectedSemantics(): SemanticsNodeInteraction =
-        assertIsSelected().assertValueEquals(Strings.Selected)
+        assertIsSelected()
 
     private fun SemanticsNodeInteraction.assertHasUnSelectedSemantics(): SemanticsNodeInteraction =
-        assertIsNotSelected().assertValueEquals(Strings.NotSelected)
+        assertIsNotSelected()
 
     private val options = listOf(itemOne, itemTwo, itemThree)
 
@@ -71,9 +77,21 @@ class RadioButtonTest {
             }
         }
 
-        rule.onNodeWithTag(itemOne).assertHasSelectedSemantics()
-        rule.onNodeWithTag(itemTwo).assertHasUnSelectedSemantics()
-        rule.onNodeWithTag(itemThree).assertHasUnSelectedSemantics()
+        rule.onNodeWithTag(itemOne)
+            .assert(
+                SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton)
+            )
+            .assertHasSelectedSemantics()
+        rule.onNodeWithTag(itemTwo)
+            .assertHasUnSelectedSemantics()
+            .assert(
+                SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton)
+            )
+        rule.onNodeWithTag(itemThree)
+            .assert(
+                SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton)
+            )
+            .assertHasUnSelectedSemantics()
     }
 
     @Test
@@ -128,6 +146,24 @@ class RadioButtonTest {
 
         rule.onNodeWithTag(itemThree)
             .assertHasUnSelectedSemantics()
+    }
+
+    @Test
+    fun radioGroup_untoggleableAndMergeable_whenNullLambda() {
+        val parentTag = "parent"
+        rule.setMaterialContent {
+            Column(Modifier.semantics(mergeDescendants = true) {}.testTag(parentTag)) {
+                RadioButton(
+                    selected = true,
+                    onClick = null,
+                    modifier = Modifier.semantics { focused = true }
+                )
+            }
+        }
+
+        rule.onNodeWithTag(parentTag)
+            .assertHasNoClickAction()
+            .assert(isFocusable()) // Check merged into parent
     }
 
     @Test

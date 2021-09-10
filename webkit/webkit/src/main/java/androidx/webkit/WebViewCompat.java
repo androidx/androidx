@@ -31,7 +31,6 @@ import android.webkit.WebViewClient;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.webkit.internal.WebMessagePortImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
@@ -157,7 +156,6 @@ public class WebViewCompat {
      *                  requests with callbacks.
      * @param callback  The callback to be invoked.
      */
-    @SuppressWarnings("NewApi")
     @RequiresFeature(name = WebViewFeature.VISUAL_STATE_CALLBACK,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void postVisualStateCallback(@NonNull WebView webview, long requestId,
@@ -202,7 +200,6 @@ public class WebViewCompat {
      * @param callback will be called on the UI thread with {@code true} if initialization is
      * successful, {@code false} otherwise.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.START_SAFE_BROWSING,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void startSafeBrowsing(@NonNull Context context,
@@ -245,7 +242,6 @@ public class WebViewCompat {
      * allowlist, {@code false} if any hosts are malformed. The callback will be run on the UI
      * thread
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ALLOWLIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setSafeBrowsingAllowlist(@NonNull Set<String> hosts,
@@ -299,7 +295,6 @@ public class WebViewCompat {
      * @deprecated Please use {@link #setSafeBrowsingAllowlist(Set, ValueCallback)} instead.
      */
     @Deprecated
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_WHITELIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setSafeBrowsingWhitelist(@NonNull List<String> hosts,
@@ -317,7 +312,6 @@ public class WebViewCompat {
      *
      * @return the url pointing to a privacy policy document which can be displayed to users.
      */
-    @SuppressLint("NewApi")
     @NonNull
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_PRIVACY_POLICY_URL,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -443,7 +437,6 @@ public class WebViewCompat {
      *
      * @return an array of size two, containing the two message ports that form the message channel.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @NonNull WebMessagePortCompat[] createWebMessageChannel(
@@ -475,7 +468,6 @@ public class WebViewCompat {
      * @param message the WebMessage
      * @param targetOrigin the target origin.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.POST_WEB_MESSAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void postWebMessage(@NonNull WebView webview, @NonNull WebMessageCompat message,
@@ -515,7 +507,6 @@ public class WebViewCompat {
      * HOSTNAME_PATTERN [ ":" PORT ] ]}, each part is explained in the below table:
      *
      * <table>
-     * <col width="25%">
      * <tr><th>Rule</th><th>Description</th><th>Example</th></tr>
      *
      * <tr>
@@ -701,22 +692,49 @@ public class WebViewCompat {
     }
 
     /**
-     * TODO(ctzsm): Add Javadoc.
-     * TODO(ctzsm): unhide when ready.
-     * @hide
+     * Adds a JavaScript script to the {@link WebView} which will be executed in any frame whose
+     * origin matches {@code allowedOriginRules} when the document begins to load.
+     *
+     * <p>Note that the script will run before any of the page's JavaScript code and the DOM tree
+     * might not be ready at this moment. It will block the loadng of the page until it's finished,
+     * so should be kept as short as possible.
+     *
+     * <p>The injected object from {@link #addWebMessageListener(WebView, String, Set,
+     * WebMessageListener)} API will be injected first and the script can rely on the injected
+     * object to send messages to the app.
+     *
+     * <p>The script will only run in frames which begin loading after the call returns, therefore
+     * it should typically be called before making any {@code loadUrl()}, {@code loadData()} or
+     * {@code loadDataWithBaseURL()} call to load the page.
+     *
+     * <p>This method can be called multiple times to inject multiple scripts. If more than one
+     * script matches a frame's origin, they will be executed in the order they were added.
+     *
+     * <p>See {@link #addWebMessageListener(WebView, String, Set, WebMessageListener)} for the rules
+     * of the {@code allowedOriginRules} parameter.
+     *
+     * <p>This method should only be called if {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#DOCUMENT_START_SCRIPT}.
+     *
+     * @param webview The {@link WebView} instance that we are interacting with.
+     * @param script The JavaScript script to be executed.
+     * @param allowedOriginRules A set of matching rules for the allowed origins.
+     * @return the {@link ScriptHandler}, which is a handle for removing the script.
+     * @throws IllegalArgumentException If one of the {@code allowedOriginRules} is invalid.
+     * @see #addWebMessageListener(WebView, String, Set, WebMessageListener)
+     * @see ScriptHandler
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(
             name = WebViewFeature.DOCUMENT_START_SCRIPT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static @NonNull ScriptReferenceCompat addDocumentStartJavaScript(
+    public static @NonNull ScriptHandler addDocumentStartJavaScript(
             @NonNull WebView webview,
             @NonNull String script,
             @NonNull Set<String> allowedOriginRules) {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.DOCUMENT_START_SCRIPT;
         if (feature.isSupportedByWebView()) {
-            return getProvider(webview).addDocumentStartJavaScript(
-                    script, allowedOriginRules.toArray(new String[0]));
+            return getProvider(webview)
+                    .addDocumentStartJavaScript(script, allowedOriginRules.toArray(new String[0]));
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -732,7 +750,6 @@ public class WebViewCompat {
      *
      * @return the WebViewClient, or a default client if not yet set
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.GET_WEB_VIEW_CLIENT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @NonNull WebViewClient getWebViewClient(@NonNull WebView webview) {
@@ -756,7 +773,6 @@ public class WebViewCompat {
      *
      * @return the WebChromeClient, or {@code null} if not yet set
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.GET_WEB_CHROME_CLIENT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @Nullable WebChromeClient getWebChromeClient(@NonNull WebView webview) {
@@ -789,9 +805,8 @@ public class WebViewCompat {
      *
      * @return the {@link WebViewRenderProcess} renderer handle associated
      *         with this {@link android.webkit.WebView}, or {@code null} if
-     *         WebView is not runing in multiprocess mode.
+     *         WebView is not running in multiprocess mode.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.GET_WEB_VIEW_RENDERER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @Nullable WebViewRenderProcess getWebViewRenderProcess(@NonNull WebView webview) {
@@ -838,7 +853,7 @@ public class WebViewCompat {
      */
     // WebViewRenderProcessClient is a callback class, so it should be last. See
     // https://issuetracker.google.com/issues/139770271.
-    @SuppressLint({"LambdaLast", "NewApi"})
+    @SuppressLint({"LambdaLast"})
     @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setWebViewRenderProcessClient(
@@ -878,7 +893,6 @@ public class WebViewCompat {
      * @param webViewRenderProcessClient the {@link WebViewRenderProcessClient} to set for
      *                                   callbacks.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setWebViewRenderProcessClient(
@@ -909,7 +923,6 @@ public class WebViewCompat {
      * {@link #setWebViewRenderProcessClient(WebView,WebViewRenderProcessClient)} or {@code null}
      * otherwise.
      */
-    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @Nullable WebViewRenderProcessClient getWebViewRenderProcessClient(

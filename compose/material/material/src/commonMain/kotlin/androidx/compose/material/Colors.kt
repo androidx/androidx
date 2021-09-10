@@ -17,18 +17,23 @@
 package androidx.compose.material
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.staticAmbientOf
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.useOrElse
+import androidx.compose.ui.graphics.takeOrElse
 
 /**
- * Collection of colors in the
- * [Material color specification](https://material.io/design/color/the-color-system.html#color-theme-creation)
+ * <a href="https://material.io/design/color/the-color-system.html" class="external" target="_blank">Material Design color system</a>.
+ *
+ * The Material Design color system can help you create a color theme that reflects your brand or
+ * style.
+ *
+ * ![Color image](https://developer.android.com/images/reference/androidx/compose/material/color.png)
  *
  * To create a light set of colors using the baseline values, use [lightColors]
  * To create a dark set of colors using the baseline values, use [darkColors]
@@ -194,12 +199,16 @@ fun lightColors(
  * [Material color specification](https://material.io/design/color/the-color-system.html#color-theme-creation)
  * using the default dark theme values.
  *
+ * Note: [secondaryVariant] is typically the same as [secondary] in dark theme since contrast
+ * levels are higher, and hence there is less need for a separate secondary color.
+ *
  * @see lightColors
  */
 fun darkColors(
     primary: Color = Color(0xFFBB86FC),
     primaryVariant: Color = Color(0xFF3700B3),
     secondary: Color = Color(0xFF03DAC6),
+    secondaryVariant: Color = secondary,
     background: Color = Color(0xFF121212),
     surface: Color = Color(0xFF121212),
     error: Color = Color(0xFFCF6679),
@@ -212,9 +221,7 @@ fun darkColors(
     primary,
     primaryVariant,
     secondary,
-    // Secondary and secondary variant are the same in dark mode, as contrast should be
-    // higher so there is no need for the variant.
-    secondary,
+    secondaryVariant,
     background,
     surface,
     error,
@@ -227,19 +234,35 @@ fun darkColors(
 )
 
 /**
- * Tries to match [color] to a color in this Colors, and then returns the corresponding
- * `on` color.
+ * primarySurface represents the background color of components that are [Colors.primary]
+ * in light theme, and [Colors.surface] in dark theme, such as [androidx.compose.material.TabRow]
+ * and [androidx.compose.material.TopAppBar]. This is to reduce brightness of large surfaces in dark
+ * theme, aiding contrast and readability. See
+ * [Dark Theme](https://material.io/design/color/dark-theme.html#custom-application).
  *
- * For example, when [color] is [Colors.primary], this will return
- * [Colors.onPrimary]. If [color] is not present in the theme, this will return `null`.
+ * @return [Colors.primary] if in light theme, else [Colors.surface]
+ */
+val Colors.primarySurface: Color get() = if (isLight) primary else surface
+
+/**
+ * The Material color system contains pairs of colors that are typically used for the background
+ * and content color inside a component. For example, a [Button] typically uses `primary` for its
+ * background, and `onPrimary` for the color of its content (usually text or iconography).
  *
- * @return the matching `on` color for [color]. If [color] is not part of the theme's
- * [Colors], then returns [Color.Unspecified].
+ * This function tries to match the provided [backgroundColor] to a 'background' color in this
+ * [Colors], and then will return the corresponding color used for content. For example, when
+ * [backgroundColor] is [Colors.primary], this will return [Colors.onPrimary].
+ *
+ * If [backgroundColor] does not match a background color in the theme, this will return
+ * [Color.Unspecified].
+ *
+ * @return the matching content color for [backgroundColor]. If [backgroundColor] is not present in
+ * the theme's [Colors], then returns [Color.Unspecified].
  *
  * @see contentColorFor
  */
-fun Colors.contentColorFor(color: Color): Color {
-    return when (color) {
+fun Colors.contentColorFor(backgroundColor: Color): Color {
+    return when (backgroundColor) {
         primary -> onPrimary
         primaryVariant -> onPrimary
         secondary -> onSecondary
@@ -252,24 +275,35 @@ fun Colors.contentColorFor(color: Color): Color {
 }
 
 /**
- * Tries to match [color] to a color in the current [Colors], and then returns the
- * corresponding `on` color. If [color] can not be matched to the palette, then this will return
- * the existing value for [AmbientContentColor] at this point in the tree.
+ * The Material color system contains pairs of colors that are typically used for the background
+ * and content color inside a component. For example, a [Button] typically uses `primary` for its
+ * background, and `onPrimary` for the color of its content (usually text or iconography).
+ *
+ * This function tries to match the provided [backgroundColor] to a 'background' color in this
+ * [Colors], and then will return the corresponding color used for content. For example, when
+ * [backgroundColor] is [Colors.primary], this will return [Colors.onPrimary].
+ *
+ * If [backgroundColor] does not match a background color in the theme, this will return
+ * the current value of [LocalContentColor] as a best-effort color.
+ *
+ * @return the matching content color for [backgroundColor]. If [backgroundColor] is not present in
+ * the theme's [Colors], then returns the current value of [LocalContentColor].
  *
  * @see Colors.contentColorFor
  */
 @Composable
-fun contentColorFor(color: Color) =
-    MaterialTheme.colors.contentColorFor(color).useOrElse { AmbientContentColor.current }
+@ReadOnlyComposable
+fun contentColorFor(backgroundColor: Color) =
+    MaterialTheme.colors.contentColorFor(backgroundColor).takeOrElse { LocalContentColor.current }
 
 /**
  * Updates the internal values of the given [Colors] with values from the [other] [Colors]. This
  * allows efficiently updating a subset of [Colors], without recomposing every composable that
- * consumes values from [AmbientColors].
+ * consumes values from [LocalColors].
  *
  * Because [Colors] is very wide-reaching, and used by many expensive composables in the
- * hierarchy, providing a new value to [AmbientColors] causes every composable consuming
- * [AmbientColors] to recompose, which is prohibitively expensive in cases such as animating one
+ * hierarchy, providing a new value to [LocalColors] causes every composable consuming
+ * [LocalColors] to recompose, which is prohibitively expensive in cases such as animating one
  * color in the theme. Instead, [Colors] is internally backed by [mutableStateOf], and this
  * function mutates the internal state of [this] to match values in [other]. This means that any
  * changes will mutate the internal state of [this], and only cause composables that are reading
@@ -292,11 +326,11 @@ internal fun Colors.updateColorsFrom(other: Colors) {
 }
 
 /**
- * Ambient used to pass [Colors] down the tree.
+ * CompositionLocal used to pass [Colors] down the tree.
  *
  * Setting the value here is typically done as part of [MaterialTheme], which will
  * automatically handle efficiently updating any changed colors without causing unnecessary
  * recompositions, using [Colors.updateColorsFrom].
- * To retrieve the current value of this ambient, use [MaterialTheme.colors].
+ * To retrieve the current value of this CompositionLocal, use [MaterialTheme.colors].
  */
-internal val AmbientColors = staticAmbientOf { lightColors() }
+internal val LocalColors = staticCompositionLocalOf { lightColors() }

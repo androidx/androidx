@@ -17,7 +17,6 @@
 package androidx.compose.animation.core
 
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
-import androidx.compose.animation.core.AnimationConstants.Infinite
 import kotlin.math.min
 
 /**
@@ -32,7 +31,7 @@ import kotlin.math.min
  * Since [VectorizedAnimationSpec]s are stateless, it requires starting value/velocity and ending
  * value to be passed in, along with playtime, to calculate the value or velocity at that time. Play
  * time here is the progress of the animation in terms of milliseconds, where 0 means the start
- * of the animation and [getDurationMillis] returns the play time for the end of the animation.
+ * of the animation and [getDurationNanos] returns the play time for the end of the animation.
  *
  * __Note__: For use cases where the starting values/velocity and ending values aren't expected
  * to change, it is recommended to use [Animation] that caches these static values and hence
@@ -42,51 +41,59 @@ import kotlin.math.min
  */
 interface VectorizedAnimationSpec<V : AnimationVector> {
     /**
+     * Whether or not the [VectorizedAnimationSpec] specifies an infinite animation. That is, one
+     * that will not finish by itself, one that needs an external action to stop. For examples, an
+     * indeterminate progress bar, which will only stop when it is removed from the composition.
+     */
+    val isInfinite: Boolean
+
+    /**
      * Calculates the value of the animation at given the playtime, with the provided start/end
      * values, and start velocity.
      *
-     * @param playTime time since the start of the animation
-     * @param start start value of the animation
-     * @param end end value of the animation
-     * @param startVelocity start velocity of the animation
+     * @param playTimeNanos time since the start of the animation
+     * @param initialValue start value of the animation
+     * @param targetValue end value of the animation
+     * @param initialVelocity start velocity of the animation
      */
-    fun getValue(
-        playTime: Long,
-        start: V,
-        end: V,
-        startVelocity: V
+    fun getValueFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
     ): V
 
     /**
      * Calculates the velocity of the animation at given the playtime, with the provided start/end
      * values, and start velocity.
      *
-     * @param playTime time since the start of the animation
-     * @param start start value of the animation
-     * @param end end value of the animation
-     * @param startVelocity start velocity of the animation
+     * @param playTimeNanos time since the start of the animation
+     * @param initialValue start value of the animation
+     * @param targetValue end value of the animation
+     * @param initialVelocity start velocity of the animation
      */
-    fun getVelocity(
-        playTime: Long,
-        start: V,
-        end: V,
-        startVelocity: V
+    fun getVelocityFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
     ): V
 
     /**
      * Calculates the duration of an animation. For duration-based animations, this will return the
      * pre-defined duration. For physics-based animations, the duration will be estimated based on
      * the physics configuration (such as spring stiffness, damping ratio, visibility threshold)
-     * as well as the [start], [end] values, and [startVelocity].
+     * as well as the [initialValue], [targetValue] values, and [initialVelocity].
      *
-     * @param start start value of the animation
-     * @param end end value of the animation
-     * @param startVelocity start velocity of the animation
+     * @param initialValue start value of the animation
+     * @param targetValue end value of the animation
+     * @param initialVelocity start velocity of the animation
      */
-    fun getDurationMillis(
-        start: V,
-        end: V,
-        startVelocity: V
+    @Suppress("MethodNameUnits")
+    fun getDurationNanos(
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
     ): Long
 
     /**
@@ -95,32 +102,83 @@ interface VectorizedAnimationSpec<V : AnimationVector> {
      * animation at the duration time. This is also the default assumption. However, for
      * physics-based animations, end velocity is an [AnimationVector] of 0s.
      *
-     * @param start start value of the animation
-     * @param end end value of the animation
-     * @param startVelocity start velocity of the animation
+     * @param initialValue start value of the animation
+     * @param targetValue end value of the animation
+     * @param initialVelocity start velocity of the animation
      */
     fun getEndVelocity(
-        start: V,
-        end: V,
-        startVelocity: V
-    ): V = getVelocity(getDurationMillis(start, end, startVelocity), start, end, startVelocity)
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
+    ): V = getVelocityFromNanos(
+        getDurationNanos(initialValue, targetValue, initialVelocity),
+        initialValue,
+        targetValue,
+        initialVelocity
+    )
+}
+
+/**
+ * Calculates the duration of an animation. For duration-based animations, this will return the
+ * pre-defined duration. For physics-based animations, the duration will be estimated based on
+ * the physics configuration (such as spring stiffness, damping ratio, visibility threshold)
+ * as well as the [initialValue], [targetValue] values, and [initialVelocity].
+ *
+ * @param initialValue start value of the animation
+ * @param targetValue end value of the animation
+ * @param initialVelocity start velocity of the animation
+ */
+internal fun <V : AnimationVector> VectorizedAnimationSpec<V>.getDurationMillis(
+    initialValue: V,
+    targetValue: V,
+    initialVelocity: V
+): Long = getDurationNanos(initialValue, targetValue, initialVelocity) / MillisToNanos
+
+/**
+ * Calculates the value of the animation at given the playtime, with the provided start/end
+ * values, and start velocity.
+ *
+ * @param playTimeMillis time since the start of the animation
+ * @param start start value of the animation
+ * @param end end value of the animation
+ * @param startVelocity start velocity of the animation
+ */
+// TODO: Move tests off this API
+internal fun <V : AnimationVector> VectorizedAnimationSpec<V>.getValueFromMillis(
+    playTimeMillis: Long,
+    start: V,
+    end: V,
+    startVelocity: V
+): V = getValueFromNanos(playTimeMillis * MillisToNanos, start, end, startVelocity)
+
+/**
+ * All the finite [VectorizedAnimationSpec]s implement this interface, including:
+ * [VectorizedKeyframesSpec], [VectorizedTweenSpec], [VectorizedRepeatableSpec],
+ * [VectorizedSnapSpec], [VectorizedSpringSpec], etc. The [VectorizedAnimationSpec] that does
+ * __not__ implement this is: [InfiniteRepeatableSpec].
+ */
+interface VectorizedFiniteAnimationSpec<V : AnimationVector> : VectorizedAnimationSpec<V> {
+    override val isInfinite: Boolean get() = false
 }
 
 /**
  * Base class for [VectorizedAnimationSpec]s that are based on a fixed [durationMillis].
  */
-interface VectorizedDurationBasedAnimationSpec<V : AnimationVector> : VectorizedAnimationSpec<V> {
+interface VectorizedDurationBasedAnimationSpec<V : AnimationVector> :
+    VectorizedFiniteAnimationSpec<V> {
     /**
      * duration is the amount of time while animation is not yet finished.
      */
     val durationMillis: Int
+
     /**
      * delay defines the amount of time that animation can be delayed.
      */
     val delayMillis: Int
 
-    override fun getDurationMillis(start: V, end: V, startVelocity: V): Long =
-        (delayMillis + durationMillis).toLong()
+    @Suppress("MethodNameUnits")
+    override fun getDurationNanos(initialValue: V, targetValue: V, initialVelocity: V): Long =
+        (delayMillis + durationMillis) * MillisToNanos
 }
 
 /**
@@ -170,25 +228,26 @@ class VectorizedKeyframesSpec<V : AnimationVector>(
     private lateinit var valueVector: V
     private lateinit var velocityVector: V
 
-    override fun getValue(
-        playTime: Long,
-        start: V,
-        end: V,
-        startVelocity: V
+    override fun getValueFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
     ): V {
-        val clampedPlayTime = clampPlayTime(playTime).toInt()
+        val playTimeMillis = playTimeNanos / MillisToNanos
+        val clampedPlayTime = clampPlayTime(playTimeMillis).toInt()
         // If there is a key frame defined with the given time stamp, return that value
         if (keyframes.containsKey(clampedPlayTime)) {
             return keyframes.getValue(clampedPlayTime).first
         }
 
         if (clampedPlayTime >= durationMillis) {
-            return end
-        } else if (clampedPlayTime <= 0) return start
+            return targetValue
+        } else if (clampedPlayTime <= 0) return initialValue
 
         var startTime = 0
-        var startVal = start
-        var endVal = end
+        var startVal = initialValue
+        var endVal = targetValue
         var endTime: Int = durationMillis
         var easing: Easing = LinearEasing
         for ((timestamp, value) in keyframes) {
@@ -203,8 +262,10 @@ class VectorizedKeyframesSpec<V : AnimationVector>(
         }
 
         // Now interpolate
-        val fraction = easing((clampedPlayTime - startTime) / (endTime - startTime).toFloat())
-        init(start)
+        val fraction = easing.transform(
+            (clampedPlayTime - startTime) / (endTime - startTime).toFloat()
+        )
+        init(initialValue)
         for (i in 0 until startVal.size) {
             valueVector[i] = lerp(startVal[i], endVal[i], fraction)
         }
@@ -218,20 +279,31 @@ class VectorizedKeyframesSpec<V : AnimationVector>(
         }
     }
 
-    override fun getVelocity(
-        playTime: Long,
-        start: V,
-        end: V,
-        startVelocity: V
+    override fun getVelocityFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
     ): V {
-        val clampedPlayTime = clampPlayTime(playTime)
+        val playTimeMillis = playTimeNanos / MillisToNanos
+        val clampedPlayTime = clampPlayTime(playTimeMillis)
         if (clampedPlayTime <= 0L) {
-            return startVelocity
+            return initialVelocity
         }
-        val startNum = getValue(clampedPlayTime - 1, start, end, startVelocity)
-        val endNum = getValue(clampedPlayTime, start, end, startVelocity)
+        val startNum = getValueFromMillis(
+            clampedPlayTime - 1,
+            initialValue,
+            targetValue,
+            initialVelocity
+        )
+        val endNum = getValueFromMillis(
+            clampedPlayTime,
+            initialValue,
+            targetValue,
+            initialVelocity
+        )
 
-        init(start)
+        init(initialValue)
         for (i in 0 until startNum.size) {
             velocityVector[i] = (startNum[i] - endNum[i]) * 1000f
         }
@@ -249,35 +321,168 @@ class VectorizedSnapSpec<V : AnimationVector>(
     override val delayMillis: Int = 0
 ) : VectorizedDurationBasedAnimationSpec<V> {
 
-    override fun getValue(playTime: Long, start: V, end: V, startVelocity: V): V {
-        if (playTime < delayMillis) {
-            return start
+    override fun getValueFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
+    ): V {
+        if (playTimeNanos < delayMillis * MillisToNanos) {
+            return initialValue
         } else {
-            return end
+            return targetValue
         }
     }
 
-    override fun getVelocity(playTime: Long, start: V, end: V, startVelocity: V): V {
-        return startVelocity
+    override fun getVelocityFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
+    ): V {
+        return initialVelocity
     }
 
     override val durationMillis: Int
         get() = 0
 }
 
+private const val InfiniteIterations: Int = Int.MAX_VALUE
+
 /**
  * This animation takes another [VectorizedDurationBasedAnimationSpec] and plays it
- * [iterations] times.
+ * __infinite__ times.
  *
- * @param iterations the count of iterations. Should be at least 1. [Infinite] can
- *                   be used to have an infinity repeating animation.
+ * initialStartOffset can be used to either delay the start of the animation or to fast forward
+ * the animation to a given play time. This start offset will **not** be repeated, whereas the delay
+ * in the [animation] (if any) will be repeated. By default, the amount of offset is 0.
+ *
  * @param animation the [VectorizedAnimationSpec] describing each repetition iteration.
+ * @param repeatMode whether animation should repeat by starting from the beginning (i.e.
+ *                  [RepeatMode.Restart]) or from the end (i.e. [RepeatMode.Reverse])
+ * @param initialStartOffset offsets the start of the animation
+ */
+class VectorizedInfiniteRepeatableSpec<V : AnimationVector>(
+    private val animation: VectorizedDurationBasedAnimationSpec<V>,
+    private val repeatMode: RepeatMode = RepeatMode.Restart,
+    initialStartOffset: StartOffset = StartOffset(0)
+) : VectorizedAnimationSpec<V> {
+    @Deprecated(
+        level = DeprecationLevel.HIDDEN,
+        message = "This method has been deprecated in favor of the constructor that" +
+            " accepts start offset."
+    )
+    constructor(
+        animation: VectorizedDurationBasedAnimationSpec<V>,
+        repeatMode: RepeatMode = RepeatMode.Restart
+    ) : this(animation, repeatMode, StartOffset(0))
+
+    override val isInfinite: Boolean get() = true
+
+    /**
+     * Single iteration duration
+     */
+    internal val durationNanos: Long =
+        (animation.delayMillis + animation.durationMillis) * MillisToNanos
+
+    private val initialOffsetNanos = initialStartOffset.value * MillisToNanos
+
+    private fun repetitionPlayTimeNanos(playTimeNanos: Long): Long {
+        if (playTimeNanos + initialOffsetNanos <= 0) {
+            return 0
+        } else {
+            val postOffsetPlayTimeNanos = playTimeNanos + initialOffsetNanos
+            val repeatsCount = postOffsetPlayTimeNanos / durationNanos
+            if (repeatMode == RepeatMode.Restart || repeatsCount % 2 == 0L) {
+                return postOffsetPlayTimeNanos - repeatsCount * durationNanos
+            } else {
+                return (repeatsCount + 1) * durationNanos - postOffsetPlayTimeNanos
+            }
+        }
+    }
+
+    private fun repetitionStartVelocity(
+        playTimeNanos: Long,
+        start: V,
+        startVelocity: V,
+        end: V
+    ): V = if (playTimeNanos + initialOffsetNanos > durationNanos) {
+        // Start velocity of the 2nd and subsequent iteration will be the velocity at the end
+        // of the first iteration, instead of the initial velocity.
+        getVelocityFromNanos(durationNanos - initialOffsetNanos, start, startVelocity, end)
+    } else {
+        startVelocity
+    }
+
+    override fun getValueFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
+    ): V {
+        return animation.getValueFromNanos(
+            repetitionPlayTimeNanos(playTimeNanos),
+            initialValue,
+            targetValue,
+            repetitionStartVelocity(playTimeNanos, initialValue, initialVelocity, targetValue)
+        )
+    }
+
+    override fun getVelocityFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
+    ): V {
+        return animation.getVelocityFromNanos(
+            repetitionPlayTimeNanos(playTimeNanos),
+            initialValue,
+            targetValue,
+            repetitionStartVelocity(playTimeNanos, initialValue, initialVelocity, targetValue)
+        )
+    }
+
+    @Suppress("MethodNameUnits")
+    override fun getDurationNanos(initialValue: V, targetValue: V, initialVelocity: V): Long =
+        Long.MAX_VALUE
+}
+
+/**
+ * This animation takes another [VectorizedDurationBasedAnimationSpec] and plays it
+ * [iterations] times. For infinitely repeating animation spec, [VectorizedInfiniteRepeatableSpec]
+ * is recommended.
+ *
+ * __Note__: When repeating in the [RepeatMode.Reverse] mode, it's highly recommended to have an
+ * __odd__ number of iterations. Otherwise, the animation may jump to the end value when it finishes
+ * the last iteration.
+ *
+ * initialStartOffset can be used to either delay the start of the animation or to fast forward
+ * the animation to a given play time. This start offset will **not** be repeated, whereas the delay
+ * in the [animation] (if any) will be repeated. By default, the amount of offset is 0.
+ *
+ *
+ * @param iterations the count of iterations. Should be at least 1.
+ * @param animation the [VectorizedAnimationSpec] describing each repetition iteration.
+ * @param repeatMode whether animation should repeat by starting from the beginning (i.e.
+ *                  [RepeatMode.Restart]) or from the end (i.e. [RepeatMode.Reverse])
+ * @param initialStartOffset offsets the start of the animation
  */
 class VectorizedRepeatableSpec<V : AnimationVector>(
     private val iterations: Int,
     private val animation: VectorizedDurationBasedAnimationSpec<V>,
-    private val repeatMode: RepeatMode = RepeatMode.Restart
-) : VectorizedAnimationSpec<V> {
+    private val repeatMode: RepeatMode = RepeatMode.Restart,
+    initialStartOffset: StartOffset = StartOffset(0)
+) : VectorizedFiniteAnimationSpec<V> {
+    @Deprecated(
+        level = DeprecationLevel.HIDDEN,
+        message = "This method has been deprecated in favor of the constructor that accepts" +
+            " start offset."
+    )
+    constructor(
+        iterations: Int,
+        animation: VectorizedDurationBasedAnimationSpec<V>,
+        repeatMode: RepeatMode = RepeatMode.Restart
+    ) : this(iterations, animation, repeatMode, StartOffset(0))
 
     init {
         if (iterations < 1) {
@@ -285,55 +490,70 @@ class VectorizedRepeatableSpec<V : AnimationVector>(
         }
     }
 
-    internal val duration: Int = animation.delayMillis + animation.durationMillis
+    // Per-iteration duration
+    internal val durationNanos: Long =
+        (animation.delayMillis + animation.durationMillis) * MillisToNanos
 
-    private fun repetitionPlayTime(playTime: Long): Long {
-        val repeatsCount = min(playTime / duration, iterations - 1L)
-        if (repeatMode == RepeatMode.Restart || repeatsCount % 2 == 0L) {
-            return playTime - repeatsCount * duration
+    // Fast forward amount. Delay type => negative offset
+    private val initialOffsetNanos = initialStartOffset.value * MillisToNanos
+
+    private fun repetitionPlayTimeNanos(playTimeNanos: Long): Long {
+        if (playTimeNanos + initialOffsetNanos <= 0) {
+            return 0
         } else {
-            return (repeatsCount + 1) * duration - playTime
+            val postOffsetPlayTimeNanos = playTimeNanos + initialOffsetNanos
+            val repeatsCount = min(postOffsetPlayTimeNanos / durationNanos, iterations - 1L)
+            if (repeatMode == RepeatMode.Restart || repeatsCount % 2 == 0L) {
+                return postOffsetPlayTimeNanos - repeatsCount * durationNanos
+            } else {
+                return (repeatsCount + 1) * durationNanos - postOffsetPlayTimeNanos
+            }
         }
     }
 
-    private fun repetitionStartVelocity(playTime: Long, start: V, startVelocity: V, end: V): V =
-        if (playTime > duration) {
-            // Start velocity of the 2nd and subsequent iteration will be the velocity at the end
-            // of the first iteration, instead of the initial velocity.
-            getVelocity(duration.toLong(), start, startVelocity, end)
-        } else
-            startVelocity
-
-    override fun getValue(
-        playTime: Long,
+    private fun repetitionStartVelocity(
+        playTimeNanos: Long,
         start: V,
-        end: V,
-        startVelocity: V
+        startVelocity: V,
+        end: V
+    ): V = if (playTimeNanos + initialOffsetNanos > durationNanos) {
+        // Start velocity of the 2nd and subsequent iteration will be the velocity at the end
+        // of the first iteration, instead of the initial velocity.
+        getVelocityFromNanos(durationNanos - initialOffsetNanos, start, startVelocity, end)
+    } else
+        startVelocity
+
+    override fun getValueFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
     ): V {
-        return animation.getValue(
-            repetitionPlayTime(playTime),
-            start,
-            end,
-            repetitionStartVelocity(playTime, start, startVelocity, end)
+        return animation.getValueFromNanos(
+            repetitionPlayTimeNanos(playTimeNanos),
+            initialValue,
+            targetValue,
+            repetitionStartVelocity(playTimeNanos, initialValue, initialVelocity, targetValue)
         )
     }
 
-    override fun getVelocity(
-        playTime: Long,
-        start: V,
-        end: V,
-        startVelocity: V
+    override fun getVelocityFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
     ): V {
-        return animation.getVelocity(
-            repetitionPlayTime(playTime),
-            start,
-            end,
-            repetitionStartVelocity(playTime, start, startVelocity, end)
+        return animation.getVelocityFromNanos(
+            repetitionPlayTimeNanos(playTimeNanos),
+            initialValue,
+            targetValue,
+            repetitionStartVelocity(playTimeNanos, initialValue, initialVelocity, targetValue)
         )
     }
 
-    override fun getDurationMillis(start: V, end: V, startVelocity: V): Long {
-        return iterations * duration.toLong()
+    @Suppress("MethodNameUnits")
+    override fun getDurationNanos(initialValue: V, targetValue: V, initialVelocity: V): Long {
+        return iterations * durationNanos - initialOffsetNanos
     }
 }
 
@@ -345,15 +565,24 @@ object Spring {
      * Stiffness constant for extremely stiff spring
      */
     const val StiffnessHigh = 10_000f
+
     /**
      * Stiffness constant for medium stiff spring. This is the default stiffness for spring
      * force.
      */
     const val StiffnessMedium = 1500f
+
+    /**
+     * Stiffness constant for medium-low stiff spring. This is the default stiffness for springs
+     * used in enter/exit transitions.
+     */
+    const val StiffnessMediumLow = 400f
+
     /**
      * Stiffness constant for a spring with low stiffness.
      */
     const val StiffnessLow = 200f
+
     /**
      * Stiffness constant for a spring with very low stiffness.
      */
@@ -364,23 +593,27 @@ object Spring {
      * (i.e. damping ratio < 1), the lower the damping ratio, the more bouncy the spring.
      */
     const val DampingRatioHighBouncy = 0.2f
+
     /**
      * Damping ratio for a medium bouncy spring. This is also the default damping ratio for
      * spring force. Note for under-damped springs (i.e. damping ratio < 1), the lower the
      * damping ratio, the more bouncy the spring.
      */
     const val DampingRatioMediumBouncy = 0.5f
+
     /**
      * Damping ratio for a spring with low bounciness. Note for under-damped springs
      * (i.e. damping ratio < 1), the lower the damping ratio, the higher the bounciness.
      */
     const val DampingRatioLowBouncy = 0.75f
+
     /**
      * Damping ratio for a spring with no bounciness. This damping ratio will create a
      * critically damped spring that returns to equilibrium within the shortest amount of time
      * without oscillating.
      */
     const val DampingRatioNoBouncy = 1f
+
     /**
      * Default cutoff for rounding off physics based animations
      */
@@ -401,7 +634,7 @@ class VectorizedSpringSpec<V : AnimationVector> private constructor(
     val dampingRatio: Float,
     val stiffness: Float,
     anims: Animations
-) : VectorizedAnimationSpec<V> by VectorizedFloatAnimationSpec<V>(anims) {
+) : VectorizedFiniteAnimationSpec<V> by VectorizedFloatAnimationSpec<V>(anims) {
 
     /**
      * Creates a [VectorizedSpringSpec] that uses the same spring constants (i.e. [dampingRatio] and
@@ -466,12 +699,22 @@ class VectorizedTweenSpec<V : AnimationVector>(
         FloatTweenSpec(durationMillis, delayMillis, easing)
     )
 
-    override fun getValue(playTime: Long, start: V, end: V, startVelocity: V): V {
-        return anim.getValue(playTime, start, end, startVelocity)
+    override fun getValueFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
+    ): V {
+        return anim.getValueFromNanos(playTimeNanos, initialValue, targetValue, initialVelocity)
     }
 
-    override fun getVelocity(playTime: Long, start: V, end: V, startVelocity: V): V {
-        return anim.getVelocity(playTime, start, end, startVelocity)
+    override fun getVelocityFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
+    ): V {
+        return anim.getVelocityFromNanos(playTimeNanos, initialValue, targetValue, initialVelocity)
     }
 }
 
@@ -482,7 +725,7 @@ class VectorizedTweenSpec<V : AnimationVector>(
  */
 class VectorizedFloatAnimationSpec<V : AnimationVector> internal constructor(
     private val anims: Animations
-) : VectorizedAnimationSpec<V> {
+) : VectorizedFiniteAnimationSpec<V> {
     private lateinit var valueVector: V
     private lateinit var velocityVector: V
     private lateinit var endVelocityVector: V
@@ -499,43 +742,65 @@ class VectorizedFloatAnimationSpec<V : AnimationVector> internal constructor(
         }
     })
 
-    override fun getValue(playTime: Long, start: V, end: V, startVelocity: V): V {
+    override fun getValueFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
+    ): V {
         if (!::valueVector.isInitialized) {
-            valueVector = start.newInstance()
+            valueVector = initialValue.newInstance()
         }
         for (i in 0 until valueVector.size) {
-            valueVector[i] = anims[i].getValue(playTime, start[i], end[i], startVelocity[i])
+            valueVector[i] = anims[i].getValueFromNanos(
+                playTimeNanos,
+                initialValue[i],
+                targetValue[i],
+                initialVelocity[i]
+            )
         }
         return valueVector
     }
 
-    override fun getVelocity(playTime: Long, start: V, end: V, startVelocity: V): V {
+    override fun getVelocityFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V
+    ): V {
         if (!::velocityVector.isInitialized) {
-            velocityVector = startVelocity.newInstance()
+            velocityVector = initialVelocity.newInstance()
         }
         for (i in 0 until velocityVector.size) {
-            velocityVector[i] = anims[i].getVelocity(playTime, start[i], end[i], startVelocity[i])
+            velocityVector[i] =
+                anims[i].getVelocityFromNanos(
+                    playTimeNanos,
+                    initialValue[i],
+                    targetValue[i],
+                    initialVelocity[i]
+                )
         }
         return velocityVector
     }
 
-    override fun getEndVelocity(start: V, end: V, startVelocity: V): V {
+    override fun getEndVelocity(initialValue: V, targetValue: V, initialVelocity: V): V {
         if (!::endVelocityVector.isInitialized) {
-            endVelocityVector = startVelocity.newInstance()
+            endVelocityVector = initialVelocity.newInstance()
         }
         for (i in 0 until endVelocityVector.size) {
             endVelocityVector[i] =
-                anims[i].getEndVelocity(start[i], end[i], startVelocity[i])
+                anims[i].getEndVelocity(initialValue[i], targetValue[i], initialVelocity[i])
         }
         return endVelocityVector
     }
 
-    override fun getDurationMillis(start: V, end: V, startVelocity: V): Long {
+    @Suppress("MethodNameUnits")
+    override fun getDurationNanos(initialValue: V, targetValue: V, initialVelocity: V): Long {
         var maxDuration = 0L
-        (0 until start.size).forEach {
+        (0 until initialValue.size).forEach {
             maxDuration = maxOf(
                 maxDuration,
-                anims[it].getDurationMillis(start[it], end[it], startVelocity[it])
+                anims[it].getDurationNanos(initialValue[it], targetValue[it], initialVelocity[it])
             )
         }
         return maxDuration

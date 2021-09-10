@@ -25,21 +25,27 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 /**
  * The {@link ContentProvider} which discovers {@link Initializer}s in an application and
  * initializes them before {@link Application#onCreate()}.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public final class InitializationProvider extends ContentProvider {
+public class InitializationProvider extends ContentProvider {
+
     @Override
-    public boolean onCreate() {
+    public final boolean onCreate() {
         Context context = getContext();
         if (context != null) {
-            AppInitializer.getInstance(context).discoverAndInitialize();
+            // Many Initializer's expect the `applicationContext` to be non-null. This
+            // typically happens when `android:sharedUid` is used. In such cases, we postpone
+            // initialization altogether, and rely on lazy init.
+            // More context: b/196959015
+            Context applicationContext = context.getApplicationContext();
+            if (applicationContext != null) {
+                AppInitializer.getInstance(context).discoverAndInitialize();
+            } else {
+                StartupLogger.w("Deferring initialization because `applicationContext` is null.");
+            }
         } else {
             throw new StartupException("Context cannot be null");
         }
@@ -48,7 +54,7 @@ public final class InitializationProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public Cursor query(
+    public final Cursor query(
             @NonNull Uri uri,
             @Nullable String[] projection,
             @Nullable String selection,
@@ -59,18 +65,18 @@ public final class InitializationProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public String getType(@NonNull Uri uri) {
+    public final String getType(@NonNull Uri uri) {
         throw new IllegalStateException("Not allowed.");
     }
 
     @Nullable
     @Override
-    public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+    public final Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         throw new IllegalStateException("Not allowed.");
     }
 
     @Override
-    public int delete(
+    public final int delete(
             @NonNull Uri uri,
             @Nullable String selection,
             @Nullable String[] selectionArgs) {
@@ -78,7 +84,7 @@ public final class InitializationProvider extends ContentProvider {
     }
 
     @Override
-    public int update(
+    public final int update(
             @NonNull Uri uri,
             @Nullable ContentValues values,
             @Nullable String selection,

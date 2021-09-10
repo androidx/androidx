@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("NOTHING_TO_INLINE", "EXPERIMENTAL_FEATURE_WARNING")
+@file:Suppress(
+    "NOTHING_TO_INLINE",
+    "INLINE_CLASS_DEPRECATED",
+    "EXPERIMENTAL_FEATURE_WARNING"
+)
 
 package androidx.compose.ui.unit
 
@@ -21,24 +25,18 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 
 /**
- * Immutable constraints used for measuring child Layouts or [LayoutModifier]s. A parent layout
- * can measure their children using the measure method on the corresponding [Measurable]s,
- * method which takes the [Constraints] the child has to follow. A measured child is then
- * responsible to choose for themselves and return a size which satisfies the set of [Constraints]
- * received from their parent:
- * - minWidth <= chosenWidth <= maxWidth
- * - minHeight <= chosenHeight <= maxHeight
- * The parent can then access the child chosen size on the resulting [Placeable]. The parent is
- * responsible of defining a valid positioning of the children according to their sizes, so the
- * parent needs to measure the children with appropriate [Constraints], such that whatever valid
- * sizes children choose, they can be laid out in a way that also respects the parent's incoming
- * [Constraints]. Note that different children can be measured with different [Constraints].
- * A child is allowed to choose a size that does not satisfy its constraints. However, when this
- * happens, the parent will not read from the [Placeable] the real size of the child, but rather
- * one that was coerced in the child's constraints; therefore, a parent can assume that its
- * children will always respect the constraints in their layout algorithm. When this does not
- * happen in reality, the position assigned to the child will be automatically offset to be centered
- * on the space assigned by the parent under the assumption that constraints were respected.
+ * Immutable constraints for measuring layouts, used by [layouts][androidx.compose.ui.layout.Layout]
+ * or [layout modifiers][androidx.compose.ui.layout.LayoutModifier] to measure their layout
+ * children. The parent chooses the [Constraints] defining a range, in pixels, within which
+ * the measured layout should choose a size:
+ *
+ * - `minWidth` <= `chosenWidth` <= `maxWidth`
+ * - `minHeight` <= `chosenHeight` <= `maxHeight`
+ *
+ * For more details about how layout measurement works, see
+ * [androidx.compose.ui.layout.MeasurePolicy] or
+ * [androidx.compose.ui.layout.LayoutModifier.measure].
+ *
  * A set of [Constraints] can have infinite maxWidth and/or maxHeight. This is a trick often
  * used by parents to ask their children for their preferred size: unbounded constraints force
  * children whose default behavior is to fill the available space (always size to
@@ -72,7 +70,7 @@ inline class Constraints(
         get() = (value and FocusMask).toInt()
 
     /**
-     * The minimum width that the measurement can take.
+     * The minimum width that the measurement can take, in pixels.
      */
     val minWidth: Int
         get() {
@@ -81,7 +79,7 @@ inline class Constraints(
         }
 
     /**
-     * The maximum width that the measurement can take. This will either be
+     * The maximum width that the measurement can take, in pixels. This will either be
      * a positive value greater than or equal to [minWidth] or [Constraints.Infinity].
      */
     val maxWidth: Int
@@ -92,7 +90,7 @@ inline class Constraints(
         }
 
     /**
-     * The minimum height that the measurement can take.
+     * The minimum height that the measurement can take, in pixels.
      */
     val minHeight: Int
         get() {
@@ -103,7 +101,7 @@ inline class Constraints(
         }
 
     /**
-     * The maximum height that the measurement can take. This will either be
+     * The maximum height that the measurement can take, in pixels. This will either be
      * a positive value greater than or equal to [minHeight] or [Constraints.Infinity].
      */
     val maxHeight: Int
@@ -126,7 +124,7 @@ inline class Constraints(
         }
 
     /**
-     * `false` when [maxHeight] is [Infinity] and `true` if [maxWidth] is a non-[Infinity] value.
+     * `false` when [maxHeight] is [Infinity] and `true` if [maxHeight] is a non-[Infinity] value.
      * @see hasBoundedWidth
      */
     val hasBoundedHeight: Boolean
@@ -136,6 +134,25 @@ inline class Constraints(
             val offset = MinHeightOffsets[focus] + 31
             return ((value shr offset).toInt() and mask) != 0
         }
+
+    /**
+     * Whether there is exactly one width value that satisfies the constraints.
+     */
+    @Stable
+    val hasFixedWidth get() = maxWidth == minWidth
+
+    /**
+     * Whether there is exactly one height value that satisfies the constraints.
+     */
+    @Stable
+    val hasFixedHeight get() = maxHeight == minHeight
+
+    /**
+     * Whether the area of a component respecting these constraints will definitely be 0.
+     * This is true when at least one of maxWidth and maxHeight are 0.
+     */
+    @Stable
+    val isZero get() = maxWidth == 0 || maxHeight == 0
 
     /**
      * Copies the existing [Constraints], replacing some of [minWidth], [minHeight], [maxWidth],
@@ -173,8 +190,8 @@ inline class Constraints(
     companion object {
         /**
          * A value that [maxWidth] or [maxHeight] will be set to when the constraint should
-         * be considered infinite. [hasBoundedHeight] or [hasBoundedWidth] will be
-         * `true` when [maxHeight] or [maxWidth] is [Infinity], respectively.
+         * be considered infinite. [hasBoundedWidth] or [hasBoundedHeight] will be
+         * `false` when [maxWidth] or [maxHeight] is [Infinity], respectively.
          */
         const val Infinity = Int.MAX_VALUE
 
@@ -422,33 +439,20 @@ fun Constraints(
 }
 
 /**
- * Whether there is exactly one width value that satisfies the constraints.
+ * Takes [otherConstraints] and returns the result of coercing them in the current constraints.
+ * Note this means that any size satisfying the resulting constraints will satisfy the current
+ * constraints, but they might not satisfy the [otherConstraints] when the two set of constraints
+ * are disjoint.
+ * Examples (showing only width, height works the same):
+ * (minWidth=2, maxWidth=10).constrain(minWidth=7, maxWidth=12) -> (minWidth = 7, maxWidth = 10)
+ * (minWidth=2, maxWidth=10).constrain(minWidth=11, maxWidth=12) -> (minWidth=10, maxWidth=10)
+ * (minWidth=2, maxWidth=10).constrain(minWidth=5, maxWidth=7) -> (minWidth=5, maxWidth=7)
  */
-@Stable
-val Constraints.hasFixedWidth get() = maxWidth == minWidth
-
-/**
- * Whether there is exactly one height value that satisfies the constraints.
- */
-@Stable
-val Constraints.hasFixedHeight get() = maxHeight == minHeight
-
-/**
- * Whether the area of a component respecting these constraints will definitely be 0.
- * This is true when at least one of maxWidth and maxHeight are 0.
- */
-@Stable
-val Constraints.isZero get() = maxWidth == 0 || maxHeight == 0
-
-/**
- * Returns the result of coercing the current constraints in a different set of constraints.
- */
-@Stable
-fun Constraints.enforce(otherConstraints: Constraints) = Constraints(
-    minWidth = minWidth.coerceIn(otherConstraints.minWidth, otherConstraints.maxWidth),
-    maxWidth = maxWidth.coerceIn(otherConstraints.minWidth, otherConstraints.maxWidth),
-    minHeight = minHeight.coerceIn(otherConstraints.minHeight, otherConstraints.maxHeight),
-    maxHeight = maxHeight.coerceIn(otherConstraints.minHeight, otherConstraints.maxHeight)
+fun Constraints.constrain(otherConstraints: Constraints) = Constraints(
+    minWidth = otherConstraints.minWidth.coerceIn(minWidth, maxWidth),
+    maxWidth = otherConstraints.maxWidth.coerceIn(minWidth, maxWidth),
+    minHeight = otherConstraints.minHeight.coerceIn(minHeight, maxHeight),
+    maxHeight = otherConstraints.maxHeight.coerceIn(minHeight, maxHeight)
 )
 
 /**
@@ -476,7 +480,7 @@ fun Constraints.constrainHeight(height: Int) = height.coerceIn(minHeight, maxHei
  * Takes a size and returns whether it satisfies the current constraints.
  */
 @Stable
-fun Constraints.satisfiedBy(size: IntSize): Boolean {
+fun Constraints.isSatisfiedBy(size: IntSize): Boolean {
     return size.width in minWidth..maxWidth && size.height in minHeight..maxHeight
 }
 

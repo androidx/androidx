@@ -36,6 +36,7 @@ import androidx.test.espresso.ViewAction;
 
 import org.hamcrest.Matcher;
 
+@SuppressWarnings("unchecked")
 public class AppCompatTintableViewActions {
     /**
      * Sets the passed color state list as the background tint on a {@link View}.

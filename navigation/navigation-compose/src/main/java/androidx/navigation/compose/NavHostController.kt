@@ -19,30 +19,17 @@ package androidx.navigation.compose
 import android.content.Context
 import android.os.Bundle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.savedinstancestate.Saver
-import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
-import androidx.compose.ui.platform.AmbientContext
-import androidx.core.net.toUri
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import androidx.navigation.NavDeepLinkRequest
-import androidx.navigation.NavGraph
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.NavOptions
-import androidx.navigation.NavOptionsBuilder
-import androidx.navigation.navOptions
-import androidx.navigation.navigation
-
-/**
- * The route linked to the current destination.
- */
-const val KEY_ROUTE = "android-support-nav:controller:route"
 
 /**
  * Gets the current navigation back stack entry as a [MutableState]. When the given navController
@@ -56,7 +43,7 @@ public fun NavController.currentBackStackEntryAsState(): State<NavBackStackEntry
     val currentNavBackStackEntry = remember { mutableStateOf(currentBackStackEntry) }
     // setup the onDestinationChangedListener responsible for detecting when the
     // current back stack entry changes
-    onCommit(this) {
+    DisposableEffect(this) {
         val callback = NavController.OnDestinationChangedListener { controller, _, _ ->
             currentNavBackStackEntry.value = controller.currentBackStackEntry
         }
@@ -70,14 +57,16 @@ public fun NavController.currentBackStackEntryAsState(): State<NavBackStackEntry
 }
 
 /**
- * Creates a NavHostController that handles the adding of the [ComposeNavigator].
+ * Creates a NavHostController that handles the adding of the [ComposeNavigator] and
+ * [DialogNavigator]. Additional [androidx.navigation.Navigator] instances should be added
+ * in a [androidx.compose.runtime.SideEffect] block.
  *
  * @see NavHost
  */
 @Composable
 public fun rememberNavController(): NavHostController {
-    val context = AmbientContext.current
-    return rememberSavedInstanceState(saver = NavControllerSaver(context)) {
+    val context = LocalContext.current
+    return rememberSaveable(saver = NavControllerSaver(context)) {
         createNavController(context)
     }
 }
@@ -85,6 +74,7 @@ public fun rememberNavController(): NavHostController {
 private fun createNavController(context: Context) =
     NavHostController(context).apply {
         navigatorProvider.addNavigator(ComposeNavigator())
+        navigatorProvider.addNavigator(DialogNavigator())
     }
 
 /**
@@ -96,35 +86,3 @@ private fun NavControllerSaver(
     save = { it.saveState() },
     restore = { createNavController(context).apply { restoreState(it) } }
 )
-
-/**
- * Navigate to a route in the current NavGraph.
- *
- * @param route route for the destination
- * @param builder DSL for constructing a new [NavOptions]
- */
-public fun NavController.navigate(route: String, builder: NavOptionsBuilder.() -> Unit = {}) {
-    navigate(
-        NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build(),
-        navOptions(builder)
-    )
-}
-
-/**
- * Construct a new [NavGraph]
- *
- * @param route the route for the graph
- * @param startDestination the route for the start destination
- * @param builder the builder used to construct the graph
- */
-fun NavController.createGraph(
-    startDestination: String,
-    route: String? = null,
-    builder: NavGraphBuilder.() -> Unit
-): NavGraph = navigatorProvider.navigation(
-    if (route != null) createRoute(route).hashCode() else 0,
-    createRoute(startDestination).hashCode(),
-    builder
-)
-
-internal fun createRoute(route: String) = "android-app://androidx.navigation.compose/$route"

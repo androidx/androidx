@@ -27,4 +27,8 @@ public class AmbientModeSupportResumeTestActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         mAmbientController = AmbientModeSupport.attach(this);
     }
+
+    public AmbientModeSupport.AmbientController getAmbientController() {
+        return mAmbientController;
+    }
 }

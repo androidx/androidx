@@ -18,8 +18,7 @@ package androidx.navigation.dynamicfeatures
 
 import android.content.Context
 import com.google.android.play.core.splitinstall.SplitInstallManager
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -30,7 +29,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 
 @RunWith(JUnit4::class)
-class DynamicInstallManagerTest {
+public class DynamicInstallManagerTest {
 
     private val splitInstallManager = mock(SplitInstallManager::class.java)
     private var manager = DynamicInstallManager(
@@ -39,14 +38,14 @@ class DynamicInstallManagerTest {
     )
 
     @Test
-    fun testNeedsInstall_InstallNeeded() {
+    public fun testNeedsInstall_InstallNeeded() {
         mockWhen(splitInstallManager.installedModules).thenReturn(setOf("not-module"))
-        assertTrue(manager.needsInstall("module"))
+        assertThat(manager.needsInstall("module")).isTrue()
     }
 
     @Test
-    fun testNeedsInstall_NoInstallNeeded() {
+    public fun testNeedsInstall_NoInstallNeeded() {
         mockWhen(splitInstallManager.installedModules).thenReturn(setOf("module"))
-        assertFalse(manager.needsInstall("module"))
+        assertThat(manager.needsInstall("module")).isFalse()
     }
 }

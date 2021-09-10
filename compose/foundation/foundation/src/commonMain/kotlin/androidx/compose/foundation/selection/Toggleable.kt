@@ -16,63 +16,111 @@
 
 package androidx.compose.foundation.selection
 
-import androidx.compose.foundation.AmbientIndication
 import androidx.compose.foundation.Indication
-import androidx.compose.foundation.Interaction
-import androidx.compose.foundation.InteractionState
-import androidx.compose.foundation.Strings
+import androidx.compose.foundation.PressedInteractionSourceDisposableEffect
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.gestures.detectTapAndPress
+import androidx.compose.foundation.handlePressInteraction
 import androidx.compose.foundation.indication
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.onCommit
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.gesture.pressIndicatorGestureFilter
-import androidx.compose.ui.gesture.tapGestureFilter
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.semantics.accessibilityValue
+import androidx.compose.ui.platform.inspectable
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
-import androidx.compose.ui.state.ToggleableState.Indeterminate
-import androidx.compose.ui.state.ToggleableState.Off
-import androidx.compose.ui.state.ToggleableState.On
 
 /**
  * Configure component to make it toggleable via input and accessibility events
+ *
+ * This version has no [MutableInteractionSource] or [Indication] parameters, default indication from
+ * [LocalIndication] will be used. To specify [MutableInteractionSource] or [Indication], use another
+ * overload.
  *
  * @sample androidx.compose.foundation.samples.ToggleableSample
  *
  * @see [Modifier.triStateToggleable] if you require support for an indeterminate state.
  *
  * @param value whether Toggleable is on or off
- * @param onValueChange callback to be invoked when toggleable is clicked,
- * therefore the change of the state in requested.
  * @param enabled whether or not this [toggleable] will handle input events and appear
  * enabled for semantics purposes
- * @param interactionState [InteractionState] that will be updated when this toggleable is
- * pressed, using [Interaction.Pressed]
- * @param indication indication to be shown when modified element is pressed. Be default,
- * indication from [AmbientIndication] will be used. Pass `null` to show no indication
+ * @param role the type of user interface element. Accessibility services might use this
+ * to describe the element or do customizations
+ * @param onValueChange callback to be invoked when toggleable is clicked,
+ * therefore the change of the state in requested.
  */
-// TODO: b/172938345
-@Suppress("ComposableModifierFactory")
-@Composable
 fun Modifier.toggleable(
     value: Boolean,
     enabled: Boolean = true,
-    interactionState: InteractionState = remember { InteractionState() },
-    indication: Indication? = AmbientIndication.current(),
+    role: Role? = null,
     onValueChange: (Boolean) -> Unit
 ) = composed(
     inspectorInfo = debugInspectorInfo {
         name = "toggleable"
         properties["value"] = value
         properties["enabled"] = enabled
-        properties["interactionState"] = interactionState
+        properties["role"] = role
+        properties["onValueChange"] = onValueChange
+    }
+) {
+    toggleableImpl(
+        state = ToggleableState(value),
+        onClick = { onValueChange(!value) },
+        enabled = enabled,
+        role = role,
+        interactionSource = remember { MutableInteractionSource() },
+        indication = LocalIndication.current
+    )
+}
+
+/**
+ * Configure component to make it toggleable via input and accessibility events.
+ *
+ * This version requires both [MutableInteractionSource] and [Indication] to work properly. Use another
+ * overload if you don't need these parameters.
+ *
+ * @sample androidx.compose.foundation.samples.ToggleableSample
+ *
+ * @see [Modifier.triStateToggleable] if you require support for an indeterminate state.
+ *
+ * @param value whether Toggleable is on or off
+ * @param interactionSource [MutableInteractionSource] that will be used to emit
+ * [PressInteraction.Press] when this toggleable is being pressed.
+ * @param indication indication to be shown when modified element is pressed. Be default,
+ * indication from [LocalIndication] will be used. Pass `null` to show no indication, or
+ * current value from [LocalIndication] to show theme default
+ * @param enabled whether or not this [toggleable] will handle input events and appear
+ * enabled for semantics purposes
+ * @param role the type of user interface element. Accessibility services might use this
+ * to describe the element or do customizations
+ * @param onValueChange callback to be invoked when toggleable is clicked,
+ * therefore the change of the state in requested.
+ */
+fun Modifier.toggleable(
+    value: Boolean,
+    interactionSource: MutableInteractionSource,
+    indication: Indication?,
+    enabled: Boolean = true,
+    role: Role? = null,
+    onValueChange: (Boolean) -> Unit
+) = inspectable(
+    inspectorInfo = debugInspectorInfo {
+        name = "toggleable"
+        properties["value"] = value
+        properties["interactionSource"] = interactionSource
         properties["indication"] = indication
+        properties["enabled"] = enabled
+        properties["role"] = role
         properties["onValueChange"] = onValueChange
     },
     factory = {
@@ -80,7 +128,8 @@ fun Modifier.toggleable(
             state = ToggleableState(value),
             onClick = { onValueChange(!value) },
             enabled = enabled,
-            interactionState = interactionState,
+            role = role,
+            interactionSource = interactionSource,
             indication = indication
         )
     }
@@ -93,84 +142,131 @@ fun Modifier.toggleable(
  * TriStateToggleable should be used when there are dependent Toggleables associated to this
  * component and those can have different values.
  *
+ * This version has no [MutableInteractionSource] or [Indication] parameters, default indication
+ * from [LocalIndication] will be used. To specify [MutableInteractionSource] or [Indication],
+ * use another overload.
+ *
  * @sample androidx.compose.foundation.samples.TriStateToggleableSample
  *
  * @see [Modifier.toggleable] if you want to support only two states: on and off
  *
  * @param state current value for the component
- * @param onClick will be called when user clicks the toggleable.
  * @param enabled whether or not this [triStateToggleable] will handle input events and
  * appear enabled for semantics purposes
- * @param interactionState [InteractionState] that will be updated when this toggleable is
- * pressed, using [Interaction.Pressed]
- * @param indication indication to be shown when modified element is pressed. Be default,
- * indication from [AmbientIndication] will be used. Pass `null` to show no indication
+ * @param role the type of user interface element. Accessibility services might use this
+ * to describe the element or do customizations
+ * @param onClick will be called when user clicks the toggleable.
  */
-// TODO: b/172938345
-@Suppress("ComposableModifierFactory")
-@Composable
 fun Modifier.triStateToggleable(
     state: ToggleableState,
     enabled: Boolean = true,
-    interactionState: InteractionState = remember { InteractionState() },
-    indication: Indication? = AmbientIndication.current(),
+    role: Role? = null,
     onClick: () -> Unit
 ) = composed(
     inspectorInfo = debugInspectorInfo {
         name = "triStateToggleable"
         properties["state"] = state
         properties["enabled"] = enabled
-        properties["interactionState"] = interactionState
+        properties["role"] = role
+        properties["onClick"] = onClick
+    }
+) {
+    toggleableImpl(
+        state,
+        enabled,
+        role,
+        remember { MutableInteractionSource() },
+        LocalIndication.current,
+        onClick
+    )
+}
+
+/**
+ * Configure component to make it toggleable via input and accessibility events with three
+ * states: On, Off and Indeterminate.
+ *
+ * TriStateToggleable should be used when there are dependent Toggleables associated to this
+ * component and those can have different values.
+ *
+ * This version requires both [MutableInteractionSource] and [Indication] to work properly. Use another
+ * overload if you don't need these parameters.
+ *
+ * @sample androidx.compose.foundation.samples.TriStateToggleableSample
+ *
+ * @see [Modifier.toggleable] if you want to support only two states: on and off
+ *
+ * @param state current value for the component
+ * @param interactionSource [MutableInteractionSource] that will be used to emit
+ * [PressInteraction.Press] when this triStateToggleable is being pressed.
+ * @param indication indication to be shown when modified element is pressed. Be default,
+ * indication from [LocalIndication] will be used. Pass `null` to show no indication, or
+ * current value from [LocalIndication] to show theme default
+ * @param enabled whether or not this [triStateToggleable] will handle input events and
+ * appear enabled for semantics purposes
+ * @param role the type of user interface element. Accessibility services might use this
+ * to describe the element or do customizations
+ * @param onClick will be called when user clicks the toggleable.
+ */
+fun Modifier.triStateToggleable(
+    state: ToggleableState,
+    interactionSource: MutableInteractionSource,
+    indication: Indication?,
+    enabled: Boolean = true,
+    role: Role? = null,
+    onClick: () -> Unit
+) = inspectable(
+    inspectorInfo = debugInspectorInfo {
+        name = "triStateToggleable"
+        properties["state"] = state
+        properties["enabled"] = enabled
+        properties["role"] = role
+        properties["interactionSource"] = interactionSource
         properties["indication"] = indication
         properties["onClick"] = onClick
     },
-    factory = { toggleableImpl(state, enabled, interactionState, indication, onClick) }
+    factory = {
+        toggleableImpl(state, enabled, role, interactionSource, indication, onClick)
+    }
 )
 
 @Suppress("ModifierInspectorInfo")
 private fun Modifier.toggleableImpl(
     state: ToggleableState,
     enabled: Boolean,
-    interactionState: InteractionState,
+    role: Role? = null,
+    interactionSource: MutableInteractionSource,
     indication: Indication?,
     onClick: () -> Unit
 ): Modifier = composed {
+    val pressedInteraction = remember { mutableStateOf<PressInteraction.Press?>(null) }
     // TODO(pavlis): Handle multiple states for Semantics
     val semantics = Modifier.semantics(mergeDescendants = true) {
-        this.accessibilityValue = when (state) {
-            // TODO(ryanmentley): These should be set by Checkbox, Switch, etc.
-            On -> Strings.Checked
-            Off -> Strings.Unchecked
-            Indeterminate -> Strings.Indeterminate
+        if (role != null) {
+            this.role = role
         }
         this.toggleableState = state
 
-        if (enabled) {
-            onClick(action = { onClick(); return@onClick true }, label = "Toggle")
-        } else {
+        onClick(action = { onClick(); true })
+        if (!enabled) {
             disabled()
         }
     }
-    val interactionUpdate =
-        if (enabled) {
-            Modifier.pressIndicatorGestureFilter(
-                onStart = { interactionState.addInteraction(Interaction.Pressed, it) },
-                onStop = { interactionState.removeInteraction(Interaction.Pressed) },
-                onCancel = { interactionState.removeInteraction(Interaction.Pressed) }
-            )
-        } else {
-            Modifier
-        }
-    val click = if (enabled) Modifier.tapGestureFilter { onClick() } else Modifier
-
-    onCommit(interactionState) {
-        onDispose {
-            interactionState.removeInteraction(Interaction.Pressed)
-        }
+    val onClickState = rememberUpdatedState(onClick)
+    if (enabled) {
+        PressedInteractionSourceDisposableEffect(interactionSource, pressedInteraction)
+    }
+    val gestures = Modifier.pointerInput(interactionSource, enabled) {
+        detectTapAndPress(
+            onPress = { offset ->
+                if (enabled) {
+                    handlePressInteraction(offset, interactionSource, pressedInteraction)
+                }
+            },
+            onTap = { if (enabled) onClickState.value.invoke() }
+        )
     }
     this
         .then(semantics)
-        .indication(interactionState, indication)
-        .then(interactionUpdate)
-        .then(click)
+        .indication(interactionSource, indication)
+        .then(gestures)
 }

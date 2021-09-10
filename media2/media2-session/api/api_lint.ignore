@@ -1,0 +1,67 @@
+// Baseline format: 1.0
+BadFuture: androidx.media2.session.RemoteSessionPlayer#adjustVolume(int):
+    Use ListenableFuture (library), or a combination of Consumer<T>, Executor, and CancellationSignal (platform) instead of java.util.concurrent.Future (method androidx.media2.session.RemoteSessionPlayer.adjustVolume(int))
+BadFuture: androidx.media2.session.RemoteSessionPlayer#setVolume(int):
+    Use ListenableFuture (library), or a combination of Consumer<T>, Executor, and CancellationSignal (platform) instead of java.util.concurrent.Future (method androidx.media2.session.RemoteSessionPlayer.setVolume(int))
+
+
+BuilderSetStyle: androidx.media2.session.SessionCommandGroup.Builder#removeCommand(androidx.media2.session.SessionCommand):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.media2.session.SessionCommandGroup.Builder.removeCommand(androidx.media2.session.SessionCommand)
+
+
+MissingGetterMatchingBuilder: androidx.media2.session.MediaBrowser.Builder#setConnectionHints(android.os.Bundle):
+    androidx.media2.session.MediaBrowser does not declare a `getConnectionHints()` method matching method androidx.media2.session.MediaBrowser.Builder.setConnectionHints(android.os.Bundle)
+MissingGetterMatchingBuilder: androidx.media2.session.MediaBrowser.Builder#setControllerCallback(java.util.concurrent.Executor, androidx.media2.session.MediaBrowser.BrowserCallback):
+    androidx.media2.session.MediaBrowser does not declare a `getControllerCallback()` method matching method androidx.media2.session.MediaBrowser.Builder.setControllerCallback(java.util.concurrent.Executor,androidx.media2.session.MediaBrowser.BrowserCallback)
+MissingGetterMatchingBuilder: androidx.media2.session.MediaBrowser.Builder#setSessionCompatToken(android.support.v4.media.session.MediaSessionCompat.Token):
+    androidx.media2.session.MediaBrowser does not declare a `getSessionCompatToken()` method matching method androidx.media2.session.MediaBrowser.Builder.setSessionCompatToken(android.support.v4.media.session.MediaSessionCompat.Token)
+MissingGetterMatchingBuilder: androidx.media2.session.MediaBrowser.Builder#setSessionToken(androidx.media2.session.SessionToken):
+    androidx.media2.session.MediaBrowser does not declare a `getSessionToken()` method matching method androidx.media2.session.MediaBrowser.Builder.setSessionToken(androidx.media2.session.SessionToken)
+MissingGetterMatchingBuilder: androidx.media2.session.MediaController.Builder#setConnectionHints(android.os.Bundle):
+    androidx.media2.session.MediaController does not declare a `getConnectionHints()` method matching method androidx.media2.session.MediaController.Builder.setConnectionHints(android.os.Bundle)
+MissingGetterMatchingBuilder: androidx.media2.session.MediaController.Builder#setControllerCallback(java.util.concurrent.Executor, androidx.media2.session.MediaController.ControllerCallback):
+    androidx.media2.session.MediaController does not declare a `getControllerCallback()` method matching method androidx.media2.session.MediaController.Builder.setControllerCallback(java.util.concurrent.Executor,androidx.media2.session.MediaController.ControllerCallback)
+MissingGetterMatchingBuilder: androidx.media2.session.MediaController.Builder#setSessionCompatToken(android.support.v4.media.session.MediaSessionCompat.Token):
+    androidx.media2.session.MediaController does not declare a `getSessionCompatToken()` method matching method androidx.media2.session.MediaController.Builder.setSessionCompatToken(android.support.v4.media.session.MediaSessionCompat.Token)
+MissingGetterMatchingBuilder: androidx.media2.session.MediaController.Builder#setSessionToken(androidx.media2.session.SessionToken):
+    androidx.media2.session.MediaController does not declare a `getSessionToken()` method matching method androidx.media2.session.MediaController.Builder.setSessionToken(androidx.media2.session.SessionToken)
+MissingGetterMatchingBuilder: androidx.media2.session.MediaLibraryService.MediaLibrarySession.Builder#setExtras(android.os.Bundle):
+    androidx.media2.session.MediaLibraryService.MediaLibrarySession does not declare a `getExtras()` method matching method androidx.media2.session.MediaLibraryService.MediaLibrarySession.Builder.setExtras(android.os.Bundle)
+MissingGetterMatchingBuilder: androidx.media2.session.MediaLibraryService.MediaLibrarySession.Builder#setSessionActivity(android.app.PendingIntent):
+    androidx.media2.session.MediaLibraryService.MediaLibrarySession does not declare a `getSessionActivity()` method matching method androidx.media2.session.MediaLibraryService.MediaLibrarySession.Builder.setSessionActivity(android.app.PendingIntent)
+MissingGetterMatchingBuilder: androidx.media2.session.MediaSession.Builder#setExtras(android.os.Bundle):
+    androidx.media2.session.MediaSession does not declare a `getExtras()` method matching method androidx.media2.session.MediaSession.Builder.setExtras(android.os.Bundle)
+MissingGetterMatchingBuilder: androidx.media2.session.MediaSession.Builder#setSessionActivity(android.app.PendingIntent):
+    androidx.media2.session.MediaSession does not declare a `getSessionActivity()` method matching method androidx.media2.session.MediaSession.Builder.setSessionActivity(android.app.PendingIntent)
+MissingGetterMatchingBuilder: androidx.media2.session.MediaSession.Builder#setSessionCallback(java.util.concurrent.Executor, androidx.media2.session.MediaSession.SessionCallback):
+    androidx.media2.session.MediaSession does not declare a `getSessionCallback()` method matching method androidx.media2.session.MediaSession.Builder.setSessionCallback(java.util.concurrent.Executor,androidx.media2.session.MediaSession.SessionCallback)
+MissingGetterMatchingBuilder: androidx.media2.session.SessionCommandGroup.Builder#addAllPredefinedCommands(int):
+    androidx.media2.session.SessionCommandGroup does not declare a getter method matching method androidx.media2.session.SessionCommandGroup.Builder.addAllPredefinedCommands(int) (expected one of: [getAllPredefinedCommands(), getAllPredefinedCommandses()])
+
+
+MissingNullability: androidx.media2.session.MediaLibraryService#onBind(android.content.Intent):
+    Missing nullability on method `onBind` return
+MissingNullability: androidx.media2.session.MediaSessionService#onStartCommand(android.content.Intent, int, int) parameter #0:
+    Missing nullability on parameter `intent` in method `onStartCommand`
+
+
+NullableCollection: androidx.media2.session.LibraryResult#getMediaItems():
+    Return type of method androidx.media2.session.LibraryResult.getMediaItems() is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.media2.session.MediaController#getPlaylist():
+    Return type of method androidx.media2.session.MediaController.getPlaylist() is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.media2.session.MediaController.ControllerCallback#onCustomCommand(androidx.media2.session.MediaController, androidx.media2.session.SessionCommand, android.os.Bundle) parameter #2:
+    Type of parameter args in androidx.media2.session.MediaController.ControllerCallback.onCustomCommand(androidx.media2.session.MediaController controller, androidx.media2.session.SessionCommand command, android.os.Bundle args) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.media2.session.MediaController.ControllerCallback#onPlaylistChanged(androidx.media2.session.MediaController, java.util.List<androidx.media2.common.MediaItem>, androidx.media2.common.MediaMetadata) parameter #1:
+    Type of parameter list in androidx.media2.session.MediaController.ControllerCallback.onPlaylistChanged(androidx.media2.session.MediaController controller, java.util.List<androidx.media2.common.MediaItem> list, androidx.media2.common.MediaMetadata metadata) is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.media2.session.MediaLibraryService.LibraryParams#getExtras():
+    Return type of method androidx.media2.session.MediaLibraryService.LibraryParams.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.media2.session.MediaSession.CommandButton#getExtras():
+    Return type of method androidx.media2.session.MediaSession.CommandButton.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.media2.session.MediaSession.SessionCallback#onCustomCommand(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo, androidx.media2.session.SessionCommand, android.os.Bundle) parameter #3:
+    Type of parameter args in androidx.media2.session.MediaSession.SessionCallback.onCustomCommand(androidx.media2.session.MediaSession session, androidx.media2.session.MediaSession.ControllerInfo controller, androidx.media2.session.SessionCommand customCommand, android.os.Bundle args) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.media2.session.MediaSession.SessionCallback#onSetMediaUri(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo, android.net.Uri, android.os.Bundle) parameter #3:
+    Type of parameter extras in androidx.media2.session.MediaSession.SessionCallback.onSetMediaUri(androidx.media2.session.MediaSession session, androidx.media2.session.MediaSession.ControllerInfo controller, android.net.Uri uri, android.os.Bundle extras) is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.media2.session.SessionCommand#getCustomExtras():
+    Return type of method androidx.media2.session.SessionCommand.getCustomExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.media2.session.SessionResult#getCustomCommandResult():
+    Return type of method androidx.media2.session.SessionResult.getCustomCommandResult() is a nullable collection (`android.os.Bundle`); must be non-null

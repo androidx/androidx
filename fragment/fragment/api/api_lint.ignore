@@ -15,36 +15,38 @@ ForbiddenSuperClass: androidx.fragment.app.FragmentActivity:
     FragmentActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 
 
+GetterSetterNames: androidx.fragment.app.DialogFragment#getShowsDialog():
+    Symmetric method for `setShowsDialog` must be named `isShowsDialog`; was `getShowsDialog`
+GetterSetterNames: androidx.fragment.app.Fragment#getAllowEnterTransitionOverlap():
+    Symmetric method for `setAllowEnterTransitionOverlap` must be named `isAllowEnterTransitionOverlap`; was `getAllowEnterTransitionOverlap`
+GetterSetterNames: androidx.fragment.app.Fragment#getAllowReturnTransitionOverlap():
+    Symmetric method for `setAllowReturnTransitionOverlap` must be named `isAllowReturnTransitionOverlap`; was `getAllowReturnTransitionOverlap`
+
+
 MissingNullability: androidx.fragment.app.Fragment#startActivity(android.content.Intent) parameter #0:
     Missing nullability on parameter `intent` in method `startActivity`
 MissingNullability: androidx.fragment.app.Fragment#startActivity(android.content.Intent, android.os.Bundle) parameter #0:
     Missing nullability on parameter `intent` in method `startActivity`
-MissingNullability: androidx.fragment.app.Fragment#startActivityForResult(android.content.Intent, int) parameter #0:
-    Missing nullability on parameter `intent` in method `startActivityForResult`
-MissingNullability: androidx.fragment.app.Fragment#startActivityForResult(android.content.Intent, int, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `intent` in method `startActivityForResult`
-MissingNullability: androidx.fragment.app.Fragment#startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `intent` in method `startIntentSenderForResult`
 MissingNullability: androidx.fragment.app.FragmentActivity#onNewIntent(android.content.Intent) parameter #0:
     Missing nullability on parameter `intent` in method `onNewIntent`
 MissingNullability: androidx.fragment.app.FragmentActivity#startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int) parameter #1:
     Missing nullability on parameter `intent` in method `startActivityFromFragment`
 MissingNullability: androidx.fragment.app.FragmentActivity#startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int, android.os.Bundle) parameter #1:
     Missing nullability on parameter `intent` in method `startActivityFromFragment`
-MissingNullability: androidx.fragment.app.FragmentActivity#startIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `intent` in method `startIntentSenderFromFragment`
 MissingNullability: androidx.fragment.app.FragmentController#getActiveFragments(java.util.List<androidx.fragment.app.Fragment>) parameter #0:
     Missing nullability on parameter `actives` in method `getActiveFragments`
-MissingNullability: androidx.fragment.app.FragmentController#restoreLoaderNonConfig(androidx.collection.SimpleArrayMap<java.lang.String,androidx.loader.app.LoaderManager>) parameter #0:
-    Missing nullability on parameter `loaderManagers` in method `restoreLoaderNonConfig`
 MissingNullability: androidx.fragment.app.FragmentHostCallback#onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int) parameter #1:
     Missing nullability on parameter `intent` in method `onStartActivityFromFragment`
 MissingNullability: androidx.fragment.app.FragmentHostCallback#onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int, android.os.Bundle) parameter #1:
     Missing nullability on parameter `intent` in method `onStartActivityFromFragment`
-MissingNullability: androidx.fragment.app.FragmentHostCallback#onStartIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `intent` in method `onStartIntentSenderFromFragment`
-MissingNullability: androidx.fragment.app.FragmentTabHost#onRestoreInstanceState(android.os.Parcelable) parameter #0:
-    Missing nullability on parameter `state` in method `onRestoreInstanceState`
+
+
+NullableCollection: androidx.fragment.app.Fragment#getArguments():
+    Return type of method androidx.fragment.app.Fragment.getArguments() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.fragment.app.FragmentHostCallback#onDump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #3:
+    Type of parameter args in androidx.fragment.app.FragmentHostCallback.onDump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args) is a nullable collection (`java.lang.String[]`); must be non-null
+NullableCollection: androidx.fragment.app.FragmentHostCallback#onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int, android.os.Bundle) parameter #3:
+    Type of parameter options in androidx.fragment.app.FragmentHostCallback.onStartActivityFromFragment(androidx.fragment.app.Fragment fragment, android.content.Intent intent, int requestCode, android.os.Bundle options) is a nullable collection (`android.os.Bundle`); must be non-null
 
 
 ParcelNotFinal: androidx.fragment.app.Fragment.SavedState:
@@ -59,8 +61,6 @@ UseParcelFileDescriptor: androidx.fragment.app.Fragment#dump(String, java.io.Fil
     Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.Fragment.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
 UseParcelFileDescriptor: androidx.fragment.app.FragmentActivity#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
     Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.FragmentActivity.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
-UseParcelFileDescriptor: androidx.fragment.app.FragmentController#dumpLoaders(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.FragmentController.dumpLoaders(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
 UseParcelFileDescriptor: androidx.fragment.app.FragmentHostCallback#onDump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
     Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.FragmentHostCallback.onDump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
 UseParcelFileDescriptor: androidx.fragment.app.FragmentManager#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:

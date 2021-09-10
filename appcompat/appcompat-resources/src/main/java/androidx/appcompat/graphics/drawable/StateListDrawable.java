@@ -35,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appcompat.resources.Compatibility;
 import androidx.appcompat.resources.R;
 import androidx.appcompat.widget.ResourceManagerInternal;
 
@@ -156,7 +157,7 @@ class StateListDrawable extends DrawableContainer {
         final StateListState state = mStateListState;
         // Account for any configuration changes.
         if (SDK_INT >= LOLLIPOP) {
-            state.mChangingConfigurations |= a.getChangingConfigurations();
+            state.mChangingConfigurations |= Compatibility.Api21Impl.getChangingConfigurations(a);
         }
         state.mVariablePadding = a.getBoolean(
                 R.styleable.StateListDrawable_android_variablePadding, state.mVariablePadding);
@@ -215,7 +216,7 @@ class StateListDrawable extends DrawableContainer {
                                     + "child tag defining a drawable");
                 }
                 if (SDK_INT >= LOLLIPOP) {
-                    dr = Drawable.createFromXmlInner(r, parser, attrs, theme);
+                    dr = Compatibility.Api21Impl.createFromXmlInner(r, parser, attrs, theme);
                 } else {
                     dr = Drawable.createFromXmlInner(r, parser, attrs);
                 }

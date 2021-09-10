@@ -1,4 +1,4 @@
-apply plugin: 'java'
+apply plugin: "java"
 
 compileJava {
     sourceCompatibility = JavaVersion.VERSION_1_7
@@ -6,11 +6,11 @@ compileJava {
 }
 
 dependencies {
-    compile files('../../../../prebuilts/checkstyle/checkstyle.jar')
+    compile files("../../../../prebuilts/checkstyle/checkstyle.jar")
 }
 
 sourceSets {
-    main.java.srcDir 'src'
+    main.java.srcDir "src"
 }
 
 jar {

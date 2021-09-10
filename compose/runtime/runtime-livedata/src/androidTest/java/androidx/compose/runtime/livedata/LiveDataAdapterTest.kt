@@ -16,11 +16,11 @@
 
 package androidx.compose.runtime.livedata
 
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.AmbientLifecycleOwner
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -88,7 +88,7 @@ class LiveDataAdapterTest {
         var realValue: String? = null
         val lifecycleOwner = rule.runOnUiThread { RegistryOwner() }
         rule.setContent {
-            Providers(AmbientLifecycleOwner provides lifecycleOwner) {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 realValue = liveData.observeAsState().value
             }
         }
@@ -112,7 +112,7 @@ class LiveDataAdapterTest {
         var emit by mutableStateOf(false)
         val lifecycleOwner = rule.runOnUiThread { RegistryOwner() }
         rule.setContent {
-            Providers(AmbientLifecycleOwner provides lifecycleOwner) {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 if (emit) {
                     liveData.observeAsState()
                 }
@@ -138,7 +138,7 @@ class LiveDataAdapterTest {
         var realValue: String? = null
         val lifecycleOwner = rule.runOnUiThread { RegistryOwner() }
         rule.setContent {
-            Providers(AmbientLifecycleOwner provides lifecycleOwner) {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 realValue = liveData.observeAsState().value
             }
         }
@@ -176,7 +176,7 @@ class LiveDataAdapterTest {
             }
         }
         rule.setContent {
-            Providers(AmbientLifecycleOwner provides lifecycleOwner) {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 realValue = liveData.observeAsState(null).value
             }
         }
@@ -195,7 +195,7 @@ class LiveDataAdapterTest {
             }
         }
         rule.setContent {
-            Providers(AmbientLifecycleOwner provides lifecycleOwner) {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 realValue = liveData.observeAsState().value!!
             }
         }

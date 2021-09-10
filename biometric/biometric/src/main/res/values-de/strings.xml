@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Passwort nutzen"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Keine PIN, kein Muster und kein Passwort festgelegt."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Dieses Gerät kann nicht mit einer PIN, einem Muster oder einem Passwort gesperrt bzw. entsperrt werden."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Fingerabdruck-Symbol"</string>
 </resources>

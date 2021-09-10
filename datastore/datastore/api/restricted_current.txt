@@ -1,8 +1,12 @@
 // Signature format: 4.0
 package androidx.datastore {
 
-  public final class DataStoreFactoryKt {
-    method public static <T> androidx.datastore.core.DataStore<T> createDataStore(android.content.Context, String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
+  public final class DataStoreDelegateKt {
+    method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.core.DataStore<T>> dataStore(String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional kotlin.jvm.functions.Function1<? super android.content.Context,? extends java.util.List<? extends androidx.datastore.core.DataMigration<T>>> produceMigrations, optional kotlinx.coroutines.CoroutineScope scope);
+  }
+
+  public final class DataStoreFile {
+    method public static java.io.File dataStoreFile(android.content.Context, String fileName);
   }
 
 }
@@ -10,9 +14,11 @@ package androidx.datastore {
 package androidx.datastore.migrations {
 
   public final class SharedPreferencesMigration<T> implements androidx.datastore.core.DataMigration<T> {
-    ctor public SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, java.util.Set<java.lang.String>? keysToMigrate, boolean deleteEmptyPreferences, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super java.lang.Boolean>,?> shouldRunMigration, kotlin.jvm.functions.Function3<? super androidx.datastore.migrations.SharedPreferencesView,? super T,? super kotlin.coroutines.Continuation<? super T>,?> migrate);
-    ctor public SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, java.util.Set<java.lang.String>? keysToMigrate, boolean deleteEmptyPreferences, kotlin.jvm.functions.Function3<? super androidx.datastore.migrations.SharedPreferencesView,? super T,? super kotlin.coroutines.Continuation<? super T>,?> migrate);
-    ctor public SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, java.util.Set<java.lang.String>? keysToMigrate, kotlin.jvm.functions.Function3<? super androidx.datastore.migrations.SharedPreferencesView,? super T,? super kotlin.coroutines.Continuation<? super T>,?> migrate);
+    ctor public SharedPreferencesMigration(kotlin.jvm.functions.Function0<? extends android.content.SharedPreferences> produceSharedPreferences, optional java.util.Set<java.lang.String> keysToMigrate, optional kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super java.lang.Boolean>,?> shouldRunMigration, kotlin.jvm.functions.Function3<? super androidx.datastore.migrations.SharedPreferencesView,? super T,? super kotlin.coroutines.Continuation<? super T>,?> migrate);
+    ctor public SharedPreferencesMigration(kotlin.jvm.functions.Function0<? extends android.content.SharedPreferences> produceSharedPreferences, optional java.util.Set<java.lang.String> keysToMigrate, kotlin.jvm.functions.Function3<? super androidx.datastore.migrations.SharedPreferencesView,? super T,? super kotlin.coroutines.Continuation<? super T>,?> migrate);
+    ctor public SharedPreferencesMigration(kotlin.jvm.functions.Function0<? extends android.content.SharedPreferences> produceSharedPreferences, kotlin.jvm.functions.Function3<? super androidx.datastore.migrations.SharedPreferencesView,? super T,? super kotlin.coroutines.Continuation<? super T>,?> migrate);
+    ctor public SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, optional java.util.Set<java.lang.String> keysToMigrate, optional kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super java.lang.Boolean>,?> shouldRunMigration, kotlin.jvm.functions.Function3<? super androidx.datastore.migrations.SharedPreferencesView,? super T,? super kotlin.coroutines.Continuation<? super T>,?> migrate);
+    ctor public SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, optional java.util.Set<java.lang.String> keysToMigrate, kotlin.jvm.functions.Function3<? super androidx.datastore.migrations.SharedPreferencesView,? super T,? super kotlin.coroutines.Continuation<? super T>,?> migrate);
     ctor public SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, kotlin.jvm.functions.Function3<? super androidx.datastore.migrations.SharedPreferencesView,? super T,? super kotlin.coroutines.Continuation<? super T>,?> migrate);
     method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? cleanUp(kotlin.coroutines.Continuation<? super kotlin.Unit> p) throws java.io.IOException;
     method public suspend Object? migrate(T? currentData, kotlin.coroutines.Continuation<? super T> p);

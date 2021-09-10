@@ -17,12 +17,12 @@
 package androidx.compose.animation.demos
 
 import androidx.compose.animation.core.AnimationState
-import androidx.compose.animation.core.ExponentialDecay
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.animateTo
+import androidx.compose.animation.core.calculateTargetValue
+import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.isFinished
-import androidx.compose.animation.core.velocity
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
@@ -32,7 +32,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,19 +42,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.gesture.ExperimentalPointerInput
-import androidx.compose.ui.gesture.util.VelocityTracker
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalPointerInput::class)
 @Composable
 fun SpringBackScrollingDemo() {
     Column(Modifier.fillMaxHeight()) {
@@ -69,37 +67,38 @@ fun SpringBackScrollingDemo() {
         val mutatorMutex = remember { MutatorMutex() }
         var animation by remember { mutableStateOf(AnimationState(scrollPosition)) }
 
-        val gesture = Modifier.pointerInput {
+        val gesture = Modifier.pointerInput(Unit) {
             coroutineScope {
                 while (true) {
-                    val pointerId = handlePointerInput {
+                    val pointerId = awaitPointerEventScope {
                         awaitFirstDown().id
                     }
                     val velocityTracker = VelocityTracker()
                     mutatorMutex.mutate(MutatePriority.UserInput) {
-                        handlePointerInput {
+                        awaitPointerEventScope {
                             horizontalDrag(pointerId) {
                                 scrollPosition += it.positionChange().x
                                 velocityTracker.addPosition(
-                                    it.current.uptime,
-                                    it.current.position
+                                    it.uptimeMillis,
+                                    it.position
                                 )
                             }
                         }
                     }
-                    val velocity = velocityTracker.calculateVelocity().pixelsPerSecond.x
+                    val velocity = velocityTracker.calculateVelocity().x
                     // Now finger lifted, get fling going
                     launch {
                         mutatorMutex.mutate {
                             animation = AnimationState(scrollPosition, velocity)
-                            val target = ExponentialDecay().getTarget(scrollPosition, velocity)
+                            val target = exponentialDecay<Float>()
+                                .calculateTargetValue(scrollPosition, velocity)
                             val springBackTarget: Float = calculateSpringBackTarget(
                                 target,
                                 velocity,
                                 itemWidth.value
                             )
 
-                            animation.animateDecay(ExponentialDecay()) {
+                            animation.animateDecay(exponentialDecay()) {
                                 scrollPosition = this.value
                                 // Spring back as soon as the target position is crossed.
                                 if ((this.velocity > 0 && value > springBackTarget) ||
@@ -128,7 +127,7 @@ fun SpringBackScrollingDemo() {
                 }
             }
         }
-        Canvas(gesture.fillMaxWidth().preferredHeight(400.dp)) {
+        Canvas(gesture.fillMaxWidth().height(400.dp)) {
             itemWidth.value = size.width / 2f
             if (DEBUG) {
                 println(

@@ -18,9 +18,7 @@ package androidx.compose.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyColumnFor
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.BackdropScaffold
 import androidx.compose.material.BackdropValue
 import androidx.compose.material.ExperimentalMaterialApi
@@ -35,12 +33,12 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -53,6 +51,9 @@ fun BackdropScaffoldSample() {
     val scope = rememberCoroutineScope()
     val selection = remember { mutableStateOf(1) }
     val scaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)
+    LaunchedEffect(scaffoldState) {
+        scaffoldState.reveal()
+    }
     BackdropScaffold(
         scaffoldState = scaffoldState,
         appBar = {
@@ -60,12 +61,12 @@ fun BackdropScaffoldSample() {
                 title = { Text("Backdrop scaffold") },
                 navigationIcon = {
                     if (scaffoldState.isConcealed) {
-                        IconButton(onClick = { scaffoldState.reveal() }) {
-                            Icon(Icons.Default.Menu)
+                        IconButton(onClick = { scope.launch { scaffoldState.reveal() } }) {
+                            Icon(Icons.Default.Menu, contentDescription = "Localized description")
                         }
                     } else {
-                        IconButton(onClick = { scaffoldState.conceal() }) {
-                            Icon(Icons.Default.Close)
+                        IconButton(onClick = { scope.launch { scaffoldState.conceal() } }) {
+                            Icon(Icons.Default.Close, contentDescription = "Localized description")
                         }
                     }
                 },
@@ -80,7 +81,7 @@ fun BackdropScaffoldSample() {
                             }
                         }
                     ) {
-                        Icon(Icons.Default.Favorite)
+                        Icon(Icons.Default.Favorite, contentDescription = "Localized description")
                     }
                 },
                 elevation = 0.dp,
@@ -88,22 +89,32 @@ fun BackdropScaffoldSample() {
             )
         },
         backLayerContent = {
-            LazyColumnFor((1..5).toList()) {
-                ListItem(
-                    Modifier.clickable {
-                        selection.value = it
-                        scaffoldState.conceal()
-                    },
-                    text = { Text("Select $it") }
-                )
+            LazyColumn {
+                items(if (selection.value >= 3) 3 else 5) {
+                    ListItem(
+                        Modifier.clickable {
+                            selection.value = it
+                            scope.launch { scaffoldState.conceal() }
+                        },
+                        text = { Text("Select $it") }
+                    )
+                }
             }
         },
         frontLayerContent = {
-            Box(
-                Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Selection: ${selection.value}")
+            Text("Selection: ${selection.value}")
+            LazyColumn {
+                items(50) {
+                    ListItem(
+                        text = { Text("Item $it") },
+                        icon = {
+                            Icon(
+                                Icons.Default.Favorite,
+                                contentDescription = "Localized description"
+                            )
+                        }
+                    )
+                }
             }
         }
     )

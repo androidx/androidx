@@ -17,14 +17,12 @@
 package androidx.compose.runtime.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SnapshotMutationPolicy
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.takeMutableSnapshot
+import androidx.compose.runtime.snapshots.Snapshot
 
 @Sampled
-@OptIn(ExperimentalComposeApi::class)
 fun counterSample() {
     /**
      * A policy that treats an `MutableState<Int>` as a counter. Changing the value to the same
@@ -44,8 +42,8 @@ fun counterSample() {
     }
 
     val state = mutableStateOf(0, counterPolicy())
-    val snapshot1 = takeMutableSnapshot()
-    val snapshot2 = takeMutableSnapshot()
+    val snapshot1 = Snapshot.takeMutableSnapshot()
+    val snapshot2 = Snapshot.takeMutableSnapshot()
     try {
         snapshot1.enter { state.value += 10 }
         snapshot2.enter { state.value += 20 }

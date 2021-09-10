@@ -16,38 +16,52 @@
 
 package androidx.compose.ui.viewinterop
 
+import android.content.Context
 import android.os.Build
+import android.os.Bundle
+import android.os.Parcelable
 import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.AmbientDensity
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.platform.findViewTreeCompositionContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.R
+import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -61,6 +75,7 @@ import com.google.common.truth.Truth.assertThat
 import org.hamcrest.CoreMatchers.endsWith
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -70,7 +85,7 @@ import kotlin.math.roundToInt
 @RunWith(AndroidJUnit4::class)
 class AndroidViewTest {
     @get:Rule
-    val rule = createAndroidComposeRule<ComponentActivity>()
+    val rule = createAndroidComposeRule<TestActivity>()
 
     @Test
     fun androidViewWithConstructor() {
@@ -162,6 +177,9 @@ class AndroidViewTest {
         rule.activityRule.scenario.onActivity { activity ->
             root = FrameLayout(activity)
             composeView = ComposeView(activity)
+            composeView.setViewCompositionStrategy(
+                ViewCompositionStrategy.DisposeOnLifecycleDestroyed(activity)
+            )
             viewInsideCompose = View(activity)
 
             activity.setContentView(root)
@@ -197,7 +215,7 @@ class AndroidViewTest {
         rule.setContent {
             AndroidView(
                 { LayoutInflater.from(it).inflate(R.layout.test_layout, null) },
-                Modifier.size(size)
+                Modifier.requiredSize(size)
             )
         }
         Espresso
@@ -219,7 +237,7 @@ class AndroidViewTest {
             frameLayout = FrameLayout(activity)
         }
         rule.setContent {
-            AndroidView({ frameLayout }, Modifier.size(size))
+            AndroidView({ frameLayout }, Modifier.requiredSize(size))
         }
 
         Espresso
@@ -259,7 +277,7 @@ class AndroidViewTest {
         rule.setContent {
             AndroidView(
                 { LayoutInflater.from(it).inflate(R.layout.test_layout, null) },
-                Modifier.size(size.value)
+                Modifier.requiredSize(size.value)
             )
         }
         Espresso
@@ -325,17 +343,217 @@ class AndroidViewTest {
         rule.setContent {
             val size = 50.dp
             val density = Density(3f)
-            val sizeIpx = with(density) { size.toIntPx() }
-            Providers(AmbientDensity provides density) {
+            val sizeIpx = with(density) { size.roundToPx() }
+            CompositionLocalProvider(LocalDensity provides density) {
                 AndroidView(
                     { FrameLayout(it) },
-                    Modifier.size(size).onGloballyPositioned {
+                    Modifier.requiredSize(size).onGloballyPositioned {
                         assertThat(it.size).isEqualTo(IntSize(sizeIpx, sizeIpx))
                     }
                 )
             }
         }
         rule.waitForIdle()
+    }
+
+    @Test
+    fun androidView_propagatesViewTreeCompositionContext() {
+        lateinit var parentComposeView: ComposeView
+        lateinit var compositionChildView: View
+        rule.activityRule.scenario.onActivity { activity ->
+            parentComposeView = ComposeView(activity).apply {
+                setContent {
+                    AndroidView(::View) {
+                        compositionChildView = it
+                    }
+                }
+                activity.setContentView(this)
+            }
+        }
+        rule.runOnIdle {
+            assertThat(compositionChildView.findViewTreeCompositionContext())
+                .isNotEqualTo(parentComposeView.findViewTreeCompositionContext())
+        }
+    }
+
+    @Test
+    fun androidView_propagatesAmbientsToComposeViewChildren() {
+        val ambient = compositionLocalOf { "unset" }
+        var childComposedAmbientValue = "uncomposed"
+        rule.setContent {
+            CompositionLocalProvider(ambient provides "setByParent") {
+                AndroidView(
+                    factory = {
+                        ComposeView(it).apply {
+                            setContent {
+                                childComposedAmbientValue = ambient.current
+                            }
+                        }
+                    }
+                )
+            }
+        }
+        rule.runOnIdle {
+            assertThat(childComposedAmbientValue).isEqualTo("setByParent")
+        }
+    }
+
+    @Test
+    fun androidView_propagatesLayoutDirectionToComposeViewChildren() {
+        var childViewLayoutDirection: Int = Int.MIN_VALUE
+        var childCompositionLayoutDirection: LayoutDirection? = null
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                AndroidView(
+                    factory = {
+                        FrameLayout(it).apply {
+                            addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+                                childViewLayoutDirection = layoutDirection
+                            }
+                            addView(
+                                ComposeView(it).apply {
+                                    // The view hierarchy's layout direction should always override
+                                    // the ambient layout direction from the parent composition.
+                                    layoutDirection = android.util.LayoutDirection.LTR
+                                    setContent {
+                                        childCompositionLayoutDirection =
+                                            LocalLayoutDirection.current
+                                    }
+                                },
+                                ViewGroup.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                    ViewGroup.LayoutParams.MATCH_PARENT
+                                )
+                            )
+                        }
+                    }
+                )
+            }
+        }
+        rule.runOnIdle {
+            assertThat(childViewLayoutDirection).isEqualTo(android.util.LayoutDirection.RTL)
+            assertThat(childCompositionLayoutDirection).isEqualTo(LayoutDirection.Ltr)
+        }
+    }
+
+    @Test
+    fun androidView_runsFactoryExactlyOnce_afterFirstComposition() {
+        var factoryRunCount = 0
+        rule.setContent {
+            val view = remember { View(rule.activity) }
+            AndroidView({ ++factoryRunCount; view })
+        }
+        rule.runOnIdle {
+            assertThat(factoryRunCount).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun androidView_runsFactoryExactlyOnce_evenWhenFactoryIsChanged() {
+        var factoryRunCount = 0
+        var first by mutableStateOf(true)
+        rule.setContent {
+            val view = remember { View(rule.activity) }
+            AndroidView(
+                if (first) {
+                    { ++factoryRunCount; view }
+                } else {
+                    { ++factoryRunCount; view }
+                }
+            )
+        }
+        rule.runOnIdle {
+            assertThat(factoryRunCount).isEqualTo(1)
+            first = false
+        }
+        rule.runOnIdle {
+            assertThat(factoryRunCount).isEqualTo(1)
+        }
+    }
+
+    @Ignore
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun androidView_clipsToBounds() {
+        val size = 20
+        val sizeDp = with(rule.density) { size.toDp() }
+        rule.setContent {
+            Column {
+                Box(Modifier.size(sizeDp).background(Color.Blue).testTag("box"))
+                AndroidView(factory = { SurfaceView(it) })
+            }
+        }
+
+        rule.onNodeWithTag("box").captureToImage().assertPixels(IntSize(size, size)) {
+            Color.Blue
+        }
+    }
+
+    @Test
+    fun androidView_restoresState() {
+        var result = ""
+
+        @Composable
+        fun <T : Any> Navigation(
+            currentScreen: T,
+            modifier: Modifier = Modifier,
+            content: @Composable (T) -> Unit
+        ) {
+            val saveableStateHolder = rememberSaveableStateHolder()
+            Box(modifier) {
+                saveableStateHolder.SaveableStateProvider(currentScreen) {
+                    content(currentScreen)
+                }
+            }
+        }
+
+        var screen by mutableStateOf("screen1")
+        rule.setContent {
+            Navigation(screen) { currentScreen ->
+                if (currentScreen == "screen1") {
+                    AndroidView({
+                        StateSavingView(
+                            "testKey",
+                            "testValue",
+                            { restoredValue -> result = restoredValue },
+                            it
+                        )
+                    })
+                } else {
+                    Box(Modifier)
+                }
+            }
+        }
+
+        rule.runOnIdle { screen = "screen2" }
+        rule.runOnIdle { screen = "screen1" }
+        rule.runOnIdle {
+            assertThat(result).isEqualTo("testValue")
+        }
+    }
+
+    private class StateSavingView(
+        private val key: String,
+        private val value: String,
+        private val onRestoredValue: (String) -> Unit,
+        context: Context
+    ) : View(context) {
+        init {
+            id = 73
+        }
+
+        override fun onSaveInstanceState(): Parcelable {
+            val superState = super.onSaveInstanceState()
+            val bundle = Bundle()
+            bundle.putParcelable("superState", superState)
+            bundle.putString(key, value)
+            return bundle
+        }
+
+        override fun onRestoreInstanceState(state: Parcelable?) {
+            super.onRestoreInstanceState((state as Bundle).getParcelable("superState"))
+            onRestoredValue(state.getString(key)!!)
+        }
     }
 
     private fun Dp.toPx(displayMetrics: DisplayMetrics) =

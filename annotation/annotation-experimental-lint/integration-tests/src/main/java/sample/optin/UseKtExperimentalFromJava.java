@@ -20,87 +20,103 @@ import androidx.annotation.OptIn;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 class UseKtExperimentalFromJava {
-    /**
-     * Unsafe call into an experimental class.
-     */
-    int getDateUnsafe() {
-        DateProviderKt dateProvider = new DateProviderKt();
-        return dateProvider.getDate();
-    }
-
-    @ExperimentalDateTimeKt
-    int getDateExperimental() {
-        DateProviderKt dateProvider = new DateProviderKt();
-        return dateProvider.getDate();
-    }
-
-    @OptIn(markerClass = ExperimentalDateTimeKt.class)
-    int getDateUseExperimental() {
-        DateProviderKt dateProvider = new DateProviderKt();
-        return dateProvider.getDate();
-    }
-
-    void displayDate() {
-        System.out.println("" + getDateUnsafe());
-    }
-
-    // Tests involving multiple experimental markers.
 
     /**
      * Unsafe call into an experimental class.
      */
-    @ExperimentalDateTimeKt
-    int getDateExperimentalLocationUnsafe() {
-        DateProviderKt dateProvider = new DateProviderKt();
-        LocationProviderKt locationProvider = new LocationProviderKt();
-        return dateProvider.getDate() + locationProvider.getLocation();
+    int unsafeExperimentalClassField() {
+        AnnotatedKotlinClass experimentalObject = new AnnotatedKotlinClass();
+        return experimentalObject.method();
     }
 
-    @ExperimentalDateTimeKt
-    @ExperimentalLocationKt
-    int getDateAndLocationExperimental() {
-        DateProviderKt dateProvider = new DateProviderKt();
-        LocationProviderKt locationProvider = new LocationProviderKt();
-        return dateProvider.getDate() + locationProvider.getLocation();
+    /**
+     * Safe call due to propagation of experimental annotation.
+     */
+    @ExperimentalKotlinAnnotation
+    int safePropagateMarker() {
+        AnnotatedKotlinClass experimentalObject = new AnnotatedKotlinClass();
+        return experimentalObject.method();
     }
 
-    @OptIn(markerClass = ExperimentalDateTimeKt.class)
-    @ExperimentalLocationKt
-    int getDateUseExperimentalLocationExperimental() {
-        DateProviderKt dateProvider = new DateProviderKt();
-        LocationProviderKt locationProvider = new LocationProviderKt();
-        return dateProvider.getDate() + locationProvider.getLocation();
+    /**
+     * Safe call due to opting in to experimental annotation.
+     */
+    @OptIn(markerClass = ExperimentalKotlinAnnotation.class)
+    int safeOptInMarker() {
+        AnnotatedKotlinClass experimentalObject = new AnnotatedKotlinClass();
+        return experimentalObject.method();
     }
 
+    /**
+     * Unsafe call into multiple experimental classes.
+     */
+    @ExperimentalKotlinAnnotation
+    int unsafeMultipleExperimentalClasses() {
+        AnnotatedKotlinClass experimentalObject = new AnnotatedKotlinClass();
+        return experimentalObject.method() + AnnotatedKotlinClass2.fieldStatic;
+    }
+
+    /**
+     * Safe call due to propagation of both annotations.
+     */
+    @ExperimentalKotlinAnnotation
+    @ExperimentalKotlinAnnotation2
+    int safePropagateMultipleMarkers() {
+        AnnotatedKotlinClass experimentalObject = new AnnotatedKotlinClass();
+        return experimentalObject.method() + AnnotatedKotlinClass2.fieldStatic;
+    }
+
+    /**
+     * Safe call due to opt-in of one annotation and propagation of another.
+     */
+    @OptIn(markerClass = ExperimentalKotlinAnnotation.class)
+    @ExperimentalKotlinAnnotation2
+    int safePropagateAndOptInMarkers() {
+        AnnotatedKotlinClass experimentalObject = new AnnotatedKotlinClass();
+        return experimentalObject.method() + AnnotatedKotlinClass2.fieldStatic;
+    }
+
+    /**
+     * Safe call due to opt-in of both annotations.
+     */
     @OptIn(markerClass = {
-            ExperimentalDateTimeKt.class,
-            ExperimentalLocationKt.class
+            ExperimentalKotlinAnnotation.class,
+            ExperimentalKotlinAnnotation2.class
     })
-    int getDateAndLocationUseExperimental() {
-        DateProviderKt dateProvider = new DateProviderKt();
-        LocationProviderKt locationProvider = new LocationProviderKt();
-        return dateProvider.getDate() + locationProvider.getLocation();
+    int safeOptInMultipleMarkers() {
+        AnnotatedKotlinClass experimentalObject = new AnnotatedKotlinClass();
+        return experimentalObject.method() + AnnotatedKotlinClass2.fieldStatic;
     }
 
     /**
+     * Unsafe calls into static methods.
+     *
      * Regression test for issue reported in b/140637106, which passes here but fails in Studio.
      */
     void regressionTestStaticUsage() {
-        TimeProviderKt.getTimeStatically();
-        TimeProviderKt.Companion.getTimeStatically();
+        AnnotatedKotlinMembers.methodStatic();
+        AnnotatedKotlinMembers.Companion.methodStatic();
     }
 
     /**
+     * Unsafe calls into methods without intermediate variable.
+     *
      * Regression test for issue reported in b/140637106, which passes here but fails in Studio.
      */
     void regressionTestInlineUsage() {
-        new TimeProviderKt().getTime();
-        new TimeProviderKt().getTimeJava();
+        new AnnotatedKotlinMembers().method();
+        new AnnotatedKotlinMembers().methodWithJavaMarker();
     }
 
-    @OptIn(markerClass = ExperimentalDateTimeKt.class)
-    static class FancyDateProvider extends DateProviderKt {}
+    /**
+     * Safe usage due to opting in to experimental annotation.
+     */
+    @OptIn(markerClass = ExperimentalKotlinAnnotation.class)
+    static class ExtendsAnnotatedKotlinClass extends AnnotatedKotlinClass {}
 
-    @kotlin.OptIn(markerClass = ExperimentalDateTimeKt.class)
-    static class FancyDateProvider2 extends DateProviderKt {}
+    /**
+     * Safe usage due to opting in to experimental annotation.
+     */
+    @kotlin.OptIn(markerClass = ExperimentalKotlinAnnotation.class)
+    static class ExtendsAnnotatedKotlinClass2 extends AnnotatedKotlinClass {}
 }

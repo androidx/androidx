@@ -22,6 +22,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.camera2.internal.compat.ApiCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,6 +99,13 @@ final class SynchronizedCaptureSessionStateCallbacks extends
         }
     }
 
+    @Override
+    void onSessionFinished(@NonNull SynchronizedCaptureSession session) {
+        for (SynchronizedCaptureSession.StateCallback callback : mCallbacks) {
+            callback.onSessionFinished(session);
+        }
+    }
+
     static class Adapter extends SynchronizedCaptureSession.StateCallback {
         @NonNull
         private final CameraCaptureSession.StateCallback mCameraCaptureSessionStateCallback;
@@ -114,7 +122,7 @@ final class SynchronizedCaptureSessionStateCallbacks extends
         @RequiresApi(api = Build.VERSION_CODES.M)
         public void onSurfacePrepared(@NonNull SynchronizedCaptureSession session,
                 @NonNull Surface surface) {
-            mCameraCaptureSessionStateCallback.onSurfacePrepared(
+            ApiCompat.Api23Impl.onSurfacePrepared(mCameraCaptureSessionStateCallback,
                     session.toCameraCaptureSessionCompat().toCameraCaptureSession(), surface);
         }
 
@@ -133,7 +141,7 @@ final class SynchronizedCaptureSessionStateCallbacks extends
         @Override
         @RequiresApi(api = Build.VERSION_CODES.O)
         public void onCaptureQueueEmpty(@NonNull SynchronizedCaptureSession session) {
-            mCameraCaptureSessionStateCallback.onCaptureQueueEmpty(
+            ApiCompat.Api26Impl.onCaptureQueueEmpty(mCameraCaptureSessionStateCallback,
                     session.toCameraCaptureSessionCompat().toCameraCaptureSession());
         }
 
@@ -153,6 +161,11 @@ final class SynchronizedCaptureSessionStateCallbacks extends
         public void onClosed(@NonNull SynchronizedCaptureSession session) {
             mCameraCaptureSessionStateCallback.onClosed(
                     session.toCameraCaptureSessionCompat().toCameraCaptureSession());
+        }
+
+        @Override
+        void onSessionFinished(@NonNull SynchronizedCaptureSession session) {
+            // This callback is internally used, don't forward.
         }
     }
 }

@@ -98,6 +98,7 @@ import androidx.wear.widget.drawer.WearableDrawerView.DrawerState;
  *     &lt;/androidx.wear.widget.drawer.WearableDrawerView&gt;
  * &lt;/androidx.wear.widget.drawer.WearableDrawerLayout&gt;</pre>
  */
+@SuppressWarnings("HiddenSuperclass")
 public class WearableDrawerLayout extends FrameLayout
         implements View.OnLayoutChangeListener, NestedScrollingParent, FlingListener {
 
@@ -641,6 +642,13 @@ public class WearableDrawerLayout extends FrameLayout
         boolean canScrollUp = view.canScrollVertically(UP);
         boolean canScrollDown = view.canScrollVertically(DOWN);
 
+        if (!canScrollUp && !canScrollDown) {
+            // The inner view isn't vertically scrollable, so this fling completion cannot have been
+            // fired from a vertical scroll. To prevent the peeks being shown after a horizontal
+            // scroll, bail out here.
+            return;
+        }
+
         if (canTopPeek && !canScrollUp && !mTopDrawerView.isPeeking()) {
             peekDrawer(Gravity.TOP);
         }
@@ -876,8 +884,8 @@ public class WearableDrawerLayout extends FrameLayout
 
     @Override // NestedScrollingParent
     public void onNestedScrollAccepted(@NonNull View child, @NonNull View target,
-            int nestedScrollAxes) {
-        mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, nestedScrollAxes);
+            int axes) {
+        mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, axes);
     }
 
     @Override // NestedScrollingParent

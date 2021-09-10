@@ -24,12 +24,11 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
-
-// TODO(shiufai): Add link to color guidelines.
 
 /**
  * Represents a color to be used in a car app.
@@ -87,13 +86,13 @@ import java.util.Objects;
  * #createCustom}. Wherever custom colors are used by the app, the host may use a default color
  * instead if the custom color does not pass the contrast requirements.
  */
-public class CarColor {
+@CarProtocol
+public final class CarColor {
     /**
      * The type of color represented by the {@link CarColor} instance.
      *
      * @hide
      */
-    // TODO(shiufai): investigate how to expose IntDefs if needed.
     @IntDef(
             value = {
                     TYPE_CUSTOM,
@@ -176,15 +175,14 @@ public class CarColor {
      * Indicates that a default color should be used.
      *
      * <p>This can be used for example to tell the host that the app has no preference for the
-     * tint of
-     * an icon, and it should use whatever default it finds appropriate.
+     * tint of an icon, and it should use whatever default it finds appropriate.
      */
     @NonNull
     public static final CarColor DEFAULT = create(TYPE_DEFAULT);
 
     /**
      * Indicates that the app primary color and its dark version should be used, as declared in the
-     * app manifest through the <code>carColorPrimary</code> and <code>carColorPrimaryDark</code>
+     * app manifest through the {@code carColorPrimary} and {@code carColorPrimaryDark}
      * theme attributes.
      */
     @NonNull
@@ -192,10 +190,8 @@ public class CarColor {
 
     /**
      * Indicates that the app secondary color and its dark version should be used, as declared in
-     * the
-     * app manifest through the <code>carColorSecondary</code> and
-     * <code>carColorSecondaryDark</code>
-     * theme attributes.
+     * the app manifest through the <code>carColorSecondary</code> and {@code
+     * carColorSecondaryDark} theme attributes.
      */
     @NonNull
     public static final CarColor SECONDARY = create(TYPE_SECONDARY);
@@ -241,16 +237,25 @@ public class CarColor {
         return new CarColor(TYPE_CUSTOM, color, colorDark);
     }
 
+    /** Returns the type of color for this instance. */
     @CarColorType
     public int getType() {
         return mType;
     }
 
+    /**
+     * Returns a packed color int for the light variant of the color, used when the type
+     * is {@link #TYPE_CUSTOM}.
+     */
     @ColorInt
     public int getColor() {
         return mColor;
     }
 
+    /**
+     * Returns a packed color int for the dark variant of the color, used when the type
+     * is {@link #TYPE_CUSTOM}.
+     */
     @ColorInt
     public int getColorDark() {
         return mColorDark;
@@ -316,8 +321,8 @@ public class CarColor {
     }
 
     private CarColor(@CarColorType int type, @ColorInt int color, @ColorInt int colorDark) {
-        this.mType = type;
-        this.mColor = color;
-        this.mColorDark = colorDark;
+        mType = type;
+        mColor = color;
+        mColorDark = colorDark;
     }
 }

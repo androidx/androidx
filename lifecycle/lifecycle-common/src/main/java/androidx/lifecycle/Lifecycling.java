@@ -64,6 +64,7 @@ public class Lifecycling {
     }
 
     @NonNull
+    @SuppressWarnings("deprecation")
     static LifecycleEventObserver lifecycleEventObserver(Object object) {
         boolean isLifecycleEventObserver = object instanceof LifecycleEventObserver;
         boolean isFullLifecycleObserver = object instanceof FullLifecycleObserver;
@@ -112,6 +113,7 @@ public class Lifecycling {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Nullable
     private static Constructor<? extends GeneratedAdapter> generatedConstructor(Class<?> klass) {
         try {
@@ -161,6 +163,7 @@ public class Lifecycling {
             return GENERATED_CALLBACK;
         }
 
+        @SuppressWarnings("deprecation")
         boolean hasLifecycleMethods = ClassesInfoCache.sInstance.hasLifecycleMethods(klass);
         if (hasLifecycleMethods) {
             return REFLECTIVE_CALLBACK;

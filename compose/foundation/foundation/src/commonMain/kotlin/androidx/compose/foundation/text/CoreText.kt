@@ -13,61 +13,63 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION_ERROR")
+@file:Suppress("DEPRECATION_ERROR", "DEPRECATION")
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.fastMapIndexedNotNull
+import androidx.compose.foundation.text.selection.LocalSelectionRegistrar
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.MouseSelectionObserver
 import androidx.compose.foundation.text.selection.MultiWidgetSelectionDelegate
-import androidx.compose.runtime.CommitScope
+import androidx.compose.foundation.text.selection.Selectable
+import androidx.compose.foundation.text.selection.SelectionAdjustment
+import androidx.compose.foundation.text.selection.SelectionRegistrar
+import androidx.compose.foundation.text.selection.hasSelection
+import androidx.compose.foundation.text.selection.mouseSelectionDetector
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.emptyContent
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.onCommit
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.DisposableEffectResult
+import androidx.compose.runtime.DisposableEffectScope
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.structuralEqualityPolicy
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.gesture.LongPressDragObserver
-import androidx.compose.ui.gesture.longPressDragGestureFilter
-import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.FirstBaseline
-import androidx.compose.ui.layout.IntrinsicMeasureBlock
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.MeasureBlock
-import androidx.compose.ui.layout.globalPosition
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.AmbientDensity
-import androidx.compose.ui.platform.AmbientFontLoader
-import androidx.compose.ui.selection.AmbientSelectionRegistrar
-import androidx.compose.ui.selection.AmbientTextSelectionColors
-import androidx.compose.ui.selection.Selectable
-import androidx.compose.ui.selection.SelectionRegistrar
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFontLoader
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.TextDelegate
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.length
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.subSequence
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.util.annotation.VisibleForTesting
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
@@ -77,8 +79,8 @@ private typealias InlineContentRange = AnnotatedString.Range<@Composable (String
 /**
  * CoreText is a low level element that displays text with multiple different styles. The text to
  * display is described using a [AnnotatedString]. Typically you will instead want to use
- * [androidx.compose.foundation.Text], which is a higher level Text element that contains semantics and
- * consumes style information from a theme.
+ * [androidx.compose.material.Text], which is a higher level Text element that contains
+ * semantics and consumes style information from a theme.
  *
  * @param text AnnotatedString encoding a styled text.
  * @param modifier Modifier to apply to this layout node.
@@ -92,11 +94,14 @@ private typealias InlineContentRange = AnnotatedString.Range<@Composable (String
  * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
  * @param inlineContent A map store composables that replaces certain ranges of the text. It's
  * used to insert composables into text layout. Check [InlineTextContent] for more information.
- * @param onTextLayout Callback that is executed when a new text layout is calculated.
+ * @param onTextLayout Callback that is executed when a new text layout is calculated. A
+ * [TextLayoutResult] object that callback provides contains paragraph information, size of the
+ * text, baselines and other details. The callback can be used to add additional decoration or
+ * functionality to the text. For example, to draw selection around the text.
  */
 @Composable
-@InternalTextApi
-fun CoreText(
+@OptIn(InternalFoundationTextApi::class)
+internal fun CoreText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     style: TextStyle,
@@ -109,12 +114,25 @@ fun CoreText(
     require(maxLines > 0) { "maxLines should be greater than 0" }
 
     // selection registrar, if no SelectionContainer is added ambient value will be null
-    val selectionRegistrar = AmbientSelectionRegistrar.current
-    val density = AmbientDensity.current
-    val resourceLoader = AmbientFontLoader.current
-    val selectionBackgroundColor = AmbientTextSelectionColors.current.backgroundColor
+    val selectionRegistrar = LocalSelectionRegistrar.current
+    val density = LocalDensity.current
+    val resourceLoader = LocalFontLoader.current
+    val selectionBackgroundColor = LocalTextSelectionColors.current.backgroundColor
 
     val (placeholders, inlineComposables) = resolveInlineContent(text, inlineContent)
+
+    // The ID used to identify this CoreText. If this CoreText is removed from the composition
+    // tree and then added back, this ID should stay the same.
+    // Notice that we need to update selectable ID when the input text or selectionRegistrar has
+    // been updated.
+    // When text is updated, the selection on this CoreText becomes invalid. It can be treated
+    // as a brand new CoreText.
+    // When SelectionRegistrar is updated, CoreText have to request a new ID to avoid ID collision.
+
+    val selectableId =
+        rememberSaveable(text, selectionRegistrar, saver = selectionIdSaver(selectionRegistrar)) {
+            selectionRegistrar?.nextSelectableId() ?: SelectionRegistrar.InvalidSelectableId
+        }
 
     val state = remember {
         TextState(
@@ -127,7 +145,8 @@ fun CoreText(
                 overflow = overflow,
                 maxLines = maxLines,
                 placeholders = placeholders
-            )
+            ),
+            selectableId
         )
     }
     state.textDelegate = updateTextDelegate(
@@ -142,14 +161,14 @@ fun CoreText(
         placeholders = placeholders
     )
     state.onTextLayout = onTextLayout
-    state.selectionPaint.color = selectionBackgroundColor
+    state.selectionBackgroundColor = selectionBackgroundColor
 
     val controller = remember { TextController(state) }
     controller.update(selectionRegistrar)
 
     Layout(
         content = if (inlineComposables.isEmpty()) {
-            emptyContent()
+            {}
         } else {
             { InlineChildren(text, inlineComposables) }
         },
@@ -157,24 +176,27 @@ fun CoreText(
             .then(controller.modifiers)
             .then(
                 if (selectionRegistrar != null) {
-                    Modifier.longPressDragGestureFilter(
-                        longPressDragObserver(
-                            state = state,
-                            selectionRegistrar = selectionRegistrar
-                        )
-                    )
+                    if (isInTouchMode) {
+                        Modifier.pointerInput(controller.longPressDragObserver) {
+                            detectDragGesturesAfterLongPressWithObserver(
+                                controller.longPressDragObserver
+                            )
+                        }
+                    } else {
+                        Modifier.pointerInput(controller.mouseSelectionObserver) {
+                            mouseSelectionDetector(
+                                controller.mouseSelectionObserver
+                            )
+                        }
+                    }
                 } else {
                     Modifier
                 }
             ),
-        minIntrinsicWidthMeasureBlock = controller.minIntrinsicWidth,
-        minIntrinsicHeightMeasureBlock = controller.minIntrinsicHeight,
-        maxIntrinsicWidthMeasureBlock = controller.maxIntrinsicWidth,
-        maxIntrinsicHeightMeasureBlock = controller.maxIntrinsicHeight,
-        measureBlock = controller.measure
+        measurePolicy = controller.measurePolicy
     )
 
-    onCommit(selectionRegistrar, callback = controller.commit)
+    DisposableEffect(selectionRegistrar, effect = controller.commit)
 }
 
 @Composable
@@ -186,7 +208,7 @@ internal fun InlineChildren(
         Layout(
             content = { content(text.subSequence(start, end).text) }
         ) { children, constrains ->
-            val placeables = children.map { it.measure(constrains) }
+            val placeables = children.fastMap { it.measure(constrains) }
             layout(width = constrains.maxWidth, height = constrains.maxHeight) {
                 placeables.fastForEach { it.placeRelative(0, 0) }
             }
@@ -194,41 +216,25 @@ internal fun InlineChildren(
     }
 }
 
-@OptIn(InternalTextApi::class)
-private class TextController(val state: TextState) {
+@OptIn(InternalFoundationTextApi::class)
+/*@VisibleForTesting*/
+internal class TextController(val state: TextState) {
     var selectionRegistrar: SelectionRegistrar? = null
 
     fun update(selectionRegistrar: SelectionRegistrar?) {
         this.selectionRegistrar = selectionRegistrar
     }
 
-    val modifiers = Modifier.graphicsLayer().drawBehind {
-        state.layoutResult?.let { layoutResult ->
-            drawIntoCanvas { canvas ->
-                state.selectionRange?.let {
-                    TextDelegate.paintBackground(
-                        it.min,
-                        it.max,
-                        state.selectionPaint,
-                        canvas,
-                        layoutResult
-                    )
-                }
-                TextDelegate.paint(canvas, layoutResult)
-            }
-        }
-    }.onGloballyPositioned {
+    val modifiers = Modifier.drawTextAndSelectionBehind().onGloballyPositioned {
         // Get the layout coordinates of the text composable. This is for hit test of
         // cross-composable selection.
         state.layoutCoordinates = it
-        selectionRegistrar?.let { selectionRegistrar ->
-            if (state.selectionRange != null) {
-                val newGlobalPosition = it.globalPosition
-                if (newGlobalPosition != state.previousGlobalPosition) {
-                    selectionRegistrar.onPositionChange()
-                }
-                state.previousGlobalPosition = newGlobalPosition
+        if (selectionRegistrar.hasSelection(state.selectableId)) {
+            val newGlobalPosition = it.positionInWindow()
+            if (newGlobalPosition != state.previousGlobalPosition) {
+                selectionRegistrar?.notifyPositionChange(state.selectableId)
             }
+            state.previousGlobalPosition = newGlobalPosition
         }
     }.semantics {
         getTextLayoutResult {
@@ -241,129 +247,361 @@ private class TextController(val state: TextState) {
         }
     }
 
-    val minIntrinsicWidth: IntrinsicMeasureBlock = { _, _ ->
-        state.textDelegate.layoutIntrinsics(layoutDirection)
-        state.textDelegate.minIntrinsicWidth
-    }
-
-    val minIntrinsicHeight: IntrinsicMeasureBlock = { _, width ->
-        // given the width constraint, determine the min height
-        state.textDelegate
-            .layout(Constraints(0, width, 0, Constraints.Infinity), layoutDirection)
-            .size.height
-    }
-
-    val maxIntrinsicWidth: IntrinsicMeasureBlock = { _, _ ->
-        state.textDelegate.layoutIntrinsics(layoutDirection)
-        state.textDelegate.maxIntrinsicWidth
-    }
-
-    val maxIntrinsicHeight: IntrinsicMeasureBlock = { _, width ->
-        state.textDelegate
-            .layout(Constraints(0, width, 0, Constraints.Infinity), layoutDirection)
-            .size.height
-    }
-
-    val measure: MeasureBlock = { measurables, constraints ->
-        val layoutResult = state.textDelegate.layout(
-            constraints,
-            layoutDirection,
-            state.layoutResult
-        )
-        if (state.layoutResult != layoutResult) {
-            state.onTextLayout(layoutResult)
-        }
-        state.layoutResult = layoutResult
-
-        check(measurables.size >= layoutResult.placeholderRects.size)
-        val placeables = layoutResult.placeholderRects.mapIndexedNotNull { index, rect ->
-            // PlaceholderRect will be null if it's ellipsized. In that case, the corresponding
-            // inline children won't be measured or placed.
-            rect?.let {
-                Pair(
-                    measurables[index].measure(
-                        Constraints(
-                            maxWidth = floor(it.width).toInt(),
-                            maxHeight = floor(it.height).toInt()
-                        )
-                    ),
-                    IntOffset(it.left.roundToInt(), it.top.roundToInt())
-                )
-            }
-        }
-
-        layout(
-            layoutResult.size.width,
-            layoutResult.size.height,
-            // Provide values for the alignment lines defined by text - the first
-            // and last baselines of the text. These can be used by parent layouts
-            // to position this text or align this and other texts by baseline.
-            //
-            // Note: we use round to make Int but any rounding doesn't work well here since
-            // the layout system works with integer pixels but baseline can be in a middle of
-            // the pixel. So any rounding doesn't offer the pixel perfect baseline. We use
-            // round just because the Android framework is doing float-to-int conversion with
-            // round.
-            // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/jni/android/graphics/Paint.cpp;l=635?q=Paint.cpp
-            mapOf(
-                FirstBaseline to layoutResult.firstBaseline.roundToInt(),
-                LastBaseline to layoutResult.lastBaseline.roundToInt()
+    val measurePolicy = object : MeasurePolicy {
+        override fun MeasureScope.measure(
+            measurables: List<Measurable>,
+            constraints: Constraints
+        ): MeasureResult {
+            val layoutResult = state.textDelegate.layout(
+                constraints,
+                layoutDirection,
+                state.layoutResult
             )
-        ) {
-            placeables.fastForEach { placeable ->
-                placeable.first.placeRelative(placeable.second)
-            }
-        }
-    }
+            if (state.layoutResult != layoutResult) {
+                state.onTextLayout(layoutResult)
 
-    val commit: CommitScope.() -> Unit = {
-        // if no SelectionContainer is added as parent selectionRegistrar will be null
-        val id: Selectable? =
-            selectionRegistrar?.let { selectionRegistrar ->
-                selectionRegistrar.subscribe(
-                    MultiWidgetSelectionDelegate(
-                        selectionRangeUpdate = { state.selectionRange = it },
-                        coordinatesCallback = { state.layoutCoordinates },
-                        layoutResultCallback = { state.layoutResult }
+                state.layoutResult?.let { prevLayoutResult ->
+                    // If the input text of this CoreText has changed, notify the SelectionContainer.
+                    if (prevLayoutResult.layoutInput.text != layoutResult.layoutInput.text) {
+                        selectionRegistrar?.notifySelectableChange(state.selectableId)
+                    }
+                }
+            }
+            state.layoutResult = layoutResult
+
+            check(measurables.size >= layoutResult.placeholderRects.size)
+            val placeables = layoutResult.placeholderRects.fastMapIndexedNotNull { index, rect ->
+                // PlaceholderRect will be null if it's ellipsized. In that case, the corresponding
+                // inline children won't be measured or placed.
+                rect?.let {
+                    Pair(
+                        measurables[index].measure(
+                            Constraints(
+                                maxWidth = floor(it.width).toInt(),
+                                maxHeight = floor(it.height).toInt()
+                            )
+                        ),
+                        IntOffset(it.left.roundToInt(), it.top.roundToInt())
                     )
-                )
+                }
             }
 
-        onDispose {
-            // unregister only if any id was provided by SelectionRegistrar
-            id?.let { selectionRegistrar?.unsubscribe(id) }
+            return layout(
+                layoutResult.size.width,
+                layoutResult.size.height,
+                // Provide values for the alignment lines defined by text - the first
+                // and last baselines of the text. These can be used by parent layouts
+                // to position this text or align this and other texts by baseline.
+                //
+                // Note: we use round to make Int but any rounding doesn't work well here since
+                // the layout system works with integer pixels but baseline can be in a middle of
+                // the pixel. So any rounding doesn't offer the pixel perfect baseline. We use
+                // round just because the Android framework is doing float-to-int conversion with
+                // round.
+                // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/jni/android/graphics/Paint.cpp;l=635?q=Paint.cpp
+                mapOf(
+                    FirstBaseline to layoutResult.firstBaseline.roundToInt(),
+                    LastBaseline to layoutResult.lastBaseline.roundToInt()
+                )
+            ) {
+                placeables.fastForEach { placeable ->
+                    placeable.first.placeRelative(placeable.second)
+                }
+            }
+        }
+
+        override fun IntrinsicMeasureScope.minIntrinsicWidth(
+            measurables: List<IntrinsicMeasurable>,
+            height: Int
+        ): Int {
+            state.textDelegate.layoutIntrinsics(layoutDirection)
+            return state.textDelegate.minIntrinsicWidth
+        }
+
+        override fun IntrinsicMeasureScope.minIntrinsicHeight(
+            measurables: List<IntrinsicMeasurable>,
+            width: Int
+        ): Int {
+            return state.textDelegate
+                .layout(Constraints(0, width, 0, Constraints.Infinity), layoutDirection)
+                .size.height
+        }
+
+        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+            measurables: List<IntrinsicMeasurable>,
+            height: Int
+        ): Int {
+            state.textDelegate.layoutIntrinsics(layoutDirection)
+            return state.textDelegate.maxIntrinsicWidth
+        }
+
+        override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+            measurables: List<IntrinsicMeasurable>,
+            width: Int
+        ): Int {
+            return state.textDelegate
+                .layout(Constraints(0, width, 0, Constraints.Infinity), layoutDirection)
+                .size.height
         }
     }
+
+    val commit: DisposableEffectScope.() -> DisposableEffectResult = {
+        // if no SelectionContainer is added as parent selectionRegistrar will be null
+        selectionRegistrar?.let { selectionRegistrar ->
+            state.selectable = selectionRegistrar.subscribe(
+                MultiWidgetSelectionDelegate(
+                    selectableId = state.selectableId,
+                    coordinatesCallback = { state.layoutCoordinates },
+                    layoutResultCallback = { state.layoutResult }
+                )
+            )
+        }
+        onDispose {
+            state.selectable?.let { selectionRegistrar?.unsubscribe(it) }
+        }
+    }
+
+    val longPressDragObserver: TextDragObserver = object : TextDragObserver {
+        /**
+         * The beginning position of the drag gesture. Every time a new drag gesture starts, it wil be
+         * recalculated.
+         */
+        var lastPosition = Offset.Zero
+
+        /**
+         * The total distance being dragged of the drag gesture. Every time a new drag gesture starts,
+         * it will be zeroed out.
+         */
+        var dragTotalDistance = Offset.Zero
+
+        override fun onStart(startPoint: Offset) {
+            state.layoutCoordinates?.let {
+                if (!it.isAttached) return
+
+                if (outOfBoundary(startPoint, startPoint)) {
+                    selectionRegistrar?.notifySelectionUpdateSelectAll(
+                        selectableId = state.selectableId
+                    )
+                } else {
+                    selectionRegistrar?.notifySelectionUpdateStart(
+                        layoutCoordinates = it,
+                        startPosition = startPoint,
+                        adjustment = SelectionAdjustment.Word
+                    )
+                }
+
+                lastPosition = startPoint
+            }
+            // selection never started
+            if (!selectionRegistrar.hasSelection(state.selectableId)) return
+            // Zero out the total distance that being dragged.
+            dragTotalDistance = Offset.Zero
+        }
+
+        override fun onDrag(delta: Offset) {
+            state.layoutCoordinates?.let {
+                if (!it.isAttached) return
+                // selection never started, did not consume any drag
+                if (!selectionRegistrar.hasSelection(state.selectableId)) return
+
+                dragTotalDistance += delta
+                val newPosition = lastPosition + dragTotalDistance
+
+                if (!outOfBoundary(lastPosition, newPosition)) {
+                    // Notice that only the end position needs to be updated here.
+                    // Start position is left unchanged. This is typically important when
+                    // long-press is using SelectionAdjustment.WORD or
+                    // SelectionAdjustment.PARAGRAPH that updates the start handle position from
+                    // the dragBeginPosition.
+                    val consumed = selectionRegistrar?.notifySelectionUpdate(
+                        layoutCoordinates = it,
+                        previousPosition = lastPosition,
+                        newPosition = newPosition,
+                        isStartHandle = false,
+                        adjustment = SelectionAdjustment.CharacterWithWordAccelerate
+                    )
+                    if (consumed == true) {
+                        lastPosition = newPosition
+                        dragTotalDistance = Offset.Zero
+                    }
+                }
+            }
+        }
+
+        override fun onStop() {
+            if (selectionRegistrar.hasSelection(state.selectableId)) {
+                selectionRegistrar?.notifySelectionUpdateEnd()
+            }
+        }
+
+        override fun onCancel() {
+            if (selectionRegistrar.hasSelection(state.selectableId)) {
+                selectionRegistrar?.notifySelectionUpdateEnd()
+            }
+        }
+    }
+
+    val mouseSelectionObserver = object : MouseSelectionObserver {
+        var lastPosition = Offset.Zero
+
+        override fun onExtend(downPosition: Offset): Boolean {
+            state.layoutCoordinates?.let { layoutCoordinates ->
+                if (!layoutCoordinates.isAttached) return false
+                selectionRegistrar?.let {
+                    val consumed = it.notifySelectionUpdate(
+                        layoutCoordinates = layoutCoordinates,
+                        newPosition = downPosition,
+                        previousPosition = lastPosition,
+                        isStartHandle = false,
+                        adjustment = SelectionAdjustment.None
+                    )
+                    if (consumed) {
+                        lastPosition = downPosition
+                    }
+                }
+                return selectionRegistrar.hasSelection(state.selectableId)
+            }
+            return false
+        }
+
+        override fun onExtendDrag(dragPosition: Offset): Boolean {
+            state.layoutCoordinates?.let { layoutCoordinates ->
+                if (!layoutCoordinates.isAttached) return false
+                if (!selectionRegistrar.hasSelection(state.selectableId)) return false
+
+                selectionRegistrar?. let {
+                    val consumed = it.notifySelectionUpdate(
+                        layoutCoordinates = layoutCoordinates,
+                        newPosition = dragPosition,
+                        previousPosition = lastPosition,
+                        isStartHandle = false,
+                        adjustment = SelectionAdjustment.None
+                    )
+
+                    if (consumed) {
+                        lastPosition = dragPosition
+                    }
+                }
+            }
+            return true
+        }
+
+        override fun onStart(
+            downPosition: Offset,
+            adjustment: SelectionAdjustment
+        ): Boolean {
+            state.layoutCoordinates?.let {
+                if (!it.isAttached) return false
+
+                selectionRegistrar?.notifySelectionUpdateStart(
+                    layoutCoordinates = it,
+                    startPosition = downPosition,
+                    adjustment = adjustment
+                )
+
+                lastPosition = downPosition
+                return selectionRegistrar.hasSelection(state.selectableId)
+            }
+
+            return false
+        }
+
+        override fun onDrag(dragPosition: Offset, adjustment: SelectionAdjustment): Boolean {
+            state.layoutCoordinates?.let {
+                if (!it.isAttached) return false
+                if (!selectionRegistrar.hasSelection(state.selectableId)) return false
+
+                val consumed = selectionRegistrar?.notifySelectionUpdate(
+                    layoutCoordinates = it,
+                    previousPosition = lastPosition,
+                    newPosition = dragPosition,
+                    isStartHandle = false,
+                    adjustment = adjustment
+                )
+                if (consumed == true) {
+                    lastPosition = dragPosition
+                }
+            }
+            return true
+        }
+    }
+
+    private fun outOfBoundary(start: Offset, end: Offset): Boolean {
+        state.layoutResult?.let {
+            val lastOffset = it.layoutInput.text.text.length
+            val rawStartOffset = it.getOffsetForPosition(start)
+            val rawEndOffset = it.getOffsetForPosition(end)
+
+            return rawStartOffset >= lastOffset - 1 && rawEndOffset >= lastOffset - 1 ||
+                rawStartOffset < 0 && rawEndOffset < 0
+        }
+        return false
+    }
+
+    /**
+     * Draw the given selection on the canvas.
+     */
+    @Stable
+    @OptIn(InternalFoundationTextApi::class)
+    private fun Modifier.drawTextAndSelectionBehind(): Modifier =
+        this.graphicsLayer().drawBehind {
+            state.layoutResult?.let {
+                val selection = selectionRegistrar?.subselections?.get(state.selectableId)
+
+                if (selection != null) {
+                    val start = if (!selection.handlesCrossed) {
+                        selection.start.offset
+                    } else {
+                        selection.end.offset
+                    }
+                    val end = if (!selection.handlesCrossed) {
+                        selection.end.offset
+                    } else {
+                        selection.start.offset
+                    }
+
+                    if (start != end) {
+                        val selectionPath = it.multiParagraph.getPathForRange(start, end)
+                        drawPath(selectionPath, state.selectionBackgroundColor)
+                    }
+                }
+                drawIntoCanvas { canvas ->
+                    TextDelegate.paint(canvas, it)
+                }
+            }
+        }
 }
 
-@OptIn(InternalTextApi::class)
-@VisibleForTesting
+@OptIn(InternalFoundationTextApi::class)
+/*@VisibleForTesting*/
 internal class TextState(
-    var textDelegate: TextDelegate
+    var textDelegate: TextDelegate,
+    /** The selectable Id assigned to the [selectable] */
+    val selectableId: Long
 ) {
     var onTextLayout: (TextLayoutResult) -> Unit = {}
 
-    /**
-     * The current selection range, used by selection.
-     * This should be a state as every time we update the value during the selection we
-     * need to redraw it. state observation during onDraw callback will make it work.
-     */
-    var selectionRange by mutableStateOf<TextRange?>(null, structuralEqualityPolicy())
+    /** The [Selectable] associated with this [CoreText]. */
+    var selectable: Selectable? = null
+
     /** The last layout coordinates for the Text's layout, used by selection */
     var layoutCoordinates: LayoutCoordinates? = null
+
     /** The latest TextLayoutResult calculated in the measure block */
     var layoutResult: TextLayoutResult? = null
-    /** The global position calculated during the last onPositioned callback */
+
+    /** The global position calculated during the last notifyPosition callback */
     var previousGlobalPosition: Offset = Offset.Zero
-    /** The paint used to draw highlight background for selected text. */
-    val selectionPaint: Paint = Paint()
+
+    /** The background color of selection */
+    var selectionBackgroundColor: Color = Color.Unspecified
 }
 
 /**
  * Returns the [TextDelegate] passed as a [current] param if the input didn't change
  * otherwise creates a new [TextDelegate].
  */
-@OptIn(InternalTextApi::class)
+@OptIn(InternalFoundationTextApi::class)
 internal fun updateTextDelegate(
     current: TextDelegate,
     text: AnnotatedString,
@@ -433,61 +671,10 @@ private fun resolveInlineContent(
     return Pair(placeholders, inlineComposables)
 }
 
-@OptIn(InternalTextApi::class)
-@VisibleForTesting
-internal fun longPressDragObserver(
-    state: TextState,
-    selectionRegistrar: SelectionRegistrar?
-): LongPressDragObserver {
-    /**
-     * The beginning position of the drag gesture. Every time a new drag gesture starts, it wil be
-     * recalculated.
-     */
-    var dragBeginPosition = Offset.Zero
-
-    /**
-     * The total distance being dragged of the drag gesture. Every time a new drag gesture starts,
-     * it will be zeroed out.
-     */
-    var dragTotalDistance = Offset.Zero
-    return object : LongPressDragObserver {
-        override fun onLongPress(pxPosition: Offset) {
-            state.layoutCoordinates?.let {
-                if (!it.isAttached) return
-
-                selectionRegistrar?.onUpdateSelection(
-                    layoutCoordinates = it,
-                    startPosition = pxPosition,
-                    endPosition = pxPosition
-                )
-
-                dragBeginPosition = pxPosition
-            }
-        }
-
-        override fun onDragStart() {
-            super.onDragStart()
-            // selection never started
-            if (state.selectionRange == null) return
-            // Zero out the total distance that being dragged.
-            dragTotalDistance = Offset.Zero
-        }
-
-        override fun onDrag(dragDistance: Offset): Offset {
-            state.layoutCoordinates?.let {
-                if (!it.isAttached) return Offset.Zero
-                // selection never started, did not consume any drag
-                if (state.selectionRange == null) return Offset.Zero
-
-                dragTotalDistance += dragDistance
-
-                selectionRegistrar?.onUpdateSelection(
-                    layoutCoordinates = it,
-                    startPosition = dragBeginPosition,
-                    endPosition = dragBeginPosition + dragTotalDistance
-                )
-            }
-            return dragDistance
-        }
-    }
-}
+/**
+ * A custom saver that won't save if no selection is active.
+ */
+private fun selectionIdSaver(selectionRegistrar: SelectionRegistrar?) = Saver<Long, Long>(
+    save = { if (selectionRegistrar.hasSelection(it)) it else null },
+    restore = { it }
+)

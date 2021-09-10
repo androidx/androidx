@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
+import androidx.build.dependencies.DependenciesKt
 import androidx.build.LibraryGroups
-import androidx.build.AndroidXExtension
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -31,16 +29,18 @@ plugins {
 
 dependencies {
     api(project(":datastore:datastore-core"))
-    api(PROTOBUF_LITE)
+    api(libs.protobufLite)
+    implementation(libs.kotlinCoroutinesCore)
 
-    testImplementation(TRUTH)
-    testImplementation(JUNIT)
+    testImplementation(libs.truth)
+    testImplementation(libs.junit)
     testImplementation(project(":internal-testutils-truth"))
+    testImplementation(libs.kotlinCoroutinesTest)
 }
 
 protobuf {
     protoc {
-        artifact = PROTOBUF_COMPILER
+        artifact = DependenciesKt.getDependencyAsString(libs.protobufCompiler)
     }
     // Generates the java proto-lite code for the protos in this project. See
     // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
@@ -49,7 +49,7 @@ protobuf {
         all().each { task ->
             task.builtins {
                 java {
-                    option 'lite'
+                    option "lite"
                 }
             }
         }
@@ -58,9 +58,9 @@ protobuf {
 
 androidx {
     name = "Android Proto DataStore"
-    publish = Publish.SNAPSHOT_ONLY
+    publish = Publish.NONE
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android Proto DataStore"
-    runApiTasks = new RunApiTasks.Yes()
+    runApiTasks = new RunApiTasks.No("Unreleased library.")
 }

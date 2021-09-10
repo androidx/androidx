@@ -23,6 +23,8 @@ import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
+import com.android.tools.lint.detector.api.minSdkAtLeast
+import com.android.tools.lint.detector.api.minSdkLessThan
 
 // Flags usage of Resources.getColorStateList and suggests converting it to either
 // ContextCompat.getColorStateList or AppCompatResources.getColorStateList based
@@ -30,17 +32,17 @@ import com.android.tools.lint.detector.api.Severity
 @Suppress("UnstableApiUsage")
 class ColorStateListLoadingDetector : BaseMethodDeprecationDetector(
     NOT_USING_COMPAT_LOADING,
-    // Suggest using ContextCompat.getColorStateList at API > 23
+    // Suggest using ContextCompat.getColorStateList at API >= 24
     DeprecationCondition(
         MethodLocation("android.content.res.Resources", "getColorStateList", TYPE_INT),
         "Use `ContextCompat.getColorStateList()`",
-        ApiAbove(23)
+        constraint = minSdkAtLeast(24),
     ),
-    // Suggest using AppCompatResources.getColorStateList at API <= 23
+    // Suggest using AppCompatResources.getColorStateList at API < 24
     DeprecationCondition(
         MethodLocation("android.content.res.Resources", "getColorStateList", TYPE_INT),
         "Use `AppCompatResources.getColorStateList()`",
-        ApiAtOrBelow(23)
+        constraint = minSdkLessThan(24),
     )
 ) {
     companion object {

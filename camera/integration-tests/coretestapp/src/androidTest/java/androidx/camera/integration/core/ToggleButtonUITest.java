@@ -34,6 +34,7 @@ import android.content.Intent;
 
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.TorchState;
 import androidx.camera.integration.core.idlingresource.ElapsedTimeIdlingResource;
@@ -54,11 +55,16 @@ import androidx.test.uiautomator.UiDevice;
 import junit.framework.AssertionFailedError;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /** Test toggle buttons in CoreTestApp. */
 @RunWith(AndroidJUnit4.class)
@@ -116,6 +122,12 @@ public final class ToggleButtonUITest {
         // Returns to Home to restart next test.
         mDevice.pressHome();
         mDevice.waitForIdle(IDLE_TIMEOUT_MS);
+    }
+
+    @AfterClass
+    public static void shutdownCameraX()
+            throws InterruptedException, ExecutionException, TimeoutException {
+        CameraX.shutdown().get(10, TimeUnit.SECONDS);
     }
 
     @Test

@@ -18,17 +18,22 @@ package androidx.camera.camera2.pipe
 
 import android.content.Context
 import android.os.Build
-import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
-import androidx.camera.camera2.pipe.testing.FakeCameras
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
+import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.testing.RobolectricCameras
+import androidx.camera.camera2.pipe.testing.awaitEvent
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-@RunWith(CameraPipeRobolectricTestRunner::class)
+@RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class CameraPipeTest {
+internal class CameraPipeTest {
 
     @Test
     fun createCameraPipe() {
@@ -41,14 +46,14 @@ class CameraPipeTest {
 
     @Test
     fun createCameraGraph() {
-        val fakeCameraId = FakeCameras.create()
+        val fakeCameraId = RobolectricCameras.create()
         val context = ApplicationProvider.getApplicationContext() as Context
         val cameraPipe = CameraPipe(CameraPipe.Config(context))
         val cameraGraph = cameraPipe.create(
             CameraGraph.Config(
                 camera = fakeCameraId,
                 streams = listOf(),
-                template = RequestTemplate(0)
+                defaultTemplate = RequestTemplate(0)
             )
         )
         assertThat(cameraGraph).isNotNull()
@@ -56,14 +61,70 @@ class CameraPipeTest {
 
     @Test
     fun iterateCameraIds() {
-        val fakeCameraId = FakeCameras.create()
+        val fakeCameraId = RobolectricCameras.create()
         val context = ApplicationProvider.getApplicationContext() as Context
         val cameraPipe = CameraPipe(CameraPipe.Config(context))
         val cameras = cameraPipe.cameras()
-        val cameraList = cameras.findAll()
+        val cameraList = runBlocking { cameras.ids() }
 
         assertThat(cameraList).isNotNull()
         assertThat(cameraList.size).isEqualTo(1)
         assertThat(cameraList).contains(fakeCameraId)
+    }
+
+    @Ignore("b/180539013")
+    @Test
+    fun createExternalCameraGraph() {
+        val fakeRequestProcessor = FakeRequestProcessor()
+        val fakeCameraMetadata = FakeCameraMetadata()
+
+        val config = CameraGraph.Config(
+            camera = fakeCameraMetadata.camera,
+            streams = listOf(),
+            defaultTemplate = RequestTemplate(0)
+        )
+
+        val cameraGraph = CameraPipe.External().create(
+            config,
+            fakeCameraMetadata,
+            fakeRequestProcessor
+        )
+        assertThat(cameraGraph).isNotNull()
+
+        val request = Request(streams = emptyList())
+        cameraGraph.start()
+
+        // Check that repeating request can be issued
+        runBlocking {
+            cameraGraph.acquireSession().use {
+                it.startRepeating(request)
+            }
+
+            val repeatingEvent = fakeRequestProcessor.nextEvent()
+            assertThat(repeatingEvent.startRepeating).isTrue()
+            assertThat(repeatingEvent.requestSequence!!.requests.first()).isSameInstanceAs(request)
+
+            cameraGraph.stop()
+
+            val closeEvent = fakeRequestProcessor.awaitEvent { it.close }
+            assertThat(closeEvent.close).isTrue()
+        }
+
+        fakeRequestProcessor.reset()
+
+        // Check that repeating request is saved and reused.
+        runBlocking {
+            cameraGraph.start()
+
+            val repeatingEvent = fakeRequestProcessor.nextEvent()
+            if (!repeatingEvent.startRepeating) {
+                throw RuntimeException("$repeatingEvent")
+            }
+
+            assertThat(repeatingEvent.startRepeating).isTrue()
+            assertThat(repeatingEvent.requestSequence!!.requests.first()).isSameInstanceAs(request)
+
+            cameraGraph.stop()
+        }
     }
 }

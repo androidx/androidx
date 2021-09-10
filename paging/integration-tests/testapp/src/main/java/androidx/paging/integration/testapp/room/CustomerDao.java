@@ -52,16 +52,16 @@ public interface CustomerDao {
     void removeAll();
 
     /**
-     * @return DataSource.Factory of customers, ordered by last name. Use
+     * @return DataSource.Factory of customers, ordered by id. Use
      * {@link androidx.paging.LivePagedListBuilder} to get a LiveData of PagedLists.
      */
-    @Query("SELECT * FROM customer ORDER BY mLastName ASC")
+    @Query("SELECT * FROM customer ORDER BY mId ASC")
     DataSource.Factory<Integer, Customer> loadPagedAgeOrder();
 
     /**
-     * @return PagingSource of customers, ordered by last name.
+     * @return PagingSource of customers, ordered by id.
      */
-    @Query("SELECT * FROM customer ORDER BY mLastName ASC")
+    @Query("SELECT * FROM customer ORDER BY mId ASC")
     PagingSource<Integer, Customer> loadPagedAgeOrderPagingSource();
 
     /**

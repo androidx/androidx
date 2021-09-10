@@ -15,129 +15,241 @@
  */
 package androidx.biometric.auth
 
-import androidx.biometric.BiometricPrompt
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.biometric.BiometricPrompt.AuthenticationResult
+import androidx.biometric.BiometricPrompt.CryptoObject
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.Executor
 
 /**
- * Builds a [Class3BiometricOrCredentialAuthPrompt] hosted on the current [FragmentActivity], which
- * configures a [BiometricPrompt] for authentication with Class 3 biometric modalities (fingerprint,
- * iris, face, etc) or device credential modalities (device PIN, pattern, or password) and begins
- * authentication.
+ * Shows an authentication prompt to the user.
  *
- * Class 3 (formerly known as Strong) refers to the strength of the biometric sensor, as specified
- * in the Android 11 CDD. Class 3 authentication can be used for applications that use
- * cryptographic operations.
+ * @param host A wrapper for the component that will host the prompt.
+ * @param crypto A cryptographic object to be associated with this authentication.
  *
- * @param crypto A crypto object to be associated with this authentication.
- * @param title The title to be displayed on the prompt.
- * @param executor The executor that will run authentication callback methods. If null, callback
- * methods will be executed on the main thread.
- * @param callback The object that will receive and process authentication events.
- * @param subtitle The subtitle to be displayed on the prompt, null by default.
- * @param description The description to be displayed on the prompt, null by default.
- * @param confirmationRequired Whether explicit user confirmation is required after a passive
- *                             biometric, true by default.
- * @return [AuthPrompt] wrapper that can be used for cancellation and dismissal of the
- * biometric prompt using [AuthPrompt]#cancelAuthentication()
+ * @return [AuthenticationResult] for a successful authentication.
+ *
+ * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
+ * authentication has stopped.
+ * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
+ *
+ * @see Class3BiometricOrCredentialAuthPrompt.authenticate(
+ *     AuthPromptHost,
+ *     AuthPromptCallback
+ * )
+ *
+ * @sample androidx.biometric.samples.auth.class3BiometricOrCredentialAuth
  */
-public fun FragmentActivity.startClass3BiometricOrCredentialAuthentication(
-    crypto: BiometricPrompt.CryptoObject?,
-    title: CharSequence,
-    subtitle: CharSequence? = null,
-    description: CharSequence? = null,
-    confirmationRequired: Boolean = true,
-    executor: Executor? = null,
-    callback: AuthPromptCallback
-): AuthPrompt {
-    return startClass3BiometricOrCredentialAuthenticationInternal(
-        AuthPromptHost(this),
-        crypto,
-        title,
-        subtitle,
-        description,
-        confirmationRequired,
-        executor,
-        callback
-    )
-}
+@RequiresApi(Build.VERSION_CODES.R)
+public suspend fun Class3BiometricOrCredentialAuthPrompt.authenticate(
+    host: AuthPromptHost,
+    crypto: CryptoObject?,
+): AuthenticationResult {
+    return suspendCancellableCoroutine { continuation ->
+        val authPrompt = startAuthentication(
+            host,
+            crypto,
+            Runnable::run,
+            CoroutineAuthPromptCallback(continuation)
+        )
 
-/**
- * Builds a [Class3BiometricOrCredentialAuthPrompt] hosted on the current [Fragment], which
- * configures a [BiometricPrompt] for authentication with Class 3 biometric modalities (fingerprint,
- * iris, face, etc) or device credential modalities (device PIN, pattern, or password) and begins
- * authentication.
- *
- * Class 3 (formerly known as Strong) refers to the strength of the biometric sensor, as specified
- * in the Android 11 CDD. Class 3 authentication can be used for applications that use
- * cryptographic operations.
- *
- * @param crypto A crypto object to be associated with this authentication.
- * @param title The title to be displayed on the prompt.
- * @param executor The executor that will run authentication callback methods. If null, callback
- * methods will be executed on the main thread.
- * @param callback The object that will receive and process authentication events.
- * @param subtitle The subtitle to be displayed on the prompt, null by default.
- * @param description The description to be displayed on the prompt, null by default.
- * @param confirmationRequired Whether explicit user confirmation is required after a passive
- *                             biometric, true by default.
- * @return [AuthPrompt] wrapper that can be used for cancellation and dismissal of the
- * biometric prompt using [AuthPrompt]#cancelAuthentication()
- */
-public fun Fragment.startClass3BiometricOrCredentialAuthentication(
-    crypto: BiometricPrompt.CryptoObject?,
-    title: CharSequence,
-    subtitle: CharSequence? = null,
-    description: CharSequence? = null,
-    confirmationRequired: Boolean = true,
-    executor: Executor? = null,
-    callback: AuthPromptCallback
-): AuthPrompt {
-    return startClass3BiometricOrCredentialAuthenticationInternal(
-        AuthPromptHost(this),
-        crypto,
-        title,
-        subtitle,
-        description,
-        confirmationRequired,
-        executor,
-        callback
-    )
-}
-
-/**
- * Helper function for shared logic in [Fragment.startClass3BiometricOrCredentialAuthentication] and
- * [FragmentActivity.startClass3BiometricOrCredentialAuthentication] for building the
- * [Class3BiometricOrCredentialAuthPrompt], starting authentication, and returning the AuthPrompt
- * wrapper for cancellation and dismissal of the biometric prompt using
- * [AuthPrompt]#cancelAuthentication()
- */
-private fun startClass3BiometricOrCredentialAuthenticationInternal(
-    authPromptHost: AuthPromptHost,
-    crypto: BiometricPrompt.CryptoObject?,
-    title: CharSequence,
-    subtitle: CharSequence? = null,
-    description: CharSequence? = null,
-    confirmationRequired: Boolean = true,
-    executor: Executor? = null,
-    callback: AuthPromptCallback
-): AuthPrompt {
-    val class3BiometricOrCredentialAuthBuilder =
-        if (executor != null) {
-            Class3BiometricOrCredentialAuthPrompt.Builder(
-                authPromptHost, title, executor, callback
-            )
-        } else {
-            Class3BiometricOrCredentialAuthPrompt.Builder(
-                authPromptHost, title, callback
-            )
+        continuation.invokeOnCancellation {
+            authPrompt.cancelAuthentication()
         }
+    }
+}
 
-    return class3BiometricOrCredentialAuthBuilder.apply {
+/**
+ * Prompts the user to authenticate with a **Class 3** biometric (e.g. fingerprint, face, or iris)
+ * or the screen lock credential (i.e. PIN, pattern, or password) for the device.
+ *
+ * @param crypto A cryptographic object to be associated with this authentication.
+ * @param title The title to be displayed on the prompt.
+ * @param subtitle An optional subtitle to be displayed on the prompt.
+ * @param description An optional description to be displayed on the prompt.
+ * @param confirmationRequired Whether user confirmation should be required for passive biometrics.
+ * @param executor An executor for [callback] methods. If `null`, these will run on the main thread.
+ * @param callback The object that will receive and process authentication events.
+ * @return An [AuthPrompt] handle to the shown prompt.
+ *
+ * @see Class3BiometricOrCredentialAuthPrompt
+ */
+@RequiresApi(Build.VERSION_CODES.R)
+public fun FragmentActivity.startClass3BiometricOrCredentialAuthentication(
+    crypto: CryptoObject?,
+    title: CharSequence,
+    subtitle: CharSequence? = null,
+    description: CharSequence? = null,
+    confirmationRequired: Boolean = true,
+    executor: Executor? = null,
+    callback: AuthPromptCallback
+): AuthPrompt {
+    return startClass3BiometricOrCredentialAuthenticationInternal(
+        AuthPromptHost(this),
+        crypto,
+        title,
+        subtitle,
+        description,
+        confirmationRequired,
+        executor,
+        callback
+    )
+}
+
+/**
+ * Prompts the user to authenticate with a **Class 3** biometric (e.g. fingerprint, face, or iris)
+ * or the screen lock credential (i.e. PIN, pattern, or password) for the device.
+ *
+ * @param crypto A cryptographic object to be associated with this authentication.
+ * @param title The title to be displayed on the prompt.
+ * @param subtitle An optional subtitle to be displayed on the prompt.
+ * @param description An optional description to be displayed on the prompt.
+ * @param confirmationRequired Whether user confirmation should be required for passive biometrics.
+ *
+ * @return [AuthenticationResult] for a successful authentication.
+ *
+ * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
+ * authentication has stopped.
+ * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
+ *
+ * @see Class3BiometricOrCredentialAuthPrompt
+ */
+@RequiresApi(Build.VERSION_CODES.R)
+public suspend fun FragmentActivity.authenticateWithClass3BiometricsOrCredentials(
+    crypto: CryptoObject?,
+    title: CharSequence,
+    subtitle: CharSequence? = null,
+    description: CharSequence? = null,
+    confirmationRequired: Boolean = true,
+): AuthenticationResult {
+    val authPrompt = buildClass3BiometricOrCredentialAuthPrompt(
+        title,
+        subtitle,
+        description,
+        confirmationRequired
+    )
+
+    return authPrompt.authenticate(AuthPromptHost(this), crypto)
+}
+
+/**
+ * Prompts the user to authenticate with a **Class 3** biometric (e.g. fingerprint, face, or iris)
+ * or the screen lock credential (i.e. PIN, pattern, or password) for the device.
+ *
+ * @param crypto A cryptographic object to be associated with this authentication.
+ * @param title The title to be displayed on the prompt.
+ * @param subtitle An optional subtitle to be displayed on the prompt.
+ * @param description An optional description to be displayed on the prompt.
+ * @param confirmationRequired Whether user confirmation should be required for passive biometrics.
+ * @param executor An executor for [callback] methods. If `null`, these will run on the main thread.
+ * @param callback The object that will receive and process authentication events.
+ * @return An [AuthPrompt] handle to the shown prompt.
+ *
+ * @see Class3BiometricOrCredentialAuthPrompt
+ */
+@RequiresApi(Build.VERSION_CODES.R)
+public fun Fragment.startClass3BiometricOrCredentialAuthentication(
+    crypto: CryptoObject?,
+    title: CharSequence,
+    subtitle: CharSequence? = null,
+    description: CharSequence? = null,
+    confirmationRequired: Boolean = true,
+    executor: Executor? = null,
+    callback: AuthPromptCallback
+): AuthPrompt {
+    return startClass3BiometricOrCredentialAuthenticationInternal(
+        AuthPromptHost(this),
+        crypto,
+        title,
+        subtitle,
+        description,
+        confirmationRequired,
+        executor,
+        callback
+    )
+}
+
+/**
+ * Prompts the user to authenticate with a **Class 3** biometric (e.g. fingerprint, face, or iris)
+ * or the screen lock credential (i.e. PIN, pattern, or password) for the device.
+ *
+ * @param crypto A cryptographic object to be associated with this authentication.
+ * @param title The title to be displayed on the prompt.
+ * @param subtitle An optional subtitle to be displayed on the prompt.
+ * @param description An optional description to be displayed on the prompt.
+ * @param confirmationRequired Whether user confirmation should be required for passive biometrics.
+ *
+ * @return [AuthenticationResult] for a successful authentication.
+ *
+ * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
+ * authentication has stopped.
+ * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
+ *
+ * @see Class3BiometricOrCredentialAuthPrompt
+ */
+@RequiresApi(Build.VERSION_CODES.R)
+public suspend fun Fragment.authenticateWithClass3BiometricsOrCredentials(
+    crypto: CryptoObject?,
+    title: CharSequence,
+    subtitle: CharSequence? = null,
+    description: CharSequence? = null,
+    confirmationRequired: Boolean = true,
+): AuthenticationResult {
+    val authPrompt = buildClass3BiometricOrCredentialAuthPrompt(
+        title,
+        subtitle,
+        description,
+        confirmationRequired,
+    )
+
+    return authPrompt.authenticate(AuthPromptHost(this), crypto)
+}
+
+/**
+ * Creates a [Class3BiometricOrCredentialAuthPrompt] with the given parameters and starts
+ * authentication.
+ */
+@RequiresApi(Build.VERSION_CODES.R)
+private fun startClass3BiometricOrCredentialAuthenticationInternal(
+    host: AuthPromptHost,
+    crypto: CryptoObject?,
+    title: CharSequence,
+    subtitle: CharSequence?,
+    description: CharSequence?,
+    confirmationRequired: Boolean,
+    executor: Executor?,
+    callback: AuthPromptCallback
+): AuthPrompt {
+    val prompt = buildClass3BiometricOrCredentialAuthPrompt(
+        title,
+        subtitle,
+        description,
+        confirmationRequired
+    )
+
+    return if (executor == null) {
+        prompt.startAuthentication(host, crypto, callback)
+    } else {
+        prompt.startAuthentication(host, crypto, executor, callback)
+    }
+}
+
+/**
+ * Creates a [Class3BiometricOrCredentialAuthPrompt] with the given parameters.
+ */
+@RequiresApi(Build.VERSION_CODES.R)
+private fun buildClass3BiometricOrCredentialAuthPrompt(
+    title: CharSequence,
+    subtitle: CharSequence?,
+    description: CharSequence?,
+    confirmationRequired: Boolean,
+): Class3BiometricOrCredentialAuthPrompt = Class3BiometricOrCredentialAuthPrompt.Builder(title)
+    .apply {
         subtitle?.let { setSubtitle(it) }
         description?.let { setDescription(it) }
         setConfirmationRequired(confirmationRequired)
-        crypto?.let { setCrypto(it) }
-    }.build().startAuthentication()
-}
+    }
+    .build()

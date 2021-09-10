@@ -35,10 +35,8 @@ import android.view.View;
 import androidx.swiperefreshlayout.test.R;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
-import androidx.test.rule.ActivityTestRule;
 import androidx.testutils.PollingCheck;
 
 import org.junit.Before;
@@ -55,9 +53,10 @@ import java.util.concurrent.TimeUnit;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class SwipeRefreshLayoutTest {
+    @SuppressWarnings("deprecation")
     @Rule
-    public final ActivityTestRule<SwipeRefreshLayoutActivity> mActivityTestRule =
-            new ActivityTestRule<>(SwipeRefreshLayoutActivity.class);
+    public final androidx.test.rule.ActivityTestRule<SwipeRefreshLayoutActivity> mActivityTestRule =
+            new androidx.test.rule.ActivityTestRule<>(SwipeRefreshLayoutActivity.class);
 
     private static final long TIMEOUT = 1000;
     private static final int INVALID_SIZE = 1000;
@@ -132,7 +131,6 @@ public class SwipeRefreshLayoutTest {
 
     @Test
     @SmallTest
-    @FlakyTest(bugId = 113347851)
     public void testSetSize() throws Throwable {
         float density = mSwipeRefresh.getResources().getDisplayMetrics().density;
         assertEquals((int) (SwipeRefreshLayout.CIRCLE_DIAMETER * density),

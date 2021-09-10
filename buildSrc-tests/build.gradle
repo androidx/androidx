@@ -17,7 +17,6 @@
 // This project contains tests for code contained in buildSrc
 // This project is stored outside of buildSrc/ so that waiting for these tests to complete doesn't delay the rest of the build
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.BuildServerConfigurationKt
 
 plugins {
@@ -26,25 +25,43 @@ plugins {
 }
 
 dependencies {
-    implementation gradleApi()
-    testImplementation JUNIT
-    implementation(project.files(new File(BuildServerConfigurationKt.getRootOutDirectory(project), "buildSrc/build/libs/buildSrc.jar")))
+    implementation(gradleApi())
+    testImplementation(libs.junit)
+    implementation(project.files(new File(BuildServerConfigurationKt.getRootOutDirectory(project), "buildSrc/private/build/libs/private.jar")))
 }
 
 // Also do style checking of the buildSrc project from within this project too
 // We run that from this project so that it doesn't block other projects while it runs
 def ktlintDir = "../buildSrc/"
-def ktlintIncludes = "src/**/*.kt"
-def ktlintInputs = project.fileTree(ktlintDir) {
-    include ktlintIncludes
+def subdirs = ["plugins", "private", "public"]
+for (d : subdirs) {
+  def f = file("$ktlintDir/$d")
+  if (!f.exists()) {
+    throw new GradleException("Source dir does not exist: $f")
+  }
 }
+def ktlintInputs = project.fileTree(ktlintDir) {
+    for (d : subdirs) {
+        include("$ktlintDir/$d/src/**/*.kt")
+    }
+}
+def sourceArgs = []
+for (d : subdirs) {
+    sourceArgs = sourceArgs + "$ktlintDir/$d/src/**/*.kt"
+}
+
 tasks["ktlint"].configure({ t ->
     t.inputs.files(ktlintInputs)
     t.workingDir = ktlintDir
-    t.args = t.args + ktlintIncludes
+    t.args = t.args + sourceArgs
 })
 tasks["ktlintFormat"].configure({ t ->
     t.inputs.files(ktlintInputs)
     t.workingDir = ktlintDir
-    t.args = t.args + ktlintIncludes
+    t.args = t.args + sourceArgs
 })
+
+// Broken in AGP 7.0-alpha15 due to b/180408027
+tasks["lint"].configure { t ->
+    t.enabled = false
+}

@@ -22,7 +22,7 @@ import org.robolectric.internal.bytecode.InstrumentationConfiguration
 
 // Without this we get test failures with an error:
 // "failed to access class kotlin.jvm.internal.DefaultConstructorMarker".
-class StyleTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
+public class StyleTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
     override fun createClassLoaderConfig(method: FrameworkMethod): InstrumentationConfiguration =
         InstrumentationConfiguration.Builder(
             super.createClassLoaderConfig(method)

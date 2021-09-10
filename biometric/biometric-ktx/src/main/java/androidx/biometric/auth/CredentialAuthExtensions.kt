@@ -15,25 +15,68 @@
  */
 package androidx.biometric.auth
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricPrompt
+import androidx.biometric.BiometricPrompt.AuthenticationResult
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.Executor
 
 /**
- * Builds a [CredentialAuthPrompt] hosted on the current [FragmentActivity], which configures a
- * [BiometricPrompt] for authentication with device credential modalities (device PIN, pattern, or
- * password) and begins authentication.
+ * Shows an authentication prompt to the user.
  *
- * @param crypto A crypto object to be associated with this authentication.
- * @param title The title to be displayed on the prompt.
- * @param executor The executor that will run authentication callback methods. If null, callback
- * methods will be executed on the main thread.
- * @param callback The object that will receive and process authentication events.
- * @param description The description to be displayed on the prompt, null by default.
- * @return [AuthPrompt] wrapper that can be used for cancellation and dismissal of the
- * biometric prompt using [AuthPrompt]#cancelAuthentication()
+ * @param host A wrapper for the component that will host the prompt.
+ * @param crypto A cryptographic object to be associated with this authentication.
+ *
+ * @return [AuthenticationResult] for a successful authentication.
+ *
+ * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
+ * authentication has stopped.
+ * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
+ *
+ * @see CredentialAuthPrompt.authenticate(
+ *     AuthPromptHost host,
+ *     BiometricPrompt.CryptoObject,
+ *     AuthPromptCallback
+ * )
+ *
+ * @sample androidx.biometric.samples.auth.credentialAuth
  */
+@RequiresApi(Build.VERSION_CODES.R)
+public suspend fun CredentialAuthPrompt.authenticate(
+    host: AuthPromptHost,
+    crypto: BiometricPrompt.CryptoObject?,
+): AuthenticationResult {
+    return suspendCancellableCoroutine { continuation ->
+        val authPrompt = startAuthentication(
+            host,
+            crypto,
+            Runnable::run,
+            CoroutineAuthPromptCallback(continuation)
+        )
+
+        continuation.invokeOnCancellation {
+            authPrompt.cancelAuthentication()
+        }
+    }
+}
+
+/**
+ * Prompts the user to authenticate with the screen lock credential (i.e. PIN, pattern, or password)
+ * for the device.
+ *
+ * @param crypto A cryptographic object to be associated with this authentication.
+ * @param title The title to be displayed on the prompt.
+ * @param description An optional description to be displayed on the prompt.
+ * @param executor An executor for [callback] methods. If `null`, these will run on the main thread.
+ * @param callback The object that will receive and process authentication events.
+ * @return An [AuthPrompt] handle to the shown prompt.
+ *
+ * @see CredentialAuthPrompt
+ */
+@RequiresApi(Build.VERSION_CODES.R)
 public fun FragmentActivity.startCredentialAuthentication(
     crypto: BiometricPrompt.CryptoObject?,
     title: CharSequence,
@@ -52,19 +95,44 @@ public fun FragmentActivity.startCredentialAuthentication(
 }
 
 /**
- * Builds a [CredentialAuthPrompt] hosted on the current [Fragment], which configures a
- * [BiometricPrompt] for authentication with device credential modalities (device PIN, pattern, or
- * password) and begins authentication.
+ * Prompts the user to authenticate with the screen lock credential (i.e. PIN, pattern, or password)
+ * for the device.
  *
- * @param crypto A crypto object to be associated with this authentication.
+ * @param crypto A cryptographic object to be associated with this authentication.
  * @param title The title to be displayed on the prompt.
- * @param executor The executor that will run authentication callback methods. If null, callback
- * methods will be executed on the main thread.
- * @param callback The object that will receive and process authentication events.
- * @param description The description to be displayed on the prompt, null by default.
- * @return [AuthPrompt] wrapper that can be used for cancellation and dismissal of the
- * biometric prompt using [AuthPrompt]#cancelAuthentication()
+ * @param description An optional description to be displayed on the prompt.
+ * @return [AuthenticationResult] for a successful authentication.
+ *
+ * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
+ * authentication has stopped.
+ * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
+ *
+ * @see CredentialAuthPrompt
  */
+@RequiresApi(Build.VERSION_CODES.R)
+public suspend fun FragmentActivity.authenticateWithCredentials(
+    crypto: BiometricPrompt.CryptoObject?,
+    title: CharSequence,
+    description: CharSequence? = null
+): AuthenticationResult {
+    val authPrompt = buildCredentialAuthPrompt(title, description)
+    return authPrompt.authenticate(AuthPromptHost(this), crypto)
+}
+
+/**
+ * Prompts the user to authenticate with the screen lock credential (i.e. PIN, pattern, or password)
+ * for the device.
+ *
+ * @param crypto A cryptographic object to be associated with this authentication.
+ * @param title The title to be displayed on the prompt.
+ * @param description An optional description to be displayed on the prompt.
+ * @param executor An executor for [callback] methods. If `null`, these will run on the main thread.
+ * @param callback The object that will receive and process authentication events.
+ * @return An [AuthPrompt] handle to the shown prompt.
+ *
+ * @see CredentialAuthPrompt
+ */
+@RequiresApi(Build.VERSION_CODES.R)
 public fun Fragment.startCredentialAuthentication(
     crypto: BiometricPrompt.CryptoObject?,
     title: CharSequence,
@@ -83,32 +151,57 @@ public fun Fragment.startCredentialAuthentication(
 }
 
 /**
- * Helper function for shared logic in [Fragment.startCredentialAuthentication] and
- * [FragmentActivity.startCredentialAuthentication] for building the [CredentialAuthPrompt],
- * starting authentication, and returning the AuthPrompt wrapper for cancellation and dismissal
- * of the biometric prompt using [AuthPrompt]#cancelAuthentication()
+ * Prompts the user to authenticate with the screen lock credential (i.e. PIN, pattern, or password)
+ * for the device.
+ *
+ * @param crypto A cryptographic object to be associated with this authentication.
+ * @param title The title to be displayed on the prompt.
+ * @param description An optional description to be displayed on the prompt.
+ * @return [AuthenticationResult] for a successful authentication.
+ *
+ * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
+ * authentication has stopped.
+ * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
+ *
+ * @see CredentialAuthPrompt
  */
-private fun startCredentialAuthenticationInternal(
-    authPromptHost: AuthPromptHost,
+@RequiresApi(Build.VERSION_CODES.R)
+public suspend fun Fragment.authenticateWithCredentials(
     crypto: BiometricPrompt.CryptoObject?,
     title: CharSequence,
-    description: CharSequence? = null,
-    executor: Executor? = null,
+    description: CharSequence? = null
+): AuthenticationResult {
+    val authPrompt = buildCredentialAuthPrompt(title, description)
+    return authPrompt.authenticate(AuthPromptHost(this), crypto)
+}
+
+/**
+ * Creates a [CredentialAuthPrompt] with the given parameters and starts authentication.
+ */
+@RequiresApi(Build.VERSION_CODES.R)
+private fun startCredentialAuthenticationInternal(
+    host: AuthPromptHost,
+    crypto: BiometricPrompt.CryptoObject?,
+    title: CharSequence,
+    description: CharSequence?,
+    executor: Executor?,
     callback: AuthPromptCallback
 ): AuthPrompt {
-    val credentialAuthBuilder =
-        if (executor != null) {
-            CredentialAuthPrompt.Builder(
-                authPromptHost, title, executor, callback
-            )
-        } else {
-            CredentialAuthPrompt.Builder(
-                authPromptHost, title, callback
-            )
-        }
-
-    return credentialAuthBuilder.apply {
-        description?.let { setDescription(it) }
-        crypto?.let { setCrypto(it) }
-    }.build().startAuthentication()
+    val prompt = buildCredentialAuthPrompt(title, description)
+    return if (executor == null) {
+        prompt.startAuthentication(host, crypto, callback)
+    } else {
+        prompt.startAuthentication(host, crypto, executor, callback)
+    }
 }
+
+/**
+ * Creates a [CredentialAuthPrompt] with the given parameters.
+ */
+@RequiresApi(Build.VERSION_CODES.R)
+private fun buildCredentialAuthPrompt(
+    title: CharSequence,
+    description: CharSequence?
+): CredentialAuthPrompt = CredentialAuthPrompt.Builder(title)
+    .apply { description?.let { setDescription(it) } }
+    .build()

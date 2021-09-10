@@ -19,6 +19,7 @@ package androidx.compose.ui.text.intl
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.util.fastMap
 
 /**
  * Defines a list of [Locale] objects.
@@ -27,13 +28,13 @@ import androidx.compose.ui.text.TextStyle
  * @see SpanStyle
  */
 @Immutable
-data class LocaleList constructor(val localeList: List<Locale>) : Collection<Locale> {
+class LocaleList constructor(val localeList: List<Locale>) : Collection<Locale> {
     companion object {
         /**
          * Returns Locale object which represents current locale
          */
         val current: LocaleList
-            get() = LocaleList(platformLocaleDelegate.current.map { Locale(it) })
+            get() = LocaleList(platformLocaleDelegate.current.fastMap { Locale(it) })
     }
 
     /**
@@ -43,7 +44,7 @@ data class LocaleList constructor(val localeList: List<Locale>) : Collection<Loc
      * compliant language tag.
      */
     constructor(languageTags: String) :
-        this(languageTags.split(",").map { it.trim() }.map { Locale(it) })
+        this(languageTags.split(",").fastMap { it.trim() }.fastMap { Locale(it) })
 
     /**
      * Creates a [LocaleList] object from a list of [Locale]s.
@@ -54,9 +55,28 @@ data class LocaleList constructor(val localeList: List<Locale>) : Collection<Loc
 
     // Collection overrides for easy iterations.
     override val size: Int = localeList.size
+
     override operator fun contains(element: Locale): Boolean = localeList.contains(element)
+
     override fun containsAll(elements: Collection<Locale>): Boolean =
         localeList.containsAll(elements)
+
     override fun isEmpty(): Boolean = localeList.isEmpty()
+
     override fun iterator(): Iterator<Locale> = localeList.iterator()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is LocaleList) return false
+        if (localeList != other.localeList) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return localeList.hashCode()
+    }
+
+    override fun toString(): String {
+        return "LocaleList(localeList=$localeList)"
+    }
 }

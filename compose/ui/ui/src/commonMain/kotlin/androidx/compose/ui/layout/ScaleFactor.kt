@@ -19,8 +19,8 @@ package androidx.compose.ui.layout
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.util.packFloats
-import androidx.compose.ui.util.toStringAsFixed
 import androidx.compose.ui.util.unpackFloat1
 import androidx.compose.ui.util.unpackFloat2
 
@@ -33,9 +33,9 @@ fun ScaleFactor(scaleX: Float, scaleY: Float) = ScaleFactor(packFloats(scaleX, s
 /**
  * Holds 2 dimensional scaling factors for horizontal and vertical axes
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class ScaleFactor(@PublishedApi internal val packedValue: Long) {
+inline class ScaleFactor internal constructor(@PublishedApi internal val packedValue: Long) {
 
     /**
      * Returns the scale factor to apply along the horizontal axis
@@ -95,8 +95,7 @@ inline class ScaleFactor(@PublishedApi internal val packedValue: Long) {
     @Stable
     operator fun div(operand: Float) = ScaleFactor(scaleX / operand, scaleY / operand)
 
-    override fun toString() = "ScaleFactor(${scaleX.toStringAsFixed(1)}, " +
-        "${scaleY.toStringAsFixed(1)})"
+    override fun toString() = "ScaleFactor(${scaleX.roundToTenths()}, ${scaleY.roundToTenths()})"
 
     companion object {
 
@@ -109,6 +108,40 @@ inline class ScaleFactor(@PublishedApi internal val packedValue: Long) {
         val Unspecified = ScaleFactor(Float.NaN, Float.NaN)
     }
 }
+
+private fun Float.roundToTenths(): Float {
+    val shifted = this * 10
+    val decimal = shifted - shifted.toInt()
+    // Kotlin's round operator rounds 0.5f down to 0. Manually compare against
+    // 0.5f and round up if necessary
+    val roundedShifted = if (decimal >= 0.5f) {
+        shifted.toInt() + 1
+    } else {
+        shifted.toInt()
+    }
+    return roundedShifted.toFloat() / 10
+}
+
+/**
+ * `false` when this is [ScaleFactor.Unspecified].
+ */
+@Stable
+inline val ScaleFactor.isSpecified: Boolean
+    get() = packedValue != ScaleFactor.Unspecified.packedValue
+
+/**
+ * `true` when this is [ScaleFactor.Unspecified].
+ */
+@Stable
+inline val ScaleFactor.isUnspecified: Boolean
+    get() = packedValue == ScaleFactor.Unspecified.packedValue
+
+/**
+ * If this [ScaleFactor] [isSpecified] then this is returned, otherwise [block] is executed
+ * and its result is returned.
+ */
+inline fun ScaleFactor.takeOrElse(block: () -> ScaleFactor): ScaleFactor =
+    if (isSpecified) this else block()
 
 /**
  * Multiplication operator with [Size].

@@ -3069,7 +3069,7 @@ public class AccessibilityNodeInfoCompat {
      *     <li>API &lt; 21: Always returns {@code null}</li>
      * </ul>
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "MixedMutabilityReturnType"})
     public List<AccessibilityActionCompat> getActionList() {
         List<Object> actions = null;
         if (Build.VERSION.SDK_INT >= 21) {
@@ -3374,6 +3374,7 @@ public class AccessibilityNodeInfoCompat {
      * @param viewId The fully qualified resource name of the view id to find.
      * @return A list of node info.
      */
+    @SuppressWarnings("MixedMutabilityReturnType")
     public List<AccessibilityNodeInfoCompat> findAccessibilityNodeInfosByViewId(String viewId) {
         if (Build.VERSION.SDK_INT >= 18) {
             List<AccessibilityNodeInfo> nodes = mInfo.findAccessibilityNodeInfosByViewId(viewId);

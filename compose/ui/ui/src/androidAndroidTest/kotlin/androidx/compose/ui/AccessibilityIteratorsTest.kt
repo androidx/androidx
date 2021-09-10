@@ -17,24 +17,26 @@
 package androidx.compose.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.ScrollableColumn
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.AccessibilityIterators
-import androidx.compose.ui.platform.AmbientDensity
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.asFontFamily
-import androidx.compose.ui.text.font.font
+import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -387,7 +389,7 @@ class AccessibilityIteratorsTest {
         val lineHeight = textLayoutResult.getLineBottom(endLine) -
             textLayoutResult.getLineTop(endLine)
         val iteratorStep = endLineTop - startLineTop
-        val nodeHeight = textFieldNode.globalBounds.bottom - textFieldNode.globalBounds.top
+        val nodeHeight = textFieldNode.boundsInWindow.bottom - textFieldNode.boundsInWindow.top
         Truth.assertThat(abs(iteratorStep - nodeHeight) < lineHeight)
         currentOffset = InputText.length
         range = pageIterator.following(currentOffset)
@@ -410,7 +412,7 @@ class AccessibilityIteratorsTest {
         val lineHeight = textLayoutResult.getLineBottom(endLine) -
             textLayoutResult.getLineTop(endLine)
         val iteratorStep = endLineTop - startLineTop
-        val nodeHeight = textFieldNode.globalBounds.bottom - textFieldNode.globalBounds.top
+        val nodeHeight = textFieldNode.boundsInWindow.bottom - textFieldNode.boundsInWindow.top
         Truth.assertThat(abs(iteratorStep - nodeHeight) < lineHeight)
         currentOffset = 0
         range = pageIterator.preceding(currentOffset)
@@ -424,19 +426,19 @@ class AccessibilityIteratorsTest {
     ): TextLayoutResult {
         var textLayoutResult: TextLayoutResult? = null
         rule.setContent {
-            // TODO(yingleiw): use predefined DensityAmbient.current when b/163142237 is fixed.
-            with(AmbientDensity.current) {
+            // TODO(yingleiw): use predefined LocalDensity.current when b/163142237 is fixed.
+            with(LocalDensity.current) {
                 BasicText(
                     style = TextStyle(
                         fontSize = fontSize,
-                        fontFamily = font(
+                        fontFamily = Font(
                             resId = androidx.compose.ui.text.font.test.R.font.sample_font,
                             weight = FontWeight.Normal,
                             style = FontStyle.Normal
-                        ).asFontFamily()
+                        ).toFontFamily()
                     ),
                     text = AnnotatedString(text),
-                    modifier = Modifier.width(width.toDp()),
+                    modifier = Modifier.requiredWidth(width.toDp()),
                     onTextLayout = { textLayoutResult = it }
                 )
             }
@@ -448,7 +450,7 @@ class AccessibilityIteratorsTest {
     private fun textFieldInScroller(): TextLayoutResult {
         var textLayoutResult: TextLayoutResult? = null
         rule.setContent {
-            ScrollableColumn {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
                 val state = remember { mutableStateOf(InputText) }
                 BasicTextField(
                     value = state.value,

@@ -16,21 +16,13 @@
 
 package androidx.compose.runtime
 
+@Suppress("EqualsOrHashCode")
 internal data class JoinedKey(
     val left: Any?,
     val right: Any?
-)
+) {
+    override fun hashCode(): Int = hashCodeOf(left) * 31 + hashCodeOf(right)
 
-@InternalComposeApi
-fun isJoinedKey(key: Any?) = key is JoinedKey
-@InternalComposeApi
-fun joinedKeyLeft(key: Any?): Any? = when (key) {
-    is JoinedKey -> key.left
-    else -> null
-}
-
-@InternalComposeApi
-fun joinedKeyRight(key: Any?): Any? = when (key) {
-    is JoinedKey -> key.right
-    else -> null
+    private fun hashCodeOf(value: Any?) =
+        if (value is Enum<*>) value.ordinal else value?.hashCode() ?: 0
 }

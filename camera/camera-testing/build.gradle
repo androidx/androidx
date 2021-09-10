@@ -14,36 +14,39 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-import androidx.build.LibraryVersions
+
 import androidx.build.LibraryGroups
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
 }
 
 dependencies {
-    implementation(ANDROIDX_TEST_CORE)
-    implementation(ANDROIDX_TEST_RULES)
-    implementation(ANDROIDX_TEST_UIAUTOMATOR)
-    api("androidx.annotation:annotation:1.0.0")
-    implementation(ESPRESSO_CORE)
-    implementation(GUAVA_LISTENABLE_FUTURE)
+    implementation(libs.testCore)
+    implementation(libs.testRules)
+    implementation(libs.testUiautomator)
+    api("androidx.annotation:annotation:1.2.0")
+    implementation(libs.espressoCore)
+    implementation(libs.guavaListenableFuture)
     implementation("androidx.appcompat:appcompat:1.1.0")
     api(project(":camera:camera-core"))
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
-    implementation(JUNIT)
+    implementation(libs.junit)
+    implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinCoroutinesAndroid)
 
-    testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
-    testImplementation(ROBOLECTRIC)
-    testImplementation(MOCKITO_CORE)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockitoCore)
 }
 
 android {
@@ -63,13 +66,16 @@ android {
 
     externalNativeBuild {
         cmake {
-            // AGP doesn't allow us to use project.buildDir (or subdirs) for CMake's generated
-            // build files (ninja build files, CMakeCache.txt, etc.). Use a staging directory that
-            // lives alongside the project's buildDir.
-            buildStagingDirectory "${project.buildDir}/../nativeBuildStaging"
             path "src/main/cpp/CMakeLists.txt"
             version "3.10.2"
         }
+    }
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
     }
 }
 

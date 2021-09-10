@@ -18,9 +18,12 @@ package androidx.compose.ui.graphics.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.drawscope.rotate
@@ -36,7 +39,7 @@ import androidx.compose.ui.unit.dp
 fun DrawScopeSample() {
     // Sample showing how to use the DrawScope receiver scope to issue
     // drawing commands
-    Canvas(Modifier.preferredSize(120.dp)) {
+    Canvas(Modifier.size(120.dp)) {
         drawRect(color = Color.Gray) // Draw grey background
         // Inset content by 10 pixels on the left/right sides and 12 by the
         // top/bottom
@@ -59,7 +62,7 @@ fun DrawScopeSample() {
 @Sampled
 @Composable
 fun DrawScopeBatchedTransformSample() {
-    Canvas(Modifier.preferredSize(120.dp)) { // CanvasScope
+    Canvas(Modifier.size(120.dp)) { // CanvasScope
         inset(20.0f) {
             // Use withTransform to batch multiple transformations for 1 or more drawing calls
             // that are to be drawn.
@@ -76,5 +79,29 @@ fun DrawScopeBatchedTransformSample() {
             }
             drawRect(Color.Red, alpha = 0.25f)
         }
+    }
+}
+
+@Sampled
+@Composable
+fun DrawScopeOvalBrushSample() {
+    Canvas(Modifier.size(120.dp)) {
+        drawOval(
+            brush = Brush.linearGradient(listOf(Color.Red, Color.Blue)),
+            topLeft = Offset(10f, 10f),
+            size = Size(size.width - 20f, size.height - 20f)
+        )
+    }
+}
+
+@Sampled
+@Composable
+fun DrawScopeOvalColorSample() {
+    Canvas(Modifier.size(120.dp)) {
+        drawOval(
+            color = Color.Cyan,
+            topLeft = Offset(10f, 10f),
+            size = Size(size.width - 20f, size.height - 20f)
+        )
     }
 }

@@ -19,6 +19,7 @@ package androidx.camera.camera2.internal;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
+import static androidx.camera.core.ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH;
 
 import android.graphics.Rect;
 import android.hardware.camera2.CameraCaptureSession;
@@ -33,17 +34,17 @@ import android.util.Rational;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.workaround.AeFpsRange;
 import androidx.camera.camera2.internal.compat.workaround.AutoFlashAEModeDisabler;
+import androidx.camera.camera2.internal.compat.workaround.UseTorchAsFlash;
 import androidx.camera.camera2.interop.Camera2CameraControl;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
-import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
@@ -56,8 +57,10 @@ import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -73,6 +76,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A Camera2 implementation for CameraControlInternal interface
@@ -102,9 +106,10 @@ import java.util.concurrent.ScheduledExecutorService;
  * requests end in {@code ImmediateFailedFuture}. Any cached requests are dropped.</li>
  * </ul>
  */
-@UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+@OptIn(markerClass = ExperimentalCamera2Interop.class)
 public class Camera2CameraControlImpl implements CameraControlInternal {
     private static final String TAG = "Camera2CameraControlImp";
+    private static final int DEFAULT_TEMPLATE = CameraDevice.TEMPLATE_PREVIEW;
     @VisibleForTesting
     final CameraControlSessionCallback mSessionCallback;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -115,23 +120,32 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     private final ControlUpdateCallback mControlUpdateCallback;
 
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    volatile Rational mPreviewAspectRatio = null;
     private final FocusMeteringControl mFocusMeteringControl;
     private final ZoomControl mZoomControl;
     private final TorchControl mTorchControl;
     private final ExposureControl mExposureControl;
     private final Camera2CameraControl mCamera2CameraControl;
     private final AeFpsRange mAeFpsRange;
+    private final UseTorchAsFlash mUseTorchAsFlash;
     @GuardedBy("mLock")
     private int mUseCount = 0;
     // use volatile modifier to make these variables in sync in all threads.
     private volatile boolean mIsTorchOn = false;
+    private boolean mIsTorchEnabledByFlash = false;
+    private boolean mIsAeTriggeredByFlash = false;
     @ImageCapture.FlashMode
     private volatile int mFlashMode = FLASH_MODE_OFF;
     private final AutoFlashAEModeDisabler mAutoFlashAEModeDisabler = new AutoFlashAEModeDisabler();
 
+    static final String TAG_SESSION_UPDATE_ID = "CameraControlSessionUpdateId";
+    private final AtomicLong mNextSessionUpdateId = new AtomicLong(0);
+    @NonNull
+    private volatile ListenableFuture<Void> mFlashModeChangeSessionUpdateFuture =
+            Futures.immediateFuture(null);
     //******************** Should only be accessed by executor *****************************//
+    private int mTemplate = DEFAULT_TEMPLATE;
+    // SessionUpdateId will auto-increment every time session updates.
+    private long mCurrentSessionUpdateId = 0;
     private final CameraCaptureCallbackSet mCameraCaptureCallbackSet =
             new CameraCaptureCallbackSet();
     //**************************************************************************************//
@@ -167,7 +181,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mControlUpdateCallback = controlUpdateCallback;
         mExecutor = executor;
         mSessionCallback = new CameraControlSessionCallback(mExecutor);
-        mSessionConfigBuilder.setTemplateType(getDefaultTemplate());
+        mSessionConfigBuilder.setTemplateType(mTemplate);
         mSessionConfigBuilder.addRepeatingCameraCaptureCallback(
                 CaptureCallbackContainer.create(mSessionCallback));
         // Adding a callback via SessionConfigBuilder requires a expensive updateSessionConfig
@@ -180,12 +194,10 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mZoomControl = new ZoomControl(this, mCameraCharacteristics, mExecutor);
         mTorchControl = new TorchControl(this, mCameraCharacteristics, mExecutor);
         mAeFpsRange = new AeFpsRange(cameraQuirks);
+        mUseTorchAsFlash = new UseTorchAsFlash(cameraQuirks);
         mCamera2CameraControl = new Camera2CameraControl(this, mExecutor);
         mExecutor.execute(
                 () -> addCaptureResultListener(mCamera2CameraControl.getCaptureRequestListener()));
-
-        // Initialize the session config
-        updateSessionConfig();
     }
 
     /** Increments the use count of the control. */
@@ -227,6 +239,11 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     @NonNull
     public ZoomControl getZoomControl() {
         return mZoomControl;
+    }
+
+    @NonNull
+    public FocusMeteringControl getFocusMeteringControl() {
+        return mFocusMeteringControl;
     }
 
     @NonNull
@@ -282,15 +299,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
     @ExecutedBy("mExecutor")
     public void setPreviewAspectRatio(@Nullable Rational previewAspectRatio) {
-        mPreviewAspectRatio = previewAspectRatio;
-    }
-
-    /**
-     * Sets a {@link CaptureRequest.Builder} to get the default capture request parameters in order
-     * to compare the 3A regions in CaptureResult in FocusMeteringControl.
-     */
-    public void setDefaultRequestBuilder(@NonNull CaptureRequest.Builder builder) {
-        mFocusMeteringControl.setDefaultRequestBuilder(builder);
+        mFocusMeteringControl.setPreviewAspectRatio(previewAspectRatio);
     }
 
     @NonNull
@@ -302,7 +311,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
                     new OperationCanceledException("Camera is not active."));
         }
         return Futures.nonCancellationPropagating(
-                mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio));
+                mFocusMeteringControl.startFocusAndMetering(action));
     }
 
     @NonNull
@@ -351,7 +360,10 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         // update mFlashMode immediately so that following getFlashMode() returns correct value.
         mFlashMode = flashMode;
 
-        updateSessionConfig();
+        // On some devices, AE precapture may not work properly if the repeating request to change
+        // the flash mode is not completed. We need to store the future so that AE precapture can
+        // wait for it.
+        mFlashModeChangeSessionUpdateFuture = updateSessionConfigAsync();
     }
 
     /** {@inheritDoc} */
@@ -385,46 +397,134 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
                 }));
     }
 
+    @ExecutedBy("mExecutor")
+    @NonNull
+    private ListenableFuture<Void> waitForSessionUpdateId(long sessionUpdateIdToWait) {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            addCaptureResultListener(captureResult -> {
+                boolean updated = isSessionUpdated(captureResult, sessionUpdateIdToWait);
+                if (updated) {
+                    completer.set(null);
+                    return true; // remove the callback
+                }
+                return false; // continue checking
+            });
+            return "waitForSessionUpdateId:" + sessionUpdateIdToWait;
+        });
+    }
+
     /**
-     * Issues a {@link CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER_START} request to start auto
-     * exposure scan.
+     * Check if the sessionUpdateId in capture result is larger than the given sessionUpdateId.
+     */
+    static boolean isSessionUpdated(@NonNull TotalCaptureResult captureResult,
+            long sessionUpdateId) {
+        if (captureResult.getRequest() == null) {
+            return false;
+        }
+        Object tag = captureResult.getRequest().getTag();
+        if (tag instanceof TagBundle) {
+            Long tagLong =
+                    (Long) ((TagBundle) tag).getTag(Camera2CameraControlImpl.TAG_SESSION_UPDATE_ID);
+            if (tagLong == null) {
+                return false;
+            }
+            long sessionUpdateIdInCaptureResult = tagLong.longValue();
+            // Check if session update is already done.
+            if (sessionUpdateIdInCaptureResult >= sessionUpdateId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
      *
+     * <p>Issues a {@link CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER_START} request to start auto
+     * exposure scan. In some cases, torch flash will be used instead of issuing
+     * {@code CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START}.
+     *
+     * @param flashType Uses one shot flash or use torch as flash when taking a picture.
      * @return a {@link ListenableFuture} which completes when the request is completed.
      * Cancelling the ListenableFuture is a no-op.
      */
     @Override
     @NonNull
-    public ListenableFuture<CameraCaptureResult> triggerAePrecapture() {
+    public ListenableFuture<Void> startFlashSequence(@ImageCapture.FlashType int flashType) {
         if (!isControlInUse()) {
             return Futures.immediateFailedFuture(
                     new OperationCanceledException("Camera is not active."));
         }
-        return Futures.nonCancellationPropagating(CallbackToFutureAdapter.getFuture(
-                completer -> {
-                    mExecutor.execute(() -> mFocusMeteringControl.triggerAePrecapture(completer));
-                    return "triggerAePrecapture";
-                }));
+
+        // Prior to AE precapture, wait until pending flash mode session change is completed. On
+        // some devices, AE precapture may not work properly if the repeating request to change
+        // the flash mode is not completed.
+        ListenableFuture<Void> future = FutureChain.from(mFlashModeChangeSessionUpdateFuture)
+                .transformAsync(v -> {
+                    return CallbackToFutureAdapter.getFuture(
+                            completer -> {
+                                if (mUseTorchAsFlash.shouldUseTorchAsFlash()
+                                        || flashType == FLASH_TYPE_USE_TORCH_AS_FLASH
+                                        || mTemplate == CameraDevice.TEMPLATE_RECORD) {
+                                    Logger.d(TAG, "startFlashSequence: Use torch");
+                                    if (mIsTorchOn) {
+                                        completer.set(null);
+                                    } else {
+                                        mTorchControl.enableTorchInternal(completer, true);
+                                        mIsTorchEnabledByFlash = true;
+                                    }
+                                } else {
+                                    Logger.d(TAG, "startFlashSequence: use triggerAePrecapture");
+                                    mFocusMeteringControl.triggerAePrecapture(completer);
+                                    mIsAeTriggeredByFlash = true;
+                                }
+                                return "startFlashSequence";
+                            });
+                }, mExecutor);
+
+        return Futures.nonCancellationPropagating(future);
     }
 
     /**
-     * Issues {@link CaptureRequest#CONTROL_AF_TRIGGER_CANCEL} or {@link
+     * {@inheritDoc}
+     *
+     * <p>Issues {@link CaptureRequest#CONTROL_AF_TRIGGER_CANCEL} and/or {@link
      * CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL} request to cancel auto focus or auto
      * exposure scan.
+     *
+     * <p>When torch is used instead of issuing
+     * {@code CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START} in
+     * {@link #startFlashSequence(int)}, this method will close torch instead of issuing
+     * {@code CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL}.
      */
     @Override
-    public void cancelAfAeTrigger(final boolean cancelAfTrigger,
-            final boolean cancelAePrecaptureTrigger) {
+    public void cancelAfAndFinishFlashSequence(final boolean cancelAfTrigger,
+            final boolean finishFlashSequence) {
         if (!isControlInUse()) {
             Logger.w(TAG, "Camera is not active.");
             return;
         }
-        mExecutor.execute(() -> mFocusMeteringControl.cancelAfAeTrigger(cancelAfTrigger,
-                cancelAePrecaptureTrigger));
+        mExecutor.execute(() -> {
+            boolean cancelAeTrigger = false;
+            if (finishFlashSequence) {
+                if (mIsTorchEnabledByFlash) {
+                    mIsTorchEnabledByFlash = false;
+                    mTorchControl.enableTorchInternal(null, false);
+                }
+                if (mIsAeTriggeredByFlash) {
+                    mIsAeTriggeredByFlash = false;
+                    cancelAeTrigger = true;
+                }
+            }
+
+            if (cancelAfTrigger || cancelAeTrigger) {
+                mFocusMeteringControl.cancelAfAeTrigger(cancelAfTrigger, cancelAeTrigger);
+            }
+        });
     }
 
     @NonNull
     @Override
-    @ExperimentalExposureCompensation
     public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
         if (!isControlInUse()) {
             return Futures.immediateFailedFuture(
@@ -435,16 +535,60 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
     /** {@inheritDoc} */
     @Override
-    public void submitCaptureRequests(@NonNull final List<CaptureConfig> captureConfigs) {
+    public void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
         if (!isControlInUse()) {
             Logger.w(TAG, "Camera is not active.");
             return;
         }
-        mExecutor.execute(() -> submitCaptureRequestsInternal(captureConfigs));
+        mExecutor.execute(() -> {
+            List<CaptureConfig> configsToSubmit = new ArrayList<>(captureConfigs);
+            for (int i = 0; i < captureConfigs.size(); i++) {
+                CaptureConfig captureConfig = captureConfigs.get(i);
+                int templateToModify = CaptureConfig.TEMPLATE_TYPE_NONE;
+                if (mTemplate == CameraDevice.TEMPLATE_RECORD && !isLegacyDevice()) {
+                    // Always override template by TEMPLATE_VIDEO_SNAPSHOT when repeating
+                    // template is TEMPLATE_RECORD. Note: TEMPLATE_VIDEO_SNAPSHOT is not
+                    // supported on legacy device.
+                    templateToModify = CameraDevice.TEMPLATE_VIDEO_SNAPSHOT;
+                } else if (captureConfig.getTemplateType() == CaptureConfig.TEMPLATE_TYPE_NONE) {
+                    templateToModify = CameraDevice.TEMPLATE_STILL_CAPTURE;
+                }
+
+                if (templateToModify != CaptureConfig.TEMPLATE_TYPE_NONE) {
+                    CaptureConfig.Builder configBuilder = CaptureConfig.Builder.from(captureConfig);
+                    configBuilder.setTemplateType(templateToModify);
+                    configsToSubmit.set(i, configBuilder.build());
+                }
+            }
+            submitCaptureRequestsInternal(configsToSubmit);
+        });
     }
 
-    int getDefaultTemplate() {
-        return CameraDevice.TEMPLATE_PREVIEW;
+    /** {@inheritDoc} */
+    @Override
+    @NonNull
+    @ExecutedBy("mExecutor")
+    public SessionConfig getSessionConfig() {
+        mSessionConfigBuilder.setTemplateType(mTemplate);
+        mSessionConfigBuilder.setImplementationOptions(getSessionOptions());
+        Object tag = mCamera2CameraControl.getCamera2ImplConfig().getCaptureRequestTag(null);
+        if (tag != null && tag instanceof Integer) {
+            mSessionConfigBuilder.addTag(Camera2CameraControl.TAG_KEY, tag);
+        }
+        mSessionConfigBuilder.addTag(TAG_SESSION_UPDATE_ID, mCurrentSessionUpdateId);
+        return mSessionConfigBuilder.build();
+    }
+
+    @ExecutedBy("mExecutor")
+    void setTemplate(int template) {
+        mTemplate = template;
+
+        mFocusMeteringControl.setTemplate(mTemplate);
+    }
+
+    @ExecutedBy("mExecutor")
+    void resetTemplate() {
+        setTemplate(DEFAULT_TEMPLATE);
     }
 
     private boolean isControlInUse() {
@@ -458,14 +602,36 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mExecutor.execute(this::updateSessionConfigSynchronous);
     }
 
+    /**
+     * Triggers an update to the session and returns a ListenableFuture which completes when the
+     * session is updated successfully.
+     */
+    @NonNull
+    ListenableFuture<Void> updateSessionConfigAsync() {
+        ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(completer -> {
+            mExecutor.execute(() -> {
+                long sessionUpdateId = updateSessionConfigSynchronous();
+                Futures.propagate(waitForSessionUpdateId(sessionUpdateId), completer);
+            });
+            return "updateSessionConfigAsync";
+        });
+
+        return Futures.nonCancellationPropagating(future);
+    }
+
+    /**
+     * Triggers an update to the session synchronously.
+     *
+     * <p>It will return an auto-incremented ID representing the session update request. The ID
+     * will be put in the tag of SessionConfig using key {@link #TAG_SESSION_UPDATE_ID}. It can
+     * then retrieve the ID in {@link TotalCaptureResult} to check if the session update is done or
+     * not.
+     */
     @ExecutedBy("mExecutor")
-    void updateSessionConfigSynchronous() {
-        mSessionConfigBuilder.setImplementationOptions(getSessionOptions());
-        Object tag = mCamera2CameraControl.getCamera2ImplConfig().getCaptureRequestTag(null);
-        if (tag != null && tag instanceof Integer) {
-            mSessionConfigBuilder.addTag(Camera2CameraControl.TAG_KEY, (Integer) tag);
-        }
-        mControlUpdateCallback.onCameraControlUpdateSessionConfig(mSessionConfigBuilder.build());
+    long updateSessionConfigSynchronous() {
+        mCurrentSessionUpdateId = mNextSessionUpdateId.getAndIncrement();
+        mControlUpdateCallback.onCameraControlUpdateSessionConfig();
+        return mCurrentSessionUpdateId;
     }
 
     @ExecutedBy("mExecutor")
@@ -514,7 +680,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         if (!torch) {
             // Send capture request with AE_MODE_ON + FLASH_MODE_OFF to turn off torch.
             CaptureConfig.Builder singleRequestBuilder = new CaptureConfig.Builder();
-            singleRequestBuilder.setTemplateType(getDefaultTemplate());
+            singleRequestBuilder.setTemplateType(mTemplate);
             singleRequestBuilder.setUseRepeatingSurface(true);
             Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
             configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
@@ -707,6 +873,17 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     int getMaxAwbRegionCount() {
         Integer count = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB);
         return count == null ? 0 : count;
+    }
+
+    @VisibleForTesting
+    long getCurrentSessionUpdateId() {
+        return mCurrentSessionUpdateId;
+    }
+
+    private boolean isLegacyDevice() {
+        Integer level =
+                mCameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+        return level != null && level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
     }
 
     /** An interface to listen to camera capture results. */

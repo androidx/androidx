@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="ScopedStorage"
-        message="WRITE_EXTERNAL_STORAGE no longer provides write access when targeting Android 10, unless you use `requestLegacyExternalStorage`"
-        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot; />"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="23"
-            column="36"/>
-    </issue>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
         id="BanSynchronizedMethods"
@@ -19,7 +8,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="154"
+            line="141"
             column="9"/>
     </issue>
 
@@ -30,7 +19,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="160"
+            line="147"
             column="9"/>
     </issue>
 
@@ -41,13 +30,13 @@
         errorLine2="        ^">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="166"
+            line="153"
             column="9"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.AssetLoaderAjaxActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.AssetLoaderAjaxActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mUriIdlingResource.beginLoad(request.getUrl().toString());"
         errorLine2="                                                     ~~~~~~">
         <location
@@ -57,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.AssetLoaderAjaxActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.AssetLoaderAjaxActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            WebResourceResponse response = mAssetLoader.shouldInterceptRequest(request.getUrl());"
         errorLine2="                                                                                       ~~~~~~">
         <location
@@ -68,8 +57,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.AssetLoaderAjaxActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.AssetLoaderAjaxActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mUriIdlingResource.endLoad(request.getUrl().toString());"
         errorLine2="                                                   ~~~~~~">
         <location
@@ -79,8 +68,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.AssetLoaderInternalStorageActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.AssetLoaderInternalStorageActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return mAssetLoader.shouldInterceptRequest(request.getUrl());"
         errorLine2="                                                               ~~~~~~">
         <location
@@ -90,8 +79,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.AssetLoaderSimpleActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.AssetLoaderSimpleActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return mAssetLoader.shouldInterceptRequest(request.getUrl());"
         errorLine2="                                                               ~~~~~~">
         <location
@@ -101,8 +90,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.CustomInterstitialActivity.CustomInterstitialWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.CustomInterstitialActivity.CustomInterstitialWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            myIntent.putExtra(PopupInterstitialActivity.THREAT_URL, request.getUrl().toString());"
         errorLine2="                                                                            ~~~~~~">
         <location
@@ -112,19 +101,19 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.DocumentStartJavaScriptActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.DocumentStartJavaScriptActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return mAssetLoader.shouldInterceptRequest(request.getUrl());"
         errorLine2="                                                               ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/DocumentStartJavaScriptActivity.java"
-            line="70"
+            line="68"
             column="64"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.ErrorLoggingWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.ErrorLoggingWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            logErrors(request.getUrl().toString(), error.getErrorCode());"
         errorLine2="                              ~~~~~~">
         <location
@@ -134,19 +123,19 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.MenuListView is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.MenuListView is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="48"
+            line="46"
             column="9"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.WebMessageListenerActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.WebMessageListenerActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return mAssetLoader.shouldInterceptRequest(request.getUrl());"
         errorLine2="                                                               ~~~~~~">
         <location
@@ -156,267 +145,14 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.androidx.webkit.WebMessageListenerMaliciousWebsiteActivity.MyWebViewClient is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.androidx.webkit.WebMessageListenerMaliciousWebsiteActivity.MyWebViewClient is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                WebResourceResponse response = loader.shouldInterceptRequest(request.getUrl());"
         errorLine2="                                                                                     ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/WebMessageListenerMaliciousWebsiteActivity.java"
             line="69"
             column="86"/>
-    </issue>
-
-    <issue
-        id="SpUsage"
-        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
-        errorLine1="        android:textSize=&quot;20dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/fragment_renderer_terminated.xml"
-            line="27"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SpUsage"
-        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
-        errorLine1="        android:textSize=&quot;20dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/fragment_renderer_unresponsive.xml"
-            line="27"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ObsoleteLayoutParam"
-        message="Invalid layout param in a `LinearLayout`: `layout_centerVertical`"
-        errorLine1="        android:layout_centerVertical=&quot;true&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_document_start_javascript.xml"
-            line="42"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ObsoleteLayoutParam"
-        message="Invalid layout param in a `LinearLayout`: `layout_centerVertical`"
-        errorLine1="            android:layout_centerVertical=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_web_message_listener.xml"
-            line="46"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ObsoleteLayoutParam"
-        message="Invalid layout param in a `LinearLayout`: `layout_alignBottom`"
-        errorLine1="            android:layout_alignBottom=&quot;@+id/button1&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_web_message_listener.xml"
-            line="52"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This `AsyncTask` class should be static or leaks might occur (anonymous com.example.androidx.webkit.AssetLoaderInternalStorageActivity.WriteFileTask)"
-        errorLine1="        new WriteFileTask(mDemoFile, DEMO_HTML_CONTENT) {"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/com/example/androidx/webkit/AssetLoaderInternalStorageActivity.java"
-            line="96"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="DisableBaselineAlignment"
-        message="Set `android:baselineAligned=&quot;false&quot;` on this element for better performance"
-        errorLine1="&lt;LinearLayout"
-        errorLine2=" ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_per_web_view_enable.xml"
-            line="18"
-            column="2"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/colorBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;@color/colorBackground&quot;>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_allowlist.xml"
-            line="26"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/colorBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;@color/colorBackground&quot;>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_custom_interstitial.xml"
-            line="26"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `#FF0` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;#FF0&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_document_start_javascript.xml"
-            line="20"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/colorBackground` with a theme that also paints a background (inferred theme is `@style/AppDayNightTheme`)"
-        errorLine1="    android:background=&quot;@color/colorBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_force_dark.xml"
-            line="22"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/colorBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;@color/colorBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_giant_interstitial.xml"
-            line="22"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/colorBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;@color/colorBackground&quot;>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_invisible.xml"
-            line="26"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/colorBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;@color/colorBackground&quot;>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_loud_interstitial.xml"
-            line="26"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/colorBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;@color/colorBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_medium_interstitial.xml"
-            line="25"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/colorBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;@color/colorBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_per_web_view_enable.xml"
-            line="25"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/interstitialBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;@color/interstitialBackground&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_popup_interstitial.xml"
-            line="23"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/colorBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;@color/colorBackground&quot;>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_small_interstitial.xml"
-            line="26"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/colorBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;@color/colorBackground&quot;>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_unattached.xml"
-            line="26"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `#FF0` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="    android:background=&quot;#FF0&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_web_message_listener.xml"
-            line="20"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `allowlistSafeBrowsingTestSite` of class `AllowlistActivity` requires synthetic accessor"
-        errorLine1="                    allowlistSafeBrowsingTestSite(null);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/AllowlistActivity.java"
-            line="63"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `clearAllowlist` of class `AllowlistActivity` requires synthetic accessor"
-        errorLine1="                    clearAllowlist();"
-        errorLine2="                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/AllowlistActivity.java"
-            line="65"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAllowlistWebView` of class `AllowlistActivity` requires synthetic accessor"
-        errorLine1="                mAllowlistWebView.loadUrl(SafeBrowsingHelpers.TEST_SAFE_BROWSING_SITE);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/AllowlistActivity.java"
-            line="83"
-            column="17"/>
     </issue>
 
     <issue
@@ -652,35 +388,24 @@
 
     <issue
         id="SyntheticAccessor"
-        message="Access to `private` field `mContext` of class `MenuListView` requires synthetic accessor"
-        errorLine1="                featureArrayAdapter.getItem(position).start(mContext);"
-        errorLine2="                                                            ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="91"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
         message="Access to `private` method `recreateWebView` of class `RendererTerminationActivity` requires synthetic accessor"
-        errorLine1="                            ((RendererTerminationActivity) getActivity())"
-        errorLine2="                            ^">
+        errorLine1="                                ((RendererTerminationActivity) getActivity()).recreateWebView())"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="110"
-            column="29"/>
+            line="102"
+            column="33"/>
     </issue>
 
     <issue
         id="SyntheticAccessor"
         message="Access to `private` method `terminateWebViewRenderer` of class `RendererTerminationActivity` requires synthetic accessor"
-        errorLine1="                            ((RendererTerminationActivity) getActivity())"
-        errorLine2="                            ^">
+        errorLine1="                                    ((RendererTerminationActivity) getActivity())"
+        errorLine2="                                    ^">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="136"
-            column="29"/>
+            line="126"
+            column="37"/>
     </issue>
 
     <issue
@@ -690,7 +415,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="151"
+            line="138"
             column="13"/>
     </issue>
 
@@ -701,7 +426,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="157"
+            line="144"
             column="13"/>
     </issue>
 
@@ -712,7 +437,7 @@
         errorLine2="            ~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="162"
+            line="149"
             column="13"/>
     </issue>
 
@@ -723,7 +448,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="163"
+            line="150"
             column="13"/>
     </issue>
 
@@ -734,7 +459,7 @@
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="216"
+            line="203"
             column="17"/>
     </issue>
 
@@ -745,7 +470,7 @@
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="217"
+            line="204"
             column="17"/>
     </issue>
 
@@ -756,7 +481,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="222"
+            line="209"
             column="17"/>
     </issue>
 
@@ -767,7 +492,7 @@
         errorLine2="                    ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="242"
+            line="229"
             column="21"/>
     </issue>
 
@@ -778,30 +503,8 @@
         errorLine2="                    ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="252"
+            line="239"
             column="21"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setupLayout` of class `SafeBrowsingActivity` requires synthetic accessor"
-        errorLine1="                                setupLayout();"
-        errorLine2="                                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/SafeBrowsingActivity.java"
-            line="48"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `showSafeBrowsingRequirementsInBrowser` of class `SafeBrowsingActivity` requires synthetic accessor"
-        errorLine1="                                    showSafeBrowsingRequirementsInBrowser();"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/SafeBrowsingActivity.java"
-            line="54"
-            column="37"/>
     </issue>
 
     <issue
@@ -811,7 +514,7 @@
         errorLine2="                                ~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
-            line="96"
+            line="97"
             column="33"/>
     </issue>
 
@@ -822,7 +525,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
-            line="97"
+            line="98"
             column="33"/>
     </issue>
 
@@ -833,7 +536,7 @@
         errorLine2="                                ~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
-            line="98"
+            line="99"
             column="33"/>
     </issue>
 
@@ -844,7 +547,7 @@
         errorLine2="                                                                                        ~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
-            line="99"
+            line="100"
             column="89"/>
     </issue>
 
@@ -855,7 +558,7 @@
         errorLine2="                                    ~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
-            line="101"
+            line="102"
             column="37"/>
     </issue>
 
@@ -866,7 +569,7 @@
         errorLine2="                                    ~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/TracingControllerActivity.java"
-            line="103"
+            line="104"
             column="37"/>
     </issue>
 
@@ -893,541 +596,13 @@
     </issue>
 
     <issue
-        id="RedundantNamespace"
-        message="This namespace declaration is redundant"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_asset_loader.xml"
-            line="27"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RedundantNamespace"
-        message="This namespace declaration is redundant"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_asset_loader_list.xml"
-            line="27"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RedundantNamespace"
-        message="This namespace declaration is redundant"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_document_start_javascript.xml"
-            line="25"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RedundantNamespace"
-        message="This namespace declaration is redundant"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_document_start_javascript.xml"
-            line="31"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RedundantNamespace"
-        message="This namespace declaration is redundant"
-        errorLine1="    &lt;WebView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_force_dark.xml"
-            line="25"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="RedundantNamespace"
-        message="This namespace declaration is redundant"
-        errorLine1="    &lt;WebView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_force_dark.xml"
-            line="35"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="RedundantNamespace"
-        message="This namespace declaration is redundant"
-        errorLine1="    &lt;WebView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_force_dark.xml"
-            line="45"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="RedundantNamespace"
-        message="This namespace declaration is redundant"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_js_java_interaction.xml"
-            line="23"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RedundantNamespace"
-        message="This namespace declaration is redundant"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="27"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RedundantNamespace"
-        message="This namespace declaration is redundant"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_safe_browsing.xml"
-            line="27"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RedundantNamespace"
-        message="This namespace declaration is redundant"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_web_message_listener.xml"
-            line="24"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RedundantNamespace"
-        message="This namespace declaration is redundant"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_web_message_listener.xml"
-            line="30"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RedundantNamespace"
-        message="This namespace declaration is redundant"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_web_message_listener.xml"
-            line="36"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RedundantNamespace"
-        message="This namespace declaration is redundant"
-        errorLine1="        xmlns:tools=&quot;http://schemas.android.com/tools&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_web_message_listener.xml"
-            line="37"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RedundantNamespace"
-        message="This namespace declaration is redundant"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_web_message_listener_malicious_website.xml"
-            line="22"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedNamespace"
-        message="Unused namespace declaration xmlns:android; already declared on the root element"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_asset_loader.xml"
-            line="27"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedNamespace"
-        message="Unused namespace declaration xmlns:android; already declared on the root element"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_document_start_javascript.xml"
-            line="25"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedNamespace"
-        message="Unused namespace declaration xmlns:android; already declared on the root element"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_document_start_javascript.xml"
-            line="31"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedNamespace"
-        message="Unused namespace declaration xmlns:android; already declared on the root element"
-        errorLine1="    &lt;WebView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_force_dark.xml"
-            line="25"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="UnusedNamespace"
-        message="Unused namespace declaration xmlns:android; already declared on the root element"
-        errorLine1="    &lt;WebView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_force_dark.xml"
-            line="35"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="UnusedNamespace"
-        message="Unused namespace declaration xmlns:android; already declared on the root element"
-        errorLine1="    &lt;WebView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_force_dark.xml"
-            line="45"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="UnusedNamespace"
-        message="Unused namespace declaration xmlns:android; already declared on the root element"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_web_message_listener.xml"
-            line="24"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedNamespace"
-        message="Unused namespace declaration xmlns:android; already declared on the root element"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_web_message_listener.xml"
-            line="30"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedNamespace"
-        message="Unused namespace declaration xmlns:android; already declared on the root element"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_web_message_listener.xml"
-            line="36"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedNamespace"
-        message="Unused namespace declaration xmlns:tools; already declared on the root element"
-        errorLine1="        xmlns:tools=&quot;http://schemas.android.com/tools&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_web_message_listener.xml"
-            line="37"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedNamespace"
-        message="Unused namespace declaration xmlns:android; already declared on the root element"
-        errorLine1="        xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_web_message_listener_malicious_website.xml"
-            line="22"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="MissingApplicationIcon"
-        message="Should explicitly set `android:icon`, there is no default"
-        errorLine1="    &lt;application"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="25"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="        &lt;Button"
-        errorLine2="         ~~~~~~">
-        <location
-            file="src/main/res/layout/activity_popup_interstitial.xml"
-            line="57"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="        &lt;Button"
-        errorLine2="         ~~~~~~">
-        <location
-            file="src/main/res/layout/activity_popup_interstitial.xml"
-            line="66"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="        &lt;Button"
-        errorLine2="         ~~~~~~">
-        <location
-            file="src/main/res/layout/activity_renderer_termination.xml"
-            line="77"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="        &lt;Button"
-        errorLine2="         ~~~~~~">
-        <location
-            file="src/main/res/layout/activity_renderer_termination.xml"
-            line="87"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="        &lt;Button"
-        errorLine2="         ~~~~~~">
-        <location
-            file="src/main/res/layout/activity_web_message_listener.xml"
-            line="42"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="        &lt;Button"
-        errorLine2="         ~~~~~~">
-        <location
-            file="src/main/res/layout/activity_web_message_listener.xml"
-            line="48"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="Autofill"
-        message="Missing `autofillHints` attribute"
-        errorLine1="    &lt;EditText"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_proxy_override.xml"
-            line="34"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="Autofill"
-        message="Missing `autofillHints` attribute"
-        errorLine1="    &lt;EditText"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_tracing_controller.xml"
-            line="34"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="            mStatus.setText(&quot;API not available&quot;);"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="75"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                mStatus.setText(&quot;terminated&quot;);"
-        errorLine2="                                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="222"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="        mStatus.setText(&quot;started&quot;);"
-        errorLine2="                        ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="233"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                    mStatus.setText(&quot;unresponsive&quot;);"
-        errorLine2="                                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="242"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                    mStatus.setText(&quot;responsive&quot;);"
-        errorLine2="                                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="252"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Reply via ReplyProxy&quot;, should use `@string` resource"
-        errorLine1="        android:text=&quot;Reply via ReplyProxy&quot; />"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_document_start_javascript.xml"
-            line="43"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Type an URL here&quot;, should use `@string` resource"
-        errorLine1="        android:hint=&quot;Type an URL here&quot;/>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_proxy_override.xml"
-            line="43"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Renderer status:&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Renderer status:&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_renderer_termination.xml"
-            line="37"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Type an URL here&quot;, should use `@string` resource"
-        errorLine1="        android:hint=&quot;Type an URL here&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_tracing_controller.xml"
-            line="42"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Reply via ReplyProxy&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Reply via ReplyProxy&quot; />"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_web_message_listener.xml"
-            line="47"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Reply via Port&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Reply via Port&quot; />"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_web_message_listener.xml"
-            line="53"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="        android:gravity=&quot;left&quot;"
-        errorLine2="                         ~~~~">
-        <location
-            file="src/main/res/layout/activity_renderer_termination.xml"
-            line="31"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="        android:gravity=&quot;left&quot;>"
-        errorLine2="                         ~~~~">
-        <location
-            file="src/main/res/layout/activity_renderer_termination.xml"
-            line="75"
-            column="26"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/AllowlistActivity.java"
-            line="46"
+            line="44"
             column="29"/>
     </issue>
 
@@ -1515,7 +690,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="34"
+            line="32"
             column="25"/>
     </issue>
 
@@ -1526,7 +701,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="38"
+            line="36"
             column="25"/>
     </issue>
 
@@ -1537,7 +712,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="38"
+            line="36"
             column="42"/>
     </issue>
 
@@ -1548,7 +723,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="42"
+            line="40"
             column="25"/>
     </issue>
 
@@ -1559,7 +734,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="42"
+            line="40"
             column="42"/>
     </issue>
 
@@ -1570,7 +745,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="47"
+            line="45"
             column="25"/>
     </issue>
 
@@ -1581,7 +756,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="47"
+            line="45"
             column="42"/>
     </issue>
 
@@ -1592,7 +767,7 @@
         errorLine2="                        ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="59"
+            line="57"
             column="25"/>
     </issue>
 
@@ -1603,7 +778,7 @@
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="59"
+            line="57"
             column="38"/>
     </issue>
 
@@ -1614,7 +789,7 @@
         errorLine2="                          ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="76"
+            line="74"
             column="27"/>
     </issue>
 
@@ -1625,7 +800,7 @@
         errorLine2="                         ~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/MenuListView.java"
-            line="84"
+            line="82"
             column="26"/>
     </issue>
 
@@ -1658,7 +833,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/PopupInterstitialActivity.java"
-            line="51"
+            line="50"
             column="29"/>
     </issue>
 
@@ -1669,7 +844,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/Proxy.java"
-            line="60"
+            line="61"
             column="28"/>
     </issue>
 
@@ -1680,7 +855,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="95"
+            line="87"
             column="23"/>
     </issue>
 
@@ -1691,7 +866,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="102"
+            line="94"
             column="16"/>
     </issue>
 
@@ -1702,7 +877,7 @@
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="102"
+            line="94"
             column="38"/>
     </issue>
 
@@ -1713,7 +888,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="121"
+            line="111"
             column="23"/>
     </issue>
 
@@ -1724,7 +899,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="128"
+            line="118"
             column="16"/>
     </issue>
 
@@ -1735,7 +910,7 @@
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/webkit/RendererTerminationActivity.java"
-            line="128"
+            line="118"
             column="38"/>
     </issue>
 

@@ -185,9 +185,9 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
 
     /**
      * Write the current text into outBuf.
-     * @param buiilder The output string builder
+     * @param builder The output string builder
      */
-    internal fun append(builder: StringBuilder) {
+    fun append(builder: StringBuilder) {
         builder.append(buffer, 0, gapStart)
         builder.append(buffer, gapEnd, capacity - gapEnd)
     }
@@ -213,7 +213,7 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
  * @param text The initial text
  * @suppress
  */
-@InternalTextApi
+@InternalTextApi // "Used by benchmarks"
 class PartialGapBuffer(var text: String) {
     internal companion object {
         const val BUF_SIZE = 255

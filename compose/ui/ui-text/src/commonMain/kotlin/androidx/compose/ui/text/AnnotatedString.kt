@@ -22,36 +22,19 @@ import androidx.compose.ui.text.AnnotatedString.Builder
 import androidx.compose.ui.text.AnnotatedString.Range
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.util.fastForEach
-
-/**
- * The class changes the character level style of the specified range.
- * @see AnnotatedString.Builder
- */
-typealias SpanStyleRange = Range<SpanStyle>
-
-/**
- * The class changes the paragraph level style of the specified range.
- * @see AnnotatedString.Builder
- */
-typealias ParagraphStyleRange = Range<ParagraphStyle>
-
-/**
- * The class that stores a string type annotation.
- * @see AnnotatedString.Builder
- */
-typealias StringAnnotation = Range<String>
+import androidx.compose.ui.util.fastMap
 
 /**
  * The basic data structure of text with multiple styles. To construct an [AnnotatedString] you
  * can use [Builder].
  */
 @Immutable
-data class AnnotatedString internal constructor(
+class AnnotatedString internal constructor(
     val text: String,
-    val spanStyles: List<SpanStyleRange> = listOf(),
-    val paragraphStyles: List<ParagraphStyleRange> = listOf(),
-    internal val annotations: List<Range<out Any>> = listOf()
-) {
+    val spanStyles: List<Range<SpanStyle>> = emptyList(),
+    val paragraphStyles: List<Range<ParagraphStyle>> = emptyList(),
+    internal val annotations: List<Range<out Any>> = emptyList()
+) : CharSequence {
     /**
      * The basic data structure of text with multiple styles. To construct an [AnnotatedString]
      * you can use [Builder].
@@ -74,8 +57,8 @@ data class AnnotatedString internal constructor(
      */
     constructor(
         text: String,
-        spanStyles: List<SpanStyleRange> = listOf(),
-        paragraphStyles: List<ParagraphStyleRange> = listOf()
+        spanStyles: List<Range<SpanStyle>> = listOf(),
+        paragraphStyles: List<Range<ParagraphStyle>> = listOf()
     ) : this(text, spanStyles, paragraphStyles, listOf())
 
     init {
@@ -88,6 +71,43 @@ data class AnnotatedString internal constructor(
             }
             lastStyleEnd = paragraphStyle.end
         }
+    }
+
+    override val length: Int
+        get() = text.length
+
+    override operator fun get(index: Int): Char = text[index]
+
+    /**
+     * Return a substring for the AnnotatedString and include the styles in the range of [startIndex]
+     * (inclusive) and [endIndex] (exclusive).
+     *
+     * @param startIndex the inclusive start offset of the range
+     * @param endIndex the exclusive end offset of the range
+     */
+    override fun subSequence(startIndex: Int, endIndex: Int): AnnotatedString {
+        require(startIndex <= endIndex) {
+            "start ($startIndex) should be less or equal to end ($endIndex)"
+        }
+        if (startIndex == 0 && endIndex == text.length) return this
+        val text = text.substring(startIndex, endIndex)
+        return AnnotatedString(
+            text = text,
+            spanStyles = filterRanges(spanStyles, startIndex, endIndex),
+            paragraphStyles = filterRanges(paragraphStyles, startIndex, endIndex),
+            annotations = filterRanges(annotations, startIndex, endIndex)
+        )
+    }
+
+    /**
+     * Return a substring for the AnnotatedString and include the styles in the given [range].
+     *
+     * @param range the text range
+     *
+     * @see subSequence(start: Int, end: Int)
+     */
+    fun subSequence(range: TextRange): AnnotatedString {
+        return subSequence(range.min, range.max)
     }
 
     @Stable
@@ -112,10 +132,11 @@ data class AnnotatedString internal constructor(
      * with the range [start, end) will be returned. When [start] is bigger than [end], an empty
      * list will be returned.
      */
-    fun getStringAnnotations(tag: String, start: Int, end: Int): List<StringAnnotation> =
-        annotations.filterIsInstance<Range<String>>().filter {
-            tag == it.tag && intersect(start, end, it.start, it.end)
-        }
+    @Suppress("UNCHECKED_CAST")
+    fun getStringAnnotations(tag: String, start: Int, end: Int): List<Range<String>> =
+        annotations.fastFilter {
+            it.item is String && tag == it.tag && intersect(start, end, it.start, it.end)
+        } as List<Range<String>>
 
     /**
      * Query all of the string annotations attached on this AnnotatedString.
@@ -126,10 +147,11 @@ data class AnnotatedString internal constructor(
      * with the range [start, end) will be returned. When [start] is bigger than [end], an empty
      * list will be returned.
      */
-    fun getStringAnnotations(start: Int, end: Int): List<StringAnnotation> =
-        annotations.filterIsInstance<Range<String>>().filter {
-            intersect(start, end, it.start, it.end)
-        }
+    @Suppress("UNCHECKED_CAST")
+    fun getStringAnnotations(start: Int, end: Int): List<Range<String>> =
+        annotations.fastFilter {
+            it.item is String && intersect(start, end, it.start, it.end)
+        } as List<Range<String>>
 
     /**
      * Query all of the string annotations attached on this AnnotatedString.
@@ -140,10 +162,35 @@ data class AnnotatedString internal constructor(
      * with the range [start, end) will be returned. When [start] is bigger than [end], an empty
      * list will be returned.
      */
+    @Suppress("UNCHECKED_CAST")
     fun getTtsAnnotations(start: Int, end: Int): List<Range<TtsAnnotation>> =
-        annotations.filterIsInstance<Range<TtsAnnotation>>().filter {
-            intersect(start, end, it.start, it.end)
-        }
+        annotations.fastFilter {
+            it.item is TtsAnnotation && intersect(start, end, it.start, it.end)
+        } as List<Range<TtsAnnotation>>
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AnnotatedString) return false
+        if (text != other.text) return false
+        if (spanStyles != other.spanStyles) return false
+        if (paragraphStyles != other.paragraphStyles) return false
+        if (annotations != other.annotations) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = text.hashCode()
+        result = 31 * result + spanStyles.hashCode()
+        result = 31 * result + paragraphStyles.hashCode()
+        result = 31 * result + annotations.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        // AnnotatedString.toString has special value, it converts it into regular String
+        // rather than debug string.
+        return text
+    }
 
     /**
      * The information attached on the text such as a [SpanStyle].
@@ -215,8 +262,6 @@ data class AnnotatedString internal constructor(
          */
         val length: Int get() = text.length
 
-        override fun toString(): String = text.toString()
-
         /**
          * Appends the given [String] to this [Builder].
          *
@@ -244,14 +289,14 @@ data class AnnotatedString internal constructor(
             val start = this.text.length
             this.text.append(text.text)
             // offset every style with start and add to the builder
-            text.spanStyles.forEach {
+            text.spanStyles.fastForEach {
                 addStyle(it.item, start + it.start, start + it.end)
             }
-            text.paragraphStyles.forEach {
+            text.paragraphStyles.fastForEach {
                 addStyle(it.item, start + it.start, start + it.end)
             }
 
-            text.annotations.forEach {
+            text.annotations.fastForEach {
                 annotations.add(
                     MutableRange(it.item, start + it.start, start + it.end, it.tag)
                 )
@@ -293,6 +338,22 @@ data class AnnotatedString internal constructor(
          */
         fun addStringAnnotation(tag: String, annotation: String, start: Int, end: Int) {
             annotations.add(MutableRange(annotation, start, end, tag))
+        }
+
+        /**
+         * Set a [TtsAnnotation] for the given [range].
+         *
+         * @param ttsAnnotation an object stores text to speech metadata that intended for the
+         * TTS engine.
+         * @param start the inclusive starting offset of the range
+         * @param end the exclusive end offset of the range
+         * @see getStringAnnotations
+         * @sample androidx.compose.ui.text.samples.AnnotatedStringAddStringAnnotationSample
+         */
+        @ExperimentalTextApi
+        @Suppress("SetterReturnsThis")
+        fun addTtsAnnotation(ttsAnnotation: TtsAnnotation, start: Int, end: Int) {
+            annotations.add(MutableRange(ttsAnnotation, start, end))
         }
 
         /**
@@ -402,9 +463,9 @@ data class AnnotatedString internal constructor(
         fun toAnnotatedString(): AnnotatedString {
             return AnnotatedString(
                 text = text.toString(),
-                spanStyles = spanStyles.map { it.toRange(text.length) },
-                paragraphStyles = paragraphStyles.map { it.toRange(text.length) },
-                annotations = annotations.map { it.toRange(text.length) }
+                spanStyles = spanStyles.fastMap { it.toRange(text.length) },
+                paragraphStyles = paragraphStyles.fastMap { it.toRange(text.length) },
+                annotations = annotations.fastMap { it.toRange(text.length) }
             )
         }
     }
@@ -427,12 +488,12 @@ data class AnnotatedString internal constructor(
  */
 internal fun AnnotatedString.normalizedParagraphStyles(
     defaultParagraphStyle: ParagraphStyle
-): List<ParagraphStyleRange> {
+): List<Range<ParagraphStyle>> {
     val length = text.length
     val paragraphStyles = paragraphStyles
 
     var lastOffset = 0
-    val result = mutableListOf<ParagraphStyleRange>()
+    val result = mutableListOf<Range<ParagraphStyle>>()
     paragraphStyles.fastForEach { (style, start, end) ->
         if (start != lastOffset) {
             result.add(Range(defaultParagraphStyle, lastOffset, start))
@@ -462,14 +523,14 @@ internal fun AnnotatedString.normalizedParagraphStyles(
 private fun AnnotatedString.getLocalStyles(
     start: Int,
     end: Int
-): List<SpanStyleRange> {
+): List<Range<SpanStyle>> {
     if (start == end) return listOf()
     // If the given range covers the whole AnnotatedString, return SpanStyles without conversion.
     if (start == 0 && end >= this.text.length) {
         return spanStyles
     }
-    return spanStyles.filter { intersect(start, end, it.start, it.end) }
-        .map {
+    return spanStyles.fastFilter { intersect(start, end, it.start, it.end) }
+        .fastMap {
             Range(
                 it.item,
                 it.start.coerceIn(start, end) - start,
@@ -501,10 +562,10 @@ internal inline fun <T> AnnotatedString.mapEachParagraphStyle(
     defaultParagraphStyle: ParagraphStyle,
     crossinline block: (
         annotatedString: AnnotatedString,
-        paragraphStyle: ParagraphStyleRange
+        paragraphStyle: Range<ParagraphStyle>
     ) -> T
 ): List<T> {
-    return normalizedParagraphStyles(defaultParagraphStyle).map { paragraphStyleRange ->
+    return normalizedParagraphStyles(defaultParagraphStyle).fastMap { paragraphStyleRange ->
         val annotatedString = substringWithoutParagraphStyles(
             paragraphStyleRange.start,
             paragraphStyleRange.end
@@ -612,11 +673,6 @@ internal expect fun AnnotatedString.transform(
 ): AnnotatedString
 
 /**
- * Returns the length of the [AnnotatedString].
- */
-val AnnotatedString.length: Int get() = text.length
-
-/**
  * Pushes [style] to the [AnnotatedString.Builder], executes [block] and then pops the [style].
  *
  * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderWithStyleSample
@@ -667,6 +723,58 @@ inline fun <R : Any> Builder.withStyle(
 }
 
 /**
+ * Pushes an annotation to the [AnnotatedString.Builder], executes [block] and then pops the
+ * annotation.
+ *
+ * @param tag the tag used to distinguish annotations
+ * @param annotation the string annotation attached on this AnnotatedString
+ * @param block function to be executed
+ *
+ * @return result of the [block]
+ *
+ * @see AnnotatedString.Builder.pushStringAnnotation
+ * @see AnnotatedString.Builder.pop
+ */
+@ExperimentalTextApi
+inline fun <R : Any> Builder.withAnnotation(
+    tag: String,
+    annotation: String,
+    crossinline block: Builder.() -> R
+): R {
+    val index = pushStringAnnotation(tag, annotation)
+    return try {
+        block(this)
+    } finally {
+        pop(index)
+    }
+}
+
+/**
+ * Pushes an [TtsAnnotation] to the [AnnotatedString.Builder], executes [block] and then pops the
+ * annotation.
+ *
+ * @param ttsAnnotation an object stores text to speech metadata that intended for the TTS engine.
+ * @param block function to be executed
+ *
+ * @return result of the [block]
+ *
+ * @see AnnotatedString.Builder.pushStringAnnotation
+ * @see AnnotatedString.Builder.pop
+ */
+@ExperimentalTextApi
+inline fun <R : Any> Builder.withAnnotation(
+    ttsAnnotation: TtsAnnotation,
+    crossinline block: Builder.() -> R
+): R {
+    val index = pushTtsAnnotation(ttsAnnotation)
+    return try {
+        block(this)
+    } finally {
+        pop(index)
+    }
+}
+
+/**
  * Filter the range list based on [Range.start] and [Range.end] to include ranges only in the range
  * of [start] (inclusive) and [end] (exclusive).
  *
@@ -675,7 +783,7 @@ inline fun <R : Any> Builder.withStyle(
  */
 private fun <T> filterRanges(ranges: List<Range<out T>>, start: Int, end: Int): List<Range<T>> {
     require(start <= end) { "start ($start) should be less than or equal to end ($end)" }
-    return ranges.filter { intersect(start, end, it.start, it.end) }.map {
+    return ranges.fastFilter { intersect(start, end, it.start, it.end) }.fastMap {
         Range(
             item = it.item,
             start = maxOf(start, it.start) - start,
@@ -683,25 +791,6 @@ private fun <T> filterRanges(ranges: List<Range<out T>>, start: Int, end: Int): 
             tag = it.tag
         )
     }
-}
-
-/**
- * Return a substring for the AnnotatedString and include the styles in the range of [start]
- * (inclusive) and [end] (exclusive).
- *
- * @param start the inclusive start offset of the range
- * @param end the exclusive end offset of the range
- */
-fun AnnotatedString.subSequence(start: Int, end: Int): AnnotatedString {
-    require(start <= end) { "start ($start) should be less or equal to end ($end)" }
-    if (start == 0 && end == text.length) return this
-    val text = text.substring(start, end)
-    return AnnotatedString(
-        text = text,
-        spanStyles = filterRanges(spanStyles, start, end),
-        paragraphStyles = filterRanges(paragraphStyles, start, end),
-        annotations = filterRanges(annotations, start, end)
-    )
 }
 
 /**
@@ -742,21 +831,6 @@ fun AnnotatedString(
  *
  * @param builder lambda to modify [AnnotatedString.Builder]
  */
-@Deprecated(
-    message = "Renamed to buildAnnotatedString.",
-    replaceWith = ReplaceWith("buildAnnotatedString")
-)
-inline fun annotatedString(builder: (Builder).() -> Unit): AnnotatedString =
-    Builder().apply(builder).toAnnotatedString()
-
-/**
- * Build a new AnnotatedString by populating newly created [AnnotatedString.Builder] provided
- * by [builder].
- *
- * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderLambdaSample
- *
- * @param builder lambda to modify [AnnotatedString.Builder]
- */
 inline fun buildAnnotatedString(builder: (Builder).() -> Unit): AnnotatedString =
     Builder().apply(builder).toAnnotatedString()
 
@@ -780,3 +854,10 @@ internal fun contains(baseStart: Int, baseEnd: Int, targetStart: Int, targetEnd:
 internal fun intersect(lStart: Int, lEnd: Int, rStart: Int, rEnd: Int) =
     maxOf(lStart, rStart) < minOf(lEnd, rEnd) ||
         contains(lStart, lEnd, rStart, rEnd) || contains(rStart, rEnd, lStart, lEnd)
+
+private val EmptyAnnotatedString: AnnotatedString = AnnotatedString("")
+
+/**
+ * Returns an AnnotatedString with empty text and no annotations.
+ */
+internal fun emptyAnnotatedString() = EmptyAnnotatedString

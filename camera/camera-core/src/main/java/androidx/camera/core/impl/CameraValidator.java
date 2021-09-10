@@ -26,7 +26,8 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
 
 /**
- * Validation methods to verify the camera is initialized successfully.
+ * Validation methods to verify the camera is initialized successfully, more info please reference
+ * b/167201193.
  */
 public final class CameraValidator {
     private CameraValidator() {
@@ -41,23 +42,52 @@ public final class CameraValidator {
      * physically supported device lens facing information comes from the package manager and the
      * system feature flags are set by the vendor as part of the device build and CTS verified.
      *
-     * @param context          The application or activity context.
-     * @param cameraRepository The camera repository for verify.
+     * @param context                  The application or activity context.
+     * @param cameraRepository         The camera repository for verify.
+     * @param availableCamerasSelector Indicate the camera that we need to check.
      * @throws CameraIdListIncorrectException if it fails to find all the camera instances that
-     * physically supported on the device.
+     *                                        physically supported on the device.
      */
     public static void validateCameras(@NonNull Context context,
-            @NonNull CameraRepository cameraRepository) throws CameraIdListIncorrectException {
+            @NonNull CameraRepository cameraRepository,
+            @Nullable CameraSelector availableCamerasSelector)
+            throws CameraIdListIncorrectException {
+
+        Integer lensFacing = null;
+        try {
+            if (availableCamerasSelector != null
+                    && (lensFacing = availableCamerasSelector.getLensFacing()) == null) {
+                Logger.w(TAG, "No lens facing info in the availableCamerasSelector, don't "
+                        + "verify the camera lens facing.");
+                return;
+            }
+        } catch (IllegalStateException e) {
+            Logger.e(TAG, "Cannot get lens facing from the availableCamerasSelector don't "
+                    + "verify the camera lens facing.", e);
+            return;
+        }
+
+        Logger.d(TAG,
+                "Verifying camera lens facing on " + Build.DEVICE + ", lensFacingInteger: "
+                        + lensFacing);
 
         PackageManager pm = context.getPackageManager();
-
-        Logger.d(TAG, "Verifying camera lens facing on " + Build.DEVICE);
         try {
             if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-                CameraSelector.DEFAULT_BACK_CAMERA.select(cameraRepository.getCameras());
+                if (availableCamerasSelector == null
+                        || lensFacing.intValue() == CameraSelector.LENS_FACING_BACK) {
+                    // Only verify the main camera if it is NOT specifying the available lens
+                    // facing or it required the LENS_FACING_BACK camera.
+                    CameraSelector.DEFAULT_BACK_CAMERA.select(cameraRepository.getCameras());
+                }
             }
             if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
-                CameraSelector.DEFAULT_FRONT_CAMERA.select(cameraRepository.getCameras());
+                if (availableCamerasSelector == null
+                        || lensFacing.intValue() == CameraSelector.LENS_FACING_FRONT) {
+                    // Only verify the front camera if it is NOT specifying the available lens
+                    // facing or it required the LENS_FACING_FRONT camera.
+                    CameraSelector.DEFAULT_FRONT_CAMERA.select(cameraRepository.getCameras());
+                }
             }
         } catch (IllegalArgumentException e) {
             Logger.e(TAG, "Camera LensFacing verification failed, existing cameras: "

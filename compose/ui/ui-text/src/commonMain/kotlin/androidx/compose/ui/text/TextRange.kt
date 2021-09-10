@@ -17,7 +17,6 @@
 package androidx.compose.ui.text
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.util.annotation.IntRange
 import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
@@ -28,25 +27,23 @@ fun CharSequence.substring(range: TextRange): String = this.substring(range.min,
  * An immutable text range class, represents a text range from [start] (inclusive) to [end]
  * (exclusive). [end] can be smaller than [start] and in those cases [min] and [max] can be
  * used in order to fetch the values.
+ *
+ * @param start the inclusive start offset of the range. Must be non-negative, otherwise an
+ * exception will be thrown.
+ * @param end the exclusive end offset of the range. Must be non-negative, otherwise an
+ * exception will be thrown.
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
-@Immutable
-inline class TextRange(val packedValue: Long) {
+fun TextRange(/*@IntRange(from = 0)*/ start: Int, /*@IntRange(from = 0)*/ end: Int) =
+    TextRange(packWithCheck(start, end))
 
-    /**
-     * An immutable text range class, represents a text range from [start] (inclusive) to [end]
-     * (exclusive). [end] can be smaller than [start] and in those cases [min] and [max] can be
-     * used in order to fetch the values.
-     *
-     * @param start the inclusive start offset of the range. Must be non-negative, otherwise an
-     * exception will be thrown.
-     * @param end the exclusive end offset of the range. Must be non-negative, otherwise an
-     * exception will be thrown.
-     */
-    constructor(
-        @IntRange(from = 0) start: Int,
-        @IntRange(from = 0) end: Int
-    ) : this(packWithCheck(start, end))
+/**
+ * An immutable text range class, represents a text range from [start] (inclusive) to [end]
+ * (exclusive). [end] can be smaller than [start] and in those cases [min] and [max] can be
+ * used in order to fetch the values.
+ */
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
+@Immutable
+inline class TextRange internal constructor(private val packedValue: Long) {
 
     val start: Int get() = unpackInt1(packedValue)
 
@@ -110,11 +107,8 @@ fun TextRange(index: Int): TextRange = TextRange(start = index, end = index)
  *
  * @param minimumValue the minimum value that [TextRange.start] or [TextRange.end] can be.
  * @param maximumValue the exclusive maximum value that [TextRange.start] or [TextRange.end] can be.
- *
- * @suppress
  */
-@InternalTextApi
-fun TextRange.constrain(minimumValue: Int, maximumValue: Int): TextRange {
+internal fun TextRange.constrain(minimumValue: Int, maximumValue: Int): TextRange {
     val newStart = start.coerceIn(minimumValue, maximumValue)
     val newEnd = end.coerceIn(minimumValue, maximumValue)
     if (newStart != start || newEnd != end) {

@@ -195,13 +195,25 @@ class WrappedDrawableApi14 extends Drawable
     @Override
     @RequiresApi(19)
     public void setAutoMirrored(boolean mirrored) {
-        mDrawable.setAutoMirrored(mirrored);
+        DrawableCompat.setAutoMirrored(mDrawable, mirrored);
     }
 
     @Override
     @RequiresApi(19)
     public boolean isAutoMirrored() {
-        return mDrawable.isAutoMirrored();
+        return DrawableCompat.isAutoMirrored(mDrawable);
+    }
+
+    @Override
+    @RequiresApi(23)
+    public boolean onLayoutDirectionChanged(int layoutDirection) {
+        return DrawableCompat.setLayoutDirection(mDrawable, layoutDirection);
+    }
+
+    @Override
+    @RequiresApi(23)
+    public int getLayoutDirection() {
+        return DrawableCompat.getLayoutDirection(mDrawable);
     }
 
     @Override

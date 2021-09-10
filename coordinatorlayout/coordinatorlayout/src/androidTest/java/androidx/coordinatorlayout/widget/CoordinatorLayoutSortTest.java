@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+@SuppressWarnings("unchecked")
 @RunWith(Parameterized.class)
 @SmallTest
 public class CoordinatorLayoutSortTest {

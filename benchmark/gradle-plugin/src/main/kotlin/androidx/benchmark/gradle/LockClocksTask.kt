@@ -22,10 +22,15 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
+import org.gradle.work.DisableCachingByDefault
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 
+@Suppress("UnstableApiUsage")
+@DisableCachingByDefault(
+    because = "LockClocks affects device state, and may be modified/reset outside of this task"
+)
 open class LockClocksTask : DefaultTask() {
     init {
         group = "Android"

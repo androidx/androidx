@@ -21,15 +21,20 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
+import androidx.car.app.model.DistanceSpan;
+import androidx.car.app.model.DurationSpan;
 import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.navigation.model.NavigationTemplate.NavigationInfo;
 
 import java.util.Objects;
 
 /** Represents a message that can be shown in the {@link NavigationTemplate}. */
-public class MessageInfo implements NavigationInfo {
+@CarProtocol
+public final class MessageInfo implements NavigationInfo {
     @Keep
     @Nullable
     private final CarText mTitle;
@@ -41,25 +46,30 @@ public class MessageInfo implements NavigationInfo {
     private final CarIcon mImage;
 
     /**
-     * Constructs a new builder of {@link MessageInfo}.
+     * Returns the title of the message or {@code null} if not set.
      *
-     * @throws NullPointerException if {@code title} is {@code null}.
+     * @see Builder#setTitle(CharSequence)
      */
-    @NonNull
-    public static Builder builder(@NonNull CharSequence title) {
-        return new Builder(title);
-    }
-
-    @NonNull
+    @Nullable
     public CarText getTitle() {
-        return requireNonNull(mTitle);
+        return mTitle;
     }
 
+    /**
+     * Returns the text to display with the message or {@code null} if not set.
+     *
+     * @see Builder#setText(CharSequence)
+     */
     @Nullable
     public CarText getText() {
         return mText;
     }
 
+    /**
+     * Returns the image to display along with the message or {@code null} if not set.
+     *
+     * @see Builder#setImage(CarIcon)
+     */
     @Nullable
     public CarIcon getImage() {
         return mImage;
@@ -91,7 +101,7 @@ public class MessageInfo implements NavigationInfo {
                 && Objects.equals(mImage, otherInfo.mImage);
     }
 
-    private MessageInfo(Builder builder) {
+    MessageInfo(Builder builder) {
         mTitle = builder.mTitle;
         mText = builder.mText;
         mImage = builder.mImage;
@@ -107,42 +117,82 @@ public class MessageInfo implements NavigationInfo {
     /** A builder of {@link MessageInfo}. */
     public static final class Builder {
         @Nullable
-        private CarText mTitle;
+        CarText mTitle;
         @Nullable
-        private CarText mText;
+        CarText mText;
         @Nullable
-        private CarIcon mImage;
-
-        private Builder(@NonNull CharSequence title) {
-            this.mTitle = CarText.create(requireNonNull(title));
-        }
+        CarIcon mImage;
 
         /**
          * Sets the title of the message.
          *
-         * @throws NullPointerException if {@code message} is {@code null}.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
+         *
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} contains unsupported spans
+         * @see CarText
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
-            this.mTitle = CarText.create(requireNonNull(title));
-            return this;
-        }
-
-        /** Sets additional text on the message or {@code null} to not set any additional text. */
-        @NonNull
-        public Builder setText(@Nullable CharSequence text) {
-            this.mText = text == null ? null : CarText.create(text);
+            mTitle = CarText.create(requireNonNull(title));
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
             return this;
         }
 
         /**
-         * Sets the image to display along with the message, or {@code null} to not display an
-         * image.
+         * Sets additional text on the message.
+         *
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
+         *
+         * @throws NullPointerException     if {@code text} is {@code null}
+         * @throws IllegalArgumentException if {@code text} contains unsupported spans
+         * @see CarText
          */
         @NonNull
-        public Builder setImage(@Nullable CarIcon image) {
-            CarIconConstraints.DEFAULT.validateOrThrow(image);
-            this.mImage = image;
+        public Builder setText(@NonNull CharSequence text) {
+            mText = CarText.create(requireNonNull(text));
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(mText);
+            return this;
+        }
+
+        /**
+         * Sets additional text on the message, with support for multiple length variants.
+         *
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
+         *
+         * @throws NullPointerException     if {@code text} is {@code null}
+         * @throws IllegalArgumentException if {@code text} contains unsupported spans
+         * @see CarText
+         */
+        @NonNull
+        public Builder setText(@NonNull CarText text) {
+            mText = requireNonNull(text);
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(mText);
+            return this;
+        }
+
+        /**
+         * Sets the image to display along with the message.
+         *
+         * <h4>Image Sizing Guidance</h4>
+         *
+         * To minimize scaling artifacts across a wide range of car screens, apps should provide
+         * images targeting a 128 x 128 dp bounding box. If the image exceeds this maximum size in
+         * either one of the dimensions, it will be scaled down to be centered inside the
+         * bounding box while preserving the aspect ratio.
+         *
+         * <p>See {@link CarIcon} for more details related to providing icon and image resources
+         * that work with different car screen pixel densities.
+         *
+         * @throws NullPointerException if {@code image} is {@code null}
+         */
+        @NonNull
+        public Builder setImage(@NonNull CarIcon image) {
+            CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(image));
+            mImage = image;
             return this;
         }
 
@@ -150,6 +200,31 @@ public class MessageInfo implements NavigationInfo {
         @NonNull
         public MessageInfo build() {
             return new MessageInfo(this);
+        }
+
+        /**
+         * Returns a new instance of a {@link Builder}.
+         *
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
+         *
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} contains unsupported spans
+         */
+        public Builder(@NonNull CharSequence title) {
+            mTitle = CarText.create(requireNonNull(title));
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
+        }
+
+        /**
+         * Returns a new instance of a {@link Builder}.
+         *
+         * <p>Spans are not supported in the input string and will be ignored.
+         *
+         * @throws NullPointerException if {@code title} is {@code null}
+         */
+        public Builder(@NonNull CarText title) {
+            mTitle = requireNonNull(title);
         }
     }
 }

@@ -149,7 +149,7 @@ public class TextureViewImplementationTest {
         SurfaceRequest surfaceRequest = getSurfaceRequest();
         CountDownLatch latchForSurfaceNotInUse = new CountDownLatch(1);
         PreviewViewImplementation.OnSurfaceNotInUseListener onSurfaceNotInUseListener =
-                () -> latchForSurfaceNotInUse.countDown();
+                latchForSurfaceNotInUse::countDown;
 
         mImplementation.onSurfaceRequested(surfaceRequest, onSurfaceNotInUseListener);
         DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
@@ -172,7 +172,7 @@ public class TextureViewImplementationTest {
         SurfaceRequest surfaceRequest = getSurfaceRequest();
         CountDownLatch latchForSurfaceNotInUse = new CountDownLatch(1);
         PreviewViewImplementation.OnSurfaceNotInUseListener onSurfaceNotInUseListener =
-                () -> latchForSurfaceNotInUse.countDown();
+                latchForSurfaceNotInUse::countDown;
 
         mImplementation.onSurfaceRequested(surfaceRequest, onSurfaceNotInUseListener);
         DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();

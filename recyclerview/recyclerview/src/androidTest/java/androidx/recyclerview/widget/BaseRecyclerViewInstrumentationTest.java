@@ -859,7 +859,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
         ViewAttachDetachCounter mAttachmentCounter = new ViewAttachDetachCounter();
         List<Item> mItems;
-        final @Nullable RecyclerView.LayoutParams mLayoutParams;
+        @Nullable RecyclerView.LayoutParams mLayoutParams;
 
         public TestAdapter(int count) {
             this(count, null);
@@ -869,6 +869,10 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             mItems = new ArrayList<Item>(count);
             addItems(0, count, DEFAULT_ITEM_PREFIX);
             mLayoutParams = layoutParams;
+        }
+
+        public void setItemLayoutParams(@Nullable RecyclerView.LayoutParams params) {
+            mLayoutParams = params;
         }
 
         void addItems(int pos, int count, String prefix) {

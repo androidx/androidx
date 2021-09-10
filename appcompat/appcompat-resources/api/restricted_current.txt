@@ -51,7 +51,7 @@ package androidx.appcompat.widget {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DrawableUtils {
     method public static boolean canSafelyMutateDrawable(android.graphics.drawable.Drawable);
-    method public static android.graphics.Rect! getOpticalBounds(android.graphics.drawable.Drawable!);
+    method public static android.graphics.Rect getOpticalBounds(android.graphics.drawable.Drawable);
     method public static android.graphics.PorterDuff.Mode! parseTintMode(int, android.graphics.PorterDuff.Mode!);
     field public static final android.graphics.Rect! INSETS_NONE;
   }
@@ -63,6 +63,14 @@ package androidx.appcompat.widget {
     method public static android.graphics.PorterDuffColorFilter! getPorterDuffColorFilter(int, android.graphics.PorterDuff.Mode!);
     method public void onConfigurationChanged(android.content.Context);
     method public void setHooks(androidx.appcompat.widget.ResourceManagerInternal.ResourceManagerHooks!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static interface ResourceManagerInternal.ResourceManagerHooks {
+    method public android.graphics.drawable.Drawable? createDrawableFor(androidx.appcompat.widget.ResourceManagerInternal, android.content.Context, @DrawableRes int);
+    method public android.content.res.ColorStateList? getTintListForDrawableRes(android.content.Context, @DrawableRes int);
+    method public android.graphics.PorterDuff.Mode? getTintModeForDrawableRes(int);
+    method public boolean tintDrawable(android.content.Context, @DrawableRes int, android.graphics.drawable.Drawable);
+    method public boolean tintDrawableUsingColorFilter(android.content.Context, @DrawableRes int, android.graphics.drawable.Drawable);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TintContextWrapper extends android.content.ContextWrapper {
@@ -79,10 +87,15 @@ package androidx.appcompat.widget {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class VectorEnabledTintResources extends android.content.res.Resources {
     ctor public VectorEnabledTintResources(android.content.Context, android.content.res.Resources);
+    method public int getColor(int) throws android.content.res.Resources.NotFoundException;
+    method public android.content.res.ColorStateList! getColorStateList(int) throws android.content.res.Resources.NotFoundException;
     method public android.graphics.drawable.Drawable! getDrawable(int) throws android.content.res.Resources.NotFoundException;
+    method @RequiresApi(15) public android.graphics.drawable.Drawable! getDrawableForDensity(int, int) throws android.content.res.Resources.NotFoundException;
+    method public android.graphics.Movie! getMovie(int) throws android.content.res.Resources.NotFoundException;
     method public static boolean isCompatVectorFromResourcesEnabled();
     method public static void setCompatVectorFromResourcesEnabled(boolean);
     method public static boolean shouldBeUsed();
+    method public void updateConfiguration(android.content.res.Configuration!, android.util.DisplayMetrics!);
     field public static final int MAX_SDK_WHERE_REQUIRED = 20; // 0x14
   }
 

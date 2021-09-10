@@ -18,6 +18,7 @@ package androidx.collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -273,5 +274,20 @@ public class SparseArrayCompatTest {
         assertEquals(2, dest.size());
         assertEquals(1L, dest.get(1));
         assertEquals("two", dest.get(2));
+    }
+
+    @Test
+    public void cloning() {
+        SparseArrayCompat<String> source = new SparseArrayCompat<>();
+        source.put(10, "hello");
+        source.put(20, "world");
+
+        SparseArrayCompat<String> dest = source.clone();
+        assertNotSame(source, dest);
+
+        for (int i = 0; i < source.size(); i++) {
+            assertEquals(source.keyAt(i), dest.keyAt(i));
+            assertEquals(source.valueAt(i), dest.valueAt(i));
+        }
     }
 }

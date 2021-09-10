@@ -1,201 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
-        errorLine1="                return String.format(&quot;%02d:%02d:%02d&quot;,"
-        errorLine2="                       ^">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4143"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 29 (current min is 14): `android.media.MediaMetadataRetriever#METADATA_KEY_EXIF_OFFSET`"
-        errorLine1="                    MediaMetadataRetriever.METADATA_KEY_EXIF_OFFSET);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5889"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 29 (current min is 14): `android.media.MediaMetadataRetriever#METADATA_KEY_EXIF_LENGTH`"
-        errorLine1="                    MediaMetadataRetriever.METADATA_KEY_EXIF_LENGTH);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5891"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 28 (current min is 14): `android.media.MediaMetadataRetriever#METADATA_KEY_HAS_IMAGE`"
-        errorLine1="                    MediaMetadataRetriever.METADATA_KEY_HAS_IMAGE);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5893"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 28 (current min is 14): `android.media.MediaMetadataRetriever#METADATA_KEY_IMAGE_WIDTH`"
-        errorLine1="                        MediaMetadataRetriever.METADATA_KEY_IMAGE_WIDTH);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5906"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 28 (current min is 14): `android.media.MediaMetadataRetriever#METADATA_KEY_IMAGE_HEIGHT`"
-        errorLine1="                        MediaMetadataRetriever.METADATA_KEY_IMAGE_HEIGHT);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5908"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 28 (current min is 14): `android.media.MediaMetadataRetriever#METADATA_KEY_IMAGE_ROTATION`"
-        errorLine1="                        MediaMetadataRetriever.METADATA_KEY_IMAGE_ROTATION);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5910"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 17 (current min is 14): `android.media.MediaMetadataRetriever#METADATA_KEY_VIDEO_ROTATION`"
-        errorLine1="                        MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5917"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="        @Override"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="7930"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                fileDescriptor = Os.dup(fileDescriptor);"
-        errorLine2="                                    ~~~">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="3973"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                Os.lseek(fd, 0, OsConstants.SEEK_CUR);"
-        errorLine2="                   ~~~~~">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4655"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                    Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);"
-        errorLine2="                       ~~~~~">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4725"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                    Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);"
-        errorLine2="                       ~~~~~">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4752"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                        Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);"
-        errorLine2="                           ~~~~~">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4775"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                    newFileDescriptor = Os.dup(mSeekableFileDescriptor);"
-        errorLine2="                                           ~~~">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4862"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                    Os.lseek(newFileDescriptor, 0, OsConstants.SEEK_SET);"
-        errorLine2="                       ~~~~~">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4863"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                retriever.setDataSource(new MediaDataSource() {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5826"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `android.system.Os#close`"
         errorLine1="                Os.close(fd);"
         errorLine2="                   ~~~~~">
         <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="8067"
+            file="src/androidTest/java/androidx/exifinterface/media/ExifInterfaceTest.java"
+            line="1364"
             column="20"/>
     </issue>
 
@@ -206,7 +19,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5028"
+            line="5015"
             column="31"/>
     </issue>
 
@@ -217,7 +30,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5073"
+            line="5060"
             column="28"/>
     </issue>
 

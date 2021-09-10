@@ -16,25 +16,28 @@
 
 package androidx.compose.foundation.demos.text
 
-import androidx.compose.foundation.Interaction
-import androidx.compose.foundation.InteractionState
-import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Text
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.OffsetMap
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
@@ -47,7 +50,7 @@ import androidx.compose.ui.text.toUpperCase
  *
  * @see creditCardFilter
  */
-private val creditCardOffsetTranslator = object : OffsetMap {
+private val creditCardOffsetTranslator = object : OffsetMapping {
     override fun originalToTransformed(offset: Int): Int {
         if (offset <= 3) return offset
         if (offset <= 7) return offset + 1
@@ -71,22 +74,20 @@ private val creditCardOffsetTranslator = object : OffsetMap {
  * This filter converts up to 16 digits to hyphen connected 4 digits string.
  * For example, "1234567890123456" will be shown as "1234-5678-9012-3456".
  */
-private val creditCardFilter = object : VisualTransformation {
-    override fun filter(text: AnnotatedString): TransformedText {
-        val trimmed = if (text.text.length >= 16) text.text.substring(0..15) else text.text
-        var out = ""
-        for (i in 0 until trimmed.length) {
-            out += trimmed[i]
-            if (i % 4 == 3 && i != 15) out += "-"
-        }
-        return TransformedText(AnnotatedString(out), creditCardOffsetTranslator)
+private val creditCardFilter = VisualTransformation { text ->
+    val trimmed = if (text.text.length >= 16) text.text.substring(0..15) else text.text
+    var out = ""
+    for (i in 0 until trimmed.length) {
+        out += trimmed[i]
+        if (i % 4 == 3 && i != 15) out += "-"
     }
+    TransformedText(AnnotatedString(out), creditCardOffsetTranslator)
 }
 
 /**
  * The offset translator which works for all offset keep remains the same.
  */
-private val identityTranslater = object : OffsetMap {
+private val identityTranslator = object : OffsetMapping {
     override fun originalToTransformed(offset: Int): Int = offset
     override fun transformedToOriginal(offset: Int): Int = offset
 }
@@ -100,8 +101,8 @@ private class CapitalizeTransformation(
     val locale: LocaleList = LocaleList("en-US")
 ) : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
-        // Note: identityTranslater doesn't work for some locale, e.g. Turkish
-        return TransformedText(AnnotatedString(text.text).toUpperCase(locale), identityTranslater)
+        // Note: identityTranslator doesn't work for some locale, e.g. Turkish
+        return TransformedText(AnnotatedString(text.text).toUpperCase(locale), identityTranslator)
     }
 }
 
@@ -110,7 +111,7 @@ private class CapitalizeTransformation(
  *
  * @see phoneNumberFilter
  */
-private val phoneNumberOffsetTranslater = object : OffsetMap {
+private val phoneNumberOffsetTranslator = object : OffsetMapping {
     override fun originalToTransformed(offset: Int): Int {
         return when (offset) {
             0 -> 1
@@ -154,101 +155,107 @@ private val phoneNumberOffsetTranslater = object : OffsetMap {
  * This filter converts up to 10 digits to phone number form.
  * For example, "1234567890" will be shown as "(123) 456-7890".
  */
-private val phoneNumberFilter = object : VisualTransformation {
-    override fun filter(text: AnnotatedString): TransformedText {
-        val trimmed = if (text.text.length >= 10) text.text.substring(0..9) else text.text
-        val filled = trimmed + "_".repeat(10 - trimmed.length)
-        val res = "(" + filled.substring(0..2) + ") " + filled.substring(3..5) + "-" +
-            filled.substring(6..9)
-        return TransformedText(AnnotatedString(text = res), phoneNumberOffsetTranslater)
-    }
+private val phoneNumberFilter = VisualTransformation { text ->
+    val trimmed = if (text.text.length >= 10) text.text.substring(0..9) else text.text
+    val filled = trimmed + "_".repeat(10 - trimmed.length)
+    val res = "(" + filled.substring(0..2) + ") " + filled.substring(3..5) + "-" +
+        filled.substring(6..9)
+    TransformedText(AnnotatedString(text = res), phoneNumberOffsetTranslator)
 }
 
-private val emailFilter = object : VisualTransformation {
-    override fun filter(text: AnnotatedString): TransformedText {
-        return if (text.text.indexOf("@") == -1) {
-            TransformedText(AnnotatedString(text = text.text + "@gmail.com"), identityTranslater)
-        } else {
-            TransformedText(text, identityTranslater)
-        }
+private val emailFilter = VisualTransformation { text ->
+    if (text.text.indexOf("@") == -1) {
+        TransformedText(AnnotatedString(text = text.text + "@gmail.com"), identityTranslator)
+    } else {
+        TransformedText(text, identityTranslator)
     }
 }
 
 @Composable
 fun VariousInputFieldDemo() {
-    ScrollableColumn {
-        TagLine(tag = "Capitalization")
-        VariousEditLine(
-            keyboardType = KeyboardType.Ascii,
-            onValueChange = { old, new ->
-                if (new.any { !it.isLetterOrDigit() }) old else new
-            },
-            visualTransformation = CapitalizeTransformation()
-        )
-
-        TagLine(tag = "Capitalization (Turkish)")
-        VariousEditLine(
-            keyboardType = KeyboardType.Ascii,
-            onValueChange = { old, new ->
-                if (new.any { !it.isLetterOrDigit() }) old else new
-            },
-            visualTransformation = CapitalizeTransformation(LocaleList("tr"))
-        )
-
-        TagLine(tag = "Password")
-        VariousEditLine(
-            keyboardType = KeyboardType.Password,
-            onValueChange = { old, new ->
-                if (new.any { !it.isLetterOrDigit() }) old else new
-            },
-            visualTransformation = PasswordVisualTransformation()
-        )
-
-        TagLine(tag = "Phone Number")
-        VariousEditLine(
-            keyboardType = KeyboardType.Number,
-            onValueChange = { old, new ->
-                if (new.length > 10 || new.any { !it.isDigit() }) old else new
-            },
-            visualTransformation = phoneNumberFilter
-        )
-
-        TagLine(tag = "Credit Card")
-        VariousEditLine(
-            keyboardType = KeyboardType.Number,
-            onValueChange = { old, new ->
-                if (new.length > 16 || new.any { !it.isDigit() }) old else new
-            },
-            visualTransformation = creditCardFilter
-        )
-
-        TagLine(tag = "Email Suggestion")
-        VariousEditLine(
-            keyboardType = KeyboardType.Email,
-            visualTransformation = emailFilter
-        )
-
-        TagLine(tag = "Editfield with Hint Text")
-        HintEditText {
-            Text(
-                text = "Hint Text",
-                color = Color(0xFF888888),
-                style = TextStyle(fontSize = fontSize8)
+    LazyColumn {
+        item {
+            TagLine(tag = "Capitalization")
+            VariousEditLine(
+                keyboardType = KeyboardType.Ascii,
+                onValueChange = { old, new ->
+                    if (new.any { !it.isLetterOrDigit() }) old else new
+                },
+                visualTransformation = CapitalizeTransformation()
             )
         }
-        TagLine(tag = "TextField InteractionState")
-        InteractionStateTextField()
+        item {
+            TagLine(tag = "Capitalization (Turkish)")
+            VariousEditLine(
+                keyboardType = KeyboardType.Ascii,
+                onValueChange = { old, new ->
+                    if (new.any { !it.isLetterOrDigit() }) old else new
+                },
+                visualTransformation = CapitalizeTransformation(LocaleList("tr"))
+            )
+        }
+        item {
+            TagLine(tag = "Password")
+            VariousEditLine(
+                keyboardType = KeyboardType.Password,
+                onValueChange = { old, new ->
+                    if (new.any { !it.isLetterOrDigit() }) old else new
+                },
+                visualTransformation = PasswordVisualTransformation()
+            )
+        }
+        item {
+            TagLine(tag = "Phone Number")
+            VariousEditLine(
+                keyboardType = KeyboardType.Number,
+                onValueChange = { old, new ->
+                    if (new.length > 10 || new.any { !it.isDigit() }) old else new
+                },
+                visualTransformation = phoneNumberFilter
+            )
+        }
+        item {
+            TagLine(tag = "Credit Card")
+            VariousEditLine(
+                keyboardType = KeyboardType.Number,
+                onValueChange = { old, new ->
+                    if (new.length > 16 || new.any { !it.isDigit() }) old else new
+                },
+                visualTransformation = creditCardFilter
+            )
+        }
+        item {
+            TagLine(tag = "Email Suggestion")
+            VariousEditLine(
+                keyboardType = KeyboardType.Email,
+                visualTransformation = emailFilter
+            )
+        }
+        item {
+            TagLine(tag = "Editfield with Hint Text")
+            HintEditText {
+                Text(
+                    text = "Hint Text",
+                    color = Color(0xFF888888),
+                    style = TextStyle(fontSize = fontSize8)
+                )
+            }
+        }
+        item {
+            TagLine(tag = "TextField MutableInteractionSource")
+            InteractionSourceTextField()
+        }
     }
 }
 
 @Composable
 private fun VariousEditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
-    imeAction: ImeAction = ImeAction.Unspecified,
+    imeAction: ImeAction = ImeAction.Default,
     onValueChange: (String, String) -> String = { _, new -> new },
     visualTransformation: VisualTransformation
 ) {
-    val state = savedInstanceState { "" }
+    val state = rememberSaveable { mutableStateOf("") }
     BasicTextField(
         modifier = demoTextFieldModifiers,
         value = state.value,
@@ -268,7 +275,7 @@ private fun VariousEditLine(
 
 @Composable
 private fun HintEditText(content: @Composable () -> Unit) {
-    val state = savedInstanceState { "" }
+    val state = rememberSaveable { mutableStateOf("") }
 
     Box(demoTextFieldModifiers) {
         BasicTextField(
@@ -284,19 +291,30 @@ private fun HintEditText(content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun InteractionStateTextField() {
-    val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
-    val interactionState = remember { InteractionState() }
+private fun InteractionSourceTextField() {
+    val state = rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue())
+    }
+    val interactionSource = remember { MutableInteractionSource() }
 
     Column(demoTextFieldModifiers) {
-        Text("Pressed?: ${interactionState.contains(Interaction.Pressed)}", fontSize = fontSize4)
-        Text("Focused?: ${interactionState.contains(Interaction.Focused)}", fontSize = fontSize4)
-        Text("Dragged?: ${interactionState.contains(Interaction.Dragged)}", fontSize = fontSize4)
+        Text(
+            "Pressed?: ${interactionSource.collectIsPressedAsState().value}",
+            fontSize = fontSize4
+        )
+        Text(
+            "Focused?: ${interactionSource.collectIsFocusedAsState().value}",
+            fontSize = fontSize4
+        )
+        Text(
+            "Dragged?: ${interactionSource.collectIsDraggedAsState().value}",
+            fontSize = fontSize4
+        )
         BasicTextField(
             modifier = Modifier.fillMaxWidth(),
             value = state.value,
             singleLine = true,
-            interactionState = interactionState,
+            interactionSource = interactionSource,
             onValueChange = { state.value = it },
             textStyle = TextStyle(fontSize = fontSize8)
         )

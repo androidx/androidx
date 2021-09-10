@@ -132,16 +132,16 @@ class LayoutHelperParagraphTest {
     @Test
     fun testParagarphDirection() {
         val layoutHelper = buildLayoutHelper("aa\nאא\ncc")
-        assertThat(layoutHelper.isRTLParagraph(0)).isFalse()
-        assertThat(layoutHelper.isRTLParagraph(1)).isTrue()
-        assertThat(layoutHelper.isRTLParagraph(2)).isFalse()
+        assertThat(layoutHelper.isRtlParagraph(0)).isFalse()
+        assertThat(layoutHelper.isRtlParagraph(1)).isTrue()
+        assertThat(layoutHelper.isRtlParagraph(2)).isFalse()
     }
 
     @Test
     fun testParagarphDirection_case2() {
         val layoutHelper = buildLayoutHelper("אא\nbb\nאא")
-        assertThat(layoutHelper.isRTLParagraph(0)).isTrue()
-        assertThat(layoutHelper.isRTLParagraph(1)).isFalse()
-        assertThat(layoutHelper.isRTLParagraph(2)).isTrue()
+        assertThat(layoutHelper.isRtlParagraph(0)).isTrue()
+        assertThat(layoutHelper.isRtlParagraph(1)).isFalse()
+        assertThat(layoutHelper.isRtlParagraph(2)).isTrue()
     }
 }

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="        Set&lt;String> newPackageCertDigests = Set.of("
+        errorLine2="                                                ~~">
+        <location
+            file="src/androidTest/java/androidx/security/app/authenticator/TestAppSignatureVerifierTest.java"
+            line="139"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        errorLine1="        Set&lt;String> newAllPackagesCertDigests = Set.of("
+        errorLine2="                                                    ~~">
+        <location
+            file="src/androidTest/java/androidx/security/app/authenticator/TestAppSignatureVerifierTest.java"
+            line="141"
+            column="53"/>
+    </issue>
+
+</issues>

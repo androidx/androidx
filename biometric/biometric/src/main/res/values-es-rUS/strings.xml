@@ -17,16 +17,17 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"Toca el sensor de huellas dig."</string>
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"Toca el sensor de huellas dac."</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"No se reconoció"</string>
-    <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"El hardware para detectar huellas digitales no está disponible."</string>
+    <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"El hardware para detectar huellas dactilares no está disponible."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"No se registraron huellas digitales."</string>
-    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"Este dispositivo no tiene sensor de huellas digitales"</string>
-    <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"El usuario canceló la operación de huella digital."</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"Este dispositivo no tiene sensor de huellas dactilares"</string>
+    <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"El usuario canceló la operación de huella dactilar."</string>
     <string name="fingerprint_error_lockout" msgid="7291787166416782245">"Demasiados intentos. Vuelve a intentarlo más tarde."</string>
     <string name="default_error_msg" msgid="4776854077120974966">"Error desconocido"</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"El usuario canceló la autenticación."</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Usar contraseña"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"No se estableció ningún PIN, patrón ni contraseña."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Este dispositivo no admite PIN, patrón ni contraseña."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Ícono de huella dactilar"</string>
 </resources>

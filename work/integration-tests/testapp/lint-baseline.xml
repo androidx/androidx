@@ -1,53 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
-        id="BadPeriodicWorkRequestEnqueue"
-        message="Use `enqueueUniquePeriodicWork()` instead of `enqueue()`"
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="../../workmanager/src/main/java/androidx/work/WorkManager.java"
-            line="213"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BadPeriodicWorkRequestEnqueue"
-        message="Use `enqueueUniquePeriodicWork()` instead of `enqueue()`"
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="../../workmanager/src/main/java/androidx/work/WorkManager.java"
-            line="213"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BadPeriodicWorkRequestEnqueue"
-        message="Use `enqueueUniquePeriodicWork()` instead of `enqueue()`"
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="../../workmanager/src/main/java/androidx/work/WorkManager.java"
-            line="213"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ManifestOrder"
-        message="`&lt;uses-permission>` tag appears after `&lt;application>` tag"
-        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.READ_EXTERNAL_STORAGE&quot; />"
-        errorLine2="     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="53"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.integration.testapp.ForegroundWorker is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.integration.testapp.ForegroundWorker is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        val channel = NotificationChannel(id, name, NotificationManager.IMPORTANCE_LOW)"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -57,8 +13,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.integration.testapp.ForegroundWorker is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.integration.testapp.ForegroundWorker is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        channel.description = description"
         errorLine2="                ~~~~~~~~~~~">
         <location
@@ -68,8 +24,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.integration.testapp.ForegroundWorker is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.integration.testapp.ForegroundWorker is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        channel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -79,8 +35,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.work.integration.testapp.ForegroundWorker is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.work.integration.testapp.ForegroundWorker is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        notificationManager.createNotificationChannel(channel)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -90,8 +46,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                &amp;&amp; Build.VERSION.SDK_INT >= 16 &amp;&amp; data.getClipData() != null) {"
         errorLine2="                                                       ~~~~~~~~~~~">
         <location
@@ -101,8 +57,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            int count = data.getClipData().getItemCount();"
         errorLine2="                             ~~~~~~~~~~~">
         <location
@@ -112,8 +68,8 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                String uriString = data.getClipData().getItemAt(i).getUri().toString();"
         errorLine2="                                        ~~~~~~~~~~~">
         <location
@@ -123,113 +79,58 @@
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    jobScheduler.cancelAll();"
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="490"
+            line="558"
             column="34"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        jobScheduler.schedule("
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="492"
+            line="560"
             column="38"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                                new JobInfo.Builder("
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="493"
+            line="561"
             column="33"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                                        .setMinimumLatency(10 * 60 * 1000)"
         errorLine2="                                         ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="496"
+            line="564"
             column="42"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                                        .build());"
         errorLine2="                                         ~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="497"
+            line="565"
             column="42"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.put can only be called from within the same library group (groupId=androidx.work)"
-        errorLine1="                        .put(&quot;sleep_time&quot;, delay)"
-        errorLine2="                         ~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="172"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="AllowBackup"
-        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
-        errorLine1="    &lt;application"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="20"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This `AsyncTask` class should be static or leaks might occur (anonymous android.os.AsyncTask)"
-        errorLine1="                mBitmapLoadTask = new android.os.AsyncTask&lt;Image, Void, Bitmap>() {"
-        errorLine2="                                  ^">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"
-            line="75"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.integer.channel_importance` appears to be unused"
-        errorLine1="    &lt;integer name=&quot;channel_importance&quot;>3&lt;/integer>"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="41"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.integer.notification_id` appears to be unused"
-        errorLine1="    &lt;integer name=&quot;notification_id&quot;>1&lt;/integer>"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="44"
-            column="14"/>
     </issue>
 
     <issue
@@ -340,226 +241,6 @@
             file="src/main/java/androidx/work/integration/testapp/RetryActivity.java"
             line="81"
             column="29"/>
-    </issue>
-
-    <issue
-        id="MissingApplicationIcon"
-        message="Should explicitly set `android:icon`, there is no default"
-        errorLine1="    &lt;application"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="20"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="            &lt;Button android:id=&quot;@+id/schedule_delay&quot;"
-        errorLine2="             ~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="96"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="            &lt;Button android:id=&quot;@+id/coroutine_sleep&quot;"
-        errorLine2="             ~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="104"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="Autofill"
-        message="Missing `autofillHints` attribute"
-        errorLine1="        &lt;EditText android:id=&quot;@+id/delay_in_ms&quot;"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="78"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;com.google.android.material.floatingactionbutton.FloatingActionButton"
-        errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_image_processing.xml"
-            line="34"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;com.google.android.material.floatingactionbutton.FloatingActionButton"
-        errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_image_processing.xml"
-            line="45"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/item_processed_image.xml"
-            line="29"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                            mTextView.setText(&quot;nothing to show&quot;);"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/RetryActivity.java"
-            line="79"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Infinite Work + Charging Constraint&quot;, should use `@string` resource"
-        errorLine1="                android:text=&quot;Infinite Work + Charging Constraint&quot;/>"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="36"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Infinite Work + Network Constraint&quot;, should use `@string` resource"
-        errorLine1="                android:text=&quot;Infinite Work + Network Constraint&quot;/>"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="44"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Enqueue Battery Not Low Work&quot;, should use `@string` resource"
-        errorLine1="                android:text=&quot;Enqueue Battery Not Low Work&quot;/>"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="52"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Sherlock Holmes&quot;, should use `@string` resource"
-        errorLine1="                android:text=&quot;Sherlock Holmes&quot;/>"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="60"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Image Processing&quot;, should use `@string` resource"
-        errorLine1="                android:text=&quot;Image Processing&quot;/>"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="68"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Observe Image URI&quot;, should use `@string` resource"
-        errorLine1="                android:text=&quot;Observe Image URI&quot;/>"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="76"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Delay in ms&quot;, should use `@string` resource"
-        errorLine1="                  android:hint=&quot;Delay in ms&quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="85"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;0&quot;, should use `@string` resource"
-        errorLine1="                  android:text=&quot;0&quot;/>"
-        errorLine2="                  ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="88"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Schedule w/ Delay&quot;, should use `@string` resource"
-        errorLine1="                    android:text=&quot;Schedule w/ Delay&quot;/>"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="102"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Coroutine Sleep&quot;, should use `@string` resource"
-        errorLine1="                    android:text=&quot;Coroutine Sleep&quot;/>"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="110"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Coroutine Cancel&quot;, should use `@string` resource"
-        errorLine1="                android:text=&quot;Coroutine Cancel&quot;/>"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_main.xml"
-            line="120"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Click&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Click&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/retry_activity.xml"
-            line="24"
-            column="13"/>
     </issue>
 
     <issue
@@ -723,7 +404,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="74"
+            line="81"
             column="29"/>
     </issue>
 

@@ -98,6 +98,7 @@ attr editTextBackground
 attr editTextColor
 attr editTextStyle
 attr elevation
+attr emojiCompatEnabled
 attr firstBaselineToTopHeight
 attr fontFamily
 attr fontVariationSettings

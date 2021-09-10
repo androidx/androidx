@@ -23,6 +23,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -34,7 +35,10 @@ import java.util.Objects;
  *
  * <p>These directions can be combined and sent to the host to display a lane configuration to the
  * user.
+ *
+ * @see Lane
  */
+@CarProtocol
 public final class LaneDirection {
     /**
      * Turn amount and direction.
@@ -108,18 +112,18 @@ public final class LaneDirection {
     @Shape
     private final int mShape;
     @Keep
-    private final boolean mIsHighlighted;
+    private final boolean mIsRecommended;
 
     /**
      * Constructs a new instance of a {@link LaneDirection}.
      *
-     * @param shape         one of the {@code SHAPE_*} static constants defined in this class.
-     * @param isHighlighted indicates whether the {@link LaneDirection} is the one the driver should
-     *                      take in order to stay on the navigation route.
+     * @param shape         one of the {@code SHAPE_*} static constants defined in this class
+     * @param isRecommended indicates whether the {@link LaneDirection} is the one the driver should
+     *                      take in order to stay on the navigation route
      */
     @NonNull
-    public static LaneDirection create(@Shape int shape, boolean isHighlighted) {
-        return new LaneDirection(shape, isHighlighted);
+    public static LaneDirection create(@Shape int shape, boolean isRecommended) {
+        return new LaneDirection(shape, isRecommended);
     }
 
     /** Returns shape of this lane direction. */
@@ -132,19 +136,19 @@ public final class LaneDirection {
      * Returns whether this is a direction the driver should take in order to stay on the navigation
      * route.
      */
-    public boolean isHighlighted() {
-        return mIsHighlighted;
+    public boolean isRecommended() {
+        return mIsRecommended;
     }
 
     @Override
     @NonNull
     public String toString() {
-        return "[shape: " + mShape + ", isHighlighted: " + mIsHighlighted + "]";
+        return "[shape: " + mShape + ", isRecommended: " + mIsRecommended + "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mShape, mIsHighlighted);
+        return Objects.hash(mShape, mIsRecommended);
     }
 
     @Override
@@ -157,17 +161,17 @@ public final class LaneDirection {
         }
 
         LaneDirection otherDirection = (LaneDirection) other;
-        return mShape == otherDirection.mShape && mIsHighlighted == otherDirection.mIsHighlighted;
+        return mShape == otherDirection.mShape && mIsRecommended == otherDirection.mIsRecommended;
     }
 
-    private LaneDirection(@Shape int shape, boolean isHighlighted) {
-        this.mShape = shape;
-        this.mIsHighlighted = isHighlighted;
+    private LaneDirection(@Shape int shape, boolean isRecommended) {
+        mShape = shape;
+        mIsRecommended = isRecommended;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private LaneDirection() {
         mShape = SHAPE_UNKNOWN;
-        mIsHighlighted = false;
+        mIsRecommended = false;
     }
 }

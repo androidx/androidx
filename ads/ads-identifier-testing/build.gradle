@@ -13,27 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
 
 dependencies {
-    implementation(project(":ads-identifier-common"))
+    implementation(project(":ads:ads-identifier-common"))
     api("androidx.annotation:annotation:1.1.0")
-    api(MOCKITO_CORE, libs.exclude_bytebuddy)
+    api(libs.mockitoCore, excludes.bytebuddy)
 }
 
 android {
     lintOptions {
-        disable 'InvalidPackage' // Lint is unhappy about mockito package
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        disable "InvalidPackage" // Lint is unhappy about mockito package
     }
 }

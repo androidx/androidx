@@ -51,7 +51,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -71,10 +70,11 @@ public class InlineSuggestionUiTest {
     private static final String TITLE = "Hello world!";
     private static final String SUB_TITLE = "From God";
 
+    @SuppressWarnings("deprecation")
     @Rule
     @NonNull
-    public final ActivityTestRule<InlineUiActivity> mActivityTestRule =
-            new ActivityTestRule<>(InlineUiActivity.class);
+    public final androidx.test.rule.ActivityTestRule<InlineUiActivity> mActivityTestRule =
+            new androidx.test.rule.ActivityTestRule<>(InlineUiActivity.class);
 
     private Instrumentation mInstrumentation;
     private Context mContext;

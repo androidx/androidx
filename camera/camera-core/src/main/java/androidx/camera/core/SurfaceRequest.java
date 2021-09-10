@@ -33,6 +33,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -173,7 +174,8 @@ public final class SurfaceRequest {
         // an implicit reference to the SurfaceRequest. This is by design, and ensures the
         // SurfaceRequest and all contained future completers will not be garbage collected as
         // long as the DeferrableSurface is referenced externally (via getDeferrableSurface()).
-        mInternalDeferrableSurface = new DeferrableSurface() {
+        mInternalDeferrableSurface = new DeferrableSurface(resolution,
+                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
             @NonNull
             @Override
             protected ListenableFuture<Surface> provideSurface() {
@@ -410,7 +412,6 @@ public final class SurfaceRequest {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @ExperimentalUseCaseGroup
     public void updateTransformationInfo(@NonNull TransformationInfo transformationInfo) {
         mTransformationInfo = transformationInfo;
         TransformationInfoListener listener = mTransformationInfoListener;
@@ -434,7 +435,6 @@ public final class SurfaceRequest {
      * @see TransformationInfoListener
      * @see TransformationInfo
      */
-    @ExperimentalUseCaseGroup
     public void setTransformationInfoListener(@NonNull Executor executor,
             @NonNull TransformationInfoListener listener) {
         mTransformationInfoListener = listener;
@@ -449,7 +449,6 @@ public final class SurfaceRequest {
     /**
      * Clears the {@link TransformationInfoListener} set via {@link #setTransformationInfoListener}.
      */
-    @ExperimentalUseCaseGroup
     public void clearTransformationInfoListener() {
         mTransformationInfoListener = null;
         mTransformationInfoExecutor = null;
@@ -475,7 +474,6 @@ public final class SurfaceRequest {
      * Listener that receives updates of the {@link TransformationInfo} associated with the
      * {@link SurfaceRequest}.
      */
-    @ExperimentalUseCaseGroup
     public interface TransformationInfoListener {
 
         /**
@@ -653,7 +651,6 @@ public final class SurfaceRequest {
      * @see CameraCharacteristics#SENSOR_ORIENTATION
      * @see ViewPort
      */
-    @ExperimentalUseCaseGroup
     @AutoValue
     public abstract static class TransformationInfo {
 

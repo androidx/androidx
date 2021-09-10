@@ -15,60 +15,121 @@
  */
 package androidx.fragment.app
 
+import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
+import androidx.test.filters.LargeTest
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Test to prevent regressions in SupportFragmentManager fragment replace method. See b/24693644
+ * Test to prevent regressions in SupportFragmentManager fragment replace method.
  */
 @RunWith(AndroidJUnit4::class)
-@MediumTest
+@LargeTest
 class FragmentReplaceTest {
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
 
     @Test
     fun testReplaceFragment() {
-        val activity = activityRule.activity
-        val fm = activity.supportFragmentManager
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity { supportFragmentManager }
 
-        fm.beginTransaction()
-            .add(R.id.content, StrictViewFragment(R.layout.fragment_a))
-            .addToBackStack(null)
-            .commit()
-        executePendingTransactions(fm)
-        assertThat(activity.findViewById<View>(R.id.textA)).isNotNull()
-        assertThat(activity.findViewById<View>(R.id.textB)).isNull()
-        assertThat(activity.findViewById<View>(R.id.textC)).isNull()
+            fm.beginTransaction()
+                .add(R.id.content, StrictViewFragment(R.layout.fragment_a))
+                .addToBackStack(null)
+                .commit()
+            executePendingTransactions()
+            withActivity {
+                assertThat(findViewById<View>(R.id.textA)).isNotNull()
+                assertThat(findViewById<View>(R.id.textB)).isNull()
+                assertThat(findViewById<View>(R.id.textC)).isNull()
+            }
 
-        fm.beginTransaction()
-            .add(R.id.content, StrictViewFragment(R.layout.fragment_b))
-            .addToBackStack(null)
-            .commit()
-        executePendingTransactions(fm)
-        assertThat(activity.findViewById<View>(R.id.textA)).isNotNull()
-        assertThat(activity.findViewById<View>(R.id.textB)).isNotNull()
-        assertThat(activity.findViewById<View>(R.id.textC)).isNull()
+            fm.beginTransaction()
+                .add(R.id.content, StrictViewFragment(R.layout.fragment_b))
+                .addToBackStack(null)
+                .commit()
+            executePendingTransactions()
+            withActivity {
+                assertThat(findViewById<View>(R.id.textA)).isNotNull()
+                assertThat(findViewById<View>(R.id.textB)).isNotNull()
+                assertThat(findViewById<View>(R.id.textC)).isNull()
+            }
 
-        activity.supportFragmentManager.beginTransaction()
-            .replace(R.id.content, StrictViewFragment(R.layout.fragment_c))
-            .addToBackStack(null)
-            .commit()
-        executePendingTransactions(fm)
-        assertThat(activity.findViewById<View>(R.id.textA)).isNull()
-        assertThat(activity.findViewById<View>(R.id.textB)).isNull()
-        assertThat(activity.findViewById<View>(R.id.textC)).isNotNull()
+            fm.beginTransaction()
+                .replace(R.id.content, StrictViewFragment(R.layout.fragment_c))
+                .addToBackStack(null)
+                .commit()
+            executePendingTransactions()
+            withActivity {
+                assertThat(findViewById<View>(R.id.textA)).isNull()
+                assertThat(findViewById<View>(R.id.textB)).isNull()
+                assertThat(findViewById<View>(R.id.textC)).isNotNull()
+            }
+        }
     }
 
-    private fun executePendingTransactions(fm: FragmentManager) {
-        activityRule.runOnUiThread { fm.executePendingTransactions() }
+    @Test
+    fun testReplaceFragmentInOnCreate() {
+        with(ActivityScenario.launch(ReplaceInCreateActivity::class.java)) {
+            val replaceInCreateFragment = withActivity { this.replaceInCreateFragment }
+
+            assertThat(replaceInCreateFragment.isAdded)
+                .isFalse()
+            withActivity {
+                assertThat(findViewById<View>(R.id.textA)).isNull()
+                assertThat(findViewById<View>(R.id.textB)).isNotNull()
+            }
+        }
+    }
+}
+
+class ReplaceInCreateActivity : FragmentActivity(R.layout.activity_content) {
+    private val parentFragment: ParentFragment
+        get() = supportFragmentManager.findFragmentById(R.id.content) as ParentFragment
+    val replaceInCreateFragment: ReplaceInCreateFragment
+        get() = parentFragment.replaceInCreateFragment
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) {
+            // This issue only appears for child fragments
+            // so add parent fragment that contains the ReplaceInCreateFragment
+            supportFragmentManager.beginTransaction()
+                .add(R.id.content, ParentFragment())
+                .setReorderingAllowed(true)
+                .commit()
+        }
+    }
+
+    class ParentFragment : StrictViewFragment(R.layout.simple_container) {
+        lateinit var replaceInCreateFragment: ReplaceInCreateFragment
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            if (savedInstanceState == null) {
+                replaceInCreateFragment = ReplaceInCreateFragment()
+                childFragmentManager.beginTransaction()
+                    .add(R.id.fragmentContainer, replaceInCreateFragment)
+                    .setReorderingAllowed(true)
+                    .commit()
+            }
+        }
+    }
+}
+
+class ReplaceInCreateFragment : StrictViewFragment(R.layout.fragment_a) {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, StrictViewFragment(R.layout.fragment_b))
+            .setReorderingAllowed(true)
+            .commit()
     }
 }

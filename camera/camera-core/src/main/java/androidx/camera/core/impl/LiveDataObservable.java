@@ -53,7 +53,7 @@ public final class LiveDataObservable<T> implements Observable<T> {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final MutableLiveData<Result<T>> mLiveData = new MutableLiveData<>();
     @GuardedBy("mObservers")
-    private final Map<Observer<T>, LiveDataObserverAdapter<T>> mObservers = new HashMap<>();
+    private final Map<Observer<? super T>, LiveDataObserverAdapter<T>> mObservers = new HashMap<>();
 
     /**
      * Posts a new value to be used as the current value of this Observable.
@@ -79,35 +79,28 @@ public final class LiveDataObservable<T> implements Observable<T> {
 
     @NonNull
     @Override
+    @SuppressWarnings("ObjectToString")
     public ListenableFuture<T> fetchData() {
-        return CallbackToFutureAdapter.getFuture(new CallbackToFutureAdapter.Resolver<T>() {
-            @Nullable
-            @Override
-            public Object attachCompleter(
-                    @NonNull final CallbackToFutureAdapter.Completer<T> completer) {
-                CameraXExecutors.mainThreadExecutor().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        Result<T> result = mLiveData.getValue();
-                        if (result == null) {
-                            completer.setException(new IllegalStateException(
-                                    "Observable has not yet been initialized with a value."));
-                        } else if (result.completedSuccessfully()) {
-                            completer.set(result.getValue());
-                        } else {
-                            Preconditions.checkNotNull(result.getError());
-                            completer.setException(result.getError());
-                        }
-                    }
-                });
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            CameraXExecutors.mainThreadExecutor().execute(() -> {
+                Result<T> result = mLiveData.getValue();
+                if (result == null) {
+                    completer.setException(new IllegalStateException(
+                            "Observable has not yet been initialized with a value."));
+                } else if (result.completedSuccessfully()) {
+                    completer.set(result.getValue());
+                } else {
+                    Preconditions.checkNotNull(result.getError());
+                    completer.setException(result.getError());
+                }
+            });
 
-                return LiveDataObservable.this + " [fetch@" + SystemClock.uptimeMillis() + "]";
-            }
+            return LiveDataObservable.this + " [fetch@" + SystemClock.uptimeMillis() + "]";
         });
     }
 
     @Override
-    public void addObserver(@NonNull Executor executor, @NonNull Observer<T> observer) {
+    public void addObserver(@NonNull Executor executor, @NonNull Observer<? super T> observer) {
         synchronized (mObservers) {
             final LiveDataObserverAdapter<T> oldAdapter = mObservers.get(observer);
             if (oldAdapter != null) {
@@ -118,29 +111,24 @@ public final class LiveDataObservable<T> implements Observable<T> {
                     observer);
             mObservers.put(observer, newAdapter);
 
-            CameraXExecutors.mainThreadExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
+            CameraXExecutors.mainThreadExecutor().execute(() -> {
+                if (oldAdapter != null) {
                     mLiveData.removeObserver(oldAdapter);
-                    mLiveData.observeForever(newAdapter);
                 }
+                mLiveData.observeForever(newAdapter);
             });
         }
     }
 
     @Override
-    public void removeObserver(@NonNull Observer<T> observer) {
+    public void removeObserver(@NonNull Observer<? super T> observer) {
         synchronized (mObservers) {
             LiveDataObserverAdapter<T> adapter = mObservers.remove(observer);
 
             if (adapter != null) {
                 adapter.disable();
-                CameraXExecutors.mainThreadExecutor().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        mLiveData.removeObserver(adapter);
-                    }
-                });
+                CameraXExecutors.mainThreadExecutor().execute(
+                        () -> mLiveData.removeObserver(adapter));
             }
         }
     }
@@ -155,9 +143,9 @@ public final class LiveDataObservable<T> implements Observable<T> {
      */
     public static final class Result<T> {
         @Nullable
-        private T mValue;
+        private final T mValue;
         @Nullable
-        private Throwable mError;
+        private final Throwable mError;
 
         private Result(@Nullable T value, @Nullable Throwable error) {
             mValue = value;
@@ -223,10 +211,10 @@ public final class LiveDataObservable<T> implements Observable<T> {
             androidx.lifecycle.Observer<Result<T>> {
 
         final AtomicBoolean mActive = new AtomicBoolean(true);
-        final Observer<T> mObserver;
+        final Observer<? super T> mObserver;
         final Executor mExecutor;
 
-        LiveDataObserverAdapter(@NonNull Executor executor, @NonNull Observer<T> observer) {
+        LiveDataObserverAdapter(@NonNull Executor executor, @NonNull Observer<? super T> observer) {
             mExecutor = executor;
             mObserver = observer;
         }
@@ -237,20 +225,17 @@ public final class LiveDataObservable<T> implements Observable<T> {
 
         @Override
         public void onChanged(@NonNull final Result<T> result) {
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    if (!mActive.get()) {
-                        // Observer has been disabled.
-                        return;
-                    }
+            mExecutor.execute(() -> {
+                if (!mActive.get()) {
+                    // Observer has been disabled.
+                    return;
+                }
 
-                    if (result.completedSuccessfully()) {
-                        mObserver.onNewData(result.getValue());
-                    } else {
-                        Preconditions.checkNotNull(result.getError());
-                        mObserver.onError(result.getError());
-                    }
+                if (result.completedSuccessfully()) {
+                    mObserver.onNewData(result.getValue());
+                } else {
+                    Preconditions.checkNotNull(result.getError());
+                    mObserver.onError(result.getError());
                 }
             });
         }

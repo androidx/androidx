@@ -39,10 +39,8 @@ import androidx.concurrent.futures.CallbackToFutureAdapter;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -75,12 +73,6 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     private final ListenableFuture<Void> mStartStreamingFuture;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     CallbackToFutureAdapter.Completer<Void> mStartStreamingCompleter;
-
-    @Nullable
-    private final ListenableFuture<Void> mClosingDeferrableSurfaceFuture;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @Nullable
-    CallbackToFutureAdapter.Completer<Void> mClosingDeferrableSurfaceCompleter;
 
     @Nullable
     @GuardedBy("mObjectLock")
@@ -117,23 +109,13 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
         } else {
             mStartStreamingFuture = Futures.immediateFuture(null);
         }
-
-        if (mEnabledFeature.contains(
-                SynchronizedCaptureSessionOpener.FEATURE_DEFERRABLE_SURFACE_CLOSE)) {
-            mClosingDeferrableSurfaceFuture = CallbackToFutureAdapter.getFuture(completer -> {
-                mClosingDeferrableSurfaceCompleter = completer;
-                return "ClosingDeferrableSurfaceFuture[session="
-                        + SynchronizedCaptureSessionImpl.this + "]";
-            });
-        } else {
-            mClosingDeferrableSurfaceFuture = Futures.immediateFuture(null);
-        }
     }
 
     @NonNull
     @Override
     public ListenableFuture<Void> openCaptureSession(@NonNull CameraDevice cameraDevice,
-            @NonNull SessionConfigurationCompat sessionConfigurationCompat) {
+            @NonNull SessionConfigurationCompat sessionConfigurationCompat,
+            @NonNull List<DeferrableSurface> deferrableSurfaces) {
         synchronized (mObjectLock) {
             List<ListenableFuture<Void>> futureList =
                     getBlockerFuture(SynchronizedCaptureSessionOpener.FEATURE_WAIT_FOR_REQUEST,
@@ -141,7 +123,8 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
 
             mOpeningCaptureSession =
                     FutureChain.from(Futures.successfulAsList(futureList)).transformAsync(
-                            v -> super.openCaptureSession(cameraDevice, sessionConfigurationCompat),
+                            v -> super.openCaptureSession(cameraDevice,
+                                    sessionConfigurationCompat, deferrableSurfaces),
                             CameraXExecutors.directExecutor());
 
             return Futures.nonCancellationPropagating(mOpeningCaptureSession);
@@ -157,8 +140,6 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
                 // Returns the future which is completed once the session starts streaming
                 // frames.
                 return Futures.nonCancellationPropagating(mStartStreamingFuture);
-            case SynchronizedCaptureSessionOpener.FEATURE_DEFERRABLE_SURFACE_CLOSE:
-                return Futures.nonCancellationPropagating(mClosingDeferrableSurfaceFuture);
             default:
                 return super.getSynchronizedBlocker(feature);
         }
@@ -180,34 +161,8 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
             @NonNull List<DeferrableSurface> deferrableSurfaces, long timeout) {
         synchronized (mObjectLock) {
             mDeferrableSurfaces = deferrableSurfaces;
-
-            List<ListenableFuture<Void>> futureList = Collections.emptyList();
-            if (mEnabledFeature.contains(SynchronizedCaptureSessionOpener.FEATURE_FORCE_CLOSE)) {
-                Map<SynchronizedCaptureSession, List<DeferrableSurface>> registeredSurfaceMap =
-                        mCaptureSessionRepository.registerDeferrableSurface(this,
-                                deferrableSurfaces);
-
-                List<SynchronizedCaptureSession> sessionsWithSameSurface = new ArrayList<>();
-                for (Map.Entry<SynchronizedCaptureSession, List<DeferrableSurface>> entry :
-                        registeredSurfaceMap.entrySet()) {
-                    if (entry.getKey() != this && !Collections.disjoint(entry.getValue(),
-                            mDeferrableSurfaces)) {
-                        sessionsWithSameSurface.add(entry.getKey());
-                    }
-                }
-                // Only blocking this method when the other SynchronizedCaptureSessions using the
-                // same deferrableSurface instance.
-                futureList = getBlockerFuture(
-                        SynchronizedCaptureSessionOpener.FEATURE_DEFERRABLE_SURFACE_CLOSE,
-                        sessionsWithSameSurface);
-            }
-
-            mStartingSurface =
-                    FutureChain.from(Futures.successfulAsList(futureList)).transformAsync(
-                            v -> super.startWithDeferrableSurface(deferrableSurfaces, timeout),
-                            getExecutor());
-
-            return Futures.nonCancellationPropagating(mStartingSurface);
+            return Futures.nonCancellationPropagating(
+                    super.startWithDeferrableSurface(deferrableSurfaces, timeout));
         }
     }
 
@@ -223,7 +178,6 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
                 if (mStartingSurface != null) {
                     mStartingSurface.cancel(true);
                 }
-                stopDeferrableSurface();
             }
             return super.stop();
         }
@@ -327,17 +281,6 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
                     deferrableSurface.close();
                 }
                 debugLog("deferrableSurface closed");
-                stopDeferrableSurface();
-            }
-        }
-    }
-
-    void stopDeferrableSurface() {
-        if (mEnabledFeature.contains(
-                SynchronizedCaptureSessionOpener.FEATURE_DEFERRABLE_SURFACE_CLOSE)) {
-            mCaptureSessionRepository.unregisterDeferrableSurface(this);
-            if (mClosingDeferrableSurfaceCompleter != null) {
-                mClosingDeferrableSurfaceCompleter.set(null);
             }
         }
     }

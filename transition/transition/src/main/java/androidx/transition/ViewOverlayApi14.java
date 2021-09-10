@@ -281,6 +281,7 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @SuppressWarnings("CatchAndPrintStackTrace")
         protected ViewParent invalidateChildInParentFast(int left, int top, Rect dirty) {
             if (mHostView != null && sInvalidateChildInParentFastMethod != null) {
                 try {

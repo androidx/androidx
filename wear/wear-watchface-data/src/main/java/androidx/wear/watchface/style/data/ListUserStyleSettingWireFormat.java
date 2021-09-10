@@ -21,7 +21,6 @@ import android.graphics.drawable.Icon;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.List;
@@ -46,37 +45,5 @@ public class ListUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
             int defaultOptionIndex,
             @NonNull List<Integer> affectsLayers) {
         super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers);
-    }
-
-    /**
-     * Wire format for
-     * {@link androidx.wear.watchface.style.ListUserStyleSetting.ListOption}.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @VersionedParcelize
-    public static class ListOptionWireFormat extends OptionWireFormat {
-        /** Localized human readable name for the setting, used in the style selection UI. */
-        @ParcelField(2)
-        @NonNull
-        public CharSequence mDisplayName = "";
-
-        /** Icon for use in the style selection UI. */
-        @ParcelField(3)
-        @Nullable
-        public Icon mIcon = null;
-
-        ListOptionWireFormat() {}
-
-        public ListOptionWireFormat(
-                @NonNull String id,
-                @NonNull CharSequence displayName,
-                @Nullable Icon icon
-        ) {
-            super(id);
-            this.mDisplayName = displayName;
-            this.mIcon = icon;
-        }
     }
 }

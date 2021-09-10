@@ -389,21 +389,24 @@ class ConcatAdapterController implements NestedAdapterWrapper.Callback {
     }
 
     public void onViewRecycled(ViewHolder holder) {
-        NestedAdapterWrapper wrapper = mBinderLookup.remove(holder);
+        NestedAdapterWrapper wrapper = mBinderLookup.get(holder);
         if (wrapper == null) {
             throw new IllegalStateException("Cannot find wrapper for " + holder
                     + ", seems like it is not bound by this adapter: " + this);
         }
         wrapper.adapter.onViewRecycled(holder);
+        mBinderLookup.remove(holder);
     }
 
     public boolean onFailedToRecycleView(ViewHolder holder) {
-        NestedAdapterWrapper wrapper = mBinderLookup.remove(holder);
+        NestedAdapterWrapper wrapper = mBinderLookup.get(holder);
         if (wrapper == null) {
             throw new IllegalStateException("Cannot find wrapper for " + holder
                     + ", seems like it is not bound by this adapter: " + this);
         }
-        return wrapper.adapter.onFailedToRecycleView(holder);
+        final boolean result = wrapper.adapter.onFailedToRecycleView(holder);
+        mBinderLookup.remove(holder);
+        return result;
     }
 
     @NonNull
@@ -463,11 +466,12 @@ class ConcatAdapterController implements NestedAdapterWrapper.Callback {
         // local position is globalPosition - itemsBefore
         int localPosition = globalPosition - itemsBefore;
         // Early error detection:
-        if (localPosition < 0 || localPosition >= wrapper.adapter.getItemCount()) {
+        int itemCount = wrapper.adapter.getItemCount();
+        if (localPosition < 0 || localPosition >= itemCount) {
             throw new IllegalStateException("Detected inconsistent adapter updates. The"
                     + " local position of the view holder maps to " + localPosition + " which"
                     + " is out of bounds for the adapter with size "
-                    + wrapper.getCachedItemCount() + "."
+                    + itemCount + "."
                     + "Make sure to immediately call notify methods in your adapter when you "
                     + "change the backing data"
                     + "viewHolder:" + viewHolder
@@ -486,6 +490,7 @@ class ConcatAdapterController implements NestedAdapterWrapper.Callback {
         return wrapper.adapter;
     }
 
+    @SuppressWarnings("MixedMutabilityReturnType")
     public List<Adapter<? extends ViewHolder>> getCopyOfAdapters() {
         if (mWrappers.isEmpty()) {
             return Collections.emptyList();

@@ -43,6 +43,9 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewTreeLifecycleOwner;
+import androidx.lifecycle.ViewTreeViewModelStoreOwner;
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -95,6 +98,10 @@ public class DialogFragment extends Fragment
     private static final String SAVED_CANCELABLE = "android:cancelable";
     private static final String SAVED_SHOWS_DIALOG = "android:showsDialog";
     private static final String SAVED_BACK_STACK_ID = "android:backStackId";
+    /**
+     * Copied from {@link Dialog}.
+     */
+    private static final String SAVED_INTERNAL_DIALOG_SHOWING = "android:dialogShowing";
 
     private Handler mHandler;
     private Runnable mDismissRunnable = new Runnable() {
@@ -337,7 +344,7 @@ public class DialogFragment extends Fragment
         mViewDestroyed = true;
         if (mBackStackId >= 0) {
             getParentFragmentManager().popBackStack(mBackStackId,
-                    FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    FragmentManager.POP_BACK_STACK_INCLUSIVE, allowStateLoss);
             mBackStackId = -1;
         } else {
             FragmentTransaction ft = getParentFragmentManager().beginTransaction();
@@ -500,19 +507,15 @@ public class DialogFragment extends Fragment
             @Nullable
             @Override
             public View onFindViewById(int id) {
-                View dialogView = DialogFragment.this.onFindViewById(id);
-                if (dialogView != null) {
-                    return dialogView;
-                }
                 if (fragmentContainer.onHasView()) {
                     return fragmentContainer.onFindViewById(id);
                 }
-                return null;
+                return DialogFragment.this.onFindViewById(id);
             }
 
             @Override
             public boolean onHasView() {
-                return DialogFragment.this.onHasView() || fragmentContainer.onHasView();
+                return  fragmentContainer.onHasView() || DialogFragment.this.onHasView();
             }
         };
     }
@@ -682,6 +685,11 @@ public class DialogFragment extends Fragment
         if (mDialog != null) {
             mViewDestroyed = false;
             mDialog.show();
+            // Only after we show does the dialog window actually return a decor view.
+            View decorView = mDialog.getWindow().getDecorView();
+            ViewTreeLifecycleOwner.set(decorView, this);
+            ViewTreeViewModelStoreOwner.set(decorView, this);
+            ViewTreeSavedStateRegistryOwner.set(decorView, this);
         }
     }
 
@@ -691,6 +699,7 @@ public class DialogFragment extends Fragment
         super.onSaveInstanceState(outState);
         if (mDialog != null) {
             Bundle dialogState = mDialog.onSaveInstanceState();
+            dialogState.putBoolean(SAVED_INTERNAL_DIALOG_SHOWING, false);
             outState.putBundle(SAVED_DIALOG_STATE_TAG, dialogState);
         }
         if (mStyle != STYLE_NORMAL) {

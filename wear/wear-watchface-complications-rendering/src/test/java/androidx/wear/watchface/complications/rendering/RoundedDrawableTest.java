@@ -37,11 +37,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 /** Tests for {@link RoundedDrawable} */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(ComplicationsTestRunner.class)
 @DoNotInstrument
 public class RoundedDrawableTest {
 
@@ -63,6 +62,7 @@ public class RoundedDrawableTest {
                         Bitmap.createBitmap(BITMAP_WIDTH, BITMAP_HEIGHT, Bitmap.Config.ARGB_8888));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void colorFilterIsAppliedCorrectly() {
         ColorFilter cf = new ColorFilter();

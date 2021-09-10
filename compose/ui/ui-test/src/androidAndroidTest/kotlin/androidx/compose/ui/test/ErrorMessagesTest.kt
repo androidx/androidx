@@ -23,15 +23,22 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.testutils.TestViewConfiguration
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.util.expectErrorMessage
-import androidx.compose.ui.test.util.expectErrorMessageMatches
 import androidx.compose.ui.test.util.expectErrorMessageStartsWith
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.unit.DpSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import org.junit.Rule
@@ -46,26 +53,13 @@ class ErrorMessagesTest {
     val rule = createComposeRule()
 
     @Test
-    fun findByTag_assertHasClickAction_predicateShouldFail() {
+    fun findByTag_assertHasClickAction() {
         rule.setContent {
             ComposeSimpleCase()
         }
 
-        expectErrorMessageMatches(
-            "" +
-                "Failed to assert the following: \\(OnClick is defined\\)\n" +
-                "Semantics of the node:\n" +
-                "Node #X at \\(X, X, X, X\\)px, Tag: 'MyButton'\n" +
-                "Disabled = 'kotlin\\.Unit'\n" +
-                "Text = 'Toggle'\n" +
-                "GetTextLayoutResult = 'AccessibilityAction\\(label=null, action=.*\\)'\n" +
-                "MergeDescendants = 'true'\n" +
-                "Has 1 sibling\n" +
-                "Selector used: \\(TestTag = 'MyButton'\\)"
-        ) {
-            rule.onNodeWithTag("MyButton")
-                .assertHasClickAction()
-        }
+        rule.onNodeWithTag("MyButton")
+            .assertHasClickAction()
     }
 
     @Test
@@ -75,10 +69,10 @@ class ErrorMessagesTest {
         }
 
         expectErrorMessage(
-            "" +
-                "Failed: assertExists.\n" +
-                "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
-                "(TestTag = 'MyButton3')"
+            """
+                Failed: assertExists.
+                Reason: Expected exactly '1' node but could not find any node that satisfies: (TestTag = 'MyButton3')
+            """.trimIndent()
         ) {
             rule.onNodeWithTag("MyButton3")
                 .assertExists()
@@ -92,10 +86,11 @@ class ErrorMessagesTest {
         }
 
         expectErrorMessage(
-            "" +
-                "Failed to perform a gesture.\n" +
-                "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
-                "(TestTag = 'MyButton3')"
+            """
+                Failed to inject touch input.
+                Reason: Expected exactly '1' node but could not find any node that satisfies: (TestTag = 'MyButton3')
+            """.trimIndent()
+
         ) {
             rule.onNodeWithTag("MyButton3")
                 .performClick()
@@ -109,10 +104,10 @@ class ErrorMessagesTest {
         }
 
         expectErrorMessage(
-            "" +
-                "Failed to perform a gesture.\n" +
-                "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
-                "((TestTag = 'MyButton3') && (OnClick is defined))"
+            """
+                Failed to inject touch input.
+                Reason: Expected exactly '1' node but could not find any node that satisfies: ((TestTag = 'MyButton3') && (OnClick is defined))
+            """.trimIndent()
         ) {
             rule.onNode(hasTestTag("MyButton3") and hasClickAction())
                 .performClick()
@@ -121,36 +116,20 @@ class ErrorMessagesTest {
 
     @Test
     fun findByText_doClick_butMoreThanOneElementFound() {
-        rule.setContent {
+        rule.setContentWithoutMinimumTouchTarget {
             ComposeSimpleCase()
         }
 
         expectErrorMessageStartsWith(
-            "" +
-                "Failed to perform a gesture.\n" +
-                "Reason: Expected exactly '1' node but found '2' nodes that satisfy: " +
-                "(Text = 'Toggle' (ignoreCase: false))\n" +
-                "Nodes found:\n" +
-                "1) Node #X at (X, X, X, X)px, Tag: 'MyButton'"
+            """
+                Failed to inject touch input.
+                Reason: Expected exactly '1' node but found '2' nodes that satisfy: (Text + EditableText contains 'Toggle' (ignoreCase: false))
+                Nodes found:
+                1) Node #X at (l=X, t=X, r=X, b=X)px, Tag: 'MyButton'
+            """.trimIndent()
         ) {
             rule.onNodeWithText("Toggle")
                 .performClick()
-        }
-    }
-
-    @Test
-    fun findByTag_callNonExistentSemanticsAction() {
-        rule.setContent {
-            ComposeSimpleCase()
-        }
-
-        expectErrorMessageStartsWith(
-            "" +
-                "Failed to perform OnClick action as it is not defined on the node.\n" +
-                "Semantics of the node:"
-        ) {
-            rule.onNodeWithTag("MyButton")
-                .performSemanticsAction(SemanticsActions.OnClick)
         }
     }
 
@@ -161,10 +140,10 @@ class ErrorMessagesTest {
         }
 
         expectErrorMessageStartsWith(
-            "" +
-                "Failed to perform OnClick action.\n" +
-                "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
-                "(TestTag = 'MyButton3')"
+            """
+                Failed to perform OnClick action.
+                Reason: Expected exactly '1' node but could not find any node that satisfies: (TestTag = 'MyButton3')
+            """.trimIndent()
         ) {
             rule.onNodeWithTag("MyButton3")
                 .performSemanticsAction(SemanticsActions.OnClick)
@@ -173,17 +152,17 @@ class ErrorMessagesTest {
 
     @Test
     fun findByTag_assertDoesNotExist_butElementFound() {
-        rule.setContent {
+        rule.setContentWithoutMinimumTouchTarget {
             ComposeSimpleCase()
         }
 
         expectErrorMessageStartsWith(
-            "" +
-                "Failed: assertDoesNotExist.\n" +
-                "Reason: Did not expect any node but found '1' node that satisfies: " +
-                "(TestTag = 'MyButton')\n" +
-                "Node found:\n" +
-                "Node #X at (X, X, X, X)px, Tag: 'MyButton'"
+            """
+                Failed: assertDoesNotExist.
+                Reason: Did not expect any node but found '1' node that satisfies: (TestTag = 'MyButton')
+                Node found:
+                Node #X at (l=X, t=X, r=X, b=X)px, Tag: 'MyButton'
+            """.trimIndent()
         ) {
             rule.onNodeWithTag("MyButton")
                 .assertDoesNotExist()
@@ -192,17 +171,17 @@ class ErrorMessagesTest {
 
     @Test
     fun findAll_assertMultiple_butIsDifferentAmount() {
-        rule.setContent {
+        rule.setContentWithoutMinimumTouchTarget {
             ComposeSimpleCase()
         }
 
         expectErrorMessageStartsWith(
-            "" +
-                "Failed to assert count of nodes.\n" +
-                "Reason: Expected '3' nodes but found '2' nodes that satisfy: " +
-                "(Text = 'Toggle' (ignoreCase: false))\n" +
-                "Nodes found:\n" +
-                "1) Node #X at (X, X, X, X)px"
+            """
+                Failed to assert count of nodes.
+                Reason: Expected '3' nodes but found '2' nodes that satisfy: (Text + EditableText contains 'Toggle' (ignoreCase: false))
+                Nodes found:
+                1) Node #X at (l=X, t=X, r=X, b=X)px
+            """.trimIndent()
         ) {
             rule.onAllNodesWithText("Toggle")
                 .assertCountEquals(3)
@@ -216,10 +195,10 @@ class ErrorMessagesTest {
         }
 
         expectErrorMessage(
-            "" +
-                "Failed to assert count of nodes.\n" +
-                "Reason: Expected '3' nodes but could not find any node that satisfies: " +
-                "(Text = 'Toggle2' (ignoreCase: false))"
+            """
+                Failed to assert count of nodes.
+                Reason: Expected '3' nodes but could not find any node that satisfies: (Text + EditableText contains 'Toggle2' (ignoreCase: false))
+            """.trimIndent()
         ) {
             rule.onAllNodesWithText("Toggle2")
                 .assertCountEquals(3)
@@ -238,15 +217,16 @@ class ErrorMessagesTest {
         rule.onNodeWithTag("MyButton")
             .performClick()
 
-        expectErrorMessageMatches(
-            "" +
-                "Failed to perform a gesture.\n" +
-                "The node is no longer in the tree, last known semantics:\n" +
-                "Node #X at \\(X, X, X, X\\)px\n" +
-                "Text = 'Hello'\n" +
-                "GetTextLayoutResult = 'AccessibilityAction\\(label=null, action=.*\\)'\n" +
-                "Has 1 sibling\n" +
-                "Original selector: Text = 'Hello' \\(ignoreCase: false\\)"
+        expectErrorMessage(
+            """
+                Failed to inject touch input.
+                The node is no longer in the tree, last known semantics:
+                Node #X at (l=X, t=X, r=X, b=X)px
+                Text = '[Hello]'
+                Actions = [GetTextLayoutResult]
+                Has 1 sibling
+                Original selector: Text + EditableText contains 'Hello' (ignoreCase: false)
+            """.trimIndent()
         ) {
             node.performClick()
         }
@@ -265,15 +245,16 @@ class ErrorMessagesTest {
         rule.onNodeWithTag("MyButton")
             .performClick()
 
-        expectErrorMessageMatches(
-            "" +
-                "Failed: assertExists.\n" +
-                "The node is no longer in the tree, last known semantics:\n" +
-                "Node #X at \\(X, X, X, X\\)px\n" +
-                "Text = 'Hello'\n" +
-                "GetTextLayoutResult = 'AccessibilityAction\\(label=null, action=.*\\)'\n" +
-                "Has 1 sibling\n" +
-                "Original selector: Text = 'Hello' \\(ignoreCase: false\\)"
+        expectErrorMessage(
+            """
+                Failed: assertExists.
+                The node is no longer in the tree, last known semantics:
+                Node #X at (l=X, t=X, r=X, b=X)px
+                Text = '[Hello]'
+                Actions = [GetTextLayoutResult]
+                Has 1 sibling
+                Original selector: Text + EditableText contains 'Hello' (ignoreCase: false)
+            """.trimIndent()
         ) {
             node.assertExists()
         }
@@ -292,17 +273,71 @@ class ErrorMessagesTest {
         rule.onNodeWithTag("MyButton")
             .performClick()
 
-        expectErrorMessageMatches(
-            "" +
-                "Failed to assert the following: \\(OnClick is defined\\)\n" +
-                "The node is no longer in the tree, last known semantics:\n" +
-                "Node #X at \\(X, X, X, X\\)px\n" +
-                "Text = 'Hello'\n" +
-                "GetTextLayoutResult = 'AccessibilityAction\\(label=null, action=.*\\)'\n" +
-                "Has 1 sibling\n" +
-                "Original selector: Text = 'Hello' \\(ignoreCase: false\\)"
+        expectErrorMessage(
+            """
+                Failed to assert the following: (OnClick is defined)
+                The node is no longer in the tree, last known semantics:
+                Node #X at (l=X, t=X, r=X, b=X)px
+                Text = '[Hello]'
+                Actions = [GetTextLayoutResult]
+                Has 1 sibling
+                Original selector: Text + EditableText contains 'Hello' (ignoreCase: false)
+            """.trimIndent()
         ) {
             node.assertHasClickAction()
+        }
+    }
+
+    @Test
+    fun findByTag_assertExists_noElementFoundButFoundInMerged() {
+        rule.setContent {
+            ComposeMerged()
+        }
+
+        expectErrorMessage(
+            """
+                Failed: assertExists.
+                Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + EditableText contains 'Banana' (ignoreCase: false))
+                However, the unmerged tree contains '1' node that matches. Are you missing `useUnmergedNode = true` in your finder?
+            """.trimIndent()
+        ) {
+            rule.onNodeWithText("Banana")
+                .assertExists()
+        }
+    }
+    @Test
+    fun findByTag_assertExists_NoElementFoundButMultipleFoundInMerged() {
+        rule.setContent {
+            ComposeMerged(5)
+        }
+
+        expectErrorMessage(
+            """
+                Failed: assertExists.
+                Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + EditableText contains 'Banana' (ignoreCase: false))
+                However, the unmerged tree contains '5' nodes that match. Are you missing `useUnmergedNode = true` in your finder?
+            """.trimIndent()
+        ) {
+            rule.onNodeWithText("Banana")
+                .assertExists()
+        }
+    }
+
+    @Test
+    fun findByTag_performAction_NoElementFoundButFoundInMerged() {
+        rule.setContent {
+            ComposeMerged()
+        }
+
+        expectErrorMessage(
+            """
+                Failed to inject touch input.
+                Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + EditableText contains 'Banana' (ignoreCase: false))
+                However, the unmerged tree contains '1' node that matches. Are you missing `useUnmergedNode = true` in your finder?
+            """.trimIndent()
+        ) {
+            rule.onNodeWithText("Banana")
+                .performClick()
         }
     }
 
@@ -339,6 +374,21 @@ class ErrorMessagesTest {
     }
 
     @Composable
+    fun ComposeMerged(numberOfTexts: Int = 1) {
+        Column {
+            TestButton(
+                modifier = Modifier
+                    .testTag("MyButton")
+                    .clearAndSetSemantics { text = AnnotatedString("Not Banana") }
+            ) {
+                repeat(numberOfTexts) {
+                    Text("Banana")
+                }
+            }
+        }
+    }
+
+    @Composable
     fun TestButton(
         modifier: Modifier = Modifier,
         onClick: (() -> Unit)? = null,
@@ -349,5 +399,24 @@ class ErrorMessagesTest {
                 Box { content() }
             }
         }
+    }
+}
+
+fun ComposeContentTestRule.setContentWithoutMinimumTouchTarget(
+    composable: @Composable () -> Unit
+) {
+    setContent {
+        val oldViewConfiguration = LocalViewConfiguration.current
+        val viewConfiguration = TestViewConfiguration(
+            longPressTimeoutMillis = oldViewConfiguration.longPressTimeoutMillis,
+            doubleTapTimeoutMillis = oldViewConfiguration.doubleTapTimeoutMillis,
+            doubleTapMinTimeMillis = oldViewConfiguration.doubleTapMinTimeMillis,
+            touchSlop = oldViewConfiguration.touchSlop,
+            minimumTouchTargetSize = DpSize.Zero
+        )
+        CompositionLocalProvider(
+            LocalViewConfiguration provides viewConfiguration,
+            content = composable
+        )
     }
 }

@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+MissingGetterMatchingBuilder: androidx.security.identity.AccessControlProfile.Builder#setReaderCertificate(java.security.cert.X509Certificate):
+    androidx.security.identity.AccessControlProfile does not declare a `getReaderCertificate()` method matching method androidx.security.identity.AccessControlProfile.Builder.setReaderCertificate(java.security.cert.X509Certificate)
+MissingGetterMatchingBuilder: androidx.security.identity.AccessControlProfile.Builder#setUserAuthenticationRequired(boolean):
+    androidx.security.identity.AccessControlProfile does not declare a `isUserAuthenticationRequired()` method matching method androidx.security.identity.AccessControlProfile.Builder.setUserAuthenticationRequired(boolean)
+MissingGetterMatchingBuilder: androidx.security.identity.AccessControlProfile.Builder#setUserAuthenticationTimeout(long):
+    androidx.security.identity.AccessControlProfile does not declare a `getUserAuthenticationTimeout()` method matching method androidx.security.identity.AccessControlProfile.Builder.setUserAuthenticationTimeout(long)
+MissingGetterMatchingBuilder: androidx.security.identity.PersonalizationData.Builder#addAccessControlProfile(androidx.security.identity.AccessControlProfile):
+    androidx.security.identity.PersonalizationData does not declare a `getAccessControlProfiles()` method matching method androidx.security.identity.PersonalizationData.Builder.addAccessControlProfile(androidx.security.identity.AccessControlProfile)
+
+
+NullableCollection: androidx.security.identity.ResultData#getEntryNames(String):
+    Return type of method androidx.security.identity.ResultData.getEntryNames(String) is a nullable collection (`java.util.Collection`); must be non-null
+NullableCollection: androidx.security.identity.ResultData#getRetrievedEntryNames(String):
+    Return type of method androidx.security.identity.ResultData.getRetrievedEntryNames(String) is a nullable collection (`java.util.Collection`); must be non-null

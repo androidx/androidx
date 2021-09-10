@@ -22,6 +22,8 @@
         <activity android:name="androidx.transition.FragmentTransitionTestActivity"/>
         <activity
             android:name="androidx.transition.TransitionActivity"/>
+        <activity
+            android:name="androidx.transition.AddTransitionFragmentInActivity"/>
     </application>
 
 </manifest>

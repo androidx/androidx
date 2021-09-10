@@ -17,7 +17,6 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * Utility methods for operating on {@link CameraConfig} instances.
@@ -34,24 +33,13 @@ public class CameraConfigs {
     }
 
     static final class EmptyCameraConfig implements CameraConfig {
-        private final UseCaseConfigFactory mUseCaseConfigFactory = new UseCaseConfigFactory() {
-            /**
-             * Returns the configuration for the given capture type, or <code>null</code> if the
-             * configuration cannot be produced.
-             */
-            @Nullable
-            @Override
-            public Config getConfig(@NonNull CaptureType captureType) {
-                return null;
-            }
-        };
+        private final Identifier mIdentifier = Identifier.create(new Object());
 
         @NonNull
         @Override
-        public UseCaseConfigFactory getUseCaseConfigFactory() {
-            return mUseCaseConfigFactory;
+        public Identifier getCompatibilityId() {
+            return mIdentifier;
         }
-
         @NonNull
         @Override
         public Config getConfig() {

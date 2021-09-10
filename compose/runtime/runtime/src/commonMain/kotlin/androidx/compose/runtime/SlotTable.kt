@@ -17,8 +17,13 @@
 @file:OptIn(InternalComposeApi::class)
 package androidx.compose.runtime
 
+import androidx.compose.runtime.snapshots.fastFilterIndexed
+import androidx.compose.runtime.snapshots.fastForEach
+import androidx.compose.runtime.snapshots.fastMap
+import androidx.compose.runtime.tooling.CompositionData
 import kotlin.math.max
 import kotlin.math.min
+import androidx.compose.runtime.tooling.CompositionGroup
 
 // Nomenclature -
 // Address      - an absolute offset into the array ignoring its gap. See Index below.
@@ -33,9 +38,9 @@ import kotlin.math.min
 //                and data anchors in the group fields which are also anchors but not Anchor
 //                instances.
 // Aux          - auxiliary data that can be associated with a node and set independent of groups
-//                slots. This is used, for example, by the composer to record ambient maps as the
-//                map is not known at the when the group starts, only when the map is calculated
-//                after using an arbitrary number of slots.
+//                slots. This is used, for example, by the composer to record CompositionLocal
+//                maps as the map is not known at the when the group starts, only when the map is
+//                calculated after using an arbitrary number of slots.
 // Data         - the portion of the slot array associated with the group that contains the slots as
 //                well as the ObjectKey, Node, and Aux if present. The slots for a group are after
 //                the optional fixed group data.
@@ -73,8 +78,7 @@ import kotlin.math.min
 
 // The public API refers only to Index values. Address values are internal.
 
-@InternalComposeApi
-class SlotTable {
+internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
     /**
      * An array to store group information that is stored as groups of [Group_Fields_Size]
      * elements of the array. The [groups] array can be thought of as an array of an inline
@@ -113,7 +117,14 @@ class SlotTable {
     /**
      * Tracks whether there is an active writer.
      */
-    private var writer = false
+    internal var writer = false
+        private set
+
+    /**
+     * An internal version that is incremented whenever a writer is created. This is used to
+     * detect when an iterator created by [CompositionData] is invalid.
+     */
+    internal var version = 0
 
     /**
      * A list of currently active anchors.
@@ -123,7 +134,7 @@ class SlotTable {
     /**
      * Returns true if the slot table is empty
      */
-    val isEmpty get() = groupsSize == 0
+    override val isEmpty get() = groupsSize == 0
 
     /**
      * Read the slot table in [block]. Any number of readers can be created but a slot table cannot
@@ -175,9 +186,10 @@ class SlotTable {
      * @see SlotWriter
      */
     fun openWriter(): SlotWriter {
-        check(!writer) { "Cannot start a writer when another writer is pending" }
-        check(readers <= 0) { "Cannot start a writer when a reader is pending" }
+        runtimeCheck(!writer) { "Cannot start a writer when another writer is pending" }
+        runtimeCheck(readers <= 0) { "Cannot start a writer when a reader is pending" }
         writer = true
+        version++
         return SlotWriter(this)
     }
 
@@ -188,7 +200,7 @@ class SlotTable {
      * might be affected by the modifications being performed by the [SlotWriter].
      */
     fun anchorIndex(anchor: Anchor): Int {
-        check(!writer) { "Use active SlotWriter to determine anchor location instead" }
+        runtimeCheck(!writer) { "Use active SlotWriter to determine anchor location instead" }
         require(anchor.valid) { "Anchor refers to a group that was removed" }
         return anchor.location
     }
@@ -320,7 +332,7 @@ class SlotTable {
 
         // Verify anchors are well-formed
         var lastLocation = -1
-        for (anchor in anchors) {
+        anchors.fastForEach { anchor ->
             val location = anchor.toIndexFor(this)
             require(location in 0..groupsSize) { "Location out of bound" }
             require(lastLocation < location) { "Anchor is out of order" }
@@ -438,6 +450,11 @@ class SlotTable {
         val end = if (group + 1 < groupsSize) groups.dataAnchor(group + 1) else slots.size
         return slots.toList().subList(start, end)
     }
+
+    override val compositionGroups: Iterable<CompositionGroup> get() = this
+
+    override fun iterator(): Iterator<CompositionGroup> =
+        GroupIterator(this, 0, groupsSize)
 }
 
 /**
@@ -448,8 +465,7 @@ class SlotTable {
  * instead of the [SlotTable] as the anchor index could have shifted due to operations performed
  * on the writer.
  */
-@InternalComposeApi
-class Anchor internal constructor(loc: Int) {
+internal class Anchor(loc: Int) {
     internal var location: Int = loc
     val valid get() = location != Int.MIN_VALUE
     fun toIndexFor(slots: SlotTable) = slots.anchorIndex(this)
@@ -459,8 +475,7 @@ class Anchor internal constructor(loc: Int) {
 /**
  * A reader of a slot table. See [SlotTable]
  */
-@InternalComposeApi
-class SlotReader(
+internal class SlotReader(
     /**
      * The table for whom this is a reader.
      */
@@ -677,7 +692,7 @@ class SlotReader(
      * Get the value stored at [index] in the parent group's slot.
      */
     fun get(index: Int) = (currentSlot + index).let { slotIndex ->
-        if (slotIndex < currentSlotEnd) slots[slotIndex] else EMPTY
+        if (slotIndex < currentSlotEnd) slots[slotIndex] else Composer.Empty
     }
 
     /**
@@ -689,15 +704,16 @@ class SlotReader(
         val next = current + 1
         val end = if (next < groupsSize) groups.dataAnchor(next) else slotsSize
         val address = start + index
-        return if (address < end) slots[address] else EMPTY
+        return if (address < end) slots[address] else Composer.Empty
     }
 
     /**
-     * Get the value of the slot at [currentGroup] or [EMPTY] if at then end of a group. During empty
-     * mode this value is always [EMPTY] which is the value a newly inserted slot.
+     * Get the value of the slot at [currentGroup] or [Composer.Empty] if at then end of a group.
+     * During empty mode this value is always [Composer.Empty] which is the value a newly inserted
+     * slot.
      */
     fun next(): Any? {
-        if (emptyCount > 0 || currentSlot >= currentSlotEnd) return EMPTY
+        if (emptyCount > 0 || currentSlot >= currentSlotEnd) return Composer.Empty
         return slots[currentSlot++]
     }
 
@@ -710,7 +726,7 @@ class SlotReader(
     }
 
     /**
-     * End reporting [EMPTY] for calls to [next] and [get],
+     * End reporting [Composer.Empty] for calls to [next] and [get],
      */
     fun endEmpty() {
         require(emptyCount > 0) { "Unbalanced begin/end empty" }
@@ -773,7 +789,7 @@ class SlotReader(
     fun reposition(index: Int) {
         require(emptyCount == 0) { "Cannot reposition while in an empty region" }
         currentGroup = index
-        val parent = groups.parentAnchor(index)
+        val parent = if (index < groupsSize) groups.parentAnchor(index) else -1
         this.parent = parent
         if (parent < 0)
             this.currentEnd = groupsSize
@@ -847,10 +863,10 @@ class SlotReader(
 
     private fun IntArray.node(index: Int) = if (isNode(index)) {
         slots[nodeIndex(index)]
-    } else EMPTY
+    } else Composer.Empty
     private fun IntArray.aux(index: Int) = if (hasAux(index)) {
         slots[auxIndex(index)]
-    } else EMPTY
+    } else Composer.Empty
     private fun IntArray.objectKey(index: Int) = if (hasObjectKey(index)) {
         slots[objectKeyIndex(index)]
     } else null
@@ -859,8 +875,7 @@ class SlotReader(
 /**
  * Information about groups and their keys.
  */
-@InternalComposeApi
-class KeyInfo internal constructor(
+internal class KeyInfo internal constructor(
     /**
      * The group key.
      */
@@ -890,8 +905,7 @@ class KeyInfo internal constructor(
 /**
  * The writer for a slot table. See [SlotTable] for details.
  */
-@InternalComposeApi
-class SlotWriter internal constructor(
+internal class SlotWriter(
     /**
      * The [SlotTable] for whom this is writer.
      */
@@ -1032,7 +1046,7 @@ class SlotWriter internal constructor(
      */
     fun groupAux(index: Int): Any? {
         val address = groupIndexToAddress(index)
-        return if (groups.hasAux(address)) slots[groups.auxIndex(address)] else EMPTY
+        return if (groups.hasAux(address)) slots[groups.auxIndex(address)] else Composer.Empty
     }
 
     /**
@@ -1044,6 +1058,11 @@ class SlotWriter internal constructor(
             slots[dataIndexToDataAddress(groups.nodeIndex(address))]
         else null
     }
+
+    /**
+     * Return the node at [anchor] if it is a node group or null.
+     */
+    fun node(anchor: Anchor) = node(anchor.toIndexFor(this))
 
     /**
      * Return the index of the nearest group that contains [currentGroup].
@@ -1087,8 +1106,8 @@ class SlotWriter internal constructor(
     }
 
     /**
-     * Set the value of the next slot. Returns the previous value of the slot or [EMPTY] is being
-     * inserted.
+     * Set the value of the next slot. Returns the previous value of the slot or [Composer.Empty]
+     * is being inserted.
      */
     fun update(value: Any?): Any? {
         val result = skip()
@@ -1101,16 +1120,52 @@ class SlotWriter internal constructor(
      */
     fun updateAux(value: Any?) {
         val address = groupIndexToAddress(currentGroup)
-        check(groups.hasAux(address)) {
+        runtimeCheck(groups.hasAux(address)) {
             "Updating the data of a group that was not created with a data slot"
         }
         slots[dataIndexToDataAddress(groups.auxIndex(address))] = value
     }
 
     /**
-     * Updates the node for the current node group.
+     * Insert aux data into the parent group.
+     *
+     * This must be done only after at most one value has been inserted into the slot table for
+     * the group.
+     */
+    fun insertAux(value: Any?) {
+        runtimeCheck(insertCount >= 0) { "Cannot insert auxiliary data when not inserting" }
+        val parent = parent
+        val parentGroupAddress = groupIndexToAddress(parent)
+        runtimeCheck(!groups.hasAux(parentGroupAddress)) { "Group already has auxiliary data" }
+        insertSlots(1, parent)
+        val auxIndex = groups.auxIndex(parentGroupAddress)
+        val auxAddress = dataIndexToDataAddress(auxIndex)
+        if (currentSlot > auxIndex) {
+            // One or more values were inserted into the slot table before the aux value, we need
+            // to move them. Currently we only will run into one or two slots (the recompose
+            // scope inserted by a restart group and the lambda value in a composableLambda
+            // instance) so this is the only case currently supported.
+            val slotsToMove = currentSlot - auxIndex
+            check(slotsToMove < 3) { "Moving more than two slot not supported" }
+            if (slotsToMove > 1) {
+                slots[auxAddress + 2] = slots[auxAddress + 1]
+            }
+            slots[auxAddress + 1] = slots[auxAddress]
+        }
+        groups.addAux(parentGroupAddress)
+        slots[auxAddress] = value
+        currentSlot++
+    }
+
+    /**
+     * Updates the node for the current node group to [value].
      */
     fun updateNode(value: Any?) = updateNodeOfGroup(currentGroup, value)
+
+    /**
+     * Update the node of a the group at [anchor] to [value].
+     */
+    fun updateNode(anchor: Anchor, value: Any?) = updateNodeOfGroup(anchor.toIndexFor(this), value)
 
     /**
      * Updates the node of the parent group.
@@ -1121,7 +1176,7 @@ class SlotWriter internal constructor(
      * Set the value at the groups current data slot
      */
     fun set(value: Any?) {
-        check(currentSlot <= currentSlotEnd) {
+        runtimeCheck(currentSlot <= currentSlotEnd) {
             "Writing to an invalid slot"
         }
         slots[dataIndexToDataAddress(currentSlot - 1)] = value
@@ -1136,7 +1191,7 @@ class SlotWriter internal constructor(
         val slotsEnd = groups.dataIndex(groupIndexToAddress(currentGroup + 1))
         val slotsIndex = slotsStart + index
         @Suppress("ConvertTwoComparisonsToRangeCheck")
-        check(slotsIndex >= slotsStart && slotsIndex < slotsEnd) {
+        runtimeCheck(slotsIndex >= slotsStart && slotsIndex < slotsEnd) {
             "Write to an invalid slot index $index for group $currentGroup"
         }
         val slotAddress = dataIndexToDataAddress(slotsIndex)
@@ -1146,8 +1201,8 @@ class SlotWriter internal constructor(
     }
 
     /**
-     * Skip the current slot without updating. If the slot table is inserting then and [EMPTY] slot
-     * is added and [skip] return [EMPTY].
+     * Skip the current slot without updating. If the slot table is inserting then and
+     * [Composer.Empty] slot is added and [skip] return [Composer.Empty].
      */
     fun skip(): Any? {
         if (insertCount > 0) {
@@ -1165,7 +1220,7 @@ class SlotWriter internal constructor(
         check(insertCount <= 0) { "Cannot call seek() while inserting" }
         val index = currentGroup + amount
         @Suppress("ConvertTwoComparisonsToRangeCheck")
-        check(index >= parent && index <= currentGroupEnd) {
+        runtimeCheck(index >= parent && index <= currentGroupEnd) {
             "Cannot seek outside the current group ($parent-$currentGroupEnd)"
         }
         this.currentGroup = index
@@ -1205,7 +1260,7 @@ class SlotWriter internal constructor(
     fun endInsert() {
         check(insertCount > 0) { "Unbalanced begin/end insert" }
         if (--insertCount == 0) {
-            check(nodeCountStack.size == startStack.size) {
+            runtimeCheck(nodeCountStack.size == startStack.size) {
                 "startGroup/endGroup mismatch while inserting"
             }
             restoreCurrentGroupEnd()
@@ -1217,23 +1272,28 @@ class SlotWriter internal constructor(
      */
     fun startGroup() {
         require(insertCount == 0) { "Key must be supplied when inserting" }
-        startGroup(key = 0, objectKey = EMPTY, isNode = false, aux = EMPTY)
+        startGroup(key = 0, objectKey = Composer.Empty, isNode = false, aux = Composer.Empty)
     }
 
     /**
      * Start a group with a integer key
      */
-    fun startGroup(key: Int) = startGroup(key, EMPTY, isNode = false, aux = EMPTY)
+    fun startGroup(key: Int) = startGroup(key, Composer.Empty, isNode = false, aux = Composer.Empty)
 
     /**
      * Start a group with a data key
      */
-    fun startGroup(key: Int, dataKey: Any?) = startGroup(key, dataKey, isNode = false, aux = EMPTY)
+    fun startGroup(key: Int, dataKey: Any?) = startGroup(
+        key,
+        dataKey,
+        isNode = false,
+        aux = Composer.Empty
+    )
 
     /**
      * Start a node.
      */
-    fun startNode(key: Any?) = startGroup(NodeKey, key, isNode = true, aux = EMPTY)
+    fun startNode(key: Any?) = startGroup(NodeKey, key, isNode = true, aux = Composer.Empty)
 
     /**
      * Start a node
@@ -1253,7 +1313,7 @@ class SlotWriter internal constructor(
     /**
      * Start a data group.
      */
-    fun startData(key: Int, aux: Any?) = startGroup(key, EMPTY, isNode = false, aux = aux)
+    fun startData(key: Int, aux: Any?) = startGroup(key, Composer.Empty, isNode = false, aux = aux)
 
     private fun startGroup(key: Int, objectKey: Any?, isNode: Boolean, aux: Any?) {
         val inserting = insertCount > 0
@@ -1263,8 +1323,8 @@ class SlotWriter internal constructor(
             insertGroups(1)
             val current = currentGroup
             val currentAddress = groupIndexToAddress(current)
-            val hasObjectKey = objectKey !== EMPTY
-            val hasAux = !isNode && aux !== EMPTY
+            val hasObjectKey = objectKey !== Composer.Empty
+            val hasAux = !isNode && aux !== Composer.Empty
             groups.initGroup(
                 address = currentAddress,
                 key = key,
@@ -1299,7 +1359,7 @@ class SlotWriter internal constructor(
             saveCurrentGroupEnd()
             val currentGroup = currentGroup
             val currentGroupAddress = groupIndexToAddress(currentGroup)
-            if (aux != EMPTY) {
+            if (aux != Composer.Empty) {
                 if (isNode)
                     updateNode(aux)
                 else
@@ -1579,7 +1639,7 @@ class SlotWriter internal constructor(
 
         //  7) remove the old groups
         val anchorsRemoved = removeGroups(groupToMove + moveLen, moveLen)
-        check(!anchorsRemoved) { "Unexpectedly removed anchors" }
+        runtimeCheck(!anchorsRemoved) { "Unexpectedly removed anchors" }
 
         //  8) fix parent anchors
         fixParentAnchorsFor(parent, currentGroupEnd, current)
@@ -1733,10 +1793,10 @@ class SlotWriter internal constructor(
             }
 
             // Ensure we correctly transplanted the correct groups.
-            check(!anchorsRemoved) { "Unexpectedly removed anchors" }
+            runtimeCheck(!anchorsRemoved) { "Unexpectedly removed anchors" }
 
             // Update the node count.
-            nodeCount += groups.nodeCount(currentGroup)
+            nodeCount += if (groups.isNode(currentGroup)) 1 else groups.nodeCount(currentGroup)
 
             // Move current passed the insert
             this.currentGroup = currentGroup + groupsToMove
@@ -1835,7 +1895,7 @@ class SlotWriter internal constructor(
             // anchors that refer to these groups must be updated.
             var groupAddress = if (index < gapStart) index + gapLen else gapStart
             val capacity = capacity
-            check(groupAddress < capacity)
+            runtimeCheck(groupAddress < capacity)
             while (groupAddress < capacity) {
                 val oldAnchor = groups.parentAnchor(groupAddress)
                 val oldIndex = parentAnchorToIndex(oldAnchor)
@@ -1891,7 +1951,7 @@ class SlotWriter internal constructor(
                 val groupGapStart = groupGapStart
                 while (updateAddress < stopUpdateAddress) {
                     val anchor = groups.dataAnchor(updateAddress)
-                    check(anchor >= 0) {
+                    runtimeCheck(anchor >= 0) {
                         "Unexpected anchor value, expected a positive anchor"
                     }
                     groups.updateDataAnchor(updateAddress, -(slotsSize - anchor + 1))
@@ -1903,7 +1963,7 @@ class SlotWriter internal constructor(
                 val stopUpdateAddress = groupIndexToAddress(newSlotsGapOwner)
                 while (updateAddress < stopUpdateAddress) {
                     val anchor = groups.dataAnchor(updateAddress)
-                    check(anchor < 0) {
+                    runtimeCheck(anchor < 0) {
                         "Unexpected anchor value, expected a negative anchor"
                     }
                     groups.updateDataAnchor(updateAddress, slotsSize + anchor + 1)
@@ -2048,22 +2108,14 @@ class SlotWriter internal constructor(
         return if (len > 0) {
             var anchorsRemoved = false
             val anchors = anchors
-            if (groupGapLen == 0) {
-                // If there is no current gap, just update the anchors and make the removed slots
-                // the gap
-                if (anchors.isNotEmpty()) updateAnchors(groupGapStart, start)
-                groupGapStart = start
-                if (anchors.isNotEmpty()) anchorsRemoved = removeAnchors(start, len)
-                groupGapLen = len
-            } else {
-                // Move the gap to start of the removal and grow the gap
-                moveGroupGapTo(start)
-                if (anchors.isNotEmpty()) anchorsRemoved = removeAnchors(start, len)
-                groupGapStart = start
-                val previousGapLen = groupGapLen
-                val newGapLen = previousGapLen + len
-                groupGapLen = newGapLen
-            }
+
+            // Move the gap to start of the removal and grow the gap
+            moveGroupGapTo(start)
+            if (anchors.isNotEmpty()) anchorsRemoved = removeAnchors(start, len)
+            groupGapStart = start
+            val previousGapLen = groupGapLen
+            val newGapLen = previousGapLen + len
+            groupGapLen = newGapLen
 
             // Adjust the gap owner if necessary.
             val slotsGapOwner = slotsGapOwner
@@ -2096,7 +2148,7 @@ class SlotWriter internal constructor(
      */
     private fun updateNodeOfGroup(index: Int, value: Any?) {
         val address = groupIndexToAddress(index)
-        check(address < groups.size && groups.isNode(address)) {
+        runtimeCheck(address < groups.size && groups.isNode(address)) {
             "Updating the node of a group at $index that was not created with as a node group"
         }
         slots[dataIndexToDataAddress(groups.nodeIndex(address))] = value
@@ -2192,7 +2244,7 @@ class SlotWriter internal constructor(
 
         // Insert the anchors into there new location
         val moveDelta = newLocation - originalLocation
-        for (anchor in removedAnchors) {
+        removedAnchors.fastForEach { anchor ->
             val anchorIndex = anchorIndex(anchor)
             val newAnchorIndex = anchorIndex + moveDelta
             if (newAnchorIndex >= groupGapStart) {
@@ -2330,10 +2382,10 @@ class SlotWriter internal constructor(
     private fun IntArray.dataIndexes() = groups.dataAnchors().let {
         it.slice(0 until groupGapStart) +
             it.slice(groupGapStart + groupGapLen until (size / Group_Fields_Size))
-    }.map { anchor -> dataAnchorToDataIndex(anchor, slotsGapLen, slots.size) }
+    }.fastMap { anchor -> dataAnchorToDataIndex(anchor, slotsGapLen, slots.size) }
 
     @Suppress("unused")
-    private fun keys() = groups.keys().filterIndexed { index, _ ->
+    private fun keys() = groups.keys().fastFilterIndexed { index, _ ->
         index < groupGapStart || index >= groupGapStart + groupGapLen
     }
 
@@ -2348,6 +2400,79 @@ class SlotWriter internal constructor(
 
     private fun parentAnchorToIndex(index: Int) =
         if (index > parentAnchorPivot) index else size + index - parentAnchorPivot
+}
+
+private class GroupIterator(
+    val table: SlotTable,
+    start: Int,
+    val end: Int
+) : Iterator<CompositionGroup> {
+    private var index = start
+    private val version = table.version
+
+    init {
+        if (table.writer) throw ConcurrentModificationException()
+    }
+
+    override fun hasNext() = index < end
+
+    override fun next(): CompositionGroup {
+        validateRead()
+        val group = index
+        index += table.groups.groupSize(group)
+        return object : CompositionGroup, Iterable<CompositionGroup> {
+            override val isEmpty: Boolean get() = table.groups.groupSize(group) == 0
+
+            override val key: Any
+                get() = if (table.groups.hasObjectKey(group))
+                    table.slots[table.groups.objectKeyIndex(group)]!!
+                else table.groups.key(group)
+
+            override val sourceInfo: String?
+                get() = if (table.groups.hasAux(group))
+                    table.slots[table.groups.auxIndex(group)] as? String
+                else null
+
+            override val node: Any?
+                get() = if (table.groups.isNode(group))
+                    table.slots[table.groups.nodeIndex(group)] else
+                    null
+
+            override val data: Iterable<Any?> get() {
+                val start = table.groups.dataAnchor(group)
+                val end = if (group + 1 < table.groupsSize)
+                    table.groups.dataAnchor(group + 1) else table.slotsSize
+                return object : Iterable<Any?>, Iterator<Any?> {
+                    var index = start
+                    override fun iterator(): Iterator<Any?> = this
+                    override fun hasNext(): Boolean = index < end
+                    override fun next(): Any? =
+                        (
+                            if (index >= 0 && index < table.slots.size)
+                                table.slots[index]
+                            else null
+                            ).also { index++ }
+                }
+            }
+
+            override val compositionGroups: Iterable<CompositionGroup> get() = this
+
+            override fun iterator(): Iterator<CompositionGroup> {
+                validateRead()
+                return GroupIterator(
+                    table,
+                    group + 1,
+                    group + table.groups.groupSize(group)
+                )
+            }
+        }
+    }
+
+    private fun validateRead() {
+        if (table.version != version) {
+            throw ConcurrentModificationException()
+        }
+    }
 }
 
 // Parent -1 is reserved to be the root parent index so the anchor must pivot on -2.
@@ -2369,7 +2494,7 @@ private const val Group_Fields_Size = 5
 // 31 30 29 28_27 26 25 24_23 22 21 20_19 18 17 16__15 14 13 12_11 10 09 08_07 06 05 04_03 02 01 00
 // 0  n  ks ds r |                                node count                                       |
 // where n is set when the group represents a node
-// where ks is whether the group has a data key slot
+// where ks is whether the group has a object key slot
 // where ds is whether the group has a group data slot
 // where r is always 0 (future use)
 
@@ -2391,15 +2516,6 @@ private const val Slots_Shift = Aux_Shift
 private const val NodeCount_Mask = 0b0000_0111_1111_1111__1111_1111_1111_1111
 
 // Special values
-
-// The value returned for slots that are newly created. It is used instead of null to allow null
-// to be an in band value.
-@PublishedApi
-internal val EMPTY = object {
-    override fun toString(): String {
-        return "EMPTY"
-    }
-}
 
 // The minimum number of groups to allocate the group table
 private const val MinGroupGrowthSize = 32
@@ -2423,6 +2539,11 @@ private fun IntArray.objectKeyIndex(address: Int) = (address * Group_Fields_Size
 }
 private fun IntArray.hasAux(address: Int) =
     this[address * Group_Fields_Size + GroupInfo_Offset] and Aux_Mask != 0
+private fun IntArray.addAux(address: Int) {
+    val arrayIndex = address * Group_Fields_Size + GroupInfo_Offset
+    this[arrayIndex] = this[arrayIndex] or Aux_Mask
+}
+
 private fun IntArray.auxIndex(address: Int) = (address * Group_Fields_Size).let { slot ->
     if (slot >= size) size
     else this[slot + DataAnchor_Offset] +
@@ -2461,7 +2582,7 @@ private fun IntArray.updateNodeCount(address: Int, value: Int) {
 }
 private fun IntArray.nodeCounts(len: Int = size) =
     slice(GroupInfo_Offset until len step Group_Fields_Size)
-        .map { it and NodeCount_Mask }
+        .fastMap { it and NodeCount_Mask }
 
 // Parent anchor
 private fun IntArray.parentAnchor(address: Int) =
@@ -2479,7 +2600,7 @@ private fun IntArray.updateGroupSize(address: Int, value: Int) {
     this[address * Group_Fields_Size + Size_Offset] = value
 }
 
-fun IntArray.slice(indices: Iterable<Int>): List<Int> {
+private fun IntArray.slice(indices: Iterable<Int>): List<Int> {
     val list = mutableListOf<Int>()
     for (index in indices) {
         list.add(get(index))
@@ -2539,7 +2660,6 @@ private inline fun ArrayList<Anchor>.getOrAdd(
 /**
  * This is inlined here instead to avoid allocating a lambda for the compare when this is used.
  */
-@OptIn(InternalComposeApi::class)
 private fun ArrayList<Anchor>.search(location: Int, effectiveSize: Int): Int {
     var low = 0
     var high = size - 1

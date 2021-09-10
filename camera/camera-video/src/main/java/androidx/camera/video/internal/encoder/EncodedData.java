@@ -54,6 +54,12 @@ public interface EncodedData extends AutoCloseable {
     /** Gets the timestamp of the encoded data in microseconds. */
     long getPresentationTimeUs();
 
+    /** Gets the data size in bytes. */
+    long size();
+
+    /**  Returns true if this is a video key frame (I-Frame). */
+    boolean isKeyFrame();
+
     /** The encoded data should be explicitly closed in order to release the resources. */
     @Override
     void close();

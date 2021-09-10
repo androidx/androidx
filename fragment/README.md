@@ -6,7 +6,7 @@ Fragments allow you to encapsulate part of your user interface or behavior into 
 
 [Release notes](https://developer.android.com/jetpack/androidx/releases/fragment)
 
-[Browse source](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/fragment/)
+[Browse source](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/fragment/)
 
 [Reference documentation](https://developer.android.com/reference/androidx/fragment/app/package-summary)
 

@@ -18,7 +18,7 @@ package androidx.camera.view.video;
 
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
-import androidx.annotation.experimental.Experimental;
+import androidx.annotation.RequiresOptIn;
 
 import java.lang.annotation.Retention;
 
@@ -30,6 +30,6 @@ import java.lang.annotation.Retention;
  * releases, or may be removed altogether.
  */
 @Retention(CLASS)
-@Experimental
+@RequiresOptIn
 public @interface ExperimentalVideo {
 }

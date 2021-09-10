@@ -29,6 +29,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import com.google.common.util.concurrent.ListenableFuture
 
 /** A Fragment that displays a {@link PreviewView} with TextureView mode. */
@@ -66,9 +67,13 @@ class CameraFragment : Fragment() {
         cameraProviderFuture.addListener(
             Runnable {
                 cameraProvider = cameraProviderFuture.get()
-                bindPreview()
+                if (viewLifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+                    bindPreview()
+                } else {
+                    Log.d(TAG, "Skip camera setup since the lifecycle is closed")
+                }
             },
-            ContextCompat.getMainExecutor(this.context)
+            ContextCompat.getMainExecutor(requireContext())
         )
     }
 

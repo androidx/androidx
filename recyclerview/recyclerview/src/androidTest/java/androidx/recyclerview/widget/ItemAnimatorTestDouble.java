@@ -44,11 +44,11 @@ public class ItemAnimatorTestDouble extends SimpleItemAnimator {
 
     static final long TIMEOUT_SECOND = 10;
 
-    ArrayList<RecyclerView.ViewHolder> mAdds = new ArrayList();
-    ArrayList<RecyclerView.ViewHolder> mRemoves = new ArrayList();
-    ArrayList<RecyclerView.ViewHolder> mMoves = new ArrayList();
-    ArrayList<RecyclerView.ViewHolder> mChangesOld = new ArrayList();
-    ArrayList<RecyclerView.ViewHolder> mChangesNew = new ArrayList();
+    ArrayList<RecyclerView.ViewHolder> mAdds = new ArrayList<>();
+    ArrayList<RecyclerView.ViewHolder> mRemoves = new ArrayList<>();
+    ArrayList<RecyclerView.ViewHolder> mMoves = new ArrayList<>();
+    ArrayList<RecyclerView.ViewHolder> mChangesOld = new ArrayList<>();
+    ArrayList<RecyclerView.ViewHolder> mChangesNew = new ArrayList<>();
 
     @Retention(CLASS)
     @Target({PARAMETER, METHOD, LOCAL_VARIABLE, FIELD})

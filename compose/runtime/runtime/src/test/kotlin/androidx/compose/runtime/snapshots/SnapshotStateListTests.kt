@@ -16,8 +16,11 @@
 
 package androidx.compose.runtime.snapshots
 
-import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.mutableStateListOf
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -510,13 +513,12 @@ class SnapshotStateListTests {
         expected(normalList, list)
     }
 
-    @OptIn(ExperimentalComposeApi::class)
     @Test
     fun stateListsCanBeSnapshot() {
         val original = listOf(0, 1, 2, 3, 4, 5, 6)
         val mutableList = original.toMutableList()
         val list = mutableStateListOf(0, 1, 2, 3, 4, 5, 6)
-        val snapshot = takeSnapshot()
+        val snapshot = Snapshot.takeSnapshot()
         try {
             list[1] = 100
             mutableList[1] = 100
@@ -528,6 +530,57 @@ class SnapshotStateListTests {
             snapshot.dispose()
         }
         expected(mutableList, list)
+    }
+
+    @Test
+    fun concurrentGlobalModification_add(): Unit = runBlocking {
+        repeat(100) {
+            val list = mutableStateListOf<Int>()
+            coroutineScope {
+                repeat(100) { index ->
+                    launch(Dispatchers.Default) {
+                        list.add(index)
+                    }
+                }
+            }
+
+            repeat(100) {
+                assertTrue(list.contains(it))
+            }
+        }
+    }
+
+    @Test
+    fun concurrentGlobalModifications_addAll(): Unit = runBlocking {
+        repeat(100) {
+            val list = mutableStateListOf<Int>()
+            coroutineScope {
+                repeat(100) { index ->
+                    launch(Dispatchers.Default) {
+                        list.addAll(0, Array(10) { index * 100 + it }.toList())
+                    }
+                }
+            }
+
+            repeat(100) { index ->
+                repeat(10) {
+                    assertTrue(list.contains(index * 100 + it))
+                }
+            }
+        }
+    }
+
+    @Test
+    fun modificationAcrossSnapshots() {
+        val list = mutableStateListOf<Int>()
+        repeat(100) {
+            Snapshot.withMutableSnapshot {
+                list.add(it)
+            }
+        }
+        repeat(100) {
+            assertEquals(it, list[it])
+        }
     }
 
     private fun <T> validate(list: MutableList<T>, block: (list: MutableList<T>) -> Unit) {

@@ -1,23 +1,8 @@
-/*
- * Copyright 2018 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package a.b;
 
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.lifecycle.SavedStateHandle;
 import androidx.navigation.NavArgs;
 import java.lang.IllegalArgumentException;
 import java.lang.Object;
@@ -32,6 +17,7 @@ public class SanitizedMainFragmentArgs implements NavArgs {
     private SanitizedMainFragmentArgs() {
     }
 
+    @SuppressWarnings("unchecked")
     private SanitizedMainFragmentArgs(HashMap argumentsMap) {
         this.arguments.putAll(argumentsMap);
     }
@@ -58,6 +44,35 @@ public class SanitizedMainFragmentArgs implements NavArgs {
         if (bundle.containsKey("name with spaces")) {
             int nameWithSpaces;
             nameWithSpaces = bundle.getInt("name with spaces");
+            __result.arguments.put("name with spaces", nameWithSpaces);
+        } else {
+            throw new IllegalArgumentException("Required argument \"name with spaces\" is missing and does not have an android:defaultValue");
+        }
+        return __result;
+    }
+
+    @NonNull
+    @SuppressWarnings("unchecked")
+    public static SanitizedMainFragmentArgs fromSavedStateHandle(
+            @NonNull SavedStateHandle savedStateHandle) {
+        SanitizedMainFragmentArgs __result = new SanitizedMainFragmentArgs();
+        if (savedStateHandle.contains("name.with.dot")) {
+            int nameWithDot;
+            nameWithDot = savedStateHandle.get("name.with.dot");
+            __result.arguments.put("name.with.dot", nameWithDot);
+        } else {
+            throw new IllegalArgumentException("Required argument \"name.with.dot\" is missing and does not have an android:defaultValue");
+        }
+        if (savedStateHandle.contains("name_with_underscore")) {
+            int nameWithUnderscore;
+            nameWithUnderscore = savedStateHandle.get("name_with_underscore");
+            __result.arguments.put("name_with_underscore", nameWithUnderscore);
+        } else {
+            throw new IllegalArgumentException("Required argument \"name_with_underscore\" is missing and does not have an android:defaultValue");
+        }
+        if (savedStateHandle.contains("name with spaces")) {
+            int nameWithSpaces;
+            nameWithSpaces = savedStateHandle.get("name with spaces");
             __result.arguments.put("name with spaces", nameWithSpaces);
         } else {
             throw new IllegalArgumentException("Required argument \"name with spaces\" is missing and does not have an android:defaultValue");
@@ -95,6 +110,25 @@ public class SanitizedMainFragmentArgs implements NavArgs {
         if (arguments.containsKey("name with spaces")) {
             int nameWithSpaces = (int) arguments.get("name with spaces");
             __result.putInt("name with spaces", nameWithSpaces);
+        }
+        return __result;
+    }
+
+    @SuppressWarnings("unchecked")
+    @NonNull
+    public SavedStateHandle toSavedStateHandle() {
+        SavedStateHandle __result = new SavedStateHandle();
+        if (arguments.containsKey("name.with.dot")) {
+            int nameWithDot = (int) arguments.get("name.with.dot");
+            __result.set("name.with.dot", nameWithDot);
+        }
+        if (arguments.containsKey("name_with_underscore")) {
+            int nameWithUnderscore = (int) arguments.get("name_with_underscore");
+            __result.set("name_with_underscore", nameWithUnderscore);
+        }
+        if (arguments.containsKey("name with spaces")) {
+            int nameWithSpaces = (int) arguments.get("name with spaces");
+            __result.set("name with spaces", nameWithSpaces);
         }
         return __result;
     }
@@ -147,13 +181,15 @@ public class SanitizedMainFragmentArgs implements NavArgs {
                 + "}";
     }
 
-    public static class Builder {
+    public static final class Builder {
         private final HashMap arguments = new HashMap();
 
-        public Builder(SanitizedMainFragmentArgs original) {
+        @SuppressWarnings("unchecked")
+        public Builder(@NonNull SanitizedMainFragmentArgs original) {
             this.arguments.putAll(original.arguments);
         }
 
+        @SuppressWarnings("unchecked")
         public Builder(int nameWithDot, int nameWithUnderscore, int nameWithSpaces) {
             this.arguments.put("name.with.dot", nameWithDot);
             this.arguments.put("name_with_underscore", nameWithUnderscore);
@@ -167,34 +203,37 @@ public class SanitizedMainFragmentArgs implements NavArgs {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setNameWithDot(int nameWithDot) {
             this.arguments.put("name.with.dot", nameWithDot);
             return this;
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setNameWithUnderscore(int nameWithUnderscore) {
             this.arguments.put("name_with_underscore", nameWithUnderscore);
             return this;
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setNameWithSpaces(int nameWithSpaces) {
             this.arguments.put("name with spaces", nameWithSpaces);
             return this;
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         public int getNameWithDot() {
             return (int) arguments.get("name.with.dot");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         public int getNameWithUnderscore() {
             return (int) arguments.get("name_with_underscore");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         public int getNameWithSpaces() {
             return (int) arguments.get("name with spaces");
         }

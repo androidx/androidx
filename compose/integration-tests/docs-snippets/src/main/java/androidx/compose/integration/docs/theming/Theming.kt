@@ -24,11 +24,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AmbientContentAlpha
 import androidx.compose.material.Button
-import androidx.compose.material.ButtonConstants
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Colors
 import androidx.compose.material.ContentAlpha
+import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Shapes
 import androidx.compose.material.Surface
@@ -40,13 +40,13 @@ import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.material.primarySurface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.font
-import androidx.compose.ui.text.font.fontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -141,12 +141,12 @@ TopAppBar(
 }
 
 @Composable private fun ThemingSnippet7() {
-    // By default, both Icon & Text use the combination of AmbientContentColor &
-    // AmbientContentAlpha. De-emphasize content by setting content alpha
-    Providers(AmbientContentAlpha provides ContentAlpha.medium) {
+    // By default, both Icon & Text use the combination of LocalContentColor &
+    // LocalContentAlpha. De-emphasize content by setting content alpha
+    CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
         Text(/*...*/)
     }
-    Providers(AmbientContentAlpha provides ContentAlpha.disabled) {
+    CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.disabled) {
         Icon(/*...*/)
         Text(/*...*/)
     }
@@ -179,16 +179,15 @@ private object ThemingSnippet8 {
 }
 
 private object ThemingSnippet11 {
-    @Composable
     val Colors.snackbarAction: Color
-        get() = if (isLight) Red300 else Red700
+        @Composable get() = if (isLight) Red300 else Red700
 }
 
 @Composable private fun ThemingSnippet12() {
-    val Rubik = fontFamily(
-        font(R.font.rubik_regular),
-        font(R.font.rubik_medium, FontWeight.W500),
-        font(R.font.rubik_bold, FontWeight.Bold)
+    val Rubik = FontFamily(
+        Font(R.font.rubik_regular),
+        Font(R.font.rubik_medium, FontWeight.W500),
+        Font(R.font.rubik_bold, FontWeight.Bold)
     )
 
     val MyTypography = Typography(
@@ -224,10 +223,10 @@ private object ThemingSnippet11 {
         small = RoundedCornerShape(percent = 50),
         medium = RoundedCornerShape(0f),
         large = CutCornerShape(
-            topLeft = 16.dp,
-            topRight = 0.dp,
-            bottomRight = 0.dp,
-            bottomLeft = 16.dp
+            topStart = 16.dp,
+            topEnd = 0.dp,
+            bottomEnd = 0.dp,
+            bottomStart = 16.dp
         )
     )
 
@@ -251,7 +250,7 @@ private object ThemingSnippet17 {
         content: @Composable RowScope.() -> Unit
     ) {
         Button(
-            colors = ButtonConstants.defaultButtonColors(
+            colors = ButtonDefaults.buttonColors(
                 backgroundColor = MaterialTheme.colors.secondary
             ),
             onClick = onClick,
@@ -288,6 +287,6 @@ private object R {
     }
 }
 
-private val Rubik = fontFamily()
+private val Rubik = FontFamily()
 private fun MaterialTheme(typography: Typography) { }
 private fun MaterialTheme(shapes: Shapes) { }

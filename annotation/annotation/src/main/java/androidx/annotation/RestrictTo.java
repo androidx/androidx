@@ -23,6 +23,7 @@ import static java.lang.annotation.ElementType.PACKAGE;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -46,6 +47,7 @@ import java.lang.annotation.Target;
  *   public void onDrawForeground(Canvas canvas) { ...
  * </code></pre>
  */
+@Documented
 @Retention(CLASS)
 @Target({ANNOTATION_TYPE, TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE})
 public @interface RestrictTo {

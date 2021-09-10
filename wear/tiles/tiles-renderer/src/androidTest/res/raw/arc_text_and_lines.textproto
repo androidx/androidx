@@ -1,0 +1,57 @@
+arc {
+  anchor_type: {
+    value: ARC_ANCHOR_CENTER
+  }
+  anchor_angle: {
+    value: 0
+  }
+  contents {
+    text {
+      text {
+        value: "HELLO"
+      }
+      font_style {
+        weight {
+          value: FONT_WEIGHT_BOLD
+        }
+        size {
+          value: 16
+        }
+        color {
+          argb: 0xFFFF0000
+        }
+      }
+    }
+  }
+  contents {
+    line {
+      color {
+        argb: 0xFF00FF00
+      }
+      length {
+        value: 45
+      }
+      thickness {
+        value: 11
+      }
+    }
+  }
+  contents {
+    text {
+      text {
+        value: "WORLD"
+      }
+      font_style {
+        weight {
+          value: FONT_WEIGHT_BOLD
+        }
+        size {
+          value: 16
+        }
+        color {
+          argb: 0xFF0000FF
+        }
+      }
+    }
+  }
+}

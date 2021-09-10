@@ -19,27 +19,37 @@ package androidx.compose.ui.test.inputdispatcher
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.AndroidInputDispatcher
 import androidx.compose.ui.test.InputDispatcher
-import androidx.compose.ui.test.InternalTestingApi
+import androidx.compose.ui.test.InternalTestApi
+import androidx.compose.ui.test.MainTestClock
+import androidx.compose.ui.test.TestOwner
 import androidx.compose.ui.test.createTestContext
 import androidx.compose.ui.test.util.InputDispatcherTestRule
 import androidx.compose.ui.test.util.MotionEventRecorder
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.After
 import org.junit.Rule
 import org.junit.rules.TestRule
 
-@OptIn(InternalTestingApi::class)
+@OptIn(InternalTestApi::class)
 open class InputDispatcherTest(eventPeriodOverride: Long? = null) {
 
     @get:Rule
     val inputDispatcherRule: TestRule = InputDispatcherTestRule(
-        disableDispatchInRealTime = true,
         eventPeriodOverride = eventPeriodOverride
     )
 
     internal val recorder = MotionEventRecorder()
-    private val testContext = createTestContext(mock())
+    private val testClock: MainTestClock = mock()
+    private val testOwner: TestOwner = mock {
+        on { mainClock } doReturn testClock
+        on { runOnUiThread(any<() -> Any>()) }.then {
+            it.getArgument<() -> Any>(0).invoke()
+        }
+    }
+    private val testContext = createTestContext(testOwner)
     internal val subject = AndroidInputDispatcher(testContext, null, recorder::recordEvent)
 
     @After
@@ -50,34 +60,32 @@ open class InputDispatcherTest(eventPeriodOverride: Long? = null) {
     }
 }
 
-internal fun AndroidInputDispatcher.generateDownAndCheck(pointerId: Int, position: Offset) {
-    enqueueDown(pointerId, position)
-    assertThat(getCurrentPosition(pointerId)).isEqualTo(position)
+internal fun AndroidInputDispatcher.generateTouchDownAndCheck(pointerId: Int, position: Offset) {
+    enqueueTouchDown(pointerId, position)
+    assertThat(getCurrentTouchPosition(pointerId)).isEqualTo(position)
 }
 
-internal fun AndroidInputDispatcher.movePointerAndCheck(pointerId: Int, position: Offset) {
-    movePointer(pointerId, position)
-    assertThat(getCurrentPosition(pointerId)).isEqualTo(position)
+internal fun AndroidInputDispatcher.updateTouchPointerAndCheck(pointerId: Int, position: Offset) {
+    updateTouchPointer(pointerId, position)
+    assertThat(getCurrentTouchPosition(pointerId)).isEqualTo(position)
 }
 
-internal fun AndroidInputDispatcher.generateUpAndCheck(pointerId: Int, delay: Long? = null) {
+internal fun AndroidInputDispatcher.generateTouchUpAndCheck(pointerId: Int, delay: Long? = null) {
     if (delay != null) {
-        enqueueUp(pointerId, delay)
-    } else {
-        enqueueUp(pointerId)
+        advanceEventTime(delay)
     }
-    assertThat(getCurrentPosition(pointerId)).isNull()
+    enqueueTouchUp(pointerId)
+    assertThat(getCurrentTouchPosition(pointerId)).isNull()
 }
 
-internal fun AndroidInputDispatcher.generateCancelAndCheck(delay: Long? = null) {
+internal fun AndroidInputDispatcher.generateTouchCancelAndCheck(delay: Long? = null) {
     if (delay != null) {
-        enqueueCancel(delay)
-    } else {
-        enqueueCancel()
+        advanceEventTime(delay)
     }
-    verifyNoGestureInProgress()
+    enqueueTouchCancel()
+    verifyNoTouchGestureInProgress()
 }
 
-internal fun InputDispatcher.verifyNoGestureInProgress() {
-    assertThat((this as AndroidInputDispatcher).isGestureInProgress).isFalse()
+internal fun InputDispatcher.verifyNoTouchGestureInProgress() {
+    assertThat((this as AndroidInputDispatcher).isTouchInProgress).isFalse()
 }

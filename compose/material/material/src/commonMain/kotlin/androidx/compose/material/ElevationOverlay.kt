@@ -16,11 +16,11 @@
 
 package androidx.compose.material
 
-import androidx.compose.runtime.Ambient
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposableContract
-import androidx.compose.runtime.ProvidableAmbient
-import androidx.compose.runtime.staticAmbientOf
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.Dp
@@ -28,14 +28,13 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.ln
 
 /**
- * [Ambient] containing the [ElevationOverlay] used by [Surface] components. Provide `null` to
- * turn off [ElevationOverlay]s for the children within this [Ambient].
+ * CompositionLocal containing the [ElevationOverlay] used by [Surface] components. Provide
+ * `null` to turn off [ElevationOverlay]s for the children within this CompositionLocal..
  *
  * @see ElevationOverlay
  */
-val AmbientElevationOverlay: ProvidableAmbient<ElevationOverlay?> = staticAmbientOf {
-    DefaultElevationOverlay
-}
+val LocalElevationOverlay: ProvidableCompositionLocal<ElevationOverlay?> =
+    staticCompositionLocalOf { DefaultElevationOverlay }
 
 // TODO: make this a fun interface
 /**
@@ -48,7 +47,7 @@ val AmbientElevationOverlay: ProvidableAmbient<ElevationOverlay?> = staticAmbien
  * the Material specification for
  * [Dark Theme](https://material.io/design/color/dark-theme.html#properties).
  *
- * See [AmbientElevationOverlay] to provide your own [ElevationOverlay]. You can provide `null`
+ * See [LocalElevationOverlay] to provide your own [ElevationOverlay]. You can provide `null`
  * to have no ElevationOverlay applied.
  */
 interface ElevationOverlay {
@@ -65,7 +64,7 @@ interface ElevationOverlay {
  * The default [ElevationOverlay] implementation.
  */
 private object DefaultElevationOverlay : ElevationOverlay {
-    @ComposableContract(readonly = true)
+    @ReadOnlyComposable
     @Composable
     override fun apply(color: Color, elevation: Dp): Color {
         val colors = MaterialTheme.colors
@@ -83,10 +82,20 @@ private object DefaultElevationOverlay : ElevationOverlay {
  * the resultant color. This color is the [contentColorFor] the [backgroundColor], with alpha
  * applied depending on the value of [elevation].
  */
-@ComposableContract(readonly = true)
+@ReadOnlyComposable
 @Composable
 private fun calculateForegroundColor(backgroundColor: Color, elevation: Dp): Color {
     val alpha = ((4.5f * ln(elevation.value + 1)) + 2f) / 100f
     val baseForegroundColor = contentColorFor(backgroundColor)
     return baseForegroundColor.copy(alpha = alpha)
 }
+
+/**
+ * CompositionLocal containing the current absolute elevation provided by [Surface] components. This
+ * absolute elevation is a sum of all the previous elevations. Absolute elevation is only
+ * used for calculating elevation overlays in dark theme, and is *not* used for drawing the
+ * shadow in a [Surface]. See [ElevationOverlay] for more information on elevation overlays.
+ *
+ * @sample androidx.compose.material.samples.AbsoluteElevationSample
+ */
+val LocalAbsoluteElevation = compositionLocalOf { 0.dp }

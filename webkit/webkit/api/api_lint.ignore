@@ -13,6 +13,14 @@ BuilderSetStyle: androidx.webkit.ProxyConfig.Builder#removeImplicitRules():
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.webkit.ProxyConfig.Builder.removeImplicitRules()
 
 
+GetterSetterNames: androidx.webkit.ServiceWorkerWebSettingsCompat#getAllowContentAccess():
+    Symmetric method for `setAllowContentAccess` must be named `isAllowContentAccess`; was `getAllowContentAccess`
+GetterSetterNames: androidx.webkit.ServiceWorkerWebSettingsCompat#getAllowFileAccess():
+    Symmetric method for `setAllowFileAccess` must be named `isAllowFileAccess`; was `getAllowFileAccess`
+GetterSetterNames: androidx.webkit.ServiceWorkerWebSettingsCompat#getBlockNetworkLoads():
+    Symmetric method for `setBlockNetworkLoads` must be named `isBlockNetworkLoads`; was `getBlockNetworkLoads`
+
+
 IntentName: androidx.webkit.WebViewFeature#DISABLED_ACTION_MODE_MENU_ITEMS:
     Intent action constant name must be ACTION_FOO: DISABLED_ACTION_MODE_MENU_ITEMS
 
@@ -22,17 +30,21 @@ MissingGetterMatchingBuilder: androidx.webkit.ProxyConfig.Builder#addDirect():
 MissingGetterMatchingBuilder: androidx.webkit.ProxyConfig.Builder#addDirect(String):
     androidx.webkit.ProxyConfig does not declare a `getDirects()` method matching method androidx.webkit.ProxyConfig.Builder.addDirect(String)
 MissingGetterMatchingBuilder: androidx.webkit.TracingConfig.Builder#addCategories(int...):
-    androidx.webkit.TracingConfig does not declare a `getCategoriess()` method matching method androidx.webkit.TracingConfig.Builder.addCategories(int...)
+    androidx.webkit.TracingConfig does not declare a getter method matching method androidx.webkit.TracingConfig.Builder.addCategories(int...) (expected one of: [getCategories(), getCategorieses()])
 MissingGetterMatchingBuilder: androidx.webkit.TracingConfig.Builder#addCategories(java.lang.String...):
-    androidx.webkit.TracingConfig does not declare a `getCategoriess()` method matching method androidx.webkit.TracingConfig.Builder.addCategories(java.lang.String...)
+    androidx.webkit.TracingConfig does not declare a getter method matching method androidx.webkit.TracingConfig.Builder.addCategories(java.lang.String...) (expected one of: [getCategories(), getCategorieses()])
 MissingGetterMatchingBuilder: androidx.webkit.TracingConfig.Builder#addCategories(java.util.Collection<java.lang.String>):
-    androidx.webkit.TracingConfig does not declare a `getCategoriess()` method matching method androidx.webkit.TracingConfig.Builder.addCategories(java.util.Collection<java.lang.String>)
+    androidx.webkit.TracingConfig does not declare a getter method matching method androidx.webkit.TracingConfig.Builder.addCategories(java.util.Collection<java.lang.String>) (expected one of: [getCategories(), getCategorieses()])
 MissingGetterMatchingBuilder: androidx.webkit.WebViewAssetLoader.Builder#addPathHandler(String, androidx.webkit.WebViewAssetLoader.PathHandler):
     androidx.webkit.WebViewAssetLoader does not declare a `getPathHandlers()` method matching method androidx.webkit.WebViewAssetLoader.Builder.addPathHandler(String,androidx.webkit.WebViewAssetLoader.PathHandler)
 MissingGetterMatchingBuilder: androidx.webkit.WebViewAssetLoader.Builder#setDomain(String):
     androidx.webkit.WebViewAssetLoader does not declare a `getDomain()` method matching method androidx.webkit.WebViewAssetLoader.Builder.setDomain(String)
 MissingGetterMatchingBuilder: androidx.webkit.WebViewAssetLoader.Builder#setHttpAllowed(boolean):
     androidx.webkit.WebViewAssetLoader does not declare a `isHttpAllowed()` method matching method androidx.webkit.WebViewAssetLoader.Builder.setHttpAllowed(boolean)
+
+
+NullableCollection: androidx.webkit.WebMessageCompat#getPorts():
+    Return type of method androidx.webkit.WebMessageCompat.getPorts() is a nullable collection (`androidx.webkit.WebMessagePortCompat[]`); must be non-null
 
 
 StaticFinalBuilder: androidx.webkit.TracingConfig.Builder:

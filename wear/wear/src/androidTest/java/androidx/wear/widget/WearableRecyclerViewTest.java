@@ -28,7 +28,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import android.app.Activity;
 import android.content.res.Configuration;
 import android.view.View;
 
@@ -39,10 +38,10 @@ import androidx.test.espresso.action.GeneralLocation;
 import androidx.test.espresso.action.GeneralSwipeAction;
 import androidx.test.espresso.action.Press;
 import androidx.test.espresso.action.Swipe;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 import androidx.wear.test.R;
 import androidx.wear.widget.util.WakeLockRule;
 
@@ -65,8 +64,8 @@ public class WearableRecyclerViewTest {
     public final WakeLockRule wakeLock = new WakeLockRule();
 
     @Rule
-    public final ActivityTestRule<WearableRecyclerViewTestActivity> mActivityRule =
-            new ActivityTestRule<>(WearableRecyclerViewTestActivity.class, true, true);
+    public final ActivityScenarioRule<WearableRecyclerViewTestActivity> mActivityRule =
+            new ActivityScenarioRule<>(WearableRecyclerViewTestActivity.class);
 
     @Before
     public void setUp() {
@@ -75,100 +74,118 @@ public class WearableRecyclerViewTest {
 
     @Test
     public void testCaseInitState() {
-        WearableRecyclerView wrv = new WearableRecyclerView(mActivityRule.getActivity());
-        wrv.setLayoutManager(new WearableLinearLayoutManager(wrv.getContext()));
+        mActivityRule.getScenario().onActivity(activity -> {
+            WearableRecyclerView wrv = new WearableRecyclerView(activity);
+            wrv.setLayoutManager(new WearableLinearLayoutManager(wrv.getContext()));
 
-        assertFalse(wrv.isEdgeItemsCenteringEnabled());
-        assertFalse(wrv.isCircularScrollingGestureEnabled());
-        assertEquals(1.0f, wrv.getBezelFraction(), 0.01f);
-        assertEquals(180.0f, wrv.getScrollDegreesPerScreen(), 0.01f);
+            assertFalse(wrv.isEdgeItemsCenteringEnabled());
+            assertFalse(wrv.isCircularScrollingGestureEnabled());
+            assertEquals(1.0f, wrv.getBezelFraction(), 0.01f);
+            assertEquals(180.0f, wrv.getScrollDegreesPerScreen(), 0.01f);
+        });
     }
 
     @Test
     public void testEdgeItemsCenteringOnAndOff() throws Throwable {
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                WearableRecyclerView wrv =
-                        (WearableRecyclerView) mActivityRule.getActivity().findViewById(R.id.wrv);
-                wrv.setEdgeItemsCenteringEnabled(true);
-            }
-        });
 
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
-
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                WearableRecyclerView wrv =
-                        (WearableRecyclerView) mActivityRule.getActivity().findViewById(R.id.wrv);
-                View child = wrv.getChildAt(0);
-                assertNotNull("child", child);
-                Activity activity = mActivityRule.getActivity();
-                Configuration configuration = activity.getResources().getConfiguration();
-                if (configuration.isScreenRound()) {
-                    assertEquals((wrv.getHeight() - child.getHeight()) / 2, child.getTop());
-                } else {
-                    assertEquals(0, child.getTop());
+        mActivityRule.getScenario().onActivity(activity -> {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    WearableRecyclerView wrv =
+                            (WearableRecyclerView) activity.findViewById(R.id.wrv);
+                    wrv.setEdgeItemsCenteringEnabled(true);
                 }
-            }
+            });
+        });
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        mActivityRule.getScenario().onActivity(activity -> {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    WearableRecyclerView wrv =
+                            (WearableRecyclerView) activity.findViewById(
+                                    R.id.wrv);
+                    View child = wrv.getChildAt(0);
+                    assertNotNull("child", child);
+                    Configuration configuration = activity.getResources().getConfiguration();
+                    if (configuration.isScreenRound()) {
+                        assertEquals((wrv.getHeight() - child.getHeight()) / 2, child.getTop());
+                    } else {
+                        assertEquals(0, child.getTop());
+                    }
+                }
+            });
         });
 
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                WearableRecyclerView wrv =
-                        (WearableRecyclerView) mActivityRule.getActivity().findViewById(R.id.wrv);
-                wrv.setEdgeItemsCenteringEnabled(false);
-            }
+        mActivityRule.getScenario().onActivity(activity -> {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    WearableRecyclerView wrv =
+                            (WearableRecyclerView) activity.findViewById(
+                                    R.id.wrv);
+                    wrv.setEdgeItemsCenteringEnabled(false);
+                }
+            });
         });
 
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                WearableRecyclerView wrv =
-                        (WearableRecyclerView) mActivityRule.getActivity().findViewById(R.id.wrv);
-                View child = wrv.getChildAt(0);
-                assertNotNull("child", child);
-                assertEquals(0, child.getTop());
+        mActivityRule.getScenario().onActivity(activity -> {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    WearableRecyclerView wrv =
+                            (WearableRecyclerView) activity.findViewById(
+                                    R.id.wrv);
+                    View child = wrv.getChildAt(0);
+                    assertNotNull("child", child);
+                    assertEquals(0, child.getTop());
 
-            }
+                }
+            });
         });
     }
 
     @Test
     public void testEdgeItemsCenteringBeforeChildrenDrawn() throws Throwable {
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Activity activity = mActivityRule.getActivity();
-                WearableRecyclerView wrv = (WearableRecyclerView) activity.findViewById(R.id.wrv);
-                RecyclerView.Adapter<WearableRecyclerView.ViewHolder> adapter = wrv.getAdapter();
-                wrv.setAdapter(null);
-                wrv.setEdgeItemsCenteringEnabled(true);
-                wrv.setAdapter(adapter);
-            }
+        mActivityRule.getScenario().onActivity(activity -> {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                @SuppressWarnings("unchecked")
+                public void run() {
+                    WearableRecyclerView wrv = (WearableRecyclerView) activity.findViewById(
+                            R.id.wrv);
+                    RecyclerView.Adapter<WearableRecyclerView.ViewHolder> adapter =
+                            wrv.getAdapter();
+                    wrv.setAdapter(null);
+                    wrv.setEdgeItemsCenteringEnabled(true);
+                    wrv.setAdapter(adapter);
+                }
+            });
         });
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                WearableRecyclerView wrv =
-                        (WearableRecyclerView) mActivityRule.getActivity().findViewById(R.id.wrv);
-                // Verify the first child
-                View child = wrv.getChildAt(0);
-                assertNotNull("child", child);
-                Activity activity = mActivityRule.getActivity();
-                Configuration configuration = activity.getResources().getConfiguration();
-                if (configuration.isScreenRound()) {
-                    assertEquals((wrv.getHeight() - child.getHeight()) / 2, child.getTop());
-                } else {
-                    assertEquals(0, child.getTop());
+        mActivityRule.getScenario().onActivity(activity -> {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    WearableRecyclerView wrv =
+                            (WearableRecyclerView) activity.findViewById(
+                                    R.id.wrv);
+                    // Verify the first child
+                    View child = wrv.getChildAt(0);
+                    assertNotNull("child", child);
+                    Configuration configuration = activity.getResources().getConfiguration();
+                    if (configuration.isScreenRound()) {
+                        assertEquals((wrv.getHeight() - child.getHeight()) / 2, child.getTop());
+                    } else {
+                        assertEquals(0, child.getTop());
+                    }
                 }
-            }
+            });
         });
     }
 
@@ -176,20 +193,21 @@ public class WearableRecyclerViewTest {
     public void testCircularScrollingGesture() throws Throwable {
         onView(withId(R.id.wrv)).perform(swipeDownFromTopRight());
         assertNotScrolledY(R.id.wrv);
-        final WearableRecyclerView wrv =
-                (WearableRecyclerView) mActivityRule.getActivity().findViewById(
-                        R.id.wrv);
-        assertFalse(wrv.isCircularScrollingGestureEnabled());
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                WearableRecyclerView wrv = (WearableRecyclerView)
-                        mActivityRule.getActivity().findViewById(R.id.wrv);
-                wrv.setCircularScrollingGestureEnabled(true);
-            }
+        mActivityRule.getScenario().onActivity(activity -> {
+            final WearableRecyclerView wrv =
+                    (WearableRecyclerView) activity.findViewById(
+                            R.id.wrv);
+            assertFalse(wrv.isCircularScrollingGestureEnabled());
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    WearableRecyclerView wrv = (WearableRecyclerView)
+                            activity.findViewById(R.id.wrv);
+                    wrv.setCircularScrollingGestureEnabled(true);
+                }
+            });
+            assertTrue(wrv.isCircularScrollingGestureEnabled());
         });
-        assertTrue(wrv.isCircularScrollingGestureEnabled());
-
         // Explicitly set the swipe to SLOW here to avoid problems with test failures on phone AVDs
         // with "Gesture navigation" enabled. This is not a particularly satisfactory fix to this
         // problem and ideally we should look to move these tests to use a watch AVD which should
@@ -200,36 +218,39 @@ public class WearableRecyclerViewTest {
 
     @Test
     public void testCurvedOffsettingHelper() throws Throwable {
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                WearableRecyclerView wrv =
-                        (WearableRecyclerView) mActivityRule.getActivity().findViewById(R.id.wrv);
-                wrv.setLayoutManager(new WearableLinearLayoutManager(wrv.getContext()));
-            }
+        mActivityRule.getScenario().onActivity(activity -> {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    WearableRecyclerView wrv =
+                            (WearableRecyclerView) activity.findViewById(
+                                    R.id.wrv);
+                    wrv.setLayoutManager(new WearableLinearLayoutManager(wrv.getContext()));
+                }
+            });
         });
-
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
         onView(withId(R.id.wrv)).perform(swipeDownFromTopRight());
 
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Activity activity = mActivityRule.getActivity();
-                WearableRecyclerView wrv = (WearableRecyclerView) activity.findViewById(R.id.wrv);
-                if (activity.getResources().getConfiguration().isScreenRound()) {
-                    View child = wrv.getChildAt(0);
-                    assertTrue(child.getLeft() > 0);
-                } else {
-                    for (int i = 0; i < wrv.getChildCount(); i++) {
-                        assertEquals(0, wrv.getChildAt(i).getLeft());
+        mActivityRule.getScenario().onActivity(activity -> {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    WearableRecyclerView wrv = (WearableRecyclerView) activity.findViewById(
+                            R.id.wrv);
+                    if (activity.getResources().getConfiguration().isScreenRound()) {
+                        View child = wrv.getChildAt(0);
+                        assertTrue(child.getLeft() > 0);
+                    } else {
+                        for (int i = 0; i < wrv.getChildCount(); i++) {
+                            assertEquals(0, wrv.getChildAt(i).getLeft());
+                        }
                     }
                 }
-            }
+            });
         });
     }
-
     private static ViewAction swipeDownFromTopRightSlowly() {
         return new GeneralSwipeAction(
                 Swipe.SLOW, GeneralLocation.TOP_RIGHT,

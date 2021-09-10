@@ -38,13 +38,10 @@ import android.os.Build;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
-import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
@@ -52,11 +49,11 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.internal.CameraUseCaseAdapter;
-import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
+import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.SurfaceTextureProvider;
+import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -71,7 +68,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -87,47 +83,57 @@ public class ExtensionTest {
 
     @Parameterized.Parameters(name = "effect = {0}, facing = {1}")
     public static Collection<Object[]> getParameters() {
-        return ExtensionsTestUtil.getAllEffectLensFacingCombinations();
+        return ExtensionsTestUtil.getAllExtensionsLensFacingCombinations();
     }
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private final Context mContext = ApplicationProvider.getApplicationContext();
 
-    private final EffectMode mEffectMode;
-    @Extensions.ExtensionMode
+    @ExtensionMode.Mode
     private final int mExtensionMode;
     @CameraSelector.LensFacing
     private final int mLensFacing;
 
-    private CameraUseCaseAdapter mCamera;
+    private ProcessCameraProvider mProcessCameraProvider = null;
+    private FakeLifecycleOwner mFakeLifecycleOwner;
+    private CameraSelector mBaseCameraSelector;
+    private CameraSelector mExtensionsCameraSelector;
+    private ExtensionsManager mExtensionsManager;
 
-    public ExtensionTest(EffectMode effectMode, @CameraSelector.LensFacing int lensFacing) {
-        mEffectMode = effectMode;
-        mExtensionMode = ExtensionsTestUtil.effectModeToExtensionMode(mEffectMode);
+    public ExtensionTest(@ExtensionMode.Mode int extensionMode,
+            @CameraSelector.LensFacing int lensFacing) {
+        mExtensionMode = extensionMode;
         mLensFacing = lensFacing;
     }
 
     @Before
     public void setUp() throws Exception {
         assumeTrue(CameraUtil.deviceHasCamera());
-
-        CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
-        CameraX.initialize(mContext, cameraXConfig).get();
-
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
-        assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
+
+        mProcessCameraProvider = ProcessCameraProvider.getInstance(mContext).get(10000,
+                TimeUnit.MILLISECONDS);
+        mExtensionsManager = ExtensionsManager.getInstance(mContext).get(10000,
+                TimeUnit.MILLISECONDS);
         assumeTrue(isTargetDeviceAvailableForExtensions(mLensFacing));
-        CameraSelector cameraSelector =
-                new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
-        mCamera = CameraUtil.createCameraUseCaseAdapter(mContext, cameraSelector);
-        Extensions extensions = ExtensionsManager.getExtensions(mContext);
-        assumeTrue(extensions.isExtensionAvailable(mCamera, mExtensionMode));
+        mBaseCameraSelector = new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
+        assumeTrue(
+                mExtensionsManager.isExtensionAvailable(mProcessCameraProvider, mBaseCameraSelector,
+                        mExtensionMode));
+
+        mExtensionsCameraSelector = mExtensionsManager.getExtensionEnabledCameraSelector(
+                mProcessCameraProvider, mBaseCameraSelector, mExtensionMode);
+
+        mFakeLifecycleOwner = new FakeLifecycleOwner();
+        mFakeLifecycleOwner.startAndResume();
     }
 
     @After
     public void cleanUp() throws InterruptedException, ExecutionException, TimeoutException {
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
-        ExtensionsManager.deinit().get();
+        if (mProcessCameraProvider != null) {
+            mProcessCameraProvider.shutdown().get(10000, TimeUnit.MILLISECONDS);
+            mExtensionsManager.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        }
     }
 
     @Test
@@ -136,10 +142,8 @@ public class ExtensionTest {
                 ImageCapture.OnImageCapturedCallback.class);
 
         // To test bind/unbind and take picture.
-        ImageCapture imageCapture = ExtensionsTestUtil.createImageCaptureWithEffect(mEffectMode,
-                mLensFacing);
-        Preview preview = ExtensionsTestUtil.createPreviewWithEffect(mEffectMode, mLensFacing);
-
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+        Preview preview = new Preview.Builder().build();
 
         mInstrumentation.runOnMainSync(
                 () -> {
@@ -160,12 +164,8 @@ public class ExtensionTest {
                                 }
                             }));
 
-                    try {
-                        mCamera.addUseCases(Arrays.asList(preview, imageCapture));
-                    } catch (CameraUseCaseAdapter.CameraException e) {
-                        throw new IllegalArgumentException("Unable to bind preview and image "
-                                + "capture");
-                    }
+                    mProcessCameraProvider.bindToLifecycle(mFakeLifecycleOwner,
+                            mExtensionsCameraSelector, preview, imageCapture);
 
                     imageCapture.takePicture(CameraXExecutors.mainThreadExecutor(),
                             mockOnImageCapturedCallback);
@@ -184,9 +184,15 @@ public class ExtensionTest {
 
     @Test
     public void testEventCallbackInConfig() {
+        Preview preview = new Preview.Builder().build();
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+
+        mInstrumentation.runOnMainSync(
+                () -> mProcessCameraProvider.bindToLifecycle(mFakeLifecycleOwner,
+                        mExtensionsCameraSelector, preview, imageCapture));
+
         // Verify Preview config should have related callback.
-        PreviewConfig previewConfig = ExtensionsTestUtil.createPreviewConfigWithEffect(mEffectMode,
-                mLensFacing);
+        PreviewConfig previewConfig = (PreviewConfig) preview.getCurrentConfig();
         assertNotNull(previewConfig.getUseCaseEventCallback());
         CameraEventCallbacks callback1 = new Camera2ImplConfig(
                 previewConfig).getCameraEventCallback(
@@ -197,7 +203,7 @@ public class ExtensionTest {
 
         // Verify ImageCapture config should have related callback.
         ImageCaptureConfig imageCaptureConfig =
-                ExtensionsTestUtil.createImageCaptureConfigWithEffect(mEffectMode, mLensFacing);
+                (ImageCaptureConfig) imageCapture.getCurrentConfig();
         assertNotNull(imageCaptureConfig.getUseCaseEventCallback());
         assertNotNull(imageCaptureConfig.getCaptureBundle());
         CameraEventCallbacks callback2 = new Camera2ImplConfig(

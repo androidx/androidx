@@ -58,6 +58,7 @@ import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.view.menu.ShowableListMenu;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.view.ViewCompat;
+import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
 
 
 /**
@@ -74,6 +75,7 @@ import androidx.core.view.ViewCompat;
  * <p>This will automatically be used when you use {@link Spinner} in your layouts.
  * You should only need to manually use this class when writing custom views.</p>
  */
+@AppCompatShadowedAttributes
 public class AppCompatSpinner extends Spinner implements TintableBackgroundView {
 
     private static final int[] ATTRS_ANDROID_SPINNERMODE = {android.R.attr.spinnerMode};

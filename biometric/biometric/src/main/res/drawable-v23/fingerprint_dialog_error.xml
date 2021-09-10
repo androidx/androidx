@@ -15,8 +15,9 @@
   ~ limitations under the License.
   -->
 
-<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp"
-        android:height="24dp" android:viewportHeight="24" android:viewportWidth="24">
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools" android:width="24dp" android:height="24dp"
+        android:viewportHeight="24" android:viewportWidth="24">
     <group android:name="_R_G">
         <group android:name="_R_G_L_1_G" android:rotation="10" android:translateX="12"
                android:translateY="12">
@@ -24,7 +25,7 @@
                   android:strokeAlpha="1" android:strokeColor="#ff5722"
                   android:strokeLineCap="round" android:strokeLineJoin="round" android:strokeWidth="2"
                   android:trimPathEnd="1" android:trimPathOffset="0"
-                  android:trimPathStart="0"/>
+                  android:trimPathStart="0" tools:ignore="VectorRaster" />
         </group>
         <group android:name="_R_G_L_0_G" android:translateX="12" android:translateY="12">
             <group android:name="_R_G_L_0_G_D_0_P_0_G_0_T_0" android:pivotY="-0.012"
@@ -41,4 +42,5 @@
             </group>
         </group>
     </group>
+
 </vector>

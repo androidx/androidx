@@ -23,12 +23,24 @@
  *
  * <p><b>How to declare the dependencies to use the library</b>
  *
- * <p>Inside your app's build.gradle file, include this line in dependencies:
- * <pre class="prettyprint">
- *dependencies {
- *    ...
- *    implementation 'androidx.webkit:webkit:1.2.0'
- *}</pre>
+ * <p>Please check the <a
+ * href="https://developer.android.com/jetpack/androidx/releases/webkit#declaring_dependencies">
+ * release notes</a> for instructions to add the latest release to your {@code build.gradle} file.
+ *
+ * <p><b>Public bug tracker</b>
+ *
+ * <p>If you find bugs in the androidx.webkit library or want to request new features, please
+ * <a href="https://issuetracker.google.com/issues/new?component=460423">do so here</a>.
+ *
+ * <p><b>Sample apps</b>
+ *
+ * <p>Please check out the WebView samples <a
+ * href="https://github.com/android/views-widgets-samples/tree/main/WebView">on GitHub</a> for a
+ * showcase of a handful of androidx.webkit APIs.
+ *
+ * <p>For more APIs, check out the sample app in the <a
+ * href="https://android.googlesource.com/platform/frameworks/support/+/androidx-main/webkit/integration-tests/testapp/README.md">AndroidX
+ * repo</a>.
  *
  * <p><b>Migrating to androidx.webkit</b>
  *

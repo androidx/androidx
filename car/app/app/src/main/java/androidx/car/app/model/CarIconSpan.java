@@ -20,14 +20,12 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import static java.util.Objects.requireNonNull;
 
-import android.text.TextPaint;
-import android.text.style.CharacterStyle;
-
 import androidx.annotation.IntDef;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarIconConstraints;
 
 import java.lang.annotation.Retention;
@@ -47,7 +45,7 @@ import java.util.Objects;
  * <pre>{@code
  * SpannableString string = new SpannableString("Turn right on 520 East");
  * string.setSpan(
- *     CarIconSpan.create(CarIcon.of(
+ *     CarIconSpan.create(new CarIcon.Builder(
  *         IconCompat.createWithResource(getCarContext(), R.drawable.ic_520_highway))),
  *         14, 17, SPAN_INCLUSIVE_EXCLUSIVE);
  * }</pre>
@@ -61,7 +59,8 @@ import java.util.Objects;
  *
  * @see CarIcon
  */
-public class CarIconSpan extends CharacterStyle {
+@CarProtocol
+public final class CarIconSpan extends CarSpan {
     /**
      * Indicates how to align a car icon span with its surrounding text.
      *
@@ -74,7 +73,6 @@ public class CarIconSpan extends CharacterStyle {
                     ALIGN_BASELINE,
             })
     @Retention(RetentionPolicy.SOURCE)
-    // TODO(shiufai): investigate how to expose IntDefs if needed.
     @RestrictTo(LIBRARY)
     public @interface Alignment {
     }
@@ -111,7 +109,7 @@ public class CarIconSpan extends CharacterStyle {
      * Creates a {@link CarIconSpan} from a {@link CarIcon} with a default alignment of {@link
      * #ALIGN_BASELINE}.
      *
-     * @throws NullPointerException if {@code icon} is {@code null}.
+     * @throws NullPointerException if {@code icon} is {@code null}
      * @see #create(CarIcon, int)
      */
     @NonNull
@@ -121,15 +119,14 @@ public class CarIconSpan extends CharacterStyle {
 
     /**
      * Creates a {@link CarIconSpan} from a {@link CarIcon}, specifying the alignment of the icon
-     * with
-     * respect to its surrounding text.
+     * with respect to its surrounding text.
      *
-     * @param icon      the {@link CarIcon} to replace the text with.
+     * @param icon      the {@link CarIcon} to replace the text with
      * @param alignment the alignment of the {@link CarIcon} relative to the text. This should be
      *                  one of {@link #ALIGN_BASELINE}, {@link #ALIGN_BOTTOM} or
-     *                  {@link #ALIGN_CENTER}.
-     * @throws NullPointerException     if {@code icon} is {@code null}.
-     * @throws IllegalArgumentException if {@code alignment} is not a valid value.
+     *                  {@link #ALIGN_CENTER}
+     * @throws NullPointerException     if {@code icon} is {@code null}
+     * @throws IllegalArgumentException if {@code alignment} is not a valid value
      * @see #ALIGN_BASELINE
      * @see #ALIGN_BOTTOM
      * @see #ALIGN_CENTER
@@ -137,22 +134,16 @@ public class CarIconSpan extends CharacterStyle {
     @NonNull
     public static CarIconSpan create(@NonNull CarIcon icon, @Alignment int alignment) {
         CarIconConstraints.DEFAULT.validateOrThrow(icon);
-        return new CarIconSpan(requireNonNull(icon), validateAlignment(alignment));
-    }
-
-    /**
-     * Ensures that the {@code alignment} is of one of the supported types.
-     */
-    public static int validateAlignment(int alignment) {
         if (alignment != ALIGN_BASELINE && alignment != ALIGN_BOTTOM && alignment != ALIGN_CENTER) {
             throw new IllegalStateException("Invalid alignment value: " + alignment);
         }
-        return alignment;
+
+        return new CarIconSpan(requireNonNull(icon), alignment);
     }
 
     private CarIconSpan(@Nullable CarIcon icon, @Alignment int alignment) {
-        this.mIcon = icon;
-        this.mAlignment = alignment;
+        mIcon = icon;
+        mAlignment = alignment;
     }
 
     private CarIconSpan() {
@@ -160,19 +151,20 @@ public class CarIconSpan extends CharacterStyle {
         mAlignment = ALIGN_BASELINE;
     }
 
-    @Nullable
+    /**
+     * Returns the {@link CarIcon} instance associated with this span.
+     */
+    @NonNull
     public CarIcon getIcon() {
-        return mIcon;
+        return requireNonNull(mIcon);
     }
 
+    /**
+     * Returns the alignment that should be used with this span.
+     */
     @Alignment
     public int getAlignment() {
         return mAlignment;
-    }
-
-    @Override
-    public void updateDrawState(@Nullable TextPaint paint) {
-        // Not relevant.
     }
 
     @Override

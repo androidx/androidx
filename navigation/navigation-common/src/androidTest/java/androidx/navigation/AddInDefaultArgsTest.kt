@@ -17,8 +17,13 @@
 package androidx.navigation
 
 import android.os.Bundle
+import androidx.navigation.test.floatArgument
 import androidx.navigation.test.intArgument
+import androidx.navigation.test.longArgument
+import androidx.navigation.test.nullableStringArgument
+import androidx.navigation.test.referenceArgument
 import androidx.navigation.test.stringArgument
+import androidx.navigation.test.stringArrayArgument
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -26,9 +31,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-private val stringArgumentWithoutDefault = "stringArg" to stringArgument(true)
+private val stringArgumentWithoutDefault = "stringArg" to nullableStringArgument()
 private val stringArgumentWithDefault = "stringArg" to stringArgument("aaa")
 private val intArgumentWithDefault = "intArg" to intArgument(123)
+private val longArgumentWithDefault = "longArg" to longArgument(123L)
+private val floatArgumentWithDefault = "floatArg" to floatArgument(123f)
+private val referenceArgumentWithDefault = "referenceArg" to referenceArgument(123)
+private val stringArrayArgumentWithDefault = "stringArrayArg" to stringArrayArgument(null)
 
 @SmallTest
 @RunWith(Parameterized::class)
@@ -47,8 +56,17 @@ class AddInDefaultArgsTest(
                 mapOf(stringArgumentWithoutDefault),
                 // Test with arguments where only some have default values
                 mapOf(stringArgumentWithoutDefault, intArgumentWithDefault),
-                // Test with arguments that have default values
-                mapOf(stringArgumentWithDefault, intArgumentWithDefault)
+                // Test with arguments that have default values (int)
+                mapOf(stringArgumentWithDefault, intArgumentWithDefault),
+                // Test with arguments that have default values (float)
+                mapOf(stringArgumentWithDefault, longArgumentWithDefault),
+                // Test with arguments that have default values (long)
+                mapOf(stringArgumentWithDefault, floatArgumentWithDefault),
+                // Test with arguments that have default values (reference)
+                mapOf(stringArgumentWithDefault, referenceArgumentWithDefault),
+                // Test with arguments that have default values (string array)
+                mapOf(stringArgumentWithDefault, stringArrayArgumentWithDefault)
+
             ).forEach { arguments: Map<String, NavArgument> ->
                 // Run with a null Bundle
                 add(arrayOf(arguments, Bundle.EMPTY))

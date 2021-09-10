@@ -24,19 +24,19 @@ plugins {
     id("com.android.library")
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 16
-    }
-}
-
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
 }
 
 androidx {
     name = "Jetpack WindowManager library Extensions"
-    publish = Publish.SNAPSHOT_ONLY
+    publish = Publish.SNAPSHOT_AND_RELEASE // Only to generate per-project-zips
     runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
     mavenGroup = LibraryGroups.WINDOW
     mavenVersion = LibraryVersions.WINDOW_EXTENSIONS

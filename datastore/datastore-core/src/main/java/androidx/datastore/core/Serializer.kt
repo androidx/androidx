@@ -39,7 +39,7 @@ public interface Serializer<T> {
      *
      * @param input the InputStream with the data to deserialize
      */
-    public fun readFrom(input: InputStream): T
+    public suspend fun readFrom(input: InputStream): T
 
     /**
      *  Marshal object to a stream. Closing the provided OutputStream is a no-op.
@@ -47,7 +47,7 @@ public interface Serializer<T> {
      *  @param t the data to write to output
      *  @output the OutputStream to serialize data to
      */
-    public fun writeTo(t: T, output: OutputStream)
+    public suspend fun writeTo(t: T, output: OutputStream)
 }
 
 /**

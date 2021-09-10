@@ -91,8 +91,8 @@ public class ItemBridgeAdapterTest {
         mRecyclerView.setHasFixedSize(false); // force layout items in layout pass
     }
 
-    List populateData() {
-        List data = new ArrayList();
+    List<Integer> populateData() {
+        List<Integer> data = new ArrayList<>();
         for (int i = 0; i < 10000; i++) {
             data.add(i);
         }

@@ -1,0 +1,31 @@
+// Extensible primitive types used by layout elements.
+syntax = "proto3";
+
+package androidx.wear.tiles.testing.proto;
+
+option java_package = "androidx.wear.tiles.testing.proto";
+option java_outer_classname = "TypesProto";
+
+// An int32 type.
+message Int32Prop {
+  // The value.
+  int32 value = 1;
+}
+
+// A string type.
+message StringProp {
+  // The value.
+  string value = 1;
+}
+
+// A float type.
+message FloatProp {
+  // The value.
+  float value = 1;
+}
+
+// A boolean type.
+message BoolProp {
+  // The value.
+  bool value = 1;
+}

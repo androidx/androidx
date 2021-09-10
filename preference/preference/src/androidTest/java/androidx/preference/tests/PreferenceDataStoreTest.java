@@ -404,6 +404,7 @@ public class PreferenceDataStoreTest {
         putStringSetTestCommon();
     }
 
+    @SuppressWarnings({"deprecation", "unchecked"})
     private void putStringSetTestCommon() {
         Set<String> testSet = Collections.singleton(TEST_STR);
 

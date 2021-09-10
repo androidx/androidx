@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.TagBundle;
+import androidx.camera.core.impl.utils.ExifData;
 
 import com.google.auto.value.AutoValue;
 
@@ -37,4 +38,10 @@ abstract class ImmutableImageInfo implements ImageInfo {
 
     @Override
     public abstract int getRotationDegrees();
+
+    @Override
+    public void populateExifData(@NonNull ExifData.Builder exifBuilder) {
+        // Only have access to orientation information.
+        exifBuilder.setOrientationDegrees(getRotationDegrees());
+    }
 }

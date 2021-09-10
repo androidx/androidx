@@ -20,4 +20,5 @@ import io.reactivex.Single
 
 interface ExampleRxBackendService {
     fun searchUsers(query: String, after: String?): Single<SearchUserResponse>
+    fun searchUsers(query: String, pageNumber: Int?): Single<SearchUserResponse>
 }

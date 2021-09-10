@@ -4,33 +4,153 @@
 # Messages that only sometimes appear in stdout/stderr should be exempted in message-flakes.ignore, because this file (messages.ignore) may be automatically garbage collected whereas that one will not be.
 # > Task :docs-runner:dokkaJavaPublicDocs
 (logging: loading modules: \[java\.se.*)|(.*No file found when processing Java @sample.*)
+.*\.kotlin_module: error: module was compiled with an incompatible version of Kotlin\. The binary version of its metadata is [0-9]+\.[0-9]+\.[0-9]+, expected version is [0-9]+\.[0-9]+\.[0-9]+\.
+WARN: The registry key 'java\.correct\.class\.type\.by\.place\.resolve\.scope' accessed, but not loaded yet
+PROGRESS: Rendering
+No docs found on supertype with \{@inheritDoc\} method .*
+Can't find node by signature .*
+java\.lang\.IllegalStateException: Unsupported Receiver
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlUriProvider\$DefaultImpls\.mainUri\(JavaLayoutHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.mainUri\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlUriProvider\$DefaultImpls\.linkTo\(JavaLayoutHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.linkTo\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
+at jdk\.internal\.reflect\.GeneratedMethodAccessor[0-9]+\.invoke\(Unknown Source\)
+at com\.google\.inject\.internal\.DelegatingInvocationHandler\.invoke\(DelegatingInvocationHandler\.java:[0-9]+\)
+at com\.sun\.proxy\.\$Proxy[0-9]+\.linkTo\(Unknown Source\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.a\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.a\$default\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.contentNodeToMarkup\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.contentNodesToMarkup\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$contentNodeToMarkup\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at kotlinx\.html\.ApiKt\.visit\(api\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tag_groupsKt\.p\(gen\-tag\-groups\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.nodeSummary\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$functionLikeSummaryRow\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tags_tKt\.td\(gen\-tags\-t\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tags_tKt\.td\$default\(gen\-tags\-t\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$functionLikeSummaryRow\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tags_tKt\.tr\(gen\-tags\-t\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tags_tKt\.tr\$default\(gen\-tags\-t\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.functionLikeSummaryRow\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$classLikeSummaries\$\$inlined\$with\$lambda\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$groupedRow\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tags_tKt\.tbody\(gen\-tags\-t\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tags_tKt\.tbody\$default\(gen\-tags\-t\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$groupedRow\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tag_groupsKt\.table\(gen\-tag\-groups\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tag_groupsKt\.table\$default\(gen\-tag\-groups\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$groupedRow\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$groupedRow\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.groupedRow\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.extensionRow\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$classLikeSummaries\$\$inlined\$with\$lambda\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroup\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroup\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.summaryNodeGroup\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.classLikeSummaries\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$generateClassLike\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteHtmlTemplateService\$composePage\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tags_hKt\.body\(gen\-tags\-h\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tags_hKt\.body\$default\(gen\-tags\-h\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteHtmlTemplateService\$composePage\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at kotlinx\.html\.ApiKt\.visitAndFinalize\(api\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_consumer_tagsKt\.html\(gen\-consumer\-tags\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteHtmlTemplateService\.composePage\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.generateClassLike\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.generatePage\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.buildClass\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.buildPackage\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.buildPages\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.GeneratorKt\.buildAll\(Generator\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.DokkaGenerator\.generate\(DokkaGenerator\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.DokkaBootstrapImpl\.generate\(DokkaBootstrapImpl\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.DelegatedInvocationHandler\.invoke\(ProxyUtils\.kt:[0-9]+\)
+at com\.sun\.proxy\.\$Proxy[0-9]+\.generate\(Unknown Source\)
+at org\.jetbrains\.dokka\.gradle\.DokkaTask\.generate\(main\.kt:[0-9]+\)
+Exception while resolving link to Module: Package:androidx\.compose\.animation\.core Class:KeyframesSpec Class:KeyframesSpecConfig Function:at Receiver:<this>
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.nodeContent\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$fullMemberDocs\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tag_groupsKt\.div\(gen\-tag\-groups\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.fullMemberDocs\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.fullMemberDocs\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.classLikeFullMemberDocs\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.metaMarkup\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.metaMarkup\$default\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$fullMemberDocs\$[0-9]+\$[0-9]+\$[0-9]+\$\$special\$\$inlined\$forEach\$lambda\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$fullMemberDocs\$[0-9]+\$[0-9]+\$[0-9]+\$\$special\$\$inlined\$forEach\$lambda\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$fullMemberDocs\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$fullMemberDocs\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroupForExtensions\$[0-9]+\$\$special\$\$inlined\$forEach\$lambda\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroupForExtensions\$[0-9]+\$\$special\$\$inlined\$forEach\$lambda\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroupForExtensions\$[0-9]+\$\$special\$\$inlined\$forEach\$lambda\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroupForExtensions\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tag_groupsKt\.div\$default\(gen\-tag\-groups\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.summaryNodeGroupForExtensions\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.access\$summaryNodeGroupForExtensions\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$generatePackage\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.generatePackage\(DacHtmlFormat\.kt:[0-9]+\)
+Exception while resolving link to Module: Package:androidx\.compose\.runtime\.snapshots Function:readable Receiver:<this>
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.geometry ExternalClass:kotlin\.Double Function:times Receiver:<this>
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.geometry ExternalClass:kotlin\.Float Function:times Receiver:<this>
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.geometry ExternalClass:kotlin\.Int Function:times Receiver:<this>
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics GroupNode:Shader
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.input\.key GroupNode:NativeKeyEvent
+java\.lang\.IllegalStateException: Unsupported GroupNode
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.renderedSignature\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$generatePackage\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$summaryNodeGroup\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$summaryNodeGroup\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.summaryNodeGroup\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.shortFunctionParametersList\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$functionLikeSummaryRow\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tag_unionsKt\.code\(gen\-tag\-unions\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tag_unionsKt\.code\$default\(gen\-tag\-unions\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$functionLikeSummaryRow\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics Function:compositeOver Receiver:<this>
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics GroupNode:NativeCanvas
+at kotlinx\.html\.Gen_tag_groupsKt\.pre\(gen\-tag\-groups\.kt:[0-9]+\)
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics GroupNode:NativePaint
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$propertyLikeSummaryRow\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$propertyLikeSummaryRow\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.propertyLikeSummaryRow\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.propertyLikeSummaryRow\$default\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics\.vector Function:group Receiver:<this>
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics\.vector Function:path Receiver:<this>
+Exception while resolving link to Module: Package:androidx\.compose\.ui\.unit ExternalClass:kotlin\.Int Function:times Receiver:<this>
+Exception while resolving link to Module: Package:androidx.lifecycle ExternalClass:kotlinx.coroutines.flow.Flow Function:flowWithLifecycle Receiver:<this>
 # > Task :icing:extractIncludeDebugAndroidTestProto
 proto file '[^ ]*' directly specified in configuration\. It's likely you specified files\('path/to/foo\.proto'\) or fileTree\('path/to/directory'\) in protobuf or compile configuration\. This makes you vulnerable to https://github\.com/google/protobuf\-gradle\-plugin/issues/[0-9][0-9]*\. Please use files\('path/to/directory'\) instead\.
 OUT_DIR=\$OUT_DIR
 DIST_DIR=\$DIST_DIR
 CHECKOUT=\$CHECKOUT
 GRADLE_USER_HOME=\$GRADLE_USER_HOME
-Downloading file:\$SUPPORT/gradle/wrapper/\.\./\.\./\.\./\.\./tools/external/gradle/gradle\-[0-9]+\.[0-9]+\-bin\.zip
-\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%
-Welcome to Gradle [0-9]+\.[0-9]+!
+Downloading file\:\$SUPPORT\/gradle\/wrapper\/.*
+\.\.\.\.\.\.\.\.\.\.10%\.\.\.\.\.\.\.\.\.\.\.20%\.\.\.\.\.\.\.\.\.\.\.30%\.\.\.\.\.\.\.\.\.\.\.40%\.\.\.\.\.\.\.\.\.\.\.50%\.\.\.\.\.\.\.\.\.\.\.60%\.\.\.\.\.\.\.\.\.\.\.70%\.\.\.\.\.\.\.\.\.\.\.80%\.\.\.\.\.\.\.\.\.\.\.90%\.\.\.\.\.\.\.\.\.\.\.100%
+Welcome to Gradle .*
 Here are the highlights of this release:
-\- File system watching is ready for production use
-\- Declare the version of Java your build requires
-\- Java [0-9]+ support
-For more details see https://docs\.gradle\.org/[0-9]+\.[0-9]+/release\-notes\.html
-To honour the JVM settings for this build a new JVM will be forked\. Please consider using the daemon: https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/gradle_daemon\.html\.
-Daemon will be stopped at the end of the build stopping after processing
+\- Toolchain support for Scala
+\- More cache hits when Java source files have platform-specific line endings
+\- More resilient remote HTTP build cache behavior
+For more details see .*
+Daemon will be stopped at the end of the build
 # > Task :buildSrc:build
 # > Configure project :appsearch:appsearch\-local\-backend
-WARNING: NDK was located by using ndk\.dir property\. This method is deprecated and will be removed in a future release\. Please use android\.ndkVersion or android\.ndkPath in build\.gradle to specify the NDK to use\. https://developer\.android\.com/r/studio\-ui/ndk\-dir
-NDK was located by using ndk\.dir property\. This method is deprecated and will be removed in a future release\. Please use android\.ndkVersion or android\.ndkPath in build\.gradle to specify the NDK to use\. https://developer\.android\.com/r/studio\-ui/ndk\-dir
 Configuration on demand is an incubating feature\.
+Type\-safe dependency accessors is an incubating feature\.
 # > Configure project :
 updated local\.properties
 # > Configure project :compose:test\-utils
-Kotlin Multiplatform Projects are an Alpha feature\.
 The following Kotlin source sets were configured but not added to any Kotlin compilation:
+\* iosArm[0-9]+Test
+\* iosX[0-9]+Test
+\* linuxX[0-9]+Test
+\* macosX[0-9]+Test
+\* mingwX[0-9]+Test
+\* nativeTest
 \* androidAndroidTestRelease
+\* androidTestFixtures
+\* androidTestFixturesDebug
+\* androidTestFixturesRelease
 \* androidTestRelease
 \* test
 You can add a source set to a target's compilation by connecting it with the compilation's default source set using 'dependsOn'\.
@@ -39,12 +159,10 @@ See https://kotlinlang\.org/docs/reference/building\-mpp\-with\-gradle\.html\#co
 # > Task :listTaskOutputs
 Wrote \$DIST_DIR/task_outputs\.txt
 Deprecated Gradle features were used in this build, making it incompatible with Gradle [0-9]+\.[0-9]+\.
-Use '\-\-warning\-mode all' to show the individual deprecation warnings\.
-See https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/command_line_interface\.html\#sec:command_line_warnings
+See https://docs.gradle.org/.*/userguide/command_line_interface\.html#sec:command_line_warnings
+Execution optimizations have been disabled for [0-9]+ invalid unit\(s\) of work during this build to ensure correctness\.
+Please consult deprecation warnings for more details\.
 BUILD SUCCESSFUL in .*
-[0-9]+ actionable tasks: [0-9]+ executed
-[0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ from cache, [0-9]+ up\-to\-date
-[0-9]+ actionable task: [0-9]+ executed
 # > Task :doclava:compileJava
 Note\: Some input files use or override a deprecated API\.
 Note: Some input files use or override a deprecated API that is marked for removal\.
@@ -54,608 +172,163 @@ Note\: Recompile with \-Xlint\:unchecked for details\.
 # > Task :benchmark:benchmark-junit4:processDebugAndroidTestManifest
 # > Task :benchmark:benchmark-common:processDebugAndroidTestManifest
 # > Task :tracing:tracing:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/tracing/tracing/src/androidTest/java/androidx/tracing/TraceTest\.java uses or overrides a deprecated API\.
 # > Task :ui:ui-tooling:processDebugAndroidTestManifest
-application@android:debuggable was tagged at manifestMerger[0-9]+\.xml:[0-9]+ to replace other declarations but no other declaration present
-# > Task :generateSdkApi
-javadoc: warning \- The old Doclet and Taglet APIs in the packages
-com\.sun\.javadoc, com\.sun\.tools\.doclets and their implementations
-are planned to be removed in a future JDK release\. These
-components have been superseded by the new APIs in jdk\.javadoc\.doclet\.
-Users are strongly recommended to migrate to the new APIs\.
+application@android:debuggable was tagged at .*\.xml:[0-9]+ to replace other declarations but no other declaration present
+\$OUT_DIR/androidx/wear/compose/compose\-material\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/profileinstaller/profileinstaller\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/appcompat/appcompat\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/benchmark/benchmark\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/collection/collection\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/emoji[0-9]+/emoji[0-9]+\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/navigation/navigation\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/recyclerview/recyclerview\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/room/room\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/work/work\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/benchmark/integration\-tests/dry\-run\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/benchmark/integration\-tests/startup\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/benchmark\-utils/benchmark\-utils\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/foundation/foundation\-layout/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/foundation/foundation\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/material/material\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/runtime/runtime\-saveable/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/ui/ui\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/ui/ui\-tooling/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/animation/animation\-core/animation\-core\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/foundation/foundation\-layout/foundation\-layout\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/runtime/runtime/benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/ui/ui\-text/ui\-text\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/ui/ui\-graphics/ui\-graphics\-benchmark/build/intermediates/tmp/manifest/androidTest/release/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:foundation:foundation-layout:processDebugAndroidTestManifest
-\$OUT_DIR/androidx/compose/foundation/foundation\-layout/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :compose:integration-tests:benchmark:processReleaseAndroidTestManifest
-\$OUT_DIR/androidx/compose/integration\-tests/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/compose/foundation/foundation\-layout/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:navigation:navigation:processDebugAndroidTestManifest
-# > Task :compose:runtime:runtime-saved-instance-state:processDebugAndroidTestManifest
-\$OUT_DIR/androidx/compose/runtime/runtime\-saved\-instance\-state/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :compose:ui:ui-graphics:compileKotlinMetadata
-w: \$SUPPORT/compose/ui/ui\-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Color\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
-w: \$SUPPORT/compose/ui/ui\-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Float[0-9]+\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
+# > Task :compose:runtime:runtime-saveable:processDebugAndroidTestManifest
+\$SUPPORT/compose/runtime/runtime\-saveable/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:runtime:runtime:benchmark:processReleaseAndroidTestManifest
-\$OUT_DIR/androidx/compose/runtime/runtime/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :compose:material:material-icons-extended:processDebugAndroidTestManifest
-\[:compose:material:material\-icons\-extended\] \$OUT_DIR/androidx/compose/material/material\-icons\-extended/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:
-Package name 'androidx\.compose\.material\.icons' used in: :compose:material:material\-icons\-extended, :compose:material:material\-icons\-core\.
+\$SUPPORT/compose/runtime/runtime/compose\-runtime\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:ui:ui:compileKotlinMetadata
 w: Runtime JAR files in the classpath should have the same version\. These files were found in the classpath:
-\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
-\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-common/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[A-Z0-9]*\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-common/[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[A-Z0-9]*\)
 w: Some runtime JAR files in the classpath have an incompatible version\. Consider removing them from the classpath
-w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/TransformOrigin\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
-w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/graphics/vector/VectorAssetBuilder\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
-w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/input/key/Key\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
-w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/layout/Measured\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
 w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthSortedSet\.kt: \([0-9]+, [0-9]+\): The corresponding parameter in the supertype 'Comparator' is named 'a'\. This may cause problems when calling this function with named arguments\.
 w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/DepthSortedSet\.kt: \([0-9]+, [0-9]+\): The corresponding parameter in the supertype 'Comparator' is named 'b'\. This may cause problems when calling this function with named arguments\.
 # > Task :benchmark:benchmark-common:runErrorProne
 \^
-cast to Object for a varargs call
-cast to Object\[\] for a non\-varargs call and to suppress this warning
-\$SUPPORT\/lint\-checks\/src\/main\/java\/androidx\/build\/lint\/BanInappropriateExperimentalUsage\.kt\:[0-9]+\: Warning\: \"RequiresOptIn\" looks like a code reference\; surround with backtics in string to display as symbol\, e\.g\. \`RequiresOptIn\` \[LintImplTextFormat\]
-\"\@RequiresOptIn and \@Experimental APIs are considered alpha\, and we do not allow \" \+
-\~\~\~\~\~\~\~\~\~\~\~\~\~
-Explanation for issues of type \"LintImplTextFormat\"\:
-Lint supports various markdown like formatting directives in all of its
-strings \(issue explanations\, reported error messages\, etc\)\.
-This lint check looks for strings that look like they may benefit from
-additional formatting\. For example\, if a snippet looks like code it should
-be surrounded with backticks\.
-Note\: Be careful changing existing strings\; this may stop baseline file
-matching from working\, so consider suppressing existing violations of this
-check if this is an error many users may be filtering in baselines\. \(This
-is only an issue for strings used in report calls\; for issue registration
-strings like summaries and explanations there\'s no risk changing the text
-contents\.\)
-[0-9]+ warning
-# > Task :compose:runtime:runtime:generateApi
-src/commonMain/kotlin/androidx/compose/runtime/Composer\.kt:[0-9]+: warning: Field ComposerKt\.ambientMap references hidden type androidx\.compose\.runtime\.OpaqueKey\. \[HiddenTypeParameter\]
-src/commonMain/kotlin/androidx/compose/runtime/Composer\.kt:[0-9]+: warning: Field ComposerKt\.invocation references hidden type androidx\.compose\.runtime\.OpaqueKey\. \[HiddenTypeParameter\]
-src/commonMain/kotlin/androidx/compose/runtime/Composer\.kt:[0-9]+: warning: Field ComposerKt\.provider references hidden type androidx\.compose\.runtime\.OpaqueKey\. \[HiddenTypeParameter\]
-src/commonMain/kotlin/androidx/compose/runtime/Composer\.kt:[0-9]+: warning: Field ComposerKt\.providerMaps references hidden type androidx\.compose\.runtime\.OpaqueKey\. \[HiddenTypeParameter\]
-src/commonMain/kotlin/androidx/compose/runtime/Composer\.kt:[0-9]+: warning: Field ComposerKt\.providerValues references hidden type androidx\.compose\.runtime\.OpaqueKey\. \[HiddenTypeParameter\]
-src/commonMain/kotlin/androidx/compose/runtime/Composer\.kt:[0-9]+: warning: Field ComposerKt\.reference references hidden type androidx\.compose\.runtime\.OpaqueKey\. \[HiddenTypeParameter\]
-# > Task :compose:foundation:foundation-layout:generateApi
-src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl\.kt:[0-9]+: warning: Parameter orientation references hidden type androidx\.compose\.foundation\.layout\.LayoutOrientation\. \[HiddenTypeParameter\]
-src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl\.kt:[0-9]+: warning: Parameter crossAxisAlignment references hidden type androidx\.compose\.foundation\.layout\.CrossAxisAlignment\. \[HiddenTypeParameter\]
+symbol\:   static FLAG_MUTABLE
+location\: class PendingIntent
+\$OUT_DIR\/androidx\/docs\-public\/build\/unzippedDocsSources\/androidx\/work\/impl\/utils\/ForceStopRunnable\.java\:[0-9]+\: error\: cannot find symbol
 # > Task :buildOnServer
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ up\-to\-date
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ from cache
 See the profiling report at\: file\:\/\/\$OUT_DIR\/androidx\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 See the profiling report at\: file\:\/\/\$OUT_DIR\/gradle\/external\/doclava\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 # > Task :lifecycle:lifecycle-common:compileJava
-Note: \$SUPPORT/lifecycle/lifecycle\-common/src/main/java/androidx/lifecycle/Lifecycling\.java uses or overrides a deprecated API\.
-Note\: Recompile with \-Xlint\:deprecation for details\.
+Note: \$[^ ]+ uses or overrides a deprecated API\.
+Note: Recompile with \-Xlint\:deprecation for details\.
 # > Task :concurrent:concurrent-futures:compileJava
-Note: \$SUPPORT/concurrent/futures/src/main/java/androidx/concurrent/futures/CallbackToFutureAdapter\.java uses or overrides a deprecated API\.
 # > Task :contentpager:contentpager:compileReleaseJavaWithJavac
-Note: \$SUPPORT/contentpager/contentpager/src/main/java/androidx/contentpager/content/LoaderQueryRunner\.java uses or overrides a deprecated API\.
 # > Task :coordinatorlayout:coordinatorlayout:compileReleaseJavaWithJavac
-Note: \$SUPPORT/coordinatorlayout/coordinatorlayout/src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout\.java uses or overrides a deprecated API\.
 # > Task :customview:customview:compileReleaseJavaWithJavac
-Note: \$SUPPORT/customview/customview/src/main/java/androidx/customview/widget/ExploreByTouchHelper\.java uses or overrides a deprecated API\.
 # > Task :recommendation:recommendation:compileReleaseJavaWithJavac
-Note: \$SUPPORT/recommendation/recommendation/src/main/java/androidx/recommendation/app/ContentRecommendation\.java uses or overrides a deprecated API\.
 # > Task :textclassifier:textclassifier:compileReleaseJavaWithJavac
-Note: \$SUPPORT/textclassifier/textclassifier/src/main/java/androidx/textclassifier/TextClassifier\.java uses or overrides a deprecated API\.
 # > Task :publicDocsTask
 [0-9]+ warnings
-# > Task :appsearch:appsearch-local-storage:externalNativeBuildRelease
-ninja: .*
-Build icing_.*
-In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.cc:[0-9]+:
-\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.h:[0-9]+:[0-9]+: warning: 'StartObject' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
-\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/object_writer\.h:[0-9]+:[0-9]+: note: overridden virtual function is here
-\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.h:[0-9]+:[0-9]+: warning: 'EndObject' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
-\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.h:[0-9]+:[0-9]+: warning: 'StartList' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
-\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.h:[0-9]+:[0-9]+: warning: 'EndList' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
-\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.h:[0-9]+:[0-9]+: warning: 'RenderBool' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
-\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.h:[0-9]+:[0-9]+: warning: 'RenderInt[0-9]+' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
-\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.h:[0-9]+:[0-9]+: warning: 'RenderUint[0-9]+' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
-\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.h:[0-9]+:[0-9]+: warning: 'RenderDouble' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
-\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.h:[0-9]+:[0-9]+: warning: 'RenderFloat' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
-\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.h:[0-9]+:[0-9]+: warning: 'RenderString' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
-\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.h:[0-9]+:[0-9]+: warning: 'RenderBytes' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
-\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.h:[0-9]+:[0-9]+: warning: 'RenderNull' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
-In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/type_info_test_helper\.cc:[0-9]+:
-In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/type_info_test_helper\.h:[0-9]+:
-\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/default_value_objectwriter\.h:[0-9]+:[0-9]+: warning: 'RenderNull' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
-In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/json_util\.cc:[0-9]+:
-In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/default_value_objectwriter\.cc:[0-9]+:
 # > Task :support-animation-demos:compileDebugJavaWithJavac
-Note: \$SUPPORT/samples/SupportAnimationDemos/src/main/java/com/example/android/support/animation/SpringView\.java uses or overrides a deprecated API\.
 # > Task :lint-demos:lint-demo-appcompat:compileDebugJavaWithJavac
-Note: \$SUPPORT/lint\-demos/lint\-demo\-appcompat/src/main/java/com/example/android/appcompat/AppCompatLintDemo\.java uses or overrides a deprecated API\.
 # > Task :support-transition-demos:compileDebugJavaWithJavac
-Note: \$SUPPORT/samples/SupportTransitionDemos/src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage\.java uses or overrides a deprecated API\.
 # > Task :support-content-demos:compileDebugJavaWithJavac
-Note: \$SUPPORT/samples/SupportContentDemos/src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity\.java uses or overrides a deprecated API\.
 # > Task :support-preference-demos:compileDebugJavaWithJavac
-Note: \$SUPPORT/samples/SupportPreferenceDemos/src/main/java/com/example/androidx/preference/LeanbackPreferences\.java uses or overrides a deprecated API\.
 # > Task :startup:integration-tests:first-library:processDebugManifest
 \$SUPPORT/startup/integration\-tests/first\-library/src/main/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-provider\#androidx\.work\.impl\.WorkManagerInitializer was tagged at AndroidManifest\.xml:[0-9]+ to remove other declarations but no other declaration present
-# > Task :camera:integration-tests:camera-testapp-extensions:compileDebugJavaWithJavac
-Note: \$SUPPORT/camera/integration\-tests/extensionstestapp/src/main/java/androidx/camera/integration/extensions/CameraExtensionsActivity\.java uses or overrides a deprecated API\.
-# > Task :camera:integration-tests:camera-testapp-core:compileDebugJavaWithJavac
-Note: \$SUPPORT/camera/integration\-tests/coretestapp/src/main/java/androidx/camera/integration/core/CameraXActivity\.java uses or overrides a deprecated API\.
-# > Task :room:integration-tests:room-testapp:processDebugMainManifest
-\[androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+\] \$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/vectordrawable\-animated\-[0-9]+\.[0-9]+\.[0-9]+/AndroidManifest\.xml Warning:
-Package name 'androidx\.vectordrawable' used in: androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+, androidx\.vectordrawable:vectordrawable:[0-9]+\.[0-9]+\.[0-9]+\.
-# > Task :lifecycle:integration-tests:lifecycle-testapp:compileDebugJavaWithJavac
-Note: \$SUPPORT/lifecycle/integration\-tests/testapp/src/main/java/androidx/lifecycle/testapp/FrameworkLifecycleRegistryActivity\.java uses or overrides a deprecated API\.
+meta\-data\#androidx\.work\.WorkManagerInitializer was tagged at AndroidManifest\.xml\:[0-9]+ to remove other declarations but no other declaration present
 # > Task :support-slices-demos:compileDebugJavaWithJavac
 Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/slice/demos/SliceBrowser\.java uses unchecked or unsafe operations\.
-# > Task :ads-identifier:processDebugAndroidTestManifest
-# > Task :sharetarget:integration-tests:testapp:compileDebugJavaWithJavac
-Note: \$SUPPORT/sharetarget/integration\-tests/testapp/src/main/java/androidx/sharetarget/testapp/MainActivity\.java uses or overrides a deprecated API\.
-# > Task :ads-identifier-provider:processDebugAndroidTestManifest
-# > Task :hilt:integration-tests:hilt-testapp-viewmodel:compileDebugJavaWithJavac
-\[ant\:jacocoReport\] Note\: \$OUT_DIR\/androidx\/hilt\/integration\-tests\/hilt\-testapp\-viewmodel\/build\/generated\/source\/kapt\/debug\/androidx\/hilt\/integration\/viewmodelapp\/Hilt_SimpleFragment\.java uses or overrides a deprecated API\.
-\[ant\:jacocoReport\] Note\: Recompile with \-Xlint\:deprecation for details\.
-Note: \$OUT_DIR/androidx/hilt/integration\-tests/hilt\-testapp\-viewmodel/build/generated/source/kapt/debug/androidx/hilt/integration/viewmodelapp/Hilt_SimpleFragment\.java uses or overrides a deprecated API\.
-# > Task :ads-identifier-benchmark:processReleaseAndroidTestManifest
-\$OUT_DIR/androidx/ads\-identifier\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :internal-testutils-runtime:processDebugAndroidTestManifest
-# > Task :slice-benchmark:processReleaseAndroidTestManifest
-\$OUT_DIR/androidx/slice\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :slice-builders-ktx:processDebugAndroidTestManifest
-# > Task :slice-core:processDebugAndroidTestManifest
-# > Task :slice-remotecallback:processDebugAndroidTestManifest
-# > Task :slice-view:processDebugAndroidTestManifest
-# > Task :slice-benchmark:compileReleaseAndroidTestJavaWithJavac
-Note: \$SUPPORT/slices/benchmark/src/androidTest/java/androidx/slice/SliceSerializeMetrics\.java uses or overrides a deprecated API\.
-# > Task :support-media2-test-service:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/media[0-9]+/session/version\-compat\-tests/current/service/src/androidTest/java/androidx/media[0-9]+/test/service/MockPlayer\.java uses unchecked or unsafe operations\.
-# > Task :support-media2-test-service-previous:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/media[0-9]+/session/version\-compat\-tests/previous/service/src/androidTest/java/androidx/media[0-9]+/test/service/MockPlayer\.java uses unchecked or unsafe operations\.
-# > Task :activity:activity:processDebugAndroidTestManifest
-# > Task :appcompat:appcompat:processDebugAndroidTestManifest
-Package name 'androidx\.testutils' used in: :internal\-testutils\-appcompat, :internal\-testutils\-runtime\.
-# > Task :appcompat:appcompat-resources:processDebugAndroidTestManifest
-# > Task :appcompat:appcompat-benchmark:processReleaseAndroidTestManifest
-\$OUT_DIR/androidx/appcompat/appcompat\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :benchmark:benchmark-benchmark:processReleaseAndroidTestManifest
-\$OUT_DIR/androidx/benchmark/benchmark\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :camera:camera-camera2:processDebugAndroidTestManifest
-# > Task :camera:camera-core:processDebugAndroidTestManifest
-# > Task :camera:camera-extensions:processDebugAndroidTestManifest
-# > Task :camera:camera-lifecycle:processDebugAndroidTestManifest
-# > Task :camera:camera-testing:externalNativeBuildDebug
-Build testing_surface_format_.*
-# > Task :collection:collection-benchmark:processReleaseAndroidTestManifest
-\$OUT_DIR/androidx/collection/collection\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :camera:camera-extensions:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/camera/camera\-extensions/src/androidTest/java/androidx/camera/extensions/PreviewExtenderTest\.java uses unchecked or unsafe operations\.
-# > Task :customview:customview:processDebugAndroidTestManifest
-# > Task :core:core-ktx:processDebugAndroidTestManifest
-# > Task :appsearch:appsearch:processDebugAndroidTestManifest
-# > Task :customview:customview:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/customview/customview/src/androidTest/java/androidx/customview/widget/ExploreByTouchHelperTest\.java uses or overrides a deprecated API\.
-# > Task :core:core:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/core/core/src/androidTest/java/androidx/core/content/pm/ShortcutManagerCompatTest\.java uses unchecked or unsafe operations\.
-# > Task :exifinterface:exifinterface:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/exifinterface/exifinterface/src/androidTest/java/androidx/exifinterface/media/ExifInterfaceTest\.java uses or overrides a deprecated API\.
-Note: \$SUPPORT/exifinterface/exifinterface/src/androidTest/java/androidx/exifinterface/media/ExifInterfaceTest\.java uses unchecked or unsafe operations\.
+# > Task :emoji2:emoji2-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/emoji[0-9]+/emoji[0-9]+\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :gridlayout:gridlayout:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/gridlayout/gridlayout/src/androidTest/java/androidx/gridlayout/widget/GridLayoutTest\.java uses or overrides a deprecated API\.
-# > Task :leanback:leanback:processDebugAndroidTestManifest
-Package name 'androidx\.testutils' used in: :internal\-testutils\-runtime, :internal\-testutils\-espresso\.
 # > Task :leanback:leanback-tab:processDebugAndroidTestManifest
 # > Task :lifecycle:lifecycle-extensions:processDebugAndroidTestManifest
 # > Task :leanback:leanback:compileDebugAndroidTestJavaWithJavac
-warning: unknown enum constant AnnotationTarget\.CLASS
-warning: unknown enum constant AnnotationTarget\.PROPERTY
-warning: unknown enum constant AnnotationTarget\.LOCAL_VARIABLE
-warning: unknown enum constant AnnotationTarget\.VALUE_PARAMETER
-warning: unknown enum constant AnnotationTarget\.CONSTRUCTOR
 reason: class file for kotlin\.annotation\.AnnotationTarget not found
-warning: unknown enum constant AnnotationTarget\.FUNCTION
-warning: unknown enum constant AnnotationTarget\.PROPERTY_GETTER
-warning: unknown enum constant AnnotationTarget\.PROPERTY_SETTER
-warning: unknown enum constant AnnotationTarget\.FILE
-warning: unknown enum constant AnnotationTarget\.TYPEALIAS
-warning: unknown enum constant AnnotationRetention\.RUNTIME
 reason: class file for kotlin\.annotation\.AnnotationRetention not found
 warning: unknown enum constant AnnotationTarget\.ANNOTATION_CLASS
-# > Task :lifecycle:lifecycle-service:processDebugAndroidTestManifest
-# > Task :lifecycle:lifecycle-viewmodel-savedstate:processDebugAndroidTestManifest
-# > Task :leanback:leanback-tab:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/leanback/leanback\-tab/src/androidTest/java/androidx/leanback/tab/app/PagerAdapter\.java uses or overrides a deprecated API\.
-# > Task :media2:media2-common:processDebugAndroidTestManifest
-# > Task :media2:media2-player:processDebugAndroidTestManifest
-# > Task :media2:media2-session:processDebugAndroidTestManifest
-# > Task :media2:media2-common:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/media[0-9]+/common/src/androidTest/java/androidx/media[0-9]+/common/SubtitleDataTest\.java uses or overrides a deprecated API\.
-# > Task :navigation:navigation-benchmark:processReleaseAndroidTestManifest
-\$OUT_DIR/androidx/navigation/navigation\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :navigation:navigation-dynamic-features-runtime:processDebugAndroidTestManifest
-# > Task :navigation:navigation-fragment:processDebugAndroidTestManifest
-Package name 'androidx\.testutils' used in: :internal\-testutils\-runtime, :internal\-testutils\-navigation\.
 # > Task :mediarouter:mediarouter:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/mediarouter/mediarouter/src/androidTest/java/androidx/mediarouter/app/MediaRouteChooserDialogTest\.java uses or overrides a deprecated API\.
 # > Task :palette:palette:processDebugAndroidTestManifest
 # > Task :percentlayout:percentlayout:processDebugAndroidTestManifest
 # > Task :preference:preference-ktx:processDebugAndroidTestManifest
 # > Task :recyclerview:recyclerview-benchmark:processReleaseAndroidTestManifest
-\$OUT_DIR/androidx/recyclerview/recyclerview\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :recyclerview:recyclerview-selection:processDebugAndroidTestManifest
-# > Task :preference:preference:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/preference/preference/src/androidTest/java/androidx/preference/tests/PreferenceDataStoreTest\.java uses unchecked or unsafe operations\.
+\$SUPPORT/recyclerview/recyclerview\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :remotecallback:remotecallback:processDebugAndroidTestManifest
 # > Task :recyclerview:recyclerview-selection:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/recyclerview/recyclerview\-selection/src/androidTest/java/androidx/recyclerview/selection/DefaultSelectionTrackerTest\.java uses or overrides a deprecated API\.
 # > Task :savedstate:savedstate:processDebugAndroidTestManifest
 # > Task :room:room-benchmark:processReleaseAndroidTestManifest
-\$OUT_DIR/androidx/room/room\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :room:room-runtime:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/room/runtime/src/androidTest/java/androidx/room/migration/TableInfoTest\.java uses unchecked or unsafe operations\.
+\$SUPPORT/room/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :room:room-benchmark:kaptReleaseAndroidTestKotlin
 \$OUT_DIR/androidx/room/room\-benchmark/build/tmp/kapt[0-9]+/stubs/releaseAndroidTest/androidx/room/benchmark/RelationBenchmark\.java:[0-9]+: warning: The return value includes a POJO with a @Relation\. It is usually desired to annotate this method with @Transaction to avoid possibility of inconsistent results between the POJO and its relations\. See https://developer\.android\.com/reference/androidx/room/Transaction\.html for details\.
 public abstract java\.util\.List<androidx\.room\.benchmark\.RelationBenchmark\.UserWithItems> getUserWithItems\(\);
-# > Task :sharetarget:sharetarget:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/sharetarget/sharetarget/src/androidTest/java/androidx/sharetarget/ChooserTargetServiceCompatTest\.java uses or overrides a deprecated API\.
-Note: \$SUPPORT/sharetarget/sharetarget/src/androidTest/java/androidx/sharetarget/ChooserTargetServiceCompatTest\.java uses unchecked or unsafe operations\.
-# > Task :viewpager2:viewpager2:processDebugAndroidTestManifest
-Package name 'androidx\.testutils' used in: :internal\-testutils\-appcompat, :internal\-testutils\-runtime, :internal\-testutils\-espresso\.
-# > Task :wear:wear-watchface:processDebugAndroidTestManifest
-# > Task :window:window:processDebugAndroidTestManifest
-# > Task :webkit:webkit:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/webkit/webkit/src/androidTest/java/androidx/webkit/WebSettingsCompatForceDarkTest\.java uses or overrides a deprecated API\.
-# > Task :work:work-benchmark:processReleaseAndroidTestManifest
-\$OUT_DIR/androidx/work/work\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :benchmark:integration-tests:dry-run-benchmark:processReleaseAndroidTestManifest
-\$OUT_DIR/androidx/benchmark/integration\-tests/dry\-run\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :benchmark:integration-tests:startup-benchmark:processReleaseAndroidTestManifest
-\$OUT_DIR/androidx/benchmark/integration\-tests/startup\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :camera:integration-tests:camera-testapp-core:externalNativeBuildDebug
-Build opengl_renderer_jni_.*
-# > Task :camera:integration-tests:camera-testapp-extensions:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/camera/integration\-tests/extensionstestapp/src/androidTest/java/androidx/camera/integration/extensions/ToggleButtonTest\.java uses or overrides a deprecated API\.
-# > Task :camera:integration-tests:camera-testapp-camera2-pipe:minifyReleaseWithR8
-R[0-9]+: Missing class: java\.lang\.instrument\.ClassFileTransformer
-R[0-9]+: Missing class: sun\.misc\.SignalHandler
-# > Task :camera:integration-tests:camera-testapp-view:minifyReleaseWithR8
-R[0-9]+: Missing class: java\.lang\.ClassValue
 # > Task :room:integration-tests:room-testapp-noappcompat:compileDebugAndroidTestJavaWithJavac
 \$SUPPORT/room/integration\-tests/noappcompattestapp/src/androidTest/java/androidx/room/integration/noappcompat/BareRelationDatabaseTest\.java:[0-9]+: warning: The return value includes a POJO with a @Relation\. It is usually desired to annotate this method with @Transaction to avoid possibility of inconsistent results between the POJO and its relations\. See https://developer\.android\.com/reference/androidx/room/Transaction\.html for details\.
 UserAndPets getUserWithPets\(long id\);
 List<UserAndPet> getUsersWithPet\(\);
 # > Task :textclassifier:integration-tests:testapp:compileDebugAndroidTestJavaWithJavac
-Note: \$SUPPORT/textclassifier/integration\-tests/testapp/src/androidTest/java/androidx/textclassifier/integration/testapp/MainActivityTest\.java uses or overrides a deprecated API\.
 # > Task :room:integration-tests:room-testapp:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/room/integration\-tests/testapp/src/androidTest/java/androidx/room/integration/testapp/test/TestUtil\.java uses unchecked or unsafe operations\.
-# > Task :hilt:integration-tests:hilt-testapp-worker:kaptDebugAndroidTestKotlin
-warning: The following options were not recognized by any processor: '\[dagger\.hilt\.android\.internal\.disableAndroidSuperclassValidation, kapt\.kotlin\.generated\]'
-# > Task :hilt:integration-tests:hilt-testapp-viewmodel:compileReleaseJavaWithJavac
-Note: \$OUT_DIR/androidx/hilt/integration\-tests/hilt\-testapp\-viewmodel/build/generated/source/kapt/release/androidx/hilt/integration/viewmodelapp/Hilt_SimpleFragment\.java uses or overrides a deprecated API\.
-# > Task :slice-core:generateApi
-src/main/java/androidx/slice/compat/SliceProviderCompat\.java:[0-9]+: warning: Parameter permissionManager references hidden type androidx\.slice\.compat\.CompatPermissionManager\. \[HiddenTypeParameter\]
-# > Task :appsearch:appsearch-compiler:lint
-[0-9]+ errors, [0-9]+ warnings \([0-9]+ warnings filtered by baseline lint\-baseline\.xml\)
-[0-9]+ errors, [0-9]+ warnings \([0-9]+ warning filtered by baseline lint\-baseline\.xml\)
-[0-9]+ errors, [0-9]+ warnings \([0-9]+ error filtered by baseline lint\-baseline\.xml\)
-# > Task :slice-view:generateApi
-src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter of hidden type SliceContent in androidx\.slice\.widget\.ListContent\.getListHeight\(\) \[UnavailableSymbol\]
-src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter of unavailable type androidx\.slice\.widget\.SliceStyle in androidx\.slice\.widget\.ListContent\.getHeight\(\) \[UnavailableSymbol\]
-src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter of unavailable type androidx\.slice\.widget\.SliceViewPolicy in androidx\.slice\.widget\.ListContent\.getHeight\(\) \[UnavailableSymbol\]
-src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter of unavailable type androidx\.slice\.widget\.SliceStyle in androidx\.slice\.widget\.ListContent\.getRowItems\(\) \[UnavailableSymbol\]
-src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter of unavailable type androidx\.slice\.widget\.SliceViewPolicy in androidx\.slice\.widget\.ListContent\.getRowItems\(\) \[UnavailableSymbol\]
-src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Method androidx\.slice\.widget\.ListContent\.getSeeMoreItem returns unavailable type SliceContent \[UnavailableSymbol\]
-src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter of unavailable type androidx\.slice\.widget\.SliceContent in androidx\.slice\.widget\.ListContent\.getRowType\(\) \[UnavailableSymbol\]
-src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter of unavailable type androidx\.slice\.widget\.SliceStyle in androidx\.slice\.widget\.ListContent\.getListHeight\(\) \[UnavailableSymbol\]
-src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter of unavailable type androidx\.slice\.widget\.SliceViewPolicy in androidx\.slice\.widget\.ListContent\.getListHeight\(\) \[UnavailableSymbol\]
-src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Method androidx\.slice\.widget\.ListContent\.getRowItems\(int, androidx\.slice\.widget\.SliceStyle, androidx\.slice\.widget\.SliceViewPolicy\) references hidden type androidx\.slice\.widget\.DisplayedListItems\. \[HiddenTypeParameter\]
-src/main/java/androidx/slice/widget/GridContent\.java:[0-9]+: warning: Parameter of unavailable type androidx\.slice\.widget\.SliceStyle in androidx\.slice\.widget\.GridContent\.getHeight\(\) \[UnavailableSymbol\]
-src/main/java/androidx/slice/widget/GridContent\.java:[0-9]+: warning: Parameter of unavailable type androidx\.slice\.widget\.SliceViewPolicy in androidx\.slice\.widget\.GridContent\.getHeight\(\) \[UnavailableSymbol\]
-src/main/java/androidx/slice/widget/RowContent\.java:[0-9]+: warning: Parameter of unavailable type androidx\.slice\.widget\.SliceStyle in androidx\.slice\.widget\.RowContent\.getHeight\(\) \[UnavailableSymbol\]
-src/main/java/androidx/slice/widget/RowContent\.java:[0-9]+: warning: Parameter of unavailable type androidx\.slice\.widget\.SliceViewPolicy in androidx\.slice\.widget\.RowContent\.getHeight\(\) \[UnavailableSymbol\]
-src/main/java/androidx/slice/widget/GridContent\.java:[0-9]+: warning: Parameter style references hidden type androidx\.slice\.widget\.SliceStyle\. \[HiddenTypeParameter\]
-src/main/java/androidx/slice/widget/GridContent\.java:[0-9]+: warning: Parameter policy references hidden type androidx\.slice\.widget\.SliceViewPolicy\. \[HiddenTypeParameter\]
-src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter style references hidden type androidx\.slice\.widget\.SliceStyle\. \[HiddenTypeParameter\]
-src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter policy references hidden type androidx\.slice\.widget\.SliceViewPolicy\. \[HiddenTypeParameter\]
-src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter listItems references hidden type class androidx\.slice\.widget\.SliceContent\. \[HiddenTypeParameter\]
-src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Method androidx\.slice\.widget\.ListContent\.getRowItems\(\) references hidden type class androidx\.slice\.widget\.SliceContent\. \[HiddenTypeParameter\]
-src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter content references hidden type androidx\.slice\.widget\.SliceContent\. \[HiddenTypeParameter\]
-src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Method androidx\.slice\.widget\.ListContent\.getSeeMoreItem\(\) references hidden type androidx\.slice\.widget\.SliceContent\. \[HiddenTypeParameter\]
-src/main/java/androidx/slice/widget/RowContent\.java:[0-9]+: warning: Parameter style references hidden type androidx\.slice\.widget\.SliceStyle\. \[HiddenTypeParameter\]
-src/main/java/androidx/slice/widget/RowContent\.java:[0-9]+: warning: Parameter policy references hidden type androidx\.slice\.widget\.SliceViewPolicy\. \[HiddenTypeParameter\]
-# > Task :appcompat:appcompat-resources:generateApi
-src/main/java/androidx/appcompat/widget/ResourceManagerInternal\.java:[0-9]+: warning: Parameter hooks references hidden type androidx\.appcompat\.widget\.ResourceManagerInternal\.ResourceManagerHooks\. \[HiddenTypeParameter\]
-# > Task :arch:core:core-common:generateApi
-src/main/java/androidx/arch/core/internal/FastSafeIterableMap\.java:[0-9]+: warning: Method androidx\.arch\.core\.internal\.FastSafeIterableMap\.get\(K\) references hidden type androidx\.arch\.core\.internal\.SafeIterableMap\.Entry<K,V>\. \[HiddenTypeParameter\]
-src/main/java/androidx/arch/core/internal/SafeIterableMap\.java:[0-9]+: warning: Method androidx\.arch\.core\.internal\.SafeIterableMap\.get\(K\) references hidden type androidx\.arch\.core\.internal\.SafeIterableMap\.Entry<K,V>\. \[HiddenTypeParameter\]
-# > Task :appcompat:appcompat:generateApi
-src/main/java/androidx/appcompat/view/menu/MenuPopupHelper\.java:[0-9]+: warning: Method androidx\.appcompat\.view\.menu\.MenuPopupHelper\.getPopup\(\) references hidden type androidx\.appcompat\.view\.menu\.MenuPopup\. \[HiddenTypeParameter\]
-src/main/java/androidx/appcompat/widget/ActionMenuView\.java:[0-9]+: warning: Parameter presenter references hidden type androidx\.appcompat\.widget\.ActionMenuPresenter\. \[HiddenTypeParameter\]
-src/main/java/androidx/appcompat/widget/ActivityChooserView\.java:[0-9]+: warning: Method androidx\.appcompat\.widget\.ActivityChooserView\.getDataModel\(\) references hidden type androidx\.appcompat\.widget\.ActivityChooserModel\. \[HiddenTypeParameter\]
-src/main/java/androidx/appcompat/widget/ActivityChooserView\.java:[0-9]+: warning: Parameter dataModel references hidden type androidx\.appcompat\.widget\.ActivityChooserModel\. \[HiddenTypeParameter\]
-src/main/java/androidx/appcompat/widget/Toolbar\.java:[0-9]+: warning: Parameter outerPresenter references hidden type androidx\.appcompat\.widget\.ActionMenuPresenter\. \[HiddenTypeParameter\]
-# > Task :cursoradapter:cursoradapter:generateApi
-src/main/java/androidx/cursoradapter/widget/CursorAdapter\.java:[0-9]+: warning: Field CursorAdapter\.mChangeObserver references hidden type androidx\.cursoradapter\.widget\.CursorAdapter\.ChangeObserver\. \[HiddenTypeParameter\]
-src/main/java/androidx/cursoradapter/widget/CursorAdapter\.java:[0-9]+: warning: Field CursorAdapter\.mCursorFilter references hidden type androidx\.cursoradapter\.widget\.CursorFilter\. \[HiddenTypeParameter\]
-# > Task :media:media:generateApi
-src/main/java/android/support/v[0-9]+/media/session/MediaControllerCompat\.java:[0-9]+: warning: Method android\.support\.v[0-9]+\.media\.session\.MediaControllerCompat\.Callback\.getIControllerCallback returns unavailable type IMediaControllerCallback \[UnavailableSymbol\]
-src/main/java/android/support/v[0-9]+/media/session/MediaControllerCompat\.java:[0-9]+: warning: Method android\.support\.v[0-9]+\.media\.session\.MediaControllerCompat\.Callback\.getIControllerCallback\(\) references hidden type android\.support\.v[0-9]+\.media\.session\.IMediaControllerCallback\. \[HiddenTypeParameter\]
-# > Task :transition:transition:generateApi
-src/main/java/androidx/transition/Transition\.java:[0-9]+: warning: Parameter startValues references hidden type androidx\.transition\.TransitionValuesMaps\. \[HiddenTypeParameter\]
-src/main/java/androidx/transition/Transition\.java:[0-9]+: warning: Parameter endValues references hidden type androidx\.transition\.TransitionValuesMaps\. \[HiddenTypeParameter\]
-src/main/java/androidx/transition/TransitionSet\.java:[0-9]+: warning: Parameter startValues references hidden type androidx\.transition\.TransitionValuesMaps\. \[HiddenTypeParameter\]
-src/main/java/androidx/transition/TransitionSet\.java:[0-9]+: warning: Parameter endValues references hidden type androidx\.transition\.TransitionValuesMaps\. \[HiddenTypeParameter\]
 # > Task :activity:integration-tests:testapp:processDebugAndroidTestManifest
 # b/166471969
-.*androidTest.*AndroidManifest.*xml Warning.*:
-Package name.*test' used in: .*AndroidManifest.*xml.*
-\$OUT_DIR/androidx/compose/ui/ui\-tooling/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-\[:internal\-testutils\-runtime\] \$OUT_DIR/androidx/internal\-testutils\-runtime/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:
+\$SUPPORT/appcompat/appcompat\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/benchmark/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/collection/collection\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/navigation/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/work/workmanager\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/benchmark/integration\-tests/dry\-run\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/benchmark/integration\-tests/startup\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :leanback:leanback-paging:generateApi
 w\: Runtime JAR files in the classpath have the version [0-9]+\.[0-9]+\, which is older than the API version [0-9]+\.[0-9]+\. Consider using the runtime of version [0-9]+\.[0-9]+\, or pass \'\-api\-version [0-9]+\.[0-9]+\' explicitly to restrict the available APIs to the runtime of version [0-9]+\.[0-9]+\. You can also pass \'\-language\-version [0-9]+\.[0-9]+\' instead\, which will restrict not only the APIs to the specified version\, but also the language features
-w: \$GRADLE_USER_HOME/wrapper/dists/gradle\-[0-9]+\.[0-9]+\-bin/[^/]*/gradle\-[0-9]+\.[0-9]+/lib/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
-w: \$GRADLE_USER_HOME/wrapper/dists/gradle\-[0-9]+\.[0-9]+\-bin/[^/]*/gradle\-[0-9]+\.[0-9]+/lib/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
-w: \$GRADLE_USER_HOME/wrapper/dists/gradle\-[0-9]+\.[0-9]+\-bin/[^/]*/gradle\-[0-9]+\.[0-9]+/lib/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
-w: \$GRADLE_USER_HOME/wrapper/dists/gradle\-[0-9]+\.[0-9]+\-bin/[^/]*/gradle\-[0-9]+\.[0-9]+/lib/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
 w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
 w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\-common\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
 # > Task :compose:material:material:icons:generator:zipHtmlResultsOfTest
 Html results of .* zipped into.*\.zip
 # > Task :annotation:annotation-experimental-lint:test
 WARNING: An illegal reflective access operation has occurred
-WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-compiler/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-compiler\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
-WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion\$isFromCompiledClass\$[0-9]+ \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.jar\) to field com\.sun\.tools\.javac\.code\.Symbol\.owner
-WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-compiler/[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+/kotlin\-compiler\-[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
-WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/com/android/tools/external/com\-intellij/intellij\-core/[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+/intellij\-core\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
+WARNING: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.kapt[0-9]+\.base\.javac\.KaptJavaFileManager
+WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/com/google/devsite/dackka/[0-9]+\.[0-9]+\.[0-9]+/dackka\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
 WARNING: Please consider reporting this to the maintainers of com\.intellij\.util\.ReflectionUtil
 WARNING: Use \-\-illegal\-access=warn to enable warnings of further illegal reflective access operations
 WARNING: All illegal access operations will be denied in a future release
-# > Task :compose:compiler:compiler-hosted:integration-tests:testDebugUnitTest
-[0-9]+ tests completed, [0-9]+ failed, [0-9]+ skipped
-WARNING: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers \(file:\$CHECKOUT/prebuilts/androidx/external/org/robolectric/shadowapi/[0-9]+\.[0-9]+\-alpha\-[0-9]+/shadowapi\-[0-9]+\.[0-9]+\-alpha\-[0-9]+\.jar\) to field java\.lang\.reflect\.Field\.modifiers
-WARNING: Please consider reporting this to the maintainers of org\.robolectric\.util\.ReflectionHelpers
-# > Task :compose:compiler:compiler-hosted:integration-tests:test
-wrote dependency log to \$DIST_DIR/affected_module_detector_log\.txt
-Deprecated Gradle features were used in this build\, making it incompatible with Gradle [0-9]+\.[0-9]+\.
-Use \'\-\-warning\-mode all\' to show the individual deprecation warnings\.
-# > Task :enterprise-feedback-testing:compileDebugUnitTestJavaWithJavac
-Note: \$SUPPORT/enterprise/feedback/testing/src/test/java/androidx/enterprise/feedback/FakeKeyedAppStatesReporterTest\.java uses or overrides a deprecated API\.
-# > Task :biometric:biometric:compileDebugUnitTestJavaWithJavac
-Note: \$SUPPORT/biometric/biometric/src/test/java/androidx/biometric/KeyguardUtilsTest\.java uses unchecked or unsafe operations\.
-# > Task :lifecycle:lifecycle-process:compileDebugUnitTestJavaWithJavac
-Note: \$SUPPORT/lifecycle/lifecycle\-process/src/test/java/androidx/lifecycle/DispatcherActivityCallbackTest\.java uses or overrides a deprecated API\.
-# > Task :lifecycle:lifecycle-viewmodel:compileDebugUnitTestJavaWithJavac
-Note: \$SUPPORT/lifecycle/lifecycle\-viewmodel/src/test/java/androidx/lifecycle/ViewModelProviderTest\.java uses unchecked or unsafe operations\.
 # > Task :ipc:ipc-compiler:kaptTestKotlin
 Annotation processors discovery from compile classpath is deprecated\.
 Set 'kapt\.includeCompileClasspath = false' to disable discovery\.
 Run the build with '\-\-info' for more details\.
-# > Task :camera:camera-core:compileDebugUnitTestJavaWithJavac
-Note: \$SUPPORT/camera/camera\-core/src/test/java/androidx/camera/core/ProcessingImageReaderTest\.java uses or overrides a deprecated API\.
-Note: \$SUPPORT/camera/camera\-core/src/test/java/androidx/camera/core/impl/DeferrableSurfaceTest\.java uses unchecked or unsafe operations\.
-# > Task :wear:wear-input:compileDebugUnitTestJavaWithJavac
-Note: \$SUPPORT/wear/wear\-input/src/test/java/androidx/wear/input/WearableButtonsTest\.java uses or overrides a deprecated API\.
-# > Task :lifecycle:integration-tests:incrementality:compileTestKotlin
-\$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-stdlib\-[0-9.]*.jar \(version [^/]*\)
-\$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-stdlib\-common\-[0-9.]*.jar \(version [^/]*\)
-\$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-stdlib\-jdk[0-9]*-[0-9.]*.jar \(version [^/]*\)
-\$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-reflect\-[0-9.]*.jar \(version [^/]*\)
-w: Consider providing an explicit dependency on kotlin\-reflect [^/]* to prevent strange errors
-# > Task :contentaccess:contentaccess-compiler:test
-WARNING: Illegal reflective access by org\.jetbrains\.kotlin\.kapt[0-9]+\.base\.javac\.KaptJavaFileManager \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-annotation\-processing\-embeddable/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-annotation\-processing\-embeddable\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method com\.sun\.tools\.javac\.file\.BaseFileManager\.handleOption\(com\.sun\.tools\.javac\.main\.Option,java\.lang\.String\)
-WARNING: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.kapt[0-9]+\.base\.javac\.KaptJavaFileManager
 # > Task :room:room-compiler:test
-WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion\$isFromCompiledClass\$[0-9]+ \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.jar\) to field com\.sun\.tools\.javac\.code\.Symbol\$ClassSymbol\.classfile
-WARNING: Please consider reporting this to the maintainers of androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion\$isFromCompiledClass\$[0-9]+
-# > Task :wear:wear-watchface-complications-rendering:compileDebugUnitTestJavaWithJavac
-Note\: \$SUPPORT\/wear\/wear\-watchface\-complications\-rendering\/src\/test\/java\/androidx\/wear\/watchface\/complications\/rendering\/RoundedDrawableTest\.java uses or overrides a deprecated API\.
-# > Task :wear:wear-watchface:testDebugUnitTest
-System\.logW\: A resource was acquired at attached stack trace but never released\. See java\.io\.Closeable for information on avoiding resource leaks\.java\.lang\.Throwable\: Explicit termination method \'dispose\' not called
-System\.logW\: A resource was acquired at attached stack trace but never released\. See java\.io\.Closeable for information on avoiding resource leaks\.java\.lang\.Throwable\: Explicit termination method \'release\' not called
-# > Task :benchmark:benchmark-perfetto:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path '.*'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
+WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/(classes/kotlin/main/|libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+(\-(alpha|beta|rc)[0-9]+)?\.jar)\) to field com\.sun\.tools\.javac\.code\.Symbol\$ClassSymbol\.classfile
+WARNING: Please consider reporting this to the maintainers of androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion
 # > Task :docs-runner:dokkaJavaTipOfTreeDocs
-\$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-reflect\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
-\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
-\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
-\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-common/[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\-M[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
-\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+\-rc/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-rc\.jar \(version [0-9]+\.[0-9]+\)
-\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-common/[0-9]+\.[0-9]+\.[0-9]+\-rc/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\-rc\.jar \(version [0-9]+\.[0-9]+\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[A-Z0-9]*\)
 # > Task :compose:ui:ui:processDebugAndroidTestManifest
-\$OUT_DIR\/androidx\/compose\/ui\/ui\/build\/intermediates\/tmp\/manifest\/androidTest\/debug\/manifestMerger[0-9]+\.xml Warning\:
-Package name \'androidx\.compose\.ui\.test\' used in\: manifestMerger[0-9]+\.xml\, \:compose\:ui\:ui\-test\.
+\$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml Warning:
+Package name 'androidx\.compose\.ui\.test' used in: tempFile[0-9]+ProcessTestManifest[0-9]+\.xml, :compose:ui:ui\-test\.
 # > Task :buildSrc:build UP-TO-DATE
 See the profiling report at\: file\:\/\/\$OUT_DIR\/buildSrc\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 A fine\-grained performance profile is available\: use the \-\-scan option\.
 # > Task :annotation:annotation-experimental-lint:compileKotlin
 w\: ATTENTION\!
 This build uses unsafe internal compiler arguments\:
-\-XXLanguage\:\-NewInference
+\-XXLanguage:\+NonParenthesizedAnnotationsOnFunctionalTypes
 This mode is not recommended for production use\,
 as no stability\/compatibility guarantees are given on
 compiler or generated code\. Use it at your own risk\!
 # > Task :compose:ui:ui-util:compileReleaseKotlin
 \-XXLanguage\:\+InlineClasses
-# > Task :docs-public:lintDebug
-Wrote HTML report to file://\$OUT_DIR/androidx/docs\-public/build/reports/lint\-results\-debug\.html
-Wrote XML report to file://\$OUT_DIR/androidx/docs\-public/build/reports/lint\-results\-debug\.xml
-# > Task :internal-testutils-appcompat:processDebugAndroidTestManifest
-\[:internal\-testutils\-appcompat\] \$OUT_DIR/androidx/internal\-testutils\-appcompat/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:
-# > Task :support-wear-demos:packageDebugAndroidTest
-PackagingOptions\.jniLibs\.useLegacyPackaging should be set to true because android:extractNativeLibs is set to "true" in AndroidManifest\.xml\.
-# > Task :camera:integration-tests:camera-testapp-camera2-pipe:dexBuilderDebug
-\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-camera[0-9]+\-pipe/build/intermediates/jacoco_instrumented_classes/debug/out/androidx/camera/integration/camera[0-9]+/pipe/DebugKt\.class: D[0-9]+: Invalid stack map table at [0-9]+: aload [0-9]+, error: The expected type Initialized\(double\) is not assignable to java\.lang\.Object\.
-# > Task :support-remotecallback-demos:lintDebug
-\$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/annotation\-experimental\-[0-9]+\.[0-9]+\.[0-9]+/jars/lint\.jar: Warning: Lint found an issue registry \(androidx\.annotation\.experimental\.lint\.ExperimentalIssueRegistry\) which did not specify the Lint API version it was compiled with\.
-This means that the lint checks are likely not compatible\.
-If you are the author of this lint check, make your lint IssueRegistry class contain
-override val api: Int = com\.android\.tools\.lint\.detector\.api\.CURRENT_API
-or from Java,
-@Override public int getApi\(\) \{ return com\.android\.tools\.lint\.detector\.api\.ApiKt\.CURRENT_API; \}
-If you are just using lint checks from a third party library you have no control over, you can disable these lint checks \(if they misbehave\) like this:
-android \{
-lintOptions \{
-disable "UnsafeExperimentalUsageError",
-"UnsafeExperimentalUsageWarning"
-\}
-\[ObsoleteLintCustomCheck\]
-Explanation for issues of type "ObsoleteLintCustomCheck":
-Lint can be extended with "custom checks": additional checks implemented by
-developers and libraries to for example enforce specific API usages
-required by a library or a company coding style guideline\.
-The Lint APIs are not yet stable, so these checks may either cause a
-performance degradation, or stop working, or provide wrong results\.
-This warning flags custom lint checks that are found to be using obsolete
-APIs and will need to be updated to run in the current lint environment\.
-It may also flag issues found to be using a newer version of the API,
-meaning that you need to use a newer version of lint \(or Android Studio or
-Gradle plugin etc\) to work with these checks\.
-[0-9]+ errors\, [0-9]+ warnings \([0-9]+ errors\, [0-9]+ warning filtered by baseline lint\-baseline\.xml\)
-[0-9]+ errors\, [0-9]+ warnings \([0-9]+ errors filtered by baseline lint\-baseline\.xml\)
-[0-9]+ errors, [0-9]+ warnings \([0-9]+ errors, [0-9]+ warnings filtered by baseline lint\-baseline\.xml\)
-# > Task :camera:camera-camera2-pipe-integration:lintDebug
-\$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/annotation\-experimental\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+/jars/lint\.jar: Warning: Lint found an issue registry \(androidx\.annotation\.experimental\.lint\.ExperimentalIssueRegistry\) which did not specify the Lint API version it was compiled with\.
-[0-9]+ errors, [0-9]+ warnings
-# > Task :support-leanback-demos:lintDebug
-\$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/appcompat\-[0-9]+\.[0-9]+\.[0-9]+/jars/lint\.jar: Warning: Lint found an issue registry \(androidx\.appcompat\.AppCompatIssueRegistry\) which is older than the current API level; these checks may not work correctly\.
-Recompile the checks against the latest version\. Custom check API version is [0-9]+ \([0-9]+\.[0-9]+\), current lint API level is [0-9]+ \([0-9]+\.[0-9]+\) \[ObsoleteLintCustomCheck\]
-\$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/fragment\-[0-9]+\.[0-9]+\.[0-9]+/jars/lint\.jar: Warning: Lint found an issue registry \(androidx\.fragment\.lint\.FragmentIssueRegistry\) which is older than the current API level; these checks may not work correctly\.
-\$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/lifecycle\-runtime\-ktx\-[0-9]+\.[0-9]+\.[0-9]+/jars/lint\.jar: Warning: Lint found an issue registry \(androidx\.lifecycle\.lint\.LifecycleRuntimeIssueRegistry\) which is older than the current API level; these checks may not work correctly\.
-# > Task :hilt:hilt-lifecycle-viewmodel:lintDebug
-\$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/dagger\-lint\-aar\-[0-9]+\.[0-9]+\.[0-9]+/jars/lint\.jar: Warning: Lint found an issue registry \(dagger\.lint\.DaggerIssueRegistry\) which is older than the current API level; these checks may not work correctly\.
-# > Task :hilt:hilt-work:lintDebug
-\$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/work\-runtime\-[0-9]+\.[0-9]+\.[0-9]+/jars/lint\.jar: Warning: Lint found an issue registry \(androidx\.work\.lint\.WorkManagerIssueRegistry\) which is older than the current API level; these checks may not work correctly\.
-# > Task :camera:integration-tests:camera-testapp-view:lintDebug
-\$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/fragment\-testing\-[0-9]+\.[0-9]+\.[0-9]+/jars/lint\.jar: Warning: Lint found an issue registry \(androidx\.fragment\.testing\.lint\.FragmentTestingIssueRegistry\) which is older than the current API level; these checks may not work correctly\.
-# > Task :camera:integration-tests:camera-testapp-uiwidgets:lintDebug
-[0-9]+ errors, [0-9]+ warnings \([0-9]+ error, [0-9]+ warnings filtered by baseline lint\-baseline\.xml\)
-# > Task :lint-checks:lint
-\$SUPPORT\/lint\-checks\/src\/main\/java\/androidx\/build\/lint\/BanInappropriateExperimentalUsage\.kt\:[0-9]+\: Warning\: \"OptIn\" looks like a code reference\; surround with backtics in string to display as symbol\, e\.g\. \`OptIn\` \[LintImplTextFormat\]
-\"Experimental\/OptIn APIs should only be used from within the same library or \" \+
-\~\~\~\~\~
-\$SUPPORT\/lint\-checks\/src\/main\/java\/androidx\/build\/lint\/BanInappropriateExperimentalUsage\.kt\:[0-9]+\: Warning\: The issue summary should be shorter\; typically just a [0-9]+\-[0-9]+ words\; it\'s used as a topic header in HTML reports and in the IDE inspections window \[LintImplTextFormat\]
-\"Experimental apis can only be used from within the same library or from libraries \" \+
-# > Task :compose:ui:ui-text:lintDebug
-\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/style\/FontSpan\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.graphics\.fonts\.FontStyle\#FONT_WEIGHT_NORMAL \[InlinedApi\]
-textPaint\.typeface \= getTypeface\(FontStyle\.FONT_WEIGHT_NORMAL\, false\)
-\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
-\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/style\/FontSpan\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.graphics\.fonts\.FontStyle\#FONT_WEIGHT_BOLD \[InlinedApi\]
-FontStyle\.FONT_WEIGHT_BOLD
-\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
-FontStyle\.FONT_WEIGHT_NORMAL
-\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/style\/FontWeightStyleSpan\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.graphics\.fonts\.FontStyle\#FONT_WEIGHT_NORMAL \[InlinedApi\]
-oldTypeface\?\.weight \?\: FontStyle\.FONT_WEIGHT_NORMAL
-\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/LayoutCompat\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.graphics\.text\.LineBreaker\#JUSTIFICATION_MODE_NONE \[InlinedApi\]
-const val JUSTIFICATION_MODE_NONE \= LineBreaker\.JUSTIFICATION_MODE_NONE
-\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
-\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/LayoutCompat\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.graphics\.text\.LineBreaker\#JUSTIFICATION_MODE_INTER_WORD \[InlinedApi\]
-const val JUSTIFICATION_MODE_INTER_WORD \= LineBreaker\.JUSTIFICATION_MODE_INTER_WORD
-\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
-\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/LayoutCompat\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.text\.Layout\#HYPHENATION_FREQUENCY_NORMAL \[InlinedApi\]
-const val HYPHENATION_FREQUENCY_NORMAL \= Layout\.HYPHENATION_FREQUENCY_NORMAL
-\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/LayoutCompat\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.text\.Layout\#HYPHENATION_FREQUENCY_FULL \[InlinedApi\]
-const val HYPHENATION_FREQUENCY_FULL \= Layout\.HYPHENATION_FREQUENCY_FULL
-\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
-\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/LayoutCompat\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.text\.Layout\#HYPHENATION_FREQUENCY_NONE \[InlinedApi\]
-const val HYPHENATION_FREQUENCY_NONE \= Layout\.HYPHENATION_FREQUENCY_NONE
-\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/LayoutCompat\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.graphics\.text\.LineBreaker\#BREAK_STRATEGY_SIMPLE \[InlinedApi\]
-const val BREAK_STRATEGY_SIMPLE \= LineBreaker\.BREAK_STRATEGY_SIMPLE
-\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/LayoutCompat\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.graphics\.text\.LineBreaker\#BREAK_STRATEGY_HIGH_QUALITY \[InlinedApi\]
-const val BREAK_STRATEGY_HIGH_QUALITY \= LineBreaker\.BREAK_STRATEGY_HIGH_QUALITY
-\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
-\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/LayoutCompat\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.graphics\.text\.LineBreaker\#BREAK_STRATEGY_BALANCED \[InlinedApi\]
-const val BREAK_STRATEGY_BALANCED \= LineBreaker\.BREAK_STRATEGY_BALANCED
-Explanation for issues of type \"InlinedApi\"\:
-This check scans through all the Android API field references in the
-application and flags certain constants\, such as static final integers and
-Strings\, which were introduced in later versions\. These will actually be
-copied into the class files rather than being referenced\, which means that
-the value is available even when running on older devices\. In some cases
-that\'s fine\, and in other cases it can result in a runtime crash or
-incorrect behavior\. It depends on the context\, so consider the code
-carefully and decide whether it\'s safe and can be suppressed or whether the
-code needs to be guarded\.
-If you really want to use this API and don\'t need to support older devices
-just set the minSdkVersion in your build\.gradle or AndroidManifest\.xml
-files\.
-If your code is deliberately accessing newer APIs\, and you have ensured
-\(e\.g\. with conditional execution\) that this code will only ever be called
-on a supported platform\, then you can annotate your class or method with
-the \@TargetApi annotation specifying the local minimum SDK to apply\, such
-as \@TargetApi\([0-9]+\)\, such that this check considers [0-9]+ rather than your
-manifest file\'s minimum SDK as the required API level\.
-# > Task :camera:camera-video:lintDebug
-\$SUPPORT\/camera\/camera\-video\/src\/main\/java\/androidx\/camera\/video\/VideoCaptureLegacy\.java\:[0-9]+\: Warning\: Switch statement on an int with known associated constant missing case MediaCodec\.INFO_OUTPUT_BUFFERS_CHANGED \[SwitchIntDef\]
-switch \(outputBufferId\) \{
-\~\~\~\~\~\~
-Explanation for issues of type \"SwitchIntDef\"\:
-This check warns if a switch statement does not explicitly include all the
-values declared by the typedef \@IntDef declaration\.
-# > Task :car:app:app:lintDebug
-\$SUPPORT\/car\/app\/app\/src\/main\/java\/androidx\/car\/app\/model\/Action\.java\:[0-9]+\: Warning\: Switch statement on an int with known associated constant missing case TYPE_UNKNOWN \[SwitchIntDef\]
-switch \(type\) \{
+# > Task :docs-public:lintRelease
+Wrote HTML report to file://\$OUT_DIR/androidx/docs\-public/build/reports/lint\-results\-release\.html
 # > Task :camera:camera-core:compileDebugJavaWithJavac
 warning: unknown enum constant AnnotationRetention\.BINARY
-# > Task :drawerlayout:drawerlayout:compileDebugJavaWithJavac
-Note: \$SUPPORT/drawerlayout/drawerlayout/src/main/java/androidx/drawerlayout/widget/DrawerLayout\.java uses or overrides a deprecated API\.
-# > Task :viewpager:viewpager:compileDebugJavaWithJavac
-Note: \$SUPPORT/viewpager/viewpager/src/main/java/androidx/viewpager/widget/ViewPager\.java uses or overrides a deprecated API\.
-# > Task :fragment:fragment:compileDebugJavaWithJavac
-Note: \$SUPPORT/fragment/fragment/src/main/java/androidx/fragment/app/FragmentStateManagerControl\.java uses or overrides a deprecated API\.
-# > Task :core:core-animation:compileDebugJavaWithJavac
-Note: \$SUPPORT/core/core\-animation/src/main/java/androidx/core/animation/ValueAnimator\.java uses or overrides a deprecated API\.
-# > Task :biometric:biometric:compileDebugJavaWithJavac
-Note: \$SUPPORT/biometric/biometric/src/main/java/androidx/biometric/BiometricFragment\.java uses or overrides a deprecated API\.
-# > Task :camera:camera-camera2:compileDebugUnitTestJavaWithJavac
-\$SUPPORT/camera/camera\-camera[0-9]+/src/test/java/androidx/camera/camera[0-9]+/internal/compat/workaround/ExcludedSupportedSizesContainerTest\.java:[0-9]+: warning: non\-varargs call of varargs method with inexact argument type for last parameter;
-assertThat\(excludedSizes\)\.containsExactly\(mConfig\.mExcludedSizes\);
-# > Task :navigation:navigation-dynamic-features-fragment:compileDebugKotlin
-w: \$SUPPORT/navigation/navigation\-dynamic\-features\-fragment/src/main/java/androidx/navigation/dynamicfeatures/fragment/ui/AbstractProgressFragment\.kt: \([0-9]+, [0-9]+\): 'startIntentSenderForResult\(IntentSender!, Int, Intent\?, Int, Int, Int, Bundle\?\): Unit' is deprecated\. Deprecated in Java
-w: \$SUPPORT/navigation/navigation\-dynamic\-features\-fragment/src/main/java/androidx/navigation/dynamicfeatures/fragment/ui/AbstractProgressFragment\.kt: \([0-9]+, [0-9]+\): 'onActivityResult\(Int, Int, Intent\?\): Unit' is deprecated\. Deprecated in Java
-# > Task :inspection:inspection-gradle-plugin:test
-[0-9]+ test completed, [0-9]+ failed
-There were failing tests\. See the report at: .*.html
 # > Task :compose:ui:ui:processDebugUnitTestManifest
-\$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/test/debug/manifestMerger[0-9]+\.xml Warning:
-# > Task :wear:wear-watchface:compileDebugKotlin
-w: \$SUPPORT/wear/wear\-watchface/src/main/java/androidx/wear/watchface/ui/ConfigFragment\.kt: \([0-9]+, [0-9]+\): 'onActivityCreated\(Bundle\?\): Unit' is deprecated\. Deprecated in Java
-w: \$SUPPORT/wear/wear\-watchface/src/main/java/androidx/wear/watchface/ui/StyleConfigFragment\.kt: \([0-9]+, [0-9]+\): 'onActivityCreated\(Bundle\?\): Unit' is deprecated\. Deprecated in Java
-w: \$SUPPORT/wear/wear\-watchface/src/main/java/androidx/wear/watchface/ui/WatchFaceConfigActivity\.kt: \([0-9]+, [0-9]+\): 'startActivityForResult\(Intent!, Int\): Unit' is deprecated\. Deprecated in Java
-# > Task :compose:ui:ui-tooling:lintDebug
-\$SUPPORT/compose/ui/ui\-tooling/src/main/java/androidx/compose/ui/tooling/preview/UiMode\.kt:[0-9]+: Warning: Field requires API level [0-9]+ \(current min is [0-9]+\): android\.content\.res\.Configuration\#UI_MODE_TYPE_VR_HEADSET \[InlinedApi\]
-UI_MODE_TYPE_VR_HEADSET,
-\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
-# > Task *:lintDebug
-\$SUPPORT/.*/build\.gradle: Warning: Unknown issue id "ComposableNaming" \[UnknownIssueId\]
-\$SUPPORT/.*/build\.gradle: Warning: Unknown issue id "ComposableLambdaParameterNaming" \[UnknownIssueId\]
-\$SUPPORT/.*/build\.gradle: Warning: Unknown issue id "ComposableLambdaParameterPosition" \[UnknownIssueId\]
-Explanation for issues of type "UnknownIssueId":
-Lint will report this issue if it is configured with an issue id it does
-not recognize in for example Gradle files or lint\.xml configuration files\.
-# > Task :room:room-compiler:compileTestKotlin
-w: \$SUPPORT/room/compiler/src/test/kotlin/androidx/room/ext/ElementExtTest\.kt: \([0-9]+, [0-9]+\): Arguments execution order is going to be changed in a future release\.The expression for named vararg argument will be executed in the order in which it was listed, not at the end\.See KT\-[0-9]+ for more details\.
-w: \$SUPPORT/room/compiler/src/test/kotlin/androidx/room/processor/PojoProcessorTest\.kt: \([0-9]+, [0-9]+\): Arguments execution order is going to be changed in a future release\.The expression for named vararg argument will be executed in the order in which it was listed, not at the end\.See KT\-[0-9]+ for more details\.
-w: \$SUPPORT/room/compiler/src/test/kotlin/androidx/room/processor/ProjectionExpanderTest\.kt: \([0-9]+, [0-9]+\): Arguments execution order is going to be changed in a future release\.The expression for named vararg argument will be executed in the order in which it was listed, not at the end\.See KT\-[0-9]+ for more details\.
-w: \$SUPPORT/room/compiler/src/test/kotlin/androidx/room/processor/autovalue/AutoValuePojoProcessorDelegateTest\.kt: \([0-9]+, [0-9]+\): Arguments execution order is going to be changed in a future release\.The expression for named vararg argument will be executed in the order in which it was listed, not at the end\.See KT\-[0-9]+ for more details\.
-w: \$SUPPORT/room/compiler/src/test/kotlin/androidx/room/solver/TypeAdapterStoreTest\.kt: \([0-9]+, [0-9]+\): Arguments execution order is going to be changed in a future release\.The expression for named vararg argument will be executed in the order in which it was listed, not at the end\.See KT\-[0-9]+ for more details\.
-# > Configure project :window:window-samples
-Warning: The 'kotlin\-android\-extensions' Gradle plugin is deprecated\. Please use this migration guide \(https://goo\.gle/kotlin\-android\-extensions\-deprecation\) to start working with View Binding \(https://developer\.android\.com/topic/libraries/view\-binding\) and the 'kotlin\-parcelize' plugin\.
-'kotlin\-android\-extensions' plugin is deprecated\. Use 'kotlin\-parcelize' for the @Parcelize functionality, and View Binding \(https://developer\.android\.com/topic/libraries/view\-binding\) instead of synthetic view accessors\.
-# > Task :room:integration-tests:room-testapp-kotlin:compileDebugAndroidTestKotlin
-w: \$SUPPORT/room/integration\-tests/kotlintestapp/src/androidTest/java/androidx/room/integration/kotlintestapp/migration/MigrationDbKotlin\.kt: \([0-9]+, [0-9]+\): Arguments execution order is going to be changed in a future release\.The expression for named vararg argument will be executed in the order in which it was listed, not at the end\.See KT\-[0-9]+ for more details\.
+\$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/test/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml Warning:
 # > Task :compose:foundation:foundation:reportLibraryMetrics
-Stripped invalid locals information from [0-9]+ method\.
-Stripped invalid locals information from [0-9]+ methods\.
-Methods with invalid locals information:
-java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorKt\.awaitVerticalTouchSlopOrCancellation\-s[0-9]+qLkbw\(androidx\.compose\.ui\.input\.pointer\.HandlePointerInputScope, long, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.coroutines\.Continuation\)
-java\.lang\.Object androidx\.compose\.foundation\.gestures\.TapGestureDetectorKt\.waitForUpOrCancel\(androidx\.compose\.ui\.input\.pointer\.HandlePointerInputScope, kotlin\.coroutines\.Continuation\)
-Type information in locals\-table is inconsistent\. Cannot constrain type: BOTTOM \(empty\) for value: v[0-9]+ by constraint INT\.
-Some warnings are typically a sign of using an outdated Java toolchain\. To fix, recompile the source with an updated toolchain\.
-Type information in locals\-table is inconsistent\. Cannot constrain type: BOTTOM \(empty\) for value: v[0-9]+ by constraint FLOAT\.
-java\.lang\.Object androidx\.compose\.foundation\.gestures\.DragGestureDetectorKt\.awaitHorizontalTouchSlopOrCancellation\-s[0-9]+qLkbw\(androidx\.compose\.ui\.input\.pointer\.HandlePointerInputScope, long, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.coroutines\.Continuation\)
-java\.lang\.Object androidx\.compose\.foundation\.gestures\.MultitouchGestureDetectorKt\$detectMultitouchGestures\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
-Attempt to define local of type int as it\$iv:java\.lang\.Object
-java\.lang\.Object androidx\.compose\.foundation\.gestures\.TapGestureDetectorKt\.waitForUpOrCancellation\(androidx\.compose\.ui\.input\.pointer\.HandlePointerInputScope, kotlin\.coroutines\.Continuation\)
-# > Task :hilt:integration-tests:hilt-testapp-viewmodel:kaptDebugKotlin
-warning: The following options were not recognized by any processor: '\[dagger\.fastInit, dagger\.hilt\.android\.internal\.disableAndroidSuperclassValidation, kapt\.kotlin\.generated\]'
+java\.lang\.Object androidx\.compose\.foundation\.lazy\.LazyListScrollingKt\$doSmoothScrollToItem\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+java\.lang\.Object androidx\.compose\.foundation\.gestures\.ForEachGestureKt\.forEachGesture\(androidx\.compose\.ui\.input\.pointer\.PointerInputScope, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.coroutines\.Continuation\)
 # > Task :preference:preference:compileDebugAndroidTestKotlin
 w\: \$SUPPORT\/preference\/preference\/src\/androidTest\/java\/androidx\/preference\/tests\/PreferenceDialogFragmentCompatTest\.kt\: \([0-9]+\, [0-9]+\)\: \'setTargetFragment\(Fragment\?\, Int\)\: Unit\' is deprecated\. Deprecated in Java
 # > Task :viewpager2:viewpager2:compileDebugAndroidTestKotlin
@@ -671,3 +344,268 @@ w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/android
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/OnApplyWindowInsetsListenerTest\.kt\: \([0-9]+\, [0-9]+\)\: Unnecessary non\-null assertion \(\!\!\) on a non\-null receiver of type WindowInsetsCompat
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/OnApplyWindowInsetsListenerTest\.kt\: \([0-9]+\, [0-9]+\)\: \'consumeStableInsets\(\)\: WindowInsetsCompat\' is deprecated\. Deprecated in Java
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/OnApplyWindowInsetsListenerTest\.kt\: \([0-9]+\, [0-9]+\)\: \'consumeDisplayCutout\(\)\: WindowInsetsCompat\' is deprecated\. Deprecated in Java
+# > Task :contentpager:contentpager:compileDebugAndroidTestJavaWithJavac
+# > Task :docs-public:dokkaKotlinDocs
+No documentation for .*
+Found an unresolved type in androidx\.compose\.runtime\.snapshots\.SnapshotStateList\$add\(androidx\.compose\.runtime\.snapshots\.SnapshotStateList\.T\) \(SnapshotStateList\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.snapshots\.SnapshotStateList\$addAll\(kotlin\.collections\.Collection\(\(androidx\.compose\.runtime\.snapshots\.SnapshotStateList\.T\)\)\) \(SnapshotStateList\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.snapshots\.SnapshotStateList\$remove\(androidx\.compose\.runtime\.snapshots\.SnapshotStateList\.T\) \(SnapshotStateList\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.snapshots\.SnapshotStateList\$removeAll\(kotlin\.collections\.Collection\(\(androidx\.compose\.runtime\.snapshots\.SnapshotStateList\.T\)\)\) \(SnapshotStateList\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.animation\.AnimatedContentScope\$using\(androidx\.compose\.animation\.ContentTransform, androidx\.compose\.animation\.SizeTransform\) \(AnimatedContent\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.BroadcastFrameClock\$cancel\(\) \(BroadcastFrameClock\.kt:[0-9]+\)
+Found an unresolved type in androidx\.datastore\.rxjava[0-9]+\.RxDataStore\$dispose\(\) \(RxDataStore\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.Updater\$set\(kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, kotlin\.Int, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.Updater\$set\(androidx\.compose\.runtime\.Updater\.set\.V, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, androidx\.compose\.runtime\.Updater\.set\.V, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.Updater\$update\(kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, kotlin\.Int, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.Updater\$update\(androidx\.compose\.runtime\.Updater\.update\.V, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, androidx\.compose\.runtime\.Updater\.update\.V, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.snapshots\.Snapshot\.Companion\$openSnapshotCount\(\) \(Snapshot\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.geometry\.Offset\$getDistance\(\) \(Offset\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$rotate\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Float, androidx\.compose\.ui\.geometry\.Offset, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$scale\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Float, kotlin\.Float, androidx\.compose\.ui\.geometry\.Offset, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$scale\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Float, androidx\.compose\.ui\.geometry\.Offset, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$clipRect\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, androidx\.compose\.ui\.graphics\.ClipOp, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$clipPath\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, androidx\.compose\.ui\.graphics\.Path, androidx\.compose\.ui\.graphics\.ClipOp, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$withTransform\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawTransform, kotlin\.Unit\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.graphics\.vector\$group\(androidx\.compose\.ui\.graphics\.vector\.ImageVector\.Builder, kotlin\.String, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.collections\.List\(\(androidx\.compose\.ui\.graphics\.vector\.PathNode\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.vector\.ImageVector\.Builder, kotlin\.Unit\)\)\) \(ImageVector\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.unit\$constrainWidth\(androidx\.compose\.ui\.unit\.Constraints, kotlin\.Int\) \(Constraints\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.unit\$constrainHeight\(androidx\.compose\.ui\.unit\.Constraints, kotlin\.Int\) \(Constraints\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.RxPagedListBuilder\$setInitialLoadKey\(androidx\.paging\.RxPagedListBuilder\.Key\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.RxPagedListBuilder\$setBoundaryCallback\(androidx\.paging\.PagedList\.BoundaryCallback\(\(androidx\.paging\.RxPagedListBuilder\.Value\)\)\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.RxPagedListBuilder\$setNotifyScheduler\(io\.reactivex\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.RxPagedListBuilder\$setFetchScheduler\(io\.reactivex\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.security\.crypto\$EncryptedFile\(android\.content\.Context, java\.io\.File, androidx\.security\.crypto\.MasterKey, androidx\.security\.crypto\.EncryptedFile\.FileEncryptionScheme, kotlin\.String, kotlin\.String\) \(EncryptedFile\.kt:[0-9]+\)
+Found an unresolved type in androidx\.slice\.builders\$list\(android\.content\.Context, android\.net\.Uri, kotlin\.Long, kotlin\.Function[0-9]+\(\(androidx\.slice\.builders\.ListBuilderDsl, kotlin\.Unit\)\)\) \(ListBuilder\.kt:[0-9]+\)
+# See b/180023439 for hiltNavGraphViewModel warning.
+Unresolved link to .*
+Found an unresolved type in androidx\.compose\.foundation\.MutatorMutex\$mutate\(androidx\.compose\.foundation\.MutatePriority, kotlin\.coroutines\.SuspendFunction[0-9]+\(\(androidx\.compose\.foundation\.MutatorMutex\.mutate\.R\)\)\) \(MutatorMutex\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.foundation\.MutatorMutex\$mutateWith\(androidx\.compose\.foundation\.MutatorMutex\.mutateWith\.T, androidx\.compose\.foundation\.MutatePriority, kotlin\.coroutines\.SuspendFunction[0-9]+\(\(androidx\.compose\.foundation\.MutatorMutex\.mutateWith\.T, androidx\.compose\.foundation\.MutatorMutex\.mutateWith\.R\)\)\) \(MutatorMutex\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.foundation\.gestures\$detectTapGestures\(androidx\.compose\.ui\.input\.pointer\.PointerInputScope, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\), kotlin\.coroutines\.SuspendFunction[0-9]+\(\(androidx\.compose\.foundation\.gestures\.PressGestureScope, androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\)\) \(TapGestureDetector\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setInitialLoadKey\(androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\.Key\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setBoundaryCallback\(androidx\.paging\.PagedList\.BoundaryCallback\(\(androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\.Value\)\)\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setNotifyScheduler\(io\.reactivex\.rxjava[0-9]+\.core\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setFetchScheduler\(io\.reactivex\.rxjava[0-9]+\.core\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\$mutableStateListOf\(kotlin\.Array\(\(androidx\.compose\.runtime\.mutableStateListOf\.T\)\)\) \(SnapshotState\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\$toMutableStateList\(kotlin\.collections\.Collection\(\(androidx\.compose\.runtime\.toMutableStateList\.T\)\)\) \(SnapshotState\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\$mutableStateMapOf\(kotlin\.Array\(\(kotlin\.Pair\(\(androidx\.compose\.runtime\.mutableStateMapOf\.K, androidx\.compose\.runtime\.mutableStateMapOf\.V\)\)\)\)\) \(SnapshotState\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\$toMutableStateMap\(kotlin\.collections\.Iterable\(\(kotlin\.Pair\(\(androidx\.compose\.runtime\.toMutableStateMap\.K, androidx\.compose\.runtime\.toMutableStateMap\.V\)\)\)\)\) \(SnapshotState\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.runtime\.collection\.MutableVector\$sortWith\(\(\(androidx\.compose\.runtime\.collection\.MutableVector\.T\)\)\) \(MutableVector\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setCoroutineScope\(kotlinx\.coroutines\.CoroutineScope\) \(LivePagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setInitialLoadKey\(androidx\.paging\.LivePagedListBuilder\.Key\) \(LivePagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setBoundaryCallback\(androidx\.paging\.PagedList\.BoundaryCallback\(\(androidx\.paging\.LivePagedListBuilder\.Value\)\)\) \(LivePagedListBuilder\.kt:[0-9]+\)
+Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setFetchExecutor\(java\.util\.concurrent\.Executor\) \(LivePagedListBuilder\.kt:[0-9]+\)
+# > Task :compose:foundation:foundation-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/foundation/foundation/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Task :compose:material:material-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/material/material/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Task :compose:foundation:foundation-layout:foundation-layout-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/foundation/foundation\-layout/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Task :compose:ui:ui-text:ui-text-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/ui/ui\-text/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Task :compose:benchmark-utils:benchmark-utils-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/benchmark\-utils/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Task :compose:ui:ui-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/ui/ui/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Task :compose:animation:animation-core:animation-core-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/animation/animation\-core/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Task :compose:ui:ui-graphics:ui-graphics-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/compose/ui/ui\-graphics/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Task :docs-public:doclavaDocs
+\$OUT_DIR\/androidx\/docs\-public\/build\/unzippedDocsSources\/androidx\/work\/impl\/WorkManagerImpl\.java\:[0-9]+\: error\: cannot find symbol
+import static android\.app\.PendingIntent\.FLAG_MUTABLE\;
+# > Task :docs-public:dackkaDocs
+PROGRESS: Initializing plugins
+Loaded plugins: \[org\.jetbrains\.dokka\.base\.DokkaBase, com\.google\.devsite\.DevsitePlugin\]
+Loaded: \[
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/immediateHtmlCommandConsumer,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/pageTransformer,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/htmlPreprocessors,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/outputWriter,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/externalLocationProviderFactory,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/locationProviderFactory,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/kotlinAnalysis,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/renderer,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/tabSortingStrategy,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/pageMergerStrategy,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/commentsToContentConverter,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/documentableToPageTranslator,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/documentableTransformer,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/signatureProvider,
+ExtensionPoint: org\.jetbrains\.dokka\.base\.DokkaBase/preMergeDocumentableTransformer,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/documentableMerger,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/sourceToDocumentableTranslator,
+ExtensionPoint: org\.jetbrains\.dokka\.CoreExtensions/generation,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/pathToRootConsumer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/resolveLinkConsumer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/defaultSamplesTransformer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/sourceSetMerger,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/pageMerger,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/rootCreator,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/sourcesetDependencyAppender,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/packageListCreator,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/assetsInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/stylesInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/scriptsInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/customResourceInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/navigationSearchInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/navigationPageInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/sourceLinksTransformer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/baseSearchbarDataInstaller,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/fileWriter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/dokkaLocationProvider,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/javadocLocationProvider,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/locationProvider,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/defaultKotlinAnalysis,
+Extension: com\.google\.devsite\.DevsitePlugin/renderer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/defaultTabSortingStrategy,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/sameMethodNameMerger,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/fallbackMerger,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/docTagToContentConverter,
+Extension: com\.google\.devsite\.DevsitePlugin/translator,
+Extension: com\.google\.devsite\.DevsitePlugin/hideFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/extensionsExtractor,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/undocumentedCodeReporter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/inheritorsExtractor,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/sinceKotlinTransformer,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/actualTypealiasAdder,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/kotlinSignatureProvider,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/modulesAndPackagesDocumentation,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/inheritedEntriesVisbilityFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/obviousFunctionsVisbilityFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/documentableVisibilityFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/suppressedBySuppressTagDocumentableFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/suppressedDocumentableFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/deprecatedDocumentableFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/emptyPackagesFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/emptyModulesFilter,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/documentableMerger,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/psiToDocumentableTranslator,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/descriptorToDocumentableTranslator,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/singleGeneration
+\]
+Suppressed: \[
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/documentableToPageTranslator by Extension: com\.google\.devsite\.DevsitePlugin/translator,
+Extension: org\.jetbrains\.dokka\.base\.DokkaBase/htmlRenderer by Extension: com\.google\.devsite\.DevsitePlugin/renderer
+PROGRESS: Dokka is performing: documentation for
+PROGRESS: Validity check
+PROGRESS: Creating documentation models
+ERROR: An attempt to write .*
+WARN: Unable to find what is referred to by
+Generation completed with.*
+# > Task :docs-tip-of-tree:dackkaDocs
+Conflicting documentation for .*
+PROGRESS: Transforming documentation model before merging
+PROGRESS: Merging documentation models
+PROGRESS: Transforming documentation model after merging
+PROGRESS: Creating pages
+PROGRESS: Transforming pages
+Unused extension points found:.*
+PROGRESS:
+=== TIME MEASUREMENT ===
+Initializing plugins\: *[0-9]+
+Validity check\: *[0-9]+
+Creating documentation models: *[0-9]+
+Transforming documentation model before merging\: *[0-9]+
+Merging documentation models\: *[0-9]+
+Transforming documentation model after merging\: *[0-9]+
+Creating pages\: *[0-9]+
+Transforming pages\: *[0-9]+
+Rendering\: *[0-9]+
+@param _value
+in DClass ObservableWatchData
+@param currentUserStyleRepository,
+@param watchState
+in DClass Renderer
+@param bounds
+in DClass ComplicationSlot
+@param id,
+@param canvasComplicationFactory,
+@param supportedTypes,
+\@param defaultProviderPolicy\,
+@param defaultDataSourcePolicy,
+@param boundsType,
+@param bounds,
+\@param defaultPolicy
+@param complicationTapFilter
+in DClass UserStyle
+@param copySelectedOptions
+in DClass Builder
+Did you make a typo\? Are you trying to refer to something not visible to users\?
+# Wire proto generation, task :generateDebugProtos
+Writing .* to \$OUT_DIR/.*/build/generated/source/wire
+# > Task :docs-tip-of-tree:doclavaDocs
+javadoc\: warning \- Multiple sources of package comments found for package \"javax\.annotation\"
+[0-9]+ warning
+# > Task :stripArchiveForPartialDejetification
+Execution optimizations have been disabled for task ':stripArchiveForPartialDejetification' to ensure correctness due to the following reasons:
+\- Gradle detected a problem with the following location: '\$DIST_DIR/top\-of\-tree\-m2repository\-all\-.*.zip'\. Reason: Task ':stripArchiveForPartialDejetification' uses this output of task ':benchmark:benchmark\-gradle\-plugin:buildOnServer' without declaring an explicit or implicit dependency\. This can lead to incorrect results being produced, depending on what order the tasks are executed\. Please refer to https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/validation_problems\.html\#implicit_dependency for more details about this problem\.
+# > Task :icing:lintRelease
+Wrote HTML report to file://\$OUT_DIR/androidx/icing/build/reports/lint\-results\-release\.html
+# https://youtrack.jetbrains.com/issue/KT-30589
+WARNING: Illegal reflective access by org\.jetbrains\.kotlin\.kapt3\.base\.javac\.KaptJavaFileManager .* to method com\.sun\.tools\.javac\.file\.BaseFileManager\.handleOption\(com\.sun\.tools\.javac\.main\.Option,java\.lang\.String\)
+# > Task :benchmark:benchmark-macro:compileReleaseKotlin
+Execution optimizations have been disabled for task ':benchmark:benchmark\-common:.*' to ensure correctness due to the following reasons:
+\- Gradle detected a problem with the following location: '\$OUT_DIR/androidx/benchmark/benchmark\-macro/build/generated/source/wire'\. Reason: Task ':benchmark:benchmark\-macro:.*' uses this output of task ':benchmark:benchmark\-macro:.*' without declaring an explicit or implicit dependency\. This can lead to incorrect results being produced, depending on what order the tasks are executed\. Please refer to https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/validation_problems\.html\#implicit_dependency for more details about this problem\.
+# > Task :profileinstaller:profileinstaller:processDebugUnitTestManifest
+Scanning .+: \.*
+# > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
+\$SUPPORT/compose/ui/ui\-tooling/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+No issues found.*
+dagger\.lint\.DaggerIssueRegistry in .*/lint\.jar does not specify a vendor; see IssueRegistry#vendor
+# > Task :camera:camera-camera2-pipe:reportLibraryMetrics
+Info: Stripped invalid locals information from [0-9]+ methods\.
+Info: Methods with invalid locals information:
+java\.lang\.Object androidx\.wear\.complications\.ComplicationDataSourceInfoRetriever\.retrievePreviewComplicationData\(android\.content\.ComponentName, androidx\.wear\.complications\.data\.ComplicationType, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.wear\.watchface\.editor\.BaseEditorSession\.openComplicationDataSourceChooser\$suspendImpl\(androidx\.wear\.watchface\.editor\.BaseEditorSession, int, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.compose\.ui\.platform\.GlobalSnapshotManager\$ensureStarted\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+java\.lang\.Object androidx\.wear\.watchface\.editor\.BaseEditorSession\$fetchComplicationsData\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.CameraDevicesKt\$find\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.compat\.VirtualCameraManager\$requestLoop\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint OBJECT\.
+java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.compat\.VirtualCameraManager\.openCameraWithRetry\-RzXb[0-9]+QE\(java\.lang\.String, kotlinx\.coroutines\.CoroutineScope, kotlin\.coroutines\.Continuation\)
+Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint INT\.
+Info: Some warnings are typically a sign of using an outdated Java toolchain\. To fix, recompile the source with an updated toolchain\.
+# > Task :paging:paging-samples:reportLibraryMetrics
+java\.lang\.Object androidx\.paging\.samples\.RemoteMediatorSampleKt\$remoteMediatorItemKeyedSample\$ExampleRemoteMediator\.load\(androidx\.paging\.LoadType, androidx\.paging\.PagingState, kotlin\.coroutines\.Continuation\)
+java\.lang\.Object androidx\.paging\.samples\.RemoteMediatorSampleKt\$remoteMediatorPageKeyedSample\$ExampleRemoteMediator\.load\(androidx\.paging\.LoadType, androidx\.paging\.PagingState, kotlin\.coroutines\.Continuation\)
+# > Task :wear:wear-complications-data:reportLibraryMetrics
+Info: Stripped invalid locals information from [0-9]+ method\.
+# > Task :wear:wear-watchface-editor:reportLibraryMetrics
+java\.lang\.Object androidx\.wear\.watchface\.editor\.BaseEditorSession\.getPreviewData\$wear_watchface_editor_release\(androidx\.wear\.complications\.ComplicationDataSourceInfoRetriever, androidx\.wear\.complications\.ComplicationDataSourceInfo, kotlin\.coroutines\.Continuation\)
+# > Task :work:work-runtime-ktx:reportLibraryMetrics
+java\.lang\.Object androidx\.work\.OperationKt\.await\(androidx\.work\.Operation, kotlin\.coroutines\.Continuation\)
+# > Task :compose:material:material:reportLibraryMetrics
+java\.lang\.Object androidx\.compose\.material\.SnackbarHostState\.showSnackbar\(java\.lang\.String, java\.lang\.String, androidx\.compose\.material\.SnackbarDuration, kotlin\.coroutines\.Continuation\)
+# > Task :compose:foundation:foundation:androidReleaseSourcesJar
+Encountered duplicate path "android[a-zA-Z]*/.+" during copy operation configured with DuplicatesStrategy\.WARN
+# > Task :camera:camera-camera2-pipe:reportLibraryMetrics
+java\.lang\.Object androidx\.camera\.camera[0-9]+\.pipe\.compat\.Camera[0-9]+DeviceCache\$getCameras\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+Type information in locals\-table is inconsistent\. Cannot constrain type: @Nullable androidx\.camera\.camera[0-9]+\.pipe\.core\.Debug \{\} for value: v[0-9]+\(this_\$iv\$iv\) by constraint INT\.
+# > Task :compose:foundation:foundation:integration-tests:foundation-demos:reportLibraryMetrics
+java\.lang\.Object androidx\.compose\.foundation\.demos\.ListDemosKt\$ListHoistedStateDemo\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\.invokeSuspend\(java\.lang\.Object\)
+# > Task :profileinstaller:profileinstaller-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/profileinstaller/profileinstaller\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Task :wear:compose:compose-material-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/wear/compose/compose\-material/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$SUPPORT/wear/compose/material/benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Configure project :ads-identifier
+WARNING\:The option setting \'android\.experimental\.enableArtProfiles\=true\' is experimental\.
+The current default is \'false\'\.
+# ./gradlew tasks warns as we have warnings present
+You can use \'\-\-warning\-mode all\' to show the individual deprecation warnings and determine if they come from your own scripts or plugins\.
+# > Task :emoji2:emoji2-bundled:processDebugAndroidTestManifest
+\$SUPPORT/emoji[0-9]+/emoji[0-9]+\-bundled/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+meta\-data\#androidx\.emoji[0-9]+\.text\.EmojiCompatInitializer was tagged at AndroidManifest\.xml:[0-9]+ to remove other declarations but no other declaration present
+# > Task :emoji2:emoji2-bundled:processDebugManifest
+\$SUPPORT/emoji[0-9]+/emoji[0-9]+\-bundled/src/main/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Configure project :emoji2:emoji2-bundled
+WARNING:The option setting 'android\.disableAutomaticComponentCreation=true' is experimental\.
+# > Task :navigation:navigation-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/navigation/navigation\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# b/195025261
+Unable to detect AGP versions for included builds\. All projects in the build should use the same AGP version\. Class name for the included build .*
+\- Gradle detected a problem with the following location: '\$OUT_DIR/androidx/benchmark/benchmark-common/build/generated/source/wire'\. Reason: Task ':benchmark:benchmark-common:.*' uses this output of task ':benchmark:benchmark-common:generate(Debug|Release)Protos' without declaring an explicit or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed. Please refer to .*
+To honour the JVM settings for this build a single\-use Daemon process will be forked.*
+# > Task :work:work-benchmark:processReleaseAndroidTestManifest
+\$SUPPORT/work/work\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+# > Task :lint-checks:integration-tests:copyReleaseAndroidLintReports
+Copying lint text report to \$OUT_DIR/androidx/lint\-checks/integration\-tests/build/lint\-results\-release\.txt

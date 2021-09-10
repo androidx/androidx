@@ -103,6 +103,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
         checkState("onAttach", State.DETACHED)
         currentState = State.ATTACHED
         onStateChanged(State.DETACHED)
+        @Suppress("Deprecation") // We're not setting retainInstance, just supporting it
         if (retainInstance && calledOnCreate) {
             // We were created previously
             currentState = State.CREATED
@@ -124,10 +125,11 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
+        @Suppress("Deprecation") // we're just calling the superclass method with the same name
         super.onActivityCreated(savedInstanceState)
         checkActivityNotDestroyed()
         calledOnActivityCreated = true
-        checkState("onActivityCreated", State.ATTACHED, State.CREATED)
+        checkState("onActivityCreated", State.ATTACHED, State.CREATED, State.VIEW_CREATED)
         val fromState = currentState
         currentState = State.ACTIVITY_CREATED
         onStateChanged(fromState)
@@ -198,6 +200,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
         DETACHED,
         ATTACHED,
         CREATED,
+        VIEW_CREATED,
         ACTIVITY_CREATED,
         STARTED,
         RESUMED

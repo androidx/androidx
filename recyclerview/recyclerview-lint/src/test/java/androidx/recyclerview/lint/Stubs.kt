@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.recyclerview.lint
 
-import com.android.tools.lint.checks.infrastructure.LintDetectorTest.TestFile
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
+import com.android.tools.lint.checks.infrastructure.TestFile
 
 object Stubs {
     val VIEW: TestFile = kotlin(

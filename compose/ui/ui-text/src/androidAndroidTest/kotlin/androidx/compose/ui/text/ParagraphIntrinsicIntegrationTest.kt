@@ -16,7 +16,8 @@
 
 package androidx.compose.ui.text
 
-import androidx.compose.ui.text.font.asFontFamily
+import androidx.compose.ui.text.AnnotatedString.Range
+import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
@@ -30,7 +31,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class ParagraphIntrinsicIntegrationTest {
-    private val fontFamilyMeasureFont = FontTestData.BASIC_MEASURE_FONT.asFontFamily()
+    private val fontFamilyMeasureFont = FontTestData.BASIC_MEASURE_FONT.toFontFamily()
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val defaultDensity = Density(density = 1f)
 
@@ -98,7 +99,7 @@ class ParagraphIntrinsicIntegrationTest {
                 text = text,
                 fontSize = fontSize,
                 spanStyles = listOf(
-                    SpanStyleRange(
+                    Range(
                         item = SpanStyle(fontSize = styledFontSize),
                         start = "a ".length,
                         end = "a bb ".length
@@ -182,7 +183,7 @@ class ParagraphIntrinsicIntegrationTest {
                 text = text,
                 fontSize = fontSize,
                 spanStyles = listOf(
-                    SpanStyleRange(
+                    Range(
                         item = SpanStyle(fontSize = styledFontSize),
                         start = "a".length,
                         end = "a bb ".length
@@ -199,7 +200,7 @@ class ParagraphIntrinsicIntegrationTest {
         text: String = "",
         style: TextStyle? = null,
         fontSize: TextUnit = 14.sp,
-        spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf()
+        spanStyles: List<Range<SpanStyle>> = listOf()
     ): ParagraphIntrinsics {
         return ParagraphIntrinsics(
             text = text,

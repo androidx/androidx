@@ -22,6 +22,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
 
 @SuppressLint("BanParcelableUsage")
 final class FragmentState implements Parcelable {
@@ -69,6 +70,39 @@ final class FragmentState implements Parcelable {
         mHidden = in.readInt() != 0;
         mSavedFragmentState = in.readBundle();
         mMaxLifecycleState = in.readInt();
+    }
+
+    /**
+     * Instantiates the Fragment from this state.
+     */
+    @NonNull
+    Fragment instantiate(@NonNull FragmentFactory fragmentFactory,
+            @NonNull ClassLoader classLoader) {
+        Fragment fragment = fragmentFactory.instantiate(classLoader, mClassName);
+        if (mArguments != null) {
+            mArguments.setClassLoader(classLoader);
+        }
+        fragment.setArguments(mArguments);
+        fragment.mWho = mWho;
+        fragment.mFromLayout = mFromLayout;
+        fragment.mRestored = true;
+        fragment.mFragmentId = mFragmentId;
+        fragment.mContainerId = mContainerId;
+        fragment.mTag = mTag;
+        fragment.mRetainInstance = mRetainInstance;
+        fragment.mRemoving = mRemoving;
+        fragment.mDetached = mDetached;
+        fragment.mHidden = mHidden;
+        fragment.mMaxState = Lifecycle.State.values()[mMaxLifecycleState];
+        if (mSavedFragmentState != null) {
+            fragment.mSavedFragmentState = mSavedFragmentState;
+        } else {
+            // When restoring a Fragment, always ensure we have a
+            // non-null Bundle so that developers have a signal for
+            // when the Fragment is being restored
+            fragment.mSavedFragmentState = new Bundle();
+        }
+        return fragment;
     }
 
     @NonNull

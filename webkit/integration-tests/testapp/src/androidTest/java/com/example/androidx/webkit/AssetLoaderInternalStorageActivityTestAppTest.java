@@ -16,28 +16,34 @@
 
 package com.example.androidx.webkit;
 
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Integeration test for AssetLoaderInternalStorageActivity demo activity.
+ * Integration test for {@link AssetLoaderInternalStorageActivity}.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public final class AssetLoaderInternalStorageActivityTestAppTest {
 
     @Rule
-    public IntegrationActivityTestRule<AssetLoaderInternalStorageActivity> mRule =
-            new IntegrationActivityTestRule<>(AssetLoaderInternalStorageActivity.class,
-                    R.id.webview_asset_loader_webview);
+    public ActivityScenarioRule<AssetLoaderInternalStorageActivity> mRule =
+            new ActivityScenarioRule<>(AssetLoaderInternalStorageActivity.class);
+
+    @Before
+    public void setUp() {
+        WebkitTestHelpers.enableJavaScript(R.id.webview_asset_loader_webview);
+    }
 
     @Test
     public void testAssetLoaderInternalStorageActivity() {
-        mRule.assertHtmlElementContainsText(R.id.webview_asset_loader_webview, "data_success_msg",
-                "Successfully loaded html from app files dir!");
+        WebkitTestHelpers.assertHtmlElementContainsText(R.id.webview_asset_loader_webview,
+                "data_success_msg", "Successfully loaded html from app files dir!");
     }
 }

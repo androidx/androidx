@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"கடவுச்சொல்லைப் பயன்படுத்து"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"பின்னோ பேட்டர்னோ கடவுச்சொல்லோ அமைக்கப்படவில்லை."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"பின், பேட்டர்ன், கடவுச்சொல் ஆகியவற்றை இந்தச் சாதனம் ஆதரிக்கவில்லை."</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"கைரேகை ஐகான்"</string>
 </resources>

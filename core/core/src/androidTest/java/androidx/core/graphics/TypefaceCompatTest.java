@@ -141,7 +141,8 @@ public class TypefaceCompatTest {
         final FontRequest parsedRequest = entry.getRequest();
         final FontRequest request = new FontRequest(parsedRequest.getProviderAuthority(),
                 parsedRequest.getProviderPackage(), parsedRequest.getQuery(), SIGNATURE);
-        return new ProviderResourceEntry(request, entry.getFetchStrategy(), entry.getTimeout());
+        return new ProviderResourceEntry(request, entry.getFetchStrategy(), entry.getTimeout(),
+                entry.getSystemFontFamilyName());
     }
 
     public static class FontCallback extends ResourcesCompat.FontCallback {
@@ -254,7 +255,7 @@ public class TypefaceCompatTest {
         Instrumentation inst = InstrumentationRegistry.getInstrumentation();
         CountDownLatch latch = new CountDownLatch(1);
         final FontCallback callback = new FontCallback(latch);
-        FontsContractCompat.resetCache();
+        FontsContractCompat.resetTypefaceCache();
 
         final Typeface[] result = new Typeface[1];
         inst.runOnMainSync(new Runnable() {
@@ -276,7 +277,7 @@ public class TypefaceCompatTest {
         Instrumentation inst = InstrumentationRegistry.getInstrumentation();
         CountDownLatch latch = new CountDownLatch(1);
         final FontCallback callback = new FontCallback(latch);
-        FontsContractCompat.resetCache();
+        FontsContractCompat.resetTypefaceCache();
 
         final Typeface[] result = new Typeface[2];
         inst.runOnMainSync(new Runnable() {

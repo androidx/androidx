@@ -34,6 +34,7 @@ import androidx.test.filters.MediumTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @MediumTest
@@ -234,6 +235,24 @@ public class UseCaseAttachStateTest {
             callback.onCaptureCompleted(null);
         }
         verify(testUseCaseDataProvider.mCameraCaptureCallback, never()).onCaptureCompleted(null);
+    }
+
+    @Test
+    public void retainUseCaseAttachedOrder() {
+        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
+
+        List<SessionConfig> sessionConfigs = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            TestUseCaseDataProvider fakeUseCase = new TestUseCaseDataProvider();
+            useCaseAttachState.setUseCaseAttached(fakeUseCase.getName(),
+                    fakeUseCase.getSessionConfig());
+            sessionConfigs.add(fakeUseCase.getSessionConfig());
+        }
+
+        List<SessionConfig> attachedSessionConfigs =
+                new ArrayList<>(useCaseAttachState.getAttachedSessionConfigs());
+
+        assertThat(attachedSessionConfigs).isEqualTo(sessionConfigs);
     }
 
     @Test

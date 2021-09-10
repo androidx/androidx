@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.wear.watchface.samples.minimal">
+
+  <uses-feature android:name="android.hardware.type.watch" />
+
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+  <application
+      android:allowBackup="true"
+      android:icon="@mipmap/ic_launcher"
+      android:label="@string/app_name"
+      android:supportsRtl="true"
+      android:theme="@android:style/Theme.DeviceDefault"
+      android:fullBackupContent="false">
+
+    <service
+        android:name=".WatchFaceService"
+        android:directBootAware="true"
+        android:exported="true"
+        android:label="@string/app_name"
+        android:permission="android.permission.BIND_WALLPAPER">
+
+      <intent-filter>
+        <action android:name="android.service.wallpaper.WallpaperService" />
+        <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
+      </intent-filter>
+
+      <meta-data
+          android:name="com.google.android.wearable.watchface.preview"
+          android:resource="@drawable/preview" />
+
+      <meta-data
+          android:name="android.service.wallpaper"
+          android:resource="@xml/watch_face" />
+
+    </service>
+
+  </application>
+
+</manifest>

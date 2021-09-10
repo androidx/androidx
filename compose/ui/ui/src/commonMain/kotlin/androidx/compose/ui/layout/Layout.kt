@@ -20,68 +20,78 @@ package androidx.compose.ui.layout
 
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.ReusableComposeNode
 import androidx.compose.runtime.SkippableUpdater
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.currentComposer
-import androidx.compose.runtime.emit
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.materialize
-import androidx.compose.ui.node.ExperimentalLayoutNodeApi
-import androidx.compose.ui.node.LayoutEmitHelper
+import androidx.compose.ui.node.ComposeUiNode
 import androidx.compose.ui.node.LayoutNode
-import androidx.compose.ui.platform.AmbientDensity
-import androidx.compose.ui.platform.AmbientLayoutDirection
+import androidx.compose.ui.node.MeasureBlocks
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.simpleIdentityToString
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
-import kotlin.math.max
 
 /**
  * [Layout] is the main core component for layout. It can be used to measure and position
- * zero or more children.
+ * zero or more layout children.
  *
- * Intrinsic measurement blocks define the intrinsic sizes of the current layout. These
- * can be queried by the parent in order to understand, in specific cases, what constraints
- * should the layout be measured with:
- * - [minIntrinsicWidthMeasureBlock] defines the minimum width this layout can take, given
- *   a specific height, such that the content of the layout will be painted correctly
- * - [minIntrinsicHeightMeasureBlock] defines the minimum height this layout can take, given
- *   a specific width, such that the content of the layout will be painted correctly
- * - [maxIntrinsicWidthMeasureBlock] defines the minimum width such that increasing it further
- *   will not decrease the minimum intrinsic height
- * - [maxIntrinsicHeightMeasureBlock] defines the minimum height such that increasing it further
- *   will not decrease the minimum intrinsic width
+ * The measurement, layout and intrinsic measurement behaviours of this layout will be defined
+ * by the [measurePolicy] instance. See [MeasurePolicy] for more details.
  *
  * For a composable able to define its content according to the incoming constraints,
- * see [WithConstraints].
+ * see [androidx.compose.foundation.layout.BoxWithConstraints].
  *
  * Example usage:
+ * @sample androidx.compose.ui.samples.LayoutUsage
+ *
+ * Example usage with custom intrinsic measurements:
  * @sample androidx.compose.ui.samples.LayoutWithProvidedIntrinsicsUsage
  *
  * @param content The children composable to be laid out.
  * @param modifier Modifiers to be applied to the layout.
- * @param minIntrinsicWidthMeasureBlock The minimum intrinsic width of the layout.
- * @param minIntrinsicHeightMeasureBlock The minimum intrinsic height of the layout.
- * @param maxIntrinsicWidthMeasureBlock The maximum intrinsic width of the layout.
- * @param maxIntrinsicHeightMeasureBlock The maximum intrinsic height of the layout.
- * @param measureBlock The block defining the measurement and positioning of the layout.
+ * @param measurePolicy The policy defining the measurement and positioning of the layout.
  *
  * @see Layout
- * @see WithConstraints
+ * @see MeasurePolicy
+ * @see androidx.compose.foundation.layout.BoxWithConstraints
  */
 @Suppress("ComposableLambdaParameterPosition")
+@Composable inline fun Layout(
+    content: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    measurePolicy: MeasurePolicy
+) {
+    val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
+    val viewConfiguration = LocalViewConfiguration.current
+    ReusableComposeNode<ComposeUiNode, Applier<Any>>(
+        factory = ComposeUiNode.Constructor,
+        update = {
+            set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
+            set(density, ComposeUiNode.SetDensity)
+            set(layoutDirection, ComposeUiNode.SetLayoutDirection)
+            set(viewConfiguration, ComposeUiNode.SetViewConfiguration)
+        },
+        skippableUpdate = materializerOf(modifier),
+        content = content
+    )
+}
+
+@Suppress("ComposableLambdaParameterPosition")
 @Composable
-@OptIn(ExperimentalLayoutNodeApi::class)
-fun Layout(
+@Deprecated(
+    "This composable was deprecated. Please use the alternative Layout overloads instead."
+)
+internal fun Layout(
     content: @Composable () -> Unit,
     minIntrinsicWidthMeasureBlock: IntrinsicMeasureBlock,
     minIntrinsicHeightMeasureBlock: IntrinsicMeasureBlock,
@@ -90,55 +100,48 @@ fun Layout(
     modifier: Modifier = Modifier,
     measureBlock: MeasureBlock
 ) {
-    val measureBlocks = measureBlocksOf(
-        minIntrinsicWidthMeasureBlock,
-        minIntrinsicHeightMeasureBlock,
-        maxIntrinsicWidthMeasureBlock,
-        maxIntrinsicHeightMeasureBlock,
-        measureBlock
-    )
-    Layout(content, measureBlocks, modifier)
+    val measurePolicy = object : MeasurePolicy {
+        override fun MeasureScope.measure(
+            measurables: List<Measurable>,
+            constraints: Constraints
+        ) = measureBlock(this, measurables, constraints)
+
+        override fun IntrinsicMeasureScope.minIntrinsicWidth(
+            measurables: List<IntrinsicMeasurable>,
+            height: Int
+        ) = minIntrinsicWidthMeasureBlock(this, measurables, height)
+
+        override fun IntrinsicMeasureScope.minIntrinsicHeight(
+            measurables: List<IntrinsicMeasurable>,
+            width: Int
+        ) = minIntrinsicHeightMeasureBlock(this, measurables, width)
+
+        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+            measurables: List<IntrinsicMeasurable>,
+            height: Int
+        ) = maxIntrinsicWidthMeasureBlock(this, measurables, height)
+
+        override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+            measurables: List<IntrinsicMeasurable>,
+            width: Int
+        ) = maxIntrinsicHeightMeasureBlock(this, measurables, width)
+    }
+
+    Layout(content, modifier, measurePolicy)
 }
 
-/**
- * Creates an instance of [LayoutNode.MeasureBlocks] to pass to [Layout] given
- * intrinsic measures and a measure block.
- *
- * @sample androidx.compose.ui.samples.LayoutWithMeasureBlocksWithIntrinsicUsage
- *
- * Intrinsic measurement blocks define the intrinsic sizes of the current layout. These
- * can be queried by the parent in order to understand, in specific cases, what constraints
- * should the layout be measured with:
- * - [minIntrinsicWidthMeasureBlock] defines the minimum width this layout can take, given
- *   a specific height, such that the content of the layout will be painted correctly
- * - [minIntrinsicHeightMeasureBlock] defines the minimum height this layout can take, given
- *   a specific width, such that the content of the layout will be painted correctly
- * - [maxIntrinsicWidthMeasureBlock] defines the minimum width such that increasing it further
- *   will not decrease the minimum intrinsic height
- * - [maxIntrinsicHeightMeasureBlock] defines the minimum height such that increasing it further
- *   will not decrease the minimum intrinsic width
- *
- * For a composable able to define its content according to the incoming constraints,
- * see [WithConstraints].
- *
- * @param minIntrinsicWidthMeasureBlock The minimum intrinsic width of the layout.
- * @param minIntrinsicHeightMeasureBlock The minimum intrinsic height of the layout.
- * @param maxIntrinsicWidthMeasureBlock The maximum intrinsic width of the layout.
- * @param maxIntrinsicHeightMeasureBlock The maximum intrinsic height of the layout.
- * @param measureBlock The block defining the measurement and positioning of the layout.
- *
- * @see Layout
- * @see WithConstraints
- */
-@ExperimentalLayoutNodeApi
-fun measureBlocksOf(
+@Deprecated(
+    "MeasureBlocks was deprecated. Please use MeasurePolicy and the Layout overloads using " +
+        "it instead."
+)
+internal fun measureBlocksOf(
     minIntrinsicWidthMeasureBlock: IntrinsicMeasureBlock,
     minIntrinsicHeightMeasureBlock: IntrinsicMeasureBlock,
     maxIntrinsicWidthMeasureBlock: IntrinsicMeasureBlock,
     maxIntrinsicHeightMeasureBlock: IntrinsicMeasureBlock,
     measureBlock: MeasureBlock
-): LayoutNode.MeasureBlocks {
-    return object : LayoutNode.MeasureBlocks {
+): MeasureBlocks {
+    return object : MeasureBlocks {
         override fun measure(
             measureScope: MeasureScope,
             measurables: List<Measurable>,
@@ -167,123 +170,44 @@ fun measureBlocksOf(
     }
 }
 
-/**
- * [Layout] is the main core component for layout. It can be used to measure and position
- * zero or more children.
- *
- * The intrinsic measurements of this layout will be calculated by running the measureBlock,
- * while swapping measure calls with appropriate intrinsic measurements. Note that these
- * provided implementations will not be accurate in all cases - when this happens, the other
- * overload of [Layout] should be used to provide correct measurements.
- *
- * For a composable able to define its content according to the incoming constraints,
- * see [WithConstraints].
- *
- * Example usage:
- * @sample androidx.compose.ui.samples.LayoutUsage
- *
- * @param content The children composable to be laid out.
- * @param modifier Modifiers to be applied to the layout.
- * @param measureBlock The block defining the measurement and positioning of the layout.
- *
- * @see Layout
- * @see WithConstraints
- */
-@Suppress("ComposableLambdaParameterPosition")
-@Composable
-@OptIn(ExperimentalLayoutNodeApi::class)
-/*inline*/ fun Layout(
-    /*crossinline*/
-    content: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    /*noinline*/
-    measureBlock: MeasureBlock
-) {
-    val measureBlocks = remember(measureBlock) { MeasuringIntrinsicsMeasureBlocks(measureBlock) }
-    Layout(content, measureBlocks, modifier)
-}
-
-/**
- * [Layout] is the main core component for layout. It can be used to measure and position
- * zero or more children.
- *
- * The intrinsic measurements of this layout will be calculated by using the [measureBlocks]
- * instance.
- *
- * For a composable able to define its content according to the incoming constraints,
- * see [WithConstraints].
- *
- * Example usage:
- * @sample androidx.compose.ui.samples.LayoutWithMeasureBlocksWithIntrinsicUsage
- *
- * @param content The children composable to be laid out.
- * @param modifier Modifiers to be applied to the layout.
- * @param measureBlocks An [LayoutNode.MeasureBlocks] instance defining the measurement and
- * positioning of the layout.
- *
- * @see Layout
- * @see measureBlocksOf
- * @see WithConstraints
- */
-
-@Suppress("ComposableLambdaParameterPosition")
-@ExperimentalLayoutNodeApi
-@Composable inline fun Layout(
-    content: @Composable () -> Unit,
-    measureBlocks: LayoutNode.MeasureBlocks,
-    modifier: Modifier = Modifier
-) {
-    @OptIn(ExperimentalComposeApi::class)
-    emit<LayoutNode, Applier<Any>>(
-        ctor = LayoutEmitHelper.constructor,
-        update = {
-            set(measureBlocks, LayoutEmitHelper.setMeasureBlocks)
-            set(AmbientDensity.current, LayoutEmitHelper.setDensity)
-            set(AmbientLayoutDirection.current, LayoutEmitHelper.setLayoutDirection)
-        },
-        skippableUpdate = materializerOf(modifier),
-        content = content
-    )
-}
-
-@ExperimentalLayoutNodeApi
 @PublishedApi
 internal fun materializerOf(
     modifier: Modifier
-): @Composable SkippableUpdater<LayoutNode>.() -> Unit = {
+): @Composable SkippableUpdater<ComposeUiNode>.() -> Unit = {
     val materialized = currentComposer.materialize(modifier)
     update {
-        set(materialized, LayoutEmitHelper.setModifier)
+        set(materialized, ComposeUiNode.SetModifier)
     }
 }
 
-@Suppress("ComposableLambdaParameterNaming", "ComposableLambdaParameterPosition")
+@Suppress("ComposableLambdaParameterPosition")
 @Composable
 @Deprecated(
-    "This composable is temporary to enable quicker prototyping in ConstraintLayout. " +
-        "It should not be used in app code directly."
+    "This API is unsafe for UI performance at scale - using it incorrectly will lead " +
+        "to exponential performance issues. This API should be avoided whenever possible."
 )
-@OptIn(ExperimentalLayoutNodeApi::class)
 fun MultiMeasureLayout(
     modifier: Modifier = Modifier,
-    children: @Composable () -> Unit,
-    measureBlock: MeasureBlock
+    content: @Composable () -> Unit,
+    measurePolicy: MeasurePolicy
 ) {
-    val measureBlocks = remember(measureBlock) { MeasuringIntrinsicsMeasureBlocks(measureBlock) }
     val materialized = currentComposer.materialize(modifier)
+    val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
+    val viewConfiguration = LocalViewConfiguration.current
 
-    @OptIn(ExperimentalComposeApi::class)
-    emit<LayoutNode, Applier<Any>>(
-        ctor = LayoutEmitHelper.constructor,
+    ReusableComposeNode<LayoutNode, Applier<Any>>(
+        factory = LayoutNode.Constructor,
         update = {
-            set(materialized, LayoutEmitHelper.setModifier)
-            set(measureBlocks, LayoutEmitHelper.setMeasureBlocks)
-            set(AmbientDensity.current, LayoutEmitHelper.setDensity)
-            set(AmbientLayoutDirection.current, LayoutEmitHelper.setLayoutDirection)
+            set(materialized, ComposeUiNode.SetModifier)
+            set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
+            set(density, ComposeUiNode.SetDensity)
+            set(layoutDirection, ComposeUiNode.SetLayoutDirection)
+            set(viewConfiguration, ComposeUiNode.SetViewConfiguration)
             @Suppress("DEPRECATION")
-            set(Unit) { this.canMultiMeasure = true }
+            init { this.canMultiMeasure = true }
         },
-        content = children
+        content = content
     )
 }
 
@@ -295,7 +219,7 @@ private class FixedSizeIntrinsicsPlaceable(width: Int, height: Int) : Placeable(
         measuredSize = IntSize(width, height)
     }
 
-    override fun get(line: AlignmentLine): Int = AlignmentLine.Unspecified
+    override fun get(alignmentLine: AlignmentLine): Int = AlignmentLine.Unspecified
     override fun placeAt(
         position: IntOffset,
         zIndex: Float,
@@ -307,7 +231,6 @@ private class FixedSizeIntrinsicsPlaceable(width: Int, height: Int) : Placeable(
 /**
  * Identifies an [IntrinsicMeasurable] as a min or max intrinsic measurement.
  */
-@PublishedApi
 internal enum class IntrinsicMinMax {
     Min, Max
 }
@@ -315,18 +238,16 @@ internal enum class IntrinsicMinMax {
 /**
  * Identifies an [IntrinsicMeasurable] as a width or height intrinsic measurement.
  */
-@PublishedApi
 internal enum class IntrinsicWidthHeight {
     Width, Height
 }
 
 /**
- * A wrapper around a [Measurable] for intrinsic measurments in [Layout]. Consumers of
+ * A wrapper around a [Measurable] for intrinsic measurements in [Layout]. Consumers of
  * [Layout] don't identify intrinsic methods, but we can give a reasonable implementation
  * by using their [measure], substituting the intrinsics gathering method
  * for the [Measurable.measure] call.
  */
-@PublishedApi
 internal class DefaultIntrinsicMeasurable(
     val measurable: IntrinsicMeasurable,
     val minMax: IntrinsicMinMax,
@@ -373,20 +294,18 @@ internal class DefaultIntrinsicMeasurable(
  * Receiver scope for [Layout]'s and [LayoutModifier]'s layout lambda when used in an intrinsics
  * call.
  */
-@PublishedApi
-@OptIn(ExperimentalLayoutNodeApi::class)
 internal class IntrinsicsMeasureScope(
     density: Density,
     override val layoutDirection: LayoutDirection
 ) : MeasureScope, Density by density
 
 /**
- * Default [LayoutNode.MeasureBlocks] object implementation, providing intrinsic measurements
+ * Default [MeasureBlocks] object implementation, providing intrinsic measurements
  * that use the measure block replacing the measure calls with intrinsic measurement calls.
  */
-@OptIn(ExperimentalLayoutNodeApi::class)
-fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
-    object : LayoutNode.MeasureBlocks {
+@Deprecated("MeasuringIntrinsicsMeasureBlocks was deprecated. Please use MeasurePolicy instead.")
+internal fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
+    object : MeasureBlocks {
         override fun measure(
             measureScope: MeasureScope,
             measurables: List<Measurable>,
@@ -447,13 +366,13 @@ fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
  * Default implementation for the min intrinsic width of a layout. This works by running the
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
-private inline fun Density.MeasuringMinIntrinsicWidth(
-    measureBlock: MeasureBlock /*TODO: crossinline*/,
+private fun Density.MeasuringMinIntrinsicWidth(
+    measureBlock: MeasureScope.(List<Measurable>, Constraints) -> MeasureResult,
     measurables: List<IntrinsicMeasurable>,
     h: Int,
     layoutDirection: LayoutDirection
 ): Int {
-    val mapped = measurables.map {
+    val mapped = measurables.fastMap {
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Width)
     }
     val constraints = Constraints(maxHeight = h)
@@ -466,13 +385,13 @@ private inline fun Density.MeasuringMinIntrinsicWidth(
  * Default implementation for the min intrinsic width of a layout. This works by running the
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
-private inline fun Density.MeasuringMinIntrinsicHeight(
-    measureBlock: MeasureBlock /*TODO: crossinline*/,
+private fun Density.MeasuringMinIntrinsicHeight(
+    measureBlock: MeasureScope.(List<Measurable>, Constraints) -> MeasureResult,
     measurables: List<IntrinsicMeasurable>,
     w: Int,
     layoutDirection: LayoutDirection
 ): Int {
-    val mapped = measurables.map {
+    val mapped = measurables.fastMap {
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Height)
     }
     val constraints = Constraints(maxWidth = w)
@@ -485,13 +404,13 @@ private inline fun Density.MeasuringMinIntrinsicHeight(
  * Default implementation for the max intrinsic width of a layout. This works by running the
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
-private inline fun Density.MeasuringMaxIntrinsicWidth(
-    measureBlock: MeasureBlock /*TODO: crossinline*/,
+private fun Density.MeasuringMaxIntrinsicWidth(
+    measureBlock: MeasureScope.(List<Measurable>, Constraints) -> MeasureResult,
     measurables: List<IntrinsicMeasurable>,
     h: Int,
     layoutDirection: LayoutDirection
 ): Int {
-    val mapped = measurables.map {
+    val mapped = measurables.fastMap {
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Width)
     }
     val constraints = Constraints(maxHeight = h)
@@ -504,104 +423,17 @@ private inline fun Density.MeasuringMaxIntrinsicWidth(
  * Default implementation for the max intrinsic height of a layout. This works by running the
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
-private inline fun Density.MeasuringMaxIntrinsicHeight(
-    measureBlock: MeasureBlock /*TODO: crossinline*/,
+private fun Density.MeasuringMaxIntrinsicHeight(
+    measureBlock: MeasureScope.(List<Measurable>, Constraints) -> MeasureResult,
     measurables: List<IntrinsicMeasurable>,
     w: Int,
     layoutDirection: LayoutDirection
 ): Int {
-    val mapped = measurables.map {
+    val mapped = measurables.fastMap {
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Height)
     }
     val constraints = Constraints(maxWidth = w)
     val layoutReceiver = IntrinsicsMeasureScope(this, layoutDirection)
     val layoutResult = layoutReceiver.measureBlock(mapped, constraints)
     return layoutResult.height
-}
-
-/**
- * A composable that defines its own content according to the available space, based on the incoming
- * constraints or the current [LayoutDirection]. Example usage:
- * @sample androidx.compose.ui.samples.WithConstraintsSample
- *
- * The composable will compose the given children, and will position the resulting layout composables
- * in a parent [Layout]. This layout will be as small as possible such that it can fit its
- * children. If the composition yields multiple layout children, these will be all placed at the
- * top left of the WithConstraints, so consider wrapping them in an additional common
- * parent if different positioning is preferred.
- *
- * @param modifier Modifier to be applied to the introduced layout.
- */
-@Composable
-fun WithConstraints(
-    modifier: Modifier = Modifier,
-    content: @Composable WithConstraintsScope.() -> Unit
-) {
-    SubcomposeLayout(modifier) { constraints ->
-        val scope = WithConstraintsScopeImpl(this, constraints)
-        val placeables = subcompose(Unit) { scope.content() }
-            .fastMap { it.measure(constraints) }
-
-        var maxWidth: Int = constraints.minWidth
-        var maxHeight: Int = constraints.minHeight
-        placeables.fastForEach {
-            maxWidth = max(maxWidth, it.width)
-            maxHeight = max(maxHeight, it.height)
-        }
-
-        layout(maxWidth, maxHeight) {
-            placeables.fastForEach { it.placeRelative(0, 0) }
-        }
-    }
-}
-
-/**
- * Receiver scope being used by the children parameter of [WithConstraints]
- */
-@Stable
-interface WithConstraintsScope {
-    /**
-     * The constraints given by the parent layout in pixels.
-     *
-     * Use [minWidth], [maxWidth], [minHeight] or [maxHeight] if you need value in [Dp].
-     */
-    val constraints: Constraints
-    /**
-     * The minimum width in [Dp].
-     *
-     * @see constraints for the values in pixels.
-     */
-    val minWidth: Dp
-    /**
-     * The maximum width in [Dp].
-     *
-     * @see constraints for the values in pixels.
-     */
-    val maxWidth: Dp
-    /**
-     * The minimum height in [Dp].
-     *
-     * @see constraints for the values in pixels.
-     */
-    val minHeight: Dp
-    /**
-     * The minimum height in [Dp].
-     *
-     * @see constraints for the values in pixels.
-     */
-    val maxHeight: Dp
-}
-
-private data class WithConstraintsScopeImpl(
-    private val density: Density,
-    override val constraints: Constraints
-) : WithConstraintsScope {
-    override val minWidth: Dp
-        get() = with(density) { constraints.minWidth.toDp() }
-    override val maxWidth: Dp
-        get() = with(density) { constraints.maxWidth.toDp() }
-    override val minHeight: Dp
-        get() = with(density) { constraints.minHeight.toDp() }
-    override val maxHeight: Dp
-        get() = with(density) { constraints.maxHeight.toDp() }
 }

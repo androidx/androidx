@@ -16,18 +16,19 @@
 
 package androidx.compose.foundation.demos.text
 
-import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.selection.SelectionContainer
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.withStyle
@@ -42,7 +43,7 @@ val link = SpanStyle(color = Color(0xFF03a9f4))
 val highlight = SpanStyle(background = Color(0xFFefefef))
 val rectColor = Color(0xFFffb74d)
 
-val langContent = arrayOf(
+val langContent = listOf(
     arrayOf(
         "Jetpack يؤلف أساسيات",
         "Jetpack Compose عبارة عن مجموعة أدوات حديثة لبناء واجهة مستخدم " +
@@ -71,16 +72,24 @@ val langContent = arrayOf(
 
 @Composable
 fun TextSelectionSample() {
-    ScrollableColumn {
-        SelectionContainer {
-            Column(Modifier.padding(12.dp)) {
+    SelectionContainer {
+        LazyColumn(Modifier.padding(12.dp)) {
+            item {
                 Basics()
+            }
+            item {
                 AddTextElement()
-                langContent.forEach {
-                    MultiLanguage(it[0], it[1])
-                }
+            }
+            items(langContent) {
+                MultiLanguage(it[0], it[1])
+            }
+            item {
                 Basics()
+            }
+            item {
                 MultiParagraph()
+            }
+            item {
                 AddTextElement()
             }
         }
@@ -94,7 +103,7 @@ private fun Basics() {
         style = commonStyle.merge(header)
     )
     Row {
-        Box(Modifier.padding(8.dp).preferredSize(48.dp).background(rectColor))
+        Box(Modifier.padding(8.dp).size(48.dp).background(rectColor))
         Text(
             text = "Jetpack Compose is a modern toolkit for building native Android UI." +
                 " Jetpack Compose simplifies and accelerates UI development on Android " +
@@ -128,12 +137,12 @@ private fun AddTextElement() {
                 style = commonStyle
             )
         }
-        Box(Modifier.padding(8.dp).preferredSize(48.dp).background(rectColor))
+        Box(Modifier.padding(8.dp).size(48.dp).background(rectColor))
     }
     Box(
         Modifier
             .padding(top = 20.dp, bottom = 20.dp)
-            .preferredSize(200.dp, 60.dp)
+            .size(200.dp, 60.dp)
             .background(rectColor)
     )
     Text(
@@ -199,7 +208,7 @@ private fun MultiLanguage(title: String, content: String) {
         style = commonStyle.merge(header)
     )
     Row {
-        Box(Modifier.padding(8.dp).preferredSize(48.dp).background(rectColor))
+        Box(Modifier.padding(8.dp).size(48.dp).background(rectColor))
         Text(
             text = content,
             modifier = Modifier.weight(1f),

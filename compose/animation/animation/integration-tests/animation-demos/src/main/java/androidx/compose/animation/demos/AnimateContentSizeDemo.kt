@@ -25,14 +25,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AmbientTextStyle
 import androidx.compose.material.Button
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -52,16 +52,16 @@ fun AnimateContentSizeDemo() {
             .fillMaxWidth()
             .padding(50.dp)
     ) {
-        Text()
-        Spacer(Modifier.height(20.dp))
-        Button()
-        Spacer(Modifier.height(20.dp))
+        MyText()
+        Spacer(Modifier.requiredHeight(20.dp))
+        MyButton()
+        Spacer(Modifier.requiredHeight(20.dp))
         Image()
     }
 }
 
 @Composable
-private fun Text() {
+private fun MyText() {
     val shortText = "Click me"
     val longText = "Very long text\nthat spans across\nmultiple lines"
     var short by remember { mutableStateOf(true) }
@@ -82,13 +82,13 @@ private fun Text() {
             } else {
                 longText
             },
-            style = AmbientTextStyle.current.copy(color = Color.White)
+            style = LocalTextStyle.current.copy(color = Color.White)
         )
     }
 }
 
 @Composable
-private fun Button() {
+private fun MyButton() {
     val shortText = "Short"
     val longText = "Very loooooong text"
     var short by remember { mutableStateOf(true) }
@@ -101,7 +101,7 @@ private fun Button() {
             } else {
                 longText
             },
-            style = AmbientTextStyle.current.copy(color = Color.White),
+            style = LocalTextStyle.current.copy(color = Color.White),
             modifier = Modifier.animateContentSize()
         )
     }
@@ -112,7 +112,7 @@ private fun Image() {
     var portraitMode by remember { mutableStateOf(true) }
     Box(
         Modifier.clickable { portraitMode = !portraitMode }
-            .sizeIn(maxWidth = 300.dp, maxHeight = 300.dp)
+            .requiredSizeIn(maxWidth = 300.dp, maxHeight = 300.dp)
             .background(if (portraitMode) Color(0xFFfffbd0) else Color(0xFFe3ffd9))
             .animateContentSize(tween(500))
             .aspectRatio(if (portraitMode) 3 / 4f else 16 / 9f)
@@ -123,7 +123,7 @@ private fun Image() {
             } else {
                 "16 : 9"
             },
-            style = AmbientTextStyle.current.copy(color = Color.Black)
+            style = LocalTextStyle.current.copy(color = Color.Black)
         )
     }
 }

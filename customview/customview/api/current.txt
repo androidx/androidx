@@ -38,6 +38,7 @@ package androidx.customview.widget {
     method protected void onVirtualViewKeyboardFocusChanged(int, boolean);
     method public final boolean requestKeyboardFocusForVirtualView(int);
     method public final boolean sendEventForVirtualView(int, int);
+    method public final void setBoundsInScreenFromBoundsInParent(androidx.core.view.accessibility.AccessibilityNodeInfoCompat, android.graphics.Rect);
     field public static final int HOST_ID = -1; // 0xffffffff
     field public static final int INVALID_ID = -2147483648; // 0x80000000
   }

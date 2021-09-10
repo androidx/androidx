@@ -17,13 +17,10 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusState.Active
-import androidx.compose.ui.focus.FocusState.Captured
-import androidx.compose.ui.focus.FocusState.Inactive
-import androidx.compose.ui.focusObserver
-import androidx.compose.ui.focusRequester
+import androidx.compose.ui.focus.FocusStateImpl.Active
+import androidx.compose.ui.focus.FocusStateImpl.Captured
+import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -33,7 +30,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
-@OptIn(ExperimentalFocus::class)
 @RunWith(AndroidJUnit4::class)
 class ReusedFocusRequesterFreeFocusTest {
     @get:Rule
@@ -42,14 +38,14 @@ class ReusedFocusRequesterFreeFocusTest {
     @Test
     fun oneActiveComponent_returnsTrue() {
         // Arrange.
-        var focusState = Active
+        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState = it }
+                    .onFocusChanged { focusState = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier(focusState))
+                    .then(FocusModifier(Active))
             )
         }
 
@@ -59,21 +55,21 @@ class ReusedFocusRequesterFreeFocusTest {
 
             // Assert.
             assertThat(success).isTrue()
-            assertThat(focusState).isEqualTo(Active)
+            assertThat(focusState.isFocused).isTrue()
         }
     }
 
     @Test
     fun oneCapturedComponent_returnsTrue() {
         // Arrange.
-        var focusState = Captured
+        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState = it }
+                    .onFocusChanged { focusState = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier(focusState))
+                    .then(FocusModifier(Captured))
             )
         }
 
@@ -83,21 +79,21 @@ class ReusedFocusRequesterFreeFocusTest {
 
             // Assert.
             assertThat(success).isTrue()
-            assertThat(focusState).isEqualTo(Active)
+            assertThat(focusState.isFocused).isTrue()
         }
     }
 
     @Test
     fun oneInactiveComponent_returnsFalse() {
         // Arrange.
-        var focusState = Inactive
+        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState = it }
+                    .onFocusChanged { focusState = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier(focusState))
+                    .then(FocusModifier(Inactive))
             )
         }
 
@@ -107,28 +103,28 @@ class ReusedFocusRequesterFreeFocusTest {
 
             // Assert.
             assertThat(success).isFalse()
-            assertThat(focusState).isEqualTo(Inactive)
+            assertThat(focusState.isFocused).isFalse()
         }
     }
 
     @Test
     fun oneActiveOneInactiveComponent_returnsTrue() {
         // Arrange.
-        var focusState1 = Inactive
-        var focusState2 = Active
+        lateinit var focusState1: FocusState
+        lateinit var focusState2: FocusState
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState1 = it }
+                    .onFocusChanged { focusState1 = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier(focusState1))
+                    .then(FocusModifier(Inactive))
             )
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState2 = it }
+                    .onFocusChanged { focusState2 = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier(focusState2))
+                    .then(FocusModifier(Active))
             )
         }
 
@@ -138,29 +134,29 @@ class ReusedFocusRequesterFreeFocusTest {
 
             // Assert.
             assertThat(success).isTrue()
-            assertThat(focusState1).isEqualTo(Inactive)
-            assertThat(focusState2).isEqualTo(Active)
+            assertThat(focusState1.isFocused).isFalse()
+            assertThat(focusState2.isFocused).isTrue()
         }
     }
 
     @Test
     fun oneInactiveOneCapturedComponent_returnsTrue() {
         // Arrange.
-        var focusState1 = Inactive
-        var focusState2 = Captured
+        lateinit var focusState1: FocusState
+        lateinit var focusState2: FocusState
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState1 = it }
+                    .onFocusChanged { focusState1 = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier(focusState1))
+                    .then(FocusModifier(Inactive))
             )
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState2 = it }
+                    .onFocusChanged { focusState2 = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier(focusState2))
+                    .then(FocusModifier(Captured))
             )
         }
 
@@ -170,29 +166,29 @@ class ReusedFocusRequesterFreeFocusTest {
 
             // Assert.
             assertThat(success).isTrue()
-            assertThat(focusState1).isEqualTo(Inactive)
-            assertThat(focusState2).isEqualTo(Active)
+            assertThat(focusState1.isFocused).isFalse()
+            assertThat(focusState2.isFocused).isTrue()
         }
     }
 
     @Test
     fun twoInactiveComponent_returnsFalse() {
         // Arrange.
-        var focusState1 = Inactive
-        var focusState2 = Inactive
+        lateinit var focusState1: FocusState
+        lateinit var focusState2: FocusState
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState1 = it }
+                    .onFocusChanged { focusState1 = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier(focusState1))
+                    .then(FocusModifier(Inactive))
             )
             Box(
                 modifier = Modifier
-                    .focusObserver { focusState2 = it }
+                    .onFocusChanged { focusState2 = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier(focusState2))
+                    .then(FocusModifier(Inactive))
             )
         }
 
@@ -202,8 +198,8 @@ class ReusedFocusRequesterFreeFocusTest {
 
             // Assert.
             assertThat(success).isFalse()
-            assertThat(focusState1).isEqualTo(Inactive)
-            assertThat(focusState2).isEqualTo(Inactive)
+            assertThat(focusState1.isFocused).isFalse()
+            assertThat(focusState2.isFocused).isFalse()
         }
     }
 }

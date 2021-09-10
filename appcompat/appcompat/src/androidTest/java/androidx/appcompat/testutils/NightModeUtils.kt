@@ -52,6 +52,19 @@ object NightModeUtils {
         context: Context
     ) {
         assertConfigurationNightModeEquals(
+            null,
+            expectedNightMode,
+            context
+        )
+    }
+
+    fun assertConfigurationNightModeEquals(
+        message: String?,
+        expectedNightMode: Int,
+        context: Context
+    ) {
+        assertConfigurationNightModeEquals(
+            message,
             expectedNightMode,
             context.resources.configuration
         )
@@ -61,7 +74,20 @@ object NightModeUtils {
         expectedNightMode: Int,
         configuration: Configuration
     ) {
+        assertConfigurationNightModeEquals(
+            null,
+            expectedNightMode,
+            configuration
+        )
+    }
+
+    fun assertConfigurationNightModeEquals(
+        message: String?,
+        expectedNightMode: Int,
+        configuration: Configuration
+    ) {
         assertEquals(
+            message,
             expectedNightMode.toLong(),
             (configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK).toLong()
         )

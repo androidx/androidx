@@ -30,6 +30,16 @@ public interface EncoderCallback {
     void onEncodeStop();
 
     /**
+     * The method called when encoder is currently started and {@link Encoder#pause()} is invoked.
+     *
+     * <p>The callback is only triggered when the encoder is completely paused. Successive calls
+     * to {@link Encoder#pause()} and {@link Encoder#start()} may not trigger the callback.
+     * {@link #onEncodedData} will not be triggered after this callback.
+     */
+    default void onEncodePaused() {
+    }
+
+    /**
      * The method called when error occurs while encoding.
      *
      * <p>After that, {@link #onEncodedData} and {@link #onEncodeStop} will not be triggered.

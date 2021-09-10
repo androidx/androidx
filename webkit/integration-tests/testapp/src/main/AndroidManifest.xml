@@ -73,7 +73,8 @@
             android:exported="true" />
         <activity
             android:name=".ProxyOverrideActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:networkSecurityConfig="@xml/proxy_override_network_security_config" />
         <activity
             android:name=".AssetLoaderListActivity"
             android:exported="true" />

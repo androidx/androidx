@@ -18,11 +18,13 @@ package androidx.compose.material.demos
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.samples.RangeSliderSample
 import androidx.compose.material.samples.SliderSample
+import androidx.compose.material.samples.StepRangeSliderSample
 import androidx.compose.material.samples.StepsSliderSample
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -33,11 +35,17 @@ fun SliderDemo() {
     val headerStyle = MaterialTheme.typography.h6
     Column(Modifier.padding(10.dp)) {
         Text(text = "Continuous Slider", style = headerStyle)
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.requiredHeight(16.dp))
         SliderSample()
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.requiredHeight(16.dp))
         Text(text = "Discrete Slider with custom color", style = headerStyle)
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.requiredHeight(16.dp))
         StepsSliderSample()
+        Text(text = "Range Continuous Slider", style = headerStyle)
+        Spacer(Modifier.requiredHeight(16.dp))
+        RangeSliderSample()
+        Text(text = "Range Discrete Slider", style = headerStyle)
+        Spacer(Modifier.requiredHeight(16.dp))
+        StepRangeSliderSample()
     }
 }

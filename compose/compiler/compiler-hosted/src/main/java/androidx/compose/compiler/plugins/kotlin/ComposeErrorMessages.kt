@@ -53,6 +53,21 @@ class ComposeErrorMessages : DefaultErrorMessages.Extension {
         )
 
         MAP.put(
+            ComposeErrors.MISSING_DISALLOW_COMPOSABLE_CALLS_ANNOTATION,
+            "Parameter {0} cannot be inlined inside of lambda argument {1} of {2} " +
+                "without also being annotated with @DisallowComposableCalls",
+            Renderers.NAME,
+            Renderers.NAME,
+            Renderers.NAME
+        )
+
+        MAP.put(
+            ComposeErrors.NONREADONLY_CALL_IN_READONLY_COMPOSABLE,
+            "Composables marked with @ReadOnlyComposable can only call other @ReadOnlyComposable " +
+                "composables"
+        )
+
+        MAP.put(
             ComposeErrors.COMPOSABLE_PROPERTY_BACKING_FIELD,
             "Composable properties are not able to have backing fields"
         )
@@ -74,10 +89,12 @@ class ComposeErrorMessages : DefaultErrorMessages.Extension {
             "Composable properties are not able to have backing fields"
         )
         MAP.put(
-            ComposeErrors.ILLEGAL_ASSIGN_TO_UNIONTYPE,
-            "Value of type {0} can't be assigned to union type {1}.",
-            Renderers.RENDER_COLLECTION_OF_TYPES,
-            Renderers.RENDER_COLLECTION_OF_TYPES
+            ComposeErrors.ABSTRACT_COMPOSABLE_DEFAULT_PARAMETER_VALUE,
+            "Abstract Composable functions cannot have parameters with default values"
+        )
+        MAP.put(
+            ComposeErrors.COMPOSABLE_FUN_MAIN,
+            "Composable main functions are not currently supported"
         )
         MAP.put(
             ComposeErrors.ILLEGAL_TRY_CATCH_AROUND_COMPOSABLE,

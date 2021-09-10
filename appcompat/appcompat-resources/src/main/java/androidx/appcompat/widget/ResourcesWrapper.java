@@ -29,6 +29,8 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.resources.Compatibility;
+import androidx.core.content.res.ResourcesCompat;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -131,23 +133,42 @@ class ResourcesWrapper extends Resources {
         return mResources.getDrawable(id);
     }
 
+    /**
+     * Calls the canonical implementation of {@link Resources#getDrawable(int)} on the Resources
+     * superclass, rather than the wrapped class.
+     * <p>
+     * This method is useful for avoiding issues with re-entrant calls where a class has extended
+     * {@code ResourcesWrapper} and overridden {@link #getDrawable(int)}.
+     *
+     * @param id the id of the drawable to load
+     * @return a drawable, or {@code null} in some cases where a drawable failed to load
+     * @throws NotFoundException in most cases where a drawable failed to load
+     */
+    @SuppressWarnings("deprecation")
+    final Drawable getDrawableCanonical(int id) throws NotFoundException {
+        return super.getDrawable(id);
+    }
+
     @RequiresApi(21)
     @Override
     public Drawable getDrawable(int id, Theme theme) throws NotFoundException {
-        return mResources.getDrawable(id, theme);
+        return ResourcesCompat.getDrawable(mResources, id, theme);
     }
 
     @SuppressWarnings("deprecation")
     @RequiresApi(15)
     @Override
     public Drawable getDrawableForDensity(int id, int density) throws NotFoundException {
-        return mResources.getDrawableForDensity(id, density);
+        // If the developer only overrode the three-arg method, this will cause issues; however,
+        // this is very unlikely given that (a) nobody calls this method and (b) nobody overrides
+        // this method.
+        return ResourcesCompat.getDrawableForDensity(mResources, id, density, null);
     }
 
     @RequiresApi(21)
     @Override
     public Drawable getDrawableForDensity(int id, int density, Theme theme) {
-        return mResources.getDrawableForDensity(id, density, theme);
+        return ResourcesCompat.getDrawableForDensity(mResources, id, density, theme);
     }
 
     @SuppressWarnings("deprecation")
@@ -218,7 +239,7 @@ class ResourcesWrapper extends Resources {
     @Override
     public void getValueForDensity(int id, int density, TypedValue outValue, boolean resolveRefs)
             throws NotFoundException {
-        mResources.getValueForDensity(id, density, outValue, resolveRefs);
+        Compatibility.Api15Impl.getValueForDensity(mResources, id, density, outValue, resolveRefs);
     }
 
     @Override

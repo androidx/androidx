@@ -47,6 +47,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
+import com.google.common.truth.Truth;
+
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -1367,6 +1369,75 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         int maxOffset = mGlm.computeVerticalScrollOffset(rv.mState);
         assertEquals(mGlm.computeVerticalScrollRange(rv.mState), constantRange);
         assertEquals(maxOffset + mGlm.computeVerticalScrollExtent(rv.mState), constantRange);
+    }
+
+    @Test // reproduces b/179181037
+    public void spanCacheWithAnimations() throws Throwable {
+        GridTestAdapter adapter = new GridTestAdapter(8, 1);
+        adapter.setItemLayoutParams(
+                new RecyclerView.LayoutParams(250, 200)
+        );
+        final RecyclerView rv =  setupBasic(new Config(2, 8), adapter);
+        rv.setLayoutParams(new ViewGroup.LayoutParams(500, 500));
+        mAdapter.setFullSpan(0);
+        waitForFirstLayout(rv);
+        Truth.assertThat(getPositionToSpanIndexMapping()).containsExactly(
+                0, 0,
+                1, 0,
+                2, 1,
+                3, 0,
+                4, 1
+        );
+        // trigger laying out other items and scroll back to 0 to move them to the recycler cache
+        smoothScrollToPosition(7);
+        smoothScrollToPosition(0);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mAdapter.notifyItemRemoved(0);
+                mAdapter.notifyItemInserted(0);
+            }
+        });
+        waitForAnimations(10);
+        Truth.assertThat(getPositionToSpanIndexMapping()).containsExactly(
+                0, 0,
+                1, 0,
+                2, 1,
+                3, 0,
+                4, 1
+        );
+        smoothScrollToPosition(7);
+        // expected layout
+        // ---- visible below
+        // 3 4
+        // 5 6
+        // 7
+        Truth.assertThat(getPositionToSpanIndexMapping()).containsExactly(
+                3, 0,
+                4, 1,
+                5, 0,
+                6, 1,
+                7, 0
+        );
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @NonNull
+    /**
+     * Returns a map of adapter position -> span index from GLM children
+     */
+    private Map<Integer, Integer> getPositionToSpanIndexMapping() {
+        Map<Integer, Integer> result = new HashMap<>();
+        for (int i = 0; i < mGlm.getChildCount(); i++) {
+            TestViewHolder viewHolder = (TestViewHolder) mRecyclerView.getChildViewHolder(
+                    mGlm.getChildAt(i)
+            );
+            int adapterPos = viewHolder.getAbsoluteAdapterPosition();
+            GridLayoutManager.LayoutParams layoutParams =
+                    (GridLayoutManager.LayoutParams) viewHolder.itemView.getLayoutParams();
+            result.put(adapterPos, layoutParams.getSpanIndex());
+        }
+        return result;
     }
 
     @Test

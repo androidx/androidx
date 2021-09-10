@@ -14,7 +14,12 @@ For contributions via GitHub, see the [GitHub Contribution Guide](CONTRIBUTING.m
 
 Note: The contributions workflow via GitHub is currently experimental - only contributions to the following projects are being accepted at this time:
 * [Activity](activity)
+* [Biometric](biometric)
+* [Compose Compiler](compose/compiler)
+* [Compose Runtime](compose/runtime)
+* [DataStore](datastore)
 * [Fragment](fragment)
+* [Lifecycle](lifecycle)
 * [Navigation](navigation)
 * [Paging](paging)
 * [Room](room)
@@ -55,14 +60,14 @@ git config --global user.email "you@example.com"
 3. Create a directory for your checkout (it can be any name)
 
 ```bash
-mkdir androidx-master-dev
-cd androidx-master-dev
+mkdir androidx-main
+cd androidx-main
 ```
 
 4. Use `repo` command to initialize the repository.
 
 ```bash
-repo init -u https://android.googlesource.com/platform/manifest -b androidx-master-dev --partial-clone --clone-filter=blob:limit=10M
+repo init -u https://android.googlesource.com/platform/manifest -b androidx-main --partial-clone --clone-filter=blob:limit=10M
 ```
 
 5. Now your repository is set to pull only what you need for building and running AndroidX libraries. Download the code (and grab a coffee while we pull down the files):
@@ -112,8 +117,10 @@ And put the following at the top of your 'repositories' property in your **proje
 maven { url '/path/to/checkout/out/androidx/build/support_repo/' }
 ```
 
+**NOTE: In order to see your changes in the project, you might need to clean your build (`Build > Clean Project` in Android Studio or run `./gradlew clean`).**
+
 ### Continuous integration
-[Our continuous integration system](https://ci.android.com/builds/branches/aosp-androidx-master-dev/grid?) builds all in progress (and potentially unstable) libraries as new changes are merged. You can manually download these AARs and JARs for your experimentation.
+[Our continuous integration system](https://ci.android.com/builds/branches/aosp-androidx-main/grid?) builds all in progress (and potentially unstable) libraries as new changes are merged. You can manually download these AARs and JARs for your experimentation.
 
 ## Running Tests
 

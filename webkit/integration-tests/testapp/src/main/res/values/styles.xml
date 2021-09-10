@@ -25,8 +25,8 @@
     <style name="WebkitSwitch" parent="AppTheme">
         <!-- The "thumb" is the piece the user can drag along the "track." -->
         <item name="colorControlActivated">@color/colorActiveSwitchThumb</item>
-        <item name="colorSwitchThumbNormal">@color/colorInctiveSwitchThumb</item>
-        <item name="android:colorForeground">@color/colorInctiveSwitchTrack</item>
+        <item name="colorSwitchThumbNormal">@color/colorInactiveSwitchThumb</item>
+        <item name="android:colorForeground">@color/colorInactiveSwitchTrack</item>
     </style>
     <style name="AppDayNightTheme" parent="Theme.AppCompat.DayNight">
         <item name="android:forceDarkAllowed">true</item>

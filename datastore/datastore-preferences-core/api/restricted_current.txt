@@ -3,8 +3,14 @@ package androidx.datastore.preferences.core {
 
   public final class MutablePreferences extends androidx.datastore.preferences.core.Preferences {
     method public java.util.Map<androidx.datastore.preferences.core.Preferences.Key<?>,java.lang.Object> asMap();
+    method public void clear();
     method public operator <T> boolean contains(androidx.datastore.preferences.core.Preferences.Key<T> key);
     method public operator <T> T? get(androidx.datastore.preferences.core.Preferences.Key<T> key);
+    method public operator void minusAssign(androidx.datastore.preferences.core.Preferences.Key<?> key);
+    method public operator void plusAssign(androidx.datastore.preferences.core.Preferences prefs);
+    method public operator void plusAssign(androidx.datastore.preferences.core.Preferences.Pair<?> pair);
+    method public void putAll(androidx.datastore.preferences.core.Preferences.Pair<?>... pairs);
+    method public <T> T! remove(androidx.datastore.preferences.core.Preferences.Key<T> key);
     method public operator <T> void set(androidx.datastore.preferences.core.Preferences.Key<T> key, T? value);
   }
 
@@ -20,33 +26,37 @@ package androidx.datastore.preferences.core {
     method public abstract java.util.Map<androidx.datastore.preferences.core.Preferences.Key<?>,java.lang.Object> asMap();
     method public abstract operator <T> boolean contains(androidx.datastore.preferences.core.Preferences.Key<T> key);
     method public abstract operator <T> T? get(androidx.datastore.preferences.core.Preferences.Key<T> key);
+    method public final androidx.datastore.preferences.core.MutablePreferences toMutablePreferences();
+    method public final androidx.datastore.preferences.core.Preferences toPreferences();
   }
 
   public static final class Preferences.Key<T> {
-    ctor @kotlin.PublishedApi internal Preferences.Key(String name);
     method public String getName();
+    method public infix androidx.datastore.preferences.core.Preferences.Pair<T> to(T? value);
     property public final String name;
   }
 
   public static final class Preferences.Pair<T> {
   }
 
+  public final class PreferencesFactory {
+    method public static androidx.datastore.preferences.core.Preferences create(androidx.datastore.preferences.core.Preferences.Pair<?>... pairs);
+    method public static androidx.datastore.preferences.core.Preferences createEmpty();
+    method public static androidx.datastore.preferences.core.MutablePreferences createMutable(androidx.datastore.preferences.core.Preferences.Pair<?>... pairs);
+  }
+
+  public final class PreferencesKeys {
+    method public static androidx.datastore.preferences.core.Preferences.Key<java.lang.Boolean> booleanKey(String name);
+    method public static androidx.datastore.preferences.core.Preferences.Key<java.lang.Double> doubleKey(String name);
+    method public static androidx.datastore.preferences.core.Preferences.Key<java.lang.Float> floatKey(String name);
+    method public static androidx.datastore.preferences.core.Preferences.Key<java.lang.Integer> intKey(String name);
+    method public static androidx.datastore.preferences.core.Preferences.Key<java.lang.Long> longKey(String name);
+    method public static androidx.datastore.preferences.core.Preferences.Key<java.lang.String> stringKey(String name);
+    method public static androidx.datastore.preferences.core.Preferences.Key<java.util.Set<java.lang.String>> stringSetKey(String name);
+  }
+
   public final class PreferencesKt {
-    method public static void clear(androidx.datastore.preferences.core.MutablePreferences);
     method public static suspend Object? edit(androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>, kotlin.jvm.functions.Function2<? super androidx.datastore.preferences.core.MutablePreferences,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> transform, kotlin.coroutines.Continuation<? super androidx.datastore.preferences.core.Preferences> p);
-    method public static androidx.datastore.preferences.core.Preferences emptyPreferences();
-    method public static operator void minusAssign(androidx.datastore.preferences.core.MutablePreferences, androidx.datastore.preferences.core.Preferences.Key<?> key);
-    method public static androidx.datastore.preferences.core.MutablePreferences mutablePreferencesOf(androidx.datastore.preferences.core.Preferences.Pair<?>... pairs);
-    method public static operator void plusAssign(androidx.datastore.preferences.core.MutablePreferences, androidx.datastore.preferences.core.Preferences prefs);
-    method public static operator void plusAssign(androidx.datastore.preferences.core.MutablePreferences, androidx.datastore.preferences.core.Preferences.Pair<?> pair);
-    method public static inline <reified T> androidx.datastore.preferences.core.Preferences.Key<T>! preferencesKey(String name);
-    method public static androidx.datastore.preferences.core.Preferences preferencesOf(androidx.datastore.preferences.core.Preferences.Pair<?>... pairs);
-    method public static inline <reified T> androidx.datastore.preferences.core.Preferences.Key<java.util.Set<? extends T>>! preferencesSetKey(String name);
-    method public static void putAll(androidx.datastore.preferences.core.MutablePreferences, androidx.datastore.preferences.core.Preferences.Pair<?>... pairs);
-    method public static <T> T! remove(androidx.datastore.preferences.core.MutablePreferences, androidx.datastore.preferences.core.Preferences.Key<T> key);
-    method public static infix <T> androidx.datastore.preferences.core.Preferences.Pair<T> to(androidx.datastore.preferences.core.Preferences.Key<T>, T? value);
-    method public static androidx.datastore.preferences.core.MutablePreferences toMutablePreferences(androidx.datastore.preferences.core.Preferences);
-    method public static androidx.datastore.preferences.core.Preferences toPreferences(androidx.datastore.preferences.core.Preferences);
   }
 
 }

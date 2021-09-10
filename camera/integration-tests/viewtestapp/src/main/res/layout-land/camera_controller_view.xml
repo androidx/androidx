@@ -156,6 +156,10 @@
             android:layout_height="wrap_content"
             android:lines="2"/>
         <TextView
+            android:id="@+id/focus_result_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
             android:id="@+id/torch_state_text"
             android:layout_width="300dp"
             android:layout_height="wrap_content"/>

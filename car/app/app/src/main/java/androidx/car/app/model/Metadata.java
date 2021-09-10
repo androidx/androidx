@@ -21,11 +21,13 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.util.Objects;
 
 /** A metadata class used for attaching additional properties to models. */
-public class Metadata {
+@CarProtocol
+public final class Metadata {
     /** An empty {@link Metadata} instance. */
     public static final Metadata EMPTY_METADATA = new Builder().build();
 
@@ -33,29 +35,11 @@ public class Metadata {
     @Nullable
     private final Place mPlace;
 
-    /** Constructs a new builder of a {@link Metadata} instance. */
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
-    }
-
     /**
-     * Constructs a new instance of {@link Metadata} containing a {@link Place}.
+     * Returns a {@link Place} instance set in the metadata.
      *
-     * @throws NullPointerException if {@code place} is {@code null}.
      * @see Builder#setPlace(Place)
      */
-    @NonNull
-    public static Metadata ofPlace(@NonNull Place place) {
-        return new Builder().setPlace(requireNonNull(place)).build();
-    }
-
-    /** Returns a new {@link Builder} with the data from this {@link Metadata} instance. */
-    @NonNull
-    public Builder newBuilder() {
-        return new Builder(this);
-    }
-
     @Nullable
     public Place getPlace() {
         return mPlace;
@@ -79,7 +63,7 @@ public class Metadata {
         return Objects.equals(mPlace, otherMetadata.mPlace);
     }
 
-    private Metadata(Builder builder) {
+    Metadata(Builder builder) {
         mPlace = builder.mPlace;
     }
 
@@ -91,16 +75,17 @@ public class Metadata {
     /** A builder for {@link Metadata}. */
     public static final class Builder {
         @Nullable
-        private Place mPlace;
+        Place mPlace;
 
         /**
          * Sets a {@link Place} used for showing {@link Distance} and {@link PlaceMarker}
-         * information,
-         * or {@code null} if no {@link Place} information is available.
+         * information.
+         *
+         * @throws NullPointerException if {@code place} is {@code null}
          */
         @NonNull
-        public Builder setPlace(@Nullable Place place) {
-            this.mPlace = place;
+        public Builder setPlace(@NonNull Place place) {
+            mPlace = requireNonNull(place);
             return this;
         }
 
@@ -112,11 +97,17 @@ public class Metadata {
             return new Metadata(this);
         }
 
-        private Builder() {
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
 
-        private Builder(Metadata metadata) {
-            this.mPlace = metadata.mPlace;
+        /**
+         * Returns a new {@link Builder} with the data from the given {@link Metadata} instance.
+         *
+         * @throws NullPointerException if {@code icon} is {@code null}
+         */
+        public Builder(@NonNull Metadata metadata) {
+            mPlace = requireNonNull(metadata).getPlace();
         }
     }
 }

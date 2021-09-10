@@ -16,19 +16,20 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.preferredHeight
-import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
-import androidx.compose.ui.test.ExperimentalTesting
-import androidx.compose.ui.test.TestUiDispatcher
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.Before
@@ -39,11 +40,8 @@ import org.junit.runners.Parameterized
 import kotlin.math.roundToInt
 
 @MediumTest
-@OptIn(ExperimentalTesting::class)
 @RunWith(Parameterized::class)
 class LazyScrollTest(private val orientation: Orientation) {
-    private val LazyListTag = "LazyListTag"
-
     @get:Rule
     val rule = createComposeRule()
 
@@ -69,8 +67,8 @@ class LazyScrollTest(private val orientation: Orientation) {
 
     @Test
     fun snapToItemTest() = runBlocking {
-        withContext(TestUiDispatcher.Main) {
-            state.snapToItemIndex(3)
+        withContext(Dispatchers.Main + AutoTestFrameClock()) {
+            state.scrollToItem(3)
         }
         assertThat(state.firstVisibleItemIndex).isEqualTo(3)
         assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
@@ -79,33 +77,52 @@ class LazyScrollTest(private val orientation: Orientation) {
     @ExperimentalFoundationApi
     @Test
     fun smoothScrollByTest() = runBlocking {
-        withContext(TestUiDispatcher.Main) {
-            state.smoothScrollBy(with(rule.density) { 320.dp.toPx() })
+        fun Int.dpToPx(): Int = with(rule.density) { dp.toPx().roundToInt() }
+        val scrollDistance = 320.dpToPx()
+        val itemSize = 101.dpToPx()
+
+        val expectedIndex = scrollDistance / itemSize // resolves to 3
+        val expectedOffset = scrollDistance % itemSize // resolves to ~17.dp.toIntPx()
+
+        withContext(Dispatchers.Main + AutoTestFrameClock()) {
+            state.animateScrollBy(scrollDistance.toFloat())
         }
-        assertThat(state.firstVisibleItemIndex).isEqualTo(3)
-        assertThat(state.firstVisibleItemScrollOffset)
-            .isEqualTo(with(rule.density) { 17.dp.toPx().roundToInt() })
+        assertThat(state.firstVisibleItemIndex).isEqualTo(expectedIndex)
+        assertThat(state.firstVisibleItemScrollOffset).isEqualTo(expectedOffset)
+    }
+
+    @Test
+    fun smoothScrollToItemTest() = runBlocking {
+        withContext(Dispatchers.Main + AutoTestFrameClock()) {
+            state.animateScrollToItem(5, 10)
+        }
+        assertThat(state.firstVisibleItemIndex).isEqualTo(5)
+        assertThat(state.firstVisibleItemScrollOffset).isEqualTo(10)
     }
 
     @Composable
     private fun TestContent() {
         if (vertical) {
-            LazyColumnFor(items, Modifier.preferredHeight(300.dp), state) {
-                ItemContent()
+            LazyColumn(Modifier.height(300.dp), state) {
+                items(items) {
+                    ItemContent()
+                }
             }
         } else {
-            LazyRowFor(items, Modifier.preferredWidth(300.dp), state) {
-                ItemContent()
+            LazyRow(Modifier.width(300.dp), state) {
+                items(items) {
+                    ItemContent()
+                }
             }
         }
     }
 
     @Composable
-    private fun LazyItemScope.ItemContent() {
+    private fun ItemContent() {
         val modifier = if (vertical) {
-            Modifier.preferredHeight(101.dp)
+            Modifier.height(101.dp)
         } else {
-            Modifier.preferredWidth(101.dp)
+            Modifier.width(101.dp)
         }
         Spacer(modifier)
     }

@@ -16,24 +16,24 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.layout.preferredHeightIn
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.platform.AmbientDensity
-import androidx.compose.ui.platform.AmbientFontLoader
-import androidx.compose.ui.platform.AmbientLayoutDirection
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFontLoader
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.resolveDefaults
-import androidx.compose.ui.util.annotation.IntRange
 
 /**
  * Constraint the height of the text field so that it vertically occupies no more than [maxLines]
  * number of lines.
  */
-fun Modifier.maxLinesHeight(
-    @IntRange(from = 1) maxLines: Int,
+internal fun Modifier.maxLinesHeight(
+    /*@IntRange(from = 1)*/
+    maxLines: Int,
     textStyle: TextStyle
 ) = composed(
     inspectorInfo = debugInspectorInfo {
@@ -47,9 +47,9 @@ fun Modifier.maxLinesHeight(
     }
     if (maxLines == Int.MAX_VALUE) return@composed Modifier
 
-    val density = AmbientDensity.current
-    val resourceLoader = AmbientFontLoader.current
-    val layoutDirection = AmbientLayoutDirection.current
+    val density = LocalDensity.current
+    val resourceLoader = LocalFontLoader.current
+    val layoutDirection = LocalLayoutDirection.current
 
     // Difference between the height of two lines paragraph and one line paragraph gives us
     // an approximation of height of one line
@@ -75,7 +75,7 @@ fun Modifier.maxLinesHeight(
     val lineHeight = firstTwoLinesHeight - firstLineHeight
     val precomputedMaxLinesHeight = firstLineHeight + lineHeight * (maxLines - 1)
 
-    Modifier.preferredHeightIn(
+    Modifier.heightIn(
         max = with(density) { precomputedMaxLinesHeight.toDp() }
     )
 }

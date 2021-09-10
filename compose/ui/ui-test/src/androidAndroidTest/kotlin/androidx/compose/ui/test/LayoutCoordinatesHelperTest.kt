@@ -18,14 +18,14 @@ package androidx.compose.ui.test
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.preferredSize
-import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.AmbientDensity
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
@@ -58,7 +58,7 @@ class LayoutCoordinatesHelperTest {
                 }
             ) {
                 Box(
-                    Modifier.preferredSize(10.dp)
+                    Modifier.size(10.dp)
                         .align(Alignment.Start)
                         .onGloballyPositioned { coordinates ->
                             childCoordinates = coordinates
@@ -71,7 +71,7 @@ class LayoutCoordinatesHelperTest {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(
             Offset.Zero,
-            parentCoordinates!!.childToLocal(childCoordinates!!, Offset.Zero)
+            parentCoordinates!!.localPositionOf(childCoordinates!!, Offset.Zero)
         )
     }
 
@@ -81,17 +81,17 @@ class LayoutCoordinatesHelperTest {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
         rule.setContent {
-            with(AmbientDensity.current) {
-                Box(Modifier.preferredWidth(40.toDp()), contentAlignment = Alignment.Center) {
+            with(LocalDensity.current) {
+                Box(Modifier.width(40.toDp()), contentAlignment = Alignment.Center) {
                     Column(
-                        Modifier.preferredWidth(20.toDp())
+                        Modifier.width(20.toDp())
                             .onGloballyPositioned { coordinates: LayoutCoordinates ->
                                 parentCoordinates = coordinates
                                 latch.countDown()
                             }
                     ) {
                         Box(
-                            Modifier.preferredSize(10.toDp())
+                            Modifier.size(10.toDp())
                                 .align(Alignment.CenterHorizontally)
                                 .onGloballyPositioned { coordinates ->
                                     childCoordinates = coordinates
@@ -106,7 +106,7 @@ class LayoutCoordinatesHelperTest {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(
             Offset(5f, 0f),
-            parentCoordinates!!.childToLocal(childCoordinates!!, Offset.Zero)
+            parentCoordinates!!.localPositionOf(childCoordinates!!, Offset.Zero)
         )
     }
 }

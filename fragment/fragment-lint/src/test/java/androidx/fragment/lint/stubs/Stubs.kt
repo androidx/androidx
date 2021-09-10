@@ -18,6 +18,7 @@ package androidx.fragment.lint.stubs
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.java
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
+import com.android.tools.lint.checks.infrastructure.TestFiles
 
 private val BACK_PRESSED_CALLBACK = java(
     """
@@ -43,23 +44,29 @@ private val FRAGMENT = java(
     """
     package androidx.fragment.app;
 
+    import androidx.lifecycle.Lifecycle;
     import androidx.lifecycle.LifecycleOwner;
 
-    public class Fragment {
+    public class Fragment implements LifecycleOwner {
         public LifecycleOwner getViewLifecycleOwner() {}
+        public Lifecycle getLifecycle() {}
     }
-"""
+    """
 )
 
-private val DIALOG_FRAGMENT = java(
+internal val DIALOG_FRAGMENT = java(
     """
     package androidx.fragment.app;
 
-    import androidx.lifecycle.LifecycleOwner;
+    public class DialogFragment extends Fragment { }
+"""
+)
 
-    public class DialogFragment extends Fragment {
-        public LifecycleOwner getViewLifecycleOwner() {}
-    }
+internal val ALERT_DIALOG = java(
+    """
+    package androidx.appcompat.app;
+
+    public class AlertDialog { }
 """
 )
 
@@ -67,7 +74,9 @@ private val LIFECYCLE_OWNER = java(
     """
     package androidx.lifecycle;
 
-    public interface LifecycleOwner {}
+    public interface LifecycleOwner {
+        Lifecycle getLifecycle();
+    }
 """
 )
 
@@ -101,6 +110,20 @@ private val OBSERVER = java(
 """
 )
 
+private val LIFECYCLE = TestFiles.kt(
+    "androidx/lifecycle/Lifecycle.kt",
+    """
+        package androidx.lifecycle;
+
+        abstract class Lifecycle {
+            enum class State { CREATED, STARTED }
+            fun isAtLeast(state: State): Boolean {
+                return true
+            }
+        }
+    """
+).indented().within("src")
+
 private val LIVEDATA_OBSERVE_EXTENSION = kotlin(
     "androidx/lifecycle/LiveDataKt.kt",
     """
@@ -119,10 +142,39 @@ private val LIVEDATA_OBSERVE_EXTENSION = kotlin(
 """
 ).indented().within("src")
 
+private val COROUTINES = TestFiles.kt(
+    "kotlinx/coroutines/GlobalScope.kt",
+    """
+        package kotlinx.coroutines;
+
+        import kotlinx.coroutines.CoroutineScope
+
+        interface CoroutineScope {}
+
+        object GlobalScope {
+            fun launch(block: suspend () -> Unit) {}
+        }
+
+    """
+).indented().within("src")
+
+private val REPEAT_ON_LIFECYCLE = TestFiles.kt(
+    "androidx/lifecycle/RepeatOnLifecycle.kt",
+    """
+        package androidx.lifecycle
+
+        public fun LifecycleOwner.repeatOnLifecycle(
+            state: Lifecycle.State,
+            block: suspend CoroutineScope.() -> Unit
+        ) { }
+    """
+).indented().within("src")
+
 // stubs for testing calls to LiveData.observe calls
 internal val LIVEDATA_STUBS = arrayOf(
     FRAGMENT,
     DIALOG_FRAGMENT,
+    LIFECYCLE,
     LIFECYCLE_OWNER,
     LIVEDATA,
     MUTABLE_LIVEDATA,
@@ -135,5 +187,16 @@ internal val BACK_CALLBACK_STUBS = arrayOf(
     BACK_PRESSED_CALLBACK,
     BACK_PRESSED_DISPATCHER,
     FRAGMENT,
+    LIFECYCLE,
+    LIFECYCLE_OWNER
+)
+
+// stubs for testing calls to LifecycleOwner.repeatOnLifecycle
+internal val REPEAT_ON_LIFECYCLE_STUBS = arrayOf(
+    REPEAT_ON_LIFECYCLE,
+    DIALOG_FRAGMENT,
+    FRAGMENT,
+    COROUTINES,
+    LIFECYCLE,
     LIFECYCLE_OWNER
 )

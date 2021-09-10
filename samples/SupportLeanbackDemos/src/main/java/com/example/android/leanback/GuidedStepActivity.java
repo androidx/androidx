@@ -75,7 +75,8 @@ public class GuidedStepActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.guided_step_activity);
         if (savedInstanceState == null) {
-            GuidedStepFragment.addAsRoot(this, new FirstStepFragment(), R.id.lb_guidedstep_host);
+            GuidedStepFragment.addAsRoot(this, new FirstStepFragment(),
+                    R.id.lb_guidedstep_host);
         }
     }
 
@@ -128,7 +129,7 @@ public class GuidedStepActivity extends Activity {
                 .title(title)
                 .description(desc)
                 .editable(true)
-                .icon(R.drawable.lb_ic_search_mic)
+                .icon(androidx.leanback.R.drawable.lb_ic_search_mic)
                 .build());
         return action;
     }

@@ -16,20 +16,22 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.activity.compose.setContent
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.AtLeastSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
-import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.test.TestActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -40,7 +42,7 @@ import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4::class)
 class ModelReadsTest {
 
@@ -152,7 +154,7 @@ class ModelReadsTest {
     }
 
     @Test
-    fun useTheSameModelInMeasureAndPosition() {
+    fun useTheSameModelInMeasureAndDraw() {
         val offset = mutableStateOf(5)
         var measureLatch = CountDownLatch(1)
         var drawLatch = CountDownLatch(1)
@@ -378,7 +380,6 @@ class ModelReadsTest {
                     if (model.value == 1) {
                         // this will trigger remeasure request for this node we currently measure
                         model.value = 2
-                        @OptIn(ExperimentalComposeApi::class)
                         Snapshot.sendApplyNotifications()
                     }
                     latch.countDown()
@@ -416,7 +417,6 @@ class ModelReadsTest {
                             if (!modelAlreadyChanged) {
                                 // this will trigger remeasure request for this node we layout
                                 remeasureModel.value = 1
-                                @OptIn(ExperimentalComposeApi::class)
                                 Snapshot.sendApplyNotifications()
                                 // the remeasure will also include another relayout and we don't
                                 // want to loop and request remeasure again
@@ -456,7 +456,6 @@ class ModelReadsTest {
                     if (remeasureModel.value != 0) {
                         // this will trigger relayout request for this node we currently measure
                         relayoutModel.value = 1
-                        @OptIn(ExperimentalComposeApi::class)
                         Snapshot.sendApplyNotifications()
                     }
                     remeasureLatch.countDown()
@@ -493,7 +492,6 @@ class ModelReadsTest {
                         if (model.value == 1) {
                             // this will trigger relayout request for this node we currently layout
                             model.value = 2
-                            @OptIn(ExperimentalComposeApi::class)
                             Snapshot.sendApplyNotifications()
                         }
                         latch.countDown()
@@ -512,6 +510,252 @@ class ModelReadsTest {
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
+
+    @Test
+    fun measureModifierReactsOnCorrectModelsChanges() {
+        val enabled = mutableStateOf(true)
+        val model = mutableStateOf(0)
+        rule.runOnUiThread {
+            activity.setContent {
+                Layout(
+                    {},
+                    Modifier.layout(
+                        onMeasure = {
+                            if (enabled.value) {
+                                // read the model
+                                model.value
+                            }
+                            latch.countDown()
+                        }
+                    )
+                ) { _, _ ->
+                    layout(10, 10) {}
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        assertCountDownOnlyWhileEnabled(enabled, model)
+    }
+
+    @Test
+    fun layoutModifierReactsOnCorrectModelsChanges() {
+        val enabled = mutableStateOf(true)
+        val model = mutableStateOf(0)
+        rule.runOnUiThread {
+            activity.setContent {
+                Layout(
+                    {},
+                    Modifier.layout(
+                        onLayout = {
+                            if (enabled.value) {
+                                // read the model
+                                model.value
+                            }
+                            latch.countDown()
+                        }
+                    )
+                ) { _, _ ->
+                    layout(10, 10) {}
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        assertCountDownOnlyWhileEnabled(enabled, model)
+    }
+
+    @Test
+    fun parentIsNotRemeasuredOrRelaidOutWhenChildMeasureModifierUsesState() {
+        val model = mutableStateOf(0)
+        var parentMeasureCount = 0
+        var parentLayoutsCount = 0
+        rule.runOnUiThread {
+            activity.setContent {
+                Layout({
+                    Layout(
+                        {},
+                        Modifier.layout(
+                            onMeasure = {
+                                // read the model
+                                model.value
+                                latch.countDown()
+                            }
+                        )
+                    ) { _, _ ->
+                        layout(10, 10) {}
+                    }
+                }) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    parentMeasureCount++
+                    layout(placeable.width, placeable.height) {
+                        parentLayoutsCount++
+                        placeable.place(0, 0)
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        latch = CountDownLatch(1)
+        rule.runOnUiThread {
+            assertEquals(1, parentMeasureCount)
+            assertEquals(1, parentLayoutsCount)
+            model.value++
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        rule.runOnUiThread {
+            assertEquals(1, parentMeasureCount)
+            assertEquals(1, parentLayoutsCount)
+        }
+    }
+
+    @Test
+    fun parentIsNotRelaidOutWhenChildLayoutModifierUsesState() {
+        val model = mutableStateOf(0)
+        var parentLayoutsCount = 0
+        rule.runOnUiThread {
+            activity.setContent {
+                Layout({
+                    Layout(
+                        {},
+                        Modifier.layout(
+                            onLayout = {
+                                // read the model
+                                model.value
+                                latch.countDown()
+                            }
+                        )
+                    ) { _, _ ->
+                        layout(10, 10) {}
+                    }
+                }) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        parentLayoutsCount++
+                        placeable.place(0, 0)
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        latch = CountDownLatch(1)
+        rule.runOnUiThread {
+            assertEquals(1, parentLayoutsCount)
+            model.value++
+        }
+
+        assertTrue(latch.await(1, TimeUnit.HOURS))
+
+        rule.runOnUiThread {
+            assertEquals(1, parentLayoutsCount)
+        }
+    }
+
+    @Test
+    fun stateReadForTheIntroducedLaterMeasureModifierIsObserved() {
+        val model = mutableStateOf(0)
+        var modifier by mutableStateOf(Modifier.layout(onMeasure = { latch.countDown() }))
+        rule.runOnUiThread {
+            activity.setContent {
+                Layout({}, modifier) { _, _ ->
+                    layout(10, 10) {}
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        latch = CountDownLatch(1)
+        rule.runOnUiThread {
+            modifier = Modifier.layout(
+                onMeasure = {
+                    // read the model
+                    model.value
+                    latch.countDown()
+                }
+            )
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        latch = CountDownLatch(1)
+        rule.runOnUiThread {
+            model.value++
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun stateReadForTheIntroducedLaterLayoutModifierIsObserved() {
+        val model = mutableStateOf(0)
+        var modifier by mutableStateOf(Modifier.layout(onLayout = { latch.countDown() }))
+        rule.runOnUiThread {
+            activity.setContent {
+                Layout({}, modifier) { _, _ ->
+                    layout(10, 10) {}
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        latch = CountDownLatch(1)
+        rule.runOnUiThread {
+            modifier = Modifier.layout(
+                onLayout = {
+                    // read the model
+                    model.value
+                    latch.countDown()
+                }
+            )
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        latch = CountDownLatch(1)
+        rule.runOnUiThread {
+            model.value++
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun stateChangeTriggersUpdateWhenDerivedStateIsUsedRightAfter() {
+        val state = mutableStateOf(0)
+        val derivedState = derivedStateOf { 0 }
+        rule.runOnUiThread {
+            activity.setContent {
+                Layout({}) { _, _ ->
+                    state.value++
+                    derivedState.value
+                    latch.countDown()
+                    layout(10, 10) {}
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        latch = CountDownLatch(1)
+        rule.runOnUiThread {
+            state.value++
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
+    private fun Modifier.layout(onMeasure: () -> Unit = {}, onLayout: () -> Unit = {}) =
+        layout { measurable, constraints ->
+            onMeasure()
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) {
+                onLayout()
+                placeable.place(0, 0)
+            }
+        }
 
     fun assertCountDownOnlyWhileEnabled(
         enableModel: MutableState<Boolean>,

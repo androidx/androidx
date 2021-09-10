@@ -147,6 +147,31 @@ public class ProxyControllerTest {
 
     /**
      * This test should have an equivalent in CTS when this is implemented in the framework.
+     */
+    @Test
+    public void testReverseBypass() throws Exception {
+        WebkitUtils.checkFeature(WebViewFeature.PROXY_OVERRIDE_REVERSE_BYPASS);
+
+        final String contentUrl = "http://www.example.com";
+        final String bypassUrl = "www.example.com";
+        int proxyServerRequestCount = mProxyServer.getRequestCount();
+
+        // Set proxy override with reverse bypass and load content url
+        // The content url (in the bypass list) should use proxy settings.
+        setProxyOverrideSync(new ProxyConfig.Builder()
+                .addProxyRule(mProxyServer.getHostName() + ":" + mProxyServer.getPort())
+                .addBypassRule(bypassUrl)
+                .setReverseBypassEnabled(true)
+                .build());
+        mWebViewOnUiThread.loadUrl(contentUrl);
+
+        proxyServerRequestCount++;
+        assertNotNull(mProxyServer.takeRequest(WebkitUtils.TEST_TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(proxyServerRequestCount, mProxyServer.getRequestCount());
+    }
+
+    /**
+     * This test should have an equivalent in CTS when this is implemented in the framework.
      *
      * Enumerates valid patterns to check they are supported.
      */
@@ -267,9 +292,8 @@ public class ProxyControllerTest {
 
     private void clearProxyOverrideSync() {
         final ResolvableFuture<Void> future = ResolvableFuture.create();
-        ProxyController.getInstance().clearProxyOverride(new SynchronousExecutor(), () -> {
-            future.set(null);
-        });
+        ProxyController.getInstance().clearProxyOverride(
+                new SynchronousExecutor(), () -> future.set(null));
         // This future is used to ensure that clearProxyOverride's callback was called
         WebkitUtils.waitForFuture(future);
     }

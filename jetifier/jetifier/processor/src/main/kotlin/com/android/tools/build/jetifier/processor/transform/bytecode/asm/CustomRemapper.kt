@@ -24,6 +24,17 @@ import org.objectweb.asm.commons.Remapper
  * Extends [Remapper] to allow further customizations.
  */
 class CustomRemapper(private val remapper: CoreRemapper) : Remapper() {
+    private var inKotlinMetadata = false
+
+    fun onKotlinAnnotationVisitStart() {
+        require(!inKotlinMetadata)
+        inKotlinMetadata = true
+    }
+
+    fun onKotlinAnnotationVisitEnd() {
+        require(inKotlinMetadata)
+        inKotlinMetadata = false
+    }
 
     override fun map(typeName: String): String {
         return remapper.rewriteType(JavaType(typeName)).fullName
@@ -71,6 +82,10 @@ class CustomRemapper(private val remapper: CoreRemapper) : Remapper() {
             }
 
             return "L" + mapPoolReferenceType(typeDeclaration) + ";"
+        }
+        if (inKotlinMetadata) {
+            return rewriteIfMethodSignature(stringVal, ::mapPoolReferenceType)
+                ?: remapper.rewriteString(stringVal)
         }
         return remapper.rewriteString(stringVal)
     }

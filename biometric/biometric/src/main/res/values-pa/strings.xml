@@ -29,4 +29,5 @@
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"ਪਾਸਵਰਡ ਵਰਤੋ"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"ਕੋਈ ਪਿੰਨ, ਪੈਟਰਨ ਜਾਂ ਪਾਸਵਰਡ ਸੈੱਟ ਨਹੀਂ ਕੀਤਾ ਗਿਆ।"</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"ਇਹ ਡੀਵਾਈਸ ਪਿੰਨ, ਪੈਟਰਨ ਜਾਂ ਪਾਸਵਰਡ ਦਾ ਸਮਰਥਨ ਨਹੀਂ ਕਰਦਾ।"</string>
+    <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"ਫਿੰਗਰਪ੍ਰਿੰਟ ਪ੍ਰਤੀਕ"</string>
 </resources>

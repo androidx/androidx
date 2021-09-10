@@ -131,7 +131,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
                 .title(title)
                 .description(desc)
                 .editable(true)
-                .icon(R.drawable.lb_ic_search_mic)
+                .icon(androidx.leanback.R.drawable.lb_ic_search_mic)
                 .build());
         return action;
     }

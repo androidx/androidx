@@ -43,7 +43,7 @@ class TintResources extends ResourcesWrapper {
      */
     @Override
     public Drawable getDrawable(int id) throws NotFoundException {
-        Drawable d = super.getDrawable(id);
+        Drawable d = getDrawableCanonical(id);
         Context context = mContextRef.get();
         if (d != null && context != null) {
             ResourceManagerInternal.get().tintDrawableUsingColorFilter(context, id, d);

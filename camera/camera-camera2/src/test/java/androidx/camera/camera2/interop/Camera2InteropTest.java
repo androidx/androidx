@@ -25,7 +25,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 import android.util.Range;
 
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.Camera2CaptureCallbacks;
 import androidx.camera.camera2.internal.CameraCaptureSessionStateCallbacks;
@@ -41,7 +41,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @org.robolectric.annotation.Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-@UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+@OptIn(markerClass = ExperimentalCamera2Interop.class)
 public final class Camera2InteropTest {
     private static final int INVALID_TEMPLATE_TYPE = -1;
     private static final int INVALID_COLOR_CORRECTION_MODE = -1;

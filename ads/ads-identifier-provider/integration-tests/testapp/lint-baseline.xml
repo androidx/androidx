@@ -1,49 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="        textView.setText(&quot;There are &quot; + allAdIdProviders.size() + &quot; provider(s) on the device.\n&quot;);"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/ads/identifier/provider/testapp/AdsIdentifierProviderActivity.java"
-            line="61"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="        textView.setText(&quot;There are &quot; + allAdIdProviders.size() + &quot; provider(s) on the device.\n&quot;);"
-        errorLine2="                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/ads/identifier/provider/testapp/AdsIdentifierProviderActivity.java"
-            line="61"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="            textView.setText(&quot;Package name: &quot; + providerInfo.getPackageName() + &quot;\n&quot;);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/ads/identifier/provider/testapp/AdsIdentifierProviderActivity.java"
-            line="105"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="            textView.setText(&quot;Package name: &quot; + providerInfo.getPackageName() + &quot;\n&quot;);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/ads/identifier/provider/testapp/AdsIdentifierProviderActivity.java"
-            line="105"
-            column="30"/>
-    </issue>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
         id="UnknownNullness"

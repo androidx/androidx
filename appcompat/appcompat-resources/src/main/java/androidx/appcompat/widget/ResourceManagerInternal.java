@@ -38,6 +38,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat;
+import androidx.appcompat.resources.Compatibility;
 import androidx.appcompat.resources.R;
 import androidx.collection.LongSparseArray;
 import androidx.collection.LruCache;
@@ -61,14 +62,17 @@ import java.util.WeakHashMap;
 public final class ResourceManagerInternal {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    interface ResourceManagerHooks {
+    public interface ResourceManagerHooks {
+        @Nullable
         Drawable createDrawableFor(@NonNull ResourceManagerInternal appCompatDrawableManager,
                 @NonNull Context context, @DrawableRes final int resId);
         boolean tintDrawable(@NonNull Context context, @DrawableRes int resId,
                 @NonNull Drawable drawable);
+        @Nullable
         ColorStateList getTintListForDrawableRes(@NonNull Context context, @DrawableRes int resId);
         boolean tintDrawableUsingColorFilter(@NonNull Context context,
                 @DrawableRes final int resId, @NonNull Drawable drawable);
+        @Nullable
         PorterDuff.Mode getTintModeForDrawableRes(final int resId);
     }
 
@@ -350,7 +354,7 @@ public final class ResourceManagerInternal {
             @NonNull VectorEnabledTintResources resources, @DrawableRes final int resId) {
         Drawable drawable = loadDrawableFromDelegates(context, resId);
         if (drawable == null) {
-            drawable = resources.superGetDrawable(resId);
+            drawable = resources.getDrawableCanonical(resId);
         }
         if (drawable != null) {
             return tintDrawable(context, resId, false, drawable);
@@ -559,7 +563,8 @@ public final class ResourceManagerInternal {
                                     .asSubclass(Drawable.class);
                     Drawable drawable = drawableClass.getDeclaredConstructor().newInstance();
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        drawable.inflate(context.getResources(), parser, attrs, theme);
+                        Compatibility.Api21Impl.inflate(drawable, context.getResources(), parser,
+                                attrs, theme);
                     } else {
                         drawable.inflate(context.getResources(), parser, attrs);
                     }

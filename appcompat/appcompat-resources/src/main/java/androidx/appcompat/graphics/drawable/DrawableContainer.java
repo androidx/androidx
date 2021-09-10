@@ -49,6 +49,7 @@ import androidx.core.view.ViewCompat;
  *
  * @hide
  */
+@SuppressWarnings("RedundantSuppression") // Incorrect warning, see b/179893144 for details.
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 class DrawableContainer extends Drawable implements Drawable.Callback {
     private static final boolean DEBUG = false;
@@ -118,8 +119,7 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
         }
         if (needsMirroring()) {
             final int left = padding.left;
-            final int right = padding.right;
-            padding.left = right;
+            padding.left = padding.right;
             padding.right = left;
         }
         return result;
@@ -129,7 +129,7 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
     @Override
     public void getOutline(@NonNull Outline outline) {
         if (mCurrDrawable != null) {
-            mCurrDrawable.getOutline(outline);
+            Api21Impl.getOutline(mCurrDrawable, outline);
         }
     }
 
@@ -406,6 +406,7 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
                 mDrawableContainerState.getOpacity();
     }
 
+    @SuppressWarnings("unused")
     void setCurrentIndex(int index) {
         selectDrawable(index);
     }
@@ -514,15 +515,15 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
             d.setState(getState());
             d.setLevel(getLevel());
             d.setBounds(getBounds());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                d.setLayoutDirection(getLayoutDirection());
+            if (Build.VERSION.SDK_INT >= 23) {
+                DrawableCompat.setLayoutDirection(d, DrawableCompat.getLayoutDirection(this));
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                d.setAutoMirrored(mDrawableContainerState.mAutoMirrored);
+            if (Build.VERSION.SDK_INT >= 19) {
+                DrawableCompat.setAutoMirrored(d, mDrawableContainerState.mAutoMirrored);
             }
             final Rect hotspotBounds = mHotspotBounds;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && hotspotBounds != null) {
-                d.setHotspotBounds(hotspotBounds.left, hotspotBounds.top,
+            if (Build.VERSION.SDK_INT >= 21 && hotspotBounds != null) {
+                DrawableCompat.setHotspotBounds(d, hotspotBounds.left, hotspotBounds.top,
                         hotspotBounds.right, hotspotBounds.bottom);
             }
         } finally {
@@ -608,7 +609,6 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
         return null;
     }
 
-    @NonNull
     @Override
     public Drawable mutate() {
         if (!mMutated && super.mutate() == this) {
@@ -644,7 +644,7 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
     abstract static class DrawableContainerState extends ConstantState {
         final DrawableContainer mOwner;
         Resources mSourceRes;
-        int mDensity = DisplayMetrics.DENSITY_DEFAULT;
+        int mDensity;
         int mChangingConfigurations;
         int mChildrenChangingConfigurations;
         SparseArray<ConstantState> mDrawableFutures;
@@ -704,7 +704,9 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
                 mHasTintMode = orig.mHasTintMode;
                 if (orig.mDensity == mDensity) {
                     if (orig.mCheckedPadding) {
-                        mConstantPadding = new Rect(orig.mConstantPadding);
+                        // If there are no children, the constant padding is null.
+                        mConstantPadding = orig.mConstantPadding != null
+                                ? new Rect(orig.mConstantPadding) : null;
                         mCheckedPadding = true;
                     }
                     if (orig.mCheckedConstantSize) {
@@ -809,8 +811,8 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
         }
 
         private Drawable prepareDrawable(Drawable child) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                child.setLayoutDirection(mLayoutDirection);
+            if (Build.VERSION.SDK_INT >= 23) {
+                DrawableCompat.setLayoutDirection(child, mLayoutDirection);
             }
             child = child.mutate();
             child.setCallback(mOwner);
@@ -855,8 +857,9 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
             for (int i = 0; i < count; i++) {
                 if (drawables[i] != null) {
                     boolean childChanged = false;
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                        childChanged = drawables[i].setLayoutDirection(layoutDirection);
+                    if (android.os.Build.VERSION.SDK_INT >= 23) {
+                        childChanged =
+                                DrawableCompat.setLayoutDirection(drawables[i], layoutDirection);
                     }
                     if (i == currentIndex) {
                         changed = childChanged;
@@ -895,13 +898,13 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
                 final int count = mNumChildren;
                 final Drawable[] drawables = mDrawables;
                 for (int i = 0; i < count; i++) {
-                    if (drawables[i] != null && drawables[i].canApplyTheme()) {
-                        drawables[i].applyTheme(theme);
+                    if (drawables[i] != null && DrawableCompat.canApplyTheme(drawables[i])) {
+                        DrawableCompat.applyTheme(drawables[i], theme);
                         // Update cached mask of child changing configurations.
                         mChildrenChangingConfigurations |= drawables[i].getChangingConfigurations();
                     }
                 }
-                updateDensity(theme.getResources());
+                updateDensity(Api21Impl.getResources(theme));
             }
         }
 
@@ -913,12 +916,12 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
             for (int i = 0; i < count; i++) {
                 final Drawable d = drawables[i];
                 if (d != null) {
-                    if (d.canApplyTheme()) {
+                    if (DrawableCompat.canApplyTheme(d)) {
                         return true;
                     }
                 } else {
                     final ConstantState future = mDrawableFutures.get(i);
-                    if (future != null && future.canApplyTheme()) {
+                    if (future != null && Api21Impl.canApplyTheme(future)) {
                         return true;
                     }
                 }
@@ -1121,14 +1124,16 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
          */
         public void growArray(int oldSize, int newSize) {
             Drawable[] newDrawables = new Drawable[newSize];
-            System.arraycopy(mDrawables, 0, newDrawables, 0, oldSize);
+            if (mDrawables != null) {
+                System.arraycopy(mDrawables, 0, newDrawables, 0, oldSize);
+            }
             mDrawables = newDrawables;
         }
 
         /**
          * If all child drawables have a constant state
          */
-        public synchronized boolean canConstantState() {
+        public boolean canConstantState() {
             if (mCheckedConstantState) {
                 return mCanConstantState;
             }
@@ -1201,5 +1206,24 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
     static int resolveDensity(@Nullable Resources r, int parentDensity) {
         final int densityDpi = r == null ? parentDensity : r.getDisplayMetrics().densityDpi;
         return densityDpi == 0 ? DisplayMetrics.DENSITY_DEFAULT : densityDpi;
+    }
+
+    @RequiresApi(21)
+    private static class Api21Impl {
+        private Api21Impl() {
+            // Non-instantiable.
+        }
+
+        public static boolean canApplyTheme(ConstantState constantState) {
+            return constantState.canApplyTheme();
+        }
+
+        public static Resources getResources(Theme theme) {
+            return theme.getResources();
+        }
+
+        public static void getOutline(Drawable drawable, Outline outline) {
+            drawable.getOutline(outline);
+        }
     }
 }

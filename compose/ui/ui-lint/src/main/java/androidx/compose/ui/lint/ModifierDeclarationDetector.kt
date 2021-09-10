@@ -18,6 +18,10 @@
 
 package androidx.compose.ui.lint
 
+import androidx.compose.lint.Names
+import androidx.compose.lint.inheritsFrom
+import androidx.compose.lint.isComposable
+import androidx.compose.lint.toKmFunction
 import androidx.compose.ui.lint.ModifierDeclarationDetector.Companion.ComposableModifierFactory
 import androidx.compose.ui.lint.ModifierDeclarationDetector.Companion.ModifierFactoryReturnType
 import com.android.tools.lint.client.api.UElementHandler
@@ -32,7 +36,8 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiType
-import com.intellij.psi.util.InheritanceUtil
+import com.intellij.psi.impl.compiled.ClsMethodImpl
+import kotlinx.metadata.KmClassifier
 import org.jetbrains.kotlin.psi.KtCallableDeclaration
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtFunction
@@ -41,17 +46,27 @@ import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
 import org.jetbrains.kotlin.psi.KtUserType
 import org.jetbrains.kotlin.psi.psiUtil.containingClass
+import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UMethod
+import org.jetbrains.uast.UThisExpression
+import org.jetbrains.uast.UTypeReferenceExpression
+import org.jetbrains.uast.getContainingUClass
+import org.jetbrains.uast.resolveToUElement
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.tryResolve
+import org.jetbrains.uast.visitor.AbstractUastVisitor
 import java.util.EnumSet
 
 /**
  * [Detector] that checks functions returning Modifiers for consistency with guidelines.
  *
- * - Modifier factory functions must return Modifier as their type, and not a subclass of Modifier
- * - Modifier factory functions must be defined as an extension on Modifier to allow fluent chaining
- * - Modifier factory functions must not be marked as @Composable, and should use `composed` instead
+ * - Modifier factory functions should return Modifier as their type, and not a subclass of Modifier
+ * - Modifier factory functions should be defined as an extension on Modifier to allow fluent
+ * chaining
+ * - Modifier factory functions should not be marked as @Composable, and should use `composed`
+ * instead
+ * - Modifier factory functions should reference the receiver parameter inside their body to make
+ * sure they don't drop old Modifiers in the chain
  */
 class ModifierDeclarationDetector : Detector(), SourceCodeScanner {
     override fun getApplicableUastTypes() = listOf(UMethod::class.java)
@@ -62,7 +77,11 @@ class ModifierDeclarationDetector : Detector(), SourceCodeScanner {
             val returnType = node.returnType ?: return
 
             // Ignore functions that do not return Modifier or something implementing Modifier
-            if (!InheritanceUtil.isInheritor(returnType, ModifierFqn)) return
+            if (!returnType.inheritsFrom(Names.Ui.Modifier)) return
+
+            // Ignore ParentDataModifiers - this is a special type of Modifier where the type is
+            // used to provide data for use in layout, so we don't want to warn here.
+            if (returnType.inheritsFrom(Names.Ui.Layout.ParentDataModifier)) return
 
             val source = node.sourcePsi
 
@@ -99,7 +118,7 @@ class ModifierDeclarationDetector : Detector(), SourceCodeScanner {
                 "androidx.compose.ui.composed {} in their implementation instead of being marked " +
                 "as @Composable. This allows Modifiers to be referenced in top level variables " +
                 "and constructed outside of the composition.",
-            Category.CORRECTNESS, 3, Severity.ERROR,
+            Category.CORRECTNESS, 3, Severity.WARNING,
             Implementation(
                 ModifierDeclarationDetector::class.java,
                 EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
@@ -108,10 +127,10 @@ class ModifierDeclarationDetector : Detector(), SourceCodeScanner {
 
         val ModifierFactoryReturnType = Issue.create(
             "ModifierFactoryReturnType",
-            "Modifier factory functions must return Modifier",
-            "Modifier factory functions must return Modifier as their type, and not a " +
+            "Modifier factory functions should return Modifier",
+            "Modifier factory functions should return Modifier as their type, and not a " +
                 "subtype of Modifier (such as Modifier.Element).",
-            Category.CORRECTNESS, 3, Severity.ERROR,
+            Category.CORRECTNESS, 3, Severity.WARNING,
             Implementation(
                 ModifierDeclarationDetector::class.java,
                 EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
@@ -120,9 +139,28 @@ class ModifierDeclarationDetector : Detector(), SourceCodeScanner {
 
         val ModifierFactoryExtensionFunction = Issue.create(
             "ModifierFactoryExtensionFunction",
-            "Modifier factory functions must be extensions on Modifier",
-            "Modifier factory functions must be defined as extension functions on" +
+            "Modifier factory functions should be extensions on Modifier",
+            "Modifier factory functions should be defined as extension functions on" +
                 " Modifier to allow modifiers to be fluently chained.",
+            Category.CORRECTNESS, 3, Severity.WARNING,
+            Implementation(
+                ModifierDeclarationDetector::class.java,
+                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+            )
+        )
+
+        val ModifierFactoryUnreferencedReceiver = Issue.create(
+            "ModifierFactoryUnreferencedReceiver",
+            "Modifier factory functions must use the receiver Modifier instance",
+            "Modifier factory functions are fluently chained to construct a chain of " +
+                "Modifier objects that will be applied to a layout. As a result, each factory " +
+                "function *must* use the receiver `Modifier` parameter, to ensure that the " +
+                "function is returning a chain that includes previous items in the chain. Make " +
+                "sure the returned chain either explicitly includes `this`, such as " +
+                "`return this.then(MyModifier)` or implicitly by returning a chain that starts " +
+                "with an implicit call to another factory function, such as " +
+                "`return myModifier()`, where `myModifier` is defined as " +
+                "`fun Modifier.myModifier(): Modifier`.",
             Category.CORRECTNESS, 3, Severity.ERROR,
             Implementation(
                 ModifierDeclarationDetector::class.java,
@@ -183,7 +221,7 @@ private fun UMethod.checkReceiver(context: JavaContext) {
             ModifierDeclarationDetector.ModifierFactoryExtensionFunction,
             this,
             context.getNameLocation(this),
-            "Modifier factory functions must be extensions on Modifier",
+            "Modifier factory functions should be extensions on Modifier",
             lintFix
         )
     }
@@ -205,7 +243,7 @@ private fun UMethod.checkReceiver(context: JavaContext) {
                 .name("Add Modifier receiver")
                 .range(context.getLocation(source))
                 .text(name)
-                .with("$ModifierShortName.$name")
+                .with("${Names.Ui.Modifier.shortName}.$name")
                 .autoFix()
                 .build()
         )
@@ -218,10 +256,10 @@ private fun UMethod.checkReceiver(context: JavaContext) {
             )?.qualifiedName
         val hasModifierReceiver = if (receiverFqn != null) {
             // If we could resolve the class, match fqn
-            receiverFqn == ModifierFqn
+            receiverFqn == Names.Ui.Modifier.javaFqn
         } else {
             // Otherwise just try and match the short names
-            receiverShortName == ModifierShortName
+            receiverShortName == Names.Ui.Modifier.shortName
         }
         if (!hasModifierReceiver) {
             report(
@@ -230,11 +268,84 @@ private fun UMethod.checkReceiver(context: JavaContext) {
                     .name("Change receiver to Modifier")
                     .range(context.getLocation(source))
                     .text(receiverShortName)
-                    .with(ModifierShortName)
+                    .with(Names.Ui.Modifier.shortName)
                     .autoFix()
                     .build()
             )
+        } else {
+            // Ignore interface / abstract methods with no body
+            if (uastBody != null) {
+                ensureReceiverIsReferenced(context)
+            }
         }
+    }
+}
+
+/**
+ * See [ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver]
+ */
+private fun UMethod.ensureReceiverIsReferenced(context: JavaContext) {
+    var isReceiverReferenced = false
+    accept(object : AbstractUastVisitor() {
+        /**
+         * If there is no receiver on the call, but the call has a Modifier receiver
+         * type, then the call is implicitly using the Modifier receiver
+         * TODO: consider checking for nested receivers, in case the implicit
+         *  receiver is an inner scope, and not the outer Modifier receiver
+         */
+        override fun visitCallExpression(node: UCallExpression): Boolean {
+            // We account for a receiver of `this` in `visitThisExpression`
+            if (node.receiver == null) {
+                val declaration = node.resolveToUElement()
+                // If the declaration is a member of `Modifier` (such as `then`)
+                if (declaration?.getContainingUClass()
+                    ?.qualifiedName == Names.Ui.Modifier.javaFqn
+                ) {
+                    isReceiverReferenced = true
+                    // Otherwise if the declaration is an extension of `Modifier`
+                } else {
+                    // Whether the declaration itself has a Modifier receiver - UAST might think the
+                    // receiver on the node is different if it is inside another scope.
+                    val hasModifierReceiver = when (val source = declaration?.sourcePsi) {
+                        // Parsing a method defined in a class file
+                        is ClsMethodImpl -> {
+                            val receiverClassifier = source.toKmFunction()
+                                ?.receiverParameterType?.classifier
+                            receiverClassifier == KmClassifier.Class(Names.Ui.Modifier.kmClassName)
+                        }
+                        // Parsing a method defined in Kotlin source
+                        is KtFunction -> {
+                            val receiver = source.receiverTypeReference
+                            (receiver.toUElement() as? UTypeReferenceExpression)
+                                ?.getQualifiedName() == Names.Ui.Modifier.javaFqn
+                        }
+                        else -> false
+                    }
+                    if (hasModifierReceiver) {
+                        isReceiverReferenced = true
+                    }
+                }
+            }
+            return isReceiverReferenced
+        }
+
+        /**
+         * If `this` is explicitly referenced, no error.
+         * TODO: consider checking for nested receivers, in case `this` refers to an
+         * inner scope, and not the outer Modifier receiver
+         */
+        override fun visitThisExpression(node: UThisExpression): Boolean {
+            isReceiverReferenced = true
+            return isReceiverReferenced
+        }
+    })
+    if (!isReceiverReferenced) {
+        context.report(
+            ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver,
+            this,
+            context.getNameLocation(this),
+            "Modifier factory functions must use the receiver Modifier instance"
+        )
     }
 }
 
@@ -247,12 +358,12 @@ private fun UMethod.checkReturnType(context: JavaContext, returnType: PsiType) {
             ModifierFactoryReturnType,
             this,
             context.getNameLocation(this),
-            "Modifier factory functions must have a return type of Modifier",
+            "Modifier factory functions should have a return type of Modifier",
             lintFix
         )
     }
 
-    if (returnType.canonicalText == ModifierFqn) return
+    if (returnType.canonicalText == Names.Ui.Modifier.javaFqn) return
 
     val source = sourcePsi
     if (source is KtCallableDeclaration && source.returnTypeString != null) {
@@ -264,7 +375,7 @@ private fun UMethod.checkReturnType(context: JavaContext, returnType: PsiType) {
                 .name("Change return type to Modifier")
                 .range(context.getLocation(this))
                 .text(source.returnTypeString)
-                .with(ModifierShortName)
+                .with(Names.Ui.Modifier.shortName)
                 .autoFix()
                 .build()
         )
@@ -282,7 +393,7 @@ private fun UMethod.checkReturnType(context: JavaContext, returnType: PsiType) {
                     .name("Change return type to Modifier")
                     .range(context.getLocation(this))
                     .text(getterReturnType)
-                    .with(ModifierShortName)
+                    .with(Names.Ui.Modifier.shortName)
                     .autoFix()
                     .build()
             )
@@ -299,7 +410,7 @@ private fun UMethod.checkReturnType(context: JavaContext, returnType: PsiType) {
                     .name("Change return type to Modifier")
                     .range(context.getLocation(source.property))
                     .text(propertyType)
-                    .with(ModifierShortName)
+                    .with(Names.Ui.Modifier.shortName)
                     .autoFix()
                     .build()
             )
@@ -316,7 +427,7 @@ private fun UMethod.checkReturnType(context: JavaContext, returnType: PsiType) {
                 .name("Add explicit Modifier return type")
                 .range(context.getLocation(this))
                 .pattern("[ \\t\\n]+=")
-                .with(": $ModifierShortName =")
+                .with(": ${Names.Ui.Modifier.shortName} =")
                 .autoFix()
                 .build()
         )

@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 buildscript {
     // TODO: Remove this when this test app no longer depends on 1.0.0 of vectordrawable-animated.
     // vectordrawable and vectordrawable-animated were accidentally using the same package name
     // which is no longer valid in namespaced resource world.
-    project.ext['android.uniquePackageNames'] = false
+    project.ext["android.uniquePackageNames"] = false
 }
 
 plugins {
@@ -28,8 +26,6 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
 }
-
-project.ext.noDocs = true
 
 android {
     buildTypes {
@@ -53,9 +49,9 @@ android {
 }
 
 dependencies {
-    // Using -PuseMaxDepVersions does not use the right version of the annotation processor
+    // Using -Pandroidx.useMaxDepVersions does not use the right version of the annotation processor
     // Remove this workaround after b/127495641 is fixed
-    if (project.hasProperty('useMaxDepVersions')) {
+    if (project.hasProperty("androidx.useMaxDepVersions")) {
         annotationProcessor(projectOrArtifact(":room:room-compiler"))
         implementation(projectOrArtifact(":room:room-runtime"))
     } else {
@@ -63,12 +59,21 @@ dependencies {
         implementation("androidx.room:room-runtime:2.2.5")
     }
 
-    implementation(CONSTRAINT_LAYOUT, { transitive = true })
+    implementation(libs.constraintLayout)
+    // Fix for BuildCompat.isAtleastS()
+    implementation("androidx.core:core:1.7.0-alpha01")
     implementation("androidx.lifecycle:lifecycle-service:2.2.0")
-    implementation (project(':work:work-runtime-ktx'))
-    implementation (project(':work:work-multiprocess'))
-    implementation (project(':work:work-gcm'))
+    implementation(project(":work:work-runtime-ktx"))
+    implementation(project(":work:work-multiprocess"))
+    implementation(project(":work:work-gcm"))
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation("androidx.arch.core:core-runtime:2.1.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
-    implementation(MATERIAL)
+    implementation(libs.material)
+}
+
+// Enable parameter names to support Room incremental when its a project() dep.
+// See b/198431380
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-parameters"
 }

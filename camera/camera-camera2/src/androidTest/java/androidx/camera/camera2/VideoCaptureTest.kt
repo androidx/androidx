@@ -20,18 +20,28 @@ import android.Manifest
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
+import android.graphics.SurfaceTexture
+import android.media.MediaRecorder
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
+import android.util.Size
+import androidx.annotation.NonNull
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
+import androidx.camera.core.Logger
+import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.VideoCapture
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.AudioUtil
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
+import androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -42,6 +52,7 @@ import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
@@ -52,70 +63,67 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.timeout
 import org.mockito.Mockito.verify
 import java.io.File
-import java.util.Collections
 import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class VideoCaptureTest {
+public class VideoCaptureTest {
+    public companion object {
+        @ClassRule
+        @JvmField
+        public val useRecordingResource: TestRule = CameraUtil.checkVideoRecordingResource()
+
+        private const val TAG = "VideoCaptureTest"
+    }
 
     @get:Rule
-    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    public val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
 
     @get:Rule
-    val mPermissionRule: GrantPermissionRule =
+    public val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO
         )
 
-    private val mInstrumentation = InstrumentationRegistry.getInstrumentation()
+    private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
-    private val mContext = ApplicationProvider.getApplicationContext<Context>()
+    private val context = ApplicationProvider.getApplicationContext<Context>()
 
-    private lateinit var mCameraSelector: CameraSelector
+    private lateinit var cameraSelector: CameraSelector
 
-    private var mCamera: CameraUseCaseAdapter? = null
+    private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
 
-    private lateinit var mContentResolver: ContentResolver
+    private lateinit var contentResolver: ContentResolver
 
     @Before
-    fun setUp() {
+    public fun setUp() {
         // TODO(b/168175357): Fix VideoCaptureTest problems on CuttleFish API 29
         assumeFalse(
             "Cuttlefish has MediaCodec dequeueInput/Output buffer fails issue. Unable to test.",
             Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
         )
 
-        // TODO(b/168187087): Video: Unable to record Video on Pixel 1 API 26,27 when only
-        //  VideoCapture is bound
-        assumeFalse(
-            "Pixel running API 26 has CameraDevice.onError when set repeating request",
-            Build.DEVICE.equals(
-                "sailfish",
-                true
-            ) && (Build.VERSION.SDK_INT == 26 || Build.VERSION.SDK_INT == 27)
-        )
-
         assumeTrue(CameraUtil.deviceHasCamera())
+        assumeTrue(AudioUtil.canStartAudioRecord(MediaRecorder.AudioSource.CAMCORDER))
 
-        if (CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)) {
-            mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+        cameraSelector = if (CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)) {
+            CameraSelector.DEFAULT_BACK_CAMERA
         } else {
-            mCameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+            CameraSelector.DEFAULT_FRONT_CAMERA
         }
 
-        CameraX.initialize(mContext, Camera2Config.defaultConfig()).get()
-        mCamera = CameraUtil.createCameraUseCaseAdapter(mContext, mCameraSelector)
+        CameraX.initialize(context, Camera2Config.defaultConfig()).get()
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
 
-        mContentResolver = mContext.contentResolver
+        contentResolver = context.contentResolver
     }
 
     @After
-    fun tearDown() {
-        mCamera?.apply {
-            mInstrumentation.runOnMainSync {
-                removeUseCases(useCases)
+    public fun tearDown() {
+        instrumentation.runOnMainSync {
+            if (this::cameraUseCaseAdapter.isInitialized) {
+                cameraUseCaseAdapter.removeUseCases(cameraUseCaseAdapter.useCases)
             }
         }
 
@@ -124,7 +132,7 @@ class VideoCaptureTest {
 
     @Test
     @SdkSuppress(maxSdkVersion = 25)
-    fun buildFileOutputOptionsWithFileDescriptor_throwExceptionWhenAPILevelSmallerThan26() {
+    public fun buildFileOutputOptionsWithFileDescriptor_throwExceptionWhenAPILevelSmallerThan26() {
         val file = File.createTempFile("CameraX", ".tmp").apply {
             deleteOnExit()
         }
@@ -135,21 +143,41 @@ class VideoCaptureTest {
         assertThrows<IllegalArgumentException> {
             VideoCapture.OutputFileOptions.Builder(fileDescriptor).build()
         }
+
+        file.delete()
     }
 
-    @Test
+    @Test(timeout = 30000)
     @SdkSuppress(minSdkVersion = 26)
-    fun startRecordingWithFileDescriptor_whenAPILevelLargerThan26() {
+    public fun startRecordingWithFileDescriptor_whenAPILevelLargerThan26() {
         val file = File.createTempFile("CameraX", ".tmp").apply {
             deleteOnExit()
         }
 
-        val fileDescriptor =
-            ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE).fileDescriptor
-        val useCase = VideoCapture.Builder().build()
+        // It's needed to have a variable here to hold the parcel file descriptor reference which
+        // returned from ParcelFileDescriptor.open(), the returned parcel descriptor reference might
+        // be garbage collected unexpectedly. That will caused an "invalid file descriptor" issue.
+        val parcelFileDescriptor =
+            ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE)
+        val fileDescriptor = parcelFileDescriptor.fileDescriptor
 
-        mInstrumentation.runOnMainSync {
-            mCamera!!.addUseCases(Collections.singleton<UseCase>(useCase))
+        val preview = Preview.Builder().build()
+        val videoCapture = VideoCapture.Builder().build()
+
+        assumeTrue(
+            "This combination (videoCapture, preview) is not supported.",
+            checkUseCasesCombinationSupported(videoCapture, preview)
+        )
+
+        instrumentation.runOnMainSync {
+            preview.setSurfaceProvider(
+                CameraXExecutors.mainThreadExecutor(),
+                getSurfaceProvider()
+            )
+            // b/168187087 if there is only VideoCapture , VideoCapture will failed when setting the
+            // repeating request with the surface, the workaround is binding one more useCase
+            // Preview.
+            cameraUseCaseAdapter.addUseCases(listOf(videoCapture, preview))
         }
 
         val outputFileOptions = VideoCapture.OutputFileOptions.Builder(fileDescriptor).build()
@@ -157,63 +185,92 @@ class VideoCaptureTest {
         val callback = mock(VideoCapture.OnVideoSavedCallback::class.java)
 
         // Start recording with FileDescriptor
-        useCase.startRecording(outputFileOptions, CameraXExecutors.mainThreadExecutor(), callback)
+        videoCapture.startRecording(
+            outputFileOptions,
+            CameraXExecutors.mainThreadExecutor(),
+            callback
+        )
 
         // Recording for seconds
-        Thread.sleep(3000)
+        recordingUntilKeyFrameArrived(videoCapture)
 
         // Stop recording
-        useCase.stopRecording()
+        videoCapture.stopRecording()
 
         verify(callback, timeout(10000)).onVideoSaved(any())
+        parcelFileDescriptor.close()
+        file.delete()
     }
 
-    @Test
-    fun unbind_shouldStopRecording() {
+    @FlakyTest // b/182165222
+    @Test(timeout = 30000)
+    public fun unbind_shouldStopRecording() {
         val file = File.createTempFile("CameraX", ".tmp").apply {
             deleteOnExit()
         }
 
-        val useCase = VideoCapture.Builder().build()
+        val preview = Preview.Builder().build()
+        val videoCapture = VideoCapture.Builder().build()
 
-        mInstrumentation.runOnMainSync {
-            mCamera!!.addUseCases(Collections.singleton<UseCase>(useCase))
+        assumeTrue(
+            "This combination (videoCapture, preview) is not supported.",
+            checkUseCasesCombinationSupported(videoCapture, preview)
+        )
+        instrumentation.runOnMainSync {
+            preview.setSurfaceProvider(
+                CameraXExecutors.mainThreadExecutor(),
+                getSurfaceProvider()
+            )
+            cameraUseCaseAdapter.addUseCases(listOf(videoCapture, preview))
         }
 
         val outputFileOptions = VideoCapture.OutputFileOptions.Builder(file).build()
 
         val callback = mock(VideoCapture.OnVideoSavedCallback::class.java)
 
-        useCase.startRecording(outputFileOptions, CameraXExecutors.mainThreadExecutor(), callback)
-
-        // Recording for seconds
-        Thread.sleep(3000)
-
-        mInstrumentation.runOnMainSync {
-            mCamera!!.removeUseCases(Collections.singletonList<UseCase>(useCase))
-        }
-
-        verify(callback, timeout(10000)).onVideoSaved(any())
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 26)
-    fun startRecordingWithUri_whenAPILevelLargerThan26() {
-        val useCase = VideoCapture.Builder().build()
-
-        mInstrumentation.runOnMainSync {
-            mCamera?.addUseCases(Collections.singleton<UseCase>(useCase))
-        }
-
-        val callback = mock(VideoCapture.OnVideoSavedCallback::class.java)
-        useCase.startRecording(
-            getNewVideoOutputFileOptions(mContentResolver),
+        videoCapture.startRecording(
+            outputFileOptions,
             CameraXExecutors.mainThreadExecutor(),
             callback
         )
-        Thread.sleep(3000)
 
-        useCase.stopRecording()
+        recordingUntilKeyFrameArrived(videoCapture)
+
+        instrumentation.runOnMainSync {
+            cameraUseCaseAdapter.removeUseCases(listOf(videoCapture, preview))
+        }
+
+        verify(callback, timeout(10000)).onVideoSaved(any())
+        file.delete()
+    }
+
+    @Test(timeout = 30000)
+    @SdkSuppress(minSdkVersion = 26)
+    public fun startRecordingWithUri_whenAPILevelLargerThan26() {
+        val preview = Preview.Builder().build()
+        val videoCapture = VideoCapture.Builder().build()
+
+        assumeTrue(
+            "This combination (videoCapture, preview) is not supported.",
+            checkUseCasesCombinationSupported(videoCapture, preview)
+        )
+        instrumentation.runOnMainSync {
+            preview.setSurfaceProvider(
+                CameraXExecutors.mainThreadExecutor(),
+                getSurfaceProvider()
+            )
+            cameraUseCaseAdapter.addUseCases(listOf(videoCapture, preview))
+        }
+
+        val callback = mock(VideoCapture.OnVideoSavedCallback::class.java)
+        videoCapture.startRecording(
+            getNewVideoOutputFileOptions(contentResolver),
+            CameraXExecutors.mainThreadExecutor(),
+            callback
+        )
+        recordingUntilKeyFrameArrived(videoCapture)
+
+        videoCapture.stopRecording()
 
         // Assert: Wait for the signal that the image has been saved.
         val outputFileResultsArgumentCaptor =
@@ -228,32 +285,81 @@ class VideoCaptureTest {
         assertThat(saveLocationUri).isNotNull()
 
         // Remove temp test file
-        mContentResolver.delete(saveLocationUri!!, null, null)
+        contentResolver.delete(saveLocationUri!!, null, null)
     }
 
-    @Test
-    fun videoCapture_saveResultToFile() {
-        val useCase = VideoCapture.Builder().build()
+    @Test(timeout = 30000)
+    public fun videoCapture_saveResultToFile() {
         val file = File.createTempFile("CameraX", ".tmp").apply {
             deleteOnExit()
         }
 
-        mInstrumentation.runOnMainSync {
-            mCamera?.addUseCases(Collections.singleton<UseCase>(useCase))
+        val preview = Preview.Builder().build()
+        val videoCapture = VideoCapture.Builder().build()
+
+        assumeTrue(
+            "This combination (videoCapture, preview) is not supported.",
+            checkUseCasesCombinationSupported(videoCapture, preview)
+        )
+        instrumentation.runOnMainSync {
+            preview.setSurfaceProvider(
+                CameraXExecutors.mainThreadExecutor(),
+                getSurfaceProvider()
+            )
+            cameraUseCaseAdapter.addUseCases(listOf(videoCapture, preview))
         }
+
         val callback = mock(VideoCapture.OnVideoSavedCallback::class.java)
-        useCase.startRecording(
+        videoCapture.startRecording(
             VideoCapture.OutputFileOptions.Builder(file).build(),
             CameraXExecutors.mainThreadExecutor(),
             callback
         )
 
-        Thread.sleep(3000)
-
-        useCase.stopRecording()
+        recordingUntilKeyFrameArrived(videoCapture)
+        videoCapture.stopRecording()
 
         // Wait for the signal that the video has been saved.
         verify(callback, timeout(10000)).onVideoSaved(any())
+        file.delete()
+    }
+
+    @Test(timeout = 30000)
+    public fun videoCapture_noKeyFrameVideoShouldCallOnError() {
+        val realFile = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+
+        val preview = Preview.Builder().build()
+        val videoCapture = VideoCapture.Builder().build()
+
+        assumeTrue(
+            "This combination (videoCapture, preview) is not supported.",
+            checkUseCasesCombinationSupported(videoCapture, preview)
+        )
+        instrumentation.runOnMainSync {
+            preview.setSurfaceProvider(
+                CameraXExecutors.mainThreadExecutor(),
+                getSurfaceProvider()
+            )
+            cameraUseCaseAdapter.addUseCases(listOf(videoCapture, preview))
+        }
+
+        val callback = mock(VideoCapture.OnVideoSavedCallback::class.java)
+        videoCapture.startRecording(
+            VideoCapture.OutputFileOptions.Builder(realFile).build(),
+            CameraXExecutors.mainThreadExecutor(),
+            callback
+        )
+
+        // Stop recording directly
+        videoCapture.stopRecording()
+        // Wait for the signal that the video has been saved.
+        verify(callback, timeout(10000)).onError(
+            VideoCapture.ERROR_RECORDING_TOO_SHORT, "The file has no video key frame.", null
+        )
+        // If verification fails, it still needs to be removed.
+        if (realFile.exists()) {
+            realFile.delete()
+        }
     }
 
     /** Return a VideoOutputFileOption which is used to save a video.  */
@@ -271,5 +377,46 @@ class VideoCaptureTest {
             resolver,
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues
         ).build()
+    }
+
+    private fun getSurfaceProvider(): Preview.SurfaceProvider {
+        return createSurfaceTextureProvider(object : SurfaceTextureCallback {
+            override fun onSurfaceTextureReady(surfaceTexture: SurfaceTexture, resolution: Size) {
+                // No-op
+            }
+
+            override fun onSafeToRelease(surfaceTexture: SurfaceTexture) {
+                surfaceTexture.release()
+            }
+        })
+    }
+
+    private fun checkUseCasesCombinationSupported(@NonNull vararg useCases: UseCase): Boolean {
+        val useCaseList = useCases.asList()
+
+        try {
+            cameraUseCaseAdapter.checkAttachUseCases(useCaseList)
+        } catch (e: CameraUseCaseAdapter.CameraException) {
+            // This use combination is not supported. on this device, abort this test.
+            return false
+        }
+        return true
+    }
+
+    private fun recordingUntilKeyFrameArrived(videoCapture: VideoCapture) {
+        Logger.i(TAG, "recordingUntilKeyFrameArrived begins: " + System.nanoTime() / 1000)
+        while (true) {
+            if (videoCapture.mIsFirstVideoKeyFrameWrite.get() && videoCapture
+                .mIsFirstAudioSampleWrite.get()
+            ) {
+                Logger.i(
+                    TAG,
+                    "Video Key Frame and audio frame Arrived: " + System.nanoTime() / 1000
+                )
+                break
+            }
+            Thread.sleep(100)
+        }
+        Logger.i(TAG, "recordingUntilKeyFrameArrived ends: " + System.nanoTime() / 1000)
     }
 }

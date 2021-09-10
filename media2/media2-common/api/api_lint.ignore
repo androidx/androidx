@@ -1,0 +1,43 @@
+// Baseline format: 1.0
+BuilderSetStyle: androidx.media2.common.MediaMetadata.Builder#putBitmap(String, android.graphics.Bitmap):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.media2.common.MediaMetadata.Builder.putBitmap(String,android.graphics.Bitmap)
+BuilderSetStyle: androidx.media2.common.MediaMetadata.Builder#putFloat(String, float):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.media2.common.MediaMetadata.Builder.putFloat(String,float)
+BuilderSetStyle: androidx.media2.common.MediaMetadata.Builder#putLong(String, long):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.media2.common.MediaMetadata.Builder.putLong(String,long)
+BuilderSetStyle: androidx.media2.common.MediaMetadata.Builder#putRating(String, androidx.media2.common.Rating):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.media2.common.MediaMetadata.Builder.putRating(String,androidx.media2.common.Rating)
+BuilderSetStyle: androidx.media2.common.MediaMetadata.Builder#putString(String, String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.media2.common.MediaMetadata.Builder.putString(String,String)
+BuilderSetStyle: androidx.media2.common.MediaMetadata.Builder#putText(String, CharSequence):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.media2.common.MediaMetadata.Builder.putText(String,CharSequence)
+
+
+CallbackMethodName: androidx.media2.common.DataSourceCallback#getSize():
+    Callback method names must follow the on<Something> style: getSize
+CallbackMethodName: androidx.media2.common.DataSourceCallback#readAt(long, byte[], int, int):
+    Callback method names must follow the on<Something> style: readAt
+
+
+ExecutorRegistration: androidx.media2.common.CallbackMediaItem.Builder#Builder(androidx.media2.common.DataSourceCallback):
+    Registration methods should have overload that accepts delivery Executor: `Builder`
+
+
+IntentName: androidx.media2.common.MediaMetadata#METADATA_KEY_EXTRAS:
+    Intent extra constant name must be EXTRA_FOO: METADATA_KEY_EXTRAS
+
+
+NullableCollection: androidx.media2.common.MediaMetadata#getExtras():
+    Return type of method androidx.media2.common.MediaMetadata.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.media2.common.SessionPlayer#getPlaylist():
+    Return type of method androidx.media2.common.SessionPlayer.getPlaylist() is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.media2.common.SessionPlayer.PlayerCallback#onPlaylistChanged(androidx.media2.common.SessionPlayer, java.util.List<androidx.media2.common.MediaItem>, androidx.media2.common.MediaMetadata) parameter #1:
+    Type of parameter list in androidx.media2.common.SessionPlayer.PlayerCallback.onPlaylistChanged(androidx.media2.common.SessionPlayer player, java.util.List<androidx.media2.common.MediaItem> list, androidx.media2.common.MediaMetadata metadata) is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.media2.common.UriMediaItem#getUriCookies():
+    Return type of method androidx.media2.common.UriMediaItem.getUriCookies() is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.media2.common.UriMediaItem#getUriHeaders():
+    Return type of method androidx.media2.common.UriMediaItem.getUriHeaders() is a nullable collection (`java.util.Map`); must be non-null
+
+
+StaticFinalBuilder: androidx.media2.common.MediaItem.Builder:
+    Builder must be final: androidx.media2.common.MediaItem.Builder

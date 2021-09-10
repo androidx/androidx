@@ -18,12 +18,15 @@ package androidx.compose.compiler.plugins.kotlin
 
 import android.os.Looper.getMainLooper
 import android.widget.Button
+import org.intellij.lang.annotations.Language
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
-@RunWith(ComposeRobolectricTestRunner::class)
+@RunWith(RobolectricTestRunner::class)
 @Config(
     manifest = Config.NONE,
     minSdk = 23,
@@ -32,6 +35,7 @@ import org.robolectric.annotation.Config
 class LambdaMemoizationTests : AbstractLoweringTests() {
 
     @Test
+    @Ignore("b/179279455")
     fun nonCapturingEventLambda() = skipping(
         """
             fun eventFired() { }
@@ -53,6 +57,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun lambdaInClassInitializer() = skipping(
         """
             @Composable
@@ -78,6 +83,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun methodReferenceEvent() = skipping(
         """
             fun eventFired() { }
@@ -100,6 +106,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun methodReferenceOnValue() = skipping(
         """
         fun eventFired(value: String) { }
@@ -126,6 +133,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun extensionMethodReferenceOnValue() = skipping(
         """
         fun eventFired(value: String) { }
@@ -154,6 +162,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun doNotMemoizeCallsToInlines() = skipping(
         """
             fun eventFired(data: String) { }
@@ -184,6 +193,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun captureParameterDirectEventLambda() = skipping(
         """
             fun eventFired(data: String) { }
@@ -205,6 +215,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun shouldNotRememberDirectLambdaParameter() = skipping(
         """
         fun eventFired(data: String) {
@@ -231,6 +242,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun narrowCaptureValidation() = skipping(
         """
         fun eventFired(data: String) { }
@@ -259,6 +271,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun captureInANestedScope() = skipping(
         """
         fun eventFired(data: String) { }
@@ -300,6 +313,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun twoCaptures() = skipping(
         """
         fun eventFired(data: String) { }
@@ -335,6 +349,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun threeCaptures() = skipping(
         """
         fun eventFired(data: String) { }
@@ -371,6 +386,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun fiveCaptures() = skipping(
         """
         fun eventFired(data: String) { }
@@ -406,6 +422,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun doNotMemoizeNonStableCaptures() = skipping(
         """
         val unmodifiedUnstable = Any()
@@ -439,6 +456,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun doNotMemoizeVarCapures() = skipping(
         """
         fun eventFired(data: Int) { }
@@ -484,6 +502,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun considerNonComposableCaptures() = skipping(
         """
         fun eventFired(data: Int) {}
@@ -513,6 +532,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun wrapLambaExpressions() = skipping(
         """
             @Composable
@@ -534,6 +554,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun nonCapturingComposableLambda() = skipping(
         """
             @Composable
@@ -574,6 +595,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun wrappingOneParameter() = skipping(
         """
         @Composable
@@ -597,6 +619,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test // Selecting 23 as 22 is the maximum number handled by RestartingFunction
+    @Ignore("b/179279455")
     fun wrapping23Parameters() = skipping(
         """
         @Composable
@@ -675,6 +698,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun wrappingReceiverParameter() = skipping(
         """
         class Receiver() { }
@@ -699,6 +723,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun untrackedLambdasShouldNotForceEvaluation() = skipping(
         """
         @Composable
@@ -725,6 +750,7 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     )
 
     @Test
+    @Ignore("b/179279455")
     fun lambdasWithReturnResultsShouldBeUntracked() = skipping(
         """
 
@@ -751,7 +777,167 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
     """
     )
 
-    private fun skipping(text: String, dumpClasses: Boolean = false) =
+    @Test
+    @Ignore("b/179279455")
+    fun method_lambdaCapturingThis_Unstable() = skipping(
+        """
+            fun log(data: String) { }
+
+            @Composable
+            fun Test(param: () -> Unit) {
+              workToBeRepeated()
+              param()
+              workToBeRepeated()
+            }
+
+            class Component(val data: String) {
+              @Composable
+              fun Render() {
+                Test {
+                  log(data)
+                  workToBeRepeated()
+                }
+              }
+            }
+
+            @Composable
+            fun Example(model: String) {
+              val component = remember(model) { Component(model) }
+              component.Render()
+            }
+        """
+    )
+
+    @Test
+    @Ignore("b/179279455")
+    fun method_lambdaCapturingThis_Stable() = skipping(
+        """
+            fun log(data: String) { }
+
+            @Composable
+            fun TestChanges(param: () -> Unit) {
+              workToBeRepeated()
+              param()
+              workToBeRepeated()
+            }
+
+            @Composable
+            fun TestUnchanged(param: () -> Unit) {
+              workToBeAvoided()
+              param()
+              workToBeAvoided()
+            }
+
+            @Stable
+            class Component(val data: String, val expectChanges: Boolean) {
+              @Composable
+              fun Render() {
+                if (expectChanges) {
+                  TestChanges {
+                    workToBeRepeated()
+                    log(data)
+                  }
+                } else {
+                  TestUnchanged {
+                    workToBeAvoided()
+                    log(data)
+                  }
+                }
+              }
+            }
+
+            @Composable
+            fun Example(model: String) {
+              val changingComponent = remember(model) { Component(model, true) }
+              val unchangingComponent = remember { Component("unchanging", false) }
+              changingComponent.Render()
+              unchangingComponent.Render()
+            }
+        """
+    )
+
+    @Test
+    @Ignore("b/179279455")
+    fun receiver_lambdaCapturingThis_Unstable() = skipping(
+        """
+            fun log(data: String) { }
+
+            @Composable
+            fun Test(param: () -> Unit) {
+              workToBeRepeated()
+              param()
+              workToBeRepeated()
+            }
+
+            class Component(val data: String) {
+              var i = 0
+            }
+
+            @Composable
+            fun Component.Render() {
+              Test {
+                log(data)
+                workToBeRepeated()
+              }
+            }
+
+            @Composable
+            fun Example(model: String) {
+              val component = remember(model) { Component(model) }
+              component.Render()
+            }
+        """
+    )
+
+    @Test
+    @Ignore("b/179279455")
+    fun receiver_lambdaCapturingThis_Stable() = skipping(
+        """
+            fun log(data: String) { }
+
+            @Composable
+            fun TestChanges(param: () -> Unit) {
+              workToBeRepeated()
+              param()
+              workToBeRepeated()
+            }
+
+            @Composable
+            fun TestUnchanged(param: () -> Unit) {
+              workToBeAvoided()
+              param()
+              workToBeAvoided()
+            }
+
+            @Stable
+            class Component(val data: String, val expectChanges: Boolean)
+
+            @Composable
+            fun Component.Render() {
+              if (expectChanges) {
+                TestChanges {
+                  workToBeRepeated()
+                  log(data)
+                }
+              } else {
+                TestUnchanged {
+                  workToBeAvoided()
+                  log(data)
+                }
+              }
+            }
+
+            @Composable
+            fun Example(model: String) {
+              val changingComponent = remember(model) { Component(model, true) }
+              val unchangingComponent = remember { Component("unchanging", false) }
+              changingComponent.Render()
+              unchangingComponent.Render()
+            }
+        """
+    )
+
+    private fun skipping(@Language("kotlin") text: String, dumpClasses: Boolean = false) =
         ensureSetup {
             compose(
                 """
@@ -786,10 +972,10 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
                 @Composable
                 fun TestHost() {
                    // println("START: Iteration - ${'$'}iterations")
-                   val recompose = invalidate
-                   emitView(::Button) { 
-                     it.id=42 
-                     it.setOnClickListener(View.OnClickListener { recompose() })
+                   val scope = currentRecomposeScope
+                   emitView(::Button) {
+                     it.id=42
+                     it.setOnClickListener(View.OnClickListener { scope.invalidate() })
                    }
                    Example("Iteration ${'$'}iterations")
                    // println("END  : Iteration - ${'$'}iterations")
@@ -804,10 +990,16 @@ class LambdaMemoizationTests : AbstractLoweringTests() {
                     expectedRepeatedWorkCount = repeatedWorkCount
                     repeatedWorkCount = 0
                   } else {
+                    if (expectedAvoidedWorkCount != avoidedWorkCount) {
+                      println("Executed avoided work")
+                    }
                     require(expectedAvoidedWorkCount == avoidedWorkCount) {
                       "Executed avoided work unexpectedly, expected " +
                       "${'$'}expectedAvoidedWorkCount" +
                       ", received ${'$'}avoidedWorkCount"
+                    }
+                    if (expectedRepeatedWorkCount != repeatedWorkCount) {
+                      println("Will throw Executed more work")
                     }
                     require(expectedRepeatedWorkCount == repeatedWorkCount) {
                       "Expected more repeated work, expected ${'$'}expectedRepeatedWorkCount" +

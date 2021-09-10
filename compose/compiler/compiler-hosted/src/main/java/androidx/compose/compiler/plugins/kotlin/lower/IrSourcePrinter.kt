@@ -102,6 +102,7 @@ import org.jetbrains.kotlin.ir.types.isNullableAny
 import org.jetbrains.kotlin.ir.types.isUnit
 import org.jetbrains.kotlin.ir.util.isAnnotationClass
 import org.jetbrains.kotlin.ir.util.isInterface
+import org.jetbrains.kotlin.ir.util.isObject
 import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.ir.util.primaryConstructor
 import org.jetbrains.kotlin.ir.util.statements
@@ -109,12 +110,12 @@ import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.resolve.descriptorUtil.isAnnotationConstructor
 import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.utils.Printer
-import kotlin.math.abs
 import java.util.Locale
+import kotlin.math.abs
 
 fun IrElement.dumpSrc(): String {
     val sb = StringBuilder()
-    accept(IrSourcePrinterVisitor(sb), null)
+    accept(IrSourcePrinterVisitor(sb, "%tab%"), null)
     return sb
         .toString()
         // replace tabs at beginning of line with white space
@@ -131,10 +132,11 @@ fun IrElement.dumpSrc(): String {
 }
 
 @Suppress("DEPRECATION")
-private class IrSourcePrinterVisitor(
-    out: Appendable
+class IrSourcePrinterVisitor(
+    out: Appendable,
+    indentUnit: String = "  ",
 ) : IrElementVisitorVoid {
-    private val printer = Printer(out, "%tab%")
+    private val printer = Printer(out, indentUnit)
 
     private fun IrElement.print() {
         accept(this@IrSourcePrinterVisitor, null)
@@ -142,6 +144,8 @@ private class IrSourcePrinterVisitor(
     private fun print(obj: Any?) = printer.print(obj)
     private fun println(obj: Any?) = printer.println(obj)
     private fun println() = printer.println()
+
+    fun printType(type: IrType) = type.renderSrc()
 
     private inline fun indented(body: () -> Unit) {
         printer.pushIndent()
@@ -247,6 +251,7 @@ private class IrSourcePrinterVisitor(
     }
 
     override fun visitConstructor(declaration: IrConstructor) {
+        declaration.printAnnotations(onePerLine = true)
         print("constructor")
         val parameters = declaration.valueParameters
         if (parameters.isNotEmpty()) {
@@ -263,9 +268,8 @@ private class IrSourcePrinterVisitor(
     override fun visitCall(expression: IrCall) {
         val function = expression.symbol.owner
         val name = function.name.asString()
-        val descriptor = function.descriptor
-        val isOperator = descriptor.isOperator || function.origin == IrBuiltIns.BUILTIN_OPERATOR
-        val isInfix = descriptor.isInfix
+        val isOperator = function.isOperator || function.origin == IrBuiltIns.BUILTIN_OPERATOR
+        val isInfix = function.isInfix
         if (isOperator) {
             if (name == "not") {
                 // IR tree for `a !== b` looks like `not(equals(a, b))` which makes
@@ -314,6 +318,7 @@ private class IrSourcePrinterVisitor(
                 "greaterOrEqual" -> ">="
                 "EQEQ" -> if (isInNotCall) "!=" else "=="
                 "EQEQEQ" -> if (isInNotCall) "!==" else "==="
+                "OROR" -> "||"
                 // no names for
                 "invoke", "get", "set" -> ""
                 "iterator", "hasNext", "next", "getValue", "setValue" -> name
@@ -499,9 +504,9 @@ private class IrSourcePrinterVisitor(
                         print(name)
                         print(" = ")
                     }
-                    when (name) {
-                        KtxNameConventions.DEFAULT_PARAMETER.identifier,
-                        KtxNameConventions.CHANGED_PARAMETER.identifier -> {
+                    when {
+                        name.startsWith(KtxNameConventions.DEFAULT_PARAMETER.identifier) ||
+                            name.startsWith(KtxNameConventions.CHANGED_PARAMETER.identifier) -> {
                             withIntsAsBinaryLiterals {
                                 arg.print()
                             }
@@ -550,7 +555,7 @@ private class IrSourcePrinterVisitor(
             IrTypeOperator.NOT_INSTANCEOF -> {
                 expression.argument.print()
             }
-            IrTypeOperator.CAST -> {
+            IrTypeOperator.CAST, IrTypeOperator.IMPLICIT_CAST -> {
                 expression.argument.print()
             }
             IrTypeOperator.SAM_CONVERSION -> {
@@ -782,7 +787,15 @@ private class IrSourcePrinterVisitor(
             }
             IrStatementOrigin.SAFE_CALL -> {
                 val lhs = expression.statements[0] as IrVariable
-                val rhs = expression.statements[1] as IrWhen
+                val rhsStatement = expression.statements[1]
+                val rhs = when (rhsStatement) {
+                    is IrBlock -> {
+                        rhsStatement.statements[1]
+                    }
+                    else -> {
+                        rhsStatement
+                    }
+                } as IrWhen
                 val call = rhs.branches.last().result as? IrCall
                 if (call == null) {
                     expression.statements.printJoin("\n")
@@ -890,6 +903,7 @@ private class IrSourcePrinterVisitor(
     }
 
     override fun visitProperty(declaration: IrProperty) {
+        declaration.printAnnotations(onePerLine = true)
         if (declaration.isLateinit) {
             print("lateinit")
         }
@@ -914,6 +928,8 @@ private class IrSourcePrinterVisitor(
             declaration.getter?.let {
                 if (it.origin != IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR) {
                     println()
+                    it.printAnnotations()
+                    println()
                     println("get() {")
                     indented {
                         it.body?.accept(this, null)
@@ -925,6 +941,7 @@ private class IrSourcePrinterVisitor(
             declaration.setter?.let {
                 if (it.origin != IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR) {
                     println()
+                    it.printAnnotations()
                     println("set(value) {")
                     indented {
                         it.body?.accept(this, null)
@@ -1009,8 +1026,13 @@ private class IrSourcePrinterVisitor(
         if (declaration.isInner) {
             print("inner ")
         }
+        if (declaration.isData) {
+            print("data ")
+        }
         if (declaration.isInterface) {
             print("interface ")
+        } else if (declaration.isObject) {
+            print("object ")
         } else {
             if (declaration.modality != Modality.FINAL) {
                 print(declaration.modality.toString().toLowerCase(Locale.ROOT))
@@ -1141,8 +1163,16 @@ private class IrSourcePrinterVisitor(
         print("<<CONTAINEREXPR>>")
     }
 
+    @OptIn(ObsoleteDescriptorBasedAPI::class)
     override fun visitDelegatingConstructorCall(expression: IrDelegatingConstructorCall) {
-        print("<<DELEGATINGCTORCALL>>")
+        val constructedClass = expression.symbol.descriptor.constructedClass
+        val name = constructedClass.name
+
+        print("ctor<")
+        print(name)
+        print(">")
+
+        expression.printArgumentList()
     }
 
     override fun visitElseBranch(branch: IrElseBranch) {
@@ -1154,11 +1184,44 @@ private class IrSourcePrinterVisitor(
     }
 
     override fun visitFunctionReference(expression: IrFunctionReference) {
-        print("<<FUNCTIONREF>>")
+        val function = expression.symbol.owner
+        val dispatchReceiver = expression.dispatchReceiver
+        val extensionReceiver = expression.extensionReceiver
+        val dispatchIsSpecial = dispatchReceiver.let {
+            it is IrGetValue && it.symbol.owner.name.isSpecial
+        }
+        val extensionIsSpecial = extensionReceiver.let {
+            it is IrGetValue && it.symbol.owner.name.isSpecial
+        }
+
+        if (dispatchReceiver != null && !dispatchIsSpecial) {
+            dispatchReceiver.print()
+            print("::")
+        } else if (extensionReceiver != null && !extensionIsSpecial) {
+            extensionReceiver.print()
+            print("::")
+        }
+
+        val prop = (function as? IrSimpleFunction)?.correspondingPropertySymbol?.owner
+
+        if (prop != null) {
+            val propName = prop.name.asString()
+            print(propName)
+            if (function == prop.setter) {
+                print("::set")
+            } else if (function == prop.getter) {
+                print("::get")
+            }
+        } else {
+            print(function.name.asString())
+        }
     }
 
     override fun visitInstanceInitializerCall(expression: IrInstanceInitializerCall) {
-        print("<<INSTINIT>>")
+        val constructedClass = expression.classSymbol.owner
+        val name = constructedClass.name
+
+        print("init<$name>()")
     }
 
     override fun visitLocalDelegatedProperty(declaration: IrLocalDelegatedProperty) {

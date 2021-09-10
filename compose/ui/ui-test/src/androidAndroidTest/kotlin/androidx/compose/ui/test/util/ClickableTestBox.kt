@@ -18,11 +18,11 @@ package androidx.compose.ui.test.util
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.AmbientDensity
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.util.ClickableTestBox.defaultColor
 import androidx.compose.ui.test.util.ClickableTestBox.defaultSize
@@ -42,9 +42,11 @@ fun ClickableTestBox(
     color: Color = defaultColor,
     tag: String = defaultTag
 ) {
-    with(AmbientDensity.current) {
+    with(LocalDensity.current) {
         Box(
-            modifier = modifier.testTag(tag).size(width.toDp(), height.toDp()).background(color)
+            modifier = modifier.testTag(tag)
+                .requiredSize(width.toDp(), height.toDp())
+                .background(color)
         )
     }
 }

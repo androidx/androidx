@@ -33,20 +33,6 @@ val GENERATED_ANNOTATION =
     "@Generated(\"androidx.hilt.AndroidXHiltProcessor\")"
 
 object Sources {
-    val VIEW_MODEL by lazy {
-        loadJavaSource(
-            "ViewModel.java",
-            ClassNames.VIEW_MODEL.toString()
-        )
-    }
-
-    val SAVED_STATE_HANDLE by lazy {
-        loadJavaSource(
-            "SavedStateHandle.java",
-            ClassNames.SAVED_STATE_HANDLE.toString()
-        )
-    }
-
     val LISTENABLE_WORKER by lazy {
         loadJavaSource(
             "ListenableWorker.java",

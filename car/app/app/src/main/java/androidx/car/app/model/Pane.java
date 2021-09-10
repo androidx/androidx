@@ -18,11 +18,11 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,42 +33,38 @@ import java.util.Objects;
  * Represents a list of rows used for displaying informational content and a set of {@link Action}s
  * that users can perform based on such content.
  */
+@CarProtocol
 public final class Pane {
     @Keep
-    @Nullable
-    private final ActionList mActionList;
+    private final List<Action> mActionList;
     @Keep
-    private final List<Object> mRows;
+    private final List<Row> mRows;
     @Keep
     private final boolean mIsLoading;
 
-    /** Constructs a new builder of {@link Pane}. */
-    @NonNull
-    public static Builder builder() {
-        return new Builder();
+    /**
+     * Returns whether the pane is in a loading state.
+     *
+     * @see Builder#setLoading(boolean)
+     */
+    public boolean isLoading() {
+        return mIsLoading;
     }
 
     /**
      * Returns the list of {@link Action}s displayed alongside the {@link Row}s in this pane.
      */
-    @Nullable
-    public ActionList getActionList() {
-        return mActionList;
+    @NonNull
+    public List<Action> getActions() {
+        return CollectionUtils.emptyIfNull(mActionList);
     }
 
     /**
      * Returns the list of {@link Row} objects that make up the {@link Pane}.
      */
     @NonNull
-    public List<Object> getRows() {
-        return mRows;
-    }
-
-    /**
-     * Returns the {@code true} if the {@link Pane} is loading.*
-     */
-    public boolean isLoading() {
-        return mIsLoading;
+    public List<Row> getRows() {
+        return CollectionUtils.emptyIfNull(mRows);
     }
 
     @Override
@@ -101,25 +97,24 @@ public final class Pane {
                 && Objects.equals(mRows, otherPane.mRows);
     }
 
-    private Pane(Builder builder) {
-        mRows = new ArrayList<>(builder.mRows);
-        mActionList = builder.mActionList;
+    Pane(Builder builder) {
+        mRows = CollectionUtils.unmodifiableCopy(builder.mRows);
+        mActionList = CollectionUtils.unmodifiableCopy(builder.mActionList);
         mIsLoading = builder.mIsLoading;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Pane() {
         mRows = Collections.emptyList();
-        mActionList = null;
+        mActionList = Collections.emptyList();
         mIsLoading = false;
     }
 
     /** A builder of {@link Pane}. */
     public static final class Builder {
-        private final List<Object> mRows = new ArrayList<>();
-        @Nullable
-        private ActionList mActionList;
-        private boolean mIsLoading;
+        final List<Row> mRows = new ArrayList<>();
+        List<Action> mActionList = new ArrayList<>();
+        boolean mIsLoading;
 
         /**
          * Sets whether the {@link Pane} is in a loading state.
@@ -134,14 +129,14 @@ public final class Pane {
          */
         @NonNull
         public Builder setLoading(boolean isLoading) {
-            this.mIsLoading = isLoading;
+            mIsLoading = isLoading;
             return this;
         }
 
         /**
          * Adds a row to display in the list.
          *
-         * @throws NullPointerException if {@code row} is {@code null}.
+         * @throws NullPointerException if {@code row} is {@code null}
          */
         @NonNull
         public Builder addRow(@NonNull Row row) {
@@ -149,25 +144,17 @@ public final class Pane {
             return this;
         }
 
-        /** Clears any rows that may have been added with {@link #addRow(Row)} up to this point. */
-        @NonNull
-        public Builder clearRows() {
-            mRows.clear();
-            return this;
-        }
-
         /**
-         * Sets multiple {@link Action}s to display alongside the rows in the pane.
+         * Adds an {@link Action} to display alongside the rows in the pane.
          *
          * <p>By default, no actions are displayed.
          *
-         * @throws NullPointerException if {@code actions} is {@code null}.
+         * @throws NullPointerException     if {@code action} is {@code null}
          */
         @NonNull
-        // TODO(shiufai): consider rename to match getter's name (e.g. setActionList or getActions).
-        @SuppressLint("MissingGetterMatchingBuilder")
-        public Builder setActions(@NonNull List<Action> actions) {
-            mActionList = ActionList.create(requireNonNull(actions));
+        public Builder addAction(@NonNull Action action) {
+            requireNonNull(action);
+            mActionList.add(action);
             return this;
         }
 
@@ -175,7 +162,7 @@ public final class Pane {
          * Constructs the row list defined by this builder.
          *
          * @throws IllegalStateException if the pane is in loading state and also contains rows, or
-         *                               vice-versa.
+         *                               vice versa
          */
         @NonNull
         public Pane build() {
@@ -190,6 +177,10 @@ public final class Pane {
 
         private int size() {
             return mRows.size();
+        }
+
+        /** Returns an empty {@link Builder} instance. */
+        public Builder() {
         }
     }
 }

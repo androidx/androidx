@@ -16,9 +16,11 @@
 
 package androidx.lifecycle;
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -26,6 +28,9 @@ import org.junit.runners.JUnit4;
 @SuppressWarnings("deprecation")
 @RunWith(JUnit4.class)
 public class ViewModelProvidersTest {
+
+    @Rule
+    public InstantTaskExecutorRule rule = new InstantTaskExecutorRule();
 
     @Test(expected = IllegalStateException.class)
     public void testNotAttachedActivity() {

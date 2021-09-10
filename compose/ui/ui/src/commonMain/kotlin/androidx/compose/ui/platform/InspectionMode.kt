@@ -16,9 +16,10 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.runtime.staticAmbientOf
+import androidx.compose.runtime.staticCompositionLocalOf
 
 /**
- * Inspectable mode ambient. True if the composition is composed inside a Inspectable component.
+ * Inspectable mode CompositionLocal. True if the composition is composed inside a Inspectable
+ * component.
  */
-val InspectionMode = staticAmbientOf { false }
+val LocalInspectionMode = staticCompositionLocalOf { false }

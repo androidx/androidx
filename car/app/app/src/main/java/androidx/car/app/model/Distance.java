@@ -23,6 +23,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -30,6 +31,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 /** Represents a distance value and how it should be displayed in the UI. */
+@CarProtocol
 public final class Distance {
     /**
      * Possible units used to display {@link Distance}
@@ -46,7 +48,6 @@ public final class Distance {
             UNIT_MILES_P1
     })
     @Retention(RetentionPolicy.SOURCE)
-    // TODO(shiufai): investigate how to expose IntDefs if needed.
     @RestrictTo(LIBRARY)
     public @interface Unit {
     }
@@ -114,11 +115,11 @@ public final class Distance {
      * "1.5 km", "1.0 km", and so on.
      *
      * @param displayDistance the distance to display, in the units specified in {@code
-     *                        displayUnit}. See {@link #getDisplayDistance()}.
+     *                        displayUnit}. See {@link #getDisplayDistance()}
      * @param displayUnit     the unit of distance to use when displaying the value in {@code
      *                        displayUnit}. This should be one of the {@code UNIT_*} static
-     *                        constants defined in this class. See {@link #getDisplayUnit()}.
-     * @throws IllegalArgumentException if {@code displayDistance} is negative.
+     *                        constants defined in this class. See {@link #getDisplayUnit()}
+     * @throws IllegalArgumentException if {@code displayDistance} is negative
      */
     @NonNull
     public static Distance create(double displayDistance, @Unit int displayUnit) {
@@ -182,8 +183,8 @@ public final class Distance {
     }
 
     private Distance(double displayDistance, @Unit int displayUnit) {
-        this.mDisplayDistance = displayDistance;
-        this.mDisplayUnit = displayUnit;
+        mDisplayDistance = displayDistance;
+        mDisplayUnit = displayUnit;
     }
 
     /** Constructs an empty instance, used by serialization code. */

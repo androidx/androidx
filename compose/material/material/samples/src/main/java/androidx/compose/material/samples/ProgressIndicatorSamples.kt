@@ -17,14 +17,14 @@
 package androidx.compose.material.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.animation.animate
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.OutlinedButton
-import androidx.compose.material.ProgressIndicatorConstants
+import androidx.compose.material.ProgressIndicatorDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,14 +39,14 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LinearProgressIndicatorSample() {
     var progress by remember { mutableStateOf(0.1f) }
-    val animatedProgress = animate(
-        target = progress,
-        animSpec = ProgressIndicatorConstants.DefaultProgressAnimationSpec
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress,
+        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
     )
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         LinearProgressIndicator(progress = animatedProgress)
-        Spacer(Modifier.height(30.dp))
+        Spacer(Modifier.requiredHeight(30.dp))
         OutlinedButton(
             onClick = {
                 if (progress < 1f) progress += 0.1f
@@ -61,14 +61,14 @@ fun LinearProgressIndicatorSample() {
 @Composable
 fun CircularProgressIndicatorSample() {
     var progress by remember { mutableStateOf(0.1f) }
-    val animatedProgress = animate(
-        target = progress,
-        animSpec = ProgressIndicatorConstants.DefaultProgressAnimationSpec
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress,
+        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
     )
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         CircularProgressIndicator(progress = animatedProgress)
-        Spacer(Modifier.height(30.dp))
+        Spacer(Modifier.requiredHeight(30.dp))
         OutlinedButton(
             onClick = {
                 if (progress < 1f) progress += 0.1f

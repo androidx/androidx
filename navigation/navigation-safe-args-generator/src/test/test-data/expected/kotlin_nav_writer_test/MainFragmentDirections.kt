@@ -11,14 +11,15 @@ public class MainFragmentDirections private constructor() {
     public val main: String,
     public val optional: String = "bla"
   ) : NavDirections {
-    public override fun getActionId(): Int = R.id.next
+    public override val actionId: Int = R.id.next
 
-    public override fun getArguments(): Bundle {
-      val result = Bundle()
-      result.putString("main", this.main)
-      result.putString("optional", this.optional)
-      return result
-    }
+    public override val arguments: Bundle
+      get() {
+        val result = Bundle()
+        result.putString("main", this.main)
+        result.putString("optional", this.optional)
+        return result
+      }
   }
 
   public companion object {

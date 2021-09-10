@@ -205,7 +205,7 @@ public abstract class Player {
         intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
 
         return PendingIntent.getBroadcast(mContext, keyCode, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
     protected void publishState(int state) {
         if (mMediaSession == null) {

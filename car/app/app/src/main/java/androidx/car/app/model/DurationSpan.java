@@ -19,13 +19,13 @@ package androidx.car.app.model;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
-import android.text.TextPaint;
-import android.text.style.CharacterStyle;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.time.Duration;
 
@@ -54,7 +54,8 @@ import java.time.Duration;
  * string.setSpan(ForegroundCarColorSpan.create(CarColor.BLUE), 0, 1, SPAN_EXCLUSIVE_EXCLUSIVE);
  * }</pre>
  */
-public class DurationSpan extends CharacterStyle {
+@CarProtocol
+public final class DurationSpan extends CarSpan {
     @Keep
     private final long mDurationSeconds;
 
@@ -67,28 +68,14 @@ public class DurationSpan extends CharacterStyle {
     /** Creates a {@link DurationSpan} with the given duration. */
     @NonNull
     @RequiresApi(26)
-    // TODO(shiufai): revisit wrapping this method in a container class (e.g. Api26Impl).
-    @SuppressLint("UnsafeNewApiCall")
     public static DurationSpan create(@NonNull Duration duration) {
-        return new DurationSpan(requireNonNull(duration).getSeconds());
+        return Api26Impl.create(duration);
     }
 
-    private DurationSpan(long durationSeconds) {
-        this.mDurationSeconds = durationSeconds;
-    }
-
-    private DurationSpan() {
-        mDurationSeconds = 0;
-    }
-
+    /** Returns the time duration associated with this span, in seconds. */
     @SuppressLint("MethodNameUnits")
     public long getDurationSeconds() {
         return mDurationSeconds;
-    }
-
-    @Override
-    public void updateDrawState(@Nullable TextPaint paint) {
-        // Not relevant.
     }
 
     @Override
@@ -114,5 +101,29 @@ public class DurationSpan extends CharacterStyle {
         DurationSpan otherSpan = (DurationSpan) other;
 
         return mDurationSeconds == otherSpan.mDurationSeconds;
+    }
+
+    DurationSpan(long durationSeconds) {
+        mDurationSeconds = durationSeconds;
+    }
+
+    private DurationSpan() {
+        mDurationSeconds = 0;
+    }
+
+    /**
+     * Version-specific static inner class to avoid verification errors that negatively affect
+     * run-time performance.
+     */
+    @RequiresApi(26)
+    private static final class Api26Impl {
+        private Api26Impl() {
+        }
+
+        @DoNotInline
+        @NonNull
+        public static DurationSpan create(@NonNull Duration duration) {
+            return new DurationSpan(requireNonNull(duration).getSeconds());
+        }
     }
 }

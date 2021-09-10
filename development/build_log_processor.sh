@@ -42,6 +42,9 @@ validateArgument="-Pandroidx.validateNoUnrecognizedMessages"
 if [[ " ${@} " =~ " $validateArgument " ]]; then
   validateNoUnrecognizedMessagesOnSuccess=true
 fi
+if [[ " ${@} " =~ " ${validateArgument}=false " ]]; then
+  validateNoUnrecognizedMessagesOnSuccess=false
+fi
 
 # run Gradle and save stdout and stderr into $logFile
 SCRIPT_PATH="$(cd $(dirname $0) && pwd)"
@@ -86,24 +89,24 @@ if "$programName" "$@" > >(tee -a "$logFile") 2>&1; then
     if $SCRIPT_PATH/build_log_simplifier.py --validate $logFile >&2; then
       echo No unrecognized messages found in build log
     else
-      echo >&2
-      echo "Build log validation, enabled by the argument $validateArgument, failed" >&2
       exit 1
     fi
   fi
 else
-  echo >&2
-  echo "############################################################################" >&2
-  echo "Attempting to locate the relevant error messages via build_log_simplifier.py" >&2
-  echo "############################################################################" >&2
-  echo >&2
-  # Try to identify the most relevant lines of output, and put them at the bottom of the
-  # output where they will also be placed into the build failure email.
-  # TODO: We may be able to stop cleaning up Gradle's output after Gradle can do this on its own:
-  # https://github.com/gradle/gradle/issues/1005
-  # and https://github.com/gradle/gradle/issues/13090
-  summaryLog="$LOG_DIR/error_summary.log"
-  $SCRIPT_PATH/build_log_simplifier.py $logFile | tee "$summaryLog" >&2
+  if [ "$summarizeOnFailure" == "true" ]; then
+    echo >&2
+    echo "############################################################################" >&2
+    echo "Attempting to locate the relevant error messages via build_log_simplifier.py" >&2
+    echo "############################################################################" >&2
+    echo >&2
+    # Try to identify the most relevant lines of output, and put them at the bottom of the
+    # output where they will also be placed into the build failure email.
+    # TODO: We may be able to stop cleaning up Gradle's output after Gradle can do this on its own:
+    # https://github.com/gradle/gradle/issues/1005
+    # and https://github.com/gradle/gradle/issues/13090
+    summaryLog="$LOG_DIR/error_summary.log"
+    $SCRIPT_PATH/build_log_simplifier.py $logFile | tee "$summaryLog" >&2
+  fi
   exit 1
 fi
 

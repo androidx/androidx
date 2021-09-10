@@ -35,6 +35,7 @@ import androidx.annotation.RestrictTo;
  * @param <T> Should be specified as the root class (e.g. class X extends
  *           BroadcastReceiverWithCallbacks\<X>)
  */
+@SuppressWarnings("HiddenSuperclass")
 public abstract class BroadcastReceiverWithCallbacks<T extends CallbackReceiver> extends
         BroadcastReceiver implements CallbackReceiver<T>, CallbackBase<T> {
 

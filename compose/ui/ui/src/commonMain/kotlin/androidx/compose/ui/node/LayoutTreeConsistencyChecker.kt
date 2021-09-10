@@ -23,7 +23,6 @@ import androidx.compose.ui.util.fastForEach
  * which is hard to enforce but important to maintain. This method is intended to do the
  * work only during our tests and will iterate through the tree to validate the states consistency.
  */
-@OptIn(ExperimentalLayoutNodeApi::class)
 internal class LayoutTreeConsistencyChecker(
     private val root: LayoutNode,
     private val relayoutNodes: DepthSortedSet,
@@ -50,7 +49,10 @@ internal class LayoutTreeConsistencyChecker(
     }
 
     private fun LayoutNode.consistentLayoutState(): Boolean {
-        if (isPlaced) {
+        val parent = this.parent
+        if (isPlaced ||
+            placeOrder != LayoutNode.NotPlacedPlaceOrder && parent?.isPlaced == true
+        ) {
             if (layoutState == LayoutNode.LayoutState.NeedsRemeasure &&
                 postponedMeasureRequests.contains(this)
             ) {
@@ -69,7 +71,8 @@ internal class LayoutTreeConsistencyChecker(
                 return relayoutNodes.contains(this) ||
                     parentLayoutState == LayoutNode.LayoutState.NeedsRemeasure ||
                     parentLayoutState == LayoutNode.LayoutState.NeedsRelayout ||
-                    parentLayoutState == LayoutNode.LayoutState.Measuring
+                    parentLayoutState == LayoutNode.LayoutState.Measuring ||
+                    parentLayoutState == LayoutNode.LayoutState.LayingOut
             }
         }
         return true

@@ -1,7 +1,7 @@
 /*
  * Copyright 2020 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -18,6 +18,7 @@ package androidx.camera.integration.camera2.pipe
 
 import android.content.Context
 import android.graphics.PixelFormat
+import android.graphics.Point
 import android.util.AttributeSet
 import android.util.Log
 import android.util.Size
@@ -40,6 +41,7 @@ import kotlin.math.roundToInt
  *
  * To use the viewfinder, call configure with the desired surface size, mode, and format.
  */
+@Suppress("DEPRECATION")
 class Viewfinder(
     context: Context?,
     attrs: AttributeSet?,
@@ -47,6 +49,7 @@ class Viewfinder(
     defStyleRes: Int
 ) : ViewGroup(context, attrs, defStyleAttr, defStyleRes) {
     private val surfaceView: SurfaceView
+    private val displaySize: Point = Point()
 
     @GuardedBy("this")
     private var setFixedSize = true
@@ -158,14 +161,14 @@ class Viewfinder(
         widthMeasureSpec: Int,
         heightMeasureSpec: Int
     ) {
+        display.getRealSize(displaySize)
         val viewWidth: Int = MeasureSpec.getSize(widthMeasureSpec)
         val viewHeight: Int = MeasureSpec.getSize(heightMeasureSpec)
         debugLog { "onMeasure:          " + viewWidth + "x" + viewHeight }
-        var displayRotation: Int
+
         var vfSize: Size?
         var vfLayout: ViewfinderLayout
         synchronized(this) {
-            displayRotation = display.rotation
             vfSize = viewfinderSize
             vfLayout = _viewfinderLayout
         }
@@ -178,7 +181,7 @@ class Viewfinder(
             val scaled: Size = computeUiSize(
                 vfSize!!,
                 vfLayout,
-                displayRotation,
+                displaySize,
                 viewWidth,
                 viewHeight
             )
@@ -234,11 +237,9 @@ class Viewfinder(
     ) {
         debugLog { "onLayout:           $layoutLeft, $layoutTop, $layoutRight, $layoutBottom" }
 
-        var displayRotation: Int
         var vfSize: Size?
         var vfLayout: ViewfinderLayout
         synchronized(this) {
-            displayRotation = display.rotation
             vfSize = viewfinderSize
             vfLayout = _viewfinderLayout
         }
@@ -249,14 +250,14 @@ class Viewfinder(
         var bottom = layoutBottom
 
         // If the size is not yet configured, just leave it to be the same as the container view.
-        if (vfSize != null && displayRotation != -1) {
+        if (vfSize != null) {
             // Compute the viewfinder ui size based on the available width, height, and ui orientation.
             val viewWidth = right - left
             val viewHeight = bottom - top
             val scaled: Size = computeUiSize(
                 vfSize!!,
                 vfLayout,
-                displayRotation,
+                displaySize,
                 viewWidth,
                 viewHeight
             )
@@ -300,7 +301,7 @@ class Viewfinder(
      * - Reconfiguring with a new size will call setFixedSize on the surface.
      * - Listener callback is only invoked with the configured size and surface size match.
      */
-    private class SurfaceState internal constructor(private val surfaceHolder: SurfaceHolder) :
+    private class SurfaceState(private val surfaceHolder: SurfaceHolder) :
         SurfaceHolder.Callback2 {
         private var configured = false
 
@@ -312,64 +313,65 @@ class Viewfinder(
         private var configuredListener: SurfaceListener? = null
 
         /** Tell this object to configure the surface to match the desired size and pixel format.  */
-        @Synchronized
         fun configure(
             size: Size,
             pixelFormat: Int,
             listener: SurfaceListener,
             setFixedSize: Boolean
         ) {
-            // Initialization
-            // Do all size comparisons in Portrait orientation to avoid identical, but otherwise
-            // rotated sizes from triggering updates.
-            val portraitSize: Size = size.asPortrait()
+            synchronized(this) {
+                // Initialization
+                // Do all size comparisons in Portrait orientation to avoid identical, but otherwise
+                // rotated sizes from triggering updates.
+                val portraitSize: Size = size.asPortrait()
 
-            // Special Case #1
-            // If the configuration is identical, do nothing.
-            if (configured &&
-                portraitSize == configuredSize &&
-                pixelFormat == configuredPixelFormat &&
-                listener === configuredListener
-            ) {
-                // If the configured size and listener are identical, then do nothing.
-                return
-            }
-
-            // Update the listener, but do not update size and format (yet).
-            configuredListener = listener
-
-            // Special Case #2
-            // If the size and format are the same, but the listener is different, check to see if
-            // the last configured size and surface are valid and also match. If so, immediately
-            // invoke the listener and return.
-            if (portraitSize == configuredSize &&
-                pixelFormat == configuredPixelFormat
-            ) {
-                val lastPortraitSize = lastSize?.asPortrait()
-                if (lastSurface != null &&
-                    lastPortraitSize != null &&
-                    portraitSize == lastPortraitSize
+                // Special Case #1
+                // If the configuration is identical, do nothing.
+                if (configured &&
+                    portraitSize == configuredSize &&
+                    pixelFormat == configuredPixelFormat &&
+                    listener === configuredListener
                 ) {
-                    listener.onSurfaceChanged(lastSurface, lastSize)
+                    // If the configured size and listener are identical, then do nothing.
+                    return
                 }
-                return
-            }
 
-            // At this point, we know that configured size or format is different, and we need to
-            // force the SurfaceHolder to reconfigure.
-            configuredPixelFormat = pixelFormat
-            configuredSize = portraitSize
-            configuredListener = listener
+                // Update the listener, but do not update size and format (yet).
+                configuredListener = listener
 
-            // Clear last known size since we are calling setFixedSize and setFormat.
-            lastSize = null
-            lastSurface = null
-            configured = true
-            if (pixelFormat != 0) {
-                surfaceHolder.setFormat(pixelFormat)
-            }
-            if (setFixedSize) {
-                surfaceHolder.setFixedSize(size.width, size.height)
+                // Special Case #2
+                // If the size and format are the same, but the listener is different, check to see
+                // if the last configured size and surface are valid and also match. If so,
+                // immediately invoke the listener and return.
+                if (portraitSize == configuredSize &&
+                    pixelFormat == configuredPixelFormat
+                ) {
+                    val lastPortraitSize = lastSize?.asPortrait()
+                    if (lastSurface != null &&
+                        lastPortraitSize != null &&
+                        portraitSize == lastPortraitSize
+                    ) {
+                        listener.onSurfaceChanged(lastSurface, lastSize)
+                    }
+                    return
+                }
+
+                // At this point, we know that configured size or format is different, and we need to
+                // force the SurfaceHolder to reconfigure.
+                configuredPixelFormat = pixelFormat
+                configuredSize = portraitSize
+                configuredListener = listener
+
+                // Clear last known size since we are calling setFixedSize and setFormat.
+                lastSize = null
+                lastSurface = null
+                configured = true
+                if (pixelFormat != 0) {
+                    surfaceHolder.setFormat(pixelFormat)
+                }
+                if (setFixedSize) {
+                    surfaceHolder.setFixedSize(size.width, size.height)
+                }
             }
         }
 
@@ -379,39 +381,41 @@ class Viewfinder(
             // Ignored. This is not useful until we know the configured format, width, height.
         }
 
-        @Synchronized
         override fun surfaceChanged(
             holder: SurfaceHolder,
             format: Int,
             width: Int,
             height: Int
         ) {
-            val size = Size(width, height)
-            val portraitSize: Size = size.asPortrait()
-            val lastPortraitSize = lastSize?.asPortrait()
+            synchronized(this) {
+                val size = Size(width, height)
+                val portraitSize: Size = size.asPortrait()
+                val lastPortraitSize = lastSize?.asPortrait()
 
-            if (!(lastPortraitSize != null && portraitSize == lastPortraitSize) &&
-                portraitSize == configuredSize
-            ) {
-                val surface: Surface? = holder.surface
+                if (!(lastPortraitSize != null && portraitSize == lastPortraitSize) &&
+                    portraitSize == configuredSize
+                ) {
+                    val surface: Surface? = holder.surface
 
-                // Check to make sure the surface is not null and valid.
-                if (surface != null && surface.isValid) {
-                    lastSize = size
-                    lastSurface = surface
-                    debugLog { "Surface Configured" }
-                    configuredListener?.onSurfaceChanged(surface, size)
+                    // Check to make sure the surface is not null and valid.
+                    if (surface != null && surface.isValid) {
+                        lastSize = size
+                        lastSurface = surface
+                        debugLog { "Surface Configured" }
+                        configuredListener?.onSurfaceChanged(surface, size)
+                    }
                 }
             }
         }
 
-        @Synchronized
         override fun surfaceDestroyed(holder: SurfaceHolder) {
-            debugLog { "Surface Destroyed" }
-            lastSize = null
-            lastSurface = null
-            configured = false
-            configuredListener?.onSurfaceChanged(null, null)
+            synchronized(this) {
+                debugLog { "Surface Destroyed" }
+                lastSize = null
+                lastSurface = null
+                configured = false
+                configuredListener?.onSurfaceChanged(null, null)
+            }
         }
     }
 
@@ -421,7 +425,7 @@ class Viewfinder(
 
         companion object {
             fun parseString(layoutMode: String): ViewfinderLayout {
-                return when (layoutMode.toLowerCase(Locale.ROOT)) {
+                return when (layoutMode.lowercase(Locale.ROOT)) {
                     "fit" -> FIT
                     "fill" -> FILL
                     "center" -> CENTER
@@ -456,20 +460,29 @@ class Viewfinder(
         internal fun computeUiSize(
             size: Size,
             viewfinderLayout: ViewfinderLayout,
-            displayRotation: Int,
+            displaySize: Point,
             viewWidth: Int,
             viewHeight: Int
         ): Size {
 
-            // Adjust the input size based on the ui orientation.
-            val alignedSize =
-                if (displayRotation == Surface.ROTATION_90 ||
-                    displayRotation == Surface.ROTATION_270
-                ) {
-                    size.asLandscape()
-                } else {
-                    size.asPortrait()
-                }
+            // While this may appear to be overly simplified, the Android display system will
+            // accounts for most of the rotation edge cases when the UI surface is passed directly
+            // to the camera. This may *NOT* be the case when handling other aspects of the
+            // display-to-sensor interactions.
+            // - Landscape-natural devices have landscape-aligned sensors (Enforced by CDD).
+            // - Portrait-natural devices have portrait-aligned sensors (Enforced by CDD).
+            // - Sizes are reported in sensor-aligned coordinates, which reads out long side first.
+            // - The displaySize changes depending on the orientation of the display.
+            // - The situations where the size needs to be flipped reduces down to "display is in
+            //   portrait orientation".
+            // - The UI width / height should *not* be used to figure this out, since multi-window
+            //   will cause the aspect ratio of the Activity to not match the display.
+            val alignedSize = if (displaySize.x < displaySize.y) {
+                Size(size.height, size.width)
+            } else {
+                size
+            }
+
             val width: Int
             val height: Int
             val sizeRatio: Float = alignedSize.width / alignedSize.height.toFloat()
@@ -536,14 +549,6 @@ internal fun Size.asPortrait(): Size {
         Size(this.height, this.width)
     } else {
         this
-    }
-}
-
-internal fun Size.asLandscape(): Size {
-    return if (this.width >= this.height) {
-        this
-    } else {
-        Size(this.height, this.width)
     }
 }
 

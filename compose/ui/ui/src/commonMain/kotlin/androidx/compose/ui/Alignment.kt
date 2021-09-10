@@ -31,7 +31,7 @@ import kotlin.math.roundToInt
  * @see BiasAlignment
  * @see BiasAbsoluteAlignment
  */
-@Immutable
+@Stable
 fun interface Alignment {
     /**
      * Calculates the position of a box of size [size] relative to the top left corner of an area
@@ -40,23 +40,12 @@ fun interface Alignment {
      */
     fun align(size: IntSize, space: IntSize, layoutDirection: LayoutDirection): IntOffset
 
-    @Deprecated(
-        "This method has been deprecated and will be removed. Please use the" +
-            "new overload instead.",
-        ReplaceWith(
-            "align(size, IntSize.Zero, layoutDirection)",
-            "androidx.ui.compose.unit.IntSize"
-        )
-    )
-    fun align(size: IntSize, layoutDirection: LayoutDirection) =
-        align(IntSize.Zero, size, layoutDirection)
-
     /**
      * An interface to calculate the position of box of a certain width inside an available width.
      * [Alignment.Horizontal] is often used to define the horizontal alignment of a layout inside a
      * parent layout.
      */
-    @Immutable
+    @Stable
     fun interface Horizontal {
         /**
          * Calculates the horizontal position of a box of width [size] relative to the left
@@ -65,17 +54,6 @@ fun interface Alignment {
          * the area.
          */
         fun align(size: Int, space: Int, layoutDirection: LayoutDirection): Int
-
-        @Deprecated(
-            "This method has been deprecated and will be removed. Please use the" +
-                "new overload instead.",
-            ReplaceWith(
-                "align(size, IntSize.Zero, layoutDirection)",
-                "androidx.ui.compose.unit.IntSize"
-            )
-        )
-        fun align(size: Int, layoutDirection: LayoutDirection): Int =
-            align(0, size, layoutDirection)
     }
 
     /**
@@ -83,7 +61,7 @@ fun interface Alignment {
      * height. [Alignment.Vertical] is often used to define the vertical alignment of a
      * layout inside a parent layout.
      */
-    @Immutable
+    @Stable
     fun interface Vertical {
         /**
          * Calculates the vertical position of a box of height [size] relative to the top edge of
@@ -92,16 +70,6 @@ fun interface Alignment {
          * the area.
          */
         fun align(size: Int, space: Int): Int
-
-        @Deprecated(
-            "This method has been deprecated and will be removed. Please use the" +
-                "new overload instead.",
-            ReplaceWith(
-                "align(size, IntSize.Zero, layoutDirection)",
-                "androidx.ui.compose.unit.IntSize"
-            )
-        )
-        fun align(size: Int): Int = align(0, size)
     }
 
     /**

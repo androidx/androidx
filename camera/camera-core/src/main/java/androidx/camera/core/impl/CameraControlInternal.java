@@ -22,9 +22,9 @@ import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.FlashMode;
 import androidx.camera.core.impl.utils.futures.Futures;
 
@@ -62,16 +62,17 @@ public interface CameraControlInternal extends CameraControl {
     ListenableFuture<CameraCaptureResult> triggerAf();
 
     /**
-     * Performs a AE Precapture trigger.
+     * Starts a flash sequence.
      *
+     * @param flashType Uses one shot flash or use torch as flash when taking a picture.
      * @return a {@link ListenableFuture} which completes when the request is completed.
      * Cancelling the ListenableFuture is a no-op.
      */
     @NonNull
-    ListenableFuture<CameraCaptureResult> triggerAePrecapture();
+    ListenableFuture<Void> startFlashSequence(@ImageCapture.FlashType int flashType);
 
-    /** Cancel AF trigger AND/OR AE Precapture trigger.* */
-    void cancelAfAeTrigger(boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger);
+    /** Cancels AF trigger AND/OR finishes flash sequence.* */
+    void cancelAfAndFinishFlashSequence(boolean cancelAfTrigger, boolean finishFlashSequence);
 
     /**
      * Set a exposure compensation to the camera
@@ -82,13 +83,22 @@ public interface CameraControlInternal extends CameraControl {
      */
     @NonNull
     @Override
-    @ExperimentalExposureCompensation
     ListenableFuture<Integer> setExposureCompensationIndex(int exposure);
 
     /**
-     * Performs capture requests.
+     * Performs still capture requests.
      */
-    void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);
+    void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);
+
+    /**
+     * Gets the current SessionConfig.
+     *
+     * <p>When the SessionConfig is changed,
+     * {@link ControlUpdateCallback#onCameraControlUpdateSessionConfig()} will be called to
+     * notify the change.
+     */
+    @NonNull
+    SessionConfig getSessionConfig();
 
     /**
      * Gets the full sensor rect.
@@ -137,23 +147,29 @@ public interface CameraControlInternal extends CameraControl {
 
         @Override
         @NonNull
-        public ListenableFuture<CameraCaptureResult> triggerAePrecapture() {
-            return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create());
+        public ListenableFuture<Void> startFlashSequence(@ImageCapture.FlashType int flashType) {
+            return Futures.immediateFuture(null);
         }
 
         @Override
-        public void cancelAfAeTrigger(boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger) {
+        public void cancelAfAndFinishFlashSequence(boolean cancelAfTrigger,
+                boolean finishFlashSequence) {
         }
 
         @NonNull
         @Override
-        @ExperimentalExposureCompensation
         public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
             return Futures.immediateFuture(0);
         }
 
         @Override
-        public void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
+        public void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
+        }
+
+        @NonNull
+        @Override
+        public SessionConfig getSessionConfig() {
+            return SessionConfig.defaultEmptySessionConfig();
         }
 
         @NonNull
@@ -205,8 +221,12 @@ public interface CameraControlInternal extends CameraControl {
     /** Listener called when CameraControlInternal need to notify event. */
     interface ControlUpdateCallback {
 
-        /** Called when CameraControlInternal has updated session configuration. */
-        void onCameraControlUpdateSessionConfig(@NonNull SessionConfig sessionConfig);
+        /**
+         * Called when CameraControlInternal has updated session configuration.
+         *
+         * <p>The latest SessionConfig can be obtained by calling {@link #getSessionConfig()}.
+         */
+        void onCameraControlUpdateSessionConfig();
 
         /** Called when CameraControlInternal need to send capture requests. */
         void onCameraControlCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);

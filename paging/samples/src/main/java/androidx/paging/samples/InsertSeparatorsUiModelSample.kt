@@ -67,7 +67,7 @@ fun insertSeparatorsUiModelSample() {
             .insertSeparators<ItemUiModel, UiModel> { before: ItemUiModel?, after: ItemUiModel? ->
                 if (after != null && before?.item?.label?.first() != after.item.label.first()) {
                     // separator - after is first item that starts with its first letter
-                    SeparatorUiModel(after.item.label.first().toUpperCase())
+                    SeparatorUiModel(after.item.label.first().uppercaseChar())
                 } else {
                     // no separator - either end of list, or first letters of before/after are the same
                     null
@@ -101,7 +101,7 @@ fun insertSeparatorsUiModelRxSample() {
                 Maybe.fromCallable<UiModel> {
                     if (after != null && before?.item?.label?.first() != after.item.label.first()) {
                         // separator - after is first item that starts with its first letter
-                        SeparatorUiModel(after.item.label.first().toUpperCase())
+                        SeparatorUiModel(after.item.label.first().uppercaseChar())
                     } else {
                         // no separator - either end of list, or first letters of before/after are the same
                         null
@@ -144,7 +144,7 @@ fun insertSeparatorsUiModelFutureSample() {
                                 before?.item?.label?.first() != after.item.label.first()
                             ) {
                                 // separator - after is first item that starts with its first letter
-                                SeparatorUiModel(after.item.label.first().toUpperCase())
+                                SeparatorUiModel(after.item.label.first().uppercaseChar())
                             } else {
                                 // no separator - either end of list, or first letters of before/after are the same
                                 null

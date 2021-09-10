@@ -16,7 +16,6 @@
 
 package androidx.webkit.internal;
 
-import android.annotation.SuppressLint;
 import android.webkit.SafeBrowsingResponse;
 
 import androidx.annotation.NonNull;
@@ -77,7 +76,6 @@ public class SafeBrowsingResponseImpl extends SafeBrowsingResponseCompat {
         return mBoundaryInterface;
     }
 
-    @SuppressLint("NewApi")
     @Override
     public void showInterstitial(boolean allowReporting) {
         final WebViewFeatureInternal feature =
@@ -91,7 +89,6 @@ public class SafeBrowsingResponseImpl extends SafeBrowsingResponseCompat {
         }
     }
 
-    @SuppressLint("NewApi")
     @Override
     public void proceed(boolean report) {
         final WebViewFeatureInternal feature =
@@ -105,7 +102,6 @@ public class SafeBrowsingResponseImpl extends SafeBrowsingResponseCompat {
         }
     }
 
-    @SuppressLint("NewApi")
     @Override
     public void backToSafety(boolean report) {
         final WebViewFeatureInternal feature =

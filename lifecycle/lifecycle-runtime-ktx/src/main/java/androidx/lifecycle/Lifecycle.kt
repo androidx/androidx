@@ -67,6 +67,11 @@ public abstract class LifecycleCoroutineScope internal constructor() : Coroutine
      * [LifecycleCoroutineScope] is at least in [Lifecycle.State.CREATED] state.
      *
      * The returned [Job] will be cancelled when the [Lifecycle] is destroyed.
+     *
+     * Caution: This API is not recommended to use as it can lead to wasted resources in some
+     * cases. Please, use the [Lifecycle.repeatOnLifecycle] API instead. This API will be removed
+     * in a future release.
+     *
      * @see Lifecycle.whenCreated
      * @see Lifecycle.coroutineScope
      */
@@ -79,6 +84,11 @@ public abstract class LifecycleCoroutineScope internal constructor() : Coroutine
      * [LifecycleCoroutineScope] is at least in [Lifecycle.State.STARTED] state.
      *
      * The returned [Job] will be cancelled when the [Lifecycle] is destroyed.
+     *
+     * Caution: This API is not recommended to use as it can lead to wasted resources in some
+     * cases. Please, use the [Lifecycle.repeatOnLifecycle] API instead. This API will be removed
+     * in a future release.
+     *
      * @see Lifecycle.whenStarted
      * @see Lifecycle.coroutineScope
      */
@@ -92,6 +102,11 @@ public abstract class LifecycleCoroutineScope internal constructor() : Coroutine
      * [LifecycleCoroutineScope] is at least in [Lifecycle.State.RESUMED] state.
      *
      * The returned [Job] will be cancelled when the [Lifecycle] is destroyed.
+     *
+     * Caution: This API is not recommended to use as it can lead to wasted resources in some
+     * cases. Please, use the [Lifecycle.repeatOnLifecycle] API instead. This API will be removed
+     * in a future release.
+     *
      * @see Lifecycle.whenResumed
      * @see Lifecycle.coroutineScope
      */

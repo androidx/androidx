@@ -16,6 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="ws_navigation_drawer_content_description" msgid="777117228299084604">"Навигацийн шургуулга"</string>
+    <string name="ws_navigation_drawer_content_description" msgid="777117228299084604">"Навигацын шургуулга"</string>
     <string name="ws_action_drawer_content_description" msgid="8863821639144537553">"Үйлдлийн татуурга"</string>
+    <string name="confirmation_overlay_a11y_description_success" msgid="2936753235333429892">"Амжилттай"</string>
+    <string name="confirmation_overlay_a11y_description_fail" msgid="6412144553299494336">"Амжилтгүй"</string>
+    <string name="confirmation_overlay_a11y_description_phone" msgid="8809042819843332546">"Таны утсан дээр нээсэн"</string>
+    <string name="confirmation_overlay_a11y_type_image" msgid="4327971892987955014">"Зураг"</string>
 </resources>

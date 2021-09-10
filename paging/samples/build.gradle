@@ -16,10 +16,7 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -36,22 +33,22 @@ android {
 dependencies {
     compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
 
-    implementation("androidx.appcompat:appcompat:1.1.0")
+    implementation("androidx.appcompat:appcompat:1.2.0")
+    implementation("androidx.annotation:annotation-experimental:1.1.0-rc02")
+    implementation("androidx.fragment:fragment-ktx:1.3.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0")
+    implementation("androidx.recyclerview:recyclerview:1.2.0-rc01")
+    implementation("androidx.room:room-ktx:2.3.0-rc01")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
-    implementation(projectOrArtifact(":annotation:annotation-experimental"))
-    implementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel-ktx"))
-    implementation(projectOrArtifact(":fragment:fragment-ktx"))
     implementation(project(":paging:paging-common"))
     implementation(project(":paging:paging-guava"))
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
-    implementation(projectOrArtifact(":recyclerview:recyclerview"))
-    implementation(projectOrArtifact(":room:room-ktx"))
-    implementation(projectOrArtifact(":swiperefreshlayout:swiperefreshlayout"))
 
-    implementation(GUAVA_ANDROID)
-    implementation(MULTIDEX)
-    implementation(RETROFIT)
+    implementation(libs.guavaAndroid)
+    implementation(libs.multidex)
+    implementation(libs.retrofit)
 }
 
 androidx {

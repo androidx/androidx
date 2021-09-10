@@ -16,16 +16,26 @@
 
 package androidx.compose.foundation.demos.text
 
-import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.input.ImeAction
 
 @Composable
 fun ImeActionDemo() {
-    ScrollableColumn {
-        for (action in ImeAction.values()) {
-            TagLine(tag = "Ime Action: ${action.name}")
-            EditLine(imeAction = action)
-        }
+    LazyColumn {
+        item { Item(ImeAction.None) }
+        item { Item(ImeAction.Default) }
+        item { Item(ImeAction.Go) }
+        item { Item(ImeAction.Search) }
+        item { Item(ImeAction.Send) }
+        item { Item(ImeAction.Previous) }
+        item { Item(ImeAction.Next) }
+        item { Item(ImeAction.Done) }
     }
+}
+
+@Composable
+private fun Item(imeAction: ImeAction) {
+    TagLine(tag = "Ime Action: $imeAction")
+    EditLine(imeAction = imeAction)
 }

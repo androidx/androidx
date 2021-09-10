@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
-        errorLine1="            return String.format(&quot;PercentLayoutInformation width: %f height %f, margins (%f, %f, &quot;"
-        errorLine2="                   ^">
-        <location
-            file="src/main/java/androidx/percentlayout/widget/PercentLayoutHelper.java"
-            line="562"
-            column="20"/>
-    </issue>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
         id="UnknownNullness"

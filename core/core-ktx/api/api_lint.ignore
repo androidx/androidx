@@ -3,14 +3,6 @@ AcronymName: androidx.core.database.sqlite.SQLiteDatabaseKt:
     Acronyms should not be capitalized in class names: was `SQLiteDatabaseKt`, should this be `SqLiteDatabaseKt`?
 
 
-ArrayReturn: androidx.core.content.res.TypedArrayKt#getTextArrayOrThrow(android.content.res.TypedArray, int):
-    Method should return Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
-ArrayReturn: androidx.core.text.SpannableStringBuilderKt#inSpans(android.text.SpannableStringBuilder, Object[], kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit>) parameter #1:
-    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
-ArrayReturn: androidx.core.text.SpannedStringKt#getSpans(android.text.Spanned, int, int):
-    Method should return Collection<T> (or subclass) instead of raw array; was `T[]`
-
-
 AutoBoxing: androidx.core.database.CursorKt#getDoubleOrNull(android.database.Cursor, int):
     Must avoid boxed primitives (`java.lang.Double`)
 AutoBoxing: androidx.core.database.CursorKt#getFloatOrNull(android.database.Cursor, int):

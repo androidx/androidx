@@ -22,8 +22,6 @@ import androidx.compose.ui.geometry.RoundRect
 
 expect fun Path(): Path
 
-expect class NativePathEffect
-
 /* expect class */ interface Path {
 
     /**
@@ -201,10 +199,6 @@ expect class NativePathEffect
     /**
      * Adds a new subpath that consists of the given `path` offset by the given
      * `offset`.
-     *
-     * If `matrix4` is specified, the path will be transformed by this matrix
-     * after the matrix is translated by the given offset. The matrix is a 4x4
-     * matrix stored in column major order.
      */
     fun addPath(path: Path, offset: Offset = Offset.Zero)
 

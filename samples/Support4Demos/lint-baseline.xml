@@ -1,203 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
-
-    <issue
-        id="ScrollViewSize"
-        message="This LinearLayout should use `android:layout_height=&quot;wrap_content&quot;`"
-        errorLine1="        android:layout_height=&quot;match_parent&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/accessibility_roledescription.xml"
-            line="8"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ScrollViewSize"
-        message="This TableLayout should use `android:layout_width=&quot;wrap_content&quot;`"
-        errorLine1="                android:layout_width=&quot;match_parent&quot;"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/commit_content.xml"
-            line="41"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ScrollViewSize"
-        message="This TextView should use `android:layout_height=&quot;wrap_content&quot;`"
-        errorLine1="                  android:layout_height=&quot;match_parent&quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/sliding_pane_layout.xml"
-            line="51"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="        titleQuery = titleQuery.toLowerCase();"
-        errorLine2="                                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/model/MusicProvider.java"
-            line="120"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="            if (track.metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE).toLowerCase()"
-        errorLine2="                                                                                 ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/model/MusicProvider.java"
-            line="122"
-            column="82"/>
-    </issue>
-
-    <issue
-        id="InconsistentLayout"
-        message="The id &quot;details&quot; in layout &quot;fragment_layout_support&quot; is missing from the following layout configurations: layout (present in layout-land)"
-        errorLine1="    &lt;FrameLayout android:id=&quot;@+id/details&quot; android:layout_weight=&quot;1&quot;"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout-land/fragment_layout_support.xml"
-            line="29"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 24 (current min is 14): `android.content.pm.PackageManager#MATCH_UNINSTALLED_PACKAGES`"
-        errorLine1="                    PackageManager.MATCH_UNINSTALLED_PACKAGES"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/LoaderCustomSupport.java"
-            line="235"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 24 (current min is 14): `android.content.pm.PackageManager#MATCH_DISABLED_COMPONENTS`"
-        errorLine1="                            | PackageManager.MATCH_DISABLED_COMPONENTS);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/LoaderCustomSupport.java"
-            line="236"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 21 (current min is 14): `android.R.attr#colorPrimary`"
-        errorLine1="            android.R.attr.colorPrimary, Color.DKGRAY);"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="85"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 21 (current min is 14): `android.media.session.PlaybackState#STATE_STOPPED`"
-        errorLine1="        mState = PlaybackState.STATE_STOPPED;"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/Playback.java"
-            line="110"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 21 (current min is 14): `android.media.session.PlaybackState#STATE_STOPPED`"
-        errorLine1="            mState = PlaybackState.STATE_STOPPED;"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/Playback.java"
-            line="160"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 21 (current min is 14): `android.media.session.PlaybackState#STATE_BUFFERING`"
-        errorLine1="                mState = PlaybackState.STATE_BUFFERING;"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/Playback.java"
-            line="170"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 21 (current min is 14): `android.media.session.PlaybackState#STATE_PAUSED`"
-        errorLine1="        mState = PlaybackState.STATE_PAUSED;"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/Playback.java"
-            line="211"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 21 (current min is 14): `android.media.session.PlaybackState#STATE_BUFFERING`"
-        errorLine1="                mState = PlaybackState.STATE_BUFFERING;"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/Playback.java"
-            line="226"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 21 (current min is 14): `android.media.session.PlaybackState#STATE_PLAYING`"
-        errorLine1="                        mState = PlaybackState.STATE_PLAYING;"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/Playback.java"
-            line="297"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 21 (current min is 14): `android.media.session.PlaybackState#STATE_BUFFERING`"
-        errorLine1="                        mState = PlaybackState.STATE_BUFFERING;"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/Playback.java"
-            line="300"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 21 (current min is 14): `android.media.session.PlaybackState#STATE_PLAYING`"
-        errorLine1="            mState = PlaybackState.STATE_PLAYING;"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/Playback.java"
-            line="354"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `autoMirrored` is only used in API level 19 and higher (current min is 14)"
-        errorLine1="        android:autoMirrored=&quot;true&quot;>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/drawable/ic_drawer.xml"
-            line="22"
-            column="9"/>
-    </issue>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
         id="WifiManagerLeak"
@@ -266,69 +68,69 @@
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="        &lt;fragment class=&quot;com.example.android.supportv4.app.FragmentArgumentsSupport$MyFragment&quot;"
-        errorLine2="         ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class com.example.android.supportv4.media.MediaNotificationManager is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                notificationManager.createNotificationChannel("
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout-land/fragment_arguments_support.xml"
-            line="38"
-            column="10"/>
+            file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
+            line="117"
+            column="37"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="    &lt;fragment class=&quot;com.example.android.supportv4.app.FragmentArgumentsSupport$MyFragment&quot;"
-        errorLine2="     ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class com.example.android.supportv4.media.MediaNotificationManager is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        new NotificationChannel(NOTIFICATION_CHANNEL_ID, TAG,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout-land/fragment_arguments_support.xml"
-            line="52"
-            column="6"/>
+            file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
+            line="118"
+            column="25"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="        &lt;fragment android:name=&quot;com.example.android.supportv4.app.FragmentHideShowSupport$FirstFragment&quot;"
-        errorLine2="         ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class com.example.android.supportv4.media.MediaNotificationManager is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                notificationManager.deleteNotificationChannel(NOTIFICATION_CHANNEL_ID);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/fragment_hide_show_support.xml"
-            line="37"
-            column="10"/>
+            file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
+            line="161"
+            column="37"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="        &lt;fragment android:name=&quot;com.example.android.supportv4.app.FragmentHideShowSupport$SecondFragment&quot;"
-        errorLine2="         ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 16; however, the containing class com.example.android.supportv4.widget.SlidingPaneLayoutActivity.FirstLayoutListener is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mSlidingLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/fragment_hide_show_support.xml"
-            line="51"
-            column="10"/>
+            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
+            line="203"
+            column="54"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="    &lt;fragment class=&quot;com.example.android.supportv4.app.FragmentLayoutSupport$TitlesFragment&quot;"
-        errorLine2="     ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.supportv4.view.WindowInsetsPlayground is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            getWindow().setStatusBarColor(0x80000000);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/fragment_layout_support.xml"
-            line="23"
-            column="6"/>
+            file="src/main/java/com/example/android/supportv4/view/WindowInsetsPlayground.java"
+            line="72"
+            column="25"/>
     </issue>
 
     <issue
-        id="FragmentTagUsage"
-        message="Replace the &lt;fragment> tag with FragmentContainerView."
-        errorLine1="    &lt;fragment class=&quot;com.example.android.supportv4.app.FragmentLayoutSupport$TitlesFragment&quot;"
-        errorLine2="     ~~~~~~~~">
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.supportv4.view.WindowInsetsPlayground is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            getWindow().setNavigationBarColor(0x80000000);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout-land/fragment_layout_support.xml"
-            line="25"
-            column="6"/>
+            file="src/main/java/com/example/android/supportv4/view/WindowInsetsPlayground.java"
+            line="73"
+            column="25"/>
     </issue>
 
     <issue
@@ -354,685 +156,10 @@
     </issue>
 
     <issue
-        id="NonConstantResourceId"
-        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
-        errorLine1="            case R.id.force_refresh:"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/BaseSwipeRefreshLayoutActivity.java"
-            line="170"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="NonConstantResourceId"
-        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
-        errorLine1="            case R.id.show:"
-        errorLine2="                 ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
-            line="77"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="NonConstantResourceId"
-        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
-        errorLine1="            case R.id.hide:"
-        errorLine2="                 ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
-            line="82"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="NonConstantResourceId"
-        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
-        errorLine1="                    case R.id.drawable_compat_no_tint:"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/graphics/DrawableCompatActivity.java"
-            line="58"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="NonConstantResourceId"
-        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
-        errorLine1="                    case R.id.drawable_compat_color:"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/graphics/DrawableCompatActivity.java"
-            line="61"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="NonConstantResourceId"
-        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
-        errorLine1="                    case R.id.drawable_compat_state_list:"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/graphics/DrawableCompatActivity.java"
-            line="64"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="NonConstantResourceId"
-        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
-        errorLine1="                case R.id.a_item:"
-        errorLine2="                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentContextMenuSupport.java"
-            line="69"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NonConstantResourceId"
-        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
-        errorLine1="                case R.id.b_item:"
-        errorLine2="                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentContextMenuSupport.java"
-            line="72"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NonConstantResourceId"
-        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
-        errorLine1="                case R.id.play_pause:"
-        errorLine2="                     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="257"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NonConstantResourceId"
-        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
-        errorLine1="                case R.id.skip_previous:"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="267"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NonConstantResourceId"
-        message="Resource IDs will be non-final in Android Gradle Plugin version 7.0, avoid using them in switch case statements"
-        errorLine1="                case R.id.skip_next:"
-        errorLine2="                     ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="271"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="QueryPermissionsNeeded"
-        message="As of Android 11, this method no longer returns information about all apps; \&#xA;see https://g.co/dev/packagevisibility for details"
-        errorLine1="            List&lt;ApplicationInfo> apps = mPm.getInstalledApplications("
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/LoaderCustomSupport.java"
-            line="234"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class com.example.android.supportv4.media.MediaNotificationManager is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                notificationManager.createNotificationChannel("
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="117"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class com.example.android.supportv4.media.MediaNotificationManager is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                        new NotificationChannel(NOTIFICATION_CHANNEL_ID, TAG,"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="118"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class com.example.android.supportv4.media.MediaNotificationManager is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                notificationManager.deleteNotificationChannel(NOTIFICATION_CHANNEL_ID);"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="161"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 16, the call containing class com.example.android.supportv4.widget.SlidingPaneLayoutActivity.FirstLayoutListener is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
-        errorLine1="                mSlidingLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="150"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.android.supportv4.view.WindowInsetsPlayground is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            getWindow().setStatusBarColor(0x80000000);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/view/WindowInsetsPlayground.java"
-            line="69"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 21, the call containing class com.example.android.supportv4.view.WindowInsetsPlayground is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="            getWindow().setNavigationBarColor(0x80000000);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/view/WindowInsetsPlayground.java"
-            line="70"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SpUsage"
-        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
-        errorLine1="                  android:textSize=&quot;24dip&quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/bidiformater_support.xml"
-            line="28"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="SpUsage"
-        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
-        errorLine1="                  android:textSize=&quot;24dip&quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/bidiformater_support.xml"
-            line="35"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="SpUsage"
-        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
-        errorLine1="                  android:textSize=&quot;24dip&quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/bidiformater_support.xml"
-            line="46"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="SpUsage"
-        message="Should use &quot;`sp`&quot; instead of &quot;`dp`&quot; for text sizes"
-        errorLine1="                  android:textSize=&quot;24dip&quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/bidiformater_support.xml"
-            line="53"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="SwitchIntDef"
-        message="Switch statement on an `int` with known associated constant missing case `PlaybackStateCompat.STATE_FAST_FORWARDING`, `PlaybackStateCompat.STATE_REWINDING`, `PlaybackStateCompat.STATE_SKIPPING_TO_NEXT`, `PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS`, `PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM`"
-        errorLine1="        switch (state.getState()) {"
-        errorLine2="        ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="202"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="PackageManagerGetSignatures"
-        message="Reading app signatures from `getPackageInfo`: The app signatures could be exploited if not validated properly; see issue explanation for details"
-        errorLine1="                    callingPackage, PackageManager.GET_SIGNATURES);"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/PackageValidator.java"
-            line="103"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="ExportedContentProvider"
-        message="Exported content providers can provide access to potentially sensitive data"
-        errorLine1="        &lt;provider android:name=&quot;.app.LoaderThrottleSupport$SimpleProvider&quot;"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="202"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ExportedContentProvider"
-        message="Exported content providers can provide access to potentially sensitive data"
-        errorLine1="        &lt;provider android:authorities=&quot;com.example.supportv4.content.sharingsupportprovider&quot;"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="355"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ExportedService"
-        message="Exported service does not require permission"
-        errorLine1="        &lt;service android:name=&quot;.media.MediaBrowserServiceSupport&quot;"
-        errorLine2="         ~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="465"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="AllowBackup"
-        message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
-        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="37"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="AllowBackup"
-        message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
-        errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="37"
-            column="6"/>
-    </issue>
-
-    <issue
         id="ObsoleteSdkInt"
         message="This folder configuration (`v11`) is unnecessary; `minSdkVersion` is 14. Merge all the resources in this folder into `values`.">
         <location
             file="src/main/res/values-v11"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This `AsyncTask` class should be static or leaks might occur (anonymous android.os.AsyncTask)"
-        errorLine1="        new android.os.AsyncTask&lt;Void, Void, Bitmap[]&gt;() {"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/AlbumArtCache.java"
-            line="95"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This `AsyncTask` class should be static or leaks might occur (anonymous android.os.AsyncTask)"
-        errorLine1="                    mPopulatingTask = new android.os.AsyncTask&lt;Void, Void, Void>() {"
-        errorLine2="                                      ^">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/LoaderThrottleSupport.java"
-            line="440"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This `AsyncTask` class should be static or leaks might occur (anonymous android.os.AsyncTask)"
-        errorLine1="                    new android.os.AsyncTask&lt;Void, Void, Void>() {"
-        errorLine2="                    ^">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/LoaderThrottleSupport.java"
-            line="468"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="StaticFieldLeak"
-        message="This `AsyncTask` class should be static or leaks might occur (anonymous android.os.AsyncTask)"
-        errorLine1="        new android.os.AsyncTask&lt;Void, Void, State>() {"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/model/MusicProvider.java"
-            line="186"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseCompoundDrawables"
-        message="This tag and its children can be replaced by one `&lt;TextView/>` and a compound drawable"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/list_item_icon_text.xml"
-            line="17"
-            column="2"/>
-    </issue>
-
-    <issue
-        id="HandlerLeak"
-        message="This `Handler` class should be static or leaks might occur (anonymous android.os.Handler)"
-        errorLine1="        Handler mHandler = new Handler() {"
-        errorLine2="                           ^">
-        <location
-            file="src/main/java/com/example/android/supportv4/content/LocalServiceBroadcaster.java"
-            line="119"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/fragment_layout_support.xml"
-            line="21"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="DisableBaselineAlignment"
-        message="Set `android:baselineAligned=&quot;false&quot;` on this element for better performance"
-        errorLine1="    &lt;LinearLayout android:orientation=&quot;horizontal&quot; android:padding=&quot;4dip&quot;"
-        errorLine2="     ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout-land/fragment_arguments_support.xml"
-            line="35"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="DisableBaselineAlignment"
-        message="Set `android:baselineAligned=&quot;false&quot;` on this element for better performance"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2=" ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout-land/fragment_layout_support.xml"
-            line="21"
-            column="2"/>
-    </issue>
-
-    <issue
-        id="InefficientWeight"
-        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
-        errorLine1="            android:layout_height=&quot;wrap_content&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout-land/fragment_arguments_support.xml"
-            line="27"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="InefficientWeight"
-        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
-        errorLine1="            android:layout_height=&quot;wrap_content&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/fragment_arguments_support.xml"
-            line="27"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="InefficientWeight"
-        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
-        errorLine1="            android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot;"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/send_result.xml"
-            line="27"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="InefficientWeight"
-        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
-        errorLine1="        android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot;"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/simple_job_intent_controller.xml"
-            line="23"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="InefficientWeight"
-        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
-        errorLine1="        android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot;"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/wakeful_alarm_controller.xml"
-            line="23"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="NestedWeights"
-        message="Nested weights are bad for performance"
-        errorLine1="                android:id=&quot;@+id/fragment1&quot; android:layout_weight=&quot;1&quot;"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/fragment_hide_show_support.xml"
-            line="38"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="NestedWeights"
-        message="Nested weights are bad for performance"
-        errorLine1="                android:id=&quot;@+id/fragment2&quot; android:layout_weight=&quot;1&quot;"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/fragment_hide_show_support.xml"
-            line="52"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@android:color/black` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
-        errorLine1="             android:background=&quot;@android:color/black&quot;>"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/commit_content.xml"
-            line="20"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.red` appears to be unused"
-        errorLine1="    &lt;drawable name=&quot;red&quot;>#7f00&lt;/drawable>"
-        errorLine2="              ~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="18"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.blue` appears to be unused"
-        errorLine1="    &lt;drawable name=&quot;blue&quot;>#770000ff&lt;/drawable>"
-        errorLine2="              ~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="19"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.yellow` appears to be unused"
-        errorLine1="    &lt;drawable name=&quot;yellow&quot;>#77ffff00&lt;/drawable>"
-        errorLine2="              ~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="21"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.gradient` appears to be unused"
-        errorLine1="&lt;shape xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/gradient.xml"
-            line="16"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_drawer` appears to be unused"
-        errorLine1="&lt;bitmap xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/ic_drawer.xml"
-            line="20"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_drawer_am` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/ic_drawer_am.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/ic_drawer_am.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_drawer_am.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.menu.shortcuts` appears to be unused"
-        errorLine1="&lt;menu xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/menu/shortcuts.xml"
-            line="17"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.fragment_nesting_tabs_support` appears to be unused"
-        errorLine1="    &lt;string name=&quot;fragment_nesting_tabs_support&quot;>Fragment/Nesting Tabs&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="76"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.fragment_tabs` appears to be unused"
-        errorLine1="    &lt;string name=&quot;fragment_tabs&quot;>Fragment/Tabs&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="85"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.fragment_tabs_pager` appears to be unused"
-        errorLine1="    &lt;string name=&quot;fragment_tabs_pager&quot;>Fragment/Tabs and Pager&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="87"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.accessibility_delegate_button` appears to be unused"
-        errorLine1="    &lt;string name=&quot;accessibility_delegate_button&quot;>Button&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="144"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.sample_transport_controller_activity` appears to be unused"
-        errorLine1="    &lt;string name=&quot;sample_transport_controller_activity&quot;>Media/TransportController&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="187"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.error_cannot_skip` appears to be unused"
-        errorLine1="    &lt;string name=&quot;error_cannot_skip&quot;>Cannot skip&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="204"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.error_empty_metadata` appears to be unused"
-        errorLine1="    &lt;string name=&quot;error_empty_metadata&quot;>Empty metadata!&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="215"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.ThemeHolo` appears to be unused"
-        errorLine1="    &lt;style name=&quot;ThemeHolo&quot; parent=&quot;android:Theme&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/styles.xml"
-            line="22"
-            column="12"/>
-        <location
-            file="src/main/res/values-v11/styles.xml"
-            line="19"
-            column="12"/>
     </issue>
 
     <issue
@@ -1207,7 +334,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="138"
+            line="139"
             column="56"/>
     </issue>
 
@@ -1218,7 +345,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="140"
+            line="141"
             column="17"/>
     </issue>
 
@@ -1229,7 +356,7 @@
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="144"
+            line="145"
             column="21"/>
     </issue>
 
@@ -1240,7 +367,7 @@
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="147"
+            line="148"
             column="17"/>
     </issue>
 
@@ -1251,7 +378,7 @@
         errorLine2="                           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="148"
+            line="149"
             column="28"/>
     </issue>
 
@@ -1262,7 +389,7 @@
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="148"
+            line="149"
             column="17"/>
     </issue>
 
@@ -1273,7 +400,7 @@
         errorLine2="                ~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="151"
+            line="152"
             column="17"/>
     </issue>
 
@@ -1284,7 +411,7 @@
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="152"
+            line="153"
             column="17"/>
     </issue>
 
@@ -1295,7 +422,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="191"
+            line="192"
             column="53"/>
     </issue>
 
@@ -1306,7 +433,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="212"
+            line="213"
             column="21"/>
     </issue>
 
@@ -1317,7 +444,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="213"
+            line="214"
             column="21"/>
     </issue>
 
@@ -1328,7 +455,7 @@
         errorLine2="                              ~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="214"
+            line="215"
             column="31"/>
     </issue>
 
@@ -1339,7 +466,7 @@
         errorLine2="                    ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="214"
+            line="215"
             column="21"/>
     </issue>
 
@@ -2868,7 +1995,7 @@
         errorLine2="            ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="233"
+            line="234"
             column="13"/>
     </issue>
 
@@ -2879,7 +2006,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="235"
+            line="236"
             column="41"/>
     </issue>
 
@@ -2890,7 +2017,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="237"
+            line="238"
             column="17"/>
     </issue>
 
@@ -2901,7 +2028,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="245"
+            line="246"
             column="13"/>
     </issue>
 
@@ -2912,7 +2039,7 @@
         errorLine2="                    ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="358"
+            line="360"
             column="21"/>
     </issue>
 
@@ -2923,7 +2050,7 @@
         errorLine2="                                         ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="358"
+            line="360"
             column="42"/>
     </issue>
 
@@ -2934,7 +2061,7 @@
         errorLine2="                                  ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="359"
+            line="361"
             column="35"/>
     </issue>
 
@@ -2945,7 +2072,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"
-            line="363"
+            line="365"
             column="21"/>
     </issue>
 
@@ -3000,7 +2127,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="62"
+            line="63"
             column="56"/>
     </issue>
 
@@ -3011,7 +2138,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="64"
+            line="65"
             column="17"/>
     </issue>
 
@@ -3022,7 +2149,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="68"
+            line="69"
             column="13"/>
     </issue>
 
@@ -3033,7 +2160,7 @@
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="69"
+            line="70"
             column="21"/>
     </issue>
 
@@ -3044,7 +2171,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="70"
+            line="71"
             column="34"/>
     </issue>
 
@@ -3055,7 +2182,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="70"
+            line="71"
             column="13"/>
     </issue>
 
@@ -3066,7 +2193,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="71"
+            line="72"
             column="13"/>
     </issue>
 
@@ -3077,7 +2204,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="71"
+            line="72"
             column="47"/>
     </issue>
 
@@ -3088,7 +2215,7 @@
         errorLine2="                                                                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="73"
+            line="74"
             column="70"/>
     </issue>
 
@@ -3099,7 +2226,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="74"
+            line="75"
             column="30"/>
     </issue>
 
@@ -3110,7 +2237,7 @@
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="74"
+            line="75"
             column="13"/>
     </issue>
 
@@ -3121,7 +2248,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="76"
+            line="77"
             column="56"/>
     </issue>
 
@@ -3132,17 +2259,6 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="78"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mQueueAdapter` of class `QueueFragment` requires synthetic accessor"
-        errorLine1="                mQueueAdapter.notifyDataSetInvalidated();"
-        errorLine2="                ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
             line="79"
             column="17"/>
     </issue>
@@ -3150,7 +2266,7 @@
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mQueueAdapter` of class `QueueFragment` requires synthetic accessor"
-        errorLine1="                mQueueAdapter.addAll(queue);"
+        errorLine1="                mQueueAdapter.notifyDataSetInvalidated();"
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
@@ -3161,11 +2277,22 @@
     <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mQueueAdapter` of class `QueueFragment` requires synthetic accessor"
-        errorLine1="                mQueueAdapter.notifyDataSetChanged();"
+        errorLine1="                mQueueAdapter.addAll(queue);"
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
             line="81"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` field `mQueueAdapter` of class `QueueFragment` requires synthetic accessor"
+        errorLine1="                mQueueAdapter.notifyDataSetChanged();"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
+            line="82"
             column="17"/>
     </issue>
 
@@ -3176,7 +2303,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="83"
+            line="84"
             column="36"/>
     </issue>
 
@@ -3187,7 +2314,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="83"
+            line="84"
             column="13"/>
     </issue>
 
@@ -3198,7 +2325,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="94"
+            line="95"
             column="13"/>
     </issue>
 
@@ -3209,7 +2336,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="94"
+            line="95"
             column="49"/>
     </issue>
 
@@ -3220,7 +2347,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="95"
+            line="96"
             column="13"/>
     </issue>
 
@@ -3231,7 +2358,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="96"
+            line="97"
             column="13"/>
     </issue>
 
@@ -3242,7 +2369,7 @@
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="116"
+            line="117"
             column="13"/>
     </issue>
 
@@ -3253,7 +2380,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="117"
+            line="118"
             column="13"/>
     </issue>
 
@@ -3264,7 +2391,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="124"
+            line="125"
             column="17"/>
     </issue>
 
@@ -3275,7 +2402,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="125"
+            line="126"
             column="17"/>
     </issue>
 
@@ -3286,7 +2413,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="126"
+            line="127"
             column="17"/>
     </issue>
 
@@ -3297,7 +2424,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="127"
+            line="128"
             column="17"/>
     </issue>
 
@@ -3308,7 +2435,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="161"
+            line="162"
             column="53"/>
     </issue>
 
@@ -3319,7 +2446,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="162"
+            line="163"
             column="17"/>
     </issue>
 
@@ -3330,7 +2457,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="254"
+            line="256"
             column="31"/>
     </issue>
 
@@ -3341,7 +2468,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="255"
+            line="257"
             column="54"/>
     </issue>
 
@@ -3352,7 +2479,7 @@
         errorLine2="                        ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="262"
+            line="264"
             column="25"/>
     </issue>
 
@@ -3363,7 +2490,7 @@
         errorLine2="                        ~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="264"
+            line="266"
             column="25"/>
     </issue>
 
@@ -3374,7 +2501,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="269"
+            line="271"
             column="21"/>
     </issue>
 
@@ -3385,7 +2512,7 @@
         errorLine2="                    ~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="272"
+            line="274"
             column="21"/>
     </issue>
 
@@ -3398,160 +2525,6 @@
             file="src/main/java/com/example/android/supportv4/graphics/RoundedBitmapDrawableActivity.java"
             line="58"
             column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` member of class `SliderListener` requires synthetic accessor"
-        errorLine1="        mSlidingLayout.setPanelSlideListener(new SliderListener());"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="83"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` member of class `ListItemClickListener` requires synthetic accessor"
-        errorLine1="        mList.setOnItemClickListener(new ListItemClickListener());"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="88"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` member of class `FirstLayoutListener` requires synthetic accessor"
-        errorLine1="        mSlidingLayout.getViewTreeObserver().addOnGlobalLayoutListener(new FirstLayoutListener());"
-        errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="93"
-            column="72"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mContent` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="            mContent.setText(LoremIpsum.DIALOGUE[position]);"
-        errorLine2="            ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="117"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mActionBar` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="            mActionBar.setTitle(LoremIpsum.TITLES[position]);"
-        errorLine2="            ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="118"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mSlidingLayout` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="            mSlidingLayout.closePane();"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="119"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mActionBar` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="            mActionBar.onPanelOpened();"
-        errorLine2="            ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="129"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mActionBar` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="            mActionBar.onPanelClosed();"
-        errorLine2="            ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="134"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mActionBar` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="            mActionBar.onFirstLayout();"
-        errorLine2="            ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="148"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mSlidingLayout` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="                mSlidingLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);"
-        errorLine2="                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="150"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mSlidingLayout` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="                mSlidingLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);"
-        errorLine2="                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="152"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` member of class `ActionBarHelper` requires synthetic accessor"
-        errorLine1="            return new ActionBarHelper();"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="164"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mSlidingLayout` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="            if (mSlidingLayout.isSlideable() &amp;&amp; !mSlidingLayout.isOpen()) {"
-        errorLine2="                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="216"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mSlidingLayout` of class `SlidingPaneLayoutActivity` requires synthetic accessor"
-        errorLine1="            if (mSlidingLayout.isSlideable() &amp;&amp; !mSlidingLayout.isOpen()) {"
-        errorLine2="                                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="216"
-            column="50"/>
     </issue>
 
     <issue
@@ -3572,7 +2545,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/view/WindowInsetsPlayground.java"
-            line="83"
+            line="90"
             column="25"/>
     </issue>
 
@@ -3583,1185 +2556,8 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/view/WindowInsetsPlayground.java"
-            line="84"
+            line="91"
             column="25"/>
-    </issue>
-
-    <issue
-        id="UselessParent"
-        message="This `LinearLayout` layout or its `FrameLayout` parent is useless"
-        errorLine1="        &lt;LinearLayout"
-        errorLine2="         ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_controller.xml"
-            line="80"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="RedundantNamespace"
-        message="This namespace declaration is redundant"
-        errorLine1="            xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/nested_scroll_3_levels.xml"
-            line="40"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;insets_none&quot;>None yet...&lt;/string>"
-        errorLine2="                               ^">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="250"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="IconDipSize"
-        message="Suspicious file name `ic_equalizer_white_24dp.png`: The implied 24 `dp` size does not match the actual `dp` size (pixel size 96×96 in a `drawable-xxhdpi` folder computes to 32×32 `dp`)">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_equalizer_white_24dp.png"/>
-    </issue>
-
-    <issue
-        id="IconDipSize"
-        message="The image `ic_equalizer_white_24dp.png` varies significantly in its density-independent (dip) size across the various density versions: drawable-xhdpi/ic_equalizer_white_24dp.png: 24x24 dp (48x48 px), drawable-xxhdpi/ic_equalizer_white_24dp.png: 32x32 dp (96x96 px)">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_equalizer_white_24dp.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_equalizer_white_24dp.png"/>
-    </issue>
-
-    <issue
-        id="IconDensities"
-        message="Missing the following drawables in `drawable-hdpi`: ic_default_art.png, ic_equalizer_white_24dp.png, ic_star_off.png, ic_star_on.png">
-        <location
-            file="src/main/res/drawable-hdpi"/>
-    </issue>
-
-    <issue
-        id="IconDensities"
-        message="Missing the following drawables in `drawable-mdpi`: ic_default_art.png, ic_equalizer_white_24dp.png, ic_notification.png, ic_pause_white_24dp.png, ic_play_arrow_white_24dp.png... (4 more)">
-        <location
-            file="src/main/res/drawable-mdpi"/>
-    </issue>
-
-    <issue
-        id="IconDensities"
-        message="Missing the following drawables in `drawable-xhdpi`: alert_dialog_icon.png, app_sample_code.png, ic_default_art.png, ic_notification.png, ic_star_off.png... (1 more)">
-        <location
-            file="src/main/res/drawable-xhdpi"/>
-    </issue>
-
-    <issue
-        id="IconDensities"
-        message="Missing the following drawables in `drawable-xxhdpi`: alert_dialog_icon.png, android_robot.png, app_sample_code.png, ic_drawer_am.png, ic_notification.png... (1 more)">
-        <location
-            file="src/main/res/drawable-xxhdpi"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="        &lt;Button android:id=&quot;@+id/goto_first&quot;"
-        errorLine2="         ~~~~~~">
-        <location
-            file="src/main/res/layout/fragment_pager.xml"
-            line="36"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="        &lt;Button android:id=&quot;@+id/goto_last&quot;"
-        errorLine2="         ~~~~~~">
-        <location
-            file="src/main/res/layout/fragment_pager.xml"
-            line="40"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="        &lt;Button android:id=&quot;@+id/home&quot;"
-        errorLine2="         ~~~~~~">
-        <location
-            file="src/main/res/layout/fragment_stack.xml"
-            line="34"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="        &lt;Button android:id=&quot;@+id/new_fragment&quot;"
-        errorLine2="         ~~~~~~">
-        <location
-            file="src/main/res/layout/fragment_stack.xml"
-            line="39"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="        &lt;Button android:id=&quot;@+id/delete_fragment&quot;"
-        errorLine2="         ~~~~~~">
-        <location
-            file="src/main/res/layout/fragment_stack.xml"
-            line="43"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="TextFields"
-        message="This text field does not specify an `inputType`"
-        errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_controller.xml"
-            line="124"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="TextFields"
-        message="This text field does not specify an `inputType`"
-        errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="31"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="TextFields"
-        message="This text field does not specify an `inputType`"
-        errorLine1="    &lt;EditText android:id=&quot;@+id/saved&quot;"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="src/main/res/layout/labeled_text_edit.xml"
-            line="28"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="Autofill"
-        message="Missing `autofillHints` attribute"
-        errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_controller.xml"
-            line="124"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="Autofill"
-        message="Missing `autofillHints` attribute"
-        errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="31"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="Autofill"
-        message="Missing `autofillHints` attribute"
-        errorLine1="    &lt;EditText android:id=&quot;@+id/saved&quot;"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="src/main/res/layout/labeled_text_edit.xml"
-            line="28"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ClickableViewAccessibility"
-        message="Custom view `CustomView` overrides `onTouchEvent` but not `performClick`"
-        errorLine1="        public boolean onTouchEvent(MotionEvent event) {"
-        errorLine2="                       ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/ExploreByTouchHelperActivity.java"
-            line="128"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_rounded_bitmap.xml"
-            line="31"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/drawable_compat.xml"
-            line="23"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView android:id=&quot;@+id/icon&quot;"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/list_item_icon_text.xml"
-            line="22"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="KeyboardInaccessibleWidget"
-        message="&apos;clickable&apos; attribute found, please also add &apos;focusable&apos;"
-        errorLine1="            android:clickable=&quot;true&quot;/>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/drawable_compat.xml"
-            line="27"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="LabelFor"
-        message="Missing accessibility label: where minSdk &lt; 17, you should provide an `android:hint`"
-        errorLine1="    &lt;EditText android:id=&quot;@+id/saved&quot;"
-        errorLine2="     ~~~~~~~~">
-        <location
-            file="src/main/res/layout/labeled_text_edit.xml"
-            line="28"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="                mShowText.setText(&quot;Show clicked at &quot; + mShowTime);"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
-            line="80"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                mShowText.setText(&quot;Show clicked at &quot; + mShowTime);"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
-            line="80"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="                mHideText.setText(&quot;Hide clicked at &quot; + mHideTime);"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
-            line="85"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                mHideText.setText(&quot;Hide clicked at &quot; + mHideTime);"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
-            line="85"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="                mShowTextDone.setText(&quot;Shown at &quot;"
-        errorLine2="                                      ^">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
-            line="97"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                mShowTextDone.setText(&quot;Shown at &quot;"
-        errorLine2="                                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
-            line="97"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="                mHideTextDone.setText(&quot;Hidden after &quot;"
-        errorLine2="                                      ^">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
-            line="100"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                mHideTextDone.setText(&quot;Hidden after &quot;"
-        errorLine2="                                      ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/ContentLoadingProgressBarActivity.java"
-            line="100"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="        ((TextView)tv).setText(&quot;Example of displaying an alert dialog with a DialogFragment&quot;);"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentAlertDialogSupport.java"
-            line="45"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="            ((TextView) tv).setText(&quot;Fragment #&quot; + mNum);"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentCustomAnimationSupport.java"
-            line="125"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="            ((TextView) tv).setText(&quot;Fragment #&quot; + mNum);"
-        errorLine2="                                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentCustomAnimationSupport.java"
-            line="125"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="            ((TextView)tv).setText(&quot;This is an instance of MyDialogFragment&quot;);"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentDialogOrActivitySupport.java"
-            line="78"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="        ((TextView)tv).setText(&quot;Example of displaying dialogs with a DialogFragment.  &quot;"
-        errorLine2="                               ^">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentDialogSupport.java"
-            line="43"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="        ((TextView)tv).setText(&quot;Example of displaying dialogs with a DialogFragment.  &quot;"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentDialogSupport.java"
-            line="43"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                + &quot;Press the show button below to see the first dialog; pressing &quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentDialogSupport.java"
-            line="44"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                + &quot;successive show buttons will display other dialog styles as a &quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentDialogSupport.java"
-            line="45"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                + &quot;stack, with dismissing or back going to the previous dialog.&quot;);"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentDialogSupport.java"
-            line="46"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="            ((TextView)tv).setText(&quot;Dialog #&quot; + mNum + &quot;: using style &quot;"
-        errorLine2="                                   ^">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentDialogSupport.java"
-            line="153"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="            ((TextView)tv).setText(&quot;Dialog #&quot; + mNum + &quot;: using style &quot;"
-        errorLine2="                                   ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentDialogSupport.java"
-            line="153"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="            ((TextView)tv).setText(&quot;Dialog #&quot; + mNum + &quot;: using style &quot;"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentDialogSupport.java"
-            line="153"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                    button.setText(&quot;Hide&quot;);"
-        errorLine2="                                   ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentHideShowSupport.java"
-            line="67"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                    button.setText(&quot;Show&quot;);"
-        errorLine2="                                   ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentHideShowSupport.java"
-            line="70"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="            ((TextView)tv).setText(&quot;The fragment saves and restores this text.&quot;);"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentHideShowSupport.java"
-            line="85"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="            ((TextView)tv).setText(&quot;The TextView saves and restores this text.&quot;);"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentHideShowSupport.java"
-            line="111"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="            ((TextView)tv).setText(&quot;Fragment #&quot; + mNum);"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentPagerSupport.java"
-            line="129"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="            ((TextView)tv).setText(&quot;Fragment #&quot; + mNum);"
-        errorLine2="                                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentPagerSupport.java"
-            line="129"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="            ((TextView) tv).setText(&quot;Fragment #&quot; + mNum);"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentStackSupport.java"
-            line="135"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="            ((TextView) tv).setText(&quot;Fragment #&quot; + mNum);"
-        errorLine2="                                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentStackSupport.java"
-            line="135"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="            ((TextView)tv).setText(&quot;Fragment #&quot; + mNum);"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentStatePagerSupport.java"
-            line="129"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="            ((TextView)tv).setText(&quot;Fragment #&quot; + mNum);"
-        errorLine2="                                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/app/FragmentStatePagerSupport.java"
-            line="129"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="        callbackData.setText(&quot;No broadcast received yet&quot;);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/content/LocalServiceBroadcaster.java"
-            line="61"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                    callbackData.setText(&quot;STARTED&quot;);"
-        errorLine2="                                         ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/content/LocalServiceBroadcaster.java"
-            line="75"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="                    callbackData.setText(&quot;Got update: &quot; + intent.getIntExtra(&quot;value&quot;, 0));"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/content/LocalServiceBroadcaster.java"
-            line="77"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                    callbackData.setText(&quot;Got update: &quot; + intent.getIntExtra(&quot;value&quot;, 0));"
-        errorLine2="                                         ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/content/LocalServiceBroadcaster.java"
-            line="77"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="String literal in `setText` can not be translated. Use Android resources instead."
-        errorLine1="                    callbackData.setText(&quot;STOPPED&quot;);"
-        errorLine2="                                         ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/content/LocalServiceBroadcaster.java"
-            line="79"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Show&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Show&quot; />"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_controller.xml"
-            line="44"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Hide&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Hide&quot; />"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_controller.xml"
-            line="50"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;setDecorFitsSystemWindows&quot;, should use `@string` resource"
-        errorLine1="        android:text=&quot;setDecorFitsSystemWindows&quot; />"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_controller.xml"
-            line="58"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;TextView&quot;, should use `@string` resource"
-        errorLine1="        android:text=&quot;TextView&quot; />"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_controller.xml"
-            line="64"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Hey, look at this buttery smooth animation!&quot;, should use `@string` resource"
-        errorLine1="                android:text=&quot;Hey, look at this buttery smooth animation!&quot;"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_controller.xml"
-            line="92"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Wow, that&apos;s pretty neat, how does this work?&quot;, should use `@string` resource"
-        errorLine1="                android:text=&quot;Wow, that&apos;s pretty neat, how does this work?&quot;"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_controller.xml"
-            line="101"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Using the new WindowInsets animation system of course!&quot;, should use `@string` resource"
-        errorLine1="                android:text=&quot;Using the new WindowInsets animation system of course!&quot;"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_controller.xml"
-            line="110"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Text message&quot;, should use `@string` resource"
-        errorLine1="            android:hint=&quot;Text message&quot; />"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_controller.xml"
-            line="129"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;So that the IME is displayed&quot;, should use `@string` resource"
-        errorLine1="            android:hint=&quot;So that the IME is displayed&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="34"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;adjustPan&quot;, should use `@string` resource"
-        errorLine1="                android:textOn=&quot;adjustPan&quot;"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="45"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;adjustResize&quot;, should use `@string` resource"
-        errorLine1="                android:textOff=&quot;adjustResize&quot; />"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="46"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;View insets&quot;, should use `@string` resource"
-        errorLine1="                android:textOn=&quot;View insets&quot;"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="52"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Root window insets&quot;, should use `@string` resource"
-        errorLine1="                android:textOff=&quot;Root window insets&quot; />"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="53"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Type: system bars&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Type: system bars&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="65"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Type: status bars&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Type: status bars&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="76"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Type: navigation bars&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Type: navigation bars&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="87"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Type: IME&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Type: IME&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="98"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Type: caption bar&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Type: caption bar&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="109"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Type: system gestures&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Type: system gestures&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="120"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Type: mandatory system gestures&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Type: mandatory system gestures&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="131"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Type: tappable element&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Type: tappable element&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="142"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Type: display cutout&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Type: display cutout&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="153"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;System window&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;System window&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="164"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Stable&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Stable&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_playground.xml"
-            line="175"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;MIME&quot;, should use `@string` resource"
-        errorLine1="                        android:text=&quot;MIME&quot;"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/commit_content.xml"
-            line="50"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Label&quot;, should use `@string` resource"
-        errorLine1="                        android:text=&quot;Label&quot;"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/commit_content.xml"
-            line="66"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;URI&quot;, should use `@string` resource"
-        errorLine1="                        android:text=&quot;URI&quot;"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/commit_content.xml"
-            line="82"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Link&quot;, should use `@string` resource"
-        errorLine1="                        android:text=&quot;Link&quot;"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/commit_content.xml"
-            line="98"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Flags&quot;, should use `@string` resource"
-        errorLine1="                        android:text=&quot;Flags&quot;"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/commit_content.xml"
-            line="114"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Demonstration of hiding and showing fragments.&quot;, should use `@string` resource"
-        errorLine1="        android:text=&quot;Demonstration of hiding and showing fragments.&quot; />"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/fragment_hide_show_support.xml"
-            line="27"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Hide&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Hide&quot; />"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/fragment_hide_show_support.xml"
-            line="35"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Hide&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;Hide&quot; />"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/fragment_hide_show_support.xml"
-            line="49"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;No items.&quot;, should use `@string` resource"
-        errorLine1="            android:text=&quot;No items.&quot;/>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/fragment_pager_list.xml"
-            line="49"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Invisible item&quot;, should use `@string` resource"
-        errorLine1="        android:title=&quot;Invisible item&quot; />"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/shortcuts.xml"
-            line="22"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Alvin&quot;, should use `@string` resource"
-        errorLine1="        android:title=&quot;Alvin&quot; />"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/shortcuts.xml"
-            line="26"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Bart&quot;, should use `@string` resource"
-        errorLine1="        android:title=&quot;Bart&quot; />"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/shortcuts.xml"
-            line="30"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Chris&quot;, should use `@string` resource"
-        errorLine1="        android:title=&quot;Chris&quot; />"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/shortcuts.xml"
-            line="34"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;David&quot;, should use `@string` resource"
-        errorLine1="        android:title=&quot;David&quot; />"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/shortcuts.xml"
-            line="38"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Eric&quot;, should use `@string` resource"
-        errorLine1="        android:title=&quot;Eric&quot; />"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/shortcuts.xml"
-            line="42"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Frank&quot;, should use `@string` resource"
-        errorLine1="        android:title=&quot;Frank&quot; />"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/shortcuts.xml"
-            line="46"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Gary&quot;, should use `@string` resource"
-        errorLine1="        android:title=&quot;Gary&quot; />"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/shortcuts.xml"
-            line="50"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Henry&quot;, should use `@string` resource"
-        errorLine1="        android:title=&quot;Henry&quot; />"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/shortcuts.xml"
-            line="54"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Exclamation&quot;, should use `@string` resource"
-        errorLine1="        android:title=&quot;Exclamation&quot; />"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/shortcuts.xml"
-            line="58"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Refresh&quot;, should use `@string` resource"
-        errorLine1="        android:title=&quot;Refresh&quot; />"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/menu/swipe_refresh_menu.xml"
-            line="21"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;1&quot;, should use `@string` resource"
-        errorLine1="                android:text=&quot;1&quot;"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/swipe_refresh_widget_child_and_parent.xml"
-            line="31"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;2&quot;, should use `@string` resource"
-        errorLine1="                android:text=&quot;2&quot;"
-        errorLine2="                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/swipe_refresh_widget_child_and_parent.xml"
-            line="64"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="            android:layout_gravity=&quot;left&quot;"
-        errorLine2="                                    ~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_controller.xml"
-            line="135"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="              android:layout_gravity=&quot;left&quot;/>"
-        errorLine2="                                      ~~~~">
-        <location
-            file="src/main/res/layout/sliding_pane_layout.xml"
-            line="33"
-            column="39"/>
     </issue>
 
     <issue
@@ -4976,17 +2772,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void setContent(T content) {"
-        errorLine2="                               ~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/BaseSwipeRefreshLayoutActivity.java"
-            line="97"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -5090,7 +2875,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="168"
+            line="169"
             column="19"/>
     </issue>
 
@@ -5101,7 +2886,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="168"
+            line="169"
             column="46"/>
     </issue>
 
@@ -5112,7 +2897,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="177"
+            line="178"
             column="12"/>
     </issue>
 
@@ -5123,7 +2908,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="177"
+            line="178"
             column="30"/>
     </issue>
 
@@ -5134,7 +2919,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="177"
+            line="178"
             column="55"/>
     </issue>
 
@@ -5145,7 +2930,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/BrowseFragment.java"
-            line="178"
+            line="179"
             column="13"/>
     </issue>
 
@@ -8093,7 +5878,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="132"
+            line="133"
             column="19"/>
     </issue>
 
@@ -8104,7 +5889,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="137"
+            line="138"
             column="12"/>
     </issue>
 
@@ -8115,7 +5900,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="137"
+            line="138"
             column="30"/>
     </issue>
 
@@ -8126,7 +5911,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="137"
+            line="138"
             column="55"/>
     </issue>
 
@@ -8137,7 +5922,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/QueueFragment.java"
-            line="138"
+            line="139"
             column="30"/>
     </issue>
 
@@ -8280,7 +6065,7 @@
         errorLine2="                                    ~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/utils/ResourceHelper.java"
-            line="36"
+            line="37"
             column="37"/>
     </issue>
 
@@ -8357,7 +6142,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/app/SharingSupport.java"
-            line="73"
+            line="74"
             column="34"/>
     </issue>
 
@@ -8368,7 +6153,7 @@
         errorLine2="                                         ~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/app/SharingSupport.java"
-            line="93"
+            line="95"
             column="42"/>
     </issue>
 
@@ -8656,28 +6441,6 @@
             file="src/main/java/com/example/android/supportv4/content/SimpleWakefulService.java"
             line="31"
             column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="74"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
-        errorLine2="                                         ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"
-            line="97"
-            column="42"/>
     </issue>
 
     <issue

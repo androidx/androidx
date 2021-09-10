@@ -17,18 +17,58 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.test.junit4.ComposeTestRule
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 
 /**
  * This function adds a parent composable which has size. [View.requestFocus()][android.view.View
  * .requestFocus] will not take focus if the view has no size.
  */
-internal fun ComposeTestRule.setFocusableContent(content: @Composable () -> Unit) {
+internal fun ComposeContentTestRule.setFocusableContent(content: @Composable () -> Unit) {
     setContent {
-        Box(modifier = Modifier.size(10.dp, 10.dp)) { content() }
+        Box(modifier = Modifier.requiredSize(10.dp, 10.dp)) { content() }
     }
+}
+
+/**
+ * This is a composable that makes it easier to create focusable boxes with a specific offset and
+ * dimensions.
+ */
+@Composable
+internal fun FocusableBox(
+    isFocused: MutableState<Boolean>,
+    x: Int,
+    y: Int,
+    width: Int,
+    height: Int,
+    focusRequester: FocusRequester? = null,
+    content: @Composable () -> Unit = {}
+) {
+    Layout(
+        content = content,
+        modifier = Modifier
+            .offset { IntOffset(x, y) }
+            .focusRequester(focusRequester ?: remember { FocusRequester() })
+            .onFocusChanged { isFocused.value = it.isFocused }
+            .focusTarget(),
+        measurePolicy = remember(width, height) {
+            MeasurePolicy { measurables, constraint ->
+                layout(width, height) {
+                    measurables.forEach {
+                        val placeable = it.measure(constraint)
+                        placeable.placeRelative(0, 0)
+                    }
+                }
+            }
+        }
+    )
 }

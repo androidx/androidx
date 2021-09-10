@@ -16,9 +16,9 @@
 
 package androidx.core.graphics;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Typeface;
@@ -42,7 +42,6 @@ import androidx.core.provider.FontsContractCompat.FontInfo;
 /**
  * Helper for accessing features in {@link Typeface}.
  */
-@SuppressLint("NewApi")  // TODO: Remove this suppression once Q SDK is released.
 public class TypefaceCompat {
     private static final TypefaceCompatBaseImpl sTypefaceCompatImpl;
     static {
@@ -94,6 +93,20 @@ public class TypefaceCompat {
     }
 
     /**
+     * Returns Typeface if the system has the font family with the name [familyName]. For example
+     * querying with "sans-serif" would check if the "sans-serif" family is defined in the system
+     * and return the Typeface if so.
+     *
+     * @param familyName The name of the font family.
+     */
+    private static Typeface getSystemFontFamily(@Nullable String familyName) {
+        if (familyName == null || familyName.isEmpty()) return null;
+        Typeface typeface = Typeface.create(familyName, Typeface.NORMAL);
+        Typeface defaultTypeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL);
+        return typeface != null && !typeface.equals(defaultTypeface) ? typeface : null;
+    }
+
+    /**
      * Create Typeface from XML resource which root node is font-family.
      *
      * @return null if failed to create.
@@ -109,14 +122,27 @@ public class TypefaceCompat {
         Typeface typeface;
         if (entry instanceof ProviderResourceEntry) {
             ProviderResourceEntry providerEntry = (ProviderResourceEntry) entry;
+
+            Typeface fontFamilyTypeface = getSystemFontFamily(
+                    providerEntry.getSystemFontFamilyName());
+            if (fontFamilyTypeface != null) {
+                if (fontCallback != null) {
+                    fontCallback.callbackSuccessAsync(fontFamilyTypeface, handler);
+                }
+                return fontFamilyTypeface;
+            }
+
             final boolean isBlocking = isRequestFromLayoutInflator
                     ? providerEntry.getFetchStrategy()
                     == FontResourcesParserCompat.FETCH_STRATEGY_BLOCKING
                     : fontCallback == null;
             final int timeout = isRequestFromLayoutInflator ? providerEntry.getTimeout()
                     : FontResourcesParserCompat.INFINITE_TIMEOUT_VALUE;
-            typeface = FontsContractCompat.getFontSync(context, providerEntry.getRequest(),
-                    fontCallback, handler, isBlocking, timeout, style);
+
+            Handler newHandler = ResourcesCompat.FontCallback.getHandler(handler);
+            ResourcesCallbackAdapter newCallback = new ResourcesCallbackAdapter(fontCallback);
+            typeface = FontsContractCompat.requestFont(context, providerEntry.getRequest(),
+                    style, isBlocking, timeout, newHandler, newCallback);
         } else {
             typeface = sTypefaceCompatImpl.createFromFontFamilyFilesResourceEntry(
                     context, (FontFamilyFilesResourceEntry) entry, resources, style);
@@ -214,5 +240,38 @@ public class TypefaceCompat {
     @VisibleForTesting
     public static void clearCache() {
         sTypefaceCache.evictAll();
+    }
+
+    /**
+     * Converts {@link androidx.core.provider.FontsContractCompat.FontRequestCallback} callback
+     * functions into {@link androidx.core.content.res.ResourcesCompat.FontCallback} equivalents.
+     *
+     * RestrictTo(LIBRARY) since it is used by the deprecated
+     * {@link FontsContractCompat#getFontSync} function.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public static class ResourcesCallbackAdapter extends FontsContractCompat.FontRequestCallback {
+        @Nullable
+        private ResourcesCompat.FontCallback mFontCallback;
+
+        public ResourcesCallbackAdapter(@Nullable ResourcesCompat.FontCallback fontCallback) {
+            mFontCallback = fontCallback;
+        }
+
+        @Override
+        public void onTypefaceRetrieved(@NonNull Typeface typeface) {
+            if (mFontCallback != null) {
+                mFontCallback.onFontRetrieved(typeface);
+            }
+        }
+
+        @Override
+        public void onTypefaceRequestFailed(int reason) {
+            if (mFontCallback != null) {
+                mFontCallback.onFontRetrievalFailed(reason);
+            }
+        }
     }
 }

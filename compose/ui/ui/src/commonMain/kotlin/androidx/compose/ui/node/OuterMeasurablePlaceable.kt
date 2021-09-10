@@ -25,18 +25,23 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
-@OptIn(ExperimentalLayoutNodeApi::class)
 internal class OuterMeasurablePlaceable(
     private val layoutNode: LayoutNode,
     var outerWrapper: LayoutNodeWrapper
 ) : Measurable, Placeable() {
 
     private var measuredOnce = false
-    val lastConstraints: Constraints? get() = if (measuredOnce) measurementConstraints else null
-    var lastPosition: IntOffset? = null
-        private set
+    private var placedOnce = false
+    val lastConstraints: Constraints?
+        get() = if (measuredOnce) {
+            measurementConstraints
+        } else {
+            null
+        }
+    internal var duringAlignmentLinesQuery = false
+
+    private var lastPosition: IntOffset = IntOffset.Zero
     private var lastLayerBlock: (GraphicsLayerScope.() -> Unit)? = null
-    private val lastProvidedAlignmentLines = mutableMapOf<AlignmentLine, Int>()
     private var lastZIndex: Float = 0f
 
     /**
@@ -85,32 +90,49 @@ internal class OuterMeasurablePlaceable(
         if (layoutNode.layoutState == LayoutState.NeedsRemeasure ||
             measurementConstraints != constraints
         ) {
+            layoutNode.alignmentLines.usedByModifierMeasurement = false
+            layoutNode._children.forEach { it.alignmentLines.usedDuringParentMeasurement = false }
             measuredOnce = true
             layoutNode.layoutState = LayoutState.Measuring
             measurementConstraints = constraints
-            lastProvidedAlignmentLines.clear()
-            lastProvidedAlignmentLines.putAll(layoutNode.providedAlignmentLines)
+            val outerWrapperPreviousMeasuredSize = outerWrapper.size
             owner.snapshotObserver.observeMeasureSnapshotReads(layoutNode) {
                 outerWrapper.measure(constraints)
             }
-            layoutNode.layoutState = LayoutState.NeedsRelayout
-            if (layoutNode.providedAlignmentLines != lastProvidedAlignmentLines) {
-                layoutNode.onAlignmentsChanged()
+            // The resulting layout state might be Ready. This can happen when the layout node's
+            // own modifier is querying an alignment line during measurement, therefore we
+            // need to also layout the layout node.
+            if (layoutNode.layoutState == LayoutState.Measuring) {
+                layoutNode.layoutState = LayoutState.NeedsRelayout
             }
-            val previousSize = measuredSize
-            val newWidth = outerWrapper.width
-            val newHeight = outerWrapper.height
-            if (newWidth != previousSize.width ||
-                newHeight != previousSize.height
-            ) {
-                measuredSize = IntSize(newWidth, newHeight)
-                return true
-            }
+            val sizeChanged = outerWrapper.size != outerWrapperPreviousMeasuredSize ||
+                outerWrapper.width != width ||
+                outerWrapper.height != height
+            // We are using the coerced wrapper size here to avoid double offset in layout coop.
+            measuredSize = IntSize(outerWrapper.width, outerWrapper.height)
+            return sizeChanged
         }
         return false
     }
 
-    override fun get(line: AlignmentLine): Int = outerWrapper[line]
+    // We are setting our measuredSize to match the coerced outerWrapper size, to prevent
+    // double offseting for layout cooperation. However, this means that here we need
+    // to override these getters to make the measured values correct in Measured.
+    // TODO(popam): clean this up
+    override val measuredWidth: Int get() = outerWrapper.measuredWidth
+    override val measuredHeight: Int get() = outerWrapper.measuredHeight
+
+    override fun get(alignmentLine: AlignmentLine): Int {
+        if (layoutNode.parent?.layoutState == LayoutState.Measuring) {
+            layoutNode.alignmentLines.usedDuringParentMeasurement = true
+        } else if (layoutNode.parent?.layoutState == LayoutState.LayingOut) {
+            layoutNode.alignmentLines.usedDuringParentLayout = true
+        }
+        duringAlignmentLinesQuery = true
+        val result = outerWrapper[alignmentLine]
+        duringAlignmentLinesQuery = false
+        return result
+    }
 
     override fun placeAt(
         position: IntOffset,
@@ -120,11 +142,29 @@ internal class OuterMeasurablePlaceable(
         lastPosition = position
         lastZIndex = zIndex
         lastLayerBlock = layerBlock
+
+        if (outerWrapper.wrappedBy?.isShallowPlacing == true) {
+            placeOuterWrapper(position, zIndex, layerBlock)
+        } else {
+            placedOnce = true
+            layoutNode.alignmentLines.usedByModifierLayout = false
+            val owner = layoutNode.requireOwner()
+            owner.snapshotObserver.observeLayoutModifierSnapshotReads(layoutNode) {
+                placeOuterWrapper(position, zIndex, layerBlock)
+            }
+        }
+    }
+
+    private fun placeOuterWrapper(
+        position: IntOffset,
+        zIndex: Float,
+        layerBlock: (GraphicsLayerScope.() -> Unit)?
+    ) {
         with(PlacementScope) {
             if (layerBlock == null) {
-                outerWrapper.place(position, lastZIndex)
+                outerWrapper.place(position, zIndex)
             } else {
-                outerWrapper.placeWithLayer(position, lastZIndex, layerBlock)
+                outerWrapper.placeWithLayer(position, zIndex, layerBlock)
             }
         }
     }
@@ -133,16 +173,41 @@ internal class OuterMeasurablePlaceable(
      * Calls [placeAt] with the same position used during the last [placeAt] call
      */
     fun replace() {
-        placeAt(checkNotNull(lastPosition), lastZIndex, lastLayerBlock)
+        check(placedOnce)
+        placeAt(lastPosition, lastZIndex, lastLayerBlock)
     }
 
-    override fun minIntrinsicWidth(height: Int): Int = outerWrapper.minIntrinsicWidth(height)
+    override fun minIntrinsicWidth(height: Int): Int {
+        onIntrinsicsQueried()
+        return outerWrapper.minIntrinsicWidth(height)
+    }
 
-    override fun maxIntrinsicWidth(height: Int): Int = outerWrapper.maxIntrinsicWidth(height)
+    override fun maxIntrinsicWidth(height: Int): Int {
+        onIntrinsicsQueried()
+        return outerWrapper.maxIntrinsicWidth(height)
+    }
 
-    override fun minIntrinsicHeight(width: Int): Int = outerWrapper.minIntrinsicHeight(width)
+    override fun minIntrinsicHeight(width: Int): Int {
+        onIntrinsicsQueried()
+        return outerWrapper.minIntrinsicHeight(width)
+    }
 
-    override fun maxIntrinsicHeight(width: Int): Int = outerWrapper.maxIntrinsicHeight(width)
+    override fun maxIntrinsicHeight(width: Int): Int {
+        onIntrinsicsQueried()
+        return outerWrapper.maxIntrinsicHeight(width)
+    }
+
+    private fun onIntrinsicsQueried() {
+        // How intrinsics work when specific / custom intrinsics are not provided to the custom
+        // layout is we essentially run the measure block of a child with not-final constraints
+        // and fake measurables. It is possible that some measure blocks are not pure and have
+        // side effects, like save some state calculated during the measurement.
+        // In order to make it possible we always have to rerun the measure block with the real
+        // final constraints after the intrinsics run. Sometimes it will cause unnecessary
+        // remeasurements, but it makes sure such component states are using the correct final
+        // constraints/sizes.
+        layoutNode.requestRemeasure()
+    }
 
     /**
      * Recalculates the parent data.

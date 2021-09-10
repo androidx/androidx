@@ -22,6 +22,7 @@ import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOL
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
@@ -41,7 +42,7 @@ import static androidx.camera.video.impl.VideoCaptureLegacyConfig.OPTION_BIT_RAT
 import static androidx.camera.video.impl.VideoCaptureLegacyConfig.OPTION_INTRA_FRAME_INTERVAL;
 import static androidx.camera.video.impl.VideoCaptureLegacyConfig.OPTION_VIDEO_FRAME_RATE;
 
-import android.annotation.SuppressLint;
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.location.Location;
@@ -71,6 +72,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
@@ -97,8 +99,10 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.internal.utils.VideoUtil;
 import androidx.camera.video.impl.VideoCaptureLegacyConfig;
+import androidx.camera.video.internal.compat.Api26Impl;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
+import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -109,6 +113,7 @@ import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -314,6 +319,7 @@ public final class VideoCaptureLegacy extends UseCase {
      * @hide
      */
     @Override
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
@@ -347,6 +353,8 @@ public final class VideoCaptureLegacy extends UseCase {
      * @param executor          The executor in which the callback methods will be run.
      * @param callback          Callback for when the recorded video saving completion or failure.
      */
+    @SuppressWarnings("ObjectToString")
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     public void startRecording(
             @NonNull OutputFileOptions outputFileOptions, @NonNull Executor executor,
             @NonNull OnVideoSavedCallback callback) {
@@ -589,6 +597,7 @@ public final class VideoCaptureLegacy extends UseCase {
      */
     @UiThread
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     void setupEncoder(@NonNull String cameraId, @NonNull Size resolution) {
         VideoCaptureLegacyConfig config = (VideoCaptureLegacyConfig) getCurrentConfig();
 
@@ -619,6 +628,7 @@ public final class VideoCaptureLegacy extends UseCase {
 
         sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
             @Override
+            @RequiresPermission(Manifest.permission.RECORD_AUDIO)
             public void onError(@NonNull SessionConfig sessionConfig,
                     @NonNull SessionConfig.SessionError error) {
                 // Ensure the attached camera has not changed before calling setupEncoder.
@@ -823,6 +833,7 @@ public final class VideoCaptureLegacy extends UseCase {
         // Audio encoding loop. Exits on end of stream.
         boolean audioEos = false;
         int outIndex;
+        long lastAudioTimestamp = 0;
         while (!audioEos && mIsRecording) {
             // Check for end of stream from main thread
             if (mEndOfAudioStreamSignal.get()) {
@@ -863,7 +874,20 @@ public final class VideoCaptureLegacy extends UseCase {
                         case MediaCodec.INFO_TRY_AGAIN_LATER:
                             break;
                         default:
-                            audioEos = writeAudioEncodedBuffer(outIndex);
+                            // Drops out of order audio frame if the frame's earlier than last
+                            // frame.
+                            if (mAudioBufferInfo.presentationTimeUs >= lastAudioTimestamp) {
+                                audioEos = writeAudioEncodedBuffer(outIndex);
+                                lastAudioTimestamp = mAudioBufferInfo.presentationTimeUs;
+                            } else {
+                                Logger.w(TAG,
+                                        "Drops frame, current frame's timestamp "
+                                                + mAudioBufferInfo.presentationTimeUs
+                                                + " is earlier that last frame "
+                                                + lastAudioTimestamp);
+                                // Releases this frame from output buffer
+                                mAudioEncoder.releaseOutputBuffer(outIndex, false);
+                            }
                     }
                 } while (outIndex >= 0 && !audioEos); // end of dequeue output buffer
             }
@@ -914,6 +938,7 @@ public final class VideoCaptureLegacy extends UseCase {
     }
 
     /** Create a AudioRecord object to get raw data */
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     private AudioRecord autoConfigAudioRecordSource(VideoCaptureLegacyConfig config) {
         for (short audioFormat : sAudioEncoding) {
 
@@ -965,6 +990,7 @@ public final class VideoCaptureLegacy extends UseCase {
     }
 
     /** Set audio record parameters by CamcorderProfile */
+    @SuppressWarnings("deprecation")
     private void setAudioParametersByCamcorderProfile(Size currentResolution, String cameraId) {
         CamcorderProfile profile;
         boolean isCamcorderProfileFound = false;
@@ -998,7 +1024,6 @@ public final class VideoCaptureLegacy extends UseCase {
         }
     }
 
-    @SuppressLint("UnsafeNewApiCall")
     @NonNull
     private MediaMuxer initMediaMuxer(@NonNull OutputFileOptions outputFileOptions)
             throws IOException {
@@ -1016,7 +1041,7 @@ public final class VideoCaptureLegacy extends UseCase {
                         + "only supported for Android 8.0 or above.");
             }
 
-            mediaMuxer = new MediaMuxer(outputFileOptions.getFileDescriptor(),
+            mediaMuxer = Api26Impl.createMediaMuxer(outputFileOptions.getFileDescriptor(),
                     MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         } else if (outputFileOptions.isSavingToMediaStore()) {
             ContentValues values = outputFileOptions.getContentValues() != null
@@ -1043,7 +1068,8 @@ public final class VideoCaptureLegacy extends UseCase {
                     mParcelFileDescriptor =
                             outputFileOptions.getContentResolver().openFileDescriptor(
                                     mSavedVideoUri, "rw");
-                    mediaMuxer = new MediaMuxer(mParcelFileDescriptor.getFileDescriptor(),
+                    mediaMuxer = Api26Impl.createMediaMuxer(
+                            mParcelFileDescriptor.getFileDescriptor(),
                             MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
                 }
             } catch (IOException e) {
@@ -1186,6 +1212,7 @@ public final class VideoCaptureLegacy extends UseCase {
     }
 
     /** Builder for a {@link VideoCaptureLegacy}. */
+    @SuppressWarnings("ObjectToString")
     public static final class Builder
             implements
             UseCaseConfig.Builder<VideoCaptureLegacy, VideoCaptureLegacyConfig, Builder>,
@@ -1631,6 +1658,18 @@ public final class VideoCaptureLegacy extends UseCase {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
             return this;
         }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setAttachedUseCasesUpdateListener(
+                @NonNull Consumer<Collection<UseCase>> attachedUseCasesUpdateListener) {
+            getMutableConfig().insertOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER,
+                    attachedUseCasesUpdateListener);
+            return this;
+        }
+
     }
 
     /**

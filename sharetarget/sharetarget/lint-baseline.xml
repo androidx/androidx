@@ -1,15 +1,433 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
 
     <issue
-        id="QueryPermissionsNeeded"
-        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
-        errorLine1="        List&lt;ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities("
-        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getShortcutIcon`"
+        errorLine1="        when(mShortcutSaver.getShortcutIcon(any())).thenReturn(mTestIcon);"
+        errorLine2="                            ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/sharetarget/ShareTargetXmlParser.java"
-            line="92"
+            file="src/androidTest/java/androidx/sharetarget/ChooserTargetServiceCompatTest.java"
+            line="63"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `createExecutorService`"
+        errorLine1="        mCacheUpdateService = ShortcutInfoCompatSaverImpl.createExecutorService();"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="80"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `createExecutorService`"
+        errorLine1="        mDiskIoService = ShortcutInfoCompatSaverImpl.createExecutorService();"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="81"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `ShortcutInfoCompatSaverImpl`"
+        errorLine1="        mShortcutInfoSaver = new ShortcutInfoCompatSaverImpl(mContext, mCacheUpdateService,"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="82"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `removeAllShortcuts`"
+        errorLine1="        catchAsyncExceptions(mShortcutInfoSaver.removeAllShortcuts());"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="84"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `removeAllShortcuts`"
+        errorLine1="            mShortcutInfoSaver.removeAllShortcuts().get();"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="156"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getInstance`"
+        errorLine1="                ShortcutInfoCompatSaverImpl.getInstance(mContext);"
+        errorLine2="                                            ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="239"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getInstance`"
+        errorLine1="        assertEquals(saver, ShortcutInfoCompatSaverImpl.getInstance(mContext));"
+        errorLine2="                                                        ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="241"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getShortcuts`"
+        errorLine1="        List&lt;ShortcutInfoCompat> shortcuts = mShortcutInfoSaver.getShortcuts();"
+        errorLine2="                                                                ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="246"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `addShortcuts`"
+        errorLine1="        catchAsyncExceptions(mShortcutInfoSaver.addShortcuts(mTestShortcuts));"
+        errorLine2="                                                ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="254"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getShortcuts`"
+        errorLine1="        assertShortcutsListEquals(testShortcutsWithCategories(), mShortcutInfoSaver.getShortcuts());"
+        errorLine2="                                                                                    ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="255"
+            column="85"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `addShortcuts`"
+        errorLine1="        ListenableFuture&lt;?> future = mShortcutInfoSaver.addShortcuts(mTestShortcuts);"
+        errorLine2="                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="260"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getShortcuts`"
+        errorLine1="        assertShortcutsListEquals(testShortcutsWithCategories(), mShortcutInfoSaver.getShortcuts());"
+        errorLine2="                                                                                    ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="264"
+            column="85"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `addShortcuts`"
+        errorLine1="        catchAsyncExceptions(mShortcutInfoSaver.addShortcuts(firstBatch));"
+        errorLine2="                                                ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="280"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `addShortcuts`"
+        errorLine1="        ListenableFuture&lt;Void> future = mShortcutInfoSaver.addShortcuts(secondBatch);"
+        errorLine2="                                                           ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="281"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getShortcuts`"
+        errorLine1="        assertShortcutsListEquals(allShortcuts, mShortcutInfoSaver.getShortcuts());"
+        errorLine2="                                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="283"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getShortcuts`"
+        errorLine1="        assertShortcutsListEquals(allShortcuts, mShortcutInfoSaver.getShortcuts());"
+        errorLine2="                                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="286"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `addShortcuts`"
+        errorLine1="        catchAsyncExceptions(mShortcutInfoSaver.addShortcuts(mTestShortcuts));"
+        errorLine2="                                                ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="291"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `removeShortcuts`"
+        errorLine1="        ListenableFuture&lt;?> future = mShortcutInfoSaver.removeShortcuts(removeIds);"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="296"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getShortcuts`"
+        errorLine1="        assertShortcutsListEquals(testShortcutsWithCategories(), mShortcutInfoSaver.getShortcuts());"
+        errorLine2="                                                                                    ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="301"
+            column="85"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getShortcuts`"
+        errorLine1="        assertShortcutsListEquals(testShortcutsWithCategories(), mShortcutInfoSaver.getShortcuts());"
+        errorLine2="                                                                                    ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="304"
+            column="85"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `addShortcuts`"
+        errorLine1="        catchAsyncExceptions(mShortcutInfoSaver.addShortcuts(mTestShortcuts));"
+        errorLine2="                                                ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="309"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getShortcuts`"
+        errorLine1="        assertShortcutsListEquals(testShortcutsWithCategories(), mShortcutInfoSaver.getShortcuts());"
+        errorLine2="                                                                                    ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="310"
+            column="85"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `removeAllShortcuts`"
+        errorLine1="        ListenableFuture&lt;?> future = mShortcutInfoSaver.removeAllShortcuts();"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="312"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getShortcuts`"
+        errorLine1="        assertTrue(mShortcutInfoSaver.getShortcuts().isEmpty());"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="314"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getShortcuts`"
+        errorLine1="        assertTrue(mShortcutInfoSaver.getShortcuts().isEmpty());"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="317"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `addShortcuts`"
+        errorLine1="        ListenableFuture&lt;?> future = mShortcutInfoSaver.addShortcuts(mTestShortcuts);"
+        errorLine2="                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="322"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getShortcuts`"
+        errorLine1="        List&lt;ShortcutInfoCompat> shortcuts = mShortcutInfoSaver.getShortcuts();"
+        errorLine2="                                                                ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="326"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `addShortcuts`"
+        errorLine1="        catchAsyncExceptions(mShortcutInfoSaver.addShortcuts(mTestShortcuts));"
+        errorLine2="                                                ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="334"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getShortcuts`"
+        errorLine1="        List&lt;ShortcutInfoCompat> shortcuts = mShortcutInfoSaver.getShortcuts();"
+        errorLine2="                                                                ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="336"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getShortcutIcon`"
+        errorLine1="            verifyCorrectIconLoaded(item.getId(), mShortcutInfoSaver.getShortcutIcon(item.getId()));"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="338"
             column="70"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `addShortcuts`"
+        errorLine1="        ListenableFuture&lt;?> future = mShortcutInfoSaver.addShortcuts(mTestShortcuts);"
+        errorLine2="                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="344"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getShortcuts`"
+        errorLine1="        List&lt;ShortcutInfoCompat> shortcuts = mShortcutInfoSaver.getShortcuts();"
+        errorLine2="                                                                ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="348"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getShortcutIcon`"
+        errorLine1="            verifyCorrectIconLoaded(item.getId(), mShortcutInfoSaver.getShortcutIcon(item.getId()));"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="350"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `addShortcuts`"
+        errorLine1="        catchAsyncExceptions(mShortcutInfoSaver.addShortcuts(mTestShortcuts));"
+        errorLine2="                                                ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="356"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `getShortcutIcon`"
+        errorLine1="        assertNull(mShortcutInfoSaver.getShortcutIcon(&quot;unknown-id&quot;));"
+        errorLine2="                                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="358"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `createExecutorService`"
+        errorLine1="        mCacheUpdateService = ShortcutInfoCompatSaverImpl.createExecutorService();"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="400"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `createExecutorService`"
+        errorLine1="        mDiskIoService = ShortcutInfoCompatSaverImpl.createExecutorService();"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="401"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `ShortcutInfoCompatSaverImpl`"
+        errorLine1="        mShortcutInfoSaver = new ShortcutInfoCompatSaverImpl(mContext, mCacheUpdateService,"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
+            line="402"
+            column="30"/>
     </issue>
 
     <issue
@@ -52,7 +470,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="97"
+            line="96"
             column="19"/>
     </issue>
 
@@ -63,7 +481,7 @@
         errorLine2="                                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="97"
+            line="96"
             column="59"/>
     </issue>
 
@@ -74,7 +492,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="154"
+            line="153"
             column="12"/>
     </issue>
 
@@ -85,7 +503,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="154"
+            line="153"
             column="51"/>
     </issue>
 
@@ -96,7 +514,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="176"
+            line="175"
             column="12"/>
     </issue>
 
@@ -107,7 +525,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="196"
+            line="195"
             column="12"/>
     </issue>
 
@@ -118,7 +536,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="210"
+            line="209"
             column="12"/>
     </issue>
 
@@ -129,7 +547,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="210"
+            line="209"
             column="45"/>
     </issue>
 
@@ -140,7 +558,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="268"
+            line="267"
             column="12"/>
     </issue>
 
@@ -151,7 +569,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="268"
+            line="267"
             column="48"/>
     </issue>
 

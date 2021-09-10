@@ -17,14 +17,14 @@
 package androidx.compose.material.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.Button
 import androidx.compose.material.ExperimentalMaterialApi
@@ -67,7 +67,7 @@ fun BottomSheetScaffoldSample() {
     BottomSheetScaffold(
         sheetContent = {
             Box(
-                Modifier.fillMaxWidth().preferredHeight(128.dp),
+                Modifier.fillMaxWidth().height(128.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text("Swipe up to expand sheet")
@@ -77,8 +77,12 @@ fun BottomSheetScaffoldSample() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text("Sheet content")
-                Spacer(Modifier.preferredHeight(20.dp))
-                Button(onClick = { scaffoldState.bottomSheetState.collapse() }) {
+                Spacer(Modifier.height(20.dp))
+                Button(
+                    onClick = {
+                        scope.launch { scaffoldState.bottomSheetState.collapse() }
+                    }
+                ) {
                     Text("Click to collapse sheet")
                 }
             }
@@ -88,8 +92,8 @@ fun BottomSheetScaffoldSample() {
             TopAppBar(
                 title = { Text("Bottom sheet scaffold") },
                 navigationIcon = {
-                    IconButton(onClick = { scaffoldState.drawerState.open() }) {
-                        Icon(Icons.Default.Menu)
+                    IconButton(onClick = { scope.launch { scaffoldState.drawerState.open() } }) {
+                        Icon(Icons.Default.Menu, contentDescription = "Localized description")
                     }
                 }
             )
@@ -104,7 +108,7 @@ fun BottomSheetScaffoldSample() {
                     }
                 }
             ) {
-                Icon(Icons.Default.Favorite)
+                Icon(Icons.Default.Favorite, contentDescription = "Localized description")
             }
         },
         floatingActionButtonPosition = FabPosition.End,
@@ -115,19 +119,19 @@ fun BottomSheetScaffoldSample() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text("Drawer content")
-                Spacer(Modifier.preferredHeight(20.dp))
-                Button(onClick = { scaffoldState.drawerState.close() }) {
+                Spacer(Modifier.height(20.dp))
+                Button(onClick = { scope.launch { scaffoldState.drawerState.close() } }) {
                     Text("Click to close drawer")
                 }
             }
         }
     ) { innerPadding ->
-        ScrollableColumn(contentPadding = innerPadding) {
-            repeat(100) {
+        LazyColumn(contentPadding = innerPadding) {
+            items(100) {
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .preferredHeight(50.dp)
+                        .height(50.dp)
                         .background(colors[it % colors.size])
                 )
             }

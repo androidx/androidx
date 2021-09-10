@@ -18,27 +18,23 @@ package androidx.compose.material
 
 import android.os.Build
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.AmbientLayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTesting
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.center
-import androidx.compose.ui.test.down
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.move
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performGesture
-import androidx.compose.ui.test.up
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -52,7 +48,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@OptIn(ExperimentalTesting::class)
+@OptIn(ExperimentalTestApi::class)
 class SwitchScreenshotTest {
 
     @get:Rule
@@ -83,7 +79,7 @@ class SwitchScreenshotTest {
     fun switchTest_checked_rtl() {
         rule.setMaterialContent {
             Box(wrapperModifier) {
-                Providers(AmbientLayoutDirection provides LayoutDirection.Rtl) {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                     Switch(checked = true, onCheckedChange = { })
                 }
             }
@@ -98,7 +94,7 @@ class SwitchScreenshotTest {
                 Switch(
                     checked = true,
                     onCheckedChange = { },
-                    colors = SwitchConstants.defaultColors(checkedThumbColor = Color.Red)
+                    colors = SwitchDefaults.colors(checkedThumbColor = Color.Red)
                 )
             }
         }
@@ -119,7 +115,7 @@ class SwitchScreenshotTest {
     fun switchTest_unchecked_rtl() {
         rule.setMaterialContent {
             Box(wrapperModifier) {
-                Providers(AmbientLayoutDirection provides LayoutDirection.Rtl) {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                     Switch(checked = false, onCheckedChange = { })
                 }
             }
@@ -130,7 +126,7 @@ class SwitchScreenshotTest {
     @Test
     fun switchTest_bigSizeSpecified() {
         rule.setMaterialContent {
-            Box(wrapperModifier.size(50.dp)) {
+            Box(wrapperModifier.requiredSize(50.dp)) {
                 Switch(checked = true, onCheckedChange = { })
             }
         }
@@ -139,15 +135,25 @@ class SwitchScreenshotTest {
 
     @Test
     fun switchTest_pressed() {
+        rule.mainClock.autoAdvance = false
+
         rule.setMaterialContent {
             Box(wrapperModifier) {
                 Switch(checked = false, enabled = true, onCheckedChange = { })
             }
         }
 
-        rule.onNodeWithTag(wrapperTestTag).performGesture {
+        rule.onNode(isToggleable()).performTouchInput {
             down(center)
         }
+
+        // Advance past the tap timeout
+        rule.mainClock.advanceTimeBy(100)
+
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
+
         assertToggeableAgainstGolden("switch_pressed")
     }
 
@@ -183,16 +189,19 @@ class SwitchScreenshotTest {
             }
         }
 
-        rule.clockTestRule.pauseClock()
+        rule.mainClock.autoAdvance = false
 
         rule.onNode(isToggleable())
             // split click into (down) and (move, up) to enforce a composition in between
-            .performGesture { down(center) }
-            .performGesture { move(); up() }
+            .performTouchInput { down(center) }
+            .performTouchInput { move(); up() }
 
         rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 96)
 
-        rule.clockTestRule.advanceClock(60)
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
 
         assertToggeableAgainstGolden("switch_animateToChecked")
     }
@@ -209,22 +218,24 @@ class SwitchScreenshotTest {
             }
         }
 
-        rule.clockTestRule.pauseClock()
+        rule.mainClock.autoAdvance = false
 
         rule.onNode(isToggleable())
             // split click into (down) and (move, up) to enforce a composition in between
-            .performGesture { down(center) }
-            .performGesture { move(); up() }
+            .performTouchInput { down(center) }
+            .performTouchInput { move(); up() }
 
         rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 96)
 
-        rule.clockTestRule.advanceClock(60)
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
 
         assertToggeableAgainstGolden("switch_animateToUnchecked")
     }
 
     private fun assertToggeableAgainstGolden(goldenName: String) {
-        // TODO: replace with find(isToggeable()) after b/157687898 is fixed
         rule.onNodeWithTag(wrapperTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenName)

@@ -14,55 +14,52 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE")
-
 package androidx.compose.material
 
-import androidx.compose.animation.AnimatedValueModel
-import androidx.compose.animation.VectorConverter
-import androidx.compose.animation.asDisposableClock
-import androidx.compose.animation.core.AnimationClockObservable
-import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.foundation.AmbientIndication
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Interaction
-import androidx.compose.foundation.InteractionState
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.defaultMinSizeConstraints
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Providers
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.platform.AmbientAnimationClock
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.collect
 
 /**
- * Material Design implementation of a
- * [Material Contained Button](https://material.io/design/components/buttons.html#contained-button).
+ * <a href="https://material.io/components/buttons#contained-button" class="external" target="_blank">Material Design contained button</a>.
  *
  * Contained buttons are high-emphasis, distinguished by their use of elevation and fill. They
  * contain actions that are primary to your app.
  *
- * To make a button clickable, you must provide an onClick. If no onClick is provided, this button
- * will display itself as disabled.
+ * ![Contained button image](https://developer.android.com/images/reference/androidx/compose/material/contained-button.png)
  *
- * The default text style for internal [Text] components will be set to [Typography.button]. Text
- * color will try to match the correlated color for the background color. For example if the
- * background color is set to [Colors.primary] then the text will by default use
- * [Colors.onPrimary].
+ * The default text style for internal [Text] components will be set to [Typography.button].
  *
  * @sample androidx.compose.material.samples.ButtonSample
  *
@@ -75,18 +72,17 @@ import androidx.compose.ui.unit.dp
  * @param modifier Modifier to be applied to the button
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable
- * @param interactionState the [InteractionState] representing the different [Interaction]s
- * present on this Button. You can create and pass in your own remembered [InteractionState] if
- * you want to read the [InteractionState] and customize the appearance / behavior of this Button
- * in different [Interaction]s, such as customizing how the [elevation] of this Button changes when
- * it is [Interaction.Pressed].
+ * @param interactionSource the [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this Button. You can create and pass in your own remembered
+ * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
+ * appearance / behavior of this Button in different [Interaction]s.
  * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
  * states. This controls the size of the shadow below the button. Pass `null` here to disable
- * elevation for this button. See [ButtonConstants.defaultElevation].
+ * elevation for this button. See [ButtonDefaults.elevation].
  * @param shape Defines the button's shape as well as its shadow
  * @param border Border to draw around the button
  * @param colors [ButtonColors] that will be used to resolve the background and content color for
- * this button in different states. See [ButtonConstants.defaultButtonColors].
+ * this button in different states. See [ButtonDefaults.buttonColors].
  * @param contentPadding The spacing values to apply internally between the container and the content
  */
 @OptIn(ExperimentalMaterialApi::class)
@@ -95,43 +91,38 @@ fun Button(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionState: InteractionState = remember { InteractionState() },
-    elevation: ButtonElevation? = ButtonConstants.defaultElevation(),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    elevation: ButtonElevation? = ButtonDefaults.elevation(),
     shape: Shape = MaterialTheme.shapes.small,
     border: BorderStroke? = null,
-    colors: ButtonColors = ButtonConstants.defaultButtonColors(),
-    contentPadding: PaddingValues = ButtonConstants.DefaultContentPadding,
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     content: @Composable RowScope.() -> Unit
 ) {
-    // TODO(aelias): Avoid manually putting the clickable above the clip and
-    // the ripple below the clip once http://b/157687898 is fixed and we have
-    // more flexibility to move the clickable modifier (see candidate approach
-    // aosp/1361921)
-    val contentColor = colors.contentColor(enabled)
+    val contentColor by colors.contentColor(enabled)
     Surface(
+        modifier = modifier,
         shape = shape,
-        color = colors.backgroundColor(enabled),
+        color = colors.backgroundColor(enabled).value,
         contentColor = contentColor.copy(alpha = 1f),
         border = border,
-        elevation = elevation?.elevation(enabled, interactionState) ?: 0.dp,
-        modifier = modifier.clickable(
-            onClick = onClick,
-            enabled = enabled,
-            interactionState = interactionState,
-            indication = null
-        )
+        elevation = elevation?.elevation(enabled, interactionSource)?.value ?: 0.dp,
+        onClick = onClick,
+        enabled = enabled,
+        role = Role.Button,
+        interactionSource = interactionSource,
+        indication = rememberRipple()
     ) {
-        Providers(AmbientContentAlpha provides contentColor.alpha) {
+        CompositionLocalProvider(LocalContentAlpha provides contentColor.alpha) {
             ProvideTextStyle(
                 value = MaterialTheme.typography.button
             ) {
                 Row(
                     Modifier
-                        .defaultMinSizeConstraints(
-                            minWidth = ButtonConstants.DefaultMinWidth,
-                            minHeight = ButtonConstants.DefaultMinHeight
+                        .defaultMinSize(
+                            minWidth = ButtonDefaults.MinWidth,
+                            minHeight = ButtonDefaults.MinHeight
                         )
-                        .indication(interactionState, AmbientIndication.current())
                         .padding(contentPadding),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
@@ -143,22 +134,14 @@ fun Button(
 }
 
 /**
- * Material Design implementation of a
- * [Material Outlined Button](https://material.io/design/components/buttons.html#outlined-button).
+ * <a href="https://material.io/components/buttons#outlined-button" class="external" target="_blank">Material Design outlined button</a>.
  *
- * Outlined buttons are medium-emphasis buttons. They contain actions that are important, but are
- * not the primary action in an app.
+ * Outlined buttons are medium-emphasis buttons. They contain actions that are important, but aren't
+ * the primary action in an app.
  *
- * Outlined buttons are also a lower emphasis alternative to contained buttons, or a higher emphasis
- * alternative to text buttons.
+ * ![Outlined button image](https://developer.android.com/images/reference/androidx/compose/material/outlined-button.png)
  *
- * To make a button clickable, you must provide an onClick. If no onClick is provided, this button
- * will display itself as disabled.
- *
- * The default text style for internal [Text] components will be set to [Typography.button]. Text
- * color will try to match the correlated color for the background color. For example if the
- * background color is set to [Colors.primary] then the text will by default use
- * [Colors.onPrimary].
+ * The default text style for internal [Text] components will be set to [Typography.button].
  *
  * @sample androidx.compose.material.samples.OutlinedButtonSample
  *
@@ -166,37 +149,35 @@ fun Button(
  * @param modifier Modifier to be applied to the button
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable
- * @param interactionState the [InteractionState] representing the different [Interaction]s
- * present on this Button. You can create and pass in your own remembered [InteractionState] if
- * you want to read the [InteractionState] and customize the appearance / behavior of this Button
- * in different [Interaction]s, such as customizing how the [elevation] of this Button changes when
- * it is [Interaction.Pressed].
+ * @param interactionSource the [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this Button. You can create and pass in your own remembered
+ * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
+ * appearance / behavior of this Button in different [Interaction]s.
  * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
  * states. An OutlinedButton typically has no elevation, see [Button] for a button with elevation.
  * @param shape Defines the button's shape as well as its shadow
  * @param border Border to draw around the button
  * @param colors [ButtonColors] that will be used to resolve the background and content color for
- * this button in different states. See [ButtonConstants.defaultOutlinedButtonColors].
+ * this button in different states. See [ButtonDefaults.outlinedButtonColors].
  * @param contentPadding The spacing values to apply internally between the container and the content
  */
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
-inline fun OutlinedButton(
-    noinline onClick: () -> Unit,
+fun OutlinedButton(
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionState: InteractionState = remember { InteractionState() },
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     elevation: ButtonElevation? = null,
     shape: Shape = MaterialTheme.shapes.small,
-    border: BorderStroke? = ButtonConstants.defaultOutlinedBorder,
-    colors: ButtonColors = ButtonConstants.defaultOutlinedButtonColors(),
-    contentPadding: PaddingValues = ButtonConstants.DefaultContentPadding,
-    noinline content: @Composable RowScope.() -> Unit
+    border: BorderStroke? = ButtonDefaults.outlinedBorder,
+    colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    content: @Composable RowScope.() -> Unit
 ) = Button(
     onClick = onClick,
     modifier = modifier,
     enabled = enabled,
-    interactionState = interactionState,
+    interactionSource = interactionSource,
     elevation = elevation,
     shape = shape,
     border = border,
@@ -206,19 +187,14 @@ inline fun OutlinedButton(
 )
 
 /**
- * Material Design implementation of a
- * [Material Text Button](https://material.io/design/components/buttons.html#text-button).
+ * <a href="https://material.io/components/buttons#text-button" class="external" target="_blank">Material Design text button</a>.
  *
- * Text buttons are typically used for less-pronounced actions, including those located in cards and
- * dialogs.
+ * Text buttons are typically used for less-pronounced actions, including those located in dialogs
+ * and cards. In cards, text buttons help maintain an emphasis on card content.
  *
- * To make a button clickable, you must provide an onClick. If no onClick is provided, this button
- * will display itself as disabled.
+ * ![Text button image](https://developer.android.com/images/reference/androidx/compose/material/text-button.png)
  *
- * The default text style for internal [Text] components will be set to [Typography.button]. Text
- * color will try to match the correlated color for the background color. For example if the
- * background color is set to [Colors.primary] then the text will by default use
- * [Colors.onPrimary].
+ * The default text style for internal [Text] components will be set to [Typography.button].
  *
  * @sample androidx.compose.material.samples.TextButtonSample
  *
@@ -226,37 +202,35 @@ inline fun OutlinedButton(
  * @param modifier Modifier to be applied to the button
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable
- * @param interactionState the [InteractionState] representing the different [Interaction]s
- * present on this Button. You can create and pass in your own remembered [InteractionState] if
- * you want to read the [InteractionState] and customize the appearance / behavior of this Button
- * in different [Interaction]s, such as customizing how the [elevation] of this Button changes when
- * it is [Interaction.Pressed].
+ * @param interactionSource the [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this Button. You can create and pass in your own remembered
+ * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
+ * appearance / behavior of this Button in different [Interaction]s.
  * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
  * states. A TextButton typically has no elevation, see [Button] for a button with elevation.
  * @param shape Defines the button's shape as well as its shadow
  * @param border Border to draw around the button
  * @param colors [ButtonColors] that will be used to resolve the background and content color for
- * this button in different states. See [ButtonConstants.defaultTextButtonColors].
+ * this button in different states. See [ButtonDefaults.textButtonColors].
  * @param contentPadding The spacing values to apply internally between the container and the content
  */
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
-inline fun TextButton(
-    noinline onClick: () -> Unit,
+fun TextButton(
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionState: InteractionState = remember { InteractionState() },
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     elevation: ButtonElevation? = null,
     shape: Shape = MaterialTheme.shapes.small,
     border: BorderStroke? = null,
-    colors: ButtonColors = ButtonConstants.defaultTextButtonColors(),
-    contentPadding: PaddingValues = ButtonConstants.DefaultTextContentPadding,
-    noinline content: @Composable RowScope.() -> Unit
+    colors: ButtonColors = ButtonDefaults.textButtonColors(),
+    contentPadding: PaddingValues = ButtonDefaults.TextButtonContentPadding,
+    content: @Composable RowScope.() -> Unit
 ) = Button(
     onClick = onClick,
     modifier = modifier,
     enabled = enabled,
-    interactionState = interactionState,
+    interactionSource = interactionSource,
     elevation = elevation,
     shape = shape,
     border = border,
@@ -268,29 +242,29 @@ inline fun TextButton(
 /**
  * Represents the elevation for a button in different states.
  *
- * See [ButtonConstants.defaultElevation] for the default elevation used in a [Button].
+ * See [ButtonDefaults.elevation] for the default elevation used in a [Button].
  */
-@ExperimentalMaterialApi
 @Stable
 interface ButtonElevation {
     /**
-     * Represents the elevation used in a button, depending on [enabled] and [interactionState].
+     * Represents the elevation used in a button, depending on [enabled] and
+     * [interactionSource].
      *
      * @param enabled whether the button is enabled
-     * @param interactionState the [InteractionState] for this button
+     * @param interactionSource the [InteractionSource] for this button
      */
-    fun elevation(enabled: Boolean, interactionState: InteractionState): Dp
+    @Composable
+    fun elevation(enabled: Boolean, interactionSource: InteractionSource): State<Dp>
 }
 
 /**
  * Represents the background and content colors used in a button in different states.
  *
- * See [ButtonConstants.defaultButtonColors] for the default colors used in a [Button].
- * See [ButtonConstants.defaultOutlinedButtonColors] for the default colors used in a
+ * See [ButtonDefaults.buttonColors] for the default colors used in a [Button].
+ * See [ButtonDefaults.outlinedButtonColors] for the default colors used in a
  * [OutlinedButton].
- * See [ButtonConstants.defaultTextButtonColors] for the default colors used in a [TextButton].
+ * See [ButtonDefaults.textButtonColors] for the default colors used in a [TextButton].
  */
-@ExperimentalMaterialApi
 @Stable
 interface ButtonColors {
     /**
@@ -298,27 +272,29 @@ interface ButtonColors {
      *
      * @param enabled whether the button is enabled
      */
-    fun backgroundColor(enabled: Boolean): Color
+    @Composable
+    fun backgroundColor(enabled: Boolean): State<Color>
 
     /**
      * Represents the content color for this button, depending on [enabled].
      *
      * @param enabled whether the button is enabled
      */
-    fun contentColor(enabled: Boolean): Color
+    @Composable
+    fun contentColor(enabled: Boolean): State<Color>
 }
 
 /**
  * Contains the default values used by [Button]
  */
-object ButtonConstants {
+object ButtonDefaults {
     private val ButtonHorizontalPadding = 16.dp
     private val ButtonVerticalPadding = 8.dp
 
     /**
      * The default content padding used by [Button]
      */
-    val DefaultContentPadding = PaddingValues(
+    val ContentPadding = PaddingValues(
         start = ButtonHorizontalPadding,
         top = ButtonVerticalPadding,
         end = ButtonHorizontalPadding,
@@ -329,27 +305,27 @@ object ButtonConstants {
      * The default min width applied for the [Button].
      * Note that you can override it by applying Modifier.widthIn directly on [Button].
      */
-    val DefaultMinWidth = 64.dp
+    val MinWidth = 64.dp
 
     /**
      * The default min width applied for the [Button].
      * Note that you can override it by applying Modifier.heightIn directly on [Button].
      */
-    val DefaultMinHeight = 36.dp
+    val MinHeight = 36.dp
 
     /**
      * The default size of the icon when used inside a [Button].
      *
      * @sample androidx.compose.material.samples.ButtonWithIconSample
      */
-    val DefaultIconSize = 18.dp
+    val IconSize = 18.dp
 
     /**
      * The default size of the spacing between an icon and a text when they used inside a [Button].
      *
      * @sample androidx.compose.material.samples.ButtonWithIconSample
      */
-    val DefaultIconSpacing = 8.dp
+    val IconSpacing = 8.dp
 
     // TODO: b/152525426 add support for focused and hovered states
     /**
@@ -359,25 +335,22 @@ object ButtonConstants {
      * @param defaultElevation the elevation to use when the [Button] is enabled, and has no
      * other [Interaction]s.
      * @param pressedElevation the elevation to use when the [Button] is enabled and
-     * is [Interaction.Pressed].
+     * is pressed.
      * @param disabledElevation the elevation to use when the [Button] is not enabled.
      */
-    @OptIn(ExperimentalMaterialApi::class)
     @Composable
-    fun defaultElevation(
+    fun elevation(
         defaultElevation: Dp = 2.dp,
         pressedElevation: Dp = 8.dp,
         // focused: Dp = 4.dp,
         // hovered: Dp = 4.dp,
         disabledElevation: Dp = 0.dp
     ): ButtonElevation {
-        val clock = AmbientAnimationClock.current.asDisposableClock()
-        return remember(defaultElevation, pressedElevation, disabledElevation, clock) {
+        return remember(defaultElevation, pressedElevation, disabledElevation) {
             DefaultButtonElevation(
                 defaultElevation = defaultElevation,
                 pressedElevation = pressedElevation,
-                disabledElevation = disabledElevation,
-                clock = clock
+                disabledElevation = disabledElevation
             )
         }
     }
@@ -387,24 +360,23 @@ object ButtonConstants {
      * a [Button].
      *
      * @param backgroundColor the background color of this [Button] when enabled
-     * @param disabledBackgroundColor the background color of this [Button] when not enabled
      * @param contentColor the content color of this [Button] when enabled
+     * @param disabledBackgroundColor the background color of this [Button] when not enabled
      * @param disabledContentColor the content color of this [Button] when not enabled
      */
-    @OptIn(ExperimentalMaterialApi::class)
     @Composable
-    fun defaultButtonColors(
+    fun buttonColors(
         backgroundColor: Color = MaterialTheme.colors.primary,
+        contentColor: Color = contentColorFor(backgroundColor),
         disabledBackgroundColor: Color = MaterialTheme.colors.onSurface.copy(alpha = 0.12f)
             .compositeOver(MaterialTheme.colors.surface),
-        contentColor: Color = contentColorFor(backgroundColor),
         disabledContentColor: Color = MaterialTheme.colors.onSurface
             .copy(alpha = ContentAlpha.disabled)
     ): ButtonColors = DefaultButtonColors(
-        backgroundColor,
-        disabledBackgroundColor,
-        contentColor,
-        disabledContentColor
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+        disabledBackgroundColor = disabledBackgroundColor,
+        disabledContentColor = disabledContentColor
     )
 
     /**
@@ -415,18 +387,17 @@ object ButtonConstants {
      * @param contentColor the content color of this [OutlinedButton] when enabled
      * @param disabledContentColor the content color of this [OutlinedButton] when not enabled
      */
-    @OptIn(ExperimentalMaterialApi::class)
     @Composable
-    fun defaultOutlinedButtonColors(
+    fun outlinedButtonColors(
         backgroundColor: Color = MaterialTheme.colors.surface,
         contentColor: Color = MaterialTheme.colors.primary,
         disabledContentColor: Color = MaterialTheme.colors.onSurface
             .copy(alpha = ContentAlpha.disabled)
     ): ButtonColors = DefaultButtonColors(
-        backgroundColor,
-        backgroundColor,
-        contentColor,
-        disabledContentColor
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+        disabledBackgroundColor = backgroundColor,
+        disabledContentColor = disabledContentColor
     )
 
     /**
@@ -437,18 +408,17 @@ object ButtonConstants {
      * @param contentColor the content color of this [TextButton] when enabled
      * @param disabledContentColor the content color of this [TextButton] when not enabled
      */
-    @OptIn(ExperimentalMaterialApi::class)
     @Composable
-    fun defaultTextButtonColors(
+    fun textButtonColors(
         backgroundColor: Color = Color.Transparent,
         contentColor: Color = MaterialTheme.colors.primary,
         disabledContentColor: Color = MaterialTheme.colors.onSurface
             .copy(alpha = ContentAlpha.disabled)
     ): ButtonColors = DefaultButtonColors(
-        backgroundColor,
-        backgroundColor,
-        contentColor,
-        disabledContentColor
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+        disabledBackgroundColor = backgroundColor,
+        disabledContentColor = disabledContentColor
     )
 
     /**
@@ -464,8 +434,8 @@ object ButtonConstants {
     /**
      * The default disabled content color used by all types of [Button]s
      */
-    @Composable
-    val defaultOutlinedBorder: BorderStroke
+    val outlinedBorder: BorderStroke
+        @Composable
         get() = BorderStroke(
             OutlinedBorderSize, MaterialTheme.colors.onSurface.copy(alpha = OutlinedBorderOpacity)
         )
@@ -475,53 +445,67 @@ object ButtonConstants {
     /**
      * The default content padding used by [TextButton]
      */
-    val DefaultTextContentPadding = DefaultContentPadding.copy(
+    val TextButtonContentPadding = PaddingValues(
         start = TextButtonHorizontalPadding,
-        end = TextButtonHorizontalPadding
+        top = ContentPadding.calculateTopPadding(),
+        end = TextButtonHorizontalPadding,
+        bottom = ContentPadding.calculateBottomPadding()
     )
 }
 
 /**
  * Default [ButtonElevation] implementation.
  */
-@OptIn(ExperimentalMaterialApi::class)
 @Stable
 private class DefaultButtonElevation(
     private val defaultElevation: Dp,
     private val pressedElevation: Dp,
     private val disabledElevation: Dp,
-    private val clock: AnimationClockObservable
 ) : ButtonElevation {
-    private val lazyAnimatedElevation = LazyAnimatedValue<Dp, AnimationVector1D> { target ->
-        AnimatedValueModel(initialValue = target, typeConverter = Dp.VectorConverter, clock = clock)
-    }
-
-    override fun elevation(enabled: Boolean, interactionState: InteractionState): Dp {
-        val interaction = interactionState.value.lastOrNull {
-            it is Interaction.Pressed
+    @Composable
+    override fun elevation(enabled: Boolean, interactionSource: InteractionSource): State<Dp> {
+        val interactions = remember { mutableStateListOf<Interaction>() }
+        LaunchedEffect(interactionSource) {
+            interactionSource.interactions.collect { interaction ->
+                when (interaction) {
+                    is PressInteraction.Press -> {
+                        interactions.add(interaction)
+                    }
+                    is PressInteraction.Release -> {
+                        interactions.remove(interaction.press)
+                    }
+                    is PressInteraction.Cancel -> {
+                        interactions.remove(interaction.press)
+                    }
+                }
+            }
         }
+
+        val interaction = interactions.lastOrNull()
 
         val target = if (!enabled) {
             disabledElevation
         } else {
             when (interaction) {
-                Interaction.Pressed -> pressedElevation
+                is PressInteraction.Press -> pressedElevation
                 else -> defaultElevation
             }
         }
 
-        val animatedElevation = lazyAnimatedElevation.animatedValueForTarget(target)
+        val animatable = remember { Animatable(target, Dp.VectorConverter) }
 
-        if (animatedElevation.targetValue != target) {
-            if (!enabled) {
-                // No transition when moving to a disabled state
-                animatedElevation.snapTo(target)
-            } else {
-                val lastInteraction = when (animatedElevation.targetValue) {
-                    pressedElevation -> Interaction.Pressed
+        if (!enabled) {
+            // No transition when moving to a disabled state
+            LaunchedEffect(target) {
+                animatable.snapTo(target)
+            }
+        } else {
+            LaunchedEffect(target) {
+                val lastInteraction = when (animatable.targetValue) {
+                    pressedElevation -> PressInteraction.Press(Offset.Zero)
                     else -> null
                 }
-                animatedElevation.animateElevation(
+                animatable.animateElevation(
                     from = lastInteraction,
                     to = interaction,
                     target = target
@@ -529,27 +513,28 @@ private class DefaultButtonElevation(
             }
         }
 
-        return animatedElevation.value
+        return animatable.asState()
     }
 }
 
 /**
  * Default [ButtonColors] implementation.
  */
-@OptIn(ExperimentalMaterialApi::class)
 @Immutable
 private class DefaultButtonColors(
     private val backgroundColor: Color,
-    private val disabledBackgroundColor: Color,
     private val contentColor: Color,
+    private val disabledBackgroundColor: Color,
     private val disabledContentColor: Color
 ) : ButtonColors {
-    override fun backgroundColor(enabled: Boolean): Color {
-        return if (enabled) backgroundColor else disabledBackgroundColor
+    @Composable
+    override fun backgroundColor(enabled: Boolean): State<Color> {
+        return rememberUpdatedState(if (enabled) backgroundColor else disabledBackgroundColor)
     }
 
-    override fun contentColor(enabled: Boolean): Color {
-        return if (enabled) contentColor else disabledContentColor
+    @Composable
+    override fun contentColor(enabled: Boolean): State<Color> {
+        return rememberUpdatedState(if (enabled) contentColor else disabledContentColor)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -559,8 +544,8 @@ private class DefaultButtonColors(
         other as DefaultButtonColors
 
         if (backgroundColor != other.backgroundColor) return false
-        if (disabledBackgroundColor != other.disabledBackgroundColor) return false
         if (contentColor != other.contentColor) return false
+        if (disabledBackgroundColor != other.disabledBackgroundColor) return false
         if (disabledContentColor != other.disabledContentColor) return false
 
         return true
@@ -568,8 +553,8 @@ private class DefaultButtonColors(
 
     override fun hashCode(): Int {
         var result = backgroundColor.hashCode()
-        result = 31 * result + disabledBackgroundColor.hashCode()
         result = 31 * result + contentColor.hashCode()
+        result = 31 * result + disabledBackgroundColor.hashCode()
         result = 31 * result + disabledContentColor.hashCode()
         return result
     }

@@ -16,16 +16,17 @@
 
 package androidx.compose.ui.autofill
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.util.annotation.GuardedBy
 
 /**
  * Autofill API.
  *
- * This interface is available to all composables via an ambient. The composable can then request
- * or cancel autofill as required. For instance, the [TextField] can call [requestAutofillForNode]
- * when it gains focus, and [cancelAutofillForNode] when it loses focus.
+ * This interface is available to all composables via a CompositionLocal. The composable can then
+ * request or cancel autofill as required. For instance, the [TextField] can call
+ * [requestAutofillForNode] when it gains focus, and [cancelAutofillForNode] when it loses focus.
  */
+@ExperimentalComposeUiApi
 interface Autofill {
 
     /**
@@ -66,13 +67,14 @@ interface Autofill {
  *
  * @property id A virtual id that is automatically generated for each node.
  */
-data class AutofillNode(
+@ExperimentalComposeUiApi
+class AutofillNode(
     val autofillTypes: List<AutofillType> = listOf(),
     var boundingBox: Rect? = null,
     val onFill: ((String) -> Unit)?
 ) {
     internal companion object {
-        @GuardedBy("this")
+        /*@GuardedBy("this")*/
         private var previousId = 0
 
         @Suppress("DEPRECATION_ERROR")
@@ -81,4 +83,22 @@ data class AutofillNode(
     }
 
     val id: Int = generateId()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AutofillNode) return false
+
+        if (autofillTypes != other.autofillTypes) return false
+        if (boundingBox != other.boundingBox) return false
+        if (onFill != other.onFill) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = autofillTypes.hashCode()
+        result = 31 * result + (boundingBox?.hashCode() ?: 0)
+        result = 31 * result + (onFill?.hashCode() ?: 0)
+        return result
+    }
 }

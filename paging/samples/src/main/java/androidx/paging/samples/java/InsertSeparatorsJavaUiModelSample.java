@@ -20,6 +20,9 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.Nullable;
 import androidx.paging.PagingData;
+import androidx.paging.PagingDataTransforms;
+
+import java.util.concurrent.Executor;
 
 import io.reactivex.Flowable;
 import kotlin.NotImplementedError;
@@ -28,7 +31,7 @@ import kotlin.NotImplementedError;
  * NOTE - MANUALLY COPIED SAMPLE
  *
  * Since @sample from kdoc doesn't support Java, this code must manually kept in sync with
- * the @JvmStatic `PagingData.insertSeparators` method
+ * the `PagingDataTransforms.insertSeparators` method
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 class InsertSeparatorsJavaUiModelSample {
@@ -38,12 +41,15 @@ class InsertSeparatorsJavaUiModelSample {
         throw new NotImplementedError();
     }
 
+    public Executor bgExecutor;
+
     @SuppressLint("CheckResult")
     @SuppressWarnings({"unused", "ResultOfMethodCallIgnored", "RxReturnValueIgnored"})
     public void insertSeparatorsSample() {
 
         /*
-         * Create letter separators in an alphabetically sorted list of Items, with UiModel objects.
+         * Create letter separators in an alphabetically sorted list of Items, with UiModel
+         * objects.
          *
          * For example, if the input is (each an `Item`):
          *     "apple", "apricot", "banana", "carrot"
@@ -55,12 +61,12 @@ class InsertSeparatorsJavaUiModelSample {
             // map outer stream, so we can perform transformations on each paging generation
 
             // first convert items in stream to UiModel.Item
-            PagingData<UiModel.ItemModel> itemModelPagingData =
-                    itemPagingData.map(UiModel.ItemModel::new);
+            PagingData<UiModel.ItemModel> itemModelPagingData = PagingDataTransforms.map(
+                    itemPagingData, bgExecutor, UiModel.ItemModel::new);
 
             // Now insert UiModel.Separators, which makes the PagingData of generic type UiModel
-            return PagingData.insertSeparators(
-                    itemModelPagingData,
+            return PagingDataTransforms.insertSeparators(
+                    itemModelPagingData, bgExecutor,
                     (@Nullable UiModel.ItemModel before, @Nullable UiModel.ItemModel after) -> {
                         if (after != null && (before == null
                                 || before.item.label.charAt(0) != after.item.label.charAt(0))) {

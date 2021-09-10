@@ -17,10 +17,13 @@
 # ideally be trimmed down to only the classes/methods that actually need to be kept. This should
 # be tracked in b/165268619.
 -keep class androidx.window.extensions.** { *; }
+-dontwarn androidx.window.extensions.**
 
 # Keep the whole library for now since there is a crash with a missing method.
 # TODO(b/165268619) Make a narrow rule
--keepnames class androidx.window.window.** { *; }
+-keep class androidx.window.** { *; }
 
 # We also neep to keep sidecar.** for the same reason.
 -keep class androidx.window.sidecar.** { *; }
+-dontwarn androidx.window.sidecar.**
+

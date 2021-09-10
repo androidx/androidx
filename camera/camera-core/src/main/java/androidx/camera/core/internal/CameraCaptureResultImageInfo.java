@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.TagBundle;
+import androidx.camera.core.impl.utils.ExifData;
 
 /** An ImageInfo that is created by a {@link CameraCaptureResult}. */
 public final class CameraCaptureResultImageInfo implements ImageInfo {
@@ -44,6 +45,11 @@ public final class CameraCaptureResultImageInfo implements ImageInfo {
     @Override
     public int getRotationDegrees() {
         return 0;
+    }
+
+    @Override
+    public void populateExifData(@NonNull ExifData.Builder exifBuilder) {
+        mCameraCaptureResult.populateExifData(exifBuilder);
     }
 
     @NonNull

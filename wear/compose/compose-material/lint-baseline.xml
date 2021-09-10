@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ButtonTest.kt"
+            line="588"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ButtonTest.kt"
+            line="608"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ButtonTest.kt"
+            line="628"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ButtonTest.kt"
+            line="648"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ButtonTest.kt"
+            line="807"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="        .captureToImage()"
+        errorLine2="         ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ButtonTest.kt"
+            line="887"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
+            line="528"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
+            line="549"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
+            line="724"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
+            line="799"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="        .captureToImage()"
+        errorLine2="         ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
+            line="888"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/MaterialThemeTest.kt"
+            line="56"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/MaterialThemeTest.kt"
+            line="75"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/MaterialThemeTest.kt"
+            line="90"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/MaterialThemeTest.kt"
+            line="214"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/MaterialThemeTest.kt"
+            line="219"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/MaterialThemeTest.kt"
+            line="372"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/MaterialThemeTest.kt"
+            line="377"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ToggleButtonTest.kt"
+            line="387"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ToggleButtonTest.kt"
+            line="436"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ToggleButtonTest.kt"
+            line="483"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="            .captureToImage()"
+        errorLine2="             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ToggleButtonTest.kt"
+            line="532"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="                .captureToImage()"
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ToggleButtonTest.kt"
+            line="597"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `captureToImage`"
+        errorLine1="        .captureToImage()"
+        errorLine2="         ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ToggleButtonTest.kt"
+            line="636"
+            column="10"/>
+    </issue>
+
+</issues>

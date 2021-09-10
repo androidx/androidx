@@ -75,18 +75,10 @@ public class RendererTerminationActivity extends AppCompatActivity {
             mStatus.setText("API not available");
         }
 
-        mTerminateButton.setOnClickListener((View view) -> {
-            terminateWebViewRenderer();
-        });
-        mBlockButton.setOnClickListener((View view) -> {
-            blockWebViewRenderer();
-        });
-        mBlockTransientButton.setOnClickListener((View view) -> {
-            blockWebViewRenderer(10000);
-        });
-        mUnblockButton.setOnClickListener((View view) -> {
-            unblockWebViewRenderer();
-        });
+        mTerminateButton.setOnClickListener((View view) -> terminateWebViewRenderer());
+        mBlockButton.setOnClickListener((View view) -> blockWebViewRenderer());
+        mBlockTransientButton.setOnClickListener((View view) -> blockWebViewRenderer(10000));
+        mUnblockButton.setOnClickListener((View view) -> unblockWebViewRenderer());
     }
 
     /** A renderer terminated {@link DialogFragment}. */
@@ -106,10 +98,8 @@ public class RendererTerminationActivity extends AppCompatActivity {
                     .setTitle("Renderer terminated")
                     .setView(v)
                     .setPositiveButton(android.R.string.ok,
-                        (DialogInterface dialogInterface, int button) -> {
-                            ((RendererTerminationActivity) getActivity())
-                                    .recreateWebView();
-                        })
+                        (DialogInterface dialogInterface, int button) ->
+                                ((RendererTerminationActivity) getActivity()).recreateWebView())
                     .create();
             return dialog;
         }
@@ -132,13 +122,10 @@ public class RendererTerminationActivity extends AppCompatActivity {
                     .setTitle("Renderer unresponsive")
                     .setView(v)
                     .setNegativeButton("Terminate",
-                        (DialogInterface dialogInterface, int button) -> {
-                            ((RendererTerminationActivity) getActivity())
-                                    .terminateWebViewRenderer();
-                        })
-                    .setPositiveButton("Wait",
-                        (DialogInterface dialogInterface, int button) -> {
-                        })
+                            (DialogInterface dialogInterface, int button) ->
+                                    ((RendererTerminationActivity) getActivity())
+                                            .terminateWebViewRenderer())
+                    .setPositiveButton("Wait", (DialogInterface dialogInterface, int button) -> {})
                     .create();
             return dialog;
         }

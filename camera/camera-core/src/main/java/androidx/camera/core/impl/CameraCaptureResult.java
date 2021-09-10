@@ -22,6 +22,7 @@ import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.impl.CameraCaptureMetaData.FlashState;
+import androidx.camera.core.impl.utils.ExifData;
 
 /**
  * The result of a single image capture.
@@ -59,6 +60,11 @@ public interface CameraCaptureResult {
     /** Returns the TagBundle object associated with the capture request. */
     @NonNull
     TagBundle getTagBundle();
+
+    /** Populates the given Exif.Builder with attributes from this CameraCaptureResult. */
+    default void populateExifData(@NonNull ExifData.Builder exifBuilder) {
+        exifBuilder.setFlashState(getFlashState());
+    }
 
     /** An implementation of CameraCaptureResult which always return default results. */
     final class EmptyCameraCaptureResult implements CameraCaptureResult {
@@ -106,7 +112,7 @@ public interface CameraCaptureResult {
         @Override
         @NonNull
         public TagBundle getTagBundle() {
-            return null;
+            return TagBundle.emptyBundle();
         }
     }
 }

@@ -16,15 +16,18 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.android.appcompat">
+
     <application
+        android:allowBackup="false"
         android:hardwareAccelerated="true"
         android:icon="@drawable/app_sample_code"
         android:label="@string/activity_sample_code"
-        android:allowBackup="false"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
 
-        <activity android:name=".AppCompatLintDemo">
+        <activity
+            android:name=".AppCompatLintDemo"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

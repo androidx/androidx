@@ -1,9 +1,0 @@
-// Signature format: 3.0
-package androidx.concurrent {
-
-  public interface ListenableFuture<V> extends java.util.concurrent.Future<V> {
-    method public void addListener(Runnable, java.util.concurrent.Executor);
-  }
-
-}
-

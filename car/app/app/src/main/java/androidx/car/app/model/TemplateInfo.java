@@ -21,13 +21,17 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.util.Objects;
 
 /**
  * Stores information about {@link Template} returned from a {@link
  * androidx.car.app.Screen}.
+ *
+ * <p><strong>This class is for use by host implementations and not by apps.</strong>
  */
+@CarProtocol
 public final class TemplateInfo {
     @Keep
     @Nullable
@@ -36,23 +40,39 @@ public final class TemplateInfo {
     @Nullable
     private final String mTemplateId;
 
-    public TemplateInfo(@NonNull Template template, @NonNull String templateId) {
-        this.mTemplateClass = template.getClass();
-        this.mTemplateId = templateId;
+    /**
+     * Constructs the info for the given template information provided.
+     *
+     * @param templateClass the class of the template this info is for
+     * @param templateId    the unique id for the template
+     */
+    public TemplateInfo(@NonNull Class<? extends Template> templateClass,
+            @NonNull String templateId) {
+        mTemplateClass = templateClass;
+        mTemplateId = templateId;
     }
 
-    private TemplateInfo() {
-        this.mTemplateClass = null;
-        this.mTemplateId = null;
-    }
-
+    /**
+     * Returns the type of template this instance contains.
+     *
+     * @see TemplateInfo#TemplateInfo(Class, String)
+     */
     @NonNull
     public Class<? extends Template> getTemplateClass() {
+        // Intentionally kept as non-null because the library creates these classes internally after
+        // the app returns a non-null template, a null-value should not be expected here.
         return requireNonNull(mTemplateClass);
     }
 
+    /**
+     * Returns the ID of the template.
+     *
+     * @see TemplateInfo#TemplateInfo(Class, String)
+     */
     @NonNull
     public String getTemplateId() {
+        // Intentionally kept as non-null because the library creates these classes internally after
+        // the app returns a non-null template, a null-value should not be expected here.
         return requireNonNull(mTemplateId);
     }
 
@@ -73,5 +93,10 @@ public final class TemplateInfo {
 
         return Objects.equals(mTemplateClass, otherInfo.mTemplateClass)
                 && Objects.equals(mTemplateId, otherInfo.mTemplateId);
+    }
+
+    private TemplateInfo() {
+        mTemplateClass = null;
+        mTemplateId = null;
     }
 }

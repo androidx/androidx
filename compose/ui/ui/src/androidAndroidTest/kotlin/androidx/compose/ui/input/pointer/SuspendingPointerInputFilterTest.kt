@@ -16,18 +16,24 @@
 
 package androidx.compose.ui.input.pointer
 
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.testutils.TestViewConfiguration
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.gesture.ExperimentalPointerInput
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.ValueElement
-import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
-import androidx.compose.ui.unit.Duration
+import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.Uptime
-import androidx.compose.ui.unit.milliseconds
+import androidx.lifecycle.Lifecycle
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
@@ -38,17 +44,21 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalPointerInput::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class SuspendingPointerInputFilterTest {
     @After
     fun after() {
@@ -58,12 +68,12 @@ class SuspendingPointerInputFilterTest {
 
     @Test
     fun testAwaitSingleEvent(): Unit = runBlockingTest {
-        val filter = SuspendingPointerInputFilter(FakeViewConfiguration())
+        val filter = SuspendingPointerInputFilter(TestViewConfiguration())
 
         val result = CompletableDeferred<PointerEvent>()
         launch {
             with(filter) {
-                handlePointerInput {
+                awaitPointerEventScope {
                     result.complete(awaitPointerEvent())
                 }
             }
@@ -87,13 +97,13 @@ class SuspendingPointerInputFilterTest {
 
     @Test
     fun testAwaitSeveralEvents(): Unit = runBlockingTest {
-        val filter = SuspendingPointerInputFilter(FakeViewConfiguration())
+        val filter = SuspendingPointerInputFilter(TestViewConfiguration())
         val results = Channel<PointerEvent>(Channel.UNLIMITED)
         launch {
             with(filter) {
-                handlePointerInput {
+                awaitPointerEventScope {
                     repeat(3) {
-                        results.offer(awaitPointerEvent())
+                        results.trySend(awaitPointerEvent())
                     }
                     results.close()
                 }
@@ -122,15 +132,20 @@ class SuspendingPointerInputFilterTest {
 
     @Test
     fun testSyntheticCancelEvent(): Unit = runBlockingTest {
-        val filter = SuspendingPointerInputFilter(FakeViewConfiguration())
+        var currentEventAtEnd: PointerEvent? = null
+        val filter = SuspendingPointerInputFilter(TestViewConfiguration())
         val results = Channel<PointerEvent>(Channel.UNLIMITED)
         launch {
             with(filter) {
-                handlePointerInput {
-                    repeat(3) {
-                        results.offer(awaitPointerEvent())
+                awaitPointerEventScope {
+                    try {
+                        repeat(3) {
+                            results.trySend(awaitPointerEvent())
+                        }
+                        results.close()
+                    } finally {
+                        currentEventAtEnd = currentEvent
                     }
-                    results.close()
                 }
             }
         }
@@ -159,16 +174,12 @@ class SuspendingPointerInputFilterTest {
                 listOf(
                     PointerInputChange(
                         PointerId(0),
-                        current = PointerInputData(
-                            uptime = Uptime.Boot,
-                            position = Offset(6f, 6f),
-                            down = false
-                        ),
-                        previous = PointerInputData(
-                            uptime = Uptime.Boot,
-                            position = Offset(6f, 6f),
-                            down = true
-                        ),
+                        0,
+                        Offset(6f, 6f),
+                        false,
+                        0,
+                        Offset(6f, 6f),
+                        true,
                         consumed = ConsumedData(downChange = true)
                     )
                 )
@@ -190,16 +201,19 @@ class SuspendingPointerInputFilterTest {
             val actualEvent = received[index]
             PointerEventSubject.assertThat(actualEvent).isStructurallyEqualTo(expectedEvent)
         }
+        assertThat(currentEventAtEnd).isNotNull()
+        assertThat(currentEventAtEnd!!.changes.size).isEqualTo(1)
+        assertThat(currentEventAtEnd!!.changes[0].pressed).isFalse()
     }
 
     @Test
     fun testCancelledHandlerBlock() = runBlockingTest {
-        val filter = SuspendingPointerInputFilter(FakeViewConfiguration())
+        val filter = SuspendingPointerInputFilter(TestViewConfiguration())
         val counter = TestCounter()
         val handler = launch {
             with(filter) {
                 try {
-                    handlePointerInput {
+                    awaitPointerEventScope {
                         try {
                             counter.expect(1, "about to call awaitPointerEvent")
                             awaitPointerEvent()
@@ -223,58 +237,107 @@ class SuspendingPointerInputFilterTest {
     fun testInspectorValue() = runBlocking<Unit> {
         isDebugInspectorInfoEnabled = true
         val block: suspend PointerInputScope.() -> Unit = {}
-        val modifier = Modifier.pointerInput(block) as InspectableValue
+        val modifier = Modifier.pointerInput(Unit, block) as InspectableValue
 
         assertThat(modifier.nameFallback).isEqualTo("pointerInput")
         assertThat(modifier.valueOverride).isNull()
         assertThat(modifier.inspectableElements.asIterable()).containsExactly(
+            ValueElement("key1", Unit),
             ValueElement("block", block)
         )
+    }
+
+    @Test
+    @LargeTest
+    fun testRestartPointerInput() = runBlocking {
+        var toAdd by mutableStateOf("initial")
+        val result = mutableListOf<String>()
+        val latch = CountDownLatch(2)
+        ActivityScenario.launch(TestActivity::class.java).use { scenario ->
+            scenario.moveToState(Lifecycle.State.CREATED)
+            scenario.onActivity {
+                it.setContent {
+                    // Read the value in composition to change the lambda capture below
+                    val toCapture = toAdd
+                    Box(
+                        Modifier.pointerInput(toCapture) {
+                            result += toCapture
+                            latch.countDown()
+                            suspendCancellableCoroutine<Unit> {}
+                        }
+                    )
+                }
+            }
+            scenario.moveToState(Lifecycle.State.STARTED)
+            Snapshot.withMutableSnapshot {
+                toAdd = "secondary"
+            }
+            assertTrue("waiting for relaunch timed out", latch.await(3, TimeUnit.SECONDS))
+            assertEquals(
+                listOf("initial", "secondary"),
+                result
+            )
+        }
+    }
+
+    @Test(expected = PointerEventTimeoutCancellationException::class)
+    fun testWithTimeout() = runBlockingTest {
+        val filter = SuspendingPointerInputFilter(TestViewConfiguration())
+        filter.coroutineScope = this
+        with(filter) {
+            awaitPointerEventScope {
+                withTimeout(10) {
+                    awaitPointerEvent()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testWithTimeoutOrNull() = runBlockingTest {
+        val filter = SuspendingPointerInputFilter(TestViewConfiguration())
+        filter.coroutineScope = this
+        val result: PointerEvent? = with(filter) {
+            awaitPointerEventScope {
+                withTimeoutOrNull(10) {
+                    awaitPointerEvent()
+                }
+            }
+        }
+        assertThat(result).isNull()
     }
 }
 
 private fun PointerInputChange.toPointerEvent() = PointerEvent(listOf(this))
 
-@ExperimentalPointerInput
 private val PointerEvent.firstChange get() = changes.first()
 
 private class PointerInputChangeEmitter(id: Int = 0) {
     val pointerId = PointerId(id.toLong())
-    var previousData = PointerInputData(
-        uptime = Uptime.Boot,
-        position = Offset.Zero,
-        down = false
-    )
+    var previousTime = 0L
+    var previousPosition = Offset.Zero
+    var previousPressed = false
 
     fun nextChange(
         position: Offset = Offset.Zero,
         down: Boolean = true,
-        time: Uptime = Uptime.Boot
+        time: Long = 0
     ): PointerInputChange {
-        val current = PointerInputData(
-            position = position,
-            down = down,
-            uptime = time
-        )
-
         return PointerInputChange(
             id = pointerId,
-            current = current,
-            previous = previousData,
+            time,
+            position,
+            down,
+            previousTime,
+            previousPosition,
+            previousPressed,
             consumed = ConsumedData()
-        ).also { previousData = current }
+        ).also {
+            previousTime = time
+            previousPosition = position
+            previousPressed = down
+        }
     }
-}
-
-private class FakeViewConfiguration : ViewConfiguration {
-    override val longPressTimeout: Duration
-        get() = 500.milliseconds
-    override val doubleTapTimeout: Duration
-        get() = 300.milliseconds
-    override val doubleTapMinTime: Duration
-        get() = 40.milliseconds
-    override val touchSlop: Float
-        get() = 18f
 }
 
 private class TestCounter {

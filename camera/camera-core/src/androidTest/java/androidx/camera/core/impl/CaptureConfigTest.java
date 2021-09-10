@@ -66,6 +66,15 @@ public class CaptureConfigTest {
     }
 
     @Test
+    public void builderNotSetTemplate() {
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
+
+        CaptureConfig captureConfig = builder.build();
+
+        assertThat(captureConfig.getTemplateType()).isEqualTo(CaptureConfig.TEMPLATE_TYPE_NONE);
+    }
+
+    @Test
     public void builderAddSurface() {
         CaptureConfig.Builder builder = new CaptureConfig.Builder();
 
@@ -210,15 +219,6 @@ public class CaptureConfigTest {
                 CaptureConfig.OPTION_ROTATION)).isEqualTo(90);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void builderAddDuplicateCameraCaptureCallback_throwsException() {
-        CaptureConfig.Builder builder = new CaptureConfig.Builder();
-        CameraCaptureCallback callback0 = mock(CameraCaptureCallback.class);
-
-        builder.addCameraCaptureCallback(callback0);
-        builder.addCameraCaptureCallback(callback0);
-    }
-
     @Test
     public void builderFromPrevious_containsCameraCaptureCallbacks() {
         CaptureConfig.Builder builder = new CaptureConfig.Builder();
@@ -250,7 +250,7 @@ public class CaptureConfigTest {
     static class FakeMultiValueSet extends MultiValueSet<Object> {
         @NonNull
         @Override
-        public MultiValueSet clone() {
+        public MultiValueSet<Object> clone() {
             FakeMultiValueSet multiValueSet = new FakeMultiValueSet();
             multiValueSet.addAll(getAllItems());
             return multiValueSet;

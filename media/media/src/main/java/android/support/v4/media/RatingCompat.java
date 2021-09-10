@@ -26,7 +26,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -331,25 +333,25 @@ public final class RatingCompat implements Parcelable {
      */
     public static RatingCompat fromRating(Object ratingObj) {
         if (ratingObj != null && Build.VERSION.SDK_INT >= 19) {
-            final int ratingStyle = ((Rating) ratingObj).getRatingStyle();
+            final int ratingStyle = Api19Impl.getRatingStyle((Rating) ratingObj);
             final RatingCompat rating;
-            if (((Rating) ratingObj).isRated()) {
+            if (Api19Impl.isRated((Rating) ratingObj)) {
                 switch (ratingStyle) {
                     case RATING_HEART:
-                        rating = newHeartRating(((Rating) ratingObj).hasHeart());
+                        rating = newHeartRating(Api19Impl.hasHeart((Rating) ratingObj));
                         break;
                     case RATING_THUMB_UP_DOWN:
-                        rating = newThumbRating(((Rating) ratingObj).isThumbUp());
+                        rating = newThumbRating(Api19Impl.isThumbUp((Rating) ratingObj));
                         break;
                     case RATING_3_STARS:
                     case RATING_4_STARS:
                     case RATING_5_STARS:
                         rating = newStarRating(ratingStyle,
-                                ((Rating) ratingObj).getStarRating());
+                                Api19Impl.getStarRating((Rating) ratingObj));
                         break;
                     case RATING_PERCENTAGE:
                         rating = newPercentageRating(
-                                ((Rating) ratingObj).getPercentRating());
+                                Api19Impl.getPercentRating((Rating) ratingObj));
                         break;
                     default:
                         return null;
@@ -377,27 +379,87 @@ public final class RatingCompat implements Parcelable {
             if (isRated()) {
                 switch (mRatingStyle) {
                     case RATING_HEART:
-                        mRatingObj = Rating.newHeartRating(hasHeart());
+                        mRatingObj = Api19Impl.newHeartRating(hasHeart());
                         break;
                     case RATING_THUMB_UP_DOWN:
-                        mRatingObj = Rating.newThumbRating(isThumbUp());
+                        mRatingObj = Api19Impl.newThumbRating(isThumbUp());
                         break;
                     case RATING_3_STARS:
                     case RATING_4_STARS:
                     case RATING_5_STARS:
-                        mRatingObj = Rating.newStarRating(mRatingStyle,
+                        mRatingObj = Api19Impl.newStarRating(mRatingStyle,
                                 getStarRating());
                         break;
                     case RATING_PERCENTAGE:
-                        mRatingObj = Rating.newPercentageRating(getPercentRating());
+                        mRatingObj = Api19Impl.newPercentageRating(getPercentRating());
                         break;
                     default:
                         return null;
                 }
             } else {
-                mRatingObj = Rating.newUnratedRating(mRatingStyle);
+                mRatingObj = Api19Impl.newUnratedRating(mRatingStyle);
             }
         }
         return mRatingObj;
+    }
+
+    @RequiresApi(19)
+    private static class Api19Impl {
+        private Api19Impl() {}
+
+        @DoNotInline
+        static int getRatingStyle(Rating rating) {
+            return rating.getRatingStyle();
+        }
+
+        @DoNotInline
+        static boolean isRated(Rating rating) {
+            return rating.isRated();
+        }
+
+        @DoNotInline
+        static boolean hasHeart(Rating rating) {
+            return rating.hasHeart();
+        }
+
+        @DoNotInline
+        static boolean isThumbUp(Rating rating) {
+            return rating.isThumbUp();
+        }
+
+        @DoNotInline
+        static float getStarRating(Rating rating) {
+            return rating.getStarRating();
+        }
+
+        @DoNotInline
+        static float getPercentRating(Rating rating) {
+            return rating.getPercentRating();
+        }
+
+        @DoNotInline
+        static Rating newHeartRating(boolean hasHeart) {
+            return Rating.newHeartRating(hasHeart);
+        }
+
+        @DoNotInline
+        static Rating newThumbRating(boolean thumbIsUp) {
+            return Rating.newThumbRating(thumbIsUp);
+        }
+
+        @DoNotInline
+        static Rating newStarRating(int starRatingStyle, float starRating) {
+            return Rating.newStarRating(starRatingStyle, starRating);
+        }
+
+        @DoNotInline
+        static Rating newPercentageRating(float percent) {
+            return Rating.newPercentageRating(percent);
+        }
+
+        @DoNotInline
+        static Rating newUnratedRating(int ratingStyle) {
+            return Rating.newUnratedRating(ratingStyle);
+        }
     }
 }

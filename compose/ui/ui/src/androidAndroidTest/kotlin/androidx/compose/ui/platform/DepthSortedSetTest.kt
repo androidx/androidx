@@ -17,8 +17,8 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.node.DepthSortedSet
-import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.LayoutNodeDrawScope
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.add
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -31,7 +31,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalLayoutNodeApi::class)
 class DepthSortedSetTest {
 
     @Test
@@ -157,7 +156,9 @@ class DepthSortedSetTest {
         set.pop()
     }
 
-    abstract class DepthTestOwner : Owner {
+    internal abstract class DepthTestOwner : Owner {
+        override val sharedDrawScope = LayoutNodeDrawScope()
+
         override val root: LayoutNode
             get() = LayoutNode()
     }

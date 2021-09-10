@@ -16,38 +16,41 @@
 
 package androidx.compose.material
 
-import androidx.compose.animation.AnimatedValueModel
-import androidx.compose.animation.VectorConverter
-import androidx.compose.animation.animate
-import androidx.compose.animation.asDisposableClock
-import androidx.compose.animation.core.AnimationClockObservable
-import androidx.compose.animation.core.AnimationVector4D
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Interaction
-import androidx.compose.foundation.InteractionState
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.AmbientAnimationClock
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * Component to represent two states, selected and not selected.
+ * <a href="https://material.io/components/radio-buttons" class="external" target="_blank">Material Design radio button</a>.
+ *
+ * Radio buttons allow users to select one option from a set.
+ *
+ * ![Radio buttons image](https://developer.android.com/images/reference/androidx/compose/material/radio-buttons.png)
  *
  * @sample androidx.compose.material.samples.RadioButtonSample
  *
@@ -57,48 +60,55 @@ import androidx.compose.ui.unit.dp
  * @sample androidx.compose.material.samples.RadioGroupSample
  *
  * @param selected boolean state for this button: either it is selected or not
- * @param onClick callback to be invoked when the RadioButton is being clicked
+ * @param onClick callback to be invoked when the RadioButton is being clicked.  If null,
+ * then this is passive and relies entirely on a higher-level component to control the state.
  * @param modifier Modifier to be applied to the radio button
  * @param enabled Controls the enabled state of the [RadioButton]. When `false`, this button will
  * not be selectable and appears in the disabled ui state
- * @param interactionState the [InteractionState] representing the different [Interaction]s
- * present on this RadioButton. You can create and pass in your own remembered
- * [InteractionState] if you want to read the [InteractionState] and customize the appearance /
- * behavior of this RadioButton in different [Interaction]s.
+ * @param interactionSource the [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this RadioButton. You can create and pass in your own remembered
+ * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
+ * appearance / behavior of this RadioButton in different [Interaction]s.
  * @param colors [RadioButtonColors] that will be used to resolve the color used for this
- * RadioButton in different states. See [RadioButtonConstants.defaultColors].
+ * RadioButton in different states. See [RadioButtonDefaults.colors].
  */
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun RadioButton(
     selected: Boolean,
-    onClick: () -> Unit,
+    onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionState: InteractionState = remember { InteractionState() },
-    colors: RadioButtonColors = RadioButtonConstants.defaultColors()
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    colors: RadioButtonColors = RadioButtonDefaults.colors()
 ) {
-    val dotRadius = animate(
-        target = if (selected) RadioButtonDotSize / 2 else 0.dp,
-        animSpec = tween(durationMillis = RadioAnimationDuration)
+    val dotRadius by animateDpAsState(
+        targetValue = if (selected) RadioButtonDotSize / 2 else 0.dp,
+        animationSpec = tween(durationMillis = RadioAnimationDuration)
     )
-    Canvas(
-        modifier
-            .selectable(
+    val radioColor by colors.radioColor(enabled, selected)
+    val selectableModifier =
+        if (onClick != null) {
+            Modifier.selectable(
                 selected = selected,
                 onClick = onClick,
                 enabled = enabled,
-                interactionState = interactionState,
+                role = Role.RadioButton,
+                interactionSource = interactionSource,
                 indication = rememberRipple(
                     bounded = false,
                     radius = RadioButtonRippleRadius
                 )
             )
+        } else {
+            Modifier
+        }
+    Canvas(
+        modifier
+            .then(selectableModifier)
             .wrapContentSize(Alignment.Center)
             .padding(RadioButtonPadding)
-            .size(RadioButtonSize)
+            .requiredSize(RadioButtonSize)
     ) {
-        val radioColor = colors.radioColor(enabled, selected)
         drawRadio(radioColor, dotRadius)
     }
 }
@@ -106,10 +116,9 @@ fun RadioButton(
 /**
  * Represents the color used by a [RadioButton] in different states.
  *
- * See [RadioButtonConstants.defaultColors] for the default implementation that follows Material
+ * See [RadioButtonDefaults.colors] for the default implementation that follows Material
  * specifications.
  */
-@ExperimentalMaterialApi
 @Stable
 interface RadioButtonColors {
     /**
@@ -119,13 +128,14 @@ interface RadioButtonColors {
      * @param enabled whether the [RadioButton] is enabled
      * @param selected whether the [RadioButton] is selected
      */
-    fun radioColor(enabled: Boolean, selected: Boolean): Color
+    @Composable
+    fun radioColor(enabled: Boolean, selected: Boolean): State<Color>
 }
 
 /**
- * Constants used in [RadioButton].
+ * Defaults used in [RadioButton].
  */
-object RadioButtonConstants {
+object RadioButtonDefaults {
     /**
      * Creates a [RadioButtonColors] that will animate between the provided colors according to
      * the Material specification.
@@ -135,21 +145,18 @@ object RadioButtonConstants {
      * @param disabledColor the color to use for the RadioButton when disabled.
      * @return the resulting [Color] used for the RadioButton
      */
-    @OptIn(ExperimentalMaterialApi::class)
     @Composable
-    fun defaultColors(
+    fun colors(
         selectedColor: Color = MaterialTheme.colors.secondary,
         unselectedColor: Color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
         disabledColor: Color = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled)
     ): RadioButtonColors {
-        val clock = AmbientAnimationClock.current.asDisposableClock()
         return remember(
             selectedColor,
             unselectedColor,
-            disabledColor,
-            clock
+            disabledColor
         ) {
-            DefaultRadioButtonColors(selectedColor, unselectedColor, disabledColor, clock)
+            DefaultRadioButtonColors(selectedColor, unselectedColor, disabledColor)
         }
     }
 }
@@ -165,19 +172,14 @@ private fun DrawScope.drawRadio(color: Color, dotRadius: Dp) {
 /**
  * Default [RadioButtonColors] implementation.
  */
-@OptIn(ExperimentalMaterialApi::class)
 @Stable
 private class DefaultRadioButtonColors(
     private val selectedColor: Color,
     private val unselectedColor: Color,
-    private val disabledColor: Color,
-    private val clock: AnimationClockObservable
+    private val disabledColor: Color
 ) : RadioButtonColors {
-    private val lazyAnimatedColor = LazyAnimatedValue<Color, AnimationVector4D> { target ->
-        AnimatedValueModel(target, (Color.VectorConverter)(target.colorSpace), clock)
-    }
-
-    override fun radioColor(enabled: Boolean, selected: Boolean): Color {
+    @Composable
+    override fun radioColor(enabled: Boolean, selected: Boolean): State<Color> {
         val target = when {
             !enabled -> disabledColor
             !selected -> unselectedColor
@@ -187,14 +189,9 @@ private class DefaultRadioButtonColors(
         // If not enabled 'snap' to the disabled state, as there should be no animations between
         // enabled / disabled.
         return if (enabled) {
-            val animatedColor = lazyAnimatedColor.animatedValueForTarget(target)
-
-            if (animatedColor.targetValue != target) {
-                animatedColor.animateTo(target, tween(durationMillis = RadioAnimationDuration))
-            }
-            animatedColor.value
+            animateColorAsState(target, tween(durationMillis = RadioAnimationDuration))
         } else {
-            target
+            rememberUpdatedState(target)
         }
     }
 }

@@ -21,13 +21,16 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.model.constraints.CarTextConstraints;
 
 import java.util.Objects;
 
 /**
  * Represents an {@link ItemList} that is contained inside a section, for internal use only.
  */
-public class SectionedItemList {
+@CarProtocol
+public final class SectionedItemList {
     @Keep
     @Nullable
     private final ItemList mItemList;
@@ -38,11 +41,17 @@ public class SectionedItemList {
     /**
      * Creates an instance of a {@link SectionedItemList} with the given {@code itemList} and
      * {@code sectionHeader}.
+     *
+     * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the section header.
+     *
+     * @throws IllegalArgumentException if {@code sectionHeader} contains unsupported spans
      */
     @NonNull
     public static SectionedItemList create(
-            @NonNull ItemList itemList, @NonNull CarText sectionHeader) {
-        return new SectionedItemList(requireNonNull(itemList), requireNonNull(sectionHeader));
+            @NonNull ItemList itemList, @NonNull CharSequence sectionHeader) {
+        CarText sectionHeaderText = CarText.create(requireNonNull(sectionHeader));
+        CarTextConstraints.TEXT_ONLY.validateOrThrow(sectionHeaderText);
+        return new SectionedItemList(requireNonNull(itemList), sectionHeaderText);
     }
 
     /** Returns the {@link ItemList} for the section. */
@@ -83,13 +92,12 @@ public class SectionedItemList {
     }
 
     private SectionedItemList(@Nullable ItemList itemList, @Nullable CarText header) {
-        this.mItemList = itemList;
-        this.mHeader = header;
+        mItemList = itemList;
+        mHeader = header;
     }
 
-    /** For serialization. */
     private SectionedItemList() {
-        this.mItemList = null;
-        this.mHeader = null;
+        mItemList = null;
+        mHeader = null;
     }
 }

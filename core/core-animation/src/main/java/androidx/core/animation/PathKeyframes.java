@@ -220,7 +220,7 @@ class PathKeyframes implements Keyframes<PointF> {
 
         @NonNull
         @Override
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked", "CatchAndPrintStackTrace"})
         public Keyframes<T> clone() {
             Keyframes<T> clone = null;
             try {

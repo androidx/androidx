@@ -16,11 +16,16 @@
 
 package androidx.camera.camera2.internal;
 
+import static androidx.exifinterface.media.ExifInterface.FLAG_FLASH_FIRED;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.when;
 
+import android.graphics.Rect;
+import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureResult;
+import android.os.Build;
 
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
@@ -28,6 +33,8 @@ import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.impl.CameraCaptureMetaData.FlashState;
 import androidx.camera.core.impl.TagBundle;
+import androidx.camera.core.impl.utils.ExifData;
+import androidx.exifinterface.media.ExifInterface;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -36,13 +43,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+import java.util.concurrent.TimeUnit;
+
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class Camera2CameraCaptureResultTest {
 
     private CaptureResult mCaptureResult;
     private Camera2CameraCaptureResult mCamera2CameraCaptureResult;
-    private TagBundle mTag = TagBundle.emptyBundle();
+    private final TagBundle mTag = TagBundle.emptyBundle();
 
     @Before
     public void setUp() {
@@ -129,14 +138,14 @@ public final class Camera2CameraCaptureResultTest {
     public void getAfState_withAfStatePassiveUnfocused() {
         when(mCaptureResult.get(CaptureResult.CONTROL_AF_STATE))
                 .thenReturn(CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED);
-        assertThat(mCamera2CameraCaptureResult.getAfState()).isEqualTo(AfState.SCANNING);
+        assertThat(mCamera2CameraCaptureResult.getAfState()).isEqualTo(AfState.PASSIVE_NOT_FOCUSED);
     }
 
     @Test
     public void getAfState_withAfStatePassiveFocused() {
         when(mCaptureResult.get(CaptureResult.CONTROL_AF_STATE))
                 .thenReturn(CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED);
-        assertThat(mCamera2CameraCaptureResult.getAfState()).isEqualTo(AfState.FOCUSED);
+        assertThat(mCamera2CameraCaptureResult.getAfState()).isEqualTo(AfState.PASSIVE_FOCUSED);
     }
 
     @Test
@@ -274,5 +283,79 @@ public final class Camera2CameraCaptureResultTest {
         when(mCaptureResult.get(CaptureResult.FLASH_STATE))
                 .thenReturn(CaptureResult.FLASH_STATE_PARTIAL);
         assertThat(mCamera2CameraCaptureResult.getFlashState()).isEqualTo(FlashState.FIRED);
+    }
+
+    @Test
+    public void canPopulateExif() {
+        // Arrange
+        when(mCaptureResult.get(CaptureResult.FLASH_STATE))
+                .thenReturn(CaptureResult.FLASH_STATE_FIRED);
+
+        Rect cropRegion = new Rect(0, 0, 640, 480);
+        when(mCaptureResult.get(CaptureResult.SCALER_CROP_REGION)).thenReturn(cropRegion);
+
+        when(mCaptureResult.get(CaptureResult.JPEG_ORIENTATION)).thenReturn(270);
+
+        long exposureTime = TimeUnit.SECONDS.toNanos(5);
+        when(mCaptureResult.get(CaptureResult.SENSOR_EXPOSURE_TIME)).thenReturn(exposureTime);
+
+        float aperture = 1.8f;
+        when(mCaptureResult.get(CaptureResult.LENS_APERTURE)).thenReturn(aperture);
+
+        int iso = 200;
+        int postRawSensitivityBoost = 100; // No boost for API < 24
+        when(mCaptureResult.get(CaptureResult.SENSOR_SENSITIVITY)).thenReturn(iso);
+        if (Build.VERSION.SDK_INT >= 24) {
+            // Add boost for API >= 24
+            postRawSensitivityBoost = 200;
+            when(mCaptureResult.get(CaptureResult.CONTROL_POST_RAW_SENSITIVITY_BOOST))
+                    .thenReturn(postRawSensitivityBoost);
+        }
+
+        float focalLength = 4200f;
+        when(mCaptureResult.get(CaptureResult.LENS_FOCAL_LENGTH)).thenReturn(focalLength);
+
+        when(mCaptureResult.get(CaptureResult.CONTROL_AWB_MODE))
+                .thenReturn(CameraMetadata.CONTROL_AWB_MODE_OFF);
+
+        // Act
+        ExifData.Builder exifBuilder = ExifData.builderForDevice();
+        mCamera2CameraCaptureResult.populateExifData(exifBuilder);
+        ExifData exifData = exifBuilder.build();
+
+        // Assert
+        assertThat(Short.parseShort(exifData.getAttribute(ExifInterface.TAG_FLASH)))
+                .isEqualTo(FLAG_FLASH_FIRED);
+
+        assertThat(exifData.getAttribute(ExifInterface.TAG_IMAGE_WIDTH))
+                .isEqualTo(String.valueOf(cropRegion.width()));
+
+        assertThat(exifData.getAttribute(ExifInterface.TAG_IMAGE_LENGTH))
+                .isEqualTo(String.valueOf(cropRegion.height()));
+
+        assertThat(exifData.getAttribute(ExifInterface.TAG_ORIENTATION))
+                .isEqualTo(String.valueOf(ExifInterface.ORIENTATION_ROTATE_270));
+
+        String exposureTimeString = exifData.getAttribute(ExifInterface.TAG_EXPOSURE_TIME);
+        assertThat(exposureTimeString).isNotNull();
+        assertThat(Float.parseFloat(exposureTimeString)).isWithin(0.1f)
+                .of(TimeUnit.NANOSECONDS.toSeconds(exposureTime));
+
+        assertThat(exifData.getAttribute(ExifInterface.TAG_F_NUMBER))
+                .isEqualTo(String.valueOf(aperture));
+
+        assertThat(
+                Short.parseShort(exifData.getAttribute(ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY)))
+                .isEqualTo((short) (iso * (int) (postRawSensitivityBoost / 100f)));
+
+        String focalLengthString = exifData.getAttribute(ExifInterface.TAG_FOCAL_LENGTH);
+        assertThat(focalLengthString).isNotNull();
+        String[] fractionValues = focalLengthString.split("/");
+        long numerator = Long.parseLong(fractionValues[0]);
+        long denominator = Long.parseLong(fractionValues[1]);
+        assertThat(numerator / (float) denominator).isWithin(0.1f).of(focalLength);
+
+        assertThat(Short.parseShort(exifData.getAttribute(ExifInterface.TAG_WHITE_BALANCE)))
+                .isEqualTo(ExifInterface.WHITE_BALANCE_MANUAL);
     }
 }

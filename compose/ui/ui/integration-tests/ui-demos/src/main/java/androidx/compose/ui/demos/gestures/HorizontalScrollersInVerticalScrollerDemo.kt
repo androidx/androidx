@@ -18,29 +18,26 @@ package androidx.compose.ui.demos.gestures
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
-import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.gesture.Direction
-import androidx.compose.ui.gesture.ScrollCallback
-import androidx.compose.ui.gesture.doubleTapGestureFilter
-import androidx.compose.ui.gesture.longPressGestureFilter
-import androidx.compose.ui.gesture.pressIndicatorGestureFilter
-import androidx.compose.ui.gesture.scrollGestureFilter
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
-import androidx.compose.ui.gesture.tapGestureFilter
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -86,42 +83,30 @@ private fun Scrollable(orientation: Orientation, content: @Composable () -> Unit
     val offset = remember { mutableStateOf(maxOffset) }
     val minOffset = remember { mutableStateOf(0f) }
 
-    val scrollObserver = object : ScrollCallback {
-        override fun onScroll(scrollDistance: Float): Float {
-            val resultingOffset = offset.value + scrollDistance
-            val toConsume =
-                when {
-                    resultingOffset > maxOffset -> {
-                        maxOffset - offset.value
-                    }
-                    resultingOffset < minOffset.value -> {
-                        minOffset.value - offset.value
-                    }
-                    else -> {
-                        scrollDistance
-                    }
-                }
-            offset.value = offset.value + toConsume
-            return toConsume
-        }
-    }
-
-    val canDrag: (Direction) -> Boolean = { direction ->
-        when {
-            direction == Direction.LEFT && offset.value > minOffset.value -> true
-            direction == Direction.UP && offset.value > minOffset.value -> true
-            direction == Direction.RIGHT && offset.value < maxOffset -> true
-            direction == Direction.DOWN && offset.value < maxOffset -> true
-            else -> false
-        }
-    }
-
     Layout(
         content = content,
-        modifier = Modifier.scrollGestureFilter(scrollObserver, orientation, canDrag).then(
-            ClipModifier
-        ),
-        measureBlock = { measurables, constraints ->
+        modifier = Modifier.scrollable(
+            orientation = orientation,
+            state = rememberScrollableState { scrollDistance ->
+                val resultingOffset = offset.value + scrollDistance
+                val toConsume =
+                    when {
+                        resultingOffset > maxOffset -> {
+                            maxOffset - offset.value
+                        }
+                        resultingOffset < minOffset.value -> {
+                            minOffset.value - offset.value
+                        }
+                        else -> {
+                            scrollDistance
+                        }
+                    }
+                offset.value = offset.value + toConsume
+                toConsume
+            }
+        )
+            .then(ClipModifier),
+        measurePolicy = { measurables, constraints ->
             val placeable =
                 when (orientation) {
                     Orientation.Horizontal -> measurables.first().measure(
@@ -212,17 +197,29 @@ private fun Pressable(
 
     val gestureDetectors =
         Modifier
-            .pressIndicatorGestureFilter(onPress, onRelease, onRelease)
-            .tapGestureFilter(onTap)
-            .doubleTapGestureFilter(onDoubleTap)
-            .longPressGestureFilter(onLongPress)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = {
+                        onPress.invoke(it)
+                        val success = tryAwaitRelease()
+                        if (success) onRelease.invoke() else onRelease.invoke()
+                    }
+                )
+            }
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = onTap,
+                    onDoubleTap = onDoubleTap,
+                    onLongPress = onLongPress
+                )
+            }
 
     val pressOverlay =
         if (showPressed.value) Modifier.background(color = pressedColor) else Modifier
 
     Box(
         gestureDetectors
-            .preferredSize(width, height)
+            .size(width, height)
             .border(1.dp, Color.Black)
             .background(color = color.value)
             .then(pressOverlay)

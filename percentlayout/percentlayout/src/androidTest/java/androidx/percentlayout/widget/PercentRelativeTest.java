@@ -55,6 +55,7 @@ import org.junit.Test;
  *     <li>Center child (marked with C) - margin (all sides) from the other four children.</li>
  * </ul>
  */
+@SuppressWarnings("deprecation")
 @LargeTest
 public class PercentRelativeTest extends BaseInstrumentationTestCase<TestRelativeActivity> {
     private PercentRelativeLayout mPercentRelativeLayout;

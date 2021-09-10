@@ -17,22 +17,21 @@
 package androidx.compose.material.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.animation.animatedFloat
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.TweenSpec
-import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomAppBar
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ExtendedFloatingActionButton
 import androidx.compose.material.FabPosition
 import androidx.compose.material.Icon
@@ -58,12 +57,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -80,6 +76,7 @@ private val colors = listOf(
 @Composable
 fun SimpleScaffoldWithTopBar() {
     val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
     Scaffold(
         scaffoldState = scaffoldState,
         drawerContent = { Text("Drawer content") },
@@ -89,10 +86,10 @@ fun SimpleScaffoldWithTopBar() {
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            scaffoldState.drawerState.open()
+                            scope.launch { scaffoldState.drawerState.open() }
                         }
                     ) {
-                        Icon(Icons.Filled.Menu)
+                        Icon(Icons.Filled.Menu, contentDescription = "Localized description")
                     }
                 }
             )
@@ -104,13 +101,13 @@ fun SimpleScaffoldWithTopBar() {
                 onClick = { /* fab click handler */ }
             )
         },
-        bodyContent = { innerPadding ->
-            ScrollableColumn(contentPadding = innerPadding) {
-                repeat(100) {
+        content = { innerPadding ->
+            LazyColumn(contentPadding = innerPadding) {
+                items(count = 100) {
                     Box(
                         Modifier
                             .fillMaxWidth()
-                            .preferredHeight(50.dp)
+                            .height(50.dp)
                             .background(colors[it % colors.size])
                     )
                 }
@@ -128,7 +125,9 @@ fun ScaffoldWithBottomBarAndCutout() {
     val sharpEdgePercent = -50f
     val roundEdgePercent = 45f
     // Start with sharp edges
-    val animatedProgress = animatedFloat(sharpEdgePercent)
+    val animatedProgress = remember { Animatable(sharpEdgePercent) }
+    // Create a coroutineScope for the animation
+    val coroutineScope = rememberCoroutineScope()
     // animation value to animate shape
     val progress = animatedProgress.value.roundToInt()
 
@@ -142,13 +141,15 @@ fun ScaffoldWithBottomBarAndCutout() {
         RoundedCornerShape(progress)
     }
     // lambda to call to trigger shape animation
-    val changeShape = {
+    val changeShape: () -> Unit = {
         val target = animatedProgress.targetValue
         val nextTarget = if (target == roundEdgePercent) sharpEdgePercent else roundEdgePercent
-        animatedProgress.animateTo(
-            targetValue = nextTarget,
-            anim = TweenSpec(durationMillis = 600)
-        )
+        coroutineScope.launch {
+            animatedProgress.animateTo(
+                targetValue = nextTarget,
+                animationSpec = TweenSpec(durationMillis = 600)
+            )
+        }
     }
 
     Scaffold(
@@ -159,10 +160,10 @@ fun ScaffoldWithBottomBarAndCutout() {
             BottomAppBar(cutoutShape = fabShape) {
                 IconButton(
                     onClick = {
-                        scaffoldState.drawerState.open()
+                        coroutineScope.launch { scaffoldState.drawerState.open() }
                     }
                 ) {
-                    Icon(Icons.Filled.Menu)
+                    Icon(Icons.Filled.Menu, contentDescription = "Localized description")
                 }
             }
         },
@@ -175,13 +176,13 @@ fun ScaffoldWithBottomBarAndCutout() {
         },
         floatingActionButtonPosition = FabPosition.Center,
         isFloatingActionButtonDocked = true,
-        bodyContent = { innerPadding ->
-            ScrollableColumn(contentPadding = innerPadding) {
-                repeat(100) {
+        content = { innerPadding ->
+            LazyColumn(contentPadding = innerPadding) {
+                items(count = 100) {
                     Box(
                         Modifier
                             .fillMaxWidth()
-                            .preferredHeight(50.dp)
+                            .height(50.dp)
                             .background(colors[it % colors.size])
                     )
                 }
@@ -192,7 +193,6 @@ fun ScaffoldWithBottomBarAndCutout() {
 
 @Sampled
 @Composable
-@OptIn(ExperimentalMaterialApi::class)
 fun ScaffoldWithSimpleSnackbar() {
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
@@ -210,7 +210,7 @@ fun ScaffoldWithSimpleSnackbar() {
                 }
             )
         },
-        bodyContent = { innerPadding ->
+        content = { innerPadding ->
             Text(
                 text = "Body content",
                 modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize()
@@ -220,7 +220,6 @@ fun ScaffoldWithSimpleSnackbar() {
 }
 
 @Sampled
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScaffoldWithCustomSnackbar() {
     val scaffoldState = rememberScaffoldState()
@@ -248,7 +247,7 @@ fun ScaffoldWithCustomSnackbar() {
                 }
             )
         },
-        bodyContent = { innerPadding ->
+        content = { innerPadding ->
             Text(
                 text = "Custom Snackbar Demo",
                 modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize()
@@ -258,16 +257,15 @@ fun ScaffoldWithCustomSnackbar() {
 }
 
 @Sampled
-@OptIn(ExperimentalMaterialApi::class, ExperimentalCoroutinesApi::class, FlowPreview::class)
 @Composable
 fun ScaffoldWithCoroutinesSnackbar() {
     // decouple snackbar host state from scaffold state for demo purposes
     // this state, channel and flow is for demo purposes to demonstrate business logic layer
     val snackbarHostState = remember { SnackbarHostState() }
     // we allow only one snackbar to be in the queue here, hence conflated
-    val channel = remember { BroadcastChannel<Int>(Channel.Factory.CONFLATED) }
+    val channel = remember { Channel<Int>(Channel.Factory.CONFLATED) }
     LaunchedEffect(channel) {
-        channel.asFlow().collect { index ->
+        channel.receiveAsFlow().collect { index ->
             val result = snackbarHostState.showSnackbar(
                 message = "Snackbar # $index",
                 actionLabel = "Action on $index"
@@ -291,11 +289,11 @@ fun ScaffoldWithCoroutinesSnackbar() {
                 text = { Text("Show snackbar") },
                 onClick = {
                     // offset snackbar data to the business logic
-                    channel.offer(++clickCount)
+                    channel.trySend(++clickCount)
                 }
             )
         },
-        bodyContent = { innerPadding ->
+        content = { innerPadding ->
             Text(
                 "Snackbar demo",
                 modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize()

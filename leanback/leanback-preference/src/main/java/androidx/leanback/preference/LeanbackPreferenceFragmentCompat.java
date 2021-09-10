@@ -16,7 +16,6 @@
 
 package androidx.leanback.preference;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,9 +42,7 @@ public abstract class LeanbackPreferenceFragmentCompat extends
         BaseLeanbackPreferenceFragmentCompat {
 
     public LeanbackPreferenceFragmentCompat() {
-        if (Build.VERSION.SDK_INT >= 21) {
-            LeanbackPreferenceFragmentTransitionHelperApi21.addTransitions(this);
-        }
+        LeanbackPreferenceFragmentTransitionHelperApi21.addTransitions(this);
     }
 
     @Override

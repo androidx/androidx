@@ -27,36 +27,48 @@ import android.view.Display.DEFAULT_DISPLAY
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.util.Consumer
-import androidx.window.DeviceState
-import androidx.window.WindowManager
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.window.layout.FoldingFeature
+import androidx.window.layout.WindowInfoRepository
+import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
+import androidx.window.layout.WindowLayoutInfo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 /**
  * Demo activity that reacts to foldable device state change and shows content on the outside
  * display when the device is folded.
  */
-class PresentationActivity : BaseSampleActivity() {
+class PresentationActivity : AppCompatActivity() {
     private val TAG = "FoldablePresentation"
 
-    private lateinit var windowManager: WindowManager
-    private val deviceStateChangeCallback = DeviceStateChangeCallback()
+    private lateinit var mWindowInfoRepository: WindowInfoRepository
     private var presentation: DemoPresentation? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_foldin)
 
-        windowManager = getTestBackend()?.let { backend -> WindowManager(this, backend) }
-            ?: WindowManager(this)
-        windowManager.registerDeviceStateChangeCallback(
-            mainThreadExecutor,
-            deviceStateChangeCallback
-        )
-    }
+        mWindowInfoRepository = windowInfoRepository()
 
-    override fun onDestroy() {
-        super.onDestroy()
-        windowManager.unregisterDeviceStateChangeCallback(deviceStateChangeCallback)
+        lifecycleScope.launch(Dispatchers.Main) {
+            // The block passed to repeatOnLifecycle is executed when the lifecycle
+            // is at least STARTED and is cancelled when the lifecycle is STOPPED.
+            // It automatically restarts the block when the lifecycle is STARTED again.
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // Safely collect from windowInfoRepo when the lifecycle is STARTED
+                // and stops collection when the lifecycle is STOPPED
+                mWindowInfoRepository.windowLayoutInfo
+                    .collect { newLayoutInfo ->
+                        // New posture information
+                        updateCurrentState(newLayoutInfo)
+                    }
+            }
+        }
     }
 
     internal fun startPresentation(context: Context) {
@@ -137,26 +149,18 @@ class PresentationActivity : BaseSampleActivity() {
     }
 
     /**
-     * Updates the display of the current device state.
+     * Updates the display of the current fold feature state.
      */
-    internal fun updateCurrentState(deviceState: DeviceState) {
+    internal fun updateCurrentState(info: WindowLayoutInfo) {
         val stateStringBuilder = StringBuilder()
+
         stateStringBuilder.append(getString(R.string.deviceState))
             .append(": ")
-            .append(deviceState)
-            .append("\n")
+
+        info.displayFeatures
+            .mapNotNull { it as? FoldingFeature }
+            .joinToString(separator = "\n") { feature -> feature.state.toString() }
 
         findViewById<TextView>(R.id.currentState).text = stateStringBuilder.toString()
-    }
-
-    inner class DeviceStateChangeCallback : Consumer<DeviceState> {
-        override fun accept(newDeviceState: DeviceState) {
-            updateCurrentState(newDeviceState)
-            if (newDeviceState.posture == DeviceState.POSTURE_CLOSED) {
-                startPresentation(this@PresentationActivity)
-            } else {
-                stopPresentation(null)
-            }
-        }
     }
 }

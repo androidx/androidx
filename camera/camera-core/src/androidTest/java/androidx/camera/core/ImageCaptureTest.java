@@ -27,6 +27,7 @@ import android.app.Instrumentation;
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
+import android.util.Rational;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -192,6 +193,7 @@ public class ImageCaptureTest {
     }
 
     // TODO(b/149336664): add a test to verify jpeg quality is 100 when CaptureMode is MAX_QUALITY.
+    @SuppressWarnings("unchecked")
     @Test
     public void captureWithMinLatency_jpegQualityIs95() throws InterruptedException {
         // Arrange.
@@ -354,6 +356,27 @@ public class ImageCaptureTest {
         // Assert.
         verify(callback, timeout(1000).times(1)).onError(any());
         assertThat(fakeCameraControl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_ON);
+    }
+
+    @Test
+    public void correctViewPortRectInResolutionInfo_withCropAspectRatioSetting() {
+        ImageCapture imageCapture = new ImageCapture.Builder()
+                .setCaptureOptionUnpacker((config, builder) -> {
+                })
+                .setSessionOptionUnpacker((config, builder) -> {
+                }).build();
+        imageCapture.setCropAspectRatio(new Rational(16, 9));
+
+        mInstrumentation.runOnMainSync(() -> {
+                    try {
+                        mCameraUseCaseAdapter.addUseCases(Collections.singletonList(imageCapture));
+                    } catch (CameraUseCaseAdapter.CameraException e) {
+                    }
+                }
+        );
+
+        ResolutionInfo resolutionInfo = imageCapture.getResolutionInfo();
+        assertThat(resolutionInfo.getCropRect()).isEqualTo(new Rect(0, 60, 640, 420));
     }
 
     private boolean hasJpegQuality(List<CaptureConfig> captureConfigs, byte jpegQuality) {
