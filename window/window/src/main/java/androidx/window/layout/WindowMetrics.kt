@@ -45,6 +45,10 @@ public class WindowMetrics internal constructor(private val _bounds: Bounds) {
     public val bounds: Rect
         get() = _bounds.toRect()
 
+    override fun toString(): String {
+        return "WindowMetrics { bounds: $bounds }"
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || javaClass != other.javaClass) return false

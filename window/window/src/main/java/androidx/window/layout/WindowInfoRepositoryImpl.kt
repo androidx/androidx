@@ -17,13 +17,13 @@
 package androidx.window.layout
 
 import android.app.Activity
-import android.content.ComponentCallbacks
 import android.content.Context
-import android.content.res.Configuration
+import android.view.View
 import androidx.core.util.Consumer
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 
 /**
@@ -60,7 +60,7 @@ internal class WindowInfoRepositoryImpl(
         get() {
             return configurationChanged {
                 windowMetricsCalculator.computeCurrentWindowMetrics(activity)
-            }
+            }.distinctUntilChanged()
         }
 
     private fun <T> configurationChanged(producer: () -> T): Flow<T> {
@@ -70,22 +70,19 @@ internal class WindowInfoRepositoryImpl(
                 onBufferOverflow = DROP_OLDEST
             )
             val publish: () -> Unit = { channel.trySend(producer()) }
-            val configChangeObserver = object : ComponentCallbacks {
-                override fun onConfigurationChanged(newConfig: Configuration) {
-                    publish()
-                }
-
-                override fun onLowMemory() {
-                }
-            }
+            // TODO(b/199442549) switch back to ComponentCallbacks when possible
+            val configChangeObserver =
+                View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> publish() }
             publish()
-            activity.registerComponentCallbacks(configChangeObserver)
+            activity.window?.decorView
+                ?.addOnLayoutChangeListener(configChangeObserver)
             try {
                 for (item in channel) {
                     emit(item)
                 }
             } finally {
-                activity.unregisterComponentCallbacks(configChangeObserver)
+                activity.window?.decorView
+                    ?.removeOnLayoutChangeListener(configChangeObserver)
             }
         }
     }

@@ -24,6 +24,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.window.TestActivity
 import androidx.window.TestConfigChangeHandlingActivity
 import androidx.window.TestConsumer
+import androidx.window.layout.WindowMetricsCalculatorCompat.computeCurrentWindowMetrics
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -50,7 +51,7 @@ public class WindowInfoRepositoryImplTest {
                 WindowMetricsCalculatorCompat,
                 FakeWindowBackend()
             )
-            val expected = WindowMetricsCalculatorCompat.computeCurrentWindowMetrics(testActivity)
+            val expected = computeCurrentWindowMetrics(testActivity)
             val consumer = TestConsumer<WindowMetrics>()
             testScope.launch {
                 repo.currentWindowMetrics.collect { consumer.accept(it) }
@@ -67,7 +68,7 @@ public class WindowInfoRepositoryImplTest {
                 WindowMetricsCalculatorCompat,
                 FakeWindowBackend()
             )
-            val expected = WindowMetricsCalculatorCompat.computeCurrentWindowMetrics(testActivity)
+            val expected = computeCurrentWindowMetrics(testActivity)
             val consumer = TestConsumer<WindowMetrics>()
             testScope.launch {
                 repo.currentWindowMetrics.collect { consumer.accept(it) }
@@ -84,6 +85,7 @@ public class WindowInfoRepositoryImplTest {
         testScope.runBlockingTest {
             val scenario = ActivityScenario.launch(TestConfigChangeHandlingActivity::class.java)
             val collector = TestConsumer<WindowMetrics>()
+            val expected = mutableListOf<WindowMetrics>()
             scenario.onActivity { activity ->
                 val repo = WindowInfoRepositoryImpl(
                     activity,
@@ -98,12 +100,15 @@ public class WindowInfoRepositoryImplTest {
                 }
             }
             scenario.onActivity { activity ->
+                expected.add(computeCurrentWindowMetrics(activity))
                 activity.resetLayoutCounter()
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 activity.waitForLayout()
             }
-            scenario.onActivity {
+            scenario.onActivity { activity ->
+                expected.add(computeCurrentWindowMetrics(activity))
                 collector.assertValueCount(2)
+                collector.assertValues(*expected.toTypedArray())
             }
         }
 
