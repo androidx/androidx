@@ -110,7 +110,7 @@ class ChecksumsApiSImpl {
 
         context.getPackageManager().requestChecksums(packageName, includeSplits, required,
                 trustedInstallers, new PackageManager.OnChecksumsReadyListener() {
-                    @SuppressLint("WrongConstant")
+                    @SuppressLint({"WrongConstant", "ClassVerificationFailure"})
                     @Override
                     public void onChecksumsReady(List<ApkChecksum> apkChecksums) {
                         if (apkChecksums == null) {
