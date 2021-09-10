@@ -220,14 +220,10 @@ public class FragmentStrictModeTest {
             val fragment = withActivity {
                 supportFragmentManager.findFragmentById(R.id.inflated_fragment)!!
             }
-            // TODO: Since we now create the message when we construct the violation instead of
-            //  dynamically, the container instance here has not yet been inflated and causes
-            //  this test to fail cause the one in the violation is inflated so the view bounds
-            //  in the toString() are different.
-//            val container = withActivity { findViewById(R.id.inflated_layout) }
+            val container = withActivity { findViewById(R.id.inflated_layout) }
             assertThat(violation).isInstanceOf(FragmentTagUsageViolation::class.java)
             assertThat(violation).hasMessageThat().contains(
-                "Attempting to use <fragment> tag to add fragment $fragment to container "
+                "Attempting to use <fragment> tag to add fragment $fragment to container $container"
             )
         }
     }
