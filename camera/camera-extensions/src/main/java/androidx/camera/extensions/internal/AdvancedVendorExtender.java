@@ -37,6 +37,7 @@ import androidx.camera.extensions.impl.advanced.BeautyAdvancedExtenderImpl;
 import androidx.camera.extensions.impl.advanced.BokehAdvancedExtenderImpl;
 import androidx.camera.extensions.impl.advanced.HdrAdvancedExtenderImpl;
 import androidx.camera.extensions.impl.advanced.NightAdvancedExtenderImpl;
+import androidx.camera.extensions.internal.sessionprocessor.AdvancedSessionProcessor;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -144,7 +145,7 @@ public class AdvancedVendorExtender implements VendorExtender {
     @Override
     public SessionProcessor createSessionProcessor(@NonNull Context context) {
         Preconditions.checkNotNull(mCameraId, "VendorExtender#init() must be called first");
-        //TODO: To be implemented in later CLs.
-        return null;
+        return new AdvancedSessionProcessor(
+                mAdvancedExtenderImpl.createSessionProcessor(), context);
     }
 }

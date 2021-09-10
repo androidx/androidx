@@ -18,10 +18,13 @@ package androidx.camera.camera2.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureResult;
 import android.os.Build;
 
+import androidx.camera.camera2.internal.Camera2CameraCaptureFailure;
 import androidx.camera.camera2.internal.Camera2CameraCaptureResult;
+import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.TagBundle;
 
@@ -58,5 +61,29 @@ public final class Camera2CameraCaptureResultConverterTest {
                 cameraCaptureResult);
 
         assertThat(captureResult).isNull();
+    }
+
+    @Test
+    public void canRetrieveCaptureFailure() {
+        CaptureFailure captureFailure = Mockito.mock(CaptureFailure.class);
+        CameraCaptureFailure cameraCaptureFailure =
+                new Camera2CameraCaptureFailure(CameraCaptureFailure.Reason.ERROR, captureFailure);
+
+        CaptureFailure retrievedCaptureResult =
+                Camera2CameraCaptureResultConverter.getCaptureFailure(
+                cameraCaptureFailure);
+
+        assertThat(retrievedCaptureResult).isSameInstanceAs(captureFailure);
+    }
+
+    @Test
+    public void retrieveNullIfNotCamera2CameraCaptureFailure() {
+        CameraCaptureFailure cameraCaptureFailure =
+                new CameraCaptureFailure(CameraCaptureFailure.Reason.ERROR);
+
+        CaptureFailure captureFailure = Camera2CameraCaptureResultConverter.getCaptureFailure(
+                cameraCaptureFailure);
+
+        assertThat(captureFailure).isNull();
     }
 }
