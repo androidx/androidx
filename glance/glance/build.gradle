@@ -45,9 +45,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 23
-    }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
 }
