@@ -45,6 +45,9 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.video.internal.DebugUtils;
+import androidx.camera.video.internal.compat.quirk.CameraUseInconsistentTimebaseQuirk;
+import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.video.internal.workaround.CorrectVideoTimeByTimebase;
 import androidx.camera.video.internal.workaround.EncoderFinder;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
@@ -762,6 +765,8 @@ public class EncoderImpl implements Encoder {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     class MediaCodecCallback extends MediaCodec.Callback {
+        @Nullable
+        private final CorrectVideoTimeByTimebase mCorrectVideoTimestamp;
 
         private boolean mHasSendStartCallback = false;
         private boolean mHasFirstData = false;
@@ -774,6 +779,15 @@ public class EncoderImpl implements Encoder {
          */
         private long mLastSentPresentationTimeUs = 0L;
         private boolean mIsOutputBufferInPauseState = false;
+
+        MediaCodecCallback() {
+            if (mIsVideoEncoder
+                    && DeviceQuirks.get(CameraUseInconsistentTimebaseQuirk.class) != null) {
+                mCorrectVideoTimestamp = new CorrectVideoTimeByTimebase();
+            } else {
+                mCorrectVideoTimestamp = null;
+            }
+        }
 
         @Override
         public void onInputBufferAvailable(MediaCodec mediaCodec, int index) {
@@ -819,6 +833,10 @@ public class EncoderImpl implements Encoder {
 
                         if (DEBUG) {
                             Logger.d(mTag, DebugUtils.readableBufferInfo(bufferInfo));
+                        }
+
+                        if (mCorrectVideoTimestamp != null) {
+                            mCorrectVideoTimestamp.correctTimestamp(bufferInfo);
                         }
 
                         // Handle start of stream
