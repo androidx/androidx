@@ -1295,75 +1295,62 @@ public final class Recorder implements VideoOutput {
     private void setupMediaMuxer(@NonNull OutputOptions options) throws IOException {
         int muxerOutputFormat = MediaSpec.outputFormatToMuxerFormat(
                 getObservableData(mMediaSpec).getOutputFormat());
-        switch (options.getType()) {
-            case OutputOptions.OPTIONS_TYPE_FILE:
-                if (!(options instanceof FileOutputOptions)) {
-                    throw new AssertionError("Invalid OutputOptions type");
-                }
-                FileOutputOptions fileOutputOptions = (FileOutputOptions) options;
-                File file = fileOutputOptions.getFile();
-                mMediaMuxer = new MediaMuxer(file.getAbsolutePath(), muxerOutputFormat);
-                mOutputUri = Uri.fromFile(file);
-                break;
-            case OutputOptions.OPTIONS_TYPE_FILE_DESCRIPTOR:
-                if (!(options instanceof FileDescriptorOutputOptions)) {
-                    throw new AssertionError("Invalid OutputOptions type");
-                }
-                FileDescriptorOutputOptions fileDescriptorOutputOptions =
-                        (FileDescriptorOutputOptions) options;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    mMediaMuxer = Api26Impl.createMediaMuxer(
-                            fileDescriptorOutputOptions.getParcelFileDescriptor()
-                                    .getFileDescriptor(), muxerOutputFormat);
-                } else {
-                    throw new IOException(
-                            "MediaMuxer doesn't accept FileDescriptor as output destination.");
-                }
-                break;
-            case OutputOptions.OPTIONS_TYPE_MEDIA_STORE:
-                if (!(options instanceof MediaStoreOutputOptions)) {
-                    throw new AssertionError("Invalid OutputOptions type");
-                }
-                MediaStoreOutputOptions mediaStoreOutputOptions = (MediaStoreOutputOptions) options;
+        if (options instanceof FileOutputOptions) {
+            FileOutputOptions fileOutputOptions = (FileOutputOptions) options;
+            File file = fileOutputOptions.getFile();
+            mMediaMuxer = new MediaMuxer(file.getAbsolutePath(), muxerOutputFormat);
+            mOutputUri = Uri.fromFile(file);
+        } else if (options instanceof FileDescriptorOutputOptions) {
+            FileDescriptorOutputOptions fileDescriptorOutputOptions =
+                    (FileDescriptorOutputOptions) options;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                mMediaMuxer = Api26Impl.createMediaMuxer(
+                        fileDescriptorOutputOptions.getParcelFileDescriptor()
+                                .getFileDescriptor(), muxerOutputFormat);
+            } else {
+                throw new IOException(
+                        "MediaMuxer doesn't accept FileDescriptor as output destination.");
+            }
+        } else if (options instanceof MediaStoreOutputOptions) {
+            MediaStoreOutputOptions mediaStoreOutputOptions = (MediaStoreOutputOptions) options;
 
-                ContentValues contentValues =
-                        new ContentValues(mediaStoreOutputOptions.getContentValues());
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    // Toggle on pending status for the video file.
-                    contentValues.put(MediaStore.Video.Media.IS_PENDING, PENDING);
-                }
-                Uri outputUri = mediaStoreOutputOptions.getContentResolver().insert(
-                        mediaStoreOutputOptions.getCollection(), contentValues);
-                if (outputUri == null) {
-                    throw new IOException("Unable to create MediaStore entry.");
-                }
-                mOutputUri = outputUri;  // Guarantee mOutputUri is non-null value.
+            ContentValues contentValues =
+                    new ContentValues(mediaStoreOutputOptions.getContentValues());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Toggle on pending status for the video file.
+                contentValues.put(MediaStore.Video.Media.IS_PENDING, PENDING);
+            }
+            Uri outputUri = mediaStoreOutputOptions.getContentResolver().insert(
+                    mediaStoreOutputOptions.getCollection(), contentValues);
+            if (outputUri == null) {
+                throw new IOException("Unable to create MediaStore entry.");
+            }
+            mOutputUri = outputUri;  // Guarantee mOutputUri is non-null value.
 
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                    String path =
-                            OutputUtil.getAbsolutePathFromUri(
-                                    mediaStoreOutputOptions.getContentResolver(),
-                                    mOutputUri, MEDIA_COLUMN);
-                    if (path == null) {
-                        throw new IOException("Unable to get path from uri " + mOutputUri);
-                    }
-                    File parentFile = new File(path).getParentFile();
-                    if (parentFile != null && !parentFile.mkdirs()) {
-                        Logger.w(TAG, "Failed to create folder for " + path);
-                    }
-                    mMediaMuxer = new MediaMuxer(path, muxerOutputFormat);
-                } else {
-                    ParcelFileDescriptor fileDescriptor =
-                            mediaStoreOutputOptions.getContentResolver().openFileDescriptor(
-                                    mOutputUri, "rw");
-                    mMediaMuxer = Api26Impl.createMediaMuxer(fileDescriptor.getFileDescriptor(),
-                            muxerOutputFormat);
-                    fileDescriptor.close();
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                String path =
+                        OutputUtil.getAbsolutePathFromUri(
+                                mediaStoreOutputOptions.getContentResolver(),
+                                mOutputUri, MEDIA_COLUMN);
+                if (path == null) {
+                    throw new IOException("Unable to get path from uri " + mOutputUri);
                 }
-                break;
-            default:
-                throw new AssertionError(
-                        "Invalid output options type." + options.getType());
+                File parentFile = new File(path).getParentFile();
+                if (parentFile != null && !parentFile.mkdirs()) {
+                    Logger.w(TAG, "Failed to create folder for " + path);
+                }
+                mMediaMuxer = new MediaMuxer(path, muxerOutputFormat);
+            } else {
+                ParcelFileDescriptor fileDescriptor =
+                        mediaStoreOutputOptions.getContentResolver().openFileDescriptor(
+                                mOutputUri, "rw");
+                mMediaMuxer = Api26Impl.createMediaMuxer(fileDescriptor.getFileDescriptor(),
+                        muxerOutputFormat);
+                fileDescriptor.close();
+            }
+        } else {
+            throw new AssertionError(
+                    "Invalid output options type: " + options.getClass().getSimpleName());
         }
         // TODO: Add more metadata to MediaMuxer, e.g. location information.
         if (mSurfaceTransformationInfo != null) {
@@ -1795,7 +1782,7 @@ public final class Recorder implements VideoOutput {
         OutputOptions outputOptions = mInProgressRecording.getOutputOptions();
         RecordingStats stats = getInProgressRecordingStats();
 
-        if (outputOptions.getType() == OutputOptions.OPTIONS_TYPE_MEDIA_STORE) {
+        if (outputOptions instanceof MediaStoreOutputOptions) {
             // Toggle off pending status for the video file.
             finalizeMediaStoreFile((MediaStoreOutputOptions) outputOptions);
         }

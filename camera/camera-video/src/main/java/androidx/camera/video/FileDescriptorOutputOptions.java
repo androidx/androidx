@@ -38,7 +38,6 @@ public final class FileDescriptorOutputOptions extends OutputOptions {
 
     FileDescriptorOutputOptions(
             @NonNull FileDescriptorOutputOptionsInternal fileDescriptorOutputOptionsInternal) {
-        super(OPTIONS_TYPE_FILE_DESCRIPTOR);
         Preconditions.checkNotNull(fileDescriptorOutputOptionsInternal,
                 "FileDescriptorOutputOptionsInternal can't be null.");
         mFileDescriptorOutputOptionsInternal = fileDescriptorOutputOptionsInternal;

@@ -58,7 +58,6 @@ public final class MediaStoreOutputOptions extends OutputOptions {
 
     MediaStoreOutputOptions(
             @NonNull MediaStoreOutputOptionsInternal mediaStoreOutputOptionsInternal) {
-        super(OPTIONS_TYPE_MEDIA_STORE);
         Preconditions.checkNotNull(mediaStoreOutputOptionsInternal,
                 "MediaStoreOutputOptionsInternal can't be null.");
         mMediaStoreOutputOptionsInternal = mediaStoreOutputOptionsInternal;

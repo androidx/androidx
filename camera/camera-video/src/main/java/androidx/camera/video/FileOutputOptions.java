@@ -36,7 +36,6 @@ public final class FileOutputOptions extends OutputOptions {
     private final FileOutputOptionsInternal mFileOutputOptionsInternal;
 
     FileOutputOptions(@NonNull FileOutputOptionsInternal fileOutputOptionsInternal) {
-        super(OPTIONS_TYPE_FILE);
         Preconditions.checkNotNull(fileOutputOptionsInternal,
                 "FileOutputOptionsInternal can't be null.");
         mFileOutputOptionsInternal = fileOutputOptionsInternal;
