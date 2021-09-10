@@ -891,6 +891,5 @@ public class WatchFaceServiceImageTest {
         )
 
         assertThat(ComplicationTapActivity.awaitIntent()).isNotNull()
-        interactiveWatchFaceInstance.release()
     }
 }

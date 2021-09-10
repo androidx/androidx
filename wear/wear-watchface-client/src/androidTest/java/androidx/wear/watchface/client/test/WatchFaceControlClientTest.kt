@@ -939,6 +939,7 @@ class WatchFaceControlClientTest {
         assertThat(instance).isNotNull()
         instance?.close()
 
+        // The previous instance should still be usable despite the new instance being closed.
         interactiveInstance.updateComplicationData(complications)
         val bitmap = interactiveInstance.renderWatchFaceToBitmap(
             RenderParameters(

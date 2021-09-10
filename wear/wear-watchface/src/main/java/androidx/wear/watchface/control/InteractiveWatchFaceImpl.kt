@@ -34,7 +34,7 @@ import java.time.Instant
 
 /** An interactive watch face instance with SysUI and WCS facing interfaces.*/
 internal class InteractiveWatchFaceImpl(
-    internal val engine: WatchFaceService.EngineWrapper,
+    internal var engine: WatchFaceService.EngineWrapper?,
     internal var instanceId: String
 ) : IInteractiveWatchFace.Stub() {
 
@@ -50,8 +50,8 @@ internal class InteractiveWatchFaceImpl(
     ): R = TraceEvent(traceName).use {
         runBlocking {
             try {
-                val watchFaceImpl = engine.deferredWatchFaceImpl.await()
-                withContext(engine.uiThreadCoroutineScope.coroutineContext) {
+                val watchFaceImpl = engine!!.deferredWatchFaceImpl.await()
+                withContext(engine!!.uiThreadCoroutineScope.coroutineContext) {
                     task(watchFaceImpl)
                 }
             } catch (e: Exception) {
@@ -80,7 +80,7 @@ internal class InteractiveWatchFaceImpl(
     override fun getContentDescriptionLabels() =
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.getContentDescriptionLabels"
-        ) { engine.contentDescriptionLabels }
+        ) { engine!!.contentDescriptionLabels }
 
     @RequiresApi(Build.VERSION_CODES.O_MR1)
     override fun renderWatchFaceToBitmap(params: WatchFaceRenderParams) =
@@ -96,25 +96,25 @@ internal class InteractiveWatchFaceImpl(
     override fun setWatchUiState(watchUiState: WatchUiState) =
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.setWatchUiState"
-        ) { engine.setWatchUiState(watchUiState) }
+        ) { engine!!.setWatchUiState(watchUiState) }
 
     override fun getInstanceId(): String = instanceId
 
     override fun ambientTickUpdate() {
-        engine.uiThreadCoroutineScope.runBlockingWithTracing(
+        engine!!.uiThreadCoroutineScope.runBlockingWithTracing(
             "InteractiveWatchFaceImpl.ambientTickUpdate"
-        ) { engine.ambientTickUpdate() }
+        ) { engine!!.ambientTickUpdate() }
     }
 
     override fun release() = TraceEvent("InteractiveWatchFaceImpl.release").use {
         runBlocking {
             try {
-                engine.deferredWatchFaceImpl.await()
+                engine!!.deferredWatchFaceImpl.await()
             } catch (e: Exception) {
                 // deferredWatchFaceImpl may have completed with an exception. This will have
                 // already been reported so we can ignore it.
             }
-            withContext(engine.uiThreadCoroutineScope.coroutineContext) {
+            withContext(engine!!.uiThreadCoroutineScope.coroutineContext) {
                 InteractiveInstanceManager.releaseInstance(instanceId)
             }
         }
@@ -122,9 +122,9 @@ internal class InteractiveWatchFaceImpl(
 
     override fun updateComplicationData(
         complicationDatumWireFormats: MutableList<IdAndComplicationDataWireFormat>
-    ) = engine.uiThreadCoroutineScope.runBlockingWithTracing(
+    ) = engine!!.uiThreadCoroutineScope.runBlockingWithTracing(
         "InteractiveWatchFaceImpl.updateComplicationData"
-    ) { engine.setComplicationDataList(complicationDatumWireFormats) }
+    ) { engine!!.setComplicationDataList(complicationDatumWireFormats) }
 
     override fun updateWatchfaceInstance(
         newInstanceId: String,
@@ -134,16 +134,16 @@ internal class InteractiveWatchFaceImpl(
          * This is blocking to ensure ordering with respect to any subsequent [getInstanceId] and
          * [getPreviewReferenceTimeMillis] calls.
          */
-        engine.uiThreadCoroutineScope.runBlockingWithTracing(
+        engine!!.uiThreadCoroutineScope.runBlockingWithTracing(
             "InteractiveWatchFaceImpl.updateWatchfaceInstance"
         ) {
             if (instanceId != newInstanceId) {
                 // If the favorite ID has changed then the complications are probably invalid.
-                engine.clearComplicationData()
+                engine!!.clearComplicationData()
                 InteractiveInstanceManager.renameInstance(instanceId, newInstanceId)
                 instanceId = newInstanceId
             }
-            engine.setUserStyle(userStyle)
+            engine!!.setUserStyle(userStyle)
         }
     }
 
@@ -162,6 +162,10 @@ internal class InteractiveWatchFaceImpl(
     }
 
     override fun addWatchfaceReadyListener(listener: IWatchfaceReadyListener) {
-        engine.addWatchfaceReadyListener(listener)
+        engine!!.addWatchfaceReadyListener(listener)
+    }
+
+    fun onDestroy() {
+        engine = null
     }
 }
