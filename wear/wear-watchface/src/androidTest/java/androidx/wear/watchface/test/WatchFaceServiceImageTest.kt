@@ -394,6 +394,7 @@ public class WatchFaceServiceImageTest {
 
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, BITMAP_WIDTH, BITMAP_HEIGHT))
+
         Mockito.`when`(surfaceHolder.surface).thenReturn(Surface(surfaceTexture))
 
         setPendingWallpaperInteractiveWatchFaceInstance()

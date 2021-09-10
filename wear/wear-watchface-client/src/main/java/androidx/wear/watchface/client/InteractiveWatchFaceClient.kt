@@ -17,6 +17,8 @@
 package androidx.wear.watchface.client
 
 import android.graphics.Bitmap
+import android.os.Handler
+import android.os.HandlerThread
 import android.os.RemoteException
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.AnyThread
@@ -33,6 +35,7 @@ import androidx.wear.watchface.TapType
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.ComplicationSlotBoundsType
+import androidx.wear.watchface.control.IWatchfaceReadyListener
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyle
@@ -184,7 +187,10 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     @Throws(RemoteException::class)
     public fun performAmbientTick()
 
-    /** Callback that observes when the client disconnects. */
+    /**
+     * Callback that observes when the client disconnects. Use [addClientDisconnectListener] to
+     * register a ClientDisconnectListener.
+     */
     public interface ClientDisconnectListener {
         /**
          * The client disconnected, typically due to the server side crashing. Note this is not
@@ -206,6 +212,35 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     /** Returns true if the connection to the server side is alive. */
     @AnyThread
     public fun isConnectionAlive(): Boolean
+
+    /**
+     * Interface passed to [addWatchFaceReadyListener] which calls
+     * [WatchFaceReadyListener.onWatchFaceReady] when the watch face is ready to render. Use
+     * [addWatchFaceReadyListener] to register a WatchFaceReadyListener.
+     */
+    public fun interface WatchFaceReadyListener {
+        /**
+         * Called when the watchface is ready to render.
+         *
+         * Note in the event of the watch face disconnecting (e.g. due to a crash) this callback
+         * will never fire. Use [ClientDisconnectListener] to observe disconnects.
+         */
+        public fun onWatchFaceReady()
+    }
+
+    /**
+     * Registers a [WatchFaceReadyListener] which gets called when the watch face is ready to
+     * render.
+     *
+     * Note in the event of the watch face disconnecting (e.g. due to a crash) the listener will
+     * never get called. Use [ClientDisconnectListener] to observe disconnects.
+     */
+    public fun addWatchFaceReadyListener(listener: WatchFaceReadyListener, executor: Executor)
+
+    /**
+     * Stops listening for events registered by [addWatchFaceReadyListener].
+     */
+    public fun removeWatchFaceReadyListener(listener: WatchFaceReadyListener)
 }
 
 /** Controls a stateful remote interactive watch face. */
@@ -214,7 +249,11 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
 ) : InteractiveWatchFaceClient {
 
     private val lock = Any()
-    private val listeners = HashMap<InteractiveWatchFaceClient.ClientDisconnectListener, Executor>()
+    private val disconnectListeners =
+        HashMap<InteractiveWatchFaceClient.ClientDisconnectListener, Executor>()
+    private val readyListeners =
+        HashMap<InteractiveWatchFaceClient.WatchFaceReadyListener, Executor>()
+    private var watchfaceReadyListenerRegistered = false
 
     init {
         iInteractiveWatchFace.asBinder().linkToDeath(
@@ -223,7 +262,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
                     HashMap<InteractiveWatchFaceClient.ClientDisconnectListener, Executor>
 
                 synchronized(lock) {
-                    listenerCopy = HashMap(listeners)
+                    listenerCopy = HashMap(disconnectListeners)
                 }
 
                 for ((listener, executor) in listenerCopy) {
@@ -348,10 +387,10 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         executor: Executor
     ) {
         synchronized(lock) {
-            require(!listeners.contains(listener)) {
+            require(!disconnectListeners.contains(listener)) {
                 "Don't call addClientDisconnectListener multiple times for the same listener"
             }
-            listeners.put(listener, executor)
+            disconnectListeners.put(listener, executor)
         }
     }
 
@@ -359,9 +398,74 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         listener: InteractiveWatchFaceClient.ClientDisconnectListener
     ) {
         synchronized(lock) {
-            listeners.remove(listener)
+            disconnectListeners.remove(listener)
         }
     }
 
     override fun isConnectionAlive() = iInteractiveWatchFace.asBinder().isBinderAlive
+
+    private fun registerWatchfaceReadyListener() {
+        if (watchfaceReadyListenerRegistered) {
+            return
+        }
+        if (iInteractiveWatchFace.apiVersion >= 2) {
+            iInteractiveWatchFace.addWatchfaceReadyListener(
+                object : IWatchfaceReadyListener.Stub() {
+                    override fun getApiVersion(): Int = IWatchfaceReadyListener.API_VERSION
+
+                    override fun onWatchfaceReady() {
+                        this@InteractiveWatchFaceClientImpl.onWatchFaceReady()
+                    }
+                }
+            )
+        } else {
+            // We can emulate this on an earlier API by using a call to get userStyleSchema that
+            // will block until the watch face is ready. to Avoid blocking the current thread we
+            // spin up a temporary thread.
+            val thread = HandlerThread("addWatchFaceReadyListener")
+            thread.start()
+            val handler = Handler(thread.looper)
+            handler.post {
+                iInteractiveWatchFace.userStyleSchema
+                this@InteractiveWatchFaceClientImpl.onWatchFaceReady()
+                thread.quitSafely()
+            }
+        }
+        watchfaceReadyListenerRegistered = true
+    }
+
+    internal fun onWatchFaceReady() {
+        var listenerCopy: HashMap<InteractiveWatchFaceClient.WatchFaceReadyListener, Executor>
+
+        synchronized(lock) {
+            listenerCopy = HashMap(readyListeners)
+        }
+
+        for ((listener, executor) in listenerCopy) {
+            executor.execute {
+                listener.onWatchFaceReady()
+            }
+        }
+    }
+
+    override fun addWatchFaceReadyListener(
+        listener: InteractiveWatchFaceClient.WatchFaceReadyListener,
+        executor: Executor
+    ) {
+        synchronized(lock) {
+            require(!readyListeners.contains(listener)) {
+                "Don't call addWatchFaceReadyListener multiple times for the same listener"
+            }
+            registerWatchfaceReadyListener()
+            readyListeners.put(listener, executor)
+        }
+    }
+
+    override fun removeWatchFaceReadyListener(
+        listener: InteractiveWatchFaceClient.WatchFaceReadyListener
+    ) {
+        synchronized(lock) {
+            readyListeners.remove(listener)
+        }
+    }
 }

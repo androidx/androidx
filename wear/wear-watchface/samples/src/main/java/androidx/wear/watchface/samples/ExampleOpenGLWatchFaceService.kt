@@ -222,7 +222,7 @@ class ExampleOpenGLRenderer(
     private lateinit var complicationTriangles: Gles2TexturedTriangleList
     private lateinit var complicationHighlightTriangles: Gles2ColoredTriangleList
 
-    override fun onBackgroundThreadGlContextCreated() {
+    override suspend fun onBackgroundThreadGlContextCreated() {
         // Create program for drawing triangles.
         coloredTriangleProgram = Gles2ColoredTriangleList.Program()
 
@@ -347,7 +347,7 @@ class ExampleOpenGLRenderer(
         )
     }
 
-    override fun onUiThreadGlSurfaceCreated(width: Int, height: Int) {
+    override suspend fun onUiThreadGlSurfaceCreated(width: Int, height: Int) {
         // Update the projection matrix based on the new aspect ratio.
         val aspectRatio = width.toFloat() / height
         Matrix.frustumM(

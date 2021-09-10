@@ -45,6 +45,11 @@ import androidx.wear.watchface.Renderer.CanvasRenderer
 import androidx.wear.watchface.Renderer.GlesRenderer
 import androidx.wear.watchface.Renderer.GlesRenderer.GlesException
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.nio.ByteBuffer
 import java.time.ZonedDateTime
 
@@ -295,7 +300,7 @@ public sealed class Renderer @WorkerThread constructor(
      * any subsequent calls to [renderInternal] or [takeScreenshot].
      */
     @UiThread
-    internal open fun uiThreadInitInternal() {}
+    internal open suspend fun uiThreadInitInternal(uiThreadCoroutineScope: CoroutineScope) {}
 
     /**
      * Watch faces that require [Canvas] rendering should extend their [Renderer] from this class.
@@ -305,6 +310,9 @@ public sealed class Renderer @WorkerThread constructor(
      * [WatchFaceService.createWatchFace]. All rendering is be done on the UiThread. There is a
      * memory barrier between construction and rendering so no special threading primitives are
      * required.
+     *
+     * In Java it may be easier to extend [androidx.wear.watchface.ListenableCanvasRenderer]
+     * instead.
      *
      * @param surfaceHolder The [SurfaceHolder] from which a [Canvas] to will be obtained and passed
      * into [render].
@@ -393,16 +401,17 @@ public sealed class Renderer @WorkerThread constructor(
             }
         }
 
-        override fun uiThreadInitInternal() {
+        internal override suspend fun uiThreadInitInternal(uiThreadCoroutineScope: CoroutineScope) {
             init()
         }
 
         /**
          * Perform UiThread specific initialization.  Will be called once during initialization
-         * before any subsequent calls to [render].
+         * before any subsequent calls to [render].  If you need to override this method in java,
+         * consider using [androidx.wear.watchface.ListenableCanvasRenderer] instead.
          */
         @UiThread
-        public open fun init() {}
+        public open suspend fun init() {}
 
         /**
          * Sub-classes should override this to implement their watch face rendering logic which
@@ -483,6 +492,8 @@ public sealed class Renderer @WorkerThread constructor(
      * faces if an APK contains more than one [WatchFaceService]). In addition most drivers do not
      * support concurrent access.
      *
+     * In Java it may be easier to extend [androidx.wear.watchface.ListenableGlesRenderer] instead.
+     *
      * @param surfaceHolder The [SurfaceHolder] whose [android.view.Surface] [render] will draw
      * into.
      * @param currentUserStyleRepository The associated [CurrentUserStyleRepository].
@@ -521,7 +532,7 @@ public sealed class Renderer @WorkerThread constructor(
         private companion object {
             private const val TAG = "Gles2WatchFace"
 
-            private val glContextLock = Any()
+            private val glContextLock = Mutex()
         }
 
         /** Exception thrown if a GL call fails */
@@ -608,7 +619,7 @@ public sealed class Renderer @WorkerThread constructor(
         }
 
         @Throws(GlesException::class)
-        private fun createWindowSurface(width: Int, height: Int) = TraceEvent(
+        private suspend fun createWindowSurface(width: Int, height: Int) = TraceEvent(
             "GlesRenderer.createWindowSurface"
         ).use {
             if (this::eglSurface.isInitialized) {
@@ -667,9 +678,9 @@ public sealed class Renderer @WorkerThread constructor(
         }
 
         /**
-         * Inside of a synchronized block this function sets the GL context associated with the
+         * Inside of a [Mutex] this function sets the GL context associated with the
          * [WatchFaceService.getBackgroundThreadHandler]'s looper thread as the current one,
-         * executes [runnable] and finally unsets the GL context.
+         * executes [commands] and finally unsets the GL context.
          *
          * Access to the GL context this way is necessary because GL contexts are not shared
          * between renderers and there can be multiple watch face instances existing concurrently
@@ -678,12 +689,14 @@ public sealed class Renderer @WorkerThread constructor(
          *
          * NB this function is called by the library before running
          * [runBackgroundThreadGlCommands] so there's no need to use this directly in client
-         * code unless you need to make GL calls outside of those methods.
+         * code unless you need to make GL calls outside of those methods. If you need to call this
+         * method from java, consider using [androidx.wear.watchface.ListenableGlesRenderer] which
+         * provides an overload taking a [Runnable].
          *
          * @throws [IllegalStateException] if the calls to [EGL14.eglMakeCurrent] fails
          */
         @WorkerThread
-        public fun runBackgroundThreadGlCommands(runnable: Runnable) {
+        public suspend fun runBackgroundThreadGlCommands(commands: suspend () -> Unit) {
             require(
                 watchFaceHostApi == null ||
                     watchFaceHostApi!!.getBackgroundThreadHandler().looper.isCurrentThread
@@ -691,7 +704,7 @@ public sealed class Renderer @WorkerThread constructor(
                 "runBackgroundThreadGlCommands must be called from the Background Thread"
             }
             // It's only safe to run GL command from one thread at a time.
-            synchronized(glContextLock) {
+            glContextLock.withLock {
                 if (!EGL14.eglMakeCurrent(
                         eglDisplay,
                         fakeBackgroundThreadSurface,
@@ -705,7 +718,7 @@ public sealed class Renderer @WorkerThread constructor(
                 }
 
                 try {
-                    runnable.run()
+                    commands()
                 } finally {
                     EGL14.eglMakeCurrent(
                         eglDisplay,
@@ -725,7 +738,7 @@ public sealed class Renderer @WorkerThread constructor(
          */
         @UiThread
         @Throws(GlesException::class)
-        internal fun initBackgroundThreadOpenGlContext() =
+        internal suspend fun initBackgroundThreadOpenGlContext() =
             TraceEvent("GlesRenderer.initBackgroundThreadOpenGlContext").use {
                 eglBackgroundThreadContext = EGL14.eglCreateContext(
                     eglDisplay,
@@ -746,27 +759,27 @@ public sealed class Renderer @WorkerThread constructor(
             }
 
         /**
-         * Inside of a synchronized block this function sets the UiThread GL context as the current
-         * one, executes [runnable] and finally unsets the GL context.
+         * Inside of a [Mutex] this function sets the UiThread GL context as the current
+         * one, executes [commands] and finally unsets the GL context.
          *
          * Access to the GL context this way is necessary because GL contexts are not shared
          * between renderers and there can be multiple watch face instances existing concurrently
          * (e.g. headless and interactive, potentially from different watch faces if an APK
          * contains more than one [WatchFaceService]).
          *
-         * NB this function is called by the library before running [render] or
-         * [onUiThreadGlSurfaceCreated] so there's no need to use this directly in client code
-         * unless you need to make GL calls outside of those methods.
+         * If you need to call this method from java, consider using
+         * [androidx.wear.watchface.ListenableGlesRenderer] which provides an overload taking a
+         * [Runnable].
          *
          * @throws [IllegalStateException] if the calls to [EGL14.eglMakeCurrent] fails
          */
-        @UiThread
-        public fun runUiThreadGlCommands(runnable: Runnable) {
+        public suspend fun runUiThreadGlCommands(commands: suspend() -> Unit) {
             require(watchFaceHostApi!!.getUiThreadHandler().looper.isCurrentThread) {
                 "runUiThreadGlCommands must be called from the UiThread"
             }
+
             // It's only safe to run GL command from one thread at a time.
-            synchronized(glContextLock) {
+            glContextLock.withLock {
                 if (!EGL14.eglMakeCurrent(
                         eglDisplay,
                         eglSurface,
@@ -780,7 +793,7 @@ public sealed class Renderer @WorkerThread constructor(
                 }
 
                 try {
-                    runnable.run()
+                    commands()
                 } finally {
                     EGL14.eglMakeCurrent(
                         eglDisplay,
@@ -800,7 +813,7 @@ public sealed class Renderer @WorkerThread constructor(
          */
         @UiThread
         @Throws(GlesException::class)
-        internal override fun uiThreadInitInternal() =
+        internal override suspend fun uiThreadInitInternal(uiThreadCoroutineScope: CoroutineScope) =
             TraceEvent("GlesRenderer.initUiThreadOpenGlContext").use {
                 eglUiThreadContext = EGL14.eglCreateContext(
                     eglDisplay,
@@ -822,7 +835,9 @@ public sealed class Renderer @WorkerThread constructor(
                         width: Int,
                         height: Int
                     ) {
-                        createWindowSurface(width, height)
+                        uiThreadCoroutineScope.launch {
+                            createWindowSurface(width, height)
+                        }
                     }
 
                     @SuppressLint("SyntheticAccessor")
@@ -851,30 +866,39 @@ public sealed class Renderer @WorkerThread constructor(
          * thread, before any subsequent calls to [render]. Note this function is called inside a
          * lambda passed to [runBackgroundThreadGlCommands] which has synchronized access to the
          * GL context.
+         *
+         * If you need to override this method in java, consider using
+         * [androidx.wear.watchface.ListenableGlesRenderer] instead.
          */
         @WorkerThread
-        public open fun onBackgroundThreadGlContextCreated() {
+        public open suspend fun onBackgroundThreadGlContextCreated() {
         }
 
         /**
-         * Called once when a new GL surface is created on the UiThread, before any subsequent calls
-         * to [render]. Note this function is called inside a lambda passed to
-         * [runUiThreadGlCommands] which has synchronized access to the GL context.
+         * Called when a new GL surface is created on the UiThread, before any subsequent calls
+         * to [render] or in response to [SurfaceHolder.Callback.surfaceChanged]. Note this function
+         * is  called inside a lambda passed to [runUiThreadGlCommands] which has synchronized
+         * access to the GL context.
+         *
+         * If you need to override this method in java, consider using
+         * [androidx.wear.watchface.ListenableGlesRenderer] instead.
          *
          * @param width width of surface in pixels
          * @param height height of surface in pixels
          */
         @UiThread
-        public open fun onUiThreadGlSurfaceCreated(@Px width: Int, @Px height: Int) {
+        public open suspend fun onUiThreadGlSurfaceCreated(@Px width: Int, @Px height: Int) {
         }
 
         internal override fun renderInternal(
             zonedDateTime: ZonedDateTime
         ) {
-            runUiThreadGlCommands {
-                renderAndComposite(zonedDateTime)
-                if (!EGL14.eglSwapBuffers(eglDisplay, eglSurface)) {
-                    Log.w(TAG, "eglSwapBuffers failed")
+            runBlocking {
+                runUiThreadGlCommands {
+                    renderAndComposite(zonedDateTime)
+                    if (!EGL14.eglSwapBuffers(eglDisplay, eglSurface)) {
+                        Log.w(TAG, "eglSwapBuffers failed")
+                    }
                 }
             }
         }
@@ -887,25 +911,27 @@ public sealed class Renderer @WorkerThread constructor(
             val height = screenBounds.height()
             val pixelBuf = ByteBuffer.allocateDirect(width * height * 4)
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            runUiThreadGlCommands {
-                val prevRenderParameters = this.renderParameters
-                this.renderParameters = renderParameters
-                renderAndComposite(zonedDateTime)
-                this.renderParameters = prevRenderParameters
-                GLES20.glFinish()
-                GLES20.glReadPixels(
-                    0,
-                    0,
-                    width,
-                    height,
-                    GLES20.GL_RGBA,
-                    GLES20.GL_UNSIGNED_BYTE,
-                    pixelBuf
-                )
-                // The image is flipped when using read pixels because the first pixel in the OpenGL
-                // buffer is in bottom left.
-                verticalFlip(pixelBuf, width, height)
-                bitmap.copyPixelsFromBuffer(pixelBuf)
+            runBlocking {
+                runUiThreadGlCommands {
+                    val prevRenderParameters = this@GlesRenderer.renderParameters
+                    this@GlesRenderer.renderParameters = renderParameters
+                    renderAndComposite(zonedDateTime)
+                    this@GlesRenderer.renderParameters = prevRenderParameters
+                    GLES20.glFinish()
+                    GLES20.glReadPixels(
+                        0,
+                        0,
+                        width,
+                        height,
+                        GLES20.GL_RGBA,
+                        GLES20.GL_UNSIGNED_BYTE,
+                        pixelBuf
+                    )
+                    // The image is flipped when using read pixels because the first pixel in the OpenGL
+                    // buffer is in bottom left.
+                    verticalFlip(pixelBuf, width, height)
+                    bitmap.copyPixelsFromBuffer(pixelBuf)
+                }
             }
             return bitmap
         }

@@ -160,4 +160,8 @@ internal class InteractiveWatchFaceImpl(
     override fun bringAttentionToComplication(id: Int) {
         // Unsupported.
     }
+
+    override fun addWatchfaceReadyListener(listener: IWatchfaceReadyListener) {
+        engine.addWatchfaceReadyListener(listener)
+    }
 }
