@@ -252,16 +252,6 @@
         </activity>
 
         <activity
-            android:name=".content.SimpleWakefulController"
-            android:exported="true"
-            android:label="@string/simple_wakeful_controller">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity
             android:name=".accessibility.AccessibilityManagerSupportActivity"
             android:exported="true"
             android:label="@string/accessibility_manager_title">
@@ -532,10 +522,6 @@
         </provider>
 
         <receiver
-            android:name=".content.SimpleWakefulReceiver"
-            android:exported="true" />
-
-        <receiver
             android:name="androidx.media.session.MediaButtonReceiver"
             android:exported="true">
             <intent-filter>
@@ -560,8 +546,6 @@
             android:name=".content.LocalServiceBroadcaster$LocalService"
             android:exported="true"
             android:stopWithTask="true" />
-
-        <service android:name=".content.SimpleWakefulService" />
 
         <service
             android:name=".media.MediaBrowserServiceSupport"

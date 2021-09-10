@@ -227,7 +227,6 @@ dependencies {
     docs("androidx.sqlite:sqlite-framework:2.2.0-alpha02")
     docs("androidx.sqlite:sqlite-ktx:2.2.0-alpha02")
     docs("androidx.startup:startup-runtime:1.1.0")
-    docs("androidx.legacy:legacy-support-core-utils:1.0.0")
     docs("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
     docs("androidx.textclassifier:textclassifier:1.0.0-alpha03")
     docs("androidx.tracing:tracing:1.0.0")

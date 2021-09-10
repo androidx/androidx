@@ -244,7 +244,6 @@ dependencies {
     docs(project(":sqlite:sqlite-framework"))
     docs(project(":sqlite:sqlite-ktx"))
     docs(project(":startup:startup-runtime"))
-    docs(project(":legacy:legacy-support-core-utils"))
     docs(project(":swiperefreshlayout:swiperefreshlayout"))
     docs(project(":textclassifier:textclassifier"))
     docs(project(":tracing:tracing"))
