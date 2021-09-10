@@ -178,12 +178,12 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
 
         tasks.register(AndroidXImplPlugin.BUILD_TEST_APKS_TASK)
 
+        // NOTE: this task is used by the Github CI as well. If you make any changes here,
+        // please update the .github/workflows files as well, if necessary.
         project.tasks.register(
             ZIP_TEST_CONFIGS_WITH_APKS_TASK, Zip::class.java
         ) {
             it.destinationDirectory.set(project.getDistributionDirectory())
-            // This file name is referenced by the playground setup. If you rename it, don't
-            // forget to update .github/workflows
             it.archiveFileName.set("androidTest.zip")
             it.from(project.getTestConfigDirectory())
             // We're mostly zipping a bunch of .apk files that are already compressed
