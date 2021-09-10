@@ -18,16 +18,18 @@ package androidx.camera.integration.core
 
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -58,6 +60,7 @@ class CameraXInitTest(private val implName: String, private val cameraXConfig: C
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val packageManager = context.packageManager
+    private lateinit var cameraProvider: ProcessCameraProvider
 
     @Before
     fun setup() {
@@ -72,29 +75,29 @@ class CameraXInitTest(private val implName: String, private val cameraXConfig: C
 
     @After
     fun tearDown() {
-        CameraX.shutdown().get(10, TimeUnit.SECONDS)
+        if (::cameraProvider.isInitialized) {
+            cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+        }
     }
 
     @Test
-    fun initOnDevice() {
-        CameraX.getOrCreateInstance(context, { cameraXConfig }).get(10, TimeUnit.SECONDS)
-        assertThat(CameraX.isInitialized()).isTrue()
+    fun initOnDevice(): Unit = runBlocking {
+        withTimeout(10000) {
+            ProcessCameraProvider.configureInstance(cameraXConfig)
+            cameraProvider = ProcessCameraProvider.getInstance(context).await()
+        }
     }
 
     @Test
     fun initOnDevice_hasCamera() {
-        val cameraX =
-            CameraX.getOrCreateInstance(context, { cameraXConfig }).get(10, TimeUnit.SECONDS)
-        try {
-            if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-                CameraSelector.DEFAULT_BACK_CAMERA.select(cameraX.cameraRepository.cameras)
-            }
-            if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
-                CameraSelector.DEFAULT_FRONT_CAMERA.select(cameraX.cameraRepository.cameras)
-            }
-        } catch (e: IllegalArgumentException) {
-            // Wrap the exception with specific error message for dashboard bug collection.
-            throw IllegalArgumentException("CameraIdList_incorrect:" + Build.MODEL, e)
+        ProcessCameraProvider.configureInstance(cameraXConfig)
+        cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+
+        if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+            assertThat(cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)).isTrue()
+        }
+        if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
+            assertThat(cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)).isTrue()
         }
     }
 }

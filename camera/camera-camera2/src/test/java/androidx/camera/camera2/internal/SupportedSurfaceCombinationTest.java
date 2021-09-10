@@ -64,6 +64,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.Configs;
 import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.camera.testing.fakes.FakeCamera;
@@ -181,7 +182,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        CameraXUtil.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test
@@ -2374,7 +2375,7 @@ public final class SupportedSurfaceCombinationTest {
                 .build();
         CameraX cameraX;
         try {
-            cameraX = CameraX.getOrCreateInstance(mContext, () -> cameraXConfig).get();
+            cameraX = CameraXUtil.getOrCreateInstance(mContext, () -> cameraXConfig).get();
         } catch (ExecutionException | InterruptedException e) {
             throw new IllegalStateException("Unable to initialize CameraX for test.");
         }

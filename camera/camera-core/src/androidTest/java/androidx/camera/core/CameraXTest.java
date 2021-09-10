@@ -30,7 +30,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,45 +54,45 @@ public final class CameraXTest {
         mConfigBuilder = CameraXConfig.Builder.fromConfig(FakeAppConfig.create());
     }
 
-    @After
-    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
-    }
-
-
     @Test
     public void initDeinit_success() throws ExecutionException, InterruptedException {
-        CameraX.initialize(mContext, mConfigBuilder.build()).get();
-        assertThat(CameraX.isInitialized()).isTrue();
+        CameraX cameraX = new CameraX(mContext, () -> mConfigBuilder.build());
+        cameraX.getInitializeFuture().get();
+        assertThat(cameraX.isInitialized()).isTrue();
 
-        CameraX.shutdown().get();
-        assertThat(CameraX.isInitialized()).isFalse();
+        cameraX.shutdown().get();
+        assertThat(cameraX.isInitialized()).isFalse();
     }
 
     @Test
     public void failInit_shouldInDeinitState() throws InterruptedException {
         // Create an empty config to cause a failed init.
         CameraXConfig cameraXConfig = new CameraXConfig.Builder().build();
+        CameraX cameraX = new CameraX(mContext, () -> cameraXConfig);
         Exception exception = null;
         try {
-            CameraX.initialize(mContext, cameraXConfig).get();
+            cameraX.getInitializeFuture().get();
         } catch (ExecutionException e) {
             exception = e;
         }
         assertThat(exception).isInstanceOf(ExecutionException.class);
-        assertThat(CameraX.isInitialized()).isFalse();
+        assertThat(cameraX.isInitialized()).isFalse();
     }
 
     @Test
     public void reinit_success() throws ExecutionException, InterruptedException {
-        CameraX.initialize(mContext, mConfigBuilder.build()).get();
-        assertThat(CameraX.isInitialized()).isTrue();
+        CameraX cameraX = new CameraX(mContext, () -> mConfigBuilder.build());
+        cameraX.getInitializeFuture().get();
+        assertThat(cameraX.isInitialized()).isTrue();
 
-        CameraX.shutdown().get();
-        assertThat(CameraX.isInitialized()).isFalse();
+        cameraX.shutdown().get();
+        assertThat(cameraX.isInitialized()).isFalse();
 
-        CameraX.initialize(mContext, mConfigBuilder.build()).get();
-        assertThat(CameraX.isInitialized()).isTrue();
+        CameraX cameraX2 = new CameraX(mContext, () -> mConfigBuilder.build());
+        cameraX2.getInitializeFuture().get();
+        assertThat(cameraX2.isInitialized()).isTrue();
+
+        cameraX2.shutdown().get();
     }
 
     @Test
@@ -101,11 +100,11 @@ public final class CameraXTest {
         mConfigBuilder.setCameraExecutor(CameraXExecutors.directExecutor());
 
         // Don't call Future.get() because its behavior should be the same as synchronous call.
-        CameraX.initialize(mContext, mConfigBuilder.build());
-        assertThat(CameraX.isInitialized()).isTrue();
+        CameraX cameraX = new CameraX(mContext, () -> mConfigBuilder.build());
+        assertThat(cameraX.isInitialized()).isTrue();
 
-        CameraX.shutdown();
-        assertThat(CameraX.isInitialized()).isFalse();
+        cameraX.shutdown();
+        assertThat(cameraX.isInitialized()).isFalse();
     }
 
     @Test
@@ -114,11 +113,11 @@ public final class CameraXTest {
         ExecutorService executorService = Executors.newFixedThreadPool(3);
         mConfigBuilder.setCameraExecutor(executorService);
 
-        CameraX.initialize(mContext, mConfigBuilder.build()).get();
-        assertThat(CameraX.isInitialized()).isTrue();
+        CameraX cameraX = new CameraX(mContext, () -> mConfigBuilder.build());
+        cameraX.getInitializeFuture().get();
 
-        CameraX.shutdown().get();
-        assertThat(CameraX.isInitialized()).isFalse();
+        cameraX.shutdown().get();
+        assertThat(cameraX.isInitialized()).isFalse();
 
         executorService.shutdown();
     }
@@ -133,18 +132,20 @@ public final class CameraXTest {
                 (ignored0, ignored1, ignored2) -> cameraFactory1;
 
         mConfigBuilder.setCameraFactoryProvider(cameraFactoryProvider0);
-        CameraX cameraX0 =
-                CameraX.getOrCreateInstance(mContext, () -> mConfigBuilder.build()).get();
+        CameraX cameraX0 = new CameraX(mContext, () -> mConfigBuilder.build());
+        cameraX0.getInitializeFuture().get();
 
         assertThat(cameraX0.getCameraFactory()).isEqualTo(cameraFactory0);
 
-        CameraX.shutdown();
+        cameraX0.shutdown().get();
 
         mConfigBuilder.setCameraFactoryProvider(cameraFactoryProvider1);
-        CameraX cameraX1 =
-                CameraX.getOrCreateInstance(mContext, () -> mConfigBuilder.build()).get();
+        CameraX cameraX1 = new CameraX(mContext, () -> mConfigBuilder.build());
+        cameraX1.getInitializeFuture().get();
 
         assertThat(cameraX1.getCameraFactory()).isEqualTo(cameraFactory1);
+
+        cameraX1.shutdown().get();
     }
 
     @Test
@@ -156,7 +157,7 @@ public final class CameraXTest {
 
         assertThat(Logger.getMinLogLevel()).isEqualTo(Log.ERROR);
 
-        cameraX.getShutdownFuture().get(10000, TimeUnit.MILLISECONDS);
+        cameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
 
         assertThat(Logger.getMinLogLevel()).isEqualTo(Log.DEBUG);
     }
@@ -179,13 +180,13 @@ public final class CameraXTest {
         // than the target minimum log level setting of the second CameraX instance
         assertThat(Logger.getMinLogLevel()).isEqualTo(Log.INFO);
 
-        cameraX1.getShutdownFuture().get(10000, TimeUnit.MILLISECONDS);
+        cameraX1.shutdown().get(10000, TimeUnit.MILLISECONDS);
 
         // Checks whether minimum log level is correctly updated as ERROR level after the first
         // CameraX instance is shutdown
         assertThat(Logger.getMinLogLevel()).isEqualTo(Log.ERROR);
 
-        cameraX2.getShutdownFuture().get(10000, TimeUnit.MILLISECONDS);
+        cameraX2.shutdown().get(10000, TimeUnit.MILLISECONDS);
 
         // Checks whether minimum log level is correctly reset as DEBUG level after the second
         // CameraX instance is shutdown

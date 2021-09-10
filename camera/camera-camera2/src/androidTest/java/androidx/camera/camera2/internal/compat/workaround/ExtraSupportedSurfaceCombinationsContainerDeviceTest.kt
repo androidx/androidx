@@ -29,7 +29,6 @@ import androidx.camera.camera2.internal.compat.quirk.ExtraSupportedSurfaceCombin
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -43,6 +42,7 @@ import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -96,7 +96,10 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
     @Before
     fun setUp() {
         assumeTrue(CameraUtil.deviceHasCamera())
-        CameraX.initialize(context, Camera2Config.defaultConfig()).get()
+        CameraXUtil.initialize(
+            context,
+            Camera2Config.defaultConfig()
+        ).get()
 
         // Only runs the test when the ExtraSupportedSurfaceCombinationsQuirk is applied for the
         // device.
@@ -105,7 +108,7 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
 
     @After
     fun tearDown() {
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS)
+        CameraXUtil.shutdown().get(10000, TimeUnit.MILLISECONDS)
     }
 
     @Test

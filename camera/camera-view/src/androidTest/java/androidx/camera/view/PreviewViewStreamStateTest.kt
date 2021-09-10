@@ -17,9 +17,7 @@
 package androidx.camera.view
 
 import android.content.Context
-import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -86,8 +84,6 @@ public class PreviewViewStreamStateTest(private val implMode: PreviewView.Implem
         CoreAppTestUtil.assumeCompatibleDevice()
 
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val config = Camera2Config.defaultConfig()
-        CameraX.initialize(context, config)
 
         mLifecycle = FakeLifecycleOwner()
         mActivityRule.scenario.onActivity { activity ->

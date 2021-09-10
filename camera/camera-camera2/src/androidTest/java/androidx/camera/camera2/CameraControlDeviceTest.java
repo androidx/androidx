@@ -37,6 +37,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraAvailabilityUtil;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CameraXUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -93,9 +94,9 @@ public class CameraControlDeviceTest {
             throws ExecutionException, InterruptedException {
         Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
-        CameraX.initialize(context, cameraXConfig).get();
+        CameraXUtil.initialize(context, cameraXConfig).get();
 
-        CameraX cameraX = CameraX.getOrCreateInstance(context, null).get();
+        CameraX cameraX = CameraXUtil.getOrCreateInstance(context, null).get();
 
         assumeTrue(CameraAvailabilityUtil.hasCamera(cameraX.getCameraRepository(),
                 mCameraSelector));
@@ -142,7 +143,7 @@ public class CameraControlDeviceTest {
                 mCamera.removeUseCases(mCamera.getUseCases())
         );
 
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        CameraXUtil.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
 

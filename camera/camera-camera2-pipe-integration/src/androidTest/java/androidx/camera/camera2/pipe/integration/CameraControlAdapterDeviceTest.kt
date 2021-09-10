@@ -26,12 +26,12 @@ import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.testing.VerifyResultListener
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraXUtil
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -81,7 +81,10 @@ class CameraControlAdapterDeviceTest {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
 
         context = ApplicationProvider.getApplicationContext()
-        CameraX.initialize(context, CameraPipeConfig.defaultConfig())
+        CameraXUtil.initialize(
+            context,
+            CameraPipeConfig.defaultConfig()
+        )
         cameraSelector = CameraSelector.Builder().requireLensFacing(
             CameraSelector.LENS_FACING_BACK
         ).build()
@@ -96,7 +99,7 @@ class CameraControlAdapterDeviceTest {
             camera.detachUseCases()
         }
 
-        CameraX.shutdown()[10000, TimeUnit.MILLISECONDS]
+        CameraXUtil.shutdown()[10000, TimeUnit.MILLISECONDS]
     }
 
     // TODO: test all public API of the CameraControl to ensure the RequestOptions still exist

@@ -314,7 +314,7 @@ public final class CameraUtil {
     /**
      * Creates the CameraUseCaseAdapter that would be created with the given CameraSelector.
      *
-     * <p> This requires that {@link CameraX#initialize(Context, CameraXConfig)} has been called
+     * <p> This requires that {@link CameraXUtil#initialize(Context, CameraXConfig)} has been called
      * to properly initialize the cameras.
      *
      * <p>A new CameraUseCaseAdapter instance will be created every time this method is called.
@@ -331,7 +331,7 @@ public final class CameraUtil {
     public static CameraUseCaseAdapter createCameraUseCaseAdapter(@NonNull Context context,
             @NonNull CameraSelector cameraSelector) {
         try {
-            CameraX cameraX = CameraX.getOrCreateInstance(context, null).get(5000,
+            CameraX cameraX = CameraXUtil.getOrCreateInstance(context, null).get(5000,
                     TimeUnit.MILLISECONDS);
             LinkedHashSet<CameraInternal> cameras =
                     cameraSelector.filter(cameraX.getCameraRepository().getCameras());
@@ -346,7 +346,7 @@ public final class CameraUtil {
      * Creates the CameraUseCaseAdapter that would be created with the given CameraSelector and
      * attaches the UseCases.
      *
-     * <p> This requires that {@link CameraX#initialize(Context, CameraXConfig)} has been called
+     * <p> This requires that {@link CameraXUtil#initialize(Context, CameraXConfig)} has been called
      * to properly initialize the cameras.
      *
      * <p>A new CameraUseCaseAdapter instance will be created every time this method is called.

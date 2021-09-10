@@ -37,6 +37,7 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.R;
 import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.test.espresso.idling.CountingIdlingResource;
@@ -145,7 +146,7 @@ public class CameraXTestActivity extends AppCompatActivity {
                 createSurfaceTextureProvider(new SurfaceTextureCallbackImpl(textureView)));
 
         try {
-            final CameraX cameraX = CameraX.getOrCreateInstance(this, null).get();
+            final CameraX cameraX = CameraXUtil.getOrCreateInstance(this, null).get();
             final LinkedHashSet<CameraInternal> cameras =
                     cameraSelector.filter(cameraX.getCameraRepository().getCameras());
             mCameraUseCaseAdapter = new CameraUseCaseAdapter(cameras,
