@@ -16,16 +16,12 @@
 
 package androidx.camera.video;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.Executor;
 
 /**
@@ -41,48 +37,15 @@ import java.util.concurrent.Executor;
 @AutoValue
 public abstract class RecordingStats {
 
-    /**
-     * The recording is being recorded with audio data.
-     *
-     * <p>When audio is recording, the resulting video file will contain an audio track.
-     */
-    public static final int AUDIO_RECORDING = 0;
-    /**
-     * The recording is disabled.
-     *
-     * <p>This audio state results from a {@link PendingRecording} that was
-     * {@linkplain PendingRecording#start() started} without calling
-     * {@link PendingRecording#withAudioEnabled()}.
-     */
-    public static final int AUDIO_DISABLED = 1;
-    /**
-     * The recording is muted because the audio source is silenced by the system.
-     *
-     * <p>If the audio source is occupied by privilege application, depending on the system
-     * version, the system may silence the application that are using the audio source.
-     */
-    public static final int AUDIO_SOURCE_SILENCED = 2;
-    /**
-     * The recording is muted because the audio encoder encountered errors.
-     */
-    public static final int AUDIO_ENCODER_ERROR = 3;
-
-    /** @hide */
-    @IntDef({AUDIO_RECORDING, AUDIO_DISABLED, AUDIO_SOURCE_SILENCED, AUDIO_ENCODER_ERROR})
-    @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public @interface AudioState {
-    }
-
     // Restrict the constructor scope.
     RecordingStats() {
     }
 
     @NonNull
-    static RecordingStats of(long duration, long bytes, @AudioState int audioState) {
+    static RecordingStats of(long duration, long bytes, @NonNull AudioStats audioStats) {
         Preconditions.checkArgument(duration >= 0, "duration must be positive value.");
         Preconditions.checkArgument(bytes >= 0, "bytes must be positive value.");
-        return new AutoValue_RecordingStats(duration, bytes, audioState);
+        return new AutoValue_RecordingStats(duration, bytes, audioStats);
     }
 
     /**
@@ -105,15 +68,8 @@ public abstract class RecordingStats {
     public abstract long getNumBytesRecorded();
 
     /**
-     * Returns the state of audio in the recording.
-     *
-     * <p>The audio state describes whether audio is enabled for the recording and if audio is
-     * currently recording or is silenced due to system priority or errors.
-     *
-     * @return The state of the audio at the time of these recording stats being generated. One of
-     * {@link #AUDIO_RECORDING}, {@link #AUDIO_DISABLED}, {@link #AUDIO_SOURCE_SILENCED}, or
-     * {@link #AUDIO_ENCODER_ERROR}.
+     * Returns the {@link AudioStats} that is associated with this recording stats.
      */
-    @AudioState
-    public abstract int getAudioState();
+    @NonNull
+    public abstract AudioStats getAudioStats();
 }

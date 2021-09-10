@@ -960,6 +960,14 @@ class RecorderTest {
         inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
             .accept(any(VideoRecordEvent.Status::class.java))
 
+        // Check the audio information reports state as disabled.
+        val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
+        verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
+        assertThat(captor.value.eventType).isEqualTo(VideoRecordEvent.EVENT_TYPE_STATUS)
+        val status = captor.value as VideoRecordEvent.Status
+        assertThat(status.recordingStats.audioStats.audioState)
+            .isEqualTo(AudioStats.AUDIO_STATE_DISABLED)
+
         activeRecording.stopSafely()
 
         verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
