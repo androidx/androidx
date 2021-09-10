@@ -19,7 +19,9 @@ package androidx.glance.appwidget
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.annotation.CallSuper
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -38,6 +40,11 @@ import kotlinx.coroutines.awaitAll
  * implementation.
  */
 abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
+
+    private companion object {
+        private const val TAG = "GlanceAppWidgetReceiver"
+    }
+
     /**
      * Instance of the [GlanceAppWidget] to use to generate the App Widget and send it to the
      * [AppWidgetManager]
@@ -50,6 +57,12 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            Log.w(
+                TAG,
+                "Using Glance in devices with API<23 is untested and might behave unexpectedly."
+            )
+        }
         goAsync {
             appWidgetIds.map { async { glanceAppWidget.update(context, appWidgetManager, it) } }
                 .awaitAll()
