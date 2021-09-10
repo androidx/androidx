@@ -233,5 +233,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: artifacts_${{ env.artifact-id }}
-          path: |
-            ~/dist
+          path: ~/dist
