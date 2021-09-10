@@ -21,8 +21,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Looper.getMainLooper
+import android.util.Log
 import androidx.glance.GlanceInternalApi
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -55,10 +57,12 @@ class CoroutineBroadcastReceiverTest {
                     try {
                         awaitCancellation()
                     } catch (ex: CancellationException) {
+                        Log.i("CoroutineBRTest", "Scope cancelled")
                         scopeCancelled.countDown()
                         throw ex
                     }
                 }
+                Log.i("CoroutineBRTest", "Broadcast executed")
                 broadcastExecuted.countDown()
             }
         }
@@ -66,6 +70,7 @@ class CoroutineBroadcastReceiverTest {
 
     @MediumTest
     @Test
+    @FlakyTest
     fun onReceive() {
         val broadcastReceiver = TestBroadcast()
         context.registerReceiver(
