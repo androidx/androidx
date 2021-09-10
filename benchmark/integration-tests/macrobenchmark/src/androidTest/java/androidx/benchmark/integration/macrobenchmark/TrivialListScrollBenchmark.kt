@@ -20,6 +20,7 @@ import android.content.Intent
 import android.graphics.Point
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.FrameTimingMetric
+import androidx.benchmark.macro.FrameTimingTraceMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -52,7 +53,7 @@ class TrivialListScrollBenchmark(
     fun start() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = listOf(FrameTimingMetric()),
+            metrics = listOf(FrameTimingMetric(), FrameTimingTraceMetric()),
             compilationMode = compilationMode,
             iterations = 10,
             setupBlock = {
@@ -64,7 +65,7 @@ class TrivialListScrollBenchmark(
             val recycler = device.findObject(By.res(PACKAGE_NAME, RESOURCE_ID))
             // Setting a gesture margin is important otherwise gesture nav is triggered.
             recycler.setGestureMargin(device.displayWidth / 5)
-            for (i in 1..10) {
+            repeat(10) {
                 // From center we scroll 2/3 of it which is 1/3 of the screen.
                 recycler.drag(Point(0, recycler.visibleCenter.y / 3))
                 device.waitForIdle()
