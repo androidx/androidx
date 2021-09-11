@@ -21,6 +21,7 @@ import android.content.ContentValues;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
@@ -99,14 +100,21 @@ public final class MediaStoreOutputOptions extends OutputOptions {
     @Override
     @NonNull
     public String toString() {
+        // Don't use Class.getSimpleName(), class name will be changed by proguard obfuscation.
         return mMediaStoreOutputOptionsInternal.toString().replaceFirst(
-                mMediaStoreOutputOptionsInternal.getClass().getSuperclass().getSimpleName(),
-                getClass().getSimpleName());
+                "MediaStoreOutputOptionsInternal", "MediaStoreOutputOptions");
     }
 
     @Override
-    public boolean equals(Object o) {
-        return mMediaStoreOutputOptionsInternal.equals(o);
+    public boolean equals(@Nullable Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof MediaStoreOutputOptions)) {
+            return false;
+        }
+        return mMediaStoreOutputOptionsInternal.equals(
+                ((MediaStoreOutputOptions) o).mMediaStoreOutputOptionsInternal);
     }
 
     @Override

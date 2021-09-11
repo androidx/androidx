@@ -19,6 +19,7 @@ package androidx.camera.video;
 import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
@@ -65,14 +66,21 @@ public final class FileDescriptorOutputOptions extends OutputOptions {
     @Override
     @NonNull
     public String toString() {
+        // Don't use Class.getSimpleName(), class name will be changed by proguard obfuscation.
         return mFileDescriptorOutputOptionsInternal.toString().replaceFirst(
-                mFileDescriptorOutputOptionsInternal.getClass().getSuperclass().getSimpleName(),
-                getClass().getSimpleName());
+                "FileDescriptorOutputOptionsInternal", "FileDescriptorOutputOptions");
     }
 
     @Override
-    public boolean equals(Object o) {
-        return mFileDescriptorOutputOptionsInternal.equals(o);
+    public boolean equals(@Nullable Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof FileDescriptorOutputOptions)) {
+            return false;
+        }
+        return mFileDescriptorOutputOptionsInternal.equals(
+                ((FileDescriptorOutputOptions) o).mFileDescriptorOutputOptionsInternal);
     }
 
     @Override
