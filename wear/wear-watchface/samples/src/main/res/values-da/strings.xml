@@ -29,7 +29,7 @@
     <string name="watchface_hand_length_setting" msgid="7998526424509601034">"Længde på viserne"</string>
     <string name="watchface_hand_length_setting_description" msgid="9060532706860425059">"Målestok for visere"</string>
     <string name="watchface_complications_setting" msgid="7605635862096204587">"Widgets"</string>
-    <string name="watchface_complications_setting_description" msgid="3565604049641117847">"Antal og placering"</string>
+    <string name="watchface_complications_setting_description" msgid="3565604049641117847">"Antal og lokation"</string>
     <string name="watchface_complications_setting_both" msgid="1869848592349112126">"Begge"</string>
     <string name="watchface_complications_setting_none" msgid="722694346696596744">"Ingen"</string>
     <string name="watchface_complications_setting_left" msgid="1623162625339223972">"Venstre"</string>
