@@ -94,8 +94,8 @@ package androidx.wear.input {
 
   public final class WearableRemoteInputExtender {
     ctor public WearableRemoteInputExtender(android.app.RemoteInput.Builder remoteInput);
-    method public androidx.wear.input.WearableRemoteInputExtender disallowEmoji();
     method public android.app.RemoteInput.Builder get();
+    method public androidx.wear.input.WearableRemoteInputExtender setEmojisAllowed(boolean emojisAllowed);
     method public androidx.wear.input.WearableRemoteInputExtender setInputActionType(int imeActionType);
   }
 
