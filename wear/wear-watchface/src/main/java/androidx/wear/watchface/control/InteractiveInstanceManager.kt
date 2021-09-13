@@ -38,7 +38,7 @@ internal class InteractiveInstanceManager {
             writer.increaseIndent()
             writer.println("impl.instanceId=${impl.instanceId}")
             writer.println("refcount=$refcount")
-            impl.engine.dump(writer)
+            impl.engine?.dump(writer)
             writer.decreaseIndent()
         }
     }
@@ -78,6 +78,7 @@ internal class InteractiveInstanceManager {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                 instances[instanceId]?.let {
                     if (--it.refcount == 0) {
+                        it.impl.onDestroy()
                         instances.remove(instanceId)
                     }
                 }
@@ -117,7 +118,7 @@ internal class InteractiveInstanceManager {
                     // need to ensure there isn't a skew between the style the watch face actually
                     // has and what the system thinks we should have. Note runBlocking is safe here
                     // because we never await.
-                    val engine = instance.impl.engine
+                    val engine = instance.impl.engine!!
                     runBlocking {
                         withContext(engine.uiThreadCoroutineScope.coroutineContext) {
                             if (engine.deferredWatchFaceImpl.isCompleted) {
