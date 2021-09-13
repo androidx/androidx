@@ -50,6 +50,7 @@ gbash::init_google "$@"
 # https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/docs/AndroidXDocsPlugin.kt;l=568
 readonly javaLibraryDirs=(
   "activity"
+  "annotation"
 #  "benchmark"
 #  "collection"
   "fragment"
@@ -60,6 +61,7 @@ readonly javaLibraryDirs=(
 )
 readonly kotlinLibraryDirs=(
   "activity"
+  "annotation"
 #  "benchmark"
   "compose"
 #  "collection"
