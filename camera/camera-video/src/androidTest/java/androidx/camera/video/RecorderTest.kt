@@ -34,6 +34,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
@@ -119,12 +120,23 @@ class RecorderTest {
         CameraX.initialize(context, Camera2Config.defaultConfig()).get()
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
 
-        recorder = Recorder.Builder()
-            .setQualitySelector(QualitySelector.of(QualitySelector.QUALITY_HIGHEST)).build()
+        recorder = Recorder.Builder().build()
 
         // Using Preview so that the surface provider could be set to control when to issue the
         // surface request.
-        preview = Preview.Builder().build()
+        val resolution = QualitySelector.getResolution(
+            cameraUseCaseAdapter.cameraInfo,
+            QualitySelector.QUALITY_LOWEST
+        )
+        assumeTrue(resolution != null)
+        val resolutions: List<android.util.Pair<Int, Array<Size>>> =
+            listOf<android.util.Pair<Int, Array<Size>>>(
+                android.util.Pair.create(
+                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                    arrayOf(resolution!!)
+                )
+            )
+        preview = Preview.Builder().setSupportedResolutions(resolutions).build()
 
         // Add another Preview to provide an additional surface for b/168187087.
         surfaceTexturePreview = Preview.Builder().build()

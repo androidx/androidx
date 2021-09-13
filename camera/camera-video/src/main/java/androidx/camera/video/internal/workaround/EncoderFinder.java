@@ -23,6 +23,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.video.internal.DebugUtils;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.ExcludeKeyFrameRateInFindEncoderQuirk;
 import androidx.camera.video.internal.compat.quirk.MediaCodecInfoReportIncorrectInfoQuirk;
@@ -76,6 +77,7 @@ public class EncoderFinder {
             try {
                 codec = MediaCodec.createByCodecName(encoderName);
             } catch (IOException | NullPointerException | IllegalArgumentException e) {
+                DebugUtils.dumpMediaCodecListForFormat(mediaCodecList, mediaFormat);
                 throw new InvalidConfigException("Encoder cannot created: " + encoderName, e);
             }
         }
