@@ -64,7 +64,6 @@ import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
@@ -73,10 +72,17 @@ import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyle
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
+import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -2108,12 +2114,18 @@ public class WatchFaceServiceTest {
         lateinit var leftComplicationData: ComplicationData
         lateinit var rightComplicationData: ComplicationData
 
-        leftComplication.complicationData.addObserver {
-            leftComplicationData = it.asWireComplicationData()
+        val scope = CoroutineScope(Dispatchers.Main.immediate)
+
+        scope.launch {
+            leftComplication.complicationData.collect {
+                leftComplicationData = it.asWireComplicationData()
+            }
         }
 
-        rightComplication.complicationData.addObserver {
-            rightComplicationData = it.asWireComplicationData()
+        scope.launch {
+            rightComplication.complicationData.collect {
+                rightComplicationData = it.asWireComplicationData()
+            }
         }
 
         interactiveWatchFaceInstance.updateComplicationData(
@@ -2269,7 +2281,7 @@ public class WatchFaceServiceTest {
     }
 
     @Test
-    public fun watchStateObservableWatchDataMembersHaveValues() {
+    public fun watchStateStateFlowDataMembersHaveValues() {
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
             emptyList(),
@@ -2321,7 +2333,7 @@ public class WatchFaceServiceTest {
                 putExtra(BatteryManager.EXTRA_SCALE, 100)
             }
         )
-        assertTrue(watchState.isBatteryLowAndNotCharging.value)
+        assertTrue(watchState.isBatteryLowAndNotCharging.value!!)
 
         watchFaceImpl.setIsBatteryLowAndNotChargingFromBatteryStatus(
             Intent().apply {
@@ -2330,7 +2342,7 @@ public class WatchFaceServiceTest {
                 putExtra(BatteryManager.EXTRA_SCALE, 100)
             }
         )
-        assertFalse(watchState.isBatteryLowAndNotCharging.value)
+        assertFalse(watchState.isBatteryLowAndNotCharging.value!!)
 
         watchFaceImpl.setIsBatteryLowAndNotChargingFromBatteryStatus(
             Intent().apply {
@@ -2339,13 +2351,13 @@ public class WatchFaceServiceTest {
                 putExtra(BatteryManager.EXTRA_SCALE, 100)
             }
         )
-        assertFalse(watchState.isBatteryLowAndNotCharging.value)
+        assertFalse(watchState.isBatteryLowAndNotCharging.value!!)
 
         watchFaceImpl.setIsBatteryLowAndNotChargingFromBatteryStatus(Intent())
-        assertFalse(watchState.isBatteryLowAndNotCharging.value)
+        assertFalse(watchState.isBatteryLowAndNotCharging.value!!)
 
         watchFaceImpl.setIsBatteryLowAndNotChargingFromBatteryStatus(null)
-        assertFalse(watchState.isBatteryLowAndNotCharging.value)
+        assertFalse(watchState.isBatteryLowAndNotCharging.value!!)
     }
 
     @Test
@@ -2602,16 +2614,28 @@ public class WatchFaceServiceTest {
             )
         )
 
-        val observer = mock<Observer<Boolean>>()
+        var numOfCalls = 0
 
-        // This should be ignored.
+        CoroutineScope(handler.asCoroutineDispatcher().immediate).launch {
+            watchState.isVisible.collect {
+                numOfCalls++
+            }
+        }
+
+        // The collect call will be triggered immediately to report the current value, so make
+        // sure that numOfCalls has increased before proceeding next.
+        runPostedTasksFor(0)
+        assertEquals(1, numOfCalls)
+
+        // This should be ignored and not trigger collect.
         engineWrapper.onVisibilityChanged(true)
-        watchState.isVisible.addObserver(observer)
-        verify(observer, times(0)).onChanged(false)
+        runPostedTasksFor(0)
+        assertEquals(1, numOfCalls)
 
         // This should trigger the observer.
         engineWrapper.onVisibilityChanged(false)
-        verify(observer).onChanged(true)
+        runPostedTasksFor(0)
+        assertEquals(2, numOfCalls)
     }
 
     @Test

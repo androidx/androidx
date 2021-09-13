@@ -32,11 +32,12 @@ import androidx.wear.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.NoDataComplicationData
-import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
+import androidx.wear.watchface.RenderParameters.HighlightedElement
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
-import androidx.wear.watchface.RenderParameters.HighlightedElement
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.time.Instant
 import java.time.ZonedDateTime
 
@@ -599,8 +600,8 @@ public class ComplicationSlot internal constructor(
      * The [androidx.wear.complications.data.ComplicationData] associated with the
      * [ComplicationSlot]. This defaults to [NoDataComplicationData].
      */
-    public val complicationData: ObservableWatchData<ComplicationData> =
-        MutableObservableWatchData(NoDataComplicationData())
+    public val complicationData: StateFlow<ComplicationData> =
+        MutableStateFlow(NoDataComplicationData())
 
     /**
      * Whether or not the complication should be considered active and should be rendered at the
