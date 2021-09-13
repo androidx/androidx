@@ -33,8 +33,8 @@ dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
     api(project(":glance:glance"))
-    api(project(":wear:tiles:tiles"))
     api("androidx.compose.runtime:runtime:1.0.1")
+    api("androidx.wear.tiles:tiles:1.0.0-alpha12")
 
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesGuava)
@@ -52,26 +52,18 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinReflect)
     // TODO(b/197638718): Remove when tiles-testing dependencies are fixed.
-    testImplementation(project(":wear:tiles:tiles-renderer"))
-    testImplementation(project(":wear:tiles:tiles-testing"))
+    testImplementation("androidx.wear.tiles:tiles-renderer:1.0.0-alpha12")
+    testImplementation("androidx.wear.tiles:tiles-testing:1.0.0-alpha12")
 
     androidTestImplementation(project(":core:core"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
-    androidTestImplementation(project(":wear:tiles:tiles-renderer"))
+    androidTestImplementation("androidx.wear.tiles:tiles-renderer:1.0.0-alpha12")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.kotlinCoroutinesTest)
-
-    // I'm not 100% sure why, but androidTestImplementation doesn't appear to use the standard
-    // results of a project build. This leads to it not using the shadow configuration from
-    // tiles-proto, and thus failing to find the protobuf classes at runtime.
-    //
-    // This line forces the androidTest to use the properly shaded proto library on the runtime
-    // classpath.
-    androidTestRuntimeOnly(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
 }
 
 android {
