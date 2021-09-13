@@ -183,6 +183,47 @@ class SwipeToDismissBoxTest {
         rule.onNodeWithTag(TOGGLE_SCREEN).assertIsOn()
     }
 
+    @Test
+    fun gives_top_swipe_box_gestures_when_nested() {
+        var outerDismissed = false
+        var innerDismissed = false
+        rule.setContentWithTheme {
+            val outerState = rememberSwipeToDismissBoxState()
+            LaunchedEffect(outerState.currentValue) {
+                outerDismissed = outerState.currentValue == SwipeDismissTarget.Dismissal
+            }
+            SwipeToDismissBox(
+                state = outerState,
+                modifier = Modifier.testTag("OUTER"),
+                hasBackground = true,
+            ) {
+                Text("Outer", color = MaterialTheme.colors.onPrimary)
+                val innerState = rememberSwipeToDismissBoxState()
+                LaunchedEffect(innerState.currentValue) {
+                    innerDismissed = innerState.currentValue == SwipeDismissTarget.Dismissal
+                }
+                SwipeToDismissBox(
+                    state = innerState,
+                    modifier = Modifier.testTag("INNER"),
+                    hasBackground = true,
+                ) {
+                    Text(
+                        text = "Inner",
+                        color = MaterialTheme.colors.onPrimary,
+                        modifier = Modifier.testTag(TEST_TAG)
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+
+        rule.runOnIdle {
+            assertEquals(true, innerDismissed)
+            assertEquals(false, outerDismissed)
+        }
+    }
+
     @Composable
     fun toggleScreen(saveableStateHolder: SaveableStateHolder) {
         saveableStateHolder.SaveableStateProvider(TOGGLE_SCREEN) {
