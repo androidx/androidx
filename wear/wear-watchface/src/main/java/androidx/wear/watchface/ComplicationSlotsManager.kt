@@ -172,6 +172,13 @@ public class ComplicationSlotsManager(
             complication.renderer.onRendererCreated(renderer)
         }
 
+        require(
+            complicationSlots.values.distinctBy { it.renderer }.size ==
+                complicationSlots.values.size
+        ) {
+            "Complication renderer instances are not sharable."
+        }
+
         // Activate complicationSlots.
         onComplicationsUpdated()
     }

@@ -53,6 +53,7 @@ dependencies {
     testImplementation(libs.mockitoKotlin)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
+    testImplementation(libs.kotlinTest)
 }
 
 android {

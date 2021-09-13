@@ -105,6 +105,7 @@ import org.robolectric.annotation.Config
 import java.time.Instant
 import java.util.ArrayDeque
 import java.util.PriorityQueue
+import kotlin.test.assertFailsWith
 
 private const val INTERACTIVE_UPDATE_RATE_MS = 16L
 private const val LEFT_COMPLICATION_ID = 1000
@@ -364,6 +365,36 @@ public class WatchFaceServiceTest {
         tapListener: WatchFace.TapListener? = null,
         setInitialComplicationData: Boolean = true
     ) {
+        initEngineBeforeGetWatchFaceImpl(
+            watchFaceType,
+            complicationSlots,
+            userStyleSchema,
+            apiVersion,
+            hasLowBitAmbient,
+            hasBurnInProtection,
+            tapListener,
+            setInitialComplicationData
+        )
+
+        // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
+        // coroutine dispatcher.
+        watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
+        currentUserStyleRepository = watchFaceImpl.currentUserStyleRepository
+        complicationSlotsManager = watchFaceImpl.complicationSlotsManager
+
+        testWatchFaceService.setIsVisible(true)
+    }
+
+    private fun initEngineBeforeGetWatchFaceImpl(
+        watchFaceType: Int,
+        complicationSlots: List<ComplicationSlot>,
+        userStyleSchema: UserStyleSchema,
+        apiVersion: Int = 2,
+        hasLowBitAmbient: Boolean = false,
+        hasBurnInProtection: Boolean = false,
+        tapListener: WatchFace.TapListener? = null,
+        setInitialComplicationData: Boolean = true
+    ) {
         testWatchFaceService = TestWatchFaceService(
             watchFaceType,
             complicationSlots,
@@ -412,14 +443,6 @@ public class WatchFaceServiceTest {
         sendBinder(engineWrapper, apiVersion)
         sendImmutableProperties(engineWrapper, hasLowBitAmbient, hasBurnInProtection)
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
-
-        // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
-        // coroutine dispatcher.
-        watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
-        currentUserStyleRepository = watchFaceImpl.currentUserStyleRepository
-        complicationSlotsManager = watchFaceImpl.complicationSlotsManager
-
-        testWatchFaceService.setIsVisible(true)
     }
 
     private fun initWallpaperInteractiveWatchFaceInstance(
@@ -2747,6 +2770,45 @@ public class WatchFaceServiceTest {
 
         verify(leftCanvasComplication).onRendererCreated(renderer)
         verify(rightCanvasComplication).onRendererCreated(renderer)
+    }
+
+    @Test
+    public fun complicationSlotsWithTheSameRenderer() {
+        val sameCanvasComplication = mock<CanvasComplication>()
+        val leftComplication =
+            ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                LEFT_COMPLICATION_ID,
+                { _, _ -> sameCanvasComplication },
+                listOf(ComplicationType.SHORT_TEXT),
+                DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET),
+                ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+                .build()
+
+        val rightComplication =
+            ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                RIGHT_COMPLICATION_ID,
+                { _, _ -> sameCanvasComplication },
+                listOf(ComplicationType.SHORT_TEXT),
+                DefaultComplicationDataSourcePolicy(SystemDataSources.DATA_SOURCE_DATE),
+                ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+            ).setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+                .build()
+
+        // We don't want full init as in other tests with initEngine(), since
+        // engineWrapper.getWatchFaceImplOrNull() will return null and test will brake with NPE.
+        initEngineBeforeGetWatchFaceImpl(
+            WatchFaceType.DIGITAL,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        assertTrue(engineWrapper.deferredWatchFaceImpl.isCancelled)
+        runBlocking {
+            assertFailsWith<IllegalArgumentException> {
+                engineWrapper.deferredWatchFaceImpl.await()
+            }
+        }
     }
 
     @Test
