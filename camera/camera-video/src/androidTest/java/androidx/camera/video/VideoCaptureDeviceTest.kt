@@ -31,7 +31,6 @@ import androidx.camera.core.impl.Observable
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.GLUtil
-import androidx.camera.video.QualitySelector.QUALITY_HIGHEST
 import androidx.camera.video.QualitySelector.QUALITY_LOWEST
 import androidx.camera.video.VideoOutput.StreamState
 import androidx.test.core.app.ApplicationProvider
@@ -137,10 +136,7 @@ class VideoCaptureDeviceTest {
         assumeFalse(Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29)
 
         // Arrange.
-        val qualityList = QualitySelector.getSupportedQualities(cameraInfo) + arrayOf(
-            QUALITY_HIGHEST,
-            QUALITY_LOWEST
-        )
+        val qualityList = QualitySelector.getSupportedQualities(cameraInfo)
         qualityList.forEach loop@{ quality ->
             val targetResolution = QualitySelector.getResolution(cameraInfo, quality)
             val videoOutput = TestVideoOutput(
