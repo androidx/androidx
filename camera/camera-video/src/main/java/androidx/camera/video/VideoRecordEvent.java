@@ -260,9 +260,8 @@ public abstract class VideoRecordEvent {
          *
          * <p>This error is generated when invalid output options have been used while preparing a
          * recording, such as with the {@link Recorder#prepareRecording(MediaStoreOutputOptions)}
-         * method. The error will depend on the {@linkplain OutputOptions#getType() type} of options
-         * used, and more information about the error can be retrieved from
-         * {@link Finalize#getCause()}.
+         * method. The error will depend on the subclass of {@link OutputOptions} used, and more
+         * information about the error can be retrieved from {@link Finalize#getCause()}.
          */
         public static final int ERROR_INVALID_OUTPUT_OPTIONS = 5;
 

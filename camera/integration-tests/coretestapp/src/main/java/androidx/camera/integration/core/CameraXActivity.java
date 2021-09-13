@@ -487,31 +487,28 @@ public class CameraXActivity extends AppCompatActivity {
                     case ERROR_INSUFFICIENT_DISK:
                     case ERROR_SOURCE_INACTIVE:
                         Uri uri = finalize.getOutputResults().getOutputUri();
+                        OutputOptions outputOptions = finalize.getOutputOptions();
                         String msg;
                         String videoFilePath;
-                        switch (finalize.getOutputOptions().getType()) {
-                            case OutputOptions.OPTIONS_TYPE_MEDIA_STORE:
-                                msg = "Saved uri " + uri;
-                                videoFilePath = getAbsolutePathFromUri(
+                        if (outputOptions instanceof MediaStoreOutputOptions) {
+                            msg = "Saved uri " + uri;
+                            videoFilePath = getAbsolutePathFromUri(
                                     getApplicationContext().getContentResolver(),
                                     uri
-                                );
-                                // For OutputOptionsType is OutputOptions.OPTIONS_TYPE_MEDIA_STORE,
-                                // the Photo/Gallery apps on devices (API Level < Q) sometimes will
-                                // not show the video files saved in MediaStore, suggest to call
-                                // scanFile still to force scan the media file.
-                                // scanVideoOutputFile(new File(videoFilePath));
-                                break;
-                            case  OutputOptions.OPTIONS_TYPE_FILE:
-                                videoFilePath = ((FileOutputOptions) finalize.getOutputOptions())
+                            );
+                            // For OutputOptionsType is OutputOptions.OPTIONS_TYPE_MEDIA_STORE,
+                            // the Photo/Gallery apps on devices (API Level < Q) sometimes will
+                            // not show the video files saved in MediaStore, suggest to call
+                            // scanFile still to force scan the media file.
+                            // scanVideoOutputFile(new File(videoFilePath));
+                        } else if (outputOptions instanceof FileOutputOptions) {
+                            videoFilePath = ((FileOutputOptions) outputOptions)
                                     .getFile().getAbsolutePath();
-                                msg = "Saved video file: " + videoFilePath;
-                                scanVideoOutputFile(new File(videoFilePath));
-                                break;
-                            case OutputOptions.OPTIONS_TYPE_FILE_DESCRIPTOR:
-                            default:
-                                throw new AssertionError("Unknown OutputOptions type: "
-                                        + finalize.getOutputOptions().getType());
+                            msg = "Saved video file: " + videoFilePath;
+                            scanVideoOutputFile(new File(videoFilePath));
+                        } else {
+                            throw new AssertionError("Unknown or unsupported OutputOptions type: "
+                                    + outputOptions.getClass().getSimpleName());
                         }
                         // The video file path is used in tracing e2e test log. Don't remove it.
                         Log.d(TAG, "Saved video file: " + videoFilePath);
