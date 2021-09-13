@@ -113,7 +113,6 @@ class AsyncPagingDataDifferTest {
         // empty previous list.
         assertEvents(
             listOf(
-                localLoadStatesOf(),
                 localLoadStatesOf(refreshLocal = Loading),
                 localLoadStatesOf(refreshLocal = NotLoading(endOfPaginationReached = false)),
             ),
@@ -172,7 +171,6 @@ class AsyncPagingDataDifferTest {
         // empty previous list.
         assertEvents(
             listOf(
-                localLoadStatesOf(),
                 localLoadStatesOf(refreshLocal = Loading),
                 localLoadStatesOf(refreshLocal = NotLoading(endOfPaginationReached = false)),
             ),
