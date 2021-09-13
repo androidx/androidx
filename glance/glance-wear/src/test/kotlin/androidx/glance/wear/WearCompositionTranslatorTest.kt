@@ -16,9 +16,13 @@
 
 package androidx.glance.wear
 
+import android.app.Activity
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
+import androidx.glance.action.clickable
+import androidx.glance.action.launchActivityAction
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -42,6 +46,8 @@ import androidx.glance.wear.layout.CurvedRow
 import androidx.glance.wear.layout.CurvedTextStyle
 import androidx.glance.wear.layout.RadialAlignment
 import androidx.glance.wear.layout.background
+import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.wear.tiles.ActionBuilders
 import androidx.wear.tiles.DimensionBuilders
 import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.LayoutElementBuilders.ARC_ANCHOR_END
@@ -57,8 +63,11 @@ import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
 @OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
+@RunWith(RobolectricTestRunner::class)
 class WearCompositionTranslatorTest {
     private lateinit var fakeCoroutineScope: TestCoroutineScope
 
@@ -397,11 +406,38 @@ class WearCompositionTranslatorTest {
         assertThat(innerArcAdapter.content).isInstanceOf(LayoutElementBuilders.Box::class.java)
     }
 
+    @Test
+    fun canInflateLaunchAction() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            Text(
+                modifier = Modifier.clickable(launchActivityAction(TestActivity::class.java)),
+                text = "Hello World"
+            )
+        }
+
+        val innerText = (content as LayoutElementBuilders.Box).contents[0] as
+            LayoutElementBuilders.Text
+
+        assertThat(innerText.modifiers!!.clickable).isNotNull()
+        assertThat(innerText.modifiers!!.clickable!!.onClick)
+            .isInstanceOf(ActionBuilders.LaunchAction::class.java)
+
+        val launchAction = innerText.modifiers!!.clickable!!.onClick as ActionBuilders.LaunchAction
+        assertThat(launchAction.androidActivity).isNotNull()
+
+        val packageName = getApplicationContext<Context>().packageName
+        assertThat(launchAction.androidActivity!!.packageName).isEqualTo(packageName)
+        assertThat(launchAction.androidActivity!!.className)
+            .isEqualTo(TestActivity::class.qualifiedName)
+    }
+
     private suspend fun runAndTranslate(
         content: @Composable () -> Unit
     ): LayoutElementBuilders.LayoutElement {
         val root = runTestingComposition(content)
 
-        return translateComposition(root)
+        return translateComposition(getApplicationContext(), root)
     }
 }
+
+private class TestActivity : Activity()
