@@ -49,6 +49,7 @@ import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.complications.SystemDataSources
 import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.complications.data.PlainComplicationText
 import androidx.wear.complications.data.ShortTextComplicationData
@@ -58,6 +59,7 @@ import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.IPendingInteractiveWatchFace
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.data.CrashInfoParcel
+import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.ComplicationSlotMetadataWireFormat
 import androidx.wear.watchface.data.DeviceConfig
@@ -2166,6 +2168,70 @@ public class WatchFaceServiceTest {
         assertThat(
             watchFaceImpl.complicationSlotsManager[RIGHT_COMPLICATION_ID]!!.complicationData.value
         ).isInstanceOf(NoDataComplicationData::class.java)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
+    @Test
+    public fun headless_complicationsInitialized_with_EmptyComplicationData() {
+        testWatchFaceService = TestWatchFaceService(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            { _, currentUserStyleRepository, watchState ->
+                TestRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    INTERACTIVE_UPDATE_RATE_MS
+                )
+            },
+            UserStyleSchema(emptyList()),
+            watchState,
+            handler,
+            null,
+            false, // Allows DirectBoot
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "Headless",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(
+                    hashMapOf(
+                        colorStyleSetting to blueStyleOption,
+                        watchHandStyleSetting to gothicStyleOption
+                    )
+                ).toWireFormat(),
+                null
+            )
+        )
+
+        engineWrapper =
+            testWatchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+
+        engineWrapper.createHeadlessInstance(
+            HeadlessWatchFaceInstanceParams(
+                ComponentName("test.watchface.app", "test.watchface.class"),
+                DeviceConfig(false, false, 100, 200),
+                100,
+                100
+            )
+        )
+
+        // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
+        // coroutine dispatcher.
+        runBlocking {
+            watchFaceImpl = engineWrapper.deferredWatchFaceImpl.await()
+        }
+
+        assertThat(
+            watchFaceImpl.complicationSlotsManager[LEFT_COMPLICATION_ID]!!.complicationData.value
+        ).isInstanceOf(EmptyComplicationData::class.java)
+        assertThat(
+            watchFaceImpl.complicationSlotsManager[RIGHT_COMPLICATION_ID]!!.complicationData.value
+        ).isInstanceOf(EmptyComplicationData::class.java)
     }
 
     @Test
