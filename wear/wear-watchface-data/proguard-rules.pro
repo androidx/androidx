@@ -23,4 +23,7 @@
 -keep public class android.support.wearable.complications.TimeDifferenceText { *; }
 -keep public class android.support.wearable.complications.TimeFormatText { *; }
 
+# To support CurrentUserStyleRepository's dynamic proxy.
+-keep public class kotlinx.coroutines.flow.MutableStateFlow { *; }
+
 

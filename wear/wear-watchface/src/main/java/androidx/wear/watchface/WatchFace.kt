@@ -678,9 +678,9 @@ public class WatchFaceImpl @UiThread constructor(
             get() = currentUserStyleRepository.schema
 
         override var userStyle: UserStyle
-            get() = currentUserStyleRepository.userStyle
+            get() = currentUserStyleRepository.userStyle.value
             set(value) {
-                currentUserStyleRepository.userStyle = value
+                currentUserStyleRepository.userStyle.value = value
             }
 
         override val complicationSlotsManager: ComplicationSlotsManager
@@ -749,7 +749,7 @@ public class WatchFaceImpl @UiThread constructor(
     internal fun onSetStyleInternal(style: UserStyle) {
         // No need to echo the userStyle back.
         inOnSetStyle = true
-        currentUserStyleRepository.userStyle = style
+        currentUserStyleRepository.userStyle.value = style
         inOnSetStyle = false
     }
 
@@ -954,7 +954,7 @@ public class WatchFaceImpl @UiThread constructor(
     internal fun renderWatchFaceToBitmap(
         params: WatchFaceRenderParams
     ): Bundle = TraceEvent("WatchFaceImpl.renderWatchFaceToBitmap").use {
-        val oldStyle = currentUserStyleRepository.userStyle
+        val oldStyle = currentUserStyleRepository.userStyle.value
 
         params.userStyle?.let {
             onSetStyleInternal(UserStyle(UserStyleData(it), currentUserStyleRepository.schema))
@@ -1006,7 +1006,7 @@ public class WatchFaceImpl @UiThread constructor(
             ZoneId.of("UTC")
         )
         return complicationSlotsManager[params.complicationSlotId]?.let {
-            val oldStyle = currentUserStyleRepository.userStyle
+            val oldStyle = currentUserStyleRepository.userStyle.value
 
             val newStyle = params.userStyle
             if (newStyle != null) {

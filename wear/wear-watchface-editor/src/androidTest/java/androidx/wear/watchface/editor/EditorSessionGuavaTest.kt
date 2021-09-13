@@ -140,7 +140,7 @@ public class EditorSessionGuavaTest {
         WatchFace.registerEditorDelegate(testComponentName, editorDelegate)
         Mockito.`when`(editorDelegate.complicationSlotsManager).thenReturn(complicationSlotsManager)
         Mockito.`when`(editorDelegate.userStyleSchema).thenReturn(userStyleRepository.schema)
-        Mockito.`when`(editorDelegate.userStyle).thenReturn(userStyleRepository.userStyle)
+        Mockito.`when`(editorDelegate.userStyle).thenReturn(userStyleRepository.userStyle.value)
         Mockito.`when`(editorDelegate.screenBounds).thenReturn(screenBounds)
         Mockito.`when`(editorDelegate.previewReferenceInstant).thenReturn(previewReferenceInstant)
         Mockito.`when`(editorDelegate.backgroundThreadHandler).thenReturn(backgroundHandler)

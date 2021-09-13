@@ -109,6 +109,9 @@ public interface EditorSession : AutoCloseable {
     /**
      * The current [UserStyle]. Assigning to this will cause the style to update. However, styling
      * changes to the watch face will be reverted upon exit.
+     *
+     * If accessed from java, consider using
+     * [androidx.wear.watchface.StateFlowCompatHelper] to observe callbacks.
      */
     public val userStyle: MutableStateFlow<UserStyle>
 
@@ -121,6 +124,9 @@ public interface EditorSession : AutoCloseable {
     /**
      * A [Flow] of a Map of complication slot ids to [ComplicationSlotState] for each complication
      * slot.
+     *
+     * If accessed from java, consider using
+     * [androidx.wear.watchface.StateFlowCompatHelper] to observe callbacks.
      */
     public val complicationSlotsState: StateFlow<Map<Int, ComplicationSlotState>>
 
@@ -149,6 +155,9 @@ public interface EditorSession : AutoCloseable {
      * Disabled complicationSlots are included. Note also unlike live data this is static per
      * complication data source, but it may update (on the UiThread) as a result of
      * [openComplicationDataSourceChooser].
+     *
+     * If accessed from java, consider using
+     * [androidx.wear.watchface.StateFlowCompatHelper] to observe callbacks.
      */
     public suspend fun getComplicationsPreviewData(): StateFlow<Map<Int, ComplicationData>>
 

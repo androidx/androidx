@@ -19,7 +19,6 @@ package androidx.wear.watchface.samples
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.TimeInterpolator
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -53,7 +52,6 @@ import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
@@ -781,35 +779,35 @@ class ExampleDigitalWatchCanvasRenderer(
     private val digitBitmapCache = SparseArray<Bitmap>()
 
     // A mapping from digit type to the digit that the cached bitmap
-    // (stored in [][digitBitmapCache]) displays.
+    // (stored in [digitBitmapCache]) displays.
     private val currentCachedDigits = SparseArray<String>()
+
+    private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
 
     init {
         // Listen for style changes.
-        currentUserStyleRepository.addUserStyleChangeListener(
-            object : CurrentUserStyleRepository.UserStyleChangeListener {
-                @SuppressLint("SyntheticAccessor")
-                override fun onUserStyleChanged(userStyle: UserStyle) {
-                    watchFaceColorStyle =
-                        WatchFaceColorStyle.create(
-                            context,
-                            userStyle[colorStyleSetting]!!.toString()
-                        )
+        coroutineScope.launch {
+            currentUserStyleRepository.userStyle.collect { userStyle ->
+                watchFaceColorStyle =
+                    WatchFaceColorStyle.create(
+                        context,
+                        userStyle[colorStyleSetting]!!.toString()
+                    )
 
-                    // Apply the userStyle to the complicationSlots. ComplicationDrawables for each
-                    // of the styles are defined in XML so we need to replace the complication's
-                    // drawables.
-                    for ((_, complication) in complicationSlotsManager.complicationSlots) {
-                        (complication.renderer as CanvasComplicationDrawable).drawable =
-                            watchFaceColorStyle.getDrawable(context)!!
-                    }
-
-                    clearDigitBitmapCache()
+                // Apply the userStyle to the complicationSlots. ComplicationDrawables for each
+                // of the styles are defined in XML so we need to replace the complication's
+                // drawables.
+                for ((_, complication) in complicationSlotsManager.complicationSlots) {
+                    (complication.renderer as CanvasComplicationDrawable).drawable =
+                        watchFaceColorStyle.getDrawable(context)!!
                 }
-            }
-        )
 
-        CoroutineScope(Dispatchers.Main.immediate).launch {
+                clearDigitBitmapCache()
+            }
+        }
+
+        // Listen for ambient state changes.
+        coroutineScope.launch {
             watchState.isAmbient.collect {
                 if (it!!) {
                     ambientEnterAnimator.start()

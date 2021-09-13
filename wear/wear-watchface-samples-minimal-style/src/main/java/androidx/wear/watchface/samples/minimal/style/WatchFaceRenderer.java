@@ -21,6 +21,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.SurfaceHolder;
 
 import androidx.annotation.NonNull;
@@ -29,12 +31,15 @@ import androidx.wear.watchface.CanvasType;
 import androidx.wear.watchface.DrawMode;
 import androidx.wear.watchface.RenderParameters;
 import androidx.wear.watchface.Renderer;
+import androidx.wear.watchface.StateFlowCompatHelper;
 import androidx.wear.watchface.WatchState;
 import androidx.wear.watchface.style.CurrentUserStyleRepository;
+import androidx.wear.watchface.style.UserStyle;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.time.ZonedDateTime;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -52,6 +57,15 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
 
     private TimeRenderer mTimeRenderer;
 
+    private final Executor mMainThreadExecutor = new Executor() {
+        final Handler mHandler = new Handler(Looper.getMainLooper());
+
+        @Override
+        public void execute(Runnable command) {
+            mHandler.post(command);
+        }
+    };
+
     public WatchFaceRenderer(
             @NotNull SurfaceHolder surfaceHolder,
             @NotNull CurrentUserStyleRepository currentUserStyleRepository,
@@ -59,12 +73,15 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
             @NotNull TimeStyle timeStyle) {
         super(surfaceHolder, currentUserStyleRepository, watchState, CanvasType.HARDWARE,
                 UPDATE_DELAY_MILLIS);
-        currentUserStyleRepository.addUserStyleChangeListener(
-                userStyle -> updateTimeStyle(timeStyle.get(userStyle)));
+        StateFlowCompatHelper<UserStyle> userStyleStateFlowCompatHelper =
+                new StateFlowCompatHelper<>(currentUserStyleRepository.getUserStyle());
+        userStyleStateFlowCompatHelper.addValueChangeListener(
+                userStyle -> updateTimeStyle(timeStyle.get(userStyle)),
+                mMainThreadExecutor);
         mMinimalRenderer = new MinimalRenderer(watchState);
         mSecondsRenderer = new SecondsRenderer(watchState);
         mHighlightPaint = new Paint();
-        updateTimeStyle(timeStyle.get(currentUserStyleRepository.getUserStyle()));
+        updateTimeStyle(timeStyle.get(currentUserStyleRepository.getUserStyle().getValue()));
     }
 
     @Override

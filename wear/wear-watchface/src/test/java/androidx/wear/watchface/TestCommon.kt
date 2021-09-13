@@ -33,7 +33,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.data.toApiComplicationData
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import org.junit.runners.model.FrameworkMethod
 import org.robolectric.RobolectricTestRunner
@@ -62,7 +61,6 @@ internal class TestWatchFaceService(
     var complicationSelected: Int? = null
     var mockSystemTimeMillis = 0L
     var mockZoneId: ZoneId = ZoneId.of("UTC")
-    var lastUserStyle: UserStyle? = null
     var renderer: TestRenderer? = null
 
     /** A mutable list of the ids of the complicationSlots that have been tapped. */
@@ -88,14 +86,6 @@ internal class TestWatchFaceService(
     override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
     ): ComplicationSlotsManager {
-        currentUserStyleRepository.addUserStyleChangeListener(
-            object : CurrentUserStyleRepository.UserStyleChangeListener {
-                override fun onUserStyleChanged(userStyle: UserStyle) {
-                    lastUserStyle = userStyle
-                }
-            }
-        )
-
         val complicationSlotsManager =
             ComplicationSlotsManager(complicationSlots, currentUserStyleRepository)
         complicationSlotsManager.addTapListener(
