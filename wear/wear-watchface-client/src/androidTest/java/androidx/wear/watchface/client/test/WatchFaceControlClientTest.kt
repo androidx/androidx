@@ -84,6 +84,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -590,14 +591,23 @@ class WatchFaceControlClientTest {
         // additional synchronization to ensure it's side effects have been applied before
         // inspecting complicationSlotsState otherwise we risk test flakes.
         val updateCountDownLatch = CountDownLatch(1)
+        var leftComplicationSlot: ComplicationSlot
+
         runBlocking {
-            val leftComplicationSlot = engine.deferredWatchFaceImpl.await()
+            leftComplicationSlot = engine.deferredWatchFaceImpl.await()
                 .complicationSlotsManager.complicationSlots[
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
             ]!!
+        }
 
-            leftComplicationSlot.complicationData.addObserver {
-                updateCountDownLatch.countDown()
+        var isFirstCall = true
+        handlerCoroutineScope.launch {
+            leftComplicationSlot.complicationData.collect {
+                if (!isFirstCall) {
+                    updateCountDownLatch.countDown()
+                } else {
+                    isFirstCall = false
+                }
             }
         }
 

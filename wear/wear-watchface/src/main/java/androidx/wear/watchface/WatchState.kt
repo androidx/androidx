@@ -20,7 +20,8 @@ import android.app.NotificationManager
 import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
-import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Describes the current state of the wearable including some hardware details such as whether or
@@ -55,11 +56,11 @@ import androidx.wear.watchface.ObservableWatchData.MutableObservableWatchData
  * @param isHeadless Whether or not this is a headless watchface.
  */
 public class WatchState(
-    public val interruptionFilter: ObservableWatchData<Int>,
-    public val isAmbient: ObservableWatchData<Boolean>,
+    public val interruptionFilter: StateFlow<Int?>,
+    public val isAmbient: StateFlow<Boolean?>,
     /** @hide */
-    public val isBatteryLowAndNotCharging: ObservableWatchData<Boolean>,
-    public val isVisible: ObservableWatchData<Boolean>,
+    public val isBatteryLowAndNotCharging: StateFlow<Boolean?>,
+    public val isVisible: StateFlow<Boolean?>,
     @get:JvmName("hasLowBitAmbient")
     public val hasLowBitAmbient: Boolean,
     @get:JvmName("hasBurnInProtection")
@@ -90,13 +91,12 @@ public class WatchState(
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MutableWatchState {
-    public var interruptionFilter: MutableObservableWatchData<Int> = MutableObservableWatchData(
+    public var interruptionFilter: MutableStateFlow<Int> = MutableStateFlow(
         NotificationManager.INTERRUPTION_FILTER_UNKNOWN
     )
-    public val isAmbient: MutableObservableWatchData<Boolean> = MutableObservableWatchData()
-    public val isBatteryLowAndNotCharging: MutableObservableWatchData<Boolean> =
-        MutableObservableWatchData()
-    public val isVisible: MutableObservableWatchData<Boolean> = MutableObservableWatchData()
+    public val isAmbient: MutableStateFlow<Boolean?> = MutableStateFlow(null)
+    public val isBatteryLowAndNotCharging: MutableStateFlow<Boolean?> = MutableStateFlow(null)
+    public val isVisible: MutableStateFlow<Boolean?> = MutableStateFlow(null)
     public var hasLowBitAmbient: Boolean = false
     public var hasBurnInProtection: Boolean = false
     public var analogPreviewReferenceTimeMillis: Long = 0
