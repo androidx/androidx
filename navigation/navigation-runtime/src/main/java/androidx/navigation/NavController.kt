@@ -1037,6 +1037,20 @@ public open class NavController(
 
     @MainThread
     private fun onGraphCreated(startDestinationArgs: Bundle?) {
+        navigatorStateToRestore?.let { navigatorStateToRestore ->
+            val navigatorNames = navigatorStateToRestore.getStringArrayList(
+                KEY_NAVIGATOR_STATE_NAMES
+            )
+            if (navigatorNames != null) {
+                for (name in navigatorNames) {
+                    val navigator = _navigatorProvider.getNavigator<Navigator<*>>(name)
+                    val bundle = navigatorStateToRestore.getBundle(name)
+                    if (bundle != null) {
+                        navigator.onRestoreState(bundle)
+                    }
+                }
+            }
+        }
         backStackToRestore?.let { backStackToRestore ->
             for (parcelable in backStackToRestore) {
                 val state = parcelable as NavBackStackEntryState
@@ -1062,25 +1076,7 @@ public open class NavController(
             updateOnBackPressedCallbackEnabled()
             this.backStackToRestore = null
         }
-        navigatorStateToRestore?.let { navigatorStateToRestore ->
-            val navigatorNames = navigatorStateToRestore.getStringArrayList(
-                KEY_NAVIGATOR_STATE_NAMES
-            )
-            if (navigatorNames != null) {
-                for (name in navigatorNames) {
-                    val navigator = _navigatorProvider.getNavigator<Navigator<*>>(name)
-                    val navigatorBackStack = navigatorState.getOrPut(navigator) {
-                        NavControllerNavigatorState(navigator)
-                    }
-                    navigator.onAttach(navigatorBackStack)
-                    val bundle = navigatorStateToRestore.getBundle(name)
-                    if (bundle != null) {
-                        navigator.onRestoreState(bundle)
-                    }
-                }
-            }
-        }
-        // Mark all other Navigators as attached
+        // Mark all Navigators as attached
         _navigatorProvider.navigators.values.filterNot { it.isAttached }.forEach { navigator ->
             val navigatorBackStack = navigatorState.getOrPut(navigator) {
                 NavControllerNavigatorState(navigator)
