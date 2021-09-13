@@ -639,7 +639,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun loadStateFlowSynchronouslyUpdates() = testScope.runBlockingTest {
+    fun loadStateFlow_synchronouslyUpdates() = testScope.runBlockingTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         var combinedLoadStates: CombinedLoadStates? = null
         var itemCount = -1
@@ -688,7 +688,47 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun loadStateListenerSynchronouslyUpdates() = testScope.runBlockingTest {
+    fun loadStateFlow_hasNoInitialValue() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+
+        // Should not immediately emit without a real value to a new collector.
+        val combinedLoadStates = mutableListOf<CombinedLoadStates>()
+        val loadStateJob = launch {
+            differ.loadStateFlow.collect {
+                combinedLoadStates.add(it)
+            }
+        }
+        assertThat(combinedLoadStates).isEmpty()
+
+        // Add a real value and now we should emit to collector.
+        differ.collectFrom(PagingData.empty())
+        assertThat(combinedLoadStates).containsExactly(
+            localLoadStatesOf(
+                prependLocal = NotLoading.Complete,
+                appendLocal = NotLoading.Complete,
+            )
+        )
+
+        // Should emit real values to new collectors immediately
+        val newCombinedLoadStates = mutableListOf<CombinedLoadStates>()
+        val newLoadStateJob = launch {
+            differ.loadStateFlow.collect {
+                newCombinedLoadStates.add(it)
+            }
+        }
+        assertThat(newCombinedLoadStates).containsExactly(
+            localLoadStatesOf(
+                prependLocal = NotLoading.Complete,
+                appendLocal = NotLoading.Complete,
+            )
+        )
+
+        loadStateJob.cancel()
+        newLoadStateJob.cancel()
+    }
+
+    @Test
+    fun addLoadStateListener_SynchronouslyUpdates() = testScope.runBlockingTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         pauseDispatcher {
             var combinedLoadStates: CombinedLoadStates? = null
@@ -733,6 +773,35 @@ class PagingDataDifferTest {
 
             job.cancel()
         }
+    }
+
+    @Test
+    fun addLoadStateListener_hasNoInitialValue() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        val combinedLoadStateCapture = CombinedLoadStatesCapture()
+
+        // Adding a new listener without a real value should not trigger it.
+        differ.addLoadStateListener(combinedLoadStateCapture)
+        assertThat(combinedLoadStateCapture.newEvents()).isEmpty()
+
+        // Add a real value and now the listener should trigger.
+        differ.collectFrom(PagingData.empty())
+        assertThat(combinedLoadStateCapture.newEvents()).containsExactly(
+            localLoadStatesOf(
+                prependLocal = NotLoading.Complete,
+                appendLocal = NotLoading.Complete,
+            )
+        )
+
+        // Should emit real values to new listeners immediately
+        val newCombinedLoadStateCapture = CombinedLoadStatesCapture()
+        differ.addLoadStateListener(newCombinedLoadStateCapture)
+        assertThat(newCombinedLoadStateCapture.newEvents()).containsExactly(
+            localLoadStatesOf(
+                prependLocal = NotLoading.Complete,
+                appendLocal = NotLoading.Complete,
+            )
+        )
     }
 
     @Test
@@ -1167,7 +1236,6 @@ class PagingDataDifferTest {
 
     @Test
     fun remoteRefresh_refreshStatePersists() = testScope.runBlockingTest {
-
         val differ = SimpleDiffer(dummyDifferCallback)
         val remoteMediator = RemoteMediatorMock(loadDelay = 1500).apply {
             initializeResult = RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
@@ -1189,8 +1257,6 @@ class PagingDataDifferTest {
         advanceTimeBy(600)
 
         assertThat(differ.newCombinedLoadStates()).containsExactly(
-            // initial state
-            localLoadStatesOf(),
             // remote starts loading
             remoteLoadStatesOf(
                 refresh = Loading,
