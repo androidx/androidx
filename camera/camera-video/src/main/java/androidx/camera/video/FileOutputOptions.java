@@ -17,6 +17,7 @@
 package androidx.camera.video;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
@@ -59,14 +60,21 @@ public final class FileOutputOptions extends OutputOptions {
     @Override
     @NonNull
     public String toString() {
-        return mFileOutputOptionsInternal.toString().replaceFirst(
-                mFileOutputOptionsInternal.getClass().getSuperclass().getSimpleName(),
-                getClass().getSimpleName());
+        // Don't use Class.getSimpleName(), class name will be changed by proguard obfuscation.
+        return mFileOutputOptionsInternal.toString().replaceFirst("FileOutputOptionsInternal",
+                "FileOutputOptions");
     }
 
     @Override
-    public boolean equals(Object o) {
-        return mFileOutputOptionsInternal.equals(o);
+    public boolean equals(@Nullable Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof FileOutputOptions)) {
+            return false;
+        }
+        return mFileOutputOptionsInternal.equals(
+                ((FileOutputOptions) o).mFileOutputOptionsInternal);
     }
 
     @Override
