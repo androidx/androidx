@@ -29,6 +29,17 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class AutoMigrationWriterTest {
 
+    private val databaseSource = Source.java(
+        "foo.bar.MyDatabase",
+        """
+        package foo.bar;
+        import androidx.room.*;
+        @Database(entities = {}, version = 1)
+        public abstract class MyDatabase extends RoomDatabase {
+        }
+        """.trimIndent()
+    )
+
     @Test
     fun validAutoMigrationWithDefaultValue() {
         val source = Source.java(
@@ -41,11 +52,8 @@ class AutoMigrationWriterTest {
             """.trimIndent()
         )
 
-        runProcessorTest(listOf(source)) { invocation ->
+        runProcessorTest(listOf(source, databaseSource)) { invocation ->
             val autoMigrationResultWithNewAddedColumn = AutoMigration(
-                element = invocation.processingEnv.requireTypeElement(
-                    "foo.bar.ValidAutoMigrationWithDefault"
-                ),
                 from = 1,
                 to = 2,
                 schemaDiff = SchemaDiffResult(
@@ -78,17 +86,15 @@ class AutoMigrationWriterTest {
                 isSpecProvided = false
             )
             AutoMigrationWriter(
-                autoMigrationResultWithNewAddedColumn.element,
+                invocation.processingEnv.requireTypeElement("foo.bar.MyDatabase"),
                 autoMigrationResultWithNewAddedColumn
-            )
-                .write(invocation.processingEnv)
+            ).write(invocation.processingEnv)
 
             invocation.assertCompilationResult {
                 generatedSource(
                     loadTestSource(
-                        "autoMigrationWriter/output/ValidAutoMigrationWithDefault" +
-                            ".java",
-                        "foo.bar.ValidAutoMigrationWithDefault_AutoMigration_1_2_Impl"
+                        "autoMigrationWriter/output/ValidAutoMigrationWithDefault.java",
+                        "foo.bar.MyDatabase_AutoMigration_1_2_Impl"
                     )
                 )
             }
@@ -107,11 +113,8 @@ class AutoMigrationWriterTest {
             """.trimIndent()
         )
 
-        runProcessorTest(listOf(source)) { invocation ->
+        runProcessorTest(listOf(source, databaseSource)) { invocation ->
             val autoMigrationResultWithNewAddedColumn = AutoMigration(
-                element = invocation.processingEnv.requireTypeElement(
-                    "foo.bar.ValidAutoMigrationWithoutDefault"
-                ),
                 from = 1,
                 to = 2,
                 schemaDiff = SchemaDiffResult(
@@ -144,7 +147,7 @@ class AutoMigrationWriterTest {
                 isSpecProvided = false
             )
             AutoMigrationWriter(
-                autoMigrationResultWithNewAddedColumn.element,
+                invocation.processingEnv.requireTypeElement("foo.bar.MyDatabase"),
                 autoMigrationResultWithNewAddedColumn
             )
                 .write(invocation.processingEnv)
@@ -153,7 +156,7 @@ class AutoMigrationWriterTest {
                 generatedSource(
                     loadTestSource(
                         "autoMigrationWriter/output/ValidAutoMigrationWithoutDefault.java",
-                        "foo.bar.ValidAutoMigrationWithoutDefault_AutoMigration_1_2_Impl"
+                        "foo.bar.MyDatabase_AutoMigration_1_2_Impl"
                     )
                 )
             }

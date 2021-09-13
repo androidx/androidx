@@ -209,7 +209,6 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 }
 
                 AutoMigrationProcessor(
-                    element = element,
                     context = context,
                     spec = it.getAsType("spec")!!,
                     fromSchemaBundle = fromSchemaBundle,
