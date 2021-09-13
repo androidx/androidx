@@ -29,7 +29,6 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.annotation.ChecksSdkIntAtLeast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -81,18 +80,14 @@ class ChecksumsApiSImpl {
 
     private ChecksumsApiSImpl() {}
 
-    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.S) static
-    @Nullable
-    String getInstallerPackageName(@NonNull Context context, @NonNull String packageName)
-            throws PackageManager.NameNotFoundException {
+    static @Nullable String getInstallerPackageName(@NonNull Context context,
+            @NonNull String packageName) throws PackageManager.NameNotFoundException {
         InstallSourceInfo installSourceInfo = context.getPackageManager().getInstallSourceInfo(
                 packageName);
         return installSourceInfo != null ? installSourceInfo.getInitiatingPackageName() : null;
     }
 
-    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.S) static
-    @NonNull
-    ListenableFuture<Checksum[]> getChecksums(@NonNull Context context,
+    static @NonNull ListenableFuture<Checksum[]> getChecksums(@NonNull Context context,
             @NonNull String packageName, boolean includeSplits, @Checksum.Type int required,
             @NonNull List<Certificate> trustedInstallers, @NonNull Executor executor)
             throws CertificateEncodingException, PackageManager.NameNotFoundException {
@@ -110,7 +105,7 @@ class ChecksumsApiSImpl {
 
         context.getPackageManager().requestChecksums(packageName, includeSplits, required,
                 trustedInstallers, new PackageManager.OnChecksumsReadyListener() {
-                    @SuppressLint({"WrongConstant", "ClassVerificationFailure"})
+                    @SuppressLint({"WrongConstant"})
                     @Override
                     public void onChecksumsReady(List<ApkChecksum> apkChecksums) {
                         if (apkChecksums == null) {
@@ -139,8 +134,7 @@ class ChecksumsApiSImpl {
     }
 
     @SuppressLint("WrongConstant")
-    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.S) static
-    void getInstallerChecksums(@NonNull Context context,
+    static void getInstallerChecksums(@NonNull Context context,
             String split, File file,
             @Checksum.Type int required,
             @Nullable String installerPackageName,
