@@ -368,14 +368,15 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
 
             returns(ParameterizedTypeName.get(CommonTypeNames.LIST, RoomTypeNames.MIGRATION))
             val autoMigrationsList = database.autoMigrations.map { autoMigrationResult ->
+                val implTypeName = autoMigrationResult.getImplTypeName(database.typeName)
                 if (autoMigrationResult.isSpecProvided) {
                     CodeBlock.of(
                         "new $T(autoMigrationSpecsMap.get($T.class))",
-                        autoMigrationResult.implTypeName,
+                        implTypeName,
                         autoMigrationResult.specClassName
                     )
                 } else {
-                    CodeBlock.of("new $T()", autoMigrationResult.implTypeName)
+                    CodeBlock.of("new $T()", implTypeName)
                 }
             }
             addStatement(

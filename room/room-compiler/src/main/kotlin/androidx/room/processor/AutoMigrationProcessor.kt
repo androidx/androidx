@@ -22,7 +22,6 @@ import androidx.room.ProvidedAutoMigrationSpec
 import androidx.room.RenameColumn
 import androidx.room.RenameTable
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.RoomTypeNames
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.processor.ProcessorErrors.AUTOMIGRATION_SPEC_MUST_BE_CLASS
@@ -35,7 +34,6 @@ import androidx.room.vo.AutoMigration
 
 // TODO: (b/183435544) Support downgrades in AutoMigrations.
 class AutoMigrationProcessor(
-    val element: XTypeElement,
     val context: Context,
     val spec: XType,
     val fromSchemaBundle: DatabaseBundle,
@@ -48,22 +46,23 @@ class AutoMigrationProcessor(
      * @return the AutoMigrationResult containing the schema changes detected
      */
     fun process(): AutoMigration? {
-        val isSpecProvided = spec.typeElement?.hasAnnotation(
-            ProvidedAutoMigrationSpec::class
-        ) ?: false
-        val specElement = if (!spec.isTypeOf(Any::class)) {
+        val (specElement, isSpecProvided) = if (!spec.isTypeOf(Any::class)) {
             val typeElement = spec.typeElement
-
-            if (typeElement == null || typeElement.isInterface() || typeElement.isAbstract()) {
-                context.logger.e(element, AUTOMIGRATION_SPEC_MUST_BE_CLASS)
+            if (typeElement == null) {
+                context.logger.e(AUTOMIGRATION_SPEC_MUST_BE_CLASS)
+                return null
+            }
+            if (typeElement.isInterface() || typeElement.isAbstract()) {
+                context.logger.e(typeElement, AUTOMIGRATION_SPEC_MUST_BE_CLASS)
                 return null
             }
 
+            val isSpecProvided = typeElement.hasAnnotation(ProvidedAutoMigrationSpec::class)
             if (!isSpecProvided) {
-                val constructors = element.getConstructors()
+                val constructors = typeElement.getConstructors()
                 context.checker.check(
                     constructors.isEmpty() || constructors.any { it.parameters.isEmpty() },
-                    element,
+                    typeElement,
                     ProcessorErrors.AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR
                 )
             }
@@ -84,9 +83,9 @@ class AutoMigrationProcessor(
                 )
                 return null
             }
-            typeElement
+            typeElement to isSpecProvided
         } else {
-            null
+            null to false
         }
 
         if (toSchemaBundle.version <= fromSchemaBundle.version) {
@@ -152,7 +151,6 @@ class AutoMigrationProcessor(
         }
 
         return AutoMigration(
-            element = element,
             from = fromSchemaBundle.version,
             to = toSchemaBundle.version,
             schemaDiff = schemaDiff,
