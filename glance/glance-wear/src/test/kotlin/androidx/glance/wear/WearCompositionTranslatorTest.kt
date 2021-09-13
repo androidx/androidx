@@ -37,9 +37,13 @@ import androidx.glance.layout.width
 import androidx.glance.unit.Color
 import androidx.glance.unit.dp
 import androidx.glance.unit.sp
+import androidx.glance.wear.layout.AnchorType
+import androidx.glance.wear.layout.CurvedRow
+import androidx.glance.wear.layout.RadialAlignment
 import androidx.glance.wear.layout.background
 import androidx.wear.tiles.DimensionBuilders
 import androidx.wear.tiles.LayoutElementBuilders
+import androidx.wear.tiles.LayoutElementBuilders.ARC_ANCHOR_END
 import androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_BOLD
 import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER
 import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_END
@@ -304,6 +308,92 @@ class WearCompositionTranslatorTest {
 
         // ... and not to the Text
         assertThat(innerText.modifiers?.padding).isNull()
+    }
+
+    @Test
+    fun canTranslateCurvedRow() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            CurvedRow(
+                anchor = 20f,
+                radialAlignment = RadialAlignment.Inner,
+                anchorType = AnchorType.End,
+                modifier = Modifier.padding(20.dp)
+            ) {}
+        }
+
+        val innerArc = (content as LayoutElementBuilders.Box).contents[0]
+            as LayoutElementBuilders.Arc
+
+        // Remember, 0 degrees is handled differently in Glance (3 o clock) and Tiles (12 o clock).
+        assertThat(innerArc.anchorAngle!!.value).isEqualTo(110f)
+        assertThat(innerArc.anchorType!!.value).isEqualTo(ARC_ANCHOR_END)
+        assertThat(innerArc.modifiers!!.padding).isNotNull()
+        assertThat(innerArc.verticalAlign!!.value).isEqualTo(VERTICAL_ALIGN_BOTTOM)
+    }
+
+    @Test
+    fun curvedRowWithSizeInflatesInBox() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            CurvedRow(
+                anchor = 20f,
+                radialAlignment = RadialAlignment.Inner,
+                anchorType = AnchorType.End,
+                modifier = Modifier.padding(20.dp).size(10.dp)
+            ) {}
+        }
+
+        val innerBox = (content as LayoutElementBuilders.Box).contents[0]
+            as LayoutElementBuilders.Box
+        val innerArc = innerBox.contents[0] as LayoutElementBuilders.Arc
+
+        assertThat(innerBox.width is DimensionBuilders.DpProp)
+        assertThat((innerBox.width as DimensionBuilders.DpProp).value).isEqualTo(10f)
+        assertThat(innerBox.height is DimensionBuilders.DpProp)
+        assertThat((innerBox.height as DimensionBuilders.DpProp).value).isEqualTo(10f)
+
+        // Modifiers should apply to the Box
+        assertThat(innerBox.modifiers!!.padding).isNotNull()
+
+        // ... and not to the Arc
+        assertThat(innerArc.modifiers?.padding).isNull()
+    }
+
+    @Test
+    fun canTranslateCurvedText() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            val style = TextStyle(
+                size = 16.sp,
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Italic,
+            )
+
+            CurvedRow {
+                CurvedText(text = "Hello World", textStyle = style)
+            }
+        }
+
+        val innerArc = (content as LayoutElementBuilders.Box).contents[0]
+            as LayoutElementBuilders.Arc
+        val innerArcText = innerArc.contents[0] as LayoutElementBuilders.ArcText
+
+        assertThat(innerArcText.text!!.value).isEqualTo("Hello World")
+        assertThat(innerArcText.fontStyle!!.size!!.value).isEqualTo(16f)
+        assertThat(innerArcText.fontStyle!!.italic!!.value).isTrue()
+        assertThat(innerArcText.fontStyle!!.weight!!.value).isEqualTo(FONT_WEIGHT_BOLD)
+    }
+
+    @Test
+    fun otherElementInArcInflatesInArcAdapter() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            CurvedRow {
+                Box {}
+            }
+        }
+
+        val innerArc = (content as LayoutElementBuilders.Box).contents[0]
+            as LayoutElementBuilders.Arc
+        val innerArcAdapter = innerArc.contents[0] as LayoutElementBuilders.ArcAdapter
+        assertThat(innerArcAdapter.content).isInstanceOf(LayoutElementBuilders.Box::class.java)
     }
 
     private suspend fun runAndTranslate(
