@@ -36,6 +36,7 @@ import com.squareup.javapoet.WildcardTypeName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.io.File
 import java.io.IOException
 import java.lang.IllegalStateException
 
@@ -124,13 +125,22 @@ class XExecutableElementTest {
     }
 
     @Test
-    fun kotlinDefaultImpl() {
+    fun kotlinDefaultImpl_src() {
+        kotlinDefaultImpl(preCompiled = false)
+    }
+
+    @Test
+    fun kotlinDefaultImpl_lib() {
+        kotlinDefaultImpl(preCompiled = true)
+    }
+
+    private fun kotlinDefaultImpl(preCompiled: Boolean) {
         val subject = Source.kotlin(
             "Baz.kt",
             """
             package foo.bar
 
-            interface Baz {
+            interface Base {
                 fun noDefault()
                 fun withDefault(): Int {
                     return 3
@@ -145,41 +155,159 @@ class XExecutableElementTest {
                     return ""
                 }
             }
+
+            interface Sub : Base
             """.trimIndent()
         )
+        val (sources, classpath) = if (preCompiled) {
+            emptyList<Source>() to compileFiles(listOf(subject))
+        } else {
+            listOf(subject) to emptyList<File>()
+        }
         runProcessorTest(
-            sources = listOf(subject)
+            sources = sources,
+            classpath = classpath
         ) { invocation ->
-            val element = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
-            element.getDeclaredMethod("noDefault").let { method ->
-                assertThat(method.hasKotlinDefaultImpl()).isFalse()
-            }
-            element.getDeclaredMethod("withDefault").let { method ->
-                assertThat(method.hasKotlinDefaultImpl()).isTrue()
-            }
-            element.getDeclaredMethods().first {
-                it.name == "nameMatch" && it.parameters.isEmpty()
-            }.let { nameMatchWithoutDefault ->
-                assertThat(nameMatchWithoutDefault.hasKotlinDefaultImpl()).isFalse()
-            }
-
-            element.getDeclaredMethods().first {
-                it.name == "nameMatch" && it.parameters.size == 1
-            }.let { nameMatchWithoutDefault ->
-                assertThat(nameMatchWithoutDefault.hasKotlinDefaultImpl()).isTrue()
-            }
-
-            element.getDeclaredMethod("withDefaultWithParams").let { method ->
-                assertThat(method.hasKotlinDefaultImpl()).isTrue()
-            }
-
-            element.getDeclaredMethod("withDefaultWithTypeArgs").let { method ->
-                assertThat(method.hasKotlinDefaultImpl()).isTrue()
-            }
-            // private functions in interfaces don't appear in kapt stubs
-            if (invocation.isKsp) {
-                element.getDeclaredMethod("privateWithDefault").let { method ->
+            listOf("Base", "Sub").forEach { className ->
+                val element = invocation.processingEnv.requireTypeElement("foo.bar.$className")
+                element.getMethod("noDefault").let { method ->
                     assertThat(method.hasKotlinDefaultImpl()).isFalse()
+                }
+                element.getMethod("withDefault").let { method ->
+                    assertThat(method.hasKotlinDefaultImpl()).isTrue()
+                }
+                element.getAllMethods().first {
+                    it.name == "nameMatch" && it.parameters.isEmpty()
+                }.let { nameMatchWithoutDefault ->
+                    assertThat(nameMatchWithoutDefault.hasKotlinDefaultImpl()).isFalse()
+                }
+
+                element.getAllMethods().first {
+                    it.name == "nameMatch" && it.parameters.size == 1
+                }.let { nameMatchWithoutDefault ->
+                    assertThat(nameMatchWithoutDefault.hasKotlinDefaultImpl()).isTrue()
+                }
+
+                element.getMethod("withDefaultWithParams").let { method ->
+                    assertThat(method.hasKotlinDefaultImpl()).isTrue()
+                }
+
+                element.getMethod("withDefaultWithTypeArgs").let { method ->
+                    assertThat(method.hasKotlinDefaultImpl()).isTrue()
+                }
+                // private functions in interfaces don't appear in kapt stubs
+                if (invocation.isKsp && className == "Base") {
+                    element.getMethod("privateWithDefault").let { method ->
+                        assertThat(method.hasKotlinDefaultImpl()).isFalse()
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun kotlinDefaultImpl_typeParams_src() {
+        kotlinDefaultImpl_typeParams(preCompiled = false)
+    }
+
+    @Test
+    fun kotlinDefaultImpl_typeParams_lib() {
+        kotlinDefaultImpl_typeParams(preCompiled = true)
+    }
+
+    private fun kotlinDefaultImpl_typeParams(preCompiled: Boolean) {
+        val subject = Source.kotlin(
+            "Baz.kt",
+            """
+            package foo.bar
+
+            interface Base<T1, T2> {
+                fun noDefault(t : T1)
+                fun withDefault_noArg(): Int {
+                    return 3
+                }
+                fun nameMatch()
+                fun nameMatch(param:T1) {}
+                fun withDefaultWithParams(param1:T1, param2:T2) {}
+                fun withDefaultWithTypeArgs(param1: List<String>): String {
+                    return param1.first()
+                }
+                private fun privateWithDefault(): String {
+                    return ""
+                }
+            }
+
+            interface Sub : Base<Int, String>
+
+            interface Base2<T1, T2, in T3, out T4, T5 : Number> {
+
+                fun withDefaultWithInProjectionType(param1: T3) {}
+
+                fun withDefaultWithOutProjectionType(): T4? {
+                    return null
+                }
+
+                fun withDefaultWithSubtypeArg(param: T5) { }
+            }
+
+            interface Sub2 : Base2<Int, String, Number, Number, Long>
+
+            """.trimIndent()
+        )
+        val (sources, classpath) = if (preCompiled) {
+            emptyList<Source>() to compileFiles(listOf(subject))
+        } else {
+            listOf(subject) to emptyList<File>()
+        }
+        runProcessorTest(
+            sources = sources,
+            classpath = classpath
+        ) { invocation ->
+            listOf("Base", "Sub").forEach { className ->
+                val element = invocation.processingEnv.requireTypeElement("foo.bar.$className")
+                element.getMethod("noDefault").let { method ->
+                    assertThat(method.hasKotlinDefaultImpl()).isFalse()
+                }
+                element.getMethod("withDefault_noArg").let { method ->
+                    assertThat(method.hasKotlinDefaultImpl()).isTrue()
+                }
+                element.getAllMethods().first {
+                    it.name == "nameMatch" && it.parameters.isEmpty()
+                }.let { nameMatchWithoutDefault ->
+                    assertThat(nameMatchWithoutDefault.hasKotlinDefaultImpl()).isFalse()
+                }
+
+                element.getAllMethods().first {
+                    it.name == "nameMatch" && it.parameters.size == 1
+                }.let { nameMatchWithoutDefault ->
+                    assertThat(nameMatchWithoutDefault.hasKotlinDefaultImpl()).isTrue()
+                }
+
+                element.getMethod("withDefaultWithParams").let { method ->
+                    assertThat(method.hasKotlinDefaultImpl()).isTrue()
+                }
+
+                element.getMethod("withDefaultWithTypeArgs").let { method ->
+                    assertThat(method.hasKotlinDefaultImpl()).isTrue()
+                }
+                // private functions in interfaces don't appear in kapt stubs
+                if (invocation.isKsp && className == "Base") {
+                    element.getMethod("privateWithDefault").let { method ->
+                        assertThat(method.hasKotlinDefaultImpl()).isFalse()
+                    }
+                }
+            }
+
+            listOf("Base2", "Sub2").forEach { className ->
+                val element = invocation.processingEnv.requireTypeElement("foo.bar.$className")
+                element.getMethod("withDefaultWithInProjectionType").let { method ->
+                    assertThat(method.hasKotlinDefaultImpl()).isTrue()
+                }
+                element.getMethod("withDefaultWithOutProjectionType").let { method ->
+                    assertThat(method.hasKotlinDefaultImpl()).isTrue()
+                }
+                element.getMethod("withDefaultWithSubtypeArg").let { method ->
+                    assertThat(method.hasKotlinDefaultImpl()).isTrue()
                 }
             }
         }
