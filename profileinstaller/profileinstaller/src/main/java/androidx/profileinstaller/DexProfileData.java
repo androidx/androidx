@@ -22,8 +22,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 class DexProfileData {
-    final @NonNull
-    String key;
+    @NonNull
+    final String apkName;
+    @NonNull
+    final String dexName;
     final long dexChecksum;
     final int classSetSize;
     final int hotMethodRegionSize;
@@ -34,7 +36,8 @@ class DexProfileData {
     HashMap<Integer, Integer> methods;
 
     DexProfileData(
-            @NonNull String key,
+            @NonNull String apkName,
+            @NonNull String dexName,
             long dexChecksum,
             int classSetSize,
             int hotMethodRegionSize,
@@ -42,7 +45,8 @@ class DexProfileData {
             @NonNull HashSet<Integer> classes,
             @NonNull HashMap<Integer, Integer> methods
     ) {
-        this.key = key;
+        this.apkName = apkName;
+        this.dexName = dexName;
         this.dexChecksum = dexChecksum;
         this.classSetSize = classSetSize;
         this.hotMethodRegionSize = hotMethodRegionSize;

@@ -33,8 +33,10 @@ import org.junit.runners.JUnit4;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
@@ -76,6 +78,15 @@ public class ProfileTranscoderTests {
     }
 
     @Test
+    public void testTranscodeForO_MR1() throws IOException {
+        assertGoldenTranscode(
+                testFile("baseline.prof"),
+                testFile("baseline-o-mr1.prof"),
+                ProfileVersion.V009_O_MR1
+        );
+    }
+
+    @Test
     public void testTranscodeForP() throws IOException {
         assertGoldenTranscode(
                 testFile("baseline.prof"),
@@ -90,6 +101,15 @@ public class ProfileTranscoderTests {
                 testFile("baseline-multidex.prof"),
                 testFile("baseline-multidex-o.prof"),
                 ProfileVersion.V005_O
+        );
+    }
+
+    @Test
+    public void testMultidexTranscodeForO_MR1() throws IOException {
+        assertGoldenTranscode(
+                testFile("baseline-multidex.prof"),
+                testFile("baseline-multidex-o-mr1.prof"),
+                ProfileVersion.V009_O_MR1
         );
     }
 
@@ -126,6 +146,32 @@ public class ProfileTranscoderTests {
             byte[] goldenBytes = Files.readAllBytes(golden.toPath());
             byte[] actualBytes = os.toByteArray();
             Truth.assertThat(actualBytes).isEqualTo(goldenBytes);
+        }
+    }
+
+    /**
+     * Call this to quickly regenerate golden transcodes based on profile format changes.
+     *
+     * Please ensure that the new file is correct and provide a detailed description of the
+     * change in the commit message whenever you call this.
+     */
+    private static void updateGoldenTranscode(
+            @NonNull File input,
+            @NonNull File golden,
+            @NonNull byte[] desiredVersion
+    ) throws IOException {
+        try (
+                InputStream is = new FileInputStream(input);
+                OutputStream os = new FileOutputStream(golden)
+        ) {
+            byte[] version = ProfileTranscoder.readHeader(is);
+            ProfileTranscoder.writeHeader(os, desiredVersion);
+            DexProfileData[] data = ProfileTranscoder.readProfile(
+                    is,
+                    version,
+                    APK_NAME
+            );
+            ProfileTranscoder.transcodeAndWriteBody(os, desiredVersion, data);
         }
     }
 
