@@ -31,6 +31,7 @@ import androidx.wear.complications.ComplicationSlotBounds
 import androidx.wear.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.EmptyComplicationData
 import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.watchface.RenderParameters.HighlightedElement
 import androidx.wear.watchface.style.UserStyleSetting
@@ -679,8 +680,12 @@ public class ComplicationSlot internal constructor(
         }
     }
 
-    internal fun init(invalidateListener: InvalidateListener) {
+    internal fun init(invalidateListener: InvalidateListener, isHeadless: Boolean) {
         this.invalidateListener = invalidateListener
+
+        if (isHeadless) {
+            (complicationData as MutableStateFlow).value = EmptyComplicationData()
+        }
     }
 
     /**
