@@ -21,6 +21,8 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -2140,6 +2142,42 @@ public class EditorSessionTest {
                     "android.app.Application}"
             )
         }
+    }
+
+    @Test
+    public fun watchfaceSupportsHeadlessEditing() {
+        val mockPackageManager = Mockito.mock(PackageManager::class.java)
+
+        `when`(mockPackageManager.getApplicationInfo("test.package", PackageManager.GET_META_DATA))
+            .thenReturn(
+                ApplicationInfo().apply {
+                    metaData = Bundle().apply {
+                        putString(EditorRequest.ANDROIDX_WATCHFACE_API_VERSION, "4")
+                    }
+                }
+            )
+
+        assertThat(
+            EditorRequest.canWatchFaceSupportHeadlessEditing(mockPackageManager, "test.package")
+        ).isTrue()
+    }
+
+    @Test
+    public fun watchfaceSupportsHeadlessEditing_oldApi() {
+        val mockPackageManager = Mockito.mock(PackageManager::class.java)
+
+        `when`(mockPackageManager.getApplicationInfo("test.package", PackageManager.GET_META_DATA))
+            .thenReturn(
+                ApplicationInfo().apply {
+                    metaData = Bundle().apply {
+                        putString(EditorRequest.ANDROIDX_WATCHFACE_API_VERSION, "3")
+                    }
+                }
+            )
+
+        assertThat(
+            EditorRequest.canWatchFaceSupportHeadlessEditing(mockPackageManager, "test.package")
+        ).isFalse()
     }
 }
 
