@@ -16,7 +16,7 @@
 
 package androidx.benchmark.macro.perfetto
 
-import androidx.benchmark.macro.MetricsWithUiState
+import androidx.benchmark.macro.IterationResult
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Test
@@ -131,10 +131,10 @@ class PerfettoResultsParserTest {
                 startupJson(fullyDrawn = false),
                 "androidx.benchmark.macro.test"
             ),
-            MetricsWithUiState(
-                metrics = mapOf("startupMs" to 149.438504),
-                timelineStart = 345883080735887,
-                timelineEnd = 345883230174391
+            IterationResult(
+                singleMetrics = mapOf("startupMs" to 149.438504),
+                sampledMetrics = emptyMap(),
+                timelineRangeNs = 345883080735887..345883230174391
             )
         )
     }
@@ -146,13 +146,13 @@ class PerfettoResultsParserTest {
                 startupJson(fullyDrawn = true),
                 "androidx.benchmark.macro.test"
             ),
-            MetricsWithUiState(
-                metrics = mapOf(
+            IterationResult(
+                singleMetrics = mapOf(
                     "startupMs" to 149.438504,
                     "fullyDrawnMs" to 204.445333
                 ),
-                timelineStart = 345883080735887,
-                timelineEnd = 345883230174391
+                sampledMetrics = emptyMap(),
+                timelineRangeNs = 345883080735887..345883230174391
             )
         )
     }

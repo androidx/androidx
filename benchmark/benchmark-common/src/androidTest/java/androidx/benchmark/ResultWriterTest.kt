@@ -38,6 +38,14 @@ public class ResultWriterTest {
             data = listOf(100.0, 101.0, 102.0)
         )
     )
+    private val sampledMetricIterationData = listOf(listOf(0.0), listOf(50.0), listOf(100.0))
+    private val sampledMetricResults = listOf(
+        MetricResult(
+            name = "frameTimeMs",
+            iterationData = sampledMetricIterationData,
+            data = sampledMetricIterationData.flatten()
+        )
+    )
 
     private val reportA = BenchmarkResult(
         testName = "MethodA",
@@ -52,7 +60,10 @@ public class ResultWriterTest {
         testName = "MethodB",
         className = "package.Class2",
         totalRunTimeNs = 900000000,
-        metrics = metricResults,
+        metrics = BenchmarkResult.Measurements(
+            singleMetrics = metricResults,
+            sampledMetrics = sampledMetricResults
+        ),
         repeatIterations = 100000,
         thermalThrottleSleepSeconds = 90000000,
         warmupIterations = 8000
@@ -113,6 +124,7 @@ public class ResultWriterTest {
                                 ]
                             }
                         },
+                        "sampledMetrics": {},
                         "warmupIterations": 8000,
                         "repeatIterations": 100000,
                         "thermalThrottleSleepSeconds": 90000000
@@ -131,6 +143,25 @@ public class ResultWriterTest {
                                     100.0,
                                     101.0,
                                     102.0
+                                ]
+                            }
+                        },
+                        "sampledMetrics": {
+                            "frameTimeMs": {
+                                "P50": 50.0,
+                                "P90": 90.0,
+                                "P95": 94.99999999999999,
+                                "P99": 99.0,
+                                "runs": [
+                                    [
+                                        0.0
+                                    ],
+                                    [
+                                        50.0
+                                    ],
+                                    [
+                                        100.0
+                                    ]
                                 ]
                             }
                         },

@@ -43,6 +43,9 @@ package androidx.benchmark.macro {
   public final class IdeSummaryStringKt {
   }
 
+  public final class IterationResultKt {
+  }
+
   public final class MacrobenchmarkKt {
   }
 

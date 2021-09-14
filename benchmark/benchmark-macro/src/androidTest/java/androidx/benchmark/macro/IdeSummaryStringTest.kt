@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro
 
+import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.MetricResult
 import androidx.benchmark.Outputs
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -36,7 +37,7 @@ public class IdeSummaryStringTest {
     }
 
     @Test
-    public fun minimalSample() {
+    public fun singleMinimal() {
         val metricResult = MetricResult("Metric", listOf(0.0, 1.1, 2.2))
 
         assertEquals(0, metricResult.minIndex)
@@ -46,7 +47,10 @@ public class IdeSummaryStringTest {
         val (summaryV1, summaryV2) = ideSummaryStrings(
             warningLines = "",
             benchmarkName = "foo",
-            metricResults = listOf(metricResult),
+            measurements = BenchmarkResult.Measurements(
+                singleMetrics = listOf(metricResult),
+                sampledMetrics = emptyList()
+            ),
             absoluteTracePaths = absoluteTracePaths
         )
         assertEquals(
@@ -69,14 +73,17 @@ public class IdeSummaryStringTest {
     }
 
     @Test
-    public fun complexSample() {
+    public fun singleComplex() {
         val metric1 = MetricResult("Metric1", listOf(0.0, 1.0, 2.0))
         val metric2 = MetricResult("Metric2", listOf(222.0, 111.0, 0.0))
         val absoluteTracePaths = createAbsoluteTracePaths(3)
         val (summaryV1, summaryV2) = ideSummaryStrings(
             warningLines = "",
             benchmarkName = "foo",
-            metricResults = listOf(metric1, metric2),
+            measurements = BenchmarkResult.Measurements(
+                singleMetrics = listOf(metric1, metric2),
+                sampledMetrics = emptyList()
+            ),
             absoluteTracePaths = absoluteTracePaths
         )
         assertEquals(
@@ -101,13 +108,83 @@ public class IdeSummaryStringTest {
     }
 
     @Test
-    public fun warningSample() {
+    public fun sampledMinimal() {
+        val metricResult = MetricResult("Metric1", List(101) { it.toDouble() })
+        val absoluteTracePaths = createAbsoluteTracePaths(3)
+        val (summaryV1, summaryV2) = ideSummaryStrings(
+            warningLines = "",
+            benchmarkName = "foo",
+            measurements = BenchmarkResult.Measurements(
+                singleMetrics = emptyList(),
+                sampledMetrics = listOf(metricResult)
+            ),
+            absoluteTracePaths = absoluteTracePaths
+        )
+        assertEquals(
+            """
+                |foo
+                |  Metric1   P50  50.0,   P90  90.0,   P95  95.0,   P99  99.0
+                |
+            """.trimMargin(),
+            summaryV1
+        )
+        assertEquals(
+            """
+                |foo
+                |  Metric1   P50  50.0,   P90  90.0,   P95  95.0,   P99  99.0
+                |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
+                |
+            """.trimMargin(),
+            summaryV2
+        )
+    }
+
+    @Test
+    public fun complex() {
+        val single = MetricResult("Metric1", listOf(0.0, 1.0, 2.0))
+        val sampled = MetricResult("Metric2", List(101) { it.toDouble() })
+        val absoluteTracePaths = createAbsoluteTracePaths(3)
+        val (summaryV1, summaryV2) = ideSummaryStrings(
+            warningLines = "",
+            benchmarkName = "foo",
+            measurements = BenchmarkResult.Measurements(
+                singleMetrics = listOf(single),
+                sampledMetrics = listOf(sampled)
+            ),
+            absoluteTracePaths = absoluteTracePaths
+        )
+        assertEquals(
+            """
+                |foo
+                |  Metric1   min   0.0,   median   1.0,   max   2.0
+                |  Metric2   P50  50.0,   P90  90.0,   P95  95.0,   P99  99.0
+                |
+            """.trimMargin(),
+            summaryV1
+        )
+        assertEquals(
+            """
+                |foo
+                |  Metric1   [min   0.0](file://iter0.trace),   [median   1.0](file://iter1.trace),   [max   2.0](file://iter2.trace)
+                |  Metric2   P50  50.0,   P90  90.0,   P95  95.0,   P99  99.0
+                |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
+                |
+            """.trimMargin(),
+            summaryV2
+        )
+    }
+
+    @Test
+    public fun warning() {
         val metricResult = MetricResult("Metric", listOf(0.0, 1.0, 2.0))
         val absoluteTracePaths = createAbsoluteTracePaths(3)
         val (summaryV1, summaryV2) = ideSummaryStrings(
             warningLines = "warning\nstring\n",
             benchmarkName = "foo",
-            metricResults = listOf(metricResult),
+            measurements = BenchmarkResult.Measurements(
+                singleMetrics = listOf(metricResult),
+                sampledMetrics = emptyList()
+            ),
             absoluteTracePaths = absoluteTracePaths
         )
         assertEquals(
@@ -139,7 +216,10 @@ public class IdeSummaryStringTest {
             ideSummaryStrings(
                 warningLines = "",
                 benchmarkName = "foo",
-                metricResults = emptyList(),
+                measurements = BenchmarkResult.Measurements(
+                    singleMetrics = emptyList(),
+                    sampledMetrics = emptyList()
+                ),
                 absoluteTracePaths = emptyList()
             ).first
         }

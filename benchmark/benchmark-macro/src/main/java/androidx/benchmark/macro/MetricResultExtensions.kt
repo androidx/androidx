@@ -22,9 +22,7 @@ import androidx.benchmark.MetricResult
 /**
  * Merge the Map<String, Long> results from each iteration into one List<MetricResult>
  */
-internal fun List<Map<String, Double>>.mergeToMetricResults(
-    @Suppress("UNUSED_PARAMETER") tracePaths: List<String>
-): List<MetricResult> {
+internal fun List<Map<String, Double>>.mergeToSingleMetricResults(): List<MetricResult> {
     val setOfAllKeys = flatMap { it.keys }.toSet()
 
     // build Map<String, List<Long>>
@@ -43,5 +41,29 @@ internal fun List<Map<String, Double>>.mergeToMetricResults(
     // transform to List<MetricResult>, sorted by metric name
     return listResults.map { (metricName, values) ->
         MetricResult(name = metricName, data = values)
+    }.sortedBy { it.name }
+}
+
+/**
+ * Merge the Map<String, List<Long>> results from each iteration into one List<MetricResult>
+ */
+internal fun List<Map<String, List<Double>>>.mergeToSampledMetricResults(): List<MetricResult> {
+    val setOfAllKeys = flatMap { it.keys }.toSet()
+
+    // build Map<String, List<List<Long>>>
+    val listResults = setOfAllKeys.associateWith { key ->
+        mapIndexed { index: Int, iterationSamples: Map<String, List<Double>> ->
+            iterationSamples[key]
+                ?: throw IllegalStateException("Iteration $index didn't capture metric $key")
+        }
+    }
+
+    // transform to List<MetricResult>, sorted by metric name
+    return listResults.map { (metricName, values) ->
+        MetricResult(
+            name = metricName,
+            data = values.flatten(),
+            iterationData = values
+        )
     }.sortedBy { it.name }
 }
