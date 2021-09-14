@@ -39,7 +39,9 @@ internal object KaptCompilationTestRunner : CompilationTestRunner {
             sources = params.sources,
             classpath = params.classpath,
             kaptProcessors = listOf(syntheticJavacProcessor),
-            processorOptions = params.options
+            processorOptions = params.options,
+            javacArguments = params.javacArguments,
+            kotlincArguments = params.kotlincArguments,
         ).withAtLeastOneKotlinSource()
         val result = compile(
             workingDir = workingDir,

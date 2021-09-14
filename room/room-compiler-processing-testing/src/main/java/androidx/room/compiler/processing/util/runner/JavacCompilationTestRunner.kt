@@ -59,7 +59,7 @@ internal object JavacCompilationTestRunner : CompilationTestRunner {
         val compiler = Compiler
             .javac()
             .withProcessors(syntheticJavacProcessor)
-            .withOptions(optionsArg + "-Xlint")
+            .withOptions(params.javacArguments + optionsArg + "-Xlint")
             .let {
                 if (params.classpath.isNotEmpty()) {
                     it.withClasspath(params.classpath)

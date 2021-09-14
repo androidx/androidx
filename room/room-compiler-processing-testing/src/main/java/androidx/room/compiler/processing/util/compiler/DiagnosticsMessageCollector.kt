@@ -39,6 +39,13 @@ internal class DiagnosticsMessageCollector : MessageCollector {
         diagnostics.clear()
     }
 
+    /**
+     * Returns `true` if this collector has any warning messages.
+     */
+    fun hasWarnings() = diagnostics.any {
+        it.kind == Diagnostic.Kind.WARNING || it.kind == Diagnostic.Kind.MANDATORY_WARNING
+    }
+
     override fun hasErrors(): Boolean {
         return diagnostics.any {
             it.kind == Diagnostic.Kind.ERROR
