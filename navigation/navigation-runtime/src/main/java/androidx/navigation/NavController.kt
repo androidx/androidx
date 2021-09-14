@@ -40,12 +40,14 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavDestination.Companion.createRoute
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -109,6 +111,30 @@ public open class NavController(
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open val backQueue: ArrayDeque<NavBackStackEntry> = ArrayDeque()
+
+    private val _visibleEntries: MutableStateFlow<List<NavBackStackEntry>> =
+        MutableStateFlow(emptyList())
+
+    /**
+     * A [StateFlow] that will emit the currently visible [NavBackStackEntries][NavBackStackEntry]
+     * whenever they change. If there is no visible [NavBackStackEntry], this will be set to an
+     * empty list.
+     *
+     * - `CREATED` entries are listed first and include all entries that have been popped from
+     * the back stack and are in the process of completing their exit transition
+     * - `STARTED` entries on the back stack are next and include all entries that are running
+     * their enter transition and entries whose destination is partially covered by a
+     * `FloatingWindow` destination
+     * - The last entry in the list is the topmost entry in the back stack and is in the `RESUMED`
+     * state only if its enter transition has completed. Otherwise it too will be `STARTED`.
+     *
+     * Note that the `Lifecycle` of any entry cannot be higher than the containing
+     * Activity/Fragment - if the Activity is not `RESUMED`, no entry will be `RESUMED`, no matter
+     * what the transition state is.
+     */
+    public val visibleEntries: StateFlow<List<NavBackStackEntry>> =
+        _visibleEntries.asStateFlow()
+
     private val childToParentEntries = mutableMapOf<NavBackStackEntry, NavBackStackEntry>()
     private val parentToChildCount = mutableMapOf<NavBackStackEntry, AtomicInteger>()
 
@@ -315,8 +341,10 @@ public open class NavController(
                     viewModel?.clear(entry.id)
                 }
                 updateBackStackLifecycle()
+                _visibleEntries.tryEmit(populateVisibleEntries())
             } else if (!this@NavControllerNavigatorState.isNavigating) {
                 updateBackStackLifecycle()
+                _visibleEntries.tryEmit(populateVisibleEntries())
             }
             // else, updateBackStackLifecycle() will be called after any ongoing navigate() call
             // completes
@@ -866,6 +894,7 @@ public open class NavController(
                 }
                 _currentBackStackEntryFlow.tryEmit(backStackEntry)
             }
+            _visibleEntries.tryEmit(populateVisibleEntries())
         }
         return lastBackStackEntry != null
     }
@@ -947,6 +976,26 @@ public open class NavController(
                 // Ensure the state is up to date
                 entry.updateState()
             }
+        }
+    }
+
+    internal fun populateVisibleEntries(): List<NavBackStackEntry> {
+        val entries = mutableListOf<NavBackStackEntry>()
+        // Add any transitioning entries that are not at least STARTED
+        navigatorState.values.forEach { state ->
+            entries += state.transitionsInProgress.value.filter { entry ->
+                !entries.contains(entry) &&
+                    !entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+            }
+        }
+        // Add any STARTED entries from the backQueue. This will include the topmost
+        // non-FloatingWindow destination plus every FloatingWindow destination above it.
+        entries += backQueue.filter { entry ->
+            !entries.contains(entry) &&
+                entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        }
+        return entries.filter {
+            it.destination !is NavGraph
         }
     }
 
