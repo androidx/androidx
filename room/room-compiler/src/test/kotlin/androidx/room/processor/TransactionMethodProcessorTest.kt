@@ -305,7 +305,8 @@ class TransactionMethodProcessorTest {
                 }.first { it.second.isNotEmpty() }
             val processor = TransactionMethodProcessor(
                 baseContext = invocation.context,
-                containing = owner.type,
+                containingElement = owner,
+                containingType = owner.type,
                 executableElement = methods.first()
             )
             val processed = processor.process()
