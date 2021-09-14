@@ -709,14 +709,6 @@ includeProject(":work:work-testing", "work/work-testing", [BuildType.MAIN])
 
 /////////////////////////////
 //
-// Legacy
-//
-/////////////////////////////
-
-includeProject(":legacy:legacy-support-core-utils", "legacy/legacy-support-core-utils", [BuildType.MAIN])
-
-/////////////////////////////
-//
 // Samples
 //
 /////////////////////////////
