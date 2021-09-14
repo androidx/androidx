@@ -101,22 +101,22 @@ class VideoRecordingTest(
     private lateinit var finalize: VideoRecordEvent.Finalize
 
     private val videoRecordEventListener = Consumer<VideoRecordEvent> {
-        when (it.eventType) {
-            VideoRecordEvent.EVENT_TYPE_START -> {
+        when (it) {
+            is VideoRecordEvent.Start -> {
                 // Recording start.
                 Log.d(TAG, "Recording start")
             }
-            VideoRecordEvent.EVENT_TYPE_FINALIZE -> {
+            is VideoRecordEvent.Finalize -> {
                 // Recording stop.
                 Log.d(TAG, "Recording finalize")
-                finalize = it as VideoRecordEvent.Finalize
+                finalize = it
                 latchForVideoSaved.countDown()
             }
-            VideoRecordEvent.EVENT_TYPE_STATUS -> {
+            is VideoRecordEvent.Status -> {
                 // Make sure the recording proceed for a while.
                 latchForVideoRecording.countDown()
             }
-            VideoRecordEvent.EVENT_TYPE_PAUSE, VideoRecordEvent.EVENT_TYPE_RESUME -> {
+            is VideoRecordEvent.Pause, is VideoRecordEvent.Resume -> {
                 // no op for this test, skip these event now.
             }
             else -> {

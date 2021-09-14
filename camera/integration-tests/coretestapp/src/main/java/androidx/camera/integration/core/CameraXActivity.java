@@ -477,60 +477,54 @@ public class CameraXActivity extends AppCompatActivity {
     private final Consumer<VideoRecordEvent> mVideoRecordEventListener = event -> {
         updateRecordingStats(event.getRecordingStats());
 
-        switch (event.getEventType()) {
-            case VideoRecordEvent.EVENT_TYPE_FINALIZE:
-                VideoRecordEvent.Finalize finalize = (VideoRecordEvent.Finalize) event;
+        if (event instanceof VideoRecordEvent.Finalize) {
+            VideoRecordEvent.Finalize finalize = (VideoRecordEvent.Finalize) event;
 
-                switch (finalize.getError()) {
-                    case ERROR_NONE:
-                    case ERROR_FILE_SIZE_LIMIT_REACHED:
-                    case ERROR_INSUFFICIENT_DISK:
-                    case ERROR_SOURCE_INACTIVE:
-                        Uri uri = finalize.getOutputResults().getOutputUri();
-                        OutputOptions outputOptions = finalize.getOutputOptions();
-                        String msg;
-                        String videoFilePath;
-                        if (outputOptions instanceof MediaStoreOutputOptions) {
-                            msg = "Saved uri " + uri;
-                            videoFilePath = getAbsolutePathFromUri(
-                                    getApplicationContext().getContentResolver(),
-                                    uri
-                            );
-                            // For OutputOptionsType is OutputOptions.OPTIONS_TYPE_MEDIA_STORE,
-                            // the Photo/Gallery apps on devices (API Level < Q) sometimes will
-                            // not show the video files saved in MediaStore, suggest to call
-                            // scanFile still to force scan the media file.
-                            // scanVideoOutputFile(new File(videoFilePath));
-                        } else if (outputOptions instanceof FileOutputOptions) {
-                            videoFilePath = ((FileOutputOptions) outputOptions)
-                                    .getFile().getAbsolutePath();
-                            msg = "Saved video file: " + videoFilePath;
-                            scanVideoOutputFile(new File(videoFilePath));
-                        } else {
-                            throw new AssertionError("Unknown or unsupported OutputOptions type: "
-                                    + outputOptions.getClass().getSimpleName());
-                        }
-                        // The video file path is used in tracing e2e test log. Don't remove it.
-                        Log.d(TAG, "Saved video file: " + videoFilePath);
+            switch (finalize.getError()) {
+                case ERROR_NONE:
+                case ERROR_FILE_SIZE_LIMIT_REACHED:
+                case ERROR_INSUFFICIENT_DISK:
+                case ERROR_SOURCE_INACTIVE:
+                    Uri uri = finalize.getOutputResults().getOutputUri();
+                    OutputOptions outputOptions = finalize.getOutputOptions();
+                    String msg;
+                    String videoFilePath;
+                    if (outputOptions instanceof MediaStoreOutputOptions) {
+                        msg = "Saved uri " + uri;
+                        videoFilePath = getAbsolutePathFromUri(
+                                getApplicationContext().getContentResolver(),
+                                uri
+                        );
+                        // For OutputOptionsType is OutputOptions.OPTIONS_TYPE_MEDIA_STORE,
+                        // the Photo/Gallery apps on devices (API Level < Q) sometimes will
+                        // not show the video files saved in MediaStore, suggest to call
+                        // scanFile still to force scan the media file.
+                        // scanVideoOutputFile(new File(videoFilePath));
+                    } else if (outputOptions instanceof FileOutputOptions) {
+                        videoFilePath = ((FileOutputOptions) outputOptions)
+                                .getFile().getAbsolutePath();
+                        msg = "Saved video file: " + videoFilePath;
+                        scanVideoOutputFile(new File(videoFilePath));
+                    } else {
+                        throw new AssertionError("Unknown or unsupported OutputOptions type: "
+                                + outputOptions.getClass().getSimpleName());
+                    }
+                    // The video file path is used in tracing e2e test log. Don't remove it.
+                    Log.d(TAG, "Saved video file: " + videoFilePath);
 
-                        if (finalize.getError() != ERROR_NONE) {
-                            msg += " with code (" + finalize.getError() + ")";
-                        }
-                        Log.d(TAG, msg, finalize.getCause());
-                        Toast.makeText(CameraXActivity.this, msg, Toast.LENGTH_LONG).show();
-                        break;
-                    default:
-                        String errMsg = "Video capture failed by (" + finalize.getError() + "): "
-                                + finalize.getCause();
-                        Log.e(TAG, errMsg, finalize.getCause());
-                        Toast.makeText(CameraXActivity.this, errMsg, Toast.LENGTH_LONG).show();
-                }
-                mRecordUi.setState(RecordUi.State.IDLE);
-                break;
-
-            default:
-                // No-op
-                break;
+                    if (finalize.getError() != ERROR_NONE) {
+                        msg += " with code (" + finalize.getError() + ")";
+                    }
+                    Log.d(TAG, msg, finalize.getCause());
+                    Toast.makeText(CameraXActivity.this, msg, Toast.LENGTH_LONG).show();
+                    break;
+                default:
+                    String errMsg = "Video capture failed by (" + finalize.getError() + "): "
+                            + finalize.getCause();
+                    Log.e(TAG, errMsg, finalize.getCause());
+                    Toast.makeText(CameraXActivity.this, errMsg, Toast.LENGTH_LONG).show();
+            }
+            mRecordUi.setState(RecordUi.State.IDLE);
         }
     };
 
