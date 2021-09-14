@@ -73,6 +73,21 @@ fun CardDemo() {
             )
         }
         item {
+            AppCard(
+                onClick = {},
+                appName = { Text("AppName") },
+                appImage = { DemoImage(resourceId = R.drawable.ic_maps_icon) },
+                title = { Text("AppCard") },
+                time = { Text("now") },
+                body = {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text("Some body content")
+                        Text("and some more body content")
+                    }
+                },
+            )
+        }
+        item {
             TitleCard(
                 onClick = {},
                 title = { Text("TitleCard") },
