@@ -52,6 +52,10 @@ data class TestCompilationArguments(
      */
     val javacArguments: List<String> = emptyList(),
     /**
+     * Arguments for the kotlin compiler. This will be used when both running KAPT and also KSP.
+     */
+    val kotlincArguments: List<String> = emptyList(),
+    /**
      * List of annotation processors to be run by KAPT.
      */
     val kaptProcessors: List<Processor> = emptyList(),
@@ -148,7 +152,8 @@ private fun TestCompilationArguments.toInternal(
         ),
         additionalClasspaths = classpath,
         inheritClasspaths = inheritClasspath,
-        javacArguments = javacArguments
+        javacArguments = javacArguments,
+        kotlincArguments = kotlincArguments
     )
 }
 
