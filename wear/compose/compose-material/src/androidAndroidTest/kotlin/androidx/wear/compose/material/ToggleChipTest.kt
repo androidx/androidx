@@ -584,7 +584,7 @@ class ToggleChipColorTest {
             ChipStatus.Enabled,
             checked = true,
             { MaterialTheme.colors.onSurface },
-            { MaterialTheme.colors.onSurface }
+            { MaterialTheme.colors.secondary }
         )
 
     @Test
@@ -593,7 +593,7 @@ class ToggleChipColorTest {
             ChipStatus.Enabled,
             checked = true,
             { MaterialTheme.colors.onSurface },
-            { MaterialTheme.colors.onSurface },
+            { MaterialTheme.colors.secondary },
             splitToggleChip = true,
         )
 
@@ -622,7 +622,7 @@ class ToggleChipColorTest {
             ChipStatus.Disabled,
             checked = true,
             { MaterialTheme.colors.onSurface },
-            { MaterialTheme.colors.onSurface }
+            { MaterialTheme.colors.secondary }
         )
 
     @Test
@@ -631,7 +631,7 @@ class ToggleChipColorTest {
             ChipStatus.Disabled,
             checked = true,
             { MaterialTheme.colors.onSurface },
-            { MaterialTheme.colors.onSurface },
+            { MaterialTheme.colors.secondary },
             splitToggleChip = true
         )
 

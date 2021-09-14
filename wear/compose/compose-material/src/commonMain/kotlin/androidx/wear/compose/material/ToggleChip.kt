@@ -547,20 +547,18 @@ public object ToggleChipDefaults {
      */
     @Composable
     public fun toggleChipColors(
-        checkedStartBackgroundColor: Color = MaterialTheme.colors.secondary.copy(alpha = 0.5f),
-        checkedEndBackgroundColor: Color = MaterialTheme.colors.surface,
-        checkedContentColor: Color = contentColorFor(checkedEndBackgroundColor),
+        checkedStartBackgroundColor: Color = MaterialTheme.colors.surface.copy(alpha = 0.75f),
+        checkedEndBackgroundColor: Color = MaterialTheme.colors.primary.copy(alpha = 0.325f),
+        checkedContentColor: Color = MaterialTheme.colors.onSurface,
         checkedSecondaryContentColor: Color = MaterialTheme.colors.onSurfaceVariant,
-        checkedToggleIconTintColor: Color = checkedContentColor,
+        checkedToggleIconTintColor: Color = MaterialTheme.colors.secondary,
         uncheckedStartBackgroundColor: Color = MaterialTheme.colors.surface,
         uncheckedEndBackgroundColor: Color = MaterialTheme.colors.surface,
         uncheckedContentColor: Color = contentColorFor(checkedEndBackgroundColor),
         uncheckedSecondaryContentColor: Color = uncheckedContentColor,
         uncheckedToggleIconTintColor: Color = uncheckedContentColor,
         splitBackgroundOverlayColor: Color = Color.White.copy(alpha = 0.05f),
-        gradientDirection: LayoutDirection =
-            if (LocalLayoutDirection.current == LayoutDirection.Ltr) LayoutDirection.Rtl
-            else LayoutDirection.Ltr
+        gradientDirection: LayoutDirection = LocalLayoutDirection.current
     ): ToggleChipColors {
         val checkedBackgroundColors: List<Color>
         val disabledCheckedBackgroundColors: List<Color>
