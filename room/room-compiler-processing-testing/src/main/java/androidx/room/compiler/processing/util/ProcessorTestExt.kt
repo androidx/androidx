@@ -84,6 +84,8 @@ fun runProcessorTestWithoutKsp(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
     handler: (XTestInvocation) -> Unit
 ) {
     runTests(
@@ -91,6 +93,8 @@ fun runProcessorTestWithoutKsp(
             sources = sources,
             classpath = classpath,
             options = options,
+            javacArguments = javacArguments,
+            kotlincArguments = kotlincArguments,
             handlers = listOf(handler),
         ),
         JavacCompilationTestRunner,
@@ -118,11 +122,15 @@ fun runProcessorTest(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
     handler: (XTestInvocation) -> Unit
 ) = runProcessorTest(
     sources = sources,
     classpath = classpath,
     options = options,
+    javacArguments = javacArguments,
+    kotlincArguments = kotlincArguments,
     handlers = listOf(handler)
 )
 
@@ -144,13 +152,17 @@ fun runProcessorTest(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
     createProcessingStep: () -> XProcessingStep,
     onCompilationResult: (CompilationResultSubject) -> Unit
 ) {
     runProcessorTest(
         sources = sources,
         classpath = classpath,
-        options = options
+        options = options,
+        javacArguments = javacArguments,
+        kotlincArguments = kotlincArguments,
     ) { invocation ->
         val step = createProcessingStep()
         val elements =
@@ -176,6 +188,8 @@ fun runProcessorTest(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
     handlers: List<(XTestInvocation) -> Unit>
 ) {
     val javaApRunner = if (sources.any { it is Source.KotlinSource }) {
@@ -188,7 +202,9 @@ fun runProcessorTest(
             sources = sources,
             classpath = classpath.distinct(),
             options = options,
-            handlers = handlers
+            handlers = handlers,
+            javacArguments = javacArguments,
+            kotlincArguments = kotlincArguments
         ),
         javaApRunner,
         KspCompilationTestRunner
@@ -242,11 +258,15 @@ fun runKaptTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
     handler: (XTestInvocation) -> Unit
 ) = runKaptTest(
     sources = sources,
     classpath = classpath,
     options = options,
+    javacArguments = javacArguments,
+    kotlincArguments = kotlincArguments,
     handlers = listOf(handler)
 )
 
@@ -258,6 +278,8 @@ fun runKaptTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
     handlers: List<(XTestInvocation) -> Unit>
 ) {
     runTests(
@@ -265,7 +287,9 @@ fun runKaptTest(
             sources = sources,
             classpath = classpath,
             options = options,
-            handlers = handlers
+            handlers = handlers,
+            javacArguments = javacArguments,
+            kotlincArguments = kotlincArguments
         ),
         KaptCompilationTestRunner
     )
@@ -279,11 +303,15 @@ fun runKspTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
     handler: (XTestInvocation) -> Unit
 ) = runKspTest(
     sources = sources,
     classpath = classpath,
     options = options,
+    javacArguments = javacArguments,
+    kotlincArguments = kotlincArguments,
     handlers = listOf(handler)
 )
 
@@ -295,6 +323,8 @@ fun runKspTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
     handlers: List<(XTestInvocation) -> Unit>
 ) {
     runTests(
@@ -302,7 +332,9 @@ fun runKspTest(
             sources = sources,
             classpath = classpath,
             options = options,
-            handlers = handlers
+            handlers = handlers,
+            javacArguments = javacArguments,
+            kotlincArguments = kotlincArguments,
         ),
         KspCompilationTestRunner
     )
@@ -318,6 +350,7 @@ fun runKspTest(
  * @param symbolProcessorProviders The list of Kotlin symbol processor providers to run with
  * compilation
  * @param javacArguments The command line arguments that will be passed into javac
+ * @param kotlincArguments The command line arguments that will be passed into kotlinc
  */
 fun compileFiles(
     sources: List<Source>,
@@ -325,6 +358,7 @@ fun compileFiles(
     annotationProcessors: List<Processor> = emptyList(),
     symbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
     javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
     includeSystemClasspath: Boolean = true
 ): List<File> {
     val workingDir = Files.createTempDir()
@@ -335,7 +369,8 @@ fun compileFiles(
             kaptProcessors = annotationProcessors,
             symbolProcessorProviders = symbolProcessorProviders,
             processorOptions = options,
-            javacArguments = javacArguments
+            javacArguments = javacArguments,
+            kotlincArguments = kotlincArguments
         )
     )
     assertThat(result.success).isTrue()

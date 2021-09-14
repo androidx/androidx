@@ -48,7 +48,9 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
             sources = params.sources,
             classpath = params.classpath,
             symbolProcessorProviders = listOf(processorProvider),
-            processorOptions = params.options
+            processorOptions = params.options,
+            javacArguments = params.javacArguments,
+            kotlincArguments = params.kotlincArguments,
         ).withAtLeastOneKotlinSource()
         val result = compile(
             workingDir = workingDir,

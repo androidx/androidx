@@ -62,8 +62,11 @@ internal class KspCompilationStep(
                     processorProviders = symbolProcessorProviders,
                     messageCollector = kspMessages
                 )
-            )
+            ),
         )
+        // workaround for https://github.com/google/ksp/issues/623
+        val failureDueToWarnings = result.kotlinCliArguments.allWarningsAsErrors &&
+            kspMessages.hasWarnings()
 
         val generatedSources = listOfNotNull(
             workingDir.resolve(KOTLIN_OUT_DIR).toSourceSet(),
@@ -74,7 +77,7 @@ internal class KspCompilationStep(
             sourceSets = arguments.sourceSets + generatedSources
         )
         return CompilationStepResult(
-            success = result.exitCode == ExitCode.OK,
+            success = result.exitCode == ExitCode.OK && !failureDueToWarnings,
             generatedSourceRoots = generatedSources,
             diagnostics = diagnostics,
             nextCompilerArguments = arguments.copy(
