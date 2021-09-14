@@ -18,6 +18,7 @@ package androidx.wear.compose.material
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -102,7 +103,7 @@ public fun Vignette(
                 ),
                 contentScale = ContentScale.FillWidth,
                 contentDescription = null,
-                modifier = Modifier.align(Alignment.TopCenter),
+                modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth(),
             )
         }
         if (vignettePosition.drawBottom()) {
@@ -113,7 +114,7 @@ public fun Vignette(
                 ),
                 contentScale = ContentScale.FillWidth,
                 contentDescription = null,
-                modifier = Modifier.align(Alignment.BottomCenter),
+                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
             )
         }
     }
