@@ -166,7 +166,7 @@ public class ComplicationSlotsManager(
         this.renderer = renderer
 
         for ((_, complication) in complicationSlots) {
-            complication.init(complicationSlotInvalidateListener)
+            complication.init(complicationSlotInvalidateListener, renderer.watchState.isHeadless)
 
             // Force lazy construction of renderers.
             complication.renderer.onRendererCreated(renderer)
