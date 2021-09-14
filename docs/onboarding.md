@@ -378,8 +378,8 @@ task:
 ./gradlew doclavaDocs
 ```
 
-To generate offline docs use '-PofflineDocs=true' parameter. Places the
-documentation in `{androidx-main}/out/androidx/docs-tip-of-tree/build/javadoc`
+Places the documentation in
+`{androidx-main}/out/androidx/docs-tip-of-tree/build/javadoc`
 
 #### KotlinDocs
 
