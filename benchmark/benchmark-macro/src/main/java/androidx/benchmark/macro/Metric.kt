@@ -21,6 +21,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.perfetto.FrameTimingQuery
+import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric
 import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseStartupResult
 import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.test.platform.app.InstrumentationRegistry
@@ -43,7 +44,13 @@ public sealed class Metric {
     internal abstract fun getMetrics(packageName: String, tracePath: String): IterationResult
 }
 
-public class FrameTimingMetric : Metric() {
+/**
+ * Legacy version of FrameTimingMetric, based on 'dumpsys gfxinfo' instead of trace data.
+ *
+ * Temporary - to be removed after transition to FrameTimingMetric
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+public class FrameTimingGfxInfoMetric : Metric() {
     private lateinit var packageName: String
     private val helper = JankCollectionHelper()
 
@@ -138,26 +145,33 @@ public class FrameTimingMetric : Metric() {
 }
 
 /**
- * WIP trace-based replacement for [FrameTimingMetric].
+ * Metric which captures timing information from frames produced by a benchmark, such as
+ * a scrolling or animation benchmark.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @Suppress("CanSealedSubClassBeObject")
-public class FrameTimingTraceMetric : Metric() {
+public class FrameTimingMetric : Metric() {
     internal override fun configure(packageName: String) {}
     internal override fun start() {}
     internal override fun stop() {}
 
     internal override fun getMetrics(packageName: String, tracePath: String): IterationResult {
-        val frameTimesMs = FrameTimingQuery.getFrameSubMetrics(
+        val subMetricsMsMap = FrameTimingQuery.getFrameSubMetrics(
             absoluteTracePath = tracePath,
             captureApiLevel = Build.VERSION.SDK_INT,
             packageName = packageName
-        )[FrameTimingQuery.FrameSubMetric.FrameTime]!!
-            .map { it / 1_000_000.0 } // Convert to ms
-
+        )
+            .filterKeys { it == SubMetric.FrameCpuTime || it == SubMetric.FrameNegativeSlackTime }
+            .mapKeys {
+                if (it.key == SubMetric.FrameCpuTime) "frameCpuTimeMs" else "frameNegativeSlackMs"
+            }
+            .mapValues { entry ->
+                entry.value.map { timeNs ->
+                    timeNs / 1_000_000.0 // Convert to ms
+                }
+            }
         return IterationResult(
             singleMetrics = emptyMap(),
-            sampledMetrics = mapOf("frameTimeMs" to frameTimesMs),
+            sampledMetrics = subMetricsMsMap,
             timelineRangeNs = null
         )
     }

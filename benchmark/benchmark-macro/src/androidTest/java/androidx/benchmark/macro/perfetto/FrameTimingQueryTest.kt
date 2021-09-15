@@ -17,10 +17,9 @@
 package androidx.benchmark.macro.perfetto
 
 import androidx.benchmark.macro.createTempFileFromAsset
-import androidx.benchmark.macro.perfetto.FrameTimingQuery.FrameSubMetric.BasicFrameTime
-import androidx.benchmark.macro.perfetto.FrameTimingQuery.FrameSubMetric.FrameSlackTime
-import androidx.benchmark.macro.perfetto.FrameTimingQuery.FrameSubMetric.FrameTime
-import androidx.benchmark.macro.perfetto.FrameTimingQuery.FrameSubMetric.UiFrameTime
+import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric.FrameCpuTime
+import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric.FrameNegativeSlackTime
+import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric.FrameUiTime
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -45,8 +44,8 @@ class FrameTimingQueryTest {
 
         assertEquals(
             expected = mapOf(
-                BasicFrameTime to listOf(9907605L, 6038595L, 4812136L, 3938490L),
-                UiFrameTime to listOf(3086979L, 2868490L, 2232709L, 1889479L)
+                FrameCpuTime to listOf(9907605L, 6038595L, 4812136L, 3938490L),
+                FrameUiTime to listOf(3086979L, 2868490L, 2232709L, 1889479L)
             ),
             actual = frameSubMetrics.mapValues {
                 it.value.subList(0, 4)
@@ -72,17 +71,16 @@ class FrameTimingQueryTest {
         )
         assertEquals(
             expected = mapOf(
-                FrameTime to listOf(15292863L, 8800138L, 6474705L, 8199845L),
-                BasicFrameTime to listOf(6881407L, 5648542L, 3830261L, 4343438L),
-                UiFrameTime to listOf(2965052L, 3246407L, 1562188L, 1945469L),
-                FrameSlackTime to listOf(5207137L, 11699862L, 14025295L, 12300155L)
+                FrameCpuTime to listOf(6881407L, 5648542L, 3830261L, 4343438L),
+                FrameUiTime to listOf(2965052L, 3246407L, 1562188L, 1945469L),
+                FrameNegativeSlackTime to listOf(-5207137L, -11699862L, -14025295L, -12300155L)
             ),
             actual = frameSubMetrics.mapValues {
                 it.value.subList(0, 4)
             }
         )
         assertEquals(
-            expected = List(4) { 96 },
+            expected = List(3) { 96 },
             actual = frameSubMetrics.map { it.value.size },
             message = "Expect same number of frames for each metric"
         )
