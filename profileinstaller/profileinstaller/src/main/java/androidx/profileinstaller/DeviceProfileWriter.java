@@ -264,8 +264,9 @@ public class DeviceProfileWriter {
                 return ProfileVersion.V001_N;
 
             case Build.VERSION_CODES.O:
-            case Build.VERSION_CODES.O_MR1:
                 return ProfileVersion.V005_O;
+            case Build.VERSION_CODES.O_MR1:
+                return ProfileVersion.V009_O_MR1;
 
             case Build.VERSION_CODES.P:
             case Build.VERSION_CODES.Q:
