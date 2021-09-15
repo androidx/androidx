@@ -44,6 +44,7 @@ import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
@@ -434,8 +435,10 @@ public object ChipDefaults {
      */
     @Composable
     public fun gradientBackgroundChipColors(
-        startBackgroundColor: Color = MaterialTheme.colors.primary.copy(alpha = 0.5f),
-        endBackgroundColor: Color = MaterialTheme.colors.surface,
+        startBackgroundColor: Color = MaterialTheme.colors.primary.copy(alpha = 0.325f)
+            .compositeOver(MaterialTheme.colors.surface.copy(alpha = 0.75f)),
+        endBackgroundColor: Color = MaterialTheme.colors.surface.copy(alpha = 0f)
+            .compositeOver(MaterialTheme.colors.surface.copy(alpha = 0.75f)),
         contentColor: Color = contentColorFor(endBackgroundColor),
         secondaryContentColor: Color = contentColor,
         iconTintColor: Color = contentColor,
