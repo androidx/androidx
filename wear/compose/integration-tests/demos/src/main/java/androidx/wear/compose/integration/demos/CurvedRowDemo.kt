@@ -163,7 +163,7 @@ fun CurvedRowAlignmentDemo() {
 }
 
 @Composable
-fun CurvedTextDemo() {
+fun BasicCurvedTextDemo() {
     CurvedRow(modifier = Modifier.fillMaxSize()) {
         SeparatorBlock()
         BasicCurvedText(
