@@ -23,7 +23,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
@@ -38,32 +37,45 @@ import java.util.concurrent.Executor;
  * be sent to the listener set in {@link PendingRecording#withEventListener(Executor, Consumer)}.
  *
  * <p>There are {@link Start}, {@link Finalize}, {@link Status}, {@link Pause} and {@link Resume}
- * events. The {@link #getEventType()} can be used to check what type of event is.
+ * events.
  *
- * Example: typical way to determine the event type and cast to the event class
+ * <p>Example: Below is the typical way to determine the event type and cast to the event class, if
+ * needed.
  *
  * <pre>{@code
  *
- * VideoRecordEvent videoRecordEvent = obtainVideoRecordEvent();
- * switch (videoRecordEvent.getEventType()) {
- * case VideoRecordEvent.EVENT_TYPE_START:
- *     VideoRecordEvent.Start start = (VideoRecordEvent.Start) videoRecordEvent;
- *     break;
- * case VideoRecordEvent.EVENT_TYPE_FINALIZE:
- *     VideoRecordEvent.Finalize finalize = (VideoRecordEvent.Finalize) videoRecordEvent;
- *     break;
- * case VideoRecordEvent.EVENT_TYPE_STATUS:
- *     VideoRecordEvent.Status status = (VideoRecordEvent.Status) videoRecordEvent;
- *     break;
- * case VideoRecordEvent.EVENT_TYPE_PAUSE:
- *     VideoRecordEvent.Pause pause = (VideoRecordEvent.Pause) videoRecordEvent;
- *     break;
- * case VideoRecordEvent.EVENT_TYPE_RESUME:
- *     VideoRecordEvent.Resume resume = (VideoRecordEvent.Resume) videoRecordEvent;
- *     break;
- * }
+ * ActiveRecording activeRecording = recorder.prepareRecording(outputOptions)
+ *     .withEventListener(ContextCompat.getMainExecutor(context), videoRecordEvent -> {
+ *         if (videoRecordEvent instanceof VideoRecordEvent.Start) {
+ *             // Handle the start of a new active recording
+ *             ...
+ *         } else if (videoRecordEvent instanceof VideoRecordEvent.Pause) {
+ *             // Handle the case where the active recording is paused
+ *             ...
+ *         } else if (videoRecordEvent instanceof VideoRecordEvent.Resume) {
+ *             // Handles the case where the active recording is resumed
+ *             ...
+ *         } else if (videoRecordEvent instanceof VideoRecordEvent.Finalize) {
+ *             VideoRecordEvent.Finalize finalizeEvent =
+ *                 (VideoRecordEvent.Finalize) videoRecordEvent;
+ *             // Handles a finalize event for the active recording, checking Finalize.getError()
+ *             int error = finalizeEvent.getError();
+ *             if (error != Finalize.ERROR_NONE) {
+ *                 ...
+ *             }
+ *         }
+ *
+ *         // All events, including VideoRecordEvent.Status, contain RecordingStats.
+ *         // This can be used to update the UI or track the recording duration.
+ *         RecordingStats recordingStats = videoRecordEvent.getRecordingStats();
+ *         ...
+ *     }).start();
  *
  * }</pre>
+ *
+ * <p>If using Kotlin, the VideoRecordEvent class can be treated similar to a {@code sealed
+ * class}. In Kotlin, it is recommended to use a {@code when} expression rather than an {@code
+ * if}-{@code else if} chain as in the above example.
  *
  * <p>When a video recording is requested, {@link Start} event will be reported at first and
  * {@link Finalize} event will be reported when the recording is finished. The stop reason can be
@@ -79,49 +91,6 @@ import java.util.concurrent.Executor;
  */
 public abstract class VideoRecordEvent {
 
-    /**
-     * Indicates the start of recording.
-     *
-     * @see Start
-     */
-    public static final int EVENT_TYPE_START = 0;
-
-    /**
-     * Indicates the finalization of recording.
-     *
-     * @see Finalize
-     */
-    public static final int EVENT_TYPE_FINALIZE = 1;
-
-    /**
-     * The status report of the recording in progress.
-     *
-     * @see Status
-     */
-    public static final int EVENT_TYPE_STATUS = 2;
-
-    /**
-     * Indicates the pause event of recording.
-     *
-     * @see Pause
-     */
-    public static final int EVENT_TYPE_PAUSE = 3;
-
-    /**
-     * Indicates the resume event of recording.
-     *
-     * @see Resume
-     */
-    public static final int EVENT_TYPE_RESUME = 4;
-
-    /** @hide */
-    @IntDef({EVENT_TYPE_START, EVENT_TYPE_FINALIZE, EVENT_TYPE_STATUS, EVENT_TYPE_PAUSE,
-            EVENT_TYPE_RESUME})
-    @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(Scope.LIBRARY)
-    public @interface EventType {
-    }
-
     private final OutputOptions mOutputOptions;
     private final RecordingStats mRecordingStats;
 
@@ -132,15 +101,6 @@ public abstract class VideoRecordEvent {
         mOutputOptions = Preconditions.checkNotNull(outputOptions);
         mRecordingStats = Preconditions.checkNotNull(recordingStats);
     }
-
-    /**
-     * Gets the event type.
-     *
-     * <p>Possible values are {@link #EVENT_TYPE_START}, {@link #EVENT_TYPE_FINALIZE},
-     * {@link #EVENT_TYPE_PAUSE}, {@link #EVENT_TYPE_RESUME} and {@link #EVENT_TYPE_STATUS}.
-     */
-    @EventType
-    public abstract int getEventType();
 
     /**
      * Gets the recording status of current event.
@@ -175,13 +135,6 @@ public abstract class VideoRecordEvent {
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         Start(@NonNull OutputOptions outputOptions, @NonNull RecordingStats recordingStats) {
             super(outputOptions, recordingStats);
-        }
-
-        /** {@inheritDoc} */
-        @EventType
-        @Override
-        public int getEventType() {
-            return EVENT_TYPE_START;
         }
     }
 
@@ -324,13 +277,6 @@ public abstract class VideoRecordEvent {
             mCause = cause;
         }
 
-        /** {@inheritDoc} */
-        @EventType
-        @Override
-        public int getEventType() {
-            return EVENT_TYPE_FINALIZE;
-        }
-
         /**
          * Gets the {@link OutputResults}.
          */
@@ -389,13 +335,6 @@ public abstract class VideoRecordEvent {
         Status(@NonNull OutputOptions outputOptions, @NonNull RecordingStats recordingStats) {
             super(outputOptions, recordingStats);
         }
-
-        /** {@inheritDoc} */
-        @EventType
-        @Override
-        public int getEventType() {
-            return EVENT_TYPE_STATUS;
-        }
     }
 
     @NonNull
@@ -415,13 +354,6 @@ public abstract class VideoRecordEvent {
         Pause(@NonNull OutputOptions outputOptions, @NonNull RecordingStats recordingStats) {
             super(outputOptions, recordingStats);
         }
-
-        /** {@inheritDoc} */
-        @EventType
-        @Override
-        public int getEventType() {
-            return EVENT_TYPE_PAUSE;
-        }
     }
 
     @NonNull
@@ -440,13 +372,6 @@ public abstract class VideoRecordEvent {
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         Resume(@NonNull OutputOptions outputOptions, @NonNull RecordingStats recordingStats) {
             super(outputOptions, recordingStats);
-        }
-
-        /** {@inheritDoc} */
-        @EventType
-        @Override
-        public int getEventType() {
-            return EVENT_TYPE_RESUME;
         }
     }
 }
