@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha06)" variant="all" version="7.1.0-alpha06">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
 
     <issue
         id="NewApi"
@@ -9,6 +9,28 @@
         <location
             file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperFactoryTest.kt"
             line="85"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
+        errorLine1="        autoClosingRoomOpenHelper.writableDatabase"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperFactoryTest.kt"
+            line="85"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
+        errorLine1="        autoClosingRoomOpenHelper.writableDatabase"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperFactoryTest.kt"
+            line="98"
             column="35"/>
     </issue>
 
@@ -37,12 +59,45 @@
     <issue
         id="NewApi"
         message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
+        errorLine1="        val db = autoClosingRoomOpenHelper.writableDatabase"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperFactoryTest.kt"
+            line="144"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
         errorLine1="                .writableDatabase.query(&quot;select * from nonexistanttable&quot;)"
         errorLine2="                 ~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
             line="88"
             column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
+        errorLine1="                .writableDatabase.query(&quot;select * from nonexistanttable&quot;)"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
+            line="88"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
+        errorLine1="        autoClosingRoomOpenHelper.writableDatabase.execSQL(&quot;create table user (idk int)&quot;)"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
+            line="97"
+            column="35"/>
     </issue>
 
     <issue
@@ -70,11 +125,44 @@
     <issue
         id="NewApi"
         message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
+        errorLine1="            autoClosingRoomOpenHelper.writableDatabase.query(&quot;select * from user&quot;)"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
+            line="100"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
         errorLine1="        autoClosingRoomOpenHelper.writableDatabase.beginTransaction()"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
             line="109"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
+        errorLine1="        autoClosingRoomOpenHelper.writableDatabase.beginTransaction()"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
+            line="109"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
+        errorLine1="        autoClosingRoomOpenHelper.writableDatabase.endTransaction()"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
+            line="111"
             column="35"/>
     </issue>
 
@@ -107,8 +195,41 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
+            line="121"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 16): `getWritableDatabase`"
+        errorLine1="        assertThat(autoClosingRoomOpenHelper.writableDatabase.isWriteAheadLoggingEnabled).isTrue()"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
             line="125"
             column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 16): `getWritableDatabase`"
+        errorLine1="        assertThat(autoClosingRoomOpenHelper.writableDatabase.isWriteAheadLoggingEnabled).isTrue()"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
+            line="125"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
+        errorLine1="            autoClosingRoomOpenHelper.writableDatabase.enableWriteAheadLogging()"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
+            line="133"
+            column="39"/>
     </issue>
 
     <issue
@@ -147,11 +268,44 @@
     <issue
         id="NewApi"
         message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
+        errorLine1="            autoClosingRoomOpenHelper.writableDatabase.disableWriteAheadLogging()"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
+            line="137"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
         errorLine1="        autoClosingRoomOpenHelper.writableDatabase"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
             line="161"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
+        errorLine1="        autoClosingRoomOpenHelper.writableDatabase"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
+            line="161"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
+        errorLine1="        autoClosingRoomOpenHelper.writableDatabase"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
+            line="166"
             column="35"/>
     </issue>
 
@@ -184,7 +338,40 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
+            line="175"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
+        errorLine1="        val db = autoClosingRoomOpenHelper.writableDatabase"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
             line="189"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
+        errorLine1="        val db = autoClosingRoomOpenHelper.writableDatabase"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
+            line="189"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 14): `getWritableDatabase`"
+        errorLine1="        val db = autoClosingRoomOpenHelper.writableDatabase"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
+            line="209"
             column="44"/>
     </issue>
 
