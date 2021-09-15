@@ -30,15 +30,21 @@ import kotlin.math.sqrt
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MetricResult(
     val name: String,
-    val data: List<Double>
+    val data: List<Double>,
+    val iterationData: List<List<Double>>? = null
 ) {
-    public val median: Double
-    public val medianIndex: Int
-    public val min: Double
-    public val minIndex: Int
-    public val max: Double
-    public val maxIndex: Int
-    public val standardDeviation: Double
+    val median: Double
+    val medianIndex: Int
+    val min: Double
+    val minIndex: Int
+    val max: Double
+    val maxIndex: Int
+    val standardDeviation: Double
+
+    val p50: Double
+    val p90: Double
+    val p95: Double
+    val p99: Double
 
     init {
         val values = data.sorted()
@@ -49,6 +55,11 @@ public class MetricResult(
         min = values.first()
         max = values.last()
         median = getPercentile(values, 50)
+
+        p50 = getPercentile(values, 50)
+        p90 = getPercentile(values, 90)
+        p95 = getPercentile(values, 95)
+        p99 = getPercentile(values, 99)
 
         minIndex = data.indexOfFirst { it == min }
         maxIndex = data.indexOfFirst { it == max }
@@ -74,6 +85,16 @@ public class MetricResult(
         status.putDouble("${prefix}${bundleName}_min", min)
         status.putDouble("${prefix}${bundleName}_median", median)
         status.putDouble("${prefix}${bundleName}_stddev", standardDeviation)
+    }
+
+    public fun putPercentilesInBundle(status: Bundle, prefix: String) {
+        // format string to be in instrumentation results format
+        val bundleName = name.toOutputMetricName()
+
+        status.putDouble("${prefix}${bundleName}_p50", p50)
+        status.putDouble("${prefix}${bundleName}_p90", p90)
+        status.putDouble("${prefix}${bundleName}_p95", p95)
+        status.putDouble("${prefix}${bundleName}_p99", p99)
     }
 
     // NOTE: Studio-generated, re-generate if members change
