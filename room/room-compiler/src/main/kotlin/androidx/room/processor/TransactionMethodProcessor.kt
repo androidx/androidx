@@ -22,19 +22,21 @@ import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.vo.TransactionMethod
 
 class TransactionMethodProcessor(
     baseContext: Context,
-    val containing: XType,
+    val containingElement: XTypeElement,
+    val containingType: XType,
     val executableElement: XMethodElement
 ) {
 
     val context = baseContext.fork(executableElement)
 
     fun process(): TransactionMethod {
-        val delegate = MethodProcessorDelegate.createFor(context, containing, executableElement)
+        val delegate = MethodProcessorDelegate.createFor(context, containingType, executableElement)
         val hasKotlinDefaultImpl = executableElement.hasKotlinDefaultImpl()
         context.checker.check(
             executableElement.isOverrideableIgnoringContainer() &&
@@ -58,7 +60,13 @@ class TransactionMethodProcessor(
 
         val callType = when {
             executableElement.isJavaDefault() ->
-                TransactionMethod.CallType.DEFAULT_JAVA8
+                if (containingElement.isInterface()) {
+                    // if the dao is an interface, call via the Dao interface
+                    TransactionMethod.CallType.DEFAULT_JAVA8
+                } else {
+                    // if the dao is an abstract class, call via the class itself
+                    TransactionMethod.CallType.INHERITED_DEFAULT_JAVA8
+                }
             hasKotlinDefaultImpl ->
                 TransactionMethod.CallType.DEFAULT_KOTLIN
             else ->

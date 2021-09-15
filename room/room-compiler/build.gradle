@@ -109,6 +109,7 @@ dependencies {
     testImplementation(libs.jsr250)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.antlr4)
+    testImplementation(libs.kotlinCompilerEmbeddable)
     testImplementation(fileTree(
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar"
