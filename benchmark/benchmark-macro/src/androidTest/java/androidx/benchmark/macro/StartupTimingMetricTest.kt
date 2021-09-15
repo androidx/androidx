@@ -45,10 +45,10 @@ class StartupTimingMetricTest {
     fun noResults() {
         assumeTrue(isAbiSupported())
         val packageName = "fake.package.fiction.nostartups"
-        val metrics = measureStartup(packageName) {
+        val iterationResult = measureStartup(packageName) {
             // Do nothing
         }
-        assertEquals(true, metrics.metrics.isEmpty())
+        assertEquals(true, iterationResult.singleMetrics.isEmpty())
     }
 
     @LargeTest
@@ -68,17 +68,16 @@ class StartupTimingMetricTest {
                     "androidx.benchmark.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY"
             }
         }
-        val hasStartupMetrics = "startupMs" in metrics.metrics
+        val hasStartupMetrics = "startupMs" in metrics.singleMetrics
         assertEquals(hasStartupMetrics, true)
-        assertNotNull(metrics.timelineStart)
-        assertNotNull(metrics.timelineEnd)
+        assertNotNull(metrics.timelineRangeNs)
     }
 
     private fun validateStartup_fullyDrawn(delay: Long) {
         assumeTrue(isAbiSupported())
         val packageName = "androidx.benchmark.macro.test"
         val scope = MacrobenchmarkScope(packageName = packageName, launchWithClearTask = true)
-        val metrics = measureStartup(packageName) {
+        val iterationResult = measureStartup(packageName) {
             // Simulate a warm start, since it's our own process
             scope.pressHome()
             scope.startActivityAndWait(
@@ -94,11 +93,11 @@ class StartupTimingMetricTest {
                     .wait(Until.findObject(By.text(ConfigurableActivity.FULLY_DRAWN_TEXT)), 3000)
             }
         }
-        assertTrue("startupMs" in metrics.metrics)
-        assertTrue("fullyDrawnMs" in metrics.metrics)
+        assertTrue("startupMs" in iterationResult.singleMetrics)
+        assertTrue("fullyDrawnMs" in iterationResult.singleMetrics)
 
-        val startupMs = metrics.metrics["startupMs"]!!
-        val fullyDrawnMs = metrics.metrics["fullyDrawnMs"]!!
+        val startupMs = iterationResult.singleMetrics["startupMs"]!!
+        val fullyDrawnMs = iterationResult.singleMetrics["fullyDrawnMs"]!!
 
         val startupShouldBeFaster = delay > 0
         assertEquals(
@@ -106,8 +105,7 @@ class StartupTimingMetricTest {
             startupMs < fullyDrawnMs,
             "startup $startupMs, fully drawn $fullyDrawnMs"
         )
-        assertNotNull(metrics.timelineStart)
-        assertNotNull(metrics.timelineEnd)
+        assertNotNull(iterationResult.timelineRangeNs)
     }
 
     @LargeTest
@@ -133,16 +131,16 @@ class StartupTimingMetricTest {
         val metrics = metric.getMetrics(packageName, traceFile.absolutePath)
 
         // check known values
-        val hasStartupMetrics = "startupMs" in metrics.metrics
+        val hasStartupMetrics = "startupMs" in metrics.singleMetrics
         assertEquals(hasStartupMetrics, true)
-        assertEquals(54.82037, metrics.metrics["startupMs"]!!, 0.0001)
-        assertEquals(4131145997215L, metrics.timelineStart)
-        assertEquals(4131200817585L, metrics.timelineEnd)
+        assertEquals(54.82037, metrics.singleMetrics["startupMs"]!!, 0.0001)
+        assertEquals(4131145997215L, metrics.timelineRangeNs?.first)
+        assertEquals(4131200817585L, metrics.timelineRangeNs?.last)
     }
 }
 
 @RequiresApi(29)
-internal fun measureStartup(packageName: String, measureBlock: () -> Unit): MetricsWithUiState {
+internal fun measureStartup(packageName: String, measureBlock: () -> Unit): IterationResult {
     val wrapper = PerfettoCaptureWrapper()
     val metric = StartupTimingMetric()
     metric.configure(packageName)

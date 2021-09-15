@@ -19,7 +19,6 @@ package androidx.benchmark.macro
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.benchmark.MetricResult
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.perfetto.FrameTimingQuery
 import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseStartupResult
@@ -41,7 +40,7 @@ public sealed class Metric {
      * TODO: takes package for package level filtering, but probably want a
      *  general config object coming into [start].
      */
-    internal abstract fun getMetrics(packageName: String, tracePath: String): MetricsWithUiState
+    internal abstract fun getMetrics(packageName: String, tracePath: String): IterationResult
 }
 
 public class FrameTimingMetric : Metric() {
@@ -119,8 +118,8 @@ public class FrameTimingMetric : Metric() {
         "totalFrameCount"
     )
 
-    internal override fun getMetrics(packageName: String, tracePath: String) = MetricsWithUiState(
-        metrics = helper.metrics
+    internal override fun getMetrics(packageName: String, tracePath: String) = IterationResult(
+        singleMetrics = helper.metrics
             .map {
                 val prefix = "gfxinfo_${packageName}_"
                 val keyWithoutPrefix = it.key.removePrefix(prefix)
@@ -132,7 +131,9 @@ public class FrameTimingMetric : Metric() {
                 }
             }
             .toMap()
-            .filterKeys { keyAllowList.contains(it) }
+            .filterKeys { keyAllowList.contains(it) },
+        sampledMetrics = emptyMap(),
+        timelineRangeNs = null
     )
 }
 
@@ -146,24 +147,18 @@ public class FrameTimingTraceMetric : Metric() {
     internal override fun start() {}
     internal override fun stop() {}
 
-    internal override fun getMetrics(packageName: String, tracePath: String): MetricsWithUiState {
+    internal override fun getMetrics(packageName: String, tracePath: String): IterationResult {
         val frameTimesMs = FrameTimingQuery.getFrameSubMetrics(
             absoluteTracePath = tracePath,
             captureApiLevel = Build.VERSION.SDK_INT,
             packageName = packageName
         )[FrameTimingQuery.FrameSubMetric.FrameTime]!!
-            .sorted()
             .map { it / 1_000_000.0 } // Convert to ms
 
-        fun percentile(percentile: Int) = MetricResult.getPercentile(frameTimesMs, percentile)
-        return MetricsWithUiState(
-            metrics = mapOf(
-                "trace_frameTime50thPercentileMs" to percentile(50),
-                "trace_frameTime90thPercentileMs" to percentile(90),
-                "trace_frameTime95thPercentileMs" to percentile(95),
-                "trace_frameTime99thPercentileMs" to percentile(99),
-                "trace_totalFrameCount" to frameTimesMs.size.toDouble()
-            )
+        return IterationResult(
+            singleMetrics = emptyMap(),
+            sampledMetrics = mapOf("frameTimeMs" to frameTimesMs),
+            timelineRangeNs = null
         )
     }
 }
@@ -183,7 +178,7 @@ public class StartupTimingMetric : Metric() {
     internal override fun stop() {
     }
 
-    internal override fun getMetrics(packageName: String, tracePath: String): MetricsWithUiState {
+    internal override fun getMetrics(packageName: String, tracePath: String): IterationResult {
         val json = PerfettoTraceProcessor.getJsonMetrics(tracePath, "android_startup")
         return parseStartupResult(json, packageName)
     }

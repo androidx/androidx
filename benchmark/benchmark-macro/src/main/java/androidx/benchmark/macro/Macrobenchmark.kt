@@ -148,7 +148,7 @@ private fun macrobenchmark(
             it.configure(packageName)
         }
         var isFirstRun = true
-        val metricResults = List(iterations) { iteration ->
+        val measurements = List(iterations) { iteration ->
             userspaceTrace("setupBlock") {
                 setupBlock(scope, isFirstRun)
             }
@@ -179,7 +179,7 @@ private fun macrobenchmark(
 
             tracePaths.add(tracePath)
 
-            val metricsWithUiState = userspaceTrace("extract metrics") {
+            val iterationResult = userspaceTrace("extract metrics") {
                 metrics
                     // capture list of Map<String,Long> per metric
                     .map { it.getMetrics(packageName, tracePath) }
@@ -188,8 +188,8 @@ private fun macrobenchmark(
             }
             // append UI state to trace, so tools opening trace will highlight relevant part in UI
             val uiState = UiState(
-                timelineStart = metricsWithUiState.timelineStart,
-                timelineEnd = metricsWithUiState.timelineEnd,
+                timelineStart = iterationResult.timelineRangeNs?.first,
+                timelineEnd = iterationResult.timelineRangeNs?.last,
                 highlightPackage = packageName
             )
             File(tracePath).apply {
@@ -202,10 +202,10 @@ private fun macrobenchmark(
             Log.d(TAG, "Iteration $iteration captured $uiState")
 
             // report just the metrics
-            metricsWithUiState.metrics
-        }.mergeToMetricResults(tracePaths)
+            iterationResult
+        }.mergeIterationMeasurements()
 
-        require(metricResults.isNotEmpty()) {
+        require(measurements.isNotEmpty()) {
             """
                 Unable to read any metrics during benchmark (metric list: $metrics).
                 Check that you're performing the operations to be measured. For example, if
@@ -217,12 +217,17 @@ private fun macrobenchmark(
             val (summaryV1, summaryV2) = ideSummaryStrings(
                 warningMessage,
                 uniqueName,
-                metricResults,
+                measurements,
                 tracePaths
             )
             ideSummaryRecord(summaryV1 = summaryV1, summaryV2 = summaryV2)
             warningMessage = "" // warning only printed once
-            metricResults.forEach { it.putInBundle(bundle, suppressionState?.prefix ?: "") }
+            measurements.singleMetrics.forEach {
+                it.putInBundle(bundle, suppressionState?.prefix ?: "")
+            }
+            measurements.sampledMetrics.forEach {
+                it.putPercentilesInBundle(bundle, suppressionState?.prefix ?: "")
+            }
         }
 
         val warmupIterations = if (compilationMode is CompilationMode.SpeedProfile) {
@@ -236,7 +241,7 @@ private fun macrobenchmark(
                 className = className,
                 testName = testName,
                 totalRunTimeNs = System.nanoTime() - startTime,
-                metrics = metricResults,
+                metrics = measurements,
                 repeatIterations = iterations,
                 thermalThrottleSleepSeconds = 0,
                 warmupIterations = warmupIterations
