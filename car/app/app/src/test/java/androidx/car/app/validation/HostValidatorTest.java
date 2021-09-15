@@ -195,7 +195,13 @@ public class HostValidatorTest {
         packageInfo.signatures = new Signature[] { signature };
         if (permission != null) {
             packageInfo.requestedPermissions = new String[] { permission };
-            packageInfo.requestedPermissionsFlags = new int[] { REQUESTED_PERMISSION_GRANTED };
+
+            // Per PackageParser#generatePackageInfo, a requestedPermissionsFlag for a permission
+            // is (REQUESTED_PERMISSION_REQUIRED | REQUESTED_PERMISSION_GRANTED). Since
+            // REQUESTED_PERMISSION_REQUIRED is deprecated but still used in PackageParser, hard
+            // code the granted flag here.
+            int requestedPermissionGranted = REQUESTED_PERMISSION_GRANTED | 1;
+            packageInfo.requestedPermissionsFlags = new int[] { requestedPermissionGranted };
         }
         try {
             when(mPackageManager.getPackageInfo(anyString(), anyInt())).thenReturn(packageInfo);
