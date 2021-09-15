@@ -26,5 +26,15 @@ package androidx.wear.watchface {
     method protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.WatchFace> createWatchFaceFuture(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
   }
 
+  public final class StateFlowCompatHelper<T> {
+    ctor public StateFlowCompatHelper(kotlinx.coroutines.flow.StateFlow<? extends T> stateFlow);
+    method public void addValueChangeListener(androidx.wear.watchface.StateFlowCompatHelper.ValueChangeListener<T> userStyleChangeListener, java.util.concurrent.Executor executor);
+    method public void removeValueChangeListener(androidx.wear.watchface.StateFlowCompatHelper.ValueChangeListener<T> userStyleChangeListener);
+  }
+
+  public static fun interface StateFlowCompatHelper.ValueChangeListener<T> {
+    method @UiThread public void onValueChanged(T? userStyle);
+  }
+
 }
 

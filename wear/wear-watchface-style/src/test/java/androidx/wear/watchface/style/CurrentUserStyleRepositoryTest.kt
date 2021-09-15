@@ -28,7 +28,6 @@ import org.junit.Assert.fail
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 
 private val redStyleOption =
     ListUserStyleSetting.ListOption(Option.Id("red_style"), "Red", icon = null)
@@ -121,64 +120,12 @@ private val optionFalse = BooleanUserStyleSetting.BooleanOption.FALSE
 @RunWith(StyleTestRunner::class)
 class CurrentUserStyleRepositoryTest {
 
-    private val mockListener1 =
-        Mockito.mock(CurrentUserStyleRepository.UserStyleChangeListener::class.java)
-    private val mockListener2 =
-        Mockito.mock(CurrentUserStyleRepository.UserStyleChangeListener::class.java)
-    private val mockListener3 =
-        Mockito.mock(CurrentUserStyleRepository.UserStyleChangeListener::class.java)
-
     private val userStyleRepository =
         CurrentUserStyleRepository(
             UserStyleSchema(
                 listOf(colorStyleSetting, watchHandStyleSetting, watchHandLengthStyleSetting)
             )
         )
-
-    @Test
-    fun addUserStyleListener_firesImmediately() {
-        userStyleRepository.addUserStyleChangeListener(mockListener1)
-        Mockito.verify(mockListener1).onUserStyleChanged(userStyleRepository.userStyle)
-    }
-
-    @Test
-    fun assigning_userStyle_firesListeners() {
-        userStyleRepository.addUserStyleChangeListener(mockListener1)
-        userStyleRepository.addUserStyleChangeListener(mockListener2)
-        userStyleRepository.addUserStyleChangeListener(mockListener3)
-
-        Mockito.verify(mockListener1).onUserStyleChanged(userStyleRepository.userStyle)
-        Mockito.verify(mockListener2).onUserStyleChanged(userStyleRepository.userStyle)
-        Mockito.verify(mockListener3).onUserStyleChanged(userStyleRepository.userStyle)
-
-        val newStyle = UserStyle(
-            hashMapOf(
-                colorStyleSetting to greenStyleOption,
-                watchHandStyleSetting to gothicStyleOption
-            )
-        )
-
-        Mockito.reset(mockListener1)
-        Mockito.reset(mockListener2)
-        Mockito.reset(mockListener3)
-
-        userStyleRepository.userStyle = newStyle
-
-        Mockito.verify(mockListener1).onUserStyleChanged(userStyleRepository.userStyle)
-        Mockito.verify(mockListener2).onUserStyleChanged(userStyleRepository.userStyle)
-        Mockito.verify(mockListener3).onUserStyleChanged(userStyleRepository.userStyle)
-    }
-
-    @Test
-    fun addUserStyleListener_samConversion() {
-        lateinit var selectedOptions: UserStyle
-        userStyleRepository.addUserStyleChangeListener {
-            selectedOptions = it
-        }
-
-        assertThat(selectedOptions[colorStyleSetting]).isEqualTo(redStyleOption)
-        assertThat(selectedOptions[watchHandStyleSetting]).isEqualTo(classicStyleOption)
-    }
 
     @Test
     fun assigning_userStyle() {
@@ -189,11 +136,11 @@ class CurrentUserStyleRepositoryTest {
             )
         )
 
-        userStyleRepository.userStyle = newStyle
+        userStyleRepository.userStyle.value = newStyle
 
-        assertThat(userStyleRepository.userStyle[colorStyleSetting])
+        assertThat(userStyleRepository.userStyle.value[colorStyleSetting])
             .isEqualTo(greenStyleOption)
-        assertThat(userStyleRepository.userStyle[watchHandStyleSetting])
+        assertThat(userStyleRepository.userStyle.value[watchHandStyleSetting])
             .isEqualTo(gothicStyleOption)
     }
 
@@ -223,18 +170,18 @@ class CurrentUserStyleRepositoryTest {
             )
         )
 
-        userStyleRepository.userStyle = newStyle
+        userStyleRepository.userStyle.value = newStyle
 
-        assertThat(userStyleRepository.userStyle[colorStyleSetting])
+        assertThat(userStyleRepository.userStyle.value[colorStyleSetting])
             .isEqualTo(greenStyleOption)
-        assertThat(userStyleRepository.userStyle[watchHandStyleSetting])
+        assertThat(userStyleRepository.userStyle.value[watchHandStyleSetting])
             .isEqualTo(gothicStyleOption)
     }
 
     @Test
     fun defaultValues() {
         val watchHandLengthOption =
-            userStyleRepository.userStyle[watchHandLengthStyleSetting]!! as
+            userStyleRepository.userStyle.value[watchHandLengthStyleSetting]!! as
                 DoubleRangeUserStyleSetting.DoubleRangeOption
         assertThat(watchHandLengthOption.value).isEqualTo(0.75)
     }
@@ -491,9 +438,9 @@ class CurrentUserStyleRepositoryTest {
         val userStyleSchema = UserStyleSchema(listOf(booleanSetting))
 
         CurrentUserStyleRepository(userStyleSchema).let { currentUserStyleRepository ->
-            currentUserStyleRepository.userStyle =
+            currentUserStyleRepository.userStyle.value =
                 UserStyle(mapOf(booleanSetting to optionFalse))
-            currentUserStyleRepository.userStyle.let { userStyle ->
+            currentUserStyleRepository.userStyle.value.let { userStyle ->
                 assertThat(userStyle[booleanSetting]).isEqualTo(optionFalse)
                 assertThat(userStyle[booleanSettingCopy]).isEqualTo(optionFalse)
                 assertThat(userStyle[booleanSettingModifiedInfo]).isEqualTo(optionFalse)
@@ -502,9 +449,9 @@ class CurrentUserStyleRepositoryTest {
         }
 
         CurrentUserStyleRepository(userStyleSchema).let { currentUserStyleRepository ->
-            currentUserStyleRepository.userStyle =
+            currentUserStyleRepository.userStyle.value =
                 UserStyle(mapOf(booleanSettingCopy to optionFalse))
-            currentUserStyleRepository.userStyle.let { userStyle ->
+            currentUserStyleRepository.userStyle.value.let { userStyle ->
                 assertThat(userStyle[booleanSetting]).isEqualTo(optionFalse)
                 assertThat(userStyle[booleanSettingCopy]).isEqualTo(optionFalse)
                 assertThat(userStyle[booleanSettingModifiedInfo]).isEqualTo(optionFalse)
@@ -513,9 +460,9 @@ class CurrentUserStyleRepositoryTest {
         }
 
         CurrentUserStyleRepository(userStyleSchema).let { currentUserStyleRepository ->
-            currentUserStyleRepository.userStyle =
+            currentUserStyleRepository.userStyle.value =
                 UserStyle(mapOf(booleanSettingModifiedInfo to optionFalse))
-            currentUserStyleRepository.userStyle.let { userStyle ->
+            currentUserStyleRepository.userStyle.value.let { userStyle ->
                 assertThat(userStyle[booleanSetting]).isEqualTo(optionFalse)
                 assertThat(userStyle[booleanSettingCopy]).isEqualTo(optionFalse)
                 assertThat(userStyle[booleanSettingModifiedInfo]).isEqualTo(optionFalse)
@@ -524,14 +471,13 @@ class CurrentUserStyleRepositoryTest {
         }
 
         CurrentUserStyleRepository(userStyleSchema).let { currentUserStyleRepository ->
-            currentUserStyleRepository.userStyle =
-                UserStyle(mapOf(booleanSettingModifiedId to optionFalse))
-            currentUserStyleRepository.userStyle.let { userStyle ->
-                assertThat(userStyle[booleanSetting]).isEqualTo(optionTrue)
-                assertThat(userStyle[booleanSettingCopy]).isEqualTo(optionTrue)
-                assertThat(userStyle[booleanSettingModifiedInfo]).isEqualTo(optionTrue)
-                assertThat(userStyle[booleanSettingModifiedId]).isEqualTo(null)
-            }
+            assertThrows(
+                java.lang.IllegalArgumentException::class.java,
+                {
+                    currentUserStyleRepository.userStyle.value =
+                        UserStyle(mapOf(booleanSettingModifiedId to optionFalse))
+                }
+            )
         }
     }
 
@@ -610,14 +556,14 @@ class CurrentUserStyleRepositoryTest {
             )
         )
 
-        userStyleRepository.userStyle = UserStyle(
+        userStyleRepository.userStyle.value = UserStyle(
             mapOf(
                 customStyleSetting to CustomValueOption("test".encodeToByteArray())
             )
         )
 
         assertThat(
-            (userStyleRepository.userStyle[customStyleSetting]!! as CustomValueOption)
+            (userStyleRepository.userStyle.value[customStyleSetting]!! as CustomValueOption)
                 .customValue.decodeToString()
         ).isEqualTo("test")
     }

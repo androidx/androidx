@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface.samples
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -41,7 +40,6 @@ import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
@@ -53,6 +51,10 @@ import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSettin
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.WatchFaceLayer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import kotlin.math.cos
 import kotlin.math.sin
@@ -344,31 +346,27 @@ class ExampleAnalogWatchCanvasRenderer(
     private var watchHandScale = 1.0f
 
     init {
-        currentUserStyleRepository.addUserStyleChangeListener(
-            object : CurrentUserStyleRepository.UserStyleChangeListener {
-                @SuppressLint("SyntheticAccessor")
-                override fun onUserStyleChanged(userStyle: UserStyle) {
-                    watchFaceColorStyle =
-                        WatchFaceColorStyle.create(
-                            context,
-                            userStyle[colorStyleSetting]!!.toString()
-                        )
+        CoroutineScope(Dispatchers.Main.immediate).launch {
+            currentUserStyleRepository.userStyle.collect { userStyle ->
+                watchFaceColorStyle = WatchFaceColorStyle.create(
+                    context,
+                    userStyle[colorStyleSetting]!!.toString()
+                )
 
-                    // Apply the userStyle to the complicationSlots. ComplicationDrawables for each
-                    // of the styles are defined in XML so we need to replace the complication's
-                    // drawables.
-                    for ((_, complication) in complicationSlotsManager.complicationSlots) {
-                        (complication.renderer as CanvasComplicationDrawable).drawable =
-                            watchFaceColorStyle.getDrawable(context)!!
-                    }
-
-                    drawHourPips = (userStyle[drawPipsStyleSetting]!! as BooleanOption).value
-                    watchHandScale =
-                        (userStyle[watchHandLengthStyleSettingDouble]!! as DoubleRangeOption)
-                            .value.toFloat()
+                // Apply the userStyle to the complicationSlots. ComplicationDrawables for each
+                // of the styles are defined in XML so we need to replace the complication's
+                // drawables.
+                for ((_, complication) in complicationSlotsManager.complicationSlots) {
+                    (complication.renderer as CanvasComplicationDrawable).drawable =
+                        watchFaceColorStyle.getDrawable(context)!!
                 }
+
+                drawHourPips = (userStyle[drawPipsStyleSetting]!! as BooleanOption).value
+                watchHandScale =
+                    (userStyle[watchHandLengthStyleSettingDouble]!! as DoubleRangeOption)
+                        .value.toFloat()
             }
-        )
+        }
     }
 
     override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {

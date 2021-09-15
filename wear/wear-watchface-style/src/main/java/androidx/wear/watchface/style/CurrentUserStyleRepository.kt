@@ -16,11 +16,11 @@
 
 package androidx.wear.watchface.style
 
-import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
-import androidx.annotation.UiThread
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
+import kotlinx.coroutines.flow.MutableStateFlow
+import java.lang.reflect.Proxy
 
 /**
  * An immutable representation of user style choices that maps each [UserStyleSetting] to
@@ -412,65 +412,58 @@ public class UserStyleSchema(
 }
 
 /**
- * In memory storage for the current user style choices represented as [UserStyle], listeners can be
- * registered to observe style changes. The CurrentUserStyleRepository is initialized with a
+ * In memory storage for the current user style choices represented as a
+ * [MutableStateFlow]<[UserStyle]>. The UserStyle options must be from the supplied
  * [UserStyleSchema].
  *
  * @param schema The [UserStyleSchema] for this CurrentUserStyleRepository which describes the
  * available style categories.
  */
-public class CurrentUserStyleRepository(
-    public val schema: UserStyleSchema
-) {
-    /** A listener for observing [UserStyle] changes. */
-    public fun interface UserStyleChangeListener {
-        /** Called whenever the [UserStyle] changes. */
-        @UiThread
-        public fun onUserStyleChanged(userStyle: UserStyle)
-    }
-
-    private val styleListeners = HashSet<UserStyleChangeListener>()
-
-    /**
-     * The current [UserStyle]. Assigning to this property triggers immediate
-     * [UserStyleChangeListener] callbacks if if any options have changed.
-     */
-    public var userStyle: UserStyle = UserStyle(
-        HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
-            for (setting in schema.userStyleSettings) {
-                this[setting] = setting.defaultOption
-            }
-        }
-    )
-        @UiThread
-        get
-        @UiThread
-        set(style) {
-            val merged = UserStyle.merge(field, style)
-            merged?.let {
-                field = it
-                for (styleListener in styleListeners) {
-                    styleListener.onUserStyleChanged(field)
+public class CurrentUserStyleRepository(public val schema: UserStyleSchema) {
+    private var wrappedUserStyle = MutableStateFlow(
+        UserStyle(
+            HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
+                for (setting in schema.userStyleSettings) {
+                    this[setting] = setting.defaultOption
                 }
             }
-        }
+        )
+    )
 
     /**
-     * Adds a [UserStyleChangeListener] which is called immediately and whenever the style changes.
-     *
-     * NB the order in which ambient vs style changes are reported is not guaranteed.
+     * The current [UserStyle]. If accessed from java, consider using
+     * [androidx.wear.watchface.StateFlowCompatHelper] to observe callbacks.
      */
-    @UiThread
-    @SuppressLint("ExecutorRegistration")
-    public fun addUserStyleChangeListener(userStyleChangeListener: UserStyleChangeListener) {
-        styleListeners.add(userStyleChangeListener)
-        userStyleChangeListener.onUserStyleChanged(userStyle)
-    }
+    // Unfortunately a dynamic proxy is the only way we can reasonably validate the UserStyle,
+    // exceptions thrown within a coroutine are lost and the MutableStateFlow interface includes
+    // internal unstable methods so we can't use a static proxy...
+    @Suppress("BanUncheckedReflection", "UNCHECKED_CAST")
+    public var userStyle: MutableStateFlow<UserStyle> = Proxy.newProxyInstance(
+        MutableStateFlow::class.java.classLoader,
+        arrayOf<Class<*>>(MutableStateFlow::class.java)
+    ) { _, method, args ->
+        if (args == null) {
+            method?.invoke(wrappedUserStyle)
+        } else {
+            if (method?.name == "setValue") {
+                validateUserStyle(args[0] as UserStyle)
+            }
+            method?.invoke(wrappedUserStyle, *args)
+        }
+    } as MutableStateFlow<UserStyle>
 
-    /** Removes a [UserStyleChangeListener] previously added by [addUserStyleChangeListener]. */
-    @UiThread
-    @SuppressLint("ExecutorRegistration")
-    public fun removeUserStyleChangeListener(userStyleChangeListener: UserStyleChangeListener) {
-        styleListeners.remove(userStyleChangeListener)
+    internal fun validateUserStyle(userStyle: UserStyle) {
+        for ((key, value) in userStyle) {
+            val setting = schema.userStyleSettings.firstOrNull { it == key }
+
+            require(setting != null) {
+                "UserStyleSetting $key is not a reference to a UserStyleSetting within " +
+                    "the schema."
+            }
+            require(setting::class.java == value.getUserStyleSettingClass()) {
+                "The option class (${value::class.java.canonicalName}) in $key must " +
+                    "match the setting class " + setting::class.java.canonicalName
+            }
+        }
     }
 }

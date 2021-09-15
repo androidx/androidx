@@ -33,10 +33,12 @@ import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.utility.TraceEvent
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 private fun getComponentName(context: Context) = ComponentName(
     context.packageName,
@@ -126,6 +128,14 @@ public class ComplicationSlotsManager(
     }
 
     init {
+        for ((_, complication) in complicationSlots) {
+            complication.complicationSlotsManager = this
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun listenForStyleChanges(coroutineScope: CoroutineScope) {
         val complicationsStyleCategory =
             currentUserStyleRepository.schema.userStyleSettings.firstOrNull {
                 it is ComplicationSlotsUserStyleSetting
@@ -136,22 +146,16 @@ public class ComplicationSlotsManager(
         if (complicationsStyleCategory != null) {
             // Ensure we apply any initial StyleCategoryOption overlay by initializing with null.
             var previousOption: ComplicationSlotsOption? = null
-            currentUserStyleRepository.addUserStyleChangeListener(
-                object : CurrentUserStyleRepository.UserStyleChangeListener {
-                    override fun onUserStyleChanged(userStyle: UserStyle) {
-                        val newlySelectedOption =
-                            userStyle[complicationsStyleCategory]!! as ComplicationSlotsOption
-                        if (previousOption != newlySelectedOption) {
-                            previousOption = newlySelectedOption
-                            applyComplicationSlotsStyleCategoryOption(newlySelectedOption)
-                        }
+            coroutineScope.launch {
+                currentUserStyleRepository.userStyle.collect { userStyle ->
+                    val newlySelectedOption =
+                        userStyle[complicationsStyleCategory]!! as ComplicationSlotsOption
+                    if (previousOption != newlySelectedOption) {
+                        previousOption = newlySelectedOption
+                        applyComplicationSlotsStyleCategoryOption(newlySelectedOption)
                     }
                 }
-            )
-        }
-
-        for ((_, complication) in complicationSlots) {
-            complication.complicationSlotsManager = this
+            }
         }
     }
 
@@ -171,6 +175,8 @@ public class ComplicationSlotsManager(
             // Force lazy construction of renderers.
             complication.renderer.onRendererCreated(renderer)
         }
+
+        listenForStyleChanges(watchFaceHostApi.getUiThreadCoroutineScope())
 
         require(
             complicationSlots.values.distinctBy { it.renderer }.size ==

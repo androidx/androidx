@@ -256,7 +256,7 @@ public class TestHeadlessWatchFaceService : WatchFaceService() {
             100
         ) {
             override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
-                when (currentUserStyleRepository.userStyle[colorStyleSetting]!!) {
+                when (currentUserStyleRepository.userStyle.value[colorStyleSetting]!!) {
                     redStyleOption -> canvas.drawColor(Color.RED)
                     greenStyleOption -> canvas.drawColor(Color.GREEN)
                     blueStyleOption -> canvas.drawColor(Color.BLUE)
@@ -536,6 +536,7 @@ public class EditorSessionTest {
         val complicationSlotsManager =
             ComplicationSlotsManager(complicationSlots, userStyleRepository)
         complicationSlotsManager.watchState = placeholderWatchState
+        complicationSlotsManager.listenForStyleChanges(CoroutineScope(Dispatchers.Main.immediate))
 
         // Mocking getters and setters with mockito at the same time is hard so we do this instead.
         editorDelegate = object : WatchFace.EditorDelegate {
@@ -547,9 +548,9 @@ public class EditorSessionTest {
 
             override val userStyleSchema = userStyleRepository.schema
             override var userStyle: UserStyle
-                get() = userStyleRepository.userStyle
+                get() = userStyleRepository.userStyle.value
                 set(value) {
-                    userStyleRepository.userStyle = value
+                    userStyleRepository.userStyle.value = value
                 }
 
             override val complicationSlotsManager = complicationSlotsManager
