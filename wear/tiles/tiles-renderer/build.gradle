@@ -37,17 +37,24 @@ dependencies {
     implementation "androidx.wear:wear:1.2.0-beta01"
 
     implementation(project(":wear:tiles:tiles"))
-    implementation(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
+    implementation(project(":wear:tiles:tiles-proto"))
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesAndroid)
 
-    androidTestImplementation(project(path: ":wear:tiles:tiles-proto"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation("com.google.protobuf:protobuf-java:3.10.0")
+
+    // I'm not 100% sure why, but androidTestImplementation doesn't appear to use the standard
+    // results of a project build. This leads to it not using the shadow configuration from
+    // tiles-proto, and thus failing to find the protobuf classes at runtime.
+    //
+    // This line forces the androidTest to use the properly shaded proto library on the runtime
+    // classpath.
+    androidTestRuntimeOnly(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
 
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
