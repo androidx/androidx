@@ -204,6 +204,7 @@ public class EncoderImpl implements Encoder {
         }
 
         mMediaFormat = encoderConfig.toMediaFormat();
+        Logger.d(mTag, "mMediaFormat = " + mMediaFormat);
         mMediaCodec = mEncoderFinder.findEncoder(mMediaFormat,
                 new MediaCodecList(MediaCodecList.ALL_CODECS));
         Logger.i(mTag, "Selected encoder: " + mMediaCodec.getName());
