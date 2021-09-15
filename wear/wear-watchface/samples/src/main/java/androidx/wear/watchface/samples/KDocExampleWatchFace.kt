@@ -39,12 +39,15 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.rendering.CanvasComplicationDrawable
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.CurrentUserStyleRepository
-import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.WatchFaceLayer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 
 @Sampled
@@ -165,14 +168,13 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 /* interactiveUpdateRateMillis */ 16,
             ) {
                 init {
-                    currentUserStyleRepository.addUserStyleChangeListener(
-                        object : CurrentUserStyleRepository.UserStyleChangeListener {
-                            override fun onUserStyleChanged(userStyle: UserStyle) {
-                                // `userStyle` will contain two userStyle categories with options
-                                // from the lists above. ...
-                            }
+                    // Listen for user style changes.
+                    CoroutineScope(Dispatchers.Main.immediate).launch {
+                        currentUserStyleRepository.userStyle.collect {
+                            // `userStyle` will contain two userStyle categories with options
+                            // from the lists above. ..
                         }
-                    )
+                    }
                 }
 
                 override fun render(

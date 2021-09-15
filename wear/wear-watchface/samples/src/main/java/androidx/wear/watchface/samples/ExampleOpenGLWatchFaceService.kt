@@ -634,7 +634,7 @@ class ExampleOpenGLRenderer(
             GLES20.glClearColor(0f, 0f, 0f, 1f)
             ambientVpMatrix
         } else {
-            when (currentUserStyleRepository.userStyle[colorStyleSetting]!!.toString()) {
+            when (currentUserStyleRepository.userStyle.value[colorStyleSetting]!!.toString()) {
                 "red_style" -> GLES20.glClearColor(0.5f, 0.2f, 0.2f, 1f)
                 "green_style" -> GLES20.glClearColor(0.2f, 0.5f, 0.2f, 1f)
             }
@@ -702,7 +702,7 @@ class ExampleOpenGLRenderer(
                     0
                 )
                 secondHandTriangleMap[
-                    currentUserStyleRepository.userStyle[colorStyleSetting]!!.toString()
+                    currentUserStyleRepository.userStyle.value[colorStyleSetting]!!.toString()
                 ]?.draw(mvpMatrix)
             }
         }

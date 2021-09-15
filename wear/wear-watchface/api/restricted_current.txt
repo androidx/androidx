@@ -149,6 +149,7 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.ComplicationSlot? getComplicationSlotAt(@Px int x, @Px int y);
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.ComplicationSlot> getComplicationSlots();
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> getLastComplicationTapDownEvents();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void listenForStyleChanges(kotlinx.coroutines.CoroutineScope coroutineScope);
     method @UiThread public void removeTapListener(androidx.wear.watchface.ComplicationSlotsManager.TapCallback tapCallback);
     property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.ComplicationSlot> complicationSlots;
     property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> lastComplicationTapDownEvents;
@@ -419,6 +420,7 @@ package androidx.wear.watchface {
     method public android.os.Handler getBackgroundThreadHandler();
     method public android.content.Context getContext();
     method public androidx.wear.watchface.style.data.UserStyleWireFormat? getInitialUserStyle();
+    method public kotlinx.coroutines.CoroutineScope getUiThreadCoroutineScope();
     method public android.os.Handler getUiThreadHandler();
     method @UiThread public void invalidate();
     method public void setActiveComplicationSlots(int[] complicationSlotIds);
@@ -458,6 +460,7 @@ package androidx.wear.watchface {
     method public android.content.Context getContext();
     method public kotlinx.coroutines.CompletableDeferred<androidx.wear.watchface.WatchFaceImpl> getDeferredWatchFaceImpl();
     method public androidx.wear.watchface.style.data.UserStyleWireFormat? getInitialUserStyle();
+    method public kotlinx.coroutines.CoroutineScope getUiThreadCoroutineScope();
     method public android.os.Handler getUiThreadHandler();
     method public void invalidate();
     method public void setActiveComplicationSlots(int[] complicationSlotIds);

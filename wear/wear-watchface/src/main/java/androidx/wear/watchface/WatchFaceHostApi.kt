@@ -24,6 +24,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.wear.complications.SystemDataSources.DataSourceId
 import androidx.wear.watchface.style.data.UserStyleWireFormat
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * The API [WatchFaceImpl] uses to communicate with the system.
@@ -36,6 +37,9 @@ public interface WatchFaceHostApi {
 
     /** Returns the UI thread [Handler]. */
     public fun getUiThreadHandler(): Handler
+
+    /** Returns the UI thread [CoroutineScope]. */
+    public fun getUiThreadCoroutineScope(): CoroutineScope
 
     /** Returns the Worker thread [Handler]. */
     public fun getBackgroundThreadHandler(): Handler

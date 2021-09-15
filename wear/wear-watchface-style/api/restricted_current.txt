@@ -3,17 +3,11 @@ package androidx.wear.watchface.style {
 
   public final class CurrentUserStyleRepository {
     ctor public CurrentUserStyleRepository(androidx.wear.watchface.style.UserStyleSchema schema);
-    method @UiThread public void addUserStyleChangeListener(androidx.wear.watchface.style.CurrentUserStyleRepository.UserStyleChangeListener userStyleChangeListener);
     method public androidx.wear.watchface.style.UserStyleSchema getSchema();
-    method @UiThread public androidx.wear.watchface.style.UserStyle getUserStyle();
-    method @UiThread public void removeUserStyleChangeListener(androidx.wear.watchface.style.CurrentUserStyleRepository.UserStyleChangeListener userStyleChangeListener);
-    method @UiThread public void setUserStyle(androidx.wear.watchface.style.UserStyle style);
+    method public kotlinx.coroutines.flow.MutableStateFlow<androidx.wear.watchface.style.UserStyle> getUserStyle();
+    method public void setUserStyle(kotlinx.coroutines.flow.MutableStateFlow<androidx.wear.watchface.style.UserStyle> userStyle);
     property public final androidx.wear.watchface.style.UserStyleSchema schema;
-    property @UiThread public final androidx.wear.watchface.style.UserStyle userStyle;
-  }
-
-  public static fun interface CurrentUserStyleRepository.UserStyleChangeListener {
-    method @UiThread public void onUserStyleChanged(androidx.wear.watchface.style.UserStyle userStyle);
+    property public final kotlinx.coroutines.flow.MutableStateFlow<androidx.wear.watchface.style.UserStyle> userStyle;
   }
 
   public final class MutableUserStyle implements java.lang.Iterable<java.util.Map.Entry<? extends androidx.wear.watchface.style.UserStyleSetting,? extends androidx.wear.watchface.style.UserStyleSetting.Option>> kotlin.jvm.internal.markers.KMappedMarker {

@@ -1168,7 +1168,7 @@ public class WatchFaceServiceTest {
         )
 
         // This should get persisted.
-        currentUserStyleRepository.userStyle = UserStyle(
+        currentUserStyleRepository.userStyle.value = UserStyle(
             hashMapOf(
                 colorStyleSetting to blueStyleOption,
                 watchHandStyleSetting to gothicStyleOption
@@ -1206,11 +1206,11 @@ public class WatchFaceServiceTest {
 
         val watchFaceImpl2 = engine2.getWatchFaceImplOrNull()!!
         val userStyleRepository2 = watchFaceImpl2.currentUserStyleRepository
-        assertThat(userStyleRepository2.userStyle[colorStyleSetting]!!.id)
+        assertThat(userStyleRepository2.userStyle.value[colorStyleSetting]!!.id)
             .isEqualTo(
                 blueStyleOption.id
             )
-        assertThat(userStyleRepository2.userStyle[watchHandStyleSetting]!!.id)
+        assertThat(userStyleRepository2.userStyle.value[watchHandStyleSetting]!!.id)
             .isEqualTo(
                 gothicStyleOption.id
             )
@@ -1297,11 +1297,11 @@ public class WatchFaceServiceTest {
         )
 
         // The style option above should get applied during watch face creation.
-        assertThat(currentUserStyleRepository.userStyle[colorStyleSetting]!!.id)
+        assertThat(currentUserStyleRepository.userStyle.value[colorStyleSetting]!!.id)
             .isEqualTo(
                 blueStyleOption.id
             )
-        assertThat(currentUserStyleRepository.userStyle[watchHandStyleSetting]!!.id)
+        assertThat(currentUserStyleRepository.userStyle.value[watchHandStyleSetting]!!.id)
             .isEqualTo(
                 gothicStyleOption.id
             )
@@ -1327,7 +1327,7 @@ public class WatchFaceServiceTest {
             )
         )
 
-        assertThat(currentUserStyleRepository.userStyle[watchHandStyleSetting])
+        assertThat(currentUserStyleRepository.userStyle.value[watchHandStyleSetting])
             .isEqualTo(watchHandStyleList.first())
     }
 
@@ -1547,8 +1547,8 @@ public class WatchFaceServiceTest {
         ) // Right complication.
 
         // Change the style
-        watchFaceImpl.currentUserStyleRepository.userStyle =
-            watchFaceImpl.currentUserStyleRepository.userStyle.toMutableUserStyle().apply {
+        watchFaceImpl.currentUserStyleRepository.userStyle.value =
+            watchFaceImpl.currentUserStyleRepository.userStyle.value.toMutableUserStyle().apply {
                 this[complicationsStyleSetting] = rightAndSelectComplicationsOption
             }.toUserStyle()
         runPostedTasksFor(0)
@@ -1896,9 +1896,9 @@ public class WatchFaceServiceTest {
         reset(iWatchFaceService)
 
         // Select a new style which turns off both complicationSlots.
-        val mutableUserStyleA = currentUserStyleRepository.userStyle.toMutableUserStyle()
+        val mutableUserStyleA = currentUserStyleRepository.userStyle.value.toMutableUserStyle()
         mutableUserStyleA[complicationsStyleSetting] = noComplicationsOption
-        currentUserStyleRepository.userStyle = mutableUserStyleA.toUserStyle()
+        currentUserStyleRepository.userStyle.value = mutableUserStyleA.toUserStyle()
 
         assertFalse(leftComplication.enabled)
         assertFalse(rightComplication.enabled)
@@ -1912,9 +1912,9 @@ public class WatchFaceServiceTest {
         reset(iWatchFaceService)
 
         // Select a new style which turns on only the left complication.
-        val mutableUserStyleB = currentUserStyleRepository.userStyle.toMutableUserStyle()
+        val mutableUserStyleB = currentUserStyleRepository.userStyle.value.toMutableUserStyle()
         mutableUserStyleB[complicationsStyleSetting] = leftComplicationsOption
-        currentUserStyleRepository.userStyle = mutableUserStyleB.toUserStyle()
+        currentUserStyleRepository.userStyle.value = mutableUserStyleB.toUserStyle()
 
         assertTrue(leftComplication.enabled)
         assertFalse(rightComplication.enabled)
@@ -1972,9 +1972,9 @@ public class WatchFaceServiceTest {
         assertTrue(rightComplication.enabled)
 
         // Select left complication only.
-        val mutableUserStyleA = currentUserStyleRepository.userStyle.toMutableUserStyle()
+        val mutableUserStyleA = currentUserStyleRepository.userStyle.value.toMutableUserStyle()
         mutableUserStyleA[complicationsStyleSetting] = leftOnlyComplicationsOption
-        currentUserStyleRepository.userStyle = mutableUserStyleA.toUserStyle()
+        currentUserStyleRepository.userStyle.value = mutableUserStyleA.toUserStyle()
 
         runPostedTasksFor(0)
 
@@ -1982,9 +1982,9 @@ public class WatchFaceServiceTest {
         assertFalse(rightComplication.enabled)
 
         // Select right complication only.
-        val mutableUserStyleB = currentUserStyleRepository.userStyle.toMutableUserStyle()
+        val mutableUserStyleB = currentUserStyleRepository.userStyle.value.toMutableUserStyle()
         mutableUserStyleB[complicationsStyleSetting] = rightOnlyComplicationsOption
-        currentUserStyleRepository.userStyle = mutableUserStyleB.toUserStyle()
+        currentUserStyleRepository.userStyle.value = mutableUserStyleB.toUserStyle()
 
         runPostedTasksFor(0)
 
@@ -1992,9 +1992,9 @@ public class WatchFaceServiceTest {
         assertTrue(rightComplication.enabled)
 
         // Select both complicationSlots.
-        val mutableUserStyleC = currentUserStyleRepository.userStyle.toMutableUserStyle()
+        val mutableUserStyleC = currentUserStyleRepository.userStyle.value.toMutableUserStyle()
         mutableUserStyleC[complicationsStyleSetting] = bothComplicationsOption
-        currentUserStyleRepository.userStyle = mutableUserStyleC.toUserStyle()
+        currentUserStyleRepository.userStyle.value = mutableUserStyleC.toUserStyle()
 
         runPostedTasksFor(0)
 
@@ -2622,7 +2622,7 @@ public class WatchFaceServiceTest {
         val instance = InteractiveInstanceManager.getAndRetainInstance(instanceId)
         assertThat(instance).isNotNull()
         watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
-        val userStyle = watchFaceImpl.currentUserStyleRepository.userStyle
+        val userStyle = watchFaceImpl.currentUserStyleRepository.userStyle.value
         assertThat(userStyle[colorStyleSetting]).isEqualTo(blueStyleOption)
         assertThat(userStyle[watchHandStyleSetting]).isEqualTo(gothicStyleOption)
 
@@ -2789,9 +2789,9 @@ public class WatchFaceServiceTest {
         )
 
         // Select a style which changes the bounds of the right complication.
-        val mutableUserStyle = currentUserStyleRepository.userStyle.toMutableUserStyle()
+        val mutableUserStyle = currentUserStyleRepository.userStyle.value.toMutableUserStyle()
         mutableUserStyle[complicationsStyleSetting] = rightComplicationBoundsOption
-        currentUserStyleRepository.userStyle = mutableUserStyle.toUserStyle()
+        currentUserStyleRepository.userStyle.value = mutableUserStyle.toUserStyle()
 
         complicationDetails = watchFaceImpl.getComplicationState()
         assertThat(complicationDetails[1].id).isEqualTo(RIGHT_COMPLICATION_ID)

@@ -79,6 +79,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.FileDescriptor
@@ -907,7 +908,8 @@ public abstract class WatchFaceService : WallpaperService() {
 
             // Update direct boot params if we have any.
             val params = directBootParams ?: return
-            val currentStyle = watchFaceImpl.currentUserStyleRepository.userStyle.toWireFormat()
+            val currentStyle =
+                watchFaceImpl.currentUserStyleRepository.userStyle.value.toWireFormat()
             if (params.userStyle.equals(currentStyle)) {
                 return
             }
@@ -991,6 +993,8 @@ public abstract class WatchFaceService : WallpaperService() {
         override fun getContext(): Context = _context
 
         override fun getUiThreadHandler(): Handler = uiThreadHandler
+
+        override fun getUiThreadCoroutineScope(): CoroutineScope = uiThreadCoroutineScope
 
         override fun getBackgroundThreadHandler(): Handler = backgroundThreadHandler
 
@@ -1537,7 +1541,7 @@ public abstract class WatchFaceService : WallpaperService() {
             val storedUserStyle = getInitialUserStyle()
             if (storedUserStyle != null) {
                 TraceEvent("WatchFaceImpl.init apply userStyle").use {
-                    currentUserStyleRepository.userStyle =
+                    currentUserStyleRepository.userStyle.value =
                         UserStyle(UserStyleData(storedUserStyle), currentUserStyleRepository.schema)
                 }
             } else {
@@ -1545,19 +1549,16 @@ public abstract class WatchFaceService : WallpaperService() {
                     // The system doesn't support preference persistence we need to do it ourselves.
                     val preferencesFile = "watchface_prefs_${_context.javaClass.name}.txt"
 
-                    currentUserStyleRepository.userStyle = UserStyle(
+                    currentUserStyleRepository.userStyle.value = UserStyle(
                         UserStyleData(readPrefs(_context, preferencesFile)),
                         currentUserStyleRepository.schema
                     )
 
-                    currentUserStyleRepository.addUserStyleChangeListener(
-                        object : CurrentUserStyleRepository.UserStyleChangeListener {
-                            @SuppressLint("SyntheticAccessor")
-                            override fun onUserStyleChanged(userStyle: UserStyle) {
-                                writePrefs(_context, preferencesFile, userStyle)
-                            }
+                    backgroundThreadCoroutineScope.launch {
+                        currentUserStyleRepository.userStyle.collect {
+                            writePrefs(_context, preferencesFile, it)
                         }
-                    )
+                    }
                 }
             }
 
