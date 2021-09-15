@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
@@ -47,6 +48,7 @@ import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipColors
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactChip
+import androidx.wear.compose.material.LocalContentColor
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
@@ -306,11 +308,8 @@ fun AvatarChips() {
         item {
             DemoIconChip(
                 label = "App Title",
-                secondaryLabel = "Custom background & content color",
-                colors = ChipDefaults.primaryChipColors(
-                    backgroundColor = Color(0x775FB2FF),
-                    contentColor = MaterialTheme.colors.onPrimary
-                ),
+                secondaryLabel = "Defaults",
+                colors = ChipDefaults.secondaryChipColors(),
                 enabled = enabled,
             ) {
                 DemoImage(resourceId = R.drawable.ic_maps_icon)
@@ -319,7 +318,7 @@ fun AvatarChips() {
         item {
             DemoIconChip(
                 label = "App title",
-                secondaryLabel = "Default color with gradient",
+                secondaryLabel = "Default gradient",
                 colors = ChipDefaults.gradientBackgroundChipColors(),
                 enabled = enabled,
             ) {
@@ -328,24 +327,12 @@ fun AvatarChips() {
         }
         item {
             DemoIconChip(
-                label = "App title",
-                secondaryLabel = "Gradient background and onPrimary content",
+                label = "Custom Gradient Color",
+                secondaryLabel = "Matching Secondary Label Color",
+                secondaryLabelColor = Color(0x775FB2FF),
                 colors = ChipDefaults.gradientBackgroundChipColors(
-                    startBackgroundColor = Color(0x775FB2FF),
-                    contentColor = MaterialTheme.colors.onPrimary
-                ),
-                enabled = enabled,
-            ) {
-                DemoImage(resourceId = R.drawable.ic_maps_icon)
-            }
-        }
-        item {
-            DemoIconChip(
-                label = "App title",
-                secondaryLabel = "Gradient background and custom content",
-                colors = ChipDefaults.gradientBackgroundChipColors(
-                    startBackgroundColor = Color(0x775FB2FF),
-                    contentColor = Color.LightGray
+                    startBackgroundColor = Color(0x775FB2FF).copy(alpha = 0.325f)
+                        .compositeOver(MaterialTheme.colors.surface.copy(alpha = 0.75f)),
                 ),
                 enabled = enabled,
             ) {
@@ -700,6 +687,7 @@ private fun DemoIconChip(
     label: String,
     modifier: Modifier = Modifier,
     secondaryLabel: String? = null,
+    secondaryLabelColor: Color? = null,
     enabled: Boolean = true,
     onClick: (() -> Unit) = {},
     content: @Composable (() -> Unit)? = null
@@ -717,10 +705,15 @@ private fun DemoIconChip(
         },
         secondaryLabel = secondaryLabel?.let {
             {
-                Text(
-                    text = secondaryLabel,
-                    maxLines = 1, overflow = TextOverflow.Ellipsis
-                )
+                CompositionLocalProvider(
+                    LocalContentColor provides
+                        (secondaryLabelColor ?: colors.contentColor(enabled = enabled).value)
+                ) {
+                    Text(
+                        text = secondaryLabel,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         },
         icon = content, enabled = enabled
@@ -736,5 +729,13 @@ private fun DemoLabelChip(
     onClick: (() -> Unit) = {},
     enabled: Boolean = true
 ) {
-    DemoIconChip(colors, label, modifier, secondaryLabel, enabled, onClick, null)
+    DemoIconChip(
+        colors = colors,
+        label = label,
+        modifier = modifier,
+        secondaryLabel = secondaryLabel,
+        enabled = enabled,
+        onClick = onClick,
+        content = null
+    )
 }
