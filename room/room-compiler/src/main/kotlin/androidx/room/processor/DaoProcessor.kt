@@ -137,7 +137,8 @@ class DaoProcessor(
         }.map {
             TransactionMethodProcessor(
                 baseContext = context,
-                containing = declaredType,
+                containingElement = element,
+                containingType = declaredType,
                 executableElement = it
             ).process()
         }
