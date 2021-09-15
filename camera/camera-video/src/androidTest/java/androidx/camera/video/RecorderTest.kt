@@ -946,7 +946,7 @@ class RecorderTest {
         // Check the audio information reports state as disabled.
         val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
         verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
-        assertThat(captor.value.eventType).isEqualTo(VideoRecordEvent.EVENT_TYPE_STATUS)
+        assertThat(captor.value).isInstanceOf(VideoRecordEvent.Status::class.java)
         val status = captor.value as VideoRecordEvent.Status
         assertThat(status.recordingStats.audioStats.audioState)
             .isEqualTo(AudioStats.AUDIO_STATE_DISABLED)
@@ -1104,7 +1104,7 @@ class RecorderTest {
         val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
         verify(videoRecordEventListener, atLeastOnce()).accept(captor.capture())
 
-        assertThat(captor.value.eventType).isEqualTo(VideoRecordEvent.EVENT_TYPE_FINALIZE)
+        assertThat(captor.value).isInstanceOf(VideoRecordEvent.Finalize::class.java)
         val finalize = captor.value as VideoRecordEvent.Finalize
         assertThat(finalize.error).isEqualTo(ERROR_FILE_SIZE_LIMIT_REACHED)
         assertThat(file.length()).isLessThan(fileSizeLimit)

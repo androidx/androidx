@@ -47,7 +47,7 @@ class VideoRecordEventTest {
             TEST_RECORDING_STATE
         )
 
-        assertThat(event.eventType).isEqualTo(VideoRecordEvent.EVENT_TYPE_START)
+        assertThat(event).isInstanceOf(VideoRecordEvent.Start::class.java)
         assertThat(event.outputOptions).isEqualTo(TEST_OUTPUT_OPTION)
         assertThat(event.recordingStats).isEqualTo(TEST_RECORDING_STATE)
     }
@@ -60,7 +60,7 @@ class VideoRecordEventTest {
             TEST_OUTPUT_RESULT
         )
 
-        assertThat(event.eventType).isEqualTo(VideoRecordEvent.EVENT_TYPE_FINALIZE)
+        assertThat(event).isInstanceOf(VideoRecordEvent.Finalize::class.java)
         assertThat(event.outputOptions).isEqualTo(TEST_OUTPUT_OPTION)
         assertThat(event.recordingStats).isEqualTo(TEST_RECORDING_STATE)
         assertThat(event.outputResults).isEqualTo(TEST_OUTPUT_RESULT)
@@ -81,7 +81,7 @@ class VideoRecordEventTest {
             cause
         )
 
-        assertThat(event.eventType).isEqualTo(VideoRecordEvent.EVENT_TYPE_FINALIZE)
+        assertThat(event).isInstanceOf(VideoRecordEvent.Finalize::class.java)
         assertThat(event.outputOptions).isEqualTo(TEST_OUTPUT_OPTION)
         assertThat(event.recordingStats).isEqualTo(TEST_RECORDING_STATE)
         assertThat(event.outputResults).isEqualTo(TEST_OUTPUT_RESULT)
@@ -110,7 +110,7 @@ class VideoRecordEventTest {
             TEST_RECORDING_STATE
         )
 
-        assertThat(event.eventType).isEqualTo(VideoRecordEvent.EVENT_TYPE_STATUS)
+        assertThat(event).isInstanceOf(VideoRecordEvent.Status::class.java)
         assertThat(event.outputOptions).isEqualTo(TEST_OUTPUT_OPTION)
         assertThat(event.recordingStats).isEqualTo(TEST_RECORDING_STATE)
     }
@@ -122,7 +122,7 @@ class VideoRecordEventTest {
             TEST_RECORDING_STATE
         )
 
-        assertThat(event.eventType).isEqualTo(VideoRecordEvent.EVENT_TYPE_PAUSE)
+        assertThat(event).isInstanceOf(VideoRecordEvent.Pause::class.java)
         assertThat(event.outputOptions).isEqualTo(TEST_OUTPUT_OPTION)
         assertThat(event.recordingStats).isEqualTo(TEST_RECORDING_STATE)
     }
@@ -134,7 +134,7 @@ class VideoRecordEventTest {
             TEST_RECORDING_STATE
         )
 
-        assertThat(event.eventType).isEqualTo(VideoRecordEvent.EVENT_TYPE_RESUME)
+        assertThat(event).isInstanceOf(VideoRecordEvent.Resume::class.java)
         assertThat(event.outputOptions).isEqualTo(TEST_OUTPUT_OPTION)
         assertThat(event.recordingStats).isEqualTo(TEST_RECORDING_STATE)
     }
