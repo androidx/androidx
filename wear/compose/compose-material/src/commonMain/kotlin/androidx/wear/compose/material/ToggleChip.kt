@@ -664,12 +664,23 @@ public object ToggleChipDefaults {
      * or 'off' (unchecked/false)
      */
     @Composable
-    public fun SwitchIcon(checked: Boolean) {
-        Icon(
-            imageVector = if (checked) SwitchOn else SwitchOff,
-            contentDescription = "Switch selector",
-            modifier = Modifier.size(24.dp)
-        )
+    public fun SwitchIcon(
+        checked: Boolean,
+    ) {
+        if (checked) {
+            Icon(
+                imageVector = SwitchOn,
+                contentDescription = "Switch selector",
+                modifier = Modifier.size(24.dp),
+            )
+        } else {
+            Icon(
+                imageVector = SwitchOff,
+                contentDescription = "Switch selector",
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colors.onSurface.copy(0.6f)
+            )
+        }
     }
 
     /**
