@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type animator"
+        errorLine1="                    animator = AnimatorInflater.loadAnimator(context, nextAnim);"
+        errorLine2="                                                                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/fragment/app/FragmentAnim.java"
+            line="99"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getEnterTransition`"
+        errorLine1="    assertThat(fragment.enterTransition.enteringTargets).isEmpty()"
+        errorLine2="                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="157"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getEnteringTargets`"
+        errorLine1="    assertThat(fragment.enterTransition.enteringTargets).isEmpty()"
+        errorLine2="                                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="157"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getEnterTransition`"
+        errorLine1="    assertThat(fragment.enterTransition.exitingTargets).isEmpty()"
+        errorLine2="                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="158"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getExitingTargets`"
+        errorLine1="    assertThat(fragment.enterTransition.exitingTargets).isEmpty()"
+        errorLine2="                                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="158"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getEnteringTargets`"
+        errorLine1="    assertThat(fragment.exitTransition.enteringTargets).isEmpty()"
+        errorLine2="                                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="159"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getExitTransition`"
+        errorLine1="    assertThat(fragment.exitTransition.enteringTargets).isEmpty()"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="159"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getExitTransition`"
+        errorLine1="    assertThat(fragment.exitTransition.exitingTargets).isEmpty()"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="160"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getExitingTargets`"
+        errorLine1="    assertThat(fragment.exitTransition.exitingTargets).isEmpty()"
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="160"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getEnteringTargets`"
+        errorLine1="    assertThat(fragment.reenterTransition.enteringTargets).isEmpty()"
+        errorLine2="                                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="162"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getReenterTransition`"
+        errorLine1="    assertThat(fragment.reenterTransition.enteringTargets).isEmpty()"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="162"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getExitingTargets`"
+        errorLine1="    assertThat(fragment.reenterTransition.exitingTargets).isEmpty()"
+        errorLine2="                                          ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="163"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getReenterTransition`"
+        errorLine1="    assertThat(fragment.reenterTransition.exitingTargets).isEmpty()"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="163"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getEnteringTargets`"
+        errorLine1="    assertThat(fragment.returnTransition.enteringTargets).isEmpty()"
+        errorLine2="                                         ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="164"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getReturnTransition`"
+        errorLine1="    assertThat(fragment.returnTransition.enteringTargets).isEmpty()"
+        errorLine2="                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="164"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getExitingTargets`"
+        errorLine1="    assertThat(fragment.returnTransition.exitingTargets).isEmpty()"
+        errorLine2="                                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="165"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getReturnTransition`"
+        errorLine1="    assertThat(fragment.returnTransition.exitingTargets).isEmpty()"
+        errorLine2="                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="165"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getEnteringTargets`"
+        errorLine1="    assertThat(fragment.sharedElementEnter.enteringTargets).isEmpty()"
+        errorLine2="                                           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="167"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getSharedElementEnter`"
+        errorLine1="    assertThat(fragment.sharedElementEnter.enteringTargets).isEmpty()"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="167"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getExitingTargets`"
+        errorLine1="    assertThat(fragment.sharedElementEnter.exitingTargets).isEmpty()"
+        errorLine2="                                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="168"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getSharedElementEnter`"
+        errorLine1="    assertThat(fragment.sharedElementEnter.exitingTargets).isEmpty()"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="168"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getEnteringTargets`"
+        errorLine1="    assertThat(fragment.sharedElementReturn.enteringTargets).isEmpty()"
+        errorLine2="                                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="169"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getSharedElementReturn`"
+        errorLine1="    assertThat(fragment.sharedElementReturn.enteringTargets).isEmpty()"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="169"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getExitingTargets`"
+        errorLine1="    assertThat(fragment.sharedElementReturn.exitingTargets).isEmpty()"
+        errorLine2="                                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="170"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `getSharedElementReturn`"
+        errorLine1="    assertThat(fragment.sharedElementReturn.exitingTargets).isEmpty()"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
+            line="170"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 14): `TransitionFragment`"
+        errorLine1="    val fragment = TransitionFragment()"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/fragment/app/FragmentTransitionTest.kt"
+            line="1682"
+            column="20"/>
+    </issue>
+
+</issues>
