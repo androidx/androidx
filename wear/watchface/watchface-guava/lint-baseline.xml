@@ -3,23 +3,12 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 26): `WatchFaceId`"
-        errorLine1="        WatchFaceId(watchFaceInstanceId ?: &quot;&quot;),"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/client/EditorState.kt"
-            line="94"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="NewApi"
         message="Call requires API level 27 (current min is 26): `WatchFaceControlService`"
         errorLine1="    private val realService = object : WatchFaceControlService() {"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/wear/watchface/client/test/WatchFaceControlTestService.kt"
-            line="43"
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlTestService.kt"
+            line="62"
             column="31"/>
     </issue>
 
@@ -29,8 +18,8 @@
         errorLine1="    private val realService = object : WatchFaceControlService() {"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/wear/watchface/client/test/WatchFaceControlTestService.kt"
-            line="43"
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlTestService.kt"
+            line="62"
             column="40"/>
     </issue>
 
@@ -40,8 +29,8 @@
         errorLine1="            object : IWatchFaceInstanceServiceStub(this, Handler(Looper.getMainLooper())) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/wear/watchface/client/test/WatchFaceControlTestService.kt"
-            line="45"
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlTestService.kt"
+            line="64"
             column="13"/>
     </issue>
 
@@ -51,8 +40,8 @@
         errorLine1="            object : IWatchFaceInstanceServiceStub(this, Handler(Looper.getMainLooper())) {"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/wear/watchface/client/test/WatchFaceControlTestService.kt"
-            line="45"
+            file="src/androidTest/java/androidx/wear/watchface/test/WatchFaceControlTestService.kt"
+            line="64"
             column="22"/>
     </issue>
 

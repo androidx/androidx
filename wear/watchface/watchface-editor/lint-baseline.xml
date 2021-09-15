@@ -1,103 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 25): `EditorRequest`"
-        errorLine1="                EditorRequest(testComponentName, testEditorPackageName, null, watchFaceId)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Call requires API level 30 (current min is 26): `getWatchFaceId`"
+        errorLine1="                    watchFaceId.id"
+        errorLine2="                    ~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/wear/watchface/editor/EditingSessionTest.kt"
-            line="462"
-            column="17"/>
+            file="src/main/java/androidx/wear/watchface/editor/EditorSession.kt"
+            line="510"
+            column="21"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 25): `watchFaceId`"
-        errorLine1="        assertThat(result.watchFaceId.id).isEqualTo(testInstanceId.id)"
-        errorLine2="                          ~~~~~~~~~~~">
+        message="Call requires API level 30 (current min is 26): `getWatchFaceId`"
+        errorLine1="                            watchFaceId.id,"
+        errorLine2="                            ~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/wear/watchface/editor/EditingSessionTest.kt"
-            line="1164"
-            column="27"/>
+            file="src/main/java/androidx/wear/watchface/editor/EditorSession.kt"
+            line="697"
+            column="29"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 25): `watchFaceId`"
-        errorLine1="        assertThat(result.watchFaceId.id).isEmpty()"
-        errorLine2="                          ~~~~~~~~~~~">
+        message="Call requires API level 30 (current min is 26): `getWatchFaceId`"
+        errorLine1="            assertThat(it.editorSession.watchFaceId.id).isEqualTo(testInstanceId.id)"
+        errorLine2="                                        ~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/wear/watchface/editor/EditingSessionTest.kt"
-            line="1219"
-            column="27"/>
+            file="src/androidTest/java/androidx/wear/watchface/editor/EditorSessionTest.kt"
+            line="668"
+            column="41"/>
     </issue>
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 25): `EditorRequest`"
-        errorLine1="                EditorRequest(testComponentName, testEditorPackageName, null, testInstanceId)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Call requires API level 30 (current min is 26): `getWatchFaceId`"
+        errorLine1="        assertThat(activity.editorSession.watchFaceId.id).isEqualTo(testInstanceId.id)"
+        errorLine2="                                          ~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/wear/watchface/editor/EditingSessionTest.kt"
-            line="1346"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 30 (current min is 25): `EditorRequest`"
-        errorLine1="                EditorRequest("
-        errorLine2="                ^">
-        <location
-            file="src/androidTest/java/androidx/wear/watchface/editor/EditingSessionTest.kt"
-            line="1399"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 30 (current min is 25): `EditorRequest`"
-        errorLine1="                EditorRequest(testComponentName, testEditorPackageName, null, watchFaceId)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/wear/watchface/editor/EditingSessionTest.kt"
-            line="1545"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getType`"
-        errorLine1="            assertThat(actual.icon.type).isEqualTo(expected.icon.type)"
-        errorLine2="                                   ~~~~">
-        <location
-            file="src/androidTest/java/androidx/wear/watchface/editor/EditingSessionTest.kt"
-            line="1624"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 28 (current min is 25): `android.graphics.drawable.Icon#getType`"
-        errorLine1="            assertThat(actual.icon.type).isEqualTo(expected.icon.type)"
-        errorLine2="                                                                 ~~~~">
-        <location
-            file="src/androidTest/java/androidx/wear/watchface/editor/EditingSessionTest.kt"
-            line="1624"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 30 (current min is 25): `EditorRequest`"
-        errorLine1="                EditorRequest(testComponentName, testEditorPackageName, null, watchFaceId)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/wear/watchface/editor/EditorSessionGuavaTest.kt"
-            line="137"
-            column="17"/>
+            file="src/androidTest/java/androidx/wear/watchface/editor/EditorSessionTest.kt"
+            line="687"
+            column="43"/>
     </issue>
 
 </issues>
