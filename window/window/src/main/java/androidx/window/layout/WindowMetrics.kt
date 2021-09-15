@@ -16,6 +16,8 @@
 package androidx.window.layout
 
 import android.graphics.Rect
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.TESTS
 import androidx.window.core.Bounds
 
 /**
@@ -29,6 +31,11 @@ import androidx.window.core.Bounds
  */
 public class WindowMetrics internal constructor(private val _bounds: Bounds) {
 
+    /**
+     * An internal constructor for [WindowMetrics]
+     * @suppress
+     */
+    @RestrictTo(TESTS)
     public constructor(bounds: Rect) : this(Bounds(bounds))
 
     /**
