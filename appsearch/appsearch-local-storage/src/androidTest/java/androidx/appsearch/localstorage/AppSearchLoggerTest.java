@@ -154,7 +154,6 @@ public class AppSearchLoggerTest {
                 .setDocumentSize(nativeDocumentSize)
                 .setTokenizationStats(PutDocumentStatsProto.TokenizationStats.newBuilder()
                         .setNumTokensIndexed(nativeNumTokensIndexed)
-                        .setExceededMaxTokenNum(nativeExceededMaxNumTokens)
                         .build())
                 .build();
         PutDocumentStats.Builder pBuilder = new PutDocumentStats.Builder(PACKAGE_NAME, DATABASE);
@@ -170,7 +169,6 @@ public class AppSearchLoggerTest {
                 nativeIndexMergeLatencyMillis);
         assertThat(pStats.getNativeDocumentSizeBytes()).isEqualTo(nativeDocumentSize);
         assertThat(pStats.getNativeNumTokensIndexed()).isEqualTo(nativeNumTokensIndexed);
-        assertThat(pStats.getNativeExceededMaxNumTokens()).isEqualTo(nativeExceededMaxNumTokens);
     }
 
     @Test

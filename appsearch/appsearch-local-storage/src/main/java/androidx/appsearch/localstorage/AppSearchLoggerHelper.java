@@ -64,9 +64,7 @@ public final class AppSearchLoggerHelper {
                 .setNativeIndexMergeLatencyMillis(fromNativeStats.getIndexMergeLatencyMs())
                 .setNativeDocumentSizeBytes(fromNativeStats.getDocumentSize())
                 .setNativeNumTokensIndexed(
-                        fromNativeStats.getTokenizationStats().getNumTokensIndexed())
-                .setNativeExceededMaxNumTokens(
-                        fromNativeStats.getTokenizationStats().getExceededMaxTokenNum());
+                        fromNativeStats.getTokenizationStats().getNumTokensIndexed());
     }
 
     /**
