@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2020 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.wear.watchface.complications.datasource.samples">
+    <application
+        android:label="@string/app_name"
+        android:icon="@drawable/circle"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <service
+            android:name=
+                "androidx.wear.watchface.complications.datasource.samples.AsynchronousDataSourceService"
+            android:label="@string/asynchronous_data_source_name"
+            android:exported="true"
+            android:icon="@drawable/circle"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="SHORT_TEXT,LONG_TEXT"/>
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0"/>
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=
+                "androidx.wear.watchface.complications.datasource.samples.BackgroundDataSourceService"
+            android:label="@string/background_data_source_name"
+            android:exported="true"
+            android:icon="@drawable/circle"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="SHORT_TEXT,LONG_TEXT"/>
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0"/>
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=
+                "androidx.wear.watchface.complications.datasource.samples.SynchronousDataSourceService"
+            android:label="@string/synchronous_data_source_name"
+            android:exported="true"
+            android:icon="@drawable/circle"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="SHORT_TEXT,LONG_TEXT"/>
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="10000"/>
+            <intent-filter>
+                <action android:name=
+                    "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"/>
+            </intent-filter>
+        </service>
+    </application>
+</manifest>

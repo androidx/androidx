@@ -1,0 +1,11 @@
+// Signature format: 4.0
+package androidx.wear.watchface.complications.datasource {
+
+  public abstract class SuspendingComplicationDataSourceService extends androidx.wear.watchface.complications.datasource.ComplicationDataSourceService {
+    ctor public SuspendingComplicationDataSourceService();
+    method public final void onComplicationRequest(androidx.wear.watchface.complications.datasource.ComplicationRequest request, androidx.wear.watchface.complications.datasource.ComplicationDataSourceService.ComplicationRequestListener listener);
+    method @UiThread public abstract suspend Object? onComplicationRequest(androidx.wear.watchface.complications.datasource.ComplicationRequest request, kotlin.coroutines.Continuation<? super androidx.wear.watchface.complications.data.ComplicationData> p);
+  }
+
+}
+

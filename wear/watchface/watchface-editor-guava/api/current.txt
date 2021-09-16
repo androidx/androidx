@@ -1,0 +1,43 @@
+// Signature format: 4.0
+package androidx.wear.watchface.editor {
+
+  public final class ListenableEditorSession implements androidx.wear.watchface.editor.EditorSession {
+    ctor public ListenableEditorSession(androidx.wear.watchface.editor.EditorSession wrappedEditorSession);
+    method public void close();
+    method @RequiresApi(27) @UiThread public static androidx.wear.watchface.editor.ListenableEditorSession createHeadlessEditorSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, androidx.wear.watchface.client.HeadlessWatchFaceClient headlessWatchFaceClient);
+    method public Integer? getBackgroundComplicationSlotId();
+    method public Integer? getComplicationSlotIdAt(int x, int y);
+    method public kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState>> getComplicationSlotsState();
+    method public suspend Object? getComplicationsDataSourceInfo(kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.StateFlow<? extends java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.ComplicationDataSourceInfo>>> p);
+    method public suspend Object? getComplicationsPreviewData(kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.StateFlow<? extends java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData>>> p);
+    method public com.google.common.util.concurrent.ListenableFuture<kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.data.ComplicationData>>> getListenableComplicationPreviewData();
+    method public com.google.common.util.concurrent.ListenableFuture<kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.ComplicationDataSourceInfo>>> getListenableComplicationsProviderInfo();
+    method public java.time.Instant getPreviewReferenceInstant();
+    method public kotlinx.coroutines.flow.MutableStateFlow<androidx.wear.watchface.style.UserStyle> getUserStyle();
+    method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
+    method public android.content.ComponentName getWatchFaceComponentName();
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) public androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
+    method public boolean isCommitChangesOnClose();
+    method @UiThread public static com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.editor.ListenableEditorSession> listenableCreateOnWatchEditorSession(androidx.activity.ComponentActivity activity);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.editor.ChosenComplicationDataSource> listenableOpenComplicationDataSourceChooser(int complicationSlotId);
+    method public suspend Object? openComplicationDataSourceChooser(int complicationSlotId, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.ChosenComplicationDataSource> p);
+    method public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, java.time.Instant instant, java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData>? slotIdToComplicationData);
+    method public void setCommitChangesOnClose(boolean commitChangesOnClose);
+    property public Integer? backgroundComplicationSlotId;
+    property public boolean commitChangesOnClose;
+    property public kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState>> complicationSlotsState;
+    property public java.time.Instant previewReferenceInstant;
+    property public kotlinx.coroutines.flow.MutableStateFlow<androidx.wear.watchface.style.UserStyle> userStyle;
+    property public androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
+    property public android.content.ComponentName watchFaceComponentName;
+    property @RequiresApi(android.os.Build.VERSION_CODES.R) public androidx.wear.watchface.client.WatchFaceId watchFaceId;
+    field public static final androidx.wear.watchface.editor.ListenableEditorSession.Companion Companion;
+  }
+
+  public static final class ListenableEditorSession.Companion {
+    method @RequiresApi(27) @UiThread public androidx.wear.watchface.editor.ListenableEditorSession createHeadlessEditorSession(androidx.activity.ComponentActivity activity, android.content.Intent editIntent, androidx.wear.watchface.client.HeadlessWatchFaceClient headlessWatchFaceClient);
+    method @UiThread public com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.editor.ListenableEditorSession> listenableCreateOnWatchEditorSession(androidx.activity.ComponentActivity activity);
+  }
+
+}
+
