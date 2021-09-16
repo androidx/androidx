@@ -1,9 +1,14 @@
 // Signature format: 4.0
 package androidx.window.extensions {
 
-  public class WindowLibraryInfo {
-    method public static androidx.window.extensions.WindowLibraryInfo getInstance(android.content.Context);
-    method public int getVendorApiLevel();
+  public interface WindowExtensions {
+    method public default int getVendorApiLevel();
+    method public androidx.window.extensions.layout.WindowLayoutComponent getWindowLayoutComponent();
+    method public boolean isWindowLayoutComponentAvailable();
+  }
+
+  public class WindowExtensionsProvider {
+    method public static androidx.window.extensions.WindowExtensions getWindowExtensions();
   }
 
 }
@@ -27,13 +32,7 @@ package androidx.window.extensions.layout {
 
   public interface WindowLayoutComponent {
     method public void addWindowLayoutInfoListener(android.app.Activity, java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
-    method public static androidx.window.extensions.layout.WindowLayoutComponent? getInstance(android.content.Context);
     method public void removeWindowLayoutInfoListener(java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
-  }
-
-  public class WindowLayoutComponentProvider {
-    method public static androidx.window.extensions.layout.WindowLayoutComponent getWindowLayoutComponent(android.content.Context);
-    method public static boolean isWindowLayoutComponentAvailable();
   }
 
   public class WindowLayoutInfo {
