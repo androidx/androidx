@@ -19,6 +19,7 @@ package androidx.wear.compose.integration.demos
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
+import androidx.wear.compose.material.samples.CurvedTextDemo
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeadersReversed
 import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
@@ -119,5 +120,6 @@ val WearMaterialDemos = DemoCategory(
                 },
             )
         ),
+        ComposableDemo("Curved Text") { CurvedTextDemo() },
     ),
 )
