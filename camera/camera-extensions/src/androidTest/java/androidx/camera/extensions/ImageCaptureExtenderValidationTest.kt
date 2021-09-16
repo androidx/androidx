@@ -17,13 +17,14 @@
 package androidx.camera.extensions
 
 import android.content.Context
-import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.Camera
-import androidx.camera.core.CameraInfoUnavailableException
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraState
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.extensions.ExtensionMode.Mode
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.Version
@@ -32,6 +33,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -39,14 +41,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
-import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.ExecutionException
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 @SmallTest
 @RunWith(Parameterized::class)
@@ -62,10 +63,9 @@ class ImageCaptureExtenderValidationTest(
     private lateinit var cameraCharacteristics: CameraCharacteristics
 
     @Before
-    @Throws(Exception::class)
     fun setUp(): Unit = runBlocking {
-        Assume.assumeTrue(CameraUtil.deviceHasCamera())
-        Assume.assumeTrue(
+        assumeTrue(CameraUtil.deviceHasCamera())
+        assumeTrue(
             CameraUtil.hasCameraWithLensFacing(
                 lensFacing
             )
@@ -73,7 +73,7 @@ class ImageCaptureExtenderValidationTest(
 
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        Assume.assumeTrue(
+        assumeTrue(
             extensionsManager.isExtensionAvailable(
                 cameraProvider,
                 CameraSelector.Builder().requireLensFacing(lensFacing).build(),
@@ -97,13 +97,11 @@ class ImageCaptureExtenderValidationTest(
     }
 
     @After
-    @Throws(
-        InterruptedException::class,
-        ExecutionException::class,
-        TimeoutException::class
-    )
-    fun cleanUp() {
+    fun cleanUp(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
+            withContext(Dispatchers.Main) {
+                cameraProvider.unbindAll()
+            }
             cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
         }
 
@@ -120,14 +118,10 @@ class ImageCaptureExtenderValidationTest(
     }
 
     @Test
-    @Throws(
-        CameraInfoUnavailableException::class,
-        CameraAccessException::class
-    )
     fun getSupportedResolutionsImplementationTest() {
         // getSupportedResolutions supported since version 1.1
         val version = ExtensionVersion.getRuntimeVersion()
-        Assume.assumeTrue(version != null && version.compareTo(Version.VERSION_1_1) >= 0)
+        assumeTrue(version != null && version.compareTo(Version.VERSION_1_1) >= 0)
 
         // Creates the ImageCaptureExtenderImpl to retrieve the target format/resolutions pair list
         // from vendor library for the target effect mode.
@@ -144,10 +138,6 @@ class ImageCaptureExtenderValidationTest(
 
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    @Throws(
-        CameraInfoUnavailableException::class,
-        CameraAccessException::class
-    )
     fun returnsNullFromOnPresetSession_whenAPILevelOlderThan28() {
         // Creates the ImageCaptureExtenderImpl to check that onPresetSession() returns null when
         // API level is older than 28.
@@ -160,13 +150,9 @@ class ImageCaptureExtenderValidationTest(
     }
 
     @Test
-    @Throws(
-        CameraInfoUnavailableException::class,
-        CameraAccessException::class
-    )
     fun getEstimatedCaptureLatencyRangeTest() {
         // getEstimatedCaptureLatencyRange supported since version 1.2
-        Assume.assumeTrue(
+        assumeTrue(
             ExtensionVersion.getRuntimeVersion()!!.compareTo(Version.VERSION_1_2) >= 0
         )
 
@@ -181,5 +167,56 @@ class ImageCaptureExtenderValidationTest(
         // NoSuchMethodError will be thrown if getEstimatedCaptureLatencyRange is not implemented
         // in vendor library, and then the test will fail.
         impl.getEstimatedCaptureLatencyRange(null)
+    }
+
+    @LargeTest
+    @Test
+    fun returnCaptureStages_whenCaptureProcessorIsNotNull(): Unit = runBlocking {
+        val impl = ExtensionsTestUtil.createImageCaptureExtenderImpl(
+            extensionMode,
+            cameraId,
+            cameraCharacteristics
+        )
+
+        // Only runs the test when CaptureProcessor is not null
+        assumeTrue(impl.captureProcessor != null)
+
+        val lifecycleOwner = FakeLifecycleOwner()
+        lifecycleOwner.startAndResume()
+
+        val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+        val extensionsCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
+            cameraProvider,
+            cameraSelector,
+            extensionMode
+        )
+
+        val imageCapture = ImageCapture.Builder().build()
+
+        val countDownLatch = CountDownLatch(1)
+
+        withContext(Dispatchers.Main) {
+            val camera = cameraProvider.bindToLifecycle(
+                lifecycleOwner, extensionsCameraSelector, imageCapture
+            )
+
+            camera.cameraInfo.cameraState.observeForever { cameraState ->
+                if (cameraState.type == CameraState.Type.OPEN) {
+                    countDownLatch.countDown()
+                }
+            }
+        }
+
+        // Wait for the CameraState type becomes OPEN to make sure the capture session has been
+        // created.
+        countDownLatch.await(10000, TimeUnit.MILLISECONDS)
+
+        // Retrieve the CaptureBundle from ImageCapture's config
+        val captureBundle =
+            imageCapture.currentConfig.retrieveOption(ImageCaptureConfig.OPTION_CAPTURE_BUNDLE)
+
+        // Calls CaptureBundle#getCaptureStages() will call
+        // ImageCaptureExtenderImpl#getCaptureStages(). Checks the returned value is not empty.
+        assertThat(captureBundle!!.captureStages).isNotEmpty()
     }
 }
