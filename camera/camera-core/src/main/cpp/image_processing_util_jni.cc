@@ -12,7 +12,7 @@
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, "YuvToRgbJni", __VA_ARGS__)
 
 extern "C" {
-JNIEXPORT jint Java_androidx_camera_core_ImageYuvToRgbConverter_shiftPixel(
+JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_shiftPixel(
         JNIEnv* env,
         jclass,
         jobject src_y,
@@ -70,7 +70,7 @@ JNIEXPORT jint Java_androidx_camera_core_ImageYuvToRgbConverter_shiftPixel(
     return 0;
 }
 
-JNIEXPORT jint Java_androidx_camera_core_ImageYuvToRgbConverter_convertAndroid420ToABGR(
+JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_convertAndroid420ToABGR(
         JNIEnv* env,
         jclass,
         jobject src_y,

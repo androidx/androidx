@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class ImageYuvToRgbConverterTest {
+public class ImageProcessingUtilTest {
 
     private static final int WIDTH = 8;
     private static final int HEIGHT = 8;
@@ -81,7 +81,7 @@ public class ImageYuvToRgbConverterTest {
                 /*incrementValue=*/false));
 
         // Act.
-        ImageProxy rgbImageProxy = ImageYuvToRgbConverter.convertYUVToRGB(mYUVImageProxy,
+        ImageProxy rgbImageProxy = ImageProcessingUtil.convertYUVToRGB(mYUVImageProxy,
                 mRGBImageReaderProxy, /*onePixelShiftRequested=*/false);
 
         // Assert.
@@ -101,7 +101,7 @@ public class ImageYuvToRgbConverterTest {
                 /*incrementValue=*/false));
 
         // Act.
-        ImageProxy rgbImageProxy = ImageYuvToRgbConverter.convertYUVToRGB(mYUVImageProxy,
+        ImageProxy rgbImageProxy = ImageProcessingUtil.convertYUVToRGB(mYUVImageProxy,
                 mRGBImageReaderProxy, /*onePixelShiftRequested=*/false);
 
         // Assert.
@@ -121,7 +121,7 @@ public class ImageYuvToRgbConverterTest {
                 /*incrementValue=*/false));
 
         // Act.
-        ImageProxy rgbImageProxy = ImageYuvToRgbConverter.convertYUVToRGB(mYUVImageProxy,
+        ImageProxy rgbImageProxy = ImageProcessingUtil.convertYUVToRGB(mYUVImageProxy,
                 mRGBImageReaderProxy, /*onePixelShiftRequested=*/false);
 
         // Assert.
@@ -146,7 +146,7 @@ public class ImageYuvToRgbConverterTest {
         assertThat(mYUVImageProxy.getPlanes()[2].getBuffer().get(0)).isEqualTo(1);
 
         // Act.
-        boolean result = ImageYuvToRgbConverter.applyPixelShiftForYUV(mYUVImageProxy);
+        boolean result = ImageProcessingUtil.applyPixelShiftForYUV(mYUVImageProxy);
 
         // Assert.
         assertThat(result).isTrue();
@@ -167,7 +167,7 @@ public class ImageYuvToRgbConverterTest {
                 /*incrementValue=*/false));
 
         // Act.
-        ImageProxy rgbImageProxy = ImageYuvToRgbConverter.convertYUVToRGB(mYUVImageProxy,
+        ImageProxy rgbImageProxy = ImageProcessingUtil.convertYUVToRGB(mYUVImageProxy,
                 mRGBImageReaderProxy, /*onePixelShiftRequested=*/false);
 
         // Assert.

@@ -17,8 +17,8 @@
 package androidx.camera.core;
 
 import static androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888;
-import static androidx.camera.core.ImageYuvToRgbConverter.applyPixelShiftForYUV;
-import static androidx.camera.core.ImageYuvToRgbConverter.convertYUVToRGB;
+import static androidx.camera.core.ImageProcessingUtil.applyPixelShiftForYUV;
+import static androidx.camera.core.ImageProcessingUtil.convertYUVToRGB;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
