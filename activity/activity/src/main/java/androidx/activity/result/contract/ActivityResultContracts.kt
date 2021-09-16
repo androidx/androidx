@@ -411,7 +411,8 @@ class ActivityResultContracts private constructor() {
      * extras to the Intent created by `super.createIntent()`.
      */
     @RequiresApi(18)
-    open class GetMultipleContents : ActivityResultContract<String, List<Uri>>() {
+    open class GetMultipleContents :
+        ActivityResultContract<String, List<@JvmSuppressWildcards Uri>>() {
         @CallSuper
         override fun createIntent(context: Context, input: String): Intent {
             return Intent(Intent.ACTION_GET_CONTENT)
@@ -498,7 +499,8 @@ class ActivityResultContracts private constructor() {
      * @see DocumentsContract
      */
     @RequiresApi(19)
-    open class OpenMultipleDocuments : ActivityResultContract<Array<String>, List<Uri>>() {
+    open class OpenMultipleDocuments :
+        ActivityResultContract<Array<String>, List<@JvmSuppressWildcards Uri>>() {
         @CallSuper
         override fun createIntent(context: Context, input: Array<String>): Intent {
             return Intent(Intent.ACTION_OPEN_DOCUMENT)
