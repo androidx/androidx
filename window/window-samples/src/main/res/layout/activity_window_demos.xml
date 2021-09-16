@@ -101,6 +101,28 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/presentationActivityButton" />
 
+
+        <Button
+            android:id="@+id/windowMetricsActivityButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/window_metrics"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/presentationTextView"
+            android:onClick="showWindowMetrics"  />
+
+        <TextView
+            android:id="@+id/windowMetricsTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="@string/window_metrics_description"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/windowMetricsActivityButton" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>

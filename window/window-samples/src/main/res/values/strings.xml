@@ -42,4 +42,6 @@
     <string name="show_all_display_features_description">Show all display features of the device on the screen</string>
     <string name="split_layout_demo_description">Demo of a layout that splits the content to sides of a fold or a hinge. If not present or minimal size requirements are not meant, it behave like a FrameLayout.</string>
     <string name="presentation_demo_description">Demo of using Presentation API to show content on secondary display.</string>
+    <string name="window_metrics">Window metrics</string>
+    <string name="window_metrics_description">Demo of using WindowMetrics API with activity handling rotations.</string>
 </resources>
