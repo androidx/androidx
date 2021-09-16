@@ -33,6 +33,7 @@ import static androidx.camera.video.VideoRecordEvent.Finalize.VideoRecordError;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
+import android.content.Context;
 import android.media.MediaCodecInfo;
 import android.media.MediaMuxer;
 import android.net.Uri;
@@ -118,9 +119,10 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>Once the recorder is attached to a video source, a new recording can be configured with one of
  * the {@link PendingRecording} methods, such as
- * {@link #prepareRecording(MediaStoreOutputOptions)}. The {@link PendingRecording} class also
- * allows setting a listener with {@link PendingRecording#withEventListener(Executor, Consumer)}
- * to listen for {@link VideoRecordEvent}s such as {@link VideoRecordEvent.Start},
+ * {@link #prepareRecording(Context, MediaStoreOutputOptions)}. The {@link PendingRecording} class
+ * also allows setting a listener with
+ * {@link PendingRecording#withEventListener(Executor, Consumer)} to listen for
+ * {@link VideoRecordEvent}s such as {@link VideoRecordEvent.Start},
  * {@link VideoRecordEvent.Pause}, {@link VideoRecordEvent.Resume}, and
  * {@link VideoRecordEvent.Finalize}. This listener will also receive regular recording status
  * updates via the {@link VideoRecordEvent.Status} event.
@@ -484,14 +486,18 @@ public final class Recorder implements VideoOutput {
      * returned {@link PendingRecording}. Only a single pending recording can be started per
      * {@link Recorder} instance.
      *
+     * @param context the context used to enforce runtime permissions, interface with the media
+     *                scanner service, and attribute access to permission protected data, such as
+     *                audio.
      * @param fileOutputOptions the options that configures how the output will be handled.
      * @return a {@link PendingRecording} that is associated with this Recorder.
      * @throws IllegalStateException if the Recorder is released.
      * @see FileOutputOptions
      */
     @NonNull
-    public PendingRecording prepareRecording(@NonNull FileOutputOptions fileOutputOptions) {
-        return prepareRecordingInternal(fileOutputOptions);
+    public PendingRecording prepareRecording(@NonNull Context context,
+            @NonNull FileOutputOptions fileOutputOptions) {
+        return prepareRecordingInternal(context, fileOutputOptions);
     }
 
     /**
@@ -507,6 +513,9 @@ public final class Recorder implements VideoOutput {
      * returned {@link PendingRecording}. Only a single pending recording can be started per
      * {@link Recorder} instance.
      *
+     * @param context the context used to enforce runtime permissions, interface with the media
+     *                scanner service, and attribute access to permission protected data, such as
+     *                audio.
      * @param fileDescriptorOutputOptions the options that configures how the output will be
      *                                    handled.
      * @return a {@link PendingRecording} that is associated with this Recorder.
@@ -515,11 +524,11 @@ public final class Recorder implements VideoOutput {
      */
     @RequiresApi(26)
     @NonNull
-    public PendingRecording prepareRecording(
+    public PendingRecording prepareRecording(@NonNull Context context,
             @NonNull FileDescriptorOutputOptions fileDescriptorOutputOptions) {
         Preconditions.checkState(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O,
                 "MediaMuxer doesn't accept FileDescriptor as output destination.");
-        return prepareRecordingInternal(fileDescriptorOutputOptions);
+        return prepareRecordingInternal(context, fileDescriptorOutputOptions);
     }
 
     /**
@@ -532,21 +541,25 @@ public final class Recorder implements VideoOutput {
      * returned {@link PendingRecording}. Only a single pending recording can be started per
      * {@link Recorder} instance.
      *
+     * @param context the context used to enforce runtime permissions, interface with the media
+     *                scanner service, and attribute access to permission protected data, such as
+     *                audio.
      * @param mediaStoreOutputOptions the options that configures how the output will be handled.
      * @return a {@link PendingRecording} that is associated with this Recorder.
      * @throws IllegalStateException if the Recorder is released.
      * @see MediaStoreOutputOptions
      */
     @NonNull
-    public PendingRecording prepareRecording(
+    public PendingRecording prepareRecording(@NonNull Context context,
             @NonNull MediaStoreOutputOptions mediaStoreOutputOptions) {
-        return prepareRecordingInternal(mediaStoreOutputOptions);
+        return prepareRecordingInternal(context, mediaStoreOutputOptions);
     }
 
     @NonNull
-    private PendingRecording prepareRecordingInternal(@NonNull OutputOptions options) {
+    private PendingRecording prepareRecordingInternal(@NonNull Context context,
+            @NonNull OutputOptions options) {
         Preconditions.checkNotNull(options, "The OutputOptions cannot be null.");
-        return new PendingRecording(this, options);
+        return new PendingRecording(context, this, options);
     }
 
     /**
