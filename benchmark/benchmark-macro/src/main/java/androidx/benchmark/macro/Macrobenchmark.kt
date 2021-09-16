@@ -116,8 +116,8 @@ private fun macrobenchmark(
     require(metrics.isNotEmpty()) {
         "Empty list of metrics passed to metrics param, must pass at least one Metric"
     }
-    require(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        "Macrobenchmark currently requires Android 10 (API 29) or greater."
+    require(Build.VERSION.SDK_INT >= 23) {
+        "Macrobenchmark currently requires Android 6 (API 23) or greater."
     }
 
     // skip benchmark if not supported by vm settings
