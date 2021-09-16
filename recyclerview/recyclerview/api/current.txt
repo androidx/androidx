@@ -79,6 +79,7 @@ package androidx.recyclerview.widget {
     method public boolean addAdapter(int, androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
     method public java.util.List<? extends androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>> getAdapters();
     method public int getItemCount();
+    method public android.util.Pair<androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!,java.lang.Integer!> getWrappedAdapterAndPosition(int);
     method public void onBindViewHolder(androidx.recyclerview.widget.RecyclerView.ViewHolder, int);
     method public androidx.recyclerview.widget.RecyclerView.ViewHolder onCreateViewHolder(android.view.ViewGroup, int);
     method public boolean onFailedToRecycleView(androidx.recyclerview.widget.RecyclerView.ViewHolder);
