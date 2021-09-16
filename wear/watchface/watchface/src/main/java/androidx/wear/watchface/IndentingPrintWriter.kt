@@ -31,7 +31,7 @@ internal class IndentingPrintWriter(
     writer: Writer,
     private val singleIndent: String = "\t"
 ) : Printer {
-    private val writer: PrintWriter = PrintWriter(writer)
+    internal val writer: PrintWriter = PrintWriter(writer)
 
     /** Mutable version of current indent  */
     private val indentBuilder = StringBuilder()

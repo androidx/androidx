@@ -50,6 +50,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.io.PrintWriter
 import java.nio.ByteBuffer
 import java.time.ZonedDateTime
 
@@ -293,7 +294,10 @@ public sealed class Renderer @WorkerThread constructor(
     }
 
     @UiThread
-    internal abstract fun dump(writer: IndentingPrintWriter)
+    internal abstract fun dumpInternal(writer: IndentingPrintWriter)
+
+    /** Called when adb shell dumpsys is invoked for the WatchFaceService. */
+    public abstract fun dump(writer: PrintWriter)
 
     /**
      * Perform UiThread specific initialization.  Will be called once during initialization before
@@ -456,7 +460,7 @@ public sealed class Renderer @WorkerThread constructor(
             zonedDateTime: ZonedDateTime
         )
 
-        internal override fun dump(writer: IndentingPrintWriter) {
+        internal override fun dumpInternal(writer: IndentingPrintWriter) {
             writer.println("CanvasRenderer:")
             writer.increaseIndent()
             writer.println("canvasType=$canvasType")
@@ -466,8 +470,11 @@ public sealed class Renderer @WorkerThread constructor(
             )
             writer.println("shouldAnimate=${shouldAnimate()}")
             renderParameters.dump(writer)
+            dump(writer.writer)
             writer.decreaseIndent()
         }
+
+        override fun dump(writer: PrintWriter) {}
     }
 
     /**
@@ -1031,7 +1038,7 @@ public sealed class Renderer @WorkerThread constructor(
         @UiThread
         public abstract fun renderHighlightLayer(zonedDateTime: ZonedDateTime)
 
-        internal override fun dump(writer: IndentingPrintWriter) {
+        internal override fun dumpInternal(writer: IndentingPrintWriter) {
             writer.println("GlesRenderer:")
             writer.increaseIndent()
             writer.println("screenBounds=$screenBounds")
@@ -1040,7 +1047,10 @@ public sealed class Renderer @WorkerThread constructor(
             )
             writer.println("shouldAnimate=${shouldAnimate()}")
             renderParameters.dump(writer)
+            dump(writer.writer)
             writer.decreaseIndent()
         }
+
+        override fun dump(writer: PrintWriter) {}
     }
 }
