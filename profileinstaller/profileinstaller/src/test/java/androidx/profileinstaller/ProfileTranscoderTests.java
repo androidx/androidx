@@ -17,7 +17,8 @@
 package androidx.profileinstaller;
 
 
-import static androidx.profileinstaller.ProfileTranscoder.MAGIC;
+import static androidx.profileinstaller.ProfileTranscoder.MAGIC_PROF;
+import static androidx.profileinstaller.ProfileTranscoder.MAGIC_PROFM;
 
 import android.os.Build;
 
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.util.Arrays;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 @RunWith(JUnit4.class)
@@ -48,7 +50,7 @@ public class ProfileTranscoderTests {
         byte[] version = ProfileVersion.V010_P;
         File pprof = testFile("baseline-p.prof");
         try (InputStream is = new FileInputStream(pprof)) {
-            expectBytes(is, MAGIC);
+            expectBytes(is, MAGIC_PROF);
             expectBytes(is, version);
             DexProfileData[] data = ProfileTranscoder.readProfile(is, version, APK_NAME);
             Truth.assertThat(data).hasLength(1);
@@ -115,8 +117,9 @@ public class ProfileTranscoderTests {
 
     @Test
     public void testMultidexTranscodeForN() throws IOException {
-        assertGoldenTranscode(
+        assertGoldenTranscodeWithMeta(
                 testFile("baseline-multidex.prof"),
+                testFile("baseline-multidex.profm"),
                 testFile("baseline-multidex-n.prof"),
                 ProfileVersion.V001_N
         );
@@ -135,7 +138,7 @@ public class ProfileTranscoderTests {
                 InputStream is = new FileInputStream(input);
                 ByteArrayOutputStream os = new ByteArrayOutputStream()
         ) {
-            byte[] version = ProfileTranscoder.readHeader(is);
+            byte[] version = ProfileTranscoder.readHeader(is, MAGIC_PROF);
             ProfileTranscoder.writeHeader(os, desiredVersion);
             DexProfileData[] data = ProfileTranscoder.readProfile(
                     is,
@@ -145,7 +148,36 @@ public class ProfileTranscoderTests {
             ProfileTranscoder.transcodeAndWriteBody(os, desiredVersion, data);
             byte[] goldenBytes = Files.readAllBytes(golden.toPath());
             byte[] actualBytes = os.toByteArray();
-            Truth.assertThat(actualBytes).isEqualTo(goldenBytes);
+            Truth.assertThat(Arrays.equals(goldenBytes, actualBytes)).isTrue();
+        }
+    }
+
+    private static void assertGoldenTranscodeWithMeta(
+            @NonNull File input,
+            @NonNull File inputMeta,
+            @NonNull File golden,
+            @NonNull byte[] desiredVersion
+    ) throws IOException {
+        try (
+                InputStream isProf = new FileInputStream(input);
+                InputStream isProfM = new FileInputStream(inputMeta);
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+        ) {
+            byte[] version = ProfileTranscoder.readHeader(isProf, MAGIC_PROF);
+            DexProfileData[] data = ProfileTranscoder.readProfile(
+                    isProf,
+                    version,
+                    APK_NAME
+            );
+
+            byte[] metaVersion = ProfileTranscoder.readHeader(isProfM, MAGIC_PROFM);
+            data = ProfileTranscoder.readMeta(isProfM, metaVersion, data);
+
+            ProfileTranscoder.writeHeader(os, desiredVersion);
+            ProfileTranscoder.transcodeAndWriteBody(os, desiredVersion, data);
+            byte[] goldenBytes = Files.readAllBytes(golden.toPath());
+            byte[] actualBytes = os.toByteArray();
+            Truth.assertThat(Arrays.equals(goldenBytes, actualBytes)).isTrue();
         }
     }
 
@@ -164,7 +196,7 @@ public class ProfileTranscoderTests {
                 InputStream is = new FileInputStream(input);
                 OutputStream os = new FileOutputStream(golden)
         ) {
-            byte[] version = ProfileTranscoder.readHeader(is);
+            byte[] version = ProfileTranscoder.readHeader(is, MAGIC_PROF);
             ProfileTranscoder.writeHeader(os, desiredVersion);
             DexProfileData[] data = ProfileTranscoder.readProfile(
                     is,
