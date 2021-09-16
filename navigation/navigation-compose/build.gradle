@@ -51,6 +51,8 @@ dependencies {
 
     lintChecks(projectOrArtifact(":navigation:navigation-compose-lint"))
     lintPublish(projectOrArtifact(":navigation:navigation-compose-lint"))
+
+    samples(projectOrArtifact(":navigation:navigation-compose:navigation-compose-samples"))
 }
 
 androidx {

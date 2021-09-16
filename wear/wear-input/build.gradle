@@ -38,6 +38,8 @@ dependencies {
 
     compileOnly(fileTree(dir: "../wear_stubs", include: ["com.google.android.wearable-stubs.jar"]))
     compileOnly(project(":annotation:annotation-sampled"))
+
+    samples(project(":wear:wear-input-samples"))
 }
 
 android {
