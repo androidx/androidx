@@ -1,0 +1,22 @@
+// Signature format: 4.0
+package androidx.wear.watchface.client {
+
+  public class ListenableWatchFaceControlClient implements androidx.wear.watchface.client.WatchFaceControlClient {
+    ctor public ListenableWatchFaceControlClient(androidx.wear.watchface.client.WatchFaceControlClient watchFaceControlClient);
+    method public void close();
+    method public androidx.wear.watchface.client.HeadlessWatchFaceClient? createHeadlessWatchFaceClient(android.content.ComponentName watchFaceName, androidx.wear.watchface.client.DeviceConfig deviceConfig, int surfaceWidth, int surfaceHeight);
+    method public static final com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.client.ListenableWatchFaceControlClient> createWatchFaceControlClient(android.content.Context context, String watchFacePackageName);
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.DefaultComplicationDataSourcePolicyAndType> getDefaultComplicationDataSourcePoliciesAndType(android.content.ComponentName watchFaceName);
+    method public androidx.wear.watchface.client.EditorServiceClient getEditorServiceClient();
+    method public androidx.wear.watchface.client.InteractiveWatchFaceClient? getInteractiveWatchFaceClientInstance(String instanceId);
+    method public suspend Object? getOrCreateInteractiveWatchFaceClient(String id, androidx.wear.watchface.client.DeviceConfig deviceConfig, androidx.wear.watchface.client.WatchUiState watchUiState, androidx.wear.watchface.style.UserStyleData? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData>? slotIdToComplicationData, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.InteractiveWatchFaceClient> p);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.client.InteractiveWatchFaceClient> listenableGetOrCreateInteractiveWatchFaceClient(String id, androidx.wear.watchface.client.DeviceConfig deviceConfig, androidx.wear.watchface.client.WatchUiState watchUiState, androidx.wear.watchface.style.UserStyleData? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData>? slotIdToComplicationData);
+    field public static final androidx.wear.watchface.client.ListenableWatchFaceControlClient.Companion Companion;
+  }
+
+  public static final class ListenableWatchFaceControlClient.Companion {
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.client.ListenableWatchFaceControlClient> createWatchFaceControlClient(android.content.Context context, String watchFacePackageName);
+  }
+
+}
+
