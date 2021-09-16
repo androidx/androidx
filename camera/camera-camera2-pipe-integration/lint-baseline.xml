@@ -7,8 +7,8 @@
         errorLine1="    @VisibleForTesting"
         errorLine2="    ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/window/layout/SidecarCompat.kt"
-            line="50"
+            file="src/main/java/androidx/camera/camera2/pipe/integration/interop/Camera2CameraControl.kt"
+            line="54"
             column="5"/>
     </issue>
 

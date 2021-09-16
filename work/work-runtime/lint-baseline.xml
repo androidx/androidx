@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
 
     <issue
         id="NewApi"
@@ -10,6 +10,17 @@
             file="src/androidTest/java/androidx/work/impl/workers/ConstraintTrackingWorkerTest.java"
             line="157"
             column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `getTriggeredContentAuthorities`"
+        errorLine1="                sTriggeredContentAuthorities = getTriggeredContentAuthorities();"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/background/systemjob/SystemJobServiceTest.java"
+            line="304"
+            column="17"/>
     </issue>
 
     <issue
@@ -27,6 +38,17 @@
         id="NewApi"
         message="Call requires API level 24 (current min is 23): `getTriggeredContentUris`"
         errorLine1="                sTriggeredContentUris = getTriggeredContentUris();"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/background/systemjob/SystemJobServiceTest.java"
+            line="305"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 23): `getTriggeredContentUris`"
+        errorLine1="                sTriggeredContentUris = getTriggeredContentUris();"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/work/impl/background/systemjob/SystemJobServiceTest.java"
@@ -38,55 +60,22 @@
         id="NewApi"
         message="Call requires API level 28 (current min is 23): `getNetwork`"
         errorLine1="                sNetwork = getNetwork();"
+        errorLine2="                ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/background/systemjob/SystemJobServiceTest.java"
+            line="325"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 23): `getNetwork`"
+        errorLine1="                sNetwork = getNetwork();"
         errorLine2="                           ~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/work/impl/background/systemjob/SystemJobServiceTest.java"
             line="325"
             column="28"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 23): `addContentUriTrigger`"
-        errorLine1="                                .addContentUriTrigger(testUri1, true)"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/work/impl/WorkManagerImplTest.java"
-            line="367"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 23): `addContentUriTrigger`"
-        errorLine1="                                .addContentUriTrigger(testUri2, false)"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/work/impl/WorkManagerImplTest.java"
-            line="368"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 23): `getContentUriTriggers`"
-        errorLine1="            assertThat(constraints.getContentUriTriggers(), is(new ContentUriTriggers()));"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/work/impl/WorkManagerImplTest.java"
-            line="391"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 23): `getContentUriTriggers`"
-        errorLine1="        assertThat(constraints.getContentUriTriggers().size(), is(0));"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/work/impl/WorkManagerImplTest.java"
-            line="401"
-            column="32"/>
     </issue>
 
     <issue
@@ -195,7 +184,7 @@
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemalarm/Alarms.java"
-            line="128"
+            line="134"
             column="30"/>
     </issue>
 
@@ -219,39 +208,6 @@
             file="src/main/java/androidx/work/Constraints.java"
             line="464"
             column="48"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.work.impl.utils.ForceStopRunnable is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        activityManager.getHistoricalProcessExitReasons("
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="171"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.work.impl.utils.ForceStopRunnable is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        if (info.getReason() == REASON_USER_REQUESTED) {"
-        errorLine2="                                 ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="180"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.work.impl.utils.ForceStopRunnable is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                alarmManager.setExact(RTC_WAKEUP, triggerAt, pendingIntent);"
-        errorLine2="                             ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="339"
-            column="30"/>
     </issue>
 
     <issue
@@ -349,7 +305,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ProcessUtils.java"
-            line="77"
+            line="76"
             column="32"/>
     </issue>
 
@@ -427,17 +383,6 @@
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
             line="124"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 31; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            builder.setExpedited(true);"
-        errorLine2="                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
-            line="130"
             column="21"/>
     </issue>
 
