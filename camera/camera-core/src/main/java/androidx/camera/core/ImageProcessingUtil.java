@@ -27,12 +27,12 @@ import androidx.camera.core.impl.ImageReaderProxy;
 import java.nio.ByteBuffer;
 
 /** Utility class to convert an {@link Image} from YUV to RGB. */
-final class ImageYuvToRgbConverter {
+final class ImageProcessingUtil {
 
-    private static final String TAG = "ImageYuvToRgbConverter";
+    private static final String TAG = "ImageProcessingUtil";
 
     static {
-        System.loadLibrary("yuv_to_rgb_jni");
+        System.loadLibrary("image_processing_util_jni");
     }
 
     enum Result {
@@ -42,7 +42,7 @@ final class ImageYuvToRgbConverter {
         ERROR_CONVERSION,  // Native conversion error.
     }
 
-    private ImageYuvToRgbConverter() {
+    private ImageProcessingUtil() {
     }
 
     /**
@@ -62,13 +62,13 @@ final class ImageYuvToRgbConverter {
             @NonNull ImageProxy imageProxy,
             @NonNull ImageReaderProxy rgbImageReaderProxy,
             boolean onePixelShiftEnabled) {
-        if (!ImageYuvToRgbConverter.isSupportedYUVFormat(imageProxy)) {
+        if (!ImageProcessingUtil.isSupportedYUVFormat(imageProxy)) {
             Logger.e(TAG, "Unsupported format for YUV to RGB");
             return null;
         }
 
         // Convert YUV To RGB and write data to surface
-        ImageYuvToRgbConverter.Result result = convertYUVToRGBInternal(
+        ImageProcessingUtil.Result result = convertYUVToRGBInternal(
                 imageProxy, rgbImageReaderProxy.getSurface(), onePixelShiftEnabled);
 
         if (result == Result.ERROR_CONVERSION) {
@@ -105,12 +105,12 @@ final class ImageYuvToRgbConverter {
      * @return true if one pixel shift is applied successfully, otherwise false.
      */
     public static boolean applyPixelShiftForYUV(@NonNull ImageProxy imageProxy) {
-        if (!ImageYuvToRgbConverter.isSupportedYUVFormat(imageProxy)) {
+        if (!ImageProcessingUtil.isSupportedYUVFormat(imageProxy)) {
             Logger.e(TAG, "Unsupported format for YUV to RGB");
             return false;
         }
 
-        ImageYuvToRgbConverter.Result result = applyPixelShiftInternal(imageProxy);
+        ImageProcessingUtil.Result result = applyPixelShiftInternal(imageProxy);
 
         if (result == Result.ERROR_CONVERSION) {
             Logger.e(TAG, "YUV to RGB conversion failure");
