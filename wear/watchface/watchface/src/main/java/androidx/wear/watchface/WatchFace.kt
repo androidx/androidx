@@ -1070,7 +1070,7 @@ public class WatchFaceImpl @UiThread constructor(
         writer.println("currentUserStyleRepository.schema=${currentUserStyleRepository.schema}")
         watchState.dump(writer)
         complicationSlotsManager.dump(writer)
-        renderer.dump(writer)
+        renderer.dumpInternal(writer)
         writer.decreaseIndent()
     }
 }
