@@ -118,6 +118,12 @@ public abstract class GlanceTileService : TileService() {
     @Composable
     public abstract fun Content()
 
+    /**
+     * Called by the system to fetch a tile from this [GlanceTileService].
+     *
+     * Note that this call exists due to this class extending [TileService]; this should not be
+     * called directly.
+     */
     final override fun onTileRequest(
         requestParams: RequestBuilders.TileRequest
     ): ListenableFuture<TileBuilders.Tile> = coroutineScope.future {
@@ -138,6 +144,12 @@ public abstract class GlanceTileService : TileService() {
             ).build()
     }
 
+    /**
+     * Called by the system to fetch a resources bundle from this [GlanceTileService].
+     *
+     * Note that this call exists due to this class extending [TileService]; this should not be
+     * called directly.
+     */
     final override fun onResourcesRequest(
         requestParams: RequestBuilders.ResourcesRequest
     ): ListenableFuture<ResourceBuilders.Resources> = coroutineScope.future {
