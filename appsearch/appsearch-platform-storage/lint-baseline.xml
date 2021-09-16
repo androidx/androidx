@@ -1,5 +1,181 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha03" type="baseline" client="gradle" name="AGP (7.1.0-alpha03)" variant="all" version="7.1.0-alpha03">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `Builder`"
+        errorLine1="                new PlatformStorage.SearchContext.Builder("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"
+            line="34"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `build`"
+        errorLine1="                        /*databaseName=*/&quot;dbName&quot;).build();"
+        errorLine2="                                                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"
+            line="36"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `getDatabaseName`"
+        errorLine1="        assertThat(searchContext.getDatabaseName()).isEqualTo(&quot;dbName&quot;);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"
+            line="38"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `Builder`"
+        errorLine1="        PlatformStorage.SearchContext searchContext = new PlatformStorage.SearchContext.Builder("
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"
+            line="44"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `setWorkerExecutor`"
+        errorLine1="                .setWorkerExecutor(executor)"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"
+            line="47"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `build`"
+        errorLine1="                .build();"
+        errorLine2="                 ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"
+            line="48"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `getWorkerExecutor`"
+        errorLine1="        assertThat(searchContext.getWorkerExecutor()).isEqualTo(executor);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"
+            line="50"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `getDatabaseName`"
+        errorLine1="        assertThat(searchContext.getDatabaseName()).isEqualTo(&quot;dbName&quot;);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"
+            line="51"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `Builder`"
+        errorLine1="        PlatformStorage.SearchContext searchContext = new PlatformStorage.SearchContext.Builder("
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"
+            line="56"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `build`"
+        errorLine1="                .build();"
+        errorLine2="                 ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"
+            line="59"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `getWorkerExecutor`"
+        errorLine1="        assertThat(searchContext.getWorkerExecutor()).isNotNull();"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"
+            line="61"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `getDatabaseName`"
+        errorLine1="        assertThat(searchContext.getDatabaseName()).isEqualTo(&quot;dbName&quot;);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"
+            line="62"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `Builder`"
+        errorLine1="                () -> new PlatformStorage.SearchContext.Builder("
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"
+            line="71"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `build`"
+        errorLine1="                        &quot;testDatabaseNameEndWith/&quot;).build());"
+        errorLine2="                                                    ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"
+            line="73"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `Builder`"
+        errorLine1="                () -> new PlatformStorage.SearchContext.Builder("
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"
+            line="76"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `build`"
+        errorLine1="                        &quot;/testDatabaseNameStartWith&quot;).build());"
+        errorLine2="                                                      ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appsearch/platformstorage/PlatformStorageTest.java"
+            line="78"
+            column="55"/>
+    </issue>
 
     <issue
         id="WrongConstant"
@@ -239,7 +415,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appsearch/platformstorage/SearchResultsImpl.java"
-            line="71"
+            line="90"
             column="48"/>
     </issue>
 

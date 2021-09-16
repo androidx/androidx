@@ -1,103 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
 
     <issue
         id="NewApi"
-        message="Call requires API level 24 (current min is 14): `java.util.Collection#stream`"
-        errorLine1="        return result.stream().anyMatch((item) ->"
-        errorLine2="                      ~~~~~~">
+        message="Call requires API level 19 (current min is 14): `DefaultGlyphChecker`"
+        errorLine1="        GlyphChecker mGlyphChecker = new EmojiProcessor.DefaultGlyphChecker();"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/text/DefaultEmojiCompatConfigTest.java"
-            line="77"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 14): `java.util.stream.Stream#anyMatch`"
-        errorLine1="        return result.stream().anyMatch((item) ->"
-        errorLine2="                               ~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/text/DefaultEmojiCompatConfigTest.java"
-            line="77"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 19 (current min is 14): `android.content.pm.ResolveInfo#providerInfo`"
-        errorLine1="            when(helper.getProviderInfo(eq(info))).thenReturn(info.providerInfo);"
-        errorLine2="                                                              ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/text/DefaultEmojiCompatConfigTest.java"
-            line="217"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 19 (current min is 14): `android.content.pm.ResolveInfo#providerInfo`"
-        errorLine1="        info.providerInfo = new ProviderInfo();"
-        errorLine2="        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/text/DefaultEmojiCompatConfigTest.java"
-            line="246"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 19 (current min is 14): `android.content.pm.ResolveInfo#providerInfo`"
-        errorLine1="        info.providerInfo.authority = authority;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/text/DefaultEmojiCompatConfigTest.java"
-            line="247"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 19 (current min is 14): `android.content.pm.ResolveInfo#providerInfo`"
-        errorLine1="        info.providerInfo.packageName = packageName;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/text/DefaultEmojiCompatConfigTest.java"
-            line="248"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 19 (current min is 14): `android.content.pm.ResolveInfo#providerInfo`"
-        errorLine1="        info.providerInfo.name = &quot;name to make toString happy :)&quot;;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/text/DefaultEmojiCompatConfigTest.java"
-            line="249"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 19 (current min is 14): `android.content.pm.ResolveInfo#providerInfo`"
-        errorLine1="        info.providerInfo.applicationInfo = new ApplicationInfo();"
-        errorLine2="        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/text/DefaultEmojiCompatConfigTest.java"
-            line="250"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 19 (current min is 14): `android.content.pm.ResolveInfo#providerInfo`"
-        errorLine1="        info.providerInfo.applicationInfo.flags = flags;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/text/DefaultEmojiCompatConfigTest.java"
-            line="251"
-            column="9"/>
+            file="src/main/java/androidx/emoji2/text/EmojiCompat.java"
+            line="1157"
+            column="38"/>
     </issue>
 
     <issue
@@ -109,6 +21,50 @@
             file="src/androidTest/java/androidx/emoji2/text/NoFontTestEmojiConfig.java"
             line="46"
             column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="        final EmojiSpan span = mock(EmojiSpan.class);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"
+            line="123"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="        EmojiSpan[] spans = spannable.getSpans(0, spannable.length(), EmojiSpan.class);"
+        errorLine2="                                                                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"
+            line="134"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="        final EmojiSpan span = mock(EmojiSpan.class);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"
+            line="187"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="        EmojiSpan[] spans = spannable.getSpans(0, spannable.length(), EmojiSpan.class);"
+        errorLine2="                                                                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"
+            line="199"
+            column="71"/>
     </issue>
 
 </issues>
