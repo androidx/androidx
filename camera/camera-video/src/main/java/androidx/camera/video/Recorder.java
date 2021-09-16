@@ -356,6 +356,8 @@ public final class Recorder implements VideoOutput {
     @VideoRecordError
     int mRecordingStopError = ERROR_UNKNOWN;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    Throwable mRecordingStopErrorCause = null;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     AudioState mCachedAudioState;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     EncodedData mPendingFirstVideoData = null;
@@ -448,7 +450,7 @@ public final class Recorder implements VideoOutput {
                         setState(State.STOPPING);
                         RecordingRecord finalActiveRecordingRecord = mActiveRecordingRecord;
                         mSequentialExecutor.execute(() -> stopInternal(finalActiveRecordingRecord,
-                                ERROR_SOURCE_INACTIVE));
+                                ERROR_SOURCE_INACTIVE, null));
                         break;
                     case STOPPING:
                         // Fall-through
@@ -819,7 +821,7 @@ public final class Recorder implements VideoOutput {
                     setState(State.STOPPING);
                     RecordingRecord finalActiveRecordingRecord = mActiveRecordingRecord;
                     mSequentialExecutor.execute(() -> stopInternal(finalActiveRecordingRecord,
-                            ERROR_NONE));
+                            ERROR_NONE, null));
                     break;
                 case ERROR:
                     // In an error state, the recording will already be finalized. Treat as a
@@ -908,7 +910,7 @@ public final class Recorder implements VideoOutput {
         if (shouldReset) {
             resetInternal();
         } else if (shouldStop) {
-            stopInternal(mInProgressRecording, ERROR_NONE);
+            stopInternal(mInProgressRecording, ERROR_NONE, null);
         }
     }
 
@@ -1265,14 +1267,16 @@ public final class Recorder implements VideoOutput {
                 Logger.d(TAG,
                         String.format("Initial data exceeds file size limit %d > %d", firstDataSize,
                                 mFileSizeLimitInBytes));
-                onInProgressRecordingInternalError(recordingToStart, ERROR_FILE_SIZE_LIMIT_REACHED);
+                onInProgressRecordingInternalError(recordingToStart,
+                        ERROR_FILE_SIZE_LIMIT_REACHED, null);
                 return;
             }
 
             try {
                 setupMediaMuxer(recordingToStart.getOutputOptions());
             } catch (IOException e) {
-                onInProgressRecordingInternalError(recordingToStart, ERROR_INVALID_OUTPUT_OPTIONS);
+                onInProgressRecordingInternalError(recordingToStart, ERROR_INVALID_OUTPUT_OPTIONS,
+                        e);
                 return;
             }
 
@@ -1298,6 +1302,9 @@ public final class Recorder implements VideoOutput {
         if (options instanceof FileOutputOptions) {
             FileOutputOptions fileOutputOptions = (FileOutputOptions) options;
             File file = fileOutputOptions.getFile();
+            if (!OutputUtil.createParentFolder(file)) {
+                Logger.w(TAG, "Failed to create folder for " + file.getAbsolutePath());
+            }
             mMediaMuxer = new MediaMuxer(file.getAbsolutePath(), muxerOutputFormat);
             mOutputUri = Uri.fromFile(file);
         } else if (options instanceof FileDescriptorOutputOptions) {
@@ -1335,8 +1342,7 @@ public final class Recorder implements VideoOutput {
                 if (path == null) {
                     throw new IOException("Unable to get path from uri " + mOutputUri);
                 }
-                File parentFile = new File(path).getParentFile();
-                if (parentFile != null && !parentFile.mkdirs()) {
+                if (!OutputUtil.createParentFolder(new File(path))) {
                     Logger.w(TAG, "Failed to create folder for " + path);
                 }
                 mMediaMuxer = new MediaMuxer(path, muxerOutputFormat);
@@ -1580,7 +1586,7 @@ public final class Recorder implements VideoOutput {
                 new FutureCallback<List<Void>>() {
                     @Override
                     public void onSuccess(@Nullable List<Void> result) {
-                        finalizeInProgressRecording(mRecordingStopError, null);
+                        finalizeInProgressRecording(mRecordingStopError, mRecordingStopErrorCause);
                     }
 
                     @Override
@@ -1608,7 +1614,7 @@ public final class Recorder implements VideoOutput {
             Logger.d(TAG,
                     String.format("Reach file size limit %d > %d", newRecordingBytes,
                             mFileSizeLimitInBytes));
-            onInProgressRecordingInternalError(recording, ERROR_FILE_SIZE_LIMIT_REACHED);
+            onInProgressRecordingInternalError(recording, ERROR_FILE_SIZE_LIMIT_REACHED, null);
             return;
         }
 
@@ -1637,7 +1643,7 @@ public final class Recorder implements VideoOutput {
                     String.format("Reach file size limit %d > %d",
                             newRecordingBytes,
                             mFileSizeLimitInBytes));
-            onInProgressRecordingInternalError(recording, ERROR_FILE_SIZE_LIMIT_REACHED);
+            onInProgressRecordingInternalError(recording, ERROR_FILE_SIZE_LIMIT_REACHED, null);
             return;
         }
 
@@ -1680,11 +1686,13 @@ public final class Recorder implements VideoOutput {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mSequentialExecutor")
-    void stopInternal(@NonNull RecordingRecord recordingToStop, @VideoRecordError int stopError) {
+    void stopInternal(@NonNull RecordingRecord recordingToStop, @VideoRecordError int stopError,
+            @Nullable Throwable errorCause) {
         // Only stop recording if recording is in-progress and it is not already stopping.
         if (mInProgressRecording == recordingToStop && !mInProgressRecordingStopping) {
             mInProgressRecordingStopping = true;
             mRecordingStopError = stopError;
+            mRecordingStopErrorCause = errorCause;
             if (isAudioEnabled()) {
                 if (mPendingFirstAudioData != null) {
                     mPendingFirstAudioData.close();
@@ -1756,8 +1764,7 @@ public final class Recorder implements VideoOutput {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mSequentialExecutor")
-    void finalizeInProgressRecording(@VideoRecordError int error,
-            @Nullable Throwable throwable) {
+    void finalizeInProgressRecording(@VideoRecordError int error, @Nullable Throwable throwable) {
         if (mInProgressRecording == null) {
             throw new AssertionError("Attempted to finalize in-progress recording, but no "
                     + "recording is in progress.");
@@ -1811,6 +1818,7 @@ public final class Recorder implements VideoOutput {
         mRecordingDurationNs = 0L;
         mFirstRecordingVideoDataTimeUs = 0L;
         mRecordingStopError = ERROR_UNKNOWN;
+        mRecordingStopErrorCause = null;
         mAudioErrorCause = null;
 
         onRecordingFinalized(finalizedRecording);
@@ -1870,10 +1878,10 @@ public final class Recorder implements VideoOutput {
 
     @ExecutedBy("mSequentialExecutor")
     void onInProgressRecordingInternalError(@NonNull RecordingRecord recording,
-            @VideoRecordError int error) {
+            @VideoRecordError int error, @Nullable Throwable cause) {
         if (recording != mInProgressRecording) {
             throw new AssertionError("Internal error occurred on recording that is not the current "
-                    + "in-progress recorindg.");
+                    + "in-progress recording.");
         }
 
         boolean needsStop = false;
@@ -1909,7 +1917,7 @@ public final class Recorder implements VideoOutput {
         }
 
         if (needsStop) {
-            stopInternal(recording, error);
+            stopInternal(recording, error, cause);
         }
     }
 
