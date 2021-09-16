@@ -24,6 +24,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.Logger;
 
+import java.io.File;
+
 /**
  * Utility class for output related operations.
  */
@@ -60,5 +62,20 @@ public final class OutputUtil {
                 cursor.close();
             }
         }
+    }
+
+    /**
+     * Creates parent folder for the input file.
+     *
+     * @param file the input file to create its parent folder
+     * @return {@code true} if the parent folder already exists or is created successfully.
+     * {@code false} if the existing parent folder path is not a folder or failed to create.
+     */
+    public static boolean createParentFolder(@NonNull File file) {
+        File parentFile = file.getParentFile();
+        if (parentFile == null) {
+            return false;
+        }
+        return parentFile.exists() ? parentFile.isDirectory() : parentFile.mkdirs();
     }
 }
