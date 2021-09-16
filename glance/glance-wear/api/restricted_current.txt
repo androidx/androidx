@@ -34,12 +34,22 @@ package androidx.glance.wear.layout {
   }
 
   public final class CurvedRowKt {
-    method @androidx.compose.runtime.Composable public static void CurvedRow(optional androidx.glance.Modifier modifier, optional float anchor, optional int anchorType, optional int radialAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.wear.layout.CurvedRowScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void CurvedRow(optional androidx.glance.Modifier modifier, optional float anchorDegrees, optional int anchorType, optional int radialAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.wear.layout.CurvedRowScope,kotlin.Unit> content);
   }
 
   public final class CurvedRowScope {
     ctor public CurvedRowScope();
-    method @androidx.compose.runtime.Composable public void CurvedText(String text, optional androidx.glance.Modifier modifier, optional androidx.glance.layout.TextStyle? textStyle);
+    method @androidx.compose.runtime.Composable public void CurvedText(String text, optional androidx.glance.Modifier modifier, optional androidx.glance.wear.layout.CurvedTextStyle? textStyle);
+  }
+
+  @androidx.compose.runtime.Immutable public final class CurvedTextStyle {
+    ctor public CurvedTextStyle(optional androidx.glance.unit.Sp? fontSize, optional androidx.glance.layout.FontWeight? fontWeight, optional androidx.glance.layout.FontStyle? fontStyle);
+    method public androidx.glance.unit.Sp? getFontSize();
+    method public androidx.glance.layout.FontStyle? getFontStyle();
+    method public androidx.glance.layout.FontWeight? getFontWeight();
+    property public final androidx.glance.unit.Sp? fontSize;
+    property public final androidx.glance.layout.FontStyle? fontStyle;
+    property public final androidx.glance.layout.FontWeight? fontWeight;
   }
 
   public final inline class RadialAlignment {

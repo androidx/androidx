@@ -163,7 +163,9 @@ private fun RemoteViews.setText(context: Context, text: String, style: TextStyle
     }
     val content = SpannableString(text)
     val length = content.length
-    style.size?.let { setTextViewTextSize(R.id.glanceView, TypedValue.COMPLEX_UNIT_SP, it.value) }
+    style.fontSize?.let {
+        setTextViewTextSize(R.id.glanceView, TypedValue.COMPLEX_UNIT_SP, it.value)
+    }
     val spans = mutableListOf<ParcelableSpan>()
     style.textDecoration?.let {
         if (TextDecoration.LineThrough in it) {

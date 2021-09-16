@@ -39,6 +39,7 @@ import androidx.glance.unit.dp
 import androidx.glance.unit.sp
 import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.CurvedRow
+import androidx.glance.wear.layout.CurvedTextStyle
 import androidx.glance.wear.layout.RadialAlignment
 import androidx.glance.wear.layout.background
 import androidx.wear.tiles.DimensionBuilders
@@ -270,7 +271,7 @@ class WearCompositionTranslatorTest {
     fun canInflateText() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             val style = TextStyle(
-                size = 16.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic,
                 textDecoration = TextDecoration.Underline
@@ -314,7 +315,7 @@ class WearCompositionTranslatorTest {
     fun canTranslateCurvedRow() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             CurvedRow(
-                anchor = 20f,
+                anchorDegrees = 20f,
                 radialAlignment = RadialAlignment.Inner,
                 anchorType = AnchorType.End,
                 modifier = Modifier.padding(20.dp)
@@ -335,7 +336,7 @@ class WearCompositionTranslatorTest {
     fun curvedRowWithSizeInflatesInBox() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             CurvedRow(
-                anchor = 20f,
+                anchorDegrees = 20f,
                 radialAlignment = RadialAlignment.Inner,
                 anchorType = AnchorType.End,
                 modifier = Modifier.padding(20.dp).size(10.dp)
@@ -361,8 +362,8 @@ class WearCompositionTranslatorTest {
     @Test
     fun canTranslateCurvedText() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
-            val style = TextStyle(
-                size = 16.sp,
+            val style = CurvedTextStyle(
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic,
             )
