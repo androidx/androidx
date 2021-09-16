@@ -36,6 +36,11 @@ class WindowDemosActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    fun showWindowMetrics(@Suppress("UNUSED_PARAMETER")view: View) {
+        val intent = Intent(this, WindowMetricsActivity::class.java)
+        startActivity(intent)
+    }
+
     fun showSplitLayout(@Suppress("UNUSED_PARAMETER")view: View) {
         val intent = Intent(this, SplitLayoutActivity::class.java)
         startActivity(intent)

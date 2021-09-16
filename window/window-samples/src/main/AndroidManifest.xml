@@ -42,6 +42,10 @@
             android:name=".SplitLayoutActivity"
             android:exported="false"
             android:label="@string/split_layout" />
+        <activity android:name=".WindowMetricsActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|screenSize"
+            android:label="@string/window_metrics"/>
     </application>
 
 </manifest>
