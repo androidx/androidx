@@ -1,2 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="androidx.wear.tiles" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.wear.tiles">
+    <queries>
+        <intent>
+            <action android:name="androidx.wear.tiles.action.BIND_UPDATE_REQUESTER" />
+        </intent>
+    </queries>
+</manifest>
