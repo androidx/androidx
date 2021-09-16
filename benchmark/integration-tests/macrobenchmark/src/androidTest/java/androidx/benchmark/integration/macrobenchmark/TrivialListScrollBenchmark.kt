@@ -19,8 +19,8 @@ package androidx.benchmark.integration.macrobenchmark
 import android.content.Intent
 import android.graphics.Point
 import androidx.benchmark.macro.CompilationMode
+import androidx.benchmark.macro.FrameTimingGfxInfoMetric
 import androidx.benchmark.macro.FrameTimingMetric
-import androidx.benchmark.macro.FrameTimingTraceMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -53,7 +53,7 @@ class TrivialListScrollBenchmark(
     fun start() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = listOf(FrameTimingMetric(), FrameTimingTraceMetric()),
+            metrics = listOf(FrameTimingMetric(), FrameTimingGfxInfoMetric()),
             compilationMode = compilationMode,
             iterations = 10,
             setupBlock = {

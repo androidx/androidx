@@ -32,12 +32,12 @@ package androidx.benchmark.macro {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static boolean isSupportedWithVmSettings(androidx.benchmark.macro.CompilationMode);
   }
 
-  public final class FrameTimingMetric extends androidx.benchmark.macro.Metric {
-    ctor public FrameTimingMetric();
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FrameTimingGfxInfoMetric extends androidx.benchmark.macro.Metric {
+    ctor public FrameTimingGfxInfoMetric();
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FrameTimingTraceMetric extends androidx.benchmark.macro.Metric {
-    ctor public FrameTimingTraceMetric();
+  public final class FrameTimingMetric extends androidx.benchmark.macro.Metric {
+    ctor public FrameTimingMetric();
   }
 
   public final class IdeSummaryStringKt {

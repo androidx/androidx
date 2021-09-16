@@ -69,10 +69,10 @@ internal fun ideSummaryStrings(
             } +
             measurements.sampledMetrics.map {
                 val name = it.name.padStart(maxLabelLength)
-                val p50 = it.p50.toDisplayString()
-                val p90 = it.p90.toDisplayString()
-                val p95 = it.p95.toDisplayString()
-                val p99 = it.p99.toDisplayString()
+                val p50 = it.p50.toDisplayString().padStart(maxValueLength)
+                val p90 = it.p90.toDisplayString().padStart(maxValueLength)
+                val p95 = it.p95.toDisplayString().padStart(maxValueLength)
+                val p99 = it.p99.toDisplayString().padStart(maxValueLength)
                 // we don't try and link percentiles, since they're grouped across multiple iters
                 "  $name   P50  $p50,   P90  $p90,   P95  $p95,   P99  $p99"
             }

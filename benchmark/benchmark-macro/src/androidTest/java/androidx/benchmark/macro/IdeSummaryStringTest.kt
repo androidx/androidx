@@ -123,7 +123,7 @@ public class IdeSummaryStringTest {
         assertEquals(
             """
                 |foo
-                |  Metric1   P50  50.0,   P90  90.0,   P95  95.0,   P99  99.0
+                |  Metric1   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
                 |
             """.trimMargin(),
             summaryV1
@@ -131,7 +131,7 @@ public class IdeSummaryStringTest {
         assertEquals(
             """
                 |foo
-                |  Metric1   P50  50.0,   P90  90.0,   P95  95.0,   P99  99.0
+                |  Metric1   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
                 |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
                 |
             """.trimMargin(),
@@ -157,7 +157,7 @@ public class IdeSummaryStringTest {
             """
                 |foo
                 |  Metric1   min   0.0,   median   1.0,   max   2.0
-                |  Metric2   P50  50.0,   P90  90.0,   P95  95.0,   P99  99.0
+                |  Metric2   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
                 |
             """.trimMargin(),
             summaryV1
@@ -166,7 +166,7 @@ public class IdeSummaryStringTest {
             """
                 |foo
                 |  Metric1   [min   0.0](file://iter0.trace),   [median   1.0](file://iter1.trace),   [max   2.0](file://iter2.trace)
-                |  Metric2   P50  50.0,   P90  90.0,   P95  95.0,   P99  99.0
+                |  Metric2   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
                 |    Traces: Iteration [0](file://iter0.trace) [1](file://iter1.trace) [2](file://iter2.trace)
                 |
             """.trimMargin(),

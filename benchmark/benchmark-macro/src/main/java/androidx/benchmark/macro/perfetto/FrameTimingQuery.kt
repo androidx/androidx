@@ -54,14 +54,13 @@ internal object FrameTimingQuery {
         ORDER BY ts ASC
     """.trimIndent()
 
-    enum class FrameSubMetric {
-        FrameTime,
-        BasicFrameTime,
-        UiFrameTime,
-        FrameSlackTime;
+    enum class SubMetric {
+        FrameCpuTime,
+        FrameUiTime,
+        FrameNegativeSlackTime;
 
         fun supportedOnApiLevel(apiLevel: Int): Boolean {
-            return apiLevel >= 31 || this != FrameTime && this != FrameSlackTime
+            return apiLevel >= 31 || this != FrameNegativeSlackTime
         }
     }
 
@@ -83,12 +82,11 @@ internal object FrameTimingQuery {
         val expectedSlice: Slice?,
         val actualSlice: Slice?
     ) {
-        fun get(subMetric: FrameSubMetric): Long {
+        fun get(subMetric: SubMetric): Long {
             return when (subMetric) {
-                FrameSubMetric.FrameTime -> actualSlice!!.dur
-                FrameSubMetric.BasicFrameTime -> rtSlice.endTs - uiSlice.ts
-                FrameSubMetric.UiFrameTime -> uiSlice.dur
-                FrameSubMetric.FrameSlackTime -> expectedSlice!!.endTs - actualSlice!!.endTs
+                SubMetric.FrameCpuTime -> rtSlice.endTs - uiSlice.ts
+                SubMetric.FrameUiTime -> uiSlice.dur
+                SubMetric.FrameNegativeSlackTime -> actualSlice!!.endTs - expectedSlice!!.endTs
             }
         }
         companion object {
@@ -140,7 +138,7 @@ internal object FrameTimingQuery {
         absoluteTracePath: String,
         captureApiLevel: Int,
         packageName: String,
-    ): Map<FrameSubMetric, List<Long>> {
+    ): Map<SubMetric, List<Long>> {
         val queryResult = PerfettoTraceProcessor.rawQuery(
             absoluteTracePath = absoluteTracePath,
             query = getFullQuery(packageName)
@@ -199,7 +197,7 @@ internal object FrameTimingQuery {
             }
         }
 
-        return FrameSubMetric.values()
+        return SubMetric.values()
             .filter { it.supportedOnApiLevel(captureApiLevel) }
             .associateWith { subMetric ->
                 frameData.map { frame -> frame.get(subMetric) }
