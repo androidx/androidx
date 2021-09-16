@@ -28,6 +28,7 @@ import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.runBlockingWithTracing
 import androidx.wear.watchface.style.data.UserStyleWireFormat
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.time.Instant
@@ -106,15 +107,15 @@ internal class InteractiveWatchFaceImpl(
         ) { engine!!.ambientTickUpdate() }
     }
 
-    override fun release() = TraceEvent("InteractiveWatchFaceImpl.release").use {
-        runBlocking {
-            try {
-                engine!!.deferredWatchFaceImpl.await()
-            } catch (e: Exception) {
-                // deferredWatchFaceImpl may have completed with an exception. This will have
-                // already been reported so we can ignore it.
-            }
-            withContext(engine!!.uiThreadCoroutineScope.coroutineContext) {
+    override fun release(): Unit = TraceEvent("InteractiveWatchFaceImpl.release").use {
+        engine?.let {
+            it.uiThreadCoroutineScope.launch {
+                try {
+                    it.deferredWatchFaceImpl.await()
+                } catch (e: Exception) {
+                    // deferredWatchFaceImpl may have completed with an exception. This will
+                    // have already been reported so we can ignore it.
+                }
                 InteractiveInstanceManager.releaseInstance(instanceId)
             }
         }
