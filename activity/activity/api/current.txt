@@ -180,7 +180,7 @@ package androidx.activity.result.contract {
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  @RequiresApi(18) public static class ActivityResultContracts.GetMultipleContents extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.util.List<? extends android.net.Uri>> {
+  @RequiresApi(18) public static class ActivityResultContracts.GetMultipleContents extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.util.List<android.net.Uri>> {
     ctor public ActivityResultContracts.GetMultipleContents();
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, String input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri>>? getSynchronousResult(android.content.Context context, String input);
@@ -201,7 +201,7 @@ package androidx.activity.result.contract {
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  @RequiresApi(19) public static class ActivityResultContracts.OpenMultipleDocuments extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],java.util.List<? extends android.net.Uri>> {
+  @RequiresApi(19) public static class ActivityResultContracts.OpenMultipleDocuments extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],java.util.List<android.net.Uri>> {
     ctor public ActivityResultContracts.OpenMultipleDocuments();
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, String![] input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri>>? getSynchronousResult(android.content.Context context, String![] input);
