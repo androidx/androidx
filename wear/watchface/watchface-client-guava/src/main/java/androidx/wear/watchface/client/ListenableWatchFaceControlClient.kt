@@ -144,6 +144,7 @@ public open class ListenableWatchFaceControlClient(
      * @param slotIdToComplicationData The initial [androidx.wear.watchface.ComplicationSlot] data,
      * or `null` if unavailable.
      */
+    @Suppress("AsyncSuffixFuture")
     public open fun listenableGetOrCreateInteractiveWatchFaceClient(
         id: String,
         deviceConfig: DeviceConfig,

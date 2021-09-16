@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-ExecutorRegistration: androidx.window.extensions.layout.ExtensionInterface#setExtensionCallback(androidx.window.extensions.layout.ExtensionInterface.ExtensionCallback):
-    Registration methods should have overload that accepts delivery Executor: `setExtensionCallback`

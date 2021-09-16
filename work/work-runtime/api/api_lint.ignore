@@ -7,6 +7,50 @@ AcronymName: androidx.work.Operation.State.SUCCESS:
     Acronyms should not be capitalized in class names: was `SUCCESS`, should this be `Success`?
 
 
+AsyncSuffixFuture: androidx.work.ListenableWorker#startWork():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.Operation#getResult():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.ProgressUpdater#updateProgress(android.content.Context, java.util.UUID, androidx.work.Data):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.WorkContinuation#getWorkInfos():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.WorkManager#getLastCancelAllTimeMillis():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.WorkManager#getWorkInfoById(java.util.UUID):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.WorkManager#getWorkInfos(androidx.work.WorkQuery):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.WorkManager#getWorkInfosByTag(String):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.WorkManager#getWorkInfosForUniqueWork(String):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.Worker#startWork():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.multiprocess.RemoteWorkContinuation#enqueue():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.multiprocess.RemoteWorkManager#cancelAllWork():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.multiprocess.RemoteWorkManager#cancelAllWorkByTag(String):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.multiprocess.RemoteWorkManager#cancelUniqueWork(String):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.multiprocess.RemoteWorkManager#cancelWorkById(java.util.UUID):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.multiprocess.RemoteWorkManager#enqueue(androidx.work.WorkRequest):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.multiprocess.RemoteWorkManager#enqueue(java.util.List<androidx.work.WorkRequest>):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.multiprocess.RemoteWorkManager#enqueueUniquePeriodicWork(String, androidx.work.ExistingPeriodicWorkPolicy, androidx.work.PeriodicWorkRequest):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.multiprocess.RemoteWorkManager#enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.multiprocess.RemoteWorkManager#enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest>):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.work.multiprocess.RemoteWorkManager#getWorkInfos(androidx.work.WorkQuery):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+
+
 BuilderSetStyle: androidx.work.Data.Builder#putAll(androidx.work.Data):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.work.Data.Builder.putAll(androidx.work.Data)
 BuilderSetStyle: androidx.work.Data.Builder#putAll(java.util.Map<java.lang.String,java.lang.Object>):

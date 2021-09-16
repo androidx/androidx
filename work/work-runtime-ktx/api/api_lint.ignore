@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+AsyncSuffixFuture: androidx.work.CoroutineWorker#startWork():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+
+
 MissingNullability: androidx.work.OneTimeWorkRequestKt#OneTimeWorkRequestBuilder():
     Missing nullability on method `OneTimeWorkRequestBuilder` return
 MissingNullability: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(java.time.Duration):

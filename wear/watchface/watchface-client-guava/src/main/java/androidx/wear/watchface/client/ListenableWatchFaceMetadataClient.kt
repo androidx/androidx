@@ -42,6 +42,7 @@ public class ListenableWatchFaceMetadataClient {
          * control service can not be bound or a [ServiceStartFailureException] if the watch face
          * dies during startup.
          */
+        @Suppress("AsyncSuffixFuture")
         @JvmStatic
         public fun createListenableWatchFaceMetadataClient(
             context: Context,

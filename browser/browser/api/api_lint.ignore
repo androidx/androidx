@@ -47,6 +47,10 @@ ActionValue: androidx.browser.customtabs.TrustedWebUtils#EXTRA_LAUNCH_AS_TRUSTED
     Inconsistent extra value; expected `androidx.browser.customtabs.extra.LAUNCH_AS_TRUSTED_WEB_ACTIVITY`, was `android.support.customtabs.extra.LAUNCH_AS_TRUSTED_WEB_ACTIVITY`
 
 
+AsyncSuffixFuture: androidx.browser.trusted.TrustedWebActivityServiceConnectionPool#connect(android.net.Uri, java.util.Set<androidx.browser.trusted.Token>, java.util.concurrent.Executor):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+
+
 AutoBoxing: androidx.browser.customtabs.CustomTabColorSchemeParams#navigationBarColor:
     Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.browser.customtabs.CustomTabColorSchemeParams#navigationBarDividerColor:

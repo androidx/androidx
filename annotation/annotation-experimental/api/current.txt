@@ -7,7 +7,7 @@ package androidx.annotation {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget) public @interface RequiresOptIn {
-    method public abstract androidx.annotation.RequiresOptIn.Level level();
+    method public abstract androidx.annotation.RequiresOptIn.Level level() default androidx.annotation.RequiresOptIn.Level.ERROR;
     property public abstract androidx.annotation.RequiresOptIn.Level level;
   }
 
@@ -21,7 +21,7 @@ package androidx.annotation {
 package androidx.annotation.experimental {
 
   @Deprecated @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget) public @interface Experimental {
-    method @Deprecated public abstract androidx.annotation.experimental.Experimental.Level level();
+    method @Deprecated public abstract androidx.annotation.experimental.Experimental.Level level() default androidx.annotation.experimental.Experimental.Level.ERROR;
     property public abstract androidx.annotation.experimental.Experimental.Level level;
   }
 

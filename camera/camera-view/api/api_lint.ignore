@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+AsyncSuffixFuture: androidx.camera.view.CameraController#enableTorch(boolean):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.camera.view.CameraController#getInitializationFuture():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.camera.view.CameraController#setLinearZoom(float):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.camera.view.CameraController#setZoomRatio(float):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
