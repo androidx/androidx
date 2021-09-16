@@ -88,6 +88,7 @@ internal class InteractiveInstanceManager {
         @SuppressLint("SyntheticAccessor")
         fun deleteInstance(instanceId: String) {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+                instances[instanceId]?.impl?.onDestroy()
                 instances.remove(instanceId)
             }
         }
