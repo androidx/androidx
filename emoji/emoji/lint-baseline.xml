@@ -1,5 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `DefaultGlyphChecker`"
+        errorLine1="        GlyphChecker mGlyphChecker = new EmojiProcessor.DefaultGlyphChecker();"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/text/EmojiCompat.java"
+            line="971"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiMetadata`"
+        errorLine1="        final EmojiMetadata metadata = mock(EmojiMetadata.class);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiEditableFactoryTest.java"
+            line="64"
+            column="45"/>
+    </issue>
 
     <issue
         id="NewApi"
@@ -10,6 +32,17 @@
             file="src/androidTest/java/androidx/emoji/widget/EmojiEditableFactoryTest.java"
             line="65"
             column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="        final EmojiSpan[] spans = editable.getSpans(0, 1, EmojiSpan.class);"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiEditableFactoryTest.java"
+            line="71"
+            column="59"/>
     </issue>
 
     <issue
@@ -113,6 +146,39 @@
 
     <issue
         id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="            mSpans = ((Spanned) charSequence).getSpans(0, charSequence.length(), EmojiSpan.class);"
+        errorLine2="                                                                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/util/EmojiMatcher.java"
+            line="104"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="            mSpans = ((Spanned) charSequence).getSpans(0, charSequence.length(), EmojiSpan.class);"
+        errorLine2="                                                                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/util/EmojiMatcher.java"
+            line="140"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="            final EmojiSpan[] spans = spanned.getSpans(0, charSequence.length(), EmojiSpan.class);"
+        errorLine2="                                                                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/util/EmojiMatcher.java"
+            line="224"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="NewApi"
         message="Call requires API level 19 (current min is 14): `getId`"
         errorLine1="                    if (mResId == spans[index].getId()) {"
         errorLine2="                                               ~~~~~">
@@ -208,6 +274,17 @@
             file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
             line="105"
             column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `setEmojiReplaceStrategy`"
+        errorLine1="        mTextWatcher.setEmojiReplaceStrategy(EmojiCompat.REPLACE_STRATEGY_ALL);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiTextWatcherTest.java"
+            line="105"
+            column="46"/>
     </issue>
 
     <issue
@@ -329,6 +406,50 @@
             file="src/androidTest/java/androidx/emoji/widget/EmojiTransformationMethodTest.java"
             line="150"
             column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="        final EmojiSpan span = mock(EmojiSpan.class);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/SpannableBuilderTest.java"
+            line="124"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="        EmojiSpan[] spans = spannable.getSpans(0, spannable.length(), EmojiSpan.class);"
+        errorLine2="                                                                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/SpannableBuilderTest.java"
+            line="135"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="        final EmojiSpan span = mock(EmojiSpan.class);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/SpannableBuilderTest.java"
+            line="188"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="        EmojiSpan[] spans = spannable.getSpans(0, spannable.length(), EmojiSpan.class);"
+        errorLine2="                                                                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/SpannableBuilderTest.java"
+            line="200"
+            column="71"/>
     </issue>
 
     <issue
@@ -607,7 +728,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="302"
+            line="303"
             column="19"/>
     </issue>
 
@@ -618,7 +739,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="322"
+            line="323"
             column="19"/>
     </issue>
 
@@ -629,7 +750,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="337"
+            line="338"
             column="19"/>
     </issue>
 
@@ -640,7 +761,7 @@
         errorLine2="                                          ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="337"
+            line="338"
             column="43"/>
     </issue>
 
@@ -651,7 +772,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="352"
+            line="353"
             column="19"/>
     </issue>
 
@@ -662,7 +783,7 @@
         errorLine2="                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="541"
+            line="542"
             column="19"/>
     </issue>
 
@@ -673,7 +794,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="625"
+            line="626"
             column="12"/>
     </issue>
 
@@ -684,7 +805,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="661"
+            line="662"
             column="12"/>
     </issue>
 
@@ -695,7 +816,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="696"
+            line="697"
             column="12"/>
     </issue>
 
@@ -706,7 +827,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="736"
+            line="737"
             column="12"/>
     </issue>
 
@@ -717,7 +838,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="979"
+            line="990"
             column="16"/>
     </issue>
 
@@ -728,7 +849,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="997"
+            line="1008"
             column="16"/>
     </issue>
 
@@ -739,7 +860,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1014"
+            line="1025"
             column="16"/>
     </issue>
 
@@ -750,7 +871,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1034"
+            line="1045"
             column="16"/>
     </issue>
 
@@ -761,7 +882,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1053"
+            line="1064"
             column="16"/>
     </issue>
 
@@ -772,7 +893,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1077"
+            line="1088"
             column="16"/>
     </issue>
 
@@ -783,7 +904,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1088"
+            line="1099"
             column="16"/>
     </issue>
 
@@ -794,7 +915,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1129"
+            line="1140"
             column="16"/>
     </issue>
 
@@ -805,7 +926,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1150"
+            line="1161"
             column="25"/>
     </issue>
 

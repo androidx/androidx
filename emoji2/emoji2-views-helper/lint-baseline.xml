@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 19 (current min is 14): `EmojiMetadata`"
+        errorLine1="        final EmojiMetadata metadata = mock(EmojiMetadata.class);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji2/viewsintegration/EmojiEditableFactoryTest.java"
+            line="65"
+            column="45"/>
+    </issue>
 
     <issue
         id="NewApi"
@@ -14,79 +25,13 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 19 (current min is 14): `EmojiInputFilter`"
-        errorLine1="        mInputFilter = new EmojiInputFilter(textView);"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        message="Call requires API level 19 (current min is 14): `EmojiSpan`"
+        errorLine1="        final EmojiSpan[] spans = editable.getSpans(0, 1, EmojiSpan.class);"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/viewsintegration/EmojiInputFilterTest.java"
-            line="57"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `filter`"
-        errorLine1="        assertNull(mInputFilter.filter(null, 0, 1, null, 0, 1));"
-        errorLine2="                                ~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/viewsintegration/EmojiInputFilterTest.java"
-            line="62"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `filter`"
-        errorLine1="        final CharSequence result = mInputFilter.filter(testString, 0, 1, null, 0, 1);"
-        errorLine2="                                                 ~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/viewsintegration/EmojiInputFilterTest.java"
+            file="src/androidTest/java/androidx/emoji2/viewsintegration/EmojiEditableFactoryTest.java"
             line="72"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `filter`"
-        errorLine1="        final CharSequence result = mInputFilter.filter(testString, 0, 1, null, 0, 1);"
-        errorLine2="                                                 ~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/viewsintegration/EmojiInputFilterTest.java"
-            line="85"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `filter`"
-        errorLine1="        final CharSequence result = mInputFilter.filter(testString, 0, 1, null, 0, 1);"
-        errorLine2="                                                 ~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/viewsintegration/EmojiInputFilterTest.java"
-            line="99"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `filter`"
-        errorLine1="        final CharSequence result = mInputFilter.filter(testString, 0, 1, null, 0, 1);"
-        errorLine2="                                                 ~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/viewsintegration/EmojiInputFilterTest.java"
-            line="112"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `filter`"
-        errorLine1="        final CharSequence result = mInputFilter.filter(testString, 0, 1, null, 0, 1);"
-        errorLine2="                                                 ~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/emoji2/viewsintegration/EmojiInputFilterTest.java"
-            line="124"
-            column="50"/>
+            column="59"/>
     </issue>
 
     <issue
