@@ -1,1 +1,78 @@
 // Signature format: 4.0
+package androidx.graphics.opengl.egl {
+
+  public final class EglException extends java.lang.RuntimeException {
+    ctor public EglException(int error, optional String msg);
+    method public int getError();
+    method public String getMsg();
+    property public final int error;
+    property public String message;
+    property public final String msg;
+  }
+
+  public final inline class EglExtensions {
+    ctor public EglExtensions();
+  }
+
+  public static final class EglExtensions.Companion {
+    method public java.util.Set<? extends java.lang.String> from(String queryString);
+  }
+
+  public final class EglExtensionsKt {
+    field public static final String EglAndroidNativeFenceSync = "EGL_ANDROID_native_fence_sync";
+    field public static final String EglExtBufferAge = "EGL_EXT_buffer_age";
+    field public static final String EglExtColorSpaceDisplayP3Passthrough = "EGL_EXT_gl_colorspace_display_p3_passthrough";
+    field public static final String EglExtGlColorSpaceBt2020Pq = "EGL_EXT_gl_colorspace_bt2020_pq";
+    field public static final String EglExtGlColorSpaceScRgb = "EGL_EXT_gl_colorspace_scrgb";
+    field public static final String EglExtPixelFormatFloat = "EGL_EXT_pixel_format_float";
+    field public static final String EglImgContextPriority = "EGL_IMG_context_priority";
+    field public static final String EglKhrFenceSync = "EGL_KHR_fence_sync";
+    field public static final String EglKhrGlColorSpace = "EGL_KHR_gl_colorspace";
+    field public static final String EglKhrNoConfigContext = "EGL_KHR_no_config_context";
+    field public static final String EglKhrPartialUpdate = "EGL_KHR_partial_update";
+    field public static final String EglKhrSurfacelessContext = "EGL_KHR_surfaceless_context";
+    field public static final String EglKhrSwapBuffersWithDamage = "EGL_KHR_swap_buffers_with_damage";
+    field public static final String EglKhrWaitSync = "EGL_KHR_wait_sync";
+  }
+
+  public final class EglManager {
+    ctor public EglManager(optional androidx.graphics.opengl.egl.EglSpec eglSpec);
+    method public androidx.graphics.opengl.egl.EglSpec getEglSpec();
+    method public androidx.graphics.opengl.egl.EglVersion getEglVersion();
+    method public void initialize();
+    property public final androidx.graphics.opengl.egl.EglSpec eglSpec;
+    property public final androidx.graphics.opengl.egl.EglVersion eglVersion;
+  }
+
+  public interface EglSpec {
+    method public String eglQueryString(int nameId);
+    method public default static String getStatusString(int error);
+    method public androidx.graphics.opengl.egl.EglVersion initialize();
+    field public static final androidx.graphics.opengl.egl.EglSpec.Companion Companion;
+    field public static final androidx.graphics.opengl.egl.EglSpec Egl14;
+  }
+
+  public static final class EglSpec.Companion {
+    method public String getStatusString(int error);
+  }
+
+  public final class EglVersion {
+    ctor public EglVersion(int major, int minor);
+    method public int component1();
+    method public int component2();
+    method public androidx.graphics.opengl.egl.EglVersion copy(int major, int minor);
+    method public int getMajor();
+    method public int getMinor();
+    property public final int major;
+    property public final int minor;
+    field public static final androidx.graphics.opengl.egl.EglVersion.Companion Companion;
+    field public static final androidx.graphics.opengl.egl.EglVersion Unknown;
+    field public static final androidx.graphics.opengl.egl.EglVersion V14;
+    field public static final androidx.graphics.opengl.egl.EglVersion V15;
+  }
+
+  public static final class EglVersion.Companion {
+  }
+
+}
+

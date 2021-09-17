@@ -16,7 +16,7 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -26,7 +26,17 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    // Add dependencies here
+    implementation 'androidx.annotation:annotation:1.2.0'
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 17
+    }
 }
 
 androidx {
