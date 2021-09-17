@@ -383,13 +383,13 @@ public class CameraXActivity extends AppCompatActivity {
                         // For Android 10 or versions above, use MediaStoreOutputOptions for public
                         // share media storage.
                         pendingRecording = getVideoCapture().getOutput()
-                                .prepareRecording(getNewVideoOutputMediaStoreOptions());
+                                .prepareRecording(this, getNewVideoOutputMediaStoreOptions());
                     } else {
                         // For Android 9 or versions below, use FileOutputOptions. Can still use
                         // MediaStoreOutputOptions, but there are some known issues, b/197476455 or
                         // b/198543058.
                         pendingRecording = getVideoCapture().getOutput()
-                                .prepareRecording(getNewVideoOutputFileOptions());
+                                .prepareRecording(this, getNewVideoOutputFileOptions());
                     }
                     mActiveRecording = pendingRecording.withAudioEnabled()
                             .withEventListener(ContextCompat.getMainExecutor(CameraXActivity.this),

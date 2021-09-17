@@ -160,9 +160,9 @@ public final class MediaStoreOutputOptions extends OutputOptions {
          * unlimited.
          *
          * <p>When used to
-         * {@link Recorder#prepareRecording(MediaStoreOutputOptions) generate} recording, if the
-         * specified file size limit is reached while the recording is being recorded, the
-         * recording will be finalized with
+         * {@link Recorder#prepareRecording(android.content.Context, MediaStoreOutputOptions)
+         * generate} recording, if the specified file size limit is reached while the recording
+         * is being recorded, the recording will be finalized with
          * {@link VideoRecordEvent.Finalize#ERROR_FILE_SIZE_LIMIT_REACHED}.
          *
          * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.

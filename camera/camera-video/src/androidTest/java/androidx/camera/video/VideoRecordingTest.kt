@@ -306,7 +306,7 @@ class VideoRecordingTest(
 
         // Act.
         videoCapture.output
-            .prepareRecording(FileOutputOptions.Builder(file).build())
+            .prepareRecording(context, FileOutputOptions.Builder(file).build())
             .withEventListener(
                 CameraXExecutors.directExecutor(),
                 mockListener
@@ -403,7 +403,7 @@ class VideoRecordingTest(
     private fun startVideoRecording(videoCapture: VideoCapture<Recorder>, file: File):
         ActiveRecording {
             val activeRecording = videoCapture.output
-                .prepareRecording(FileOutputOptions.Builder(file).build())
+                .prepareRecording(context, FileOutputOptions.Builder(file).build())
                 .withEventListener(
                     CameraXExecutors.directExecutor(),
                     videoRecordEventListener

@@ -110,9 +110,9 @@ public final class FileDescriptorOutputOptions extends OutputOptions {
          * unlimited.
          *
          * <p>When used to
-         * {@link Recorder#prepareRecording(FileDescriptorOutputOptions) generate} recording, if the
-         * specified file size limit is reached while the recording is being recorded, the
-         * recording will be finalized with
+         * {@link Recorder#prepareRecording(android.content.Context, FileDescriptorOutputOptions)
+         * generate} recording, if the specified file size limit is reached while the recording
+         * is being recorded, the recording will be finalized with
          * {@link VideoRecordEvent.Finalize#ERROR_FILE_SIZE_LIMIT_REACHED}.
          *
          * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
