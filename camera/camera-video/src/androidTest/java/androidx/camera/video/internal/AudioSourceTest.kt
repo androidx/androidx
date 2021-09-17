@@ -75,7 +75,8 @@ class AudioSourceTest {
                 .setChannelCount(CHANNEL_COUNT)
                 .setAudioFormat(AUDIO_FORMAT)
                 .build(),
-            CameraXExecutors.ioExecutor()
+            CameraXExecutors.ioExecutor(),
+            /*attributionContext=*/null
         )
         audioSource.setBufferProvider(fakeBufferProvider)
     }
