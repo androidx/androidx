@@ -23,9 +23,6 @@ import androidx.camera.core.ExtendableBuilder;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.UseCaseEventConfig;
-import androidx.core.util.Consumer;
-
-import java.util.Collection;
 
 /**
  * Configuration containing options for use cases.
@@ -75,12 +72,6 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
      */
     Option<CameraSelector> OPTION_CAMERA_SELECTOR =
             Config.Option.create("camerax.core.useCase.cameraSelector", CameraSelector.class);
-    /**
-     * Option: camerax.core.useCase.attachedUseCasesUpdateListener
-     */
-    Option<Consumer<Collection<UseCase>>> OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER =
-            Config.Option.create("camerax.core.useCase.attachedUseCasesUpdateListener",
-                    Consumer.class);
 
     // *********************************************************************************************
 
@@ -257,32 +248,6 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
     }
 
     /**
-     * Retrieves the attached use cases update listener that will be updated when one or more use
-     * cases are attached or detached.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Nullable
-    default Consumer<Collection<UseCase>> getAttachedUseCasesUpdateListener(
-            @Nullable Consumer<Collection<UseCase>> valueIfMissing) {
-        return retrieveOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER, valueIfMissing);
-    }
-
-    /**
-     * Retrieves the attached use cases update listener that will be updated when the use case is
-     * attached.
-     *
-     * @return The stored value, if it exists in this configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     */
-    @NonNull
-    default Consumer<Collection<UseCase>> getAttachedUseCasesUpdateListener() {
-        return retrieveOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER);
-    }
-
-    /**
      * Builder for a {@link UseCase}.
      *
      * @param <T> The type of the object which will be built by {@link #build()}.
@@ -358,18 +323,6 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
          */
         @NonNull
         B setCameraSelector(@NonNull CameraSelector cameraSelector);
-
-        /**
-         * Sets the attached use cases update listener that will be updated when the use case is
-         * attached.
-         *
-         * @param attachedUseCasesUpdateListener The attached use cases update listener appended
-         *                                       internally.
-         * @return The current Builder.
-         */
-        @NonNull
-        B setAttachedUseCasesUpdateListener(
-                @NonNull Consumer<Collection<UseCase>> attachedUseCasesUpdateListener);
 
         /**
          * Retrieves the configuration used by this builder.

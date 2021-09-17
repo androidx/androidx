@@ -39,7 +39,6 @@ import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.core.util.Consumer
 
 private val DEFAULT_PREVIEW_SIZE = Size(0, 0)
 
@@ -169,10 +168,6 @@ class MeteringRepeating(
         override fun setSurfaceOccupancyPriority(priority: Int) = this
 
         override fun setCameraSelector(cameraSelector: CameraSelector) = this
-
-        override fun setAttachedUseCasesUpdateListener(
-            attachedUseCasesUpdateListener: Consumer<MutableCollection<UseCase>>
-        ): Builder = this
 
         override fun build(): MeteringRepeating {
             return MeteringRepeating(cameraProperties, useCaseConfig)
