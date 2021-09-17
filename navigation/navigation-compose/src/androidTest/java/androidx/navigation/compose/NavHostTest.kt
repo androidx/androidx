@@ -485,6 +485,13 @@ class NavHostTest {
         composeTestRule.onNodeWithText(first).assertExists()
         composeTestRule.onNodeWithText(second).assertExists()
 
+        assertThat(navController.visibleEntries.value)
+            .containsExactly(
+                firstEntry,
+                navController.currentBackStackEntry
+            )
+            .inOrder()
+
         composeTestRule.mainClock.autoAdvance = true
 
         composeTestRule.runOnIdle {
