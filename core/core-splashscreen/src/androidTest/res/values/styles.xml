@@ -21,12 +21,21 @@
         <item name="android:fitsSystemWindows">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
     <style name="Theme.Test.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/bg_launcher</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/android</item>
         <item name="windowSplashScreenAnimationDuration">1234</item>
+        <item name="postSplashScreenTheme">@style/Theme.Test</item>
+    </style>
+
+    <style name="Theme.Test.Starting.IconBackground" parent="Theme.SplashScreen.IconBackground">
+        <item name="windowSplashScreenBackground">@color/bg_launcher</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/android</item>
+        <item name="windowSplashScreenAnimationDuration">1234</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/icon_bg</item>
         <item name="postSplashScreenTheme">@style/Theme.Test</item>
     </style>
 
@@ -44,4 +53,5 @@
         <item name="windowSplashScreenAnimationDuration">1234</item>
         <item name="postSplashScreenTheme">@style/Theme.Test.AppCompat</item>
     </style>
+
 </resources>

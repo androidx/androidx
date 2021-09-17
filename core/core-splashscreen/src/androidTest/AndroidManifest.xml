@@ -31,10 +31,13 @@
             android:name=".SplashScreenAppCompatTestActivity"
             android:exported="true"
             android:theme="@style/Theme.Test.Starting.AppCompat">
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
         </activity>
+
+        <activity
+            android:name=".SplashScreenWithIconBgTestActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Test.Starting.IconBackground">
+        </activity>
+
     </application>
 </manifest>

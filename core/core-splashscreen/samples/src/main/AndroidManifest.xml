@@ -20,6 +20,7 @@
         android:icon="@drawable/ic_launcher"
         android:theme="@style/Theme.App.Starting"
         android:label="@string/app_name">
+
         <activity android:name=".SplashScreenSampleActivity"
             android:exported="true">
             <intent-filter>
