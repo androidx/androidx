@@ -67,6 +67,15 @@ public final class PendingRecording {
         mOutputOptions = options;
     }
 
+    /**
+     * Returns an application context which was retrieved from the {@link Context} used to
+     * create this object.
+     */
+    @NonNull
+    Context getApplicationContext() {
+        return mContext;
+    }
+
     @NonNull
     Recorder getRecorder() {
         return mRecorder;
