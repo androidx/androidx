@@ -70,7 +70,7 @@ public final class PackageManagerCompat {
             "android.intent.action.AUTO_REVOKE_PERMISSIONS";
 
     /**
-     * The status of Unused App Restrictions features for this app.
+     * The status of Unused App Restrictions for this app.
      * @hide
      */
     @IntDef({ERROR, FEATURE_NOT_AVAILABLE, DISABLED, API_30_BACKPORT, API_30, API_31})
@@ -80,8 +80,8 @@ public final class PackageManagerCompat {
     }
 
     /**
-     * Returns the status of Unused App Restriction features for the current application, i.e.
-     * whether the features are available and if so, enabled for the application.
+     * Returns the status of Unused App Restrictions for the current application.
+     * In other words, whether the features are available and if so, enabled for the application.
      *
      * The returned value is a ListenableFuture with an Integer corresponding to a value in
      * {@link UnusedAppRestrictionsConstants}.
@@ -89,21 +89,28 @@ public final class PackageManagerCompat {
      * The possible values are as follows:
      * <ul>
      *     <li>{@link UnusedAppRestrictionsConstants#ERROR}: an error occurred when fetching
-     *     the availability and status of Unused App Restrictions features. Check the logs for
+     *     the availability and status of Unused App Restrictions. Check the logs for
      *     the reason (e.g. if the app's target SDK version < 30 or the user is in locked device
      *     boot mode).</li>
      *     <li>{@link UnusedAppRestrictionsConstants#FEATURE_NOT_AVAILABLE}: there are no
-     *     available Unused App Restrictions features for this app.</li>
+     *     available Unused App Restrictions for this app.</li>
      *     <li>{@link UnusedAppRestrictionsConstants#DISABLED}: any available Unused App
-     *     Restrictions features on the device are disabled for this app.</li>
+     *     Restrictions on the device are disabled for this app.</li>
      *     <li>{@link UnusedAppRestrictionsConstants#API_30_BACKPORT}: Unused App Restrictions
-     *     features introduced by Android API 30 and backported to earlier (API 23-29) devices
-     *     are enabled for this app (i.e. permissions will be automatically reset).</li>
-     *     <li>{@link UnusedAppRestrictionsConstants#API_30}: API 30 Unused App Restrictions
-     *     are enabled for this app (i.e. permissions will be automatically reset).</li>
-     *     <li>{@link UnusedAppRestrictionsConstants#API_31}: API 31 Unused App
-     *     Restrictions are enabled for this app (i.e. this app will be hibernated and have its
-     *     permissions reset).</li>
+     *     introduced by Android API 30, and since made available on earlier (API 23-29) devices
+     *     are enabled for this app:
+     *     <a href="https://developer.android.com/training/permissions/requesting?hl=hu
+     *     #auto-reset-permissions-unused-apps">permission auto-reset</a>.</li>
+     *     <li>{@link UnusedAppRestrictionsConstants#API_30}: Unused App Restrictions introduced
+     *     by Android API 30 are enabled for this app:
+     *     <a href="https://developer.android.com/training/permissions/requesting?hl=hu
+     *     #auto-reset-permissions-unused-apps">permission auto-reset</a>.</li>
+     *     <li>{@link UnusedAppRestrictionsConstants#API_31}: Unused App Restrictions introduced
+     *     by Android API 31 are enabled for this app:
+     *     <a href="https://developer.android.com/training/permissions/requesting?hl=hu
+     *     #auto-reset-permissions-unused-apps">permission auto-reset</a> and
+     *     <a href="https://developer.android.com/about/versions/12/behavior-changes-12#app-hibernation"
+     *     >app hibernation</a>.</li>
      * </ul>
      *
      * Compatibility behavior:
@@ -116,8 +123,8 @@ public final class PackageManagerCompat {
      * {@link UnusedAppRestrictionsConstants#API_30}.</li>
      * <li>SDK 23 through 29, if there exists an app with the Verifier role that can resolve the
      * {@code Intent.ACTION_AUTO_REVOKE_PERMISSIONS} action, then this API will return
-     * {@link UnusedAppRestrictionsConstants#API_30_BACKPORT} if Unused App Restrictions features
-     * are enabled and {@link UnusedAppRestrictionsConstants#DISABLED} if disabled. Else, it will
+     * {@link UnusedAppRestrictionsConstants#API_30_BACKPORT} if Unused App Restrictions are
+     * enabled and {@link UnusedAppRestrictionsConstants#DISABLED} if disabled. Else, it will
      * return {@link UnusedAppRestrictionsConstants#FEATURE_NOT_AVAILABLE}.
      * <li>SDK 22 and below, this method always returns
      * {@link UnusedAppRestrictionsConstants#FEATURE_NOT_AVAILABLE} as runtime permissions did
@@ -185,7 +192,7 @@ public final class PackageManagerCompat {
     }
 
     /**
-     * Returns whether any unused app restriction features are available on the device.
+     * Returns whether any Unused App Restrictions are available on the device.
      *
      * @hide
      */
@@ -252,8 +259,8 @@ public final class PackageManagerCompat {
     private static class Api30Impl {
         private Api30Impl() {}
         static boolean areUnusedAppRestrictionsEnabled(@NonNull Context context) {
-            // If the app is allowlisted, that means that it is exempt from unused app restriction
-            // features, and thus the features are _disabled_.
+            // If the app is allowlisted, that means that it is exempt from Unused App Restrictions,
+            // and thus the features are _disabled_.
             return !context.getPackageManager().isAutoRevokeWhitelisted();
         }
     }
