@@ -31,7 +31,7 @@ import androidx.room.compiler.processing.ksp.swapResolvedType
 import com.google.devtools.ksp.symbol.Variance
 
 /**
- * XProcessing adds an additional argument to each suspend function for the continiuation because
+ * XProcessing adds an additional argument to each suspend function for the continuation because
  * this is what KAPT generates and Room needs it as long as it generates java code.
  */
 internal class KspSyntheticContinuationParameterElement(
@@ -111,6 +111,10 @@ internal class KspSyntheticContinuationParameterElement(
 
     override fun kindName(): String {
         return "synthetic continuation parameter"
+    }
+
+    override fun validate(): Boolean {
+        return true
     }
 
     override fun equals(other: Any?): Boolean {

@@ -93,6 +93,10 @@ internal sealed class KspSyntheticPropertyMethodElement(
     override val docComment: String?
         get() = null
 
+    override fun validate(): Boolean {
+        return true
+    }
+
     @OptIn(KspExperimental::class)
     override val thrownTypes: List<XType> by lazy {
         env.resolver.getJvmCheckedException(accessor).map {
@@ -222,6 +226,10 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
             override fun kindName(): String {
                 return "method parameter"
+            }
+
+            override fun validate(): Boolean {
+                return true
             }
         }
     }

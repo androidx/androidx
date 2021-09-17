@@ -49,6 +49,11 @@ interface XElement : XAnnotated {
      * The documentation comment of the element, or null if there is none.
      */
     val docComment: String?
+
+    /**
+     * Returns true if all types referenced by this element are valid, i.e. resolvable.
+     */
+    fun validate(): Boolean
 }
 
 /**

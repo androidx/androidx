@@ -21,8 +21,10 @@ import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
 import androidx.room.compiler.processing.ksp.KspElement
 import androidx.room.compiler.processing.testcode.MainAnnotation
 import androidx.room.compiler.processing.testcode.OtherAnnotation
+import androidx.room.compiler.processing.testcode.SingleTypeValueAnnotation
 import androidx.room.compiler.processing.util.CompilationTestCapabilities
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
 import com.google.common.truth.Truth.assertAbout
@@ -738,6 +740,80 @@ class XProcessingStepTest {
         // Assert postRound() is invoked exactly 3 times, and the last round env reported
         // that processing was over.
         assertThat(invokedPostRound).containsExactly(false, false, true)
+    }
+
+    @Test
+    fun javacDeferredViaException() {
+        val main = JavaFileObjects.forSourceString(
+            "foo.bar.Main",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.*;
+            @MainAnnotation(
+                typeList = {},
+                singleType = AnotherSource.class,
+                intMethod = 3,
+                singleOtherAnnotation = @OtherAnnotation("y")
+            )
+            class Main {}
+            """.trimIndent()
+        )
+        val anotherSource = JavaFileObjects.forSourceString(
+            "foo.bar.AnotherSource",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.*;
+            @SingleTypeValueAnnotation(GeneratedType.class)
+            class AnotherSource { }
+            """.trimIndent()
+        )
+        var round = 0
+        val genClassName = ClassName.get("foo.bar", "GeneratedType")
+        val mainStep = object : XProcessingStep {
+            override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                if (round++ == 0) {
+                    // Generate the interface, should not be resolvable in 1st round
+                    val spec = TypeSpec.interfaceBuilder(genClassName).build()
+                    JavaFile.builder(genClassName.packageName(), spec)
+                        .build()
+                        .writeTo(env.filer)
+                }
+                val mainElement =
+                    elementsByAnnotation[MainAnnotation::class.qualifiedName!!]!!.single()
+                try {
+                    val otherElement = env.requireTypeElement(
+                        mainElement.requireAnnotation(MainAnnotation::class.className())
+                            .getAsType("singleType")
+                            .typeName
+                    )
+                    val generatedType =
+                        otherElement.requireAnnotation(SingleTypeValueAnnotation::class.className())
+                            .getAsType("value")
+                    assertThat(generatedType.typeName).isEqualTo(genClassName)
+                    return emptySet()
+                } catch (ex: TypeNotPresentException) {
+                    return setOf(mainElement)
+                }
+            }
+        }
+        assertAbout(
+            JavaSourcesSubjectFactory.javaSources()
+        ).that(
+            listOf(main, anotherSource)
+        ).processedWith(
+            object : JavacBasicAnnotationProcessor() {
+                override fun processingSteps(): List<XProcessingStep> {
+                    return listOf(mainStep)
+                }
+            }
+        ).compilesWithoutError()
+
+        // Expect two rounds due to implicit deferring caused by missing type.
+        assertThat(round).isEqualTo(2)
     }
 
     @Test
