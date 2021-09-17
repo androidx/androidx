@@ -470,12 +470,18 @@ open class DirectMetadataAccessVariantRule : ComponentMetadataRule {
                 }
                 withFiles {
                     addFile("${id.name}-${id.version}.pom")
+                    addFile("${id.name}-${id.version}.pom.asc")
                     addFile("${id.name}-${id.version}.module")
+                    addFile("${id.name}-${id.version}.module.asc")
                     addFile("${id.name}-${id.version}.jar")
+                    addFile("${id.name}-${id.version}.jar.asc")
                     addFile("${id.name}-${id.version}.aar")
+                    addFile("${id.name}-${id.version}.aar.asc")
                     addFile("${id.name}-${id.version}-sources.jar")
                     addFile("${id.name}-${id.version}.klib")
+                    addFile("${id.name}-${id.version}.klib.asc")
                     addFile("${id.name}-${id.version}-cinterop-interop.klib")
+                    addFile("${id.name}-${id.version}-cinterop-interop.klib.asc")
                 }
             }
         }
