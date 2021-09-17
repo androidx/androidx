@@ -36,13 +36,13 @@ dependencies {
 
     implementation("androidx.annotation:annotation:1.2.0")
 
-    androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":appcompat:appcompat"))
+    androidTestImplementation(project(":test:screenshot:screenshot"))
 }
 
 androidx {

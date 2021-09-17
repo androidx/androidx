@@ -19,4 +19,5 @@
     <color name="logo_background">#3C3C3C</color>
     <color name="windowBackground">#CFCFCF</color>
     <color name="splashScreenBackground">#474747</color>
+    <color name="splashscreen_icon_background">#BEC7B8</color>
 </resources>

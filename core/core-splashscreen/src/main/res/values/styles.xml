@@ -17,12 +17,15 @@
 <resources>
 
     <style name="Theme.SplashScreenBase" parent="android:Theme.NoTitleBar">
-        <item name="android:windowBackground">@drawable/compat_splash_screen</item>
+        <item name="android:windowBackground">
+            @drawable/compat_splash_screen_no_icon_background
+        </item>
         <item name="android:opacity">opaque</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:fitsSystemWindows">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="splashScreenIconSize">@dimen/splashscreen_icon_size_no_background</item>
     </style>
 
     <style name="Theme.SplashScreen" parent="Theme.SplashScreenBase">
@@ -32,5 +35,11 @@
         </item>
         <item name="windowSplashScreenBackground">@android:color/background_light</item>
         <item name="windowSplashScreenAnimatedIcon">@android:drawable/sym_def_app_icon</item>
+
+    </style>
+
+    <style name="Theme.SplashScreen.IconBackground" parent="Theme.SplashScreen">
+        <item name="android:windowBackground">@drawable/compat_splash_screen</item>
+        <item name="splashScreenIconSize">@dimen/splashscreen_icon_size_with_background</item>
     </style>
 </resources>

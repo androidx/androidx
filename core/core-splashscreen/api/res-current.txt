@@ -2,4 +2,6 @@ attr postSplashScreenTheme
 attr windowSplashScreenAnimatedIcon
 attr windowSplashScreenAnimationDuration
 attr windowSplashScreenBackground
+dimen splashscreen_icon_size
 style Theme_SplashScreen
+style Theme_SplashScreen_IconBackground

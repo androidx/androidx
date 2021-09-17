@@ -17,12 +17,13 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="false">
 
   <ImageView
       android:id="@+id/splashscreen_icon_view"
-      android:layout_width="@dimen/splashscreen_icon_size"
-      android:layout_height="@dimen/splashscreen_icon_size"
-      android:layout_gravity="center" />
+      android:layout_width="?attr/splashScreenIconSize"
+      android:layout_height="?attr/splashScreenIconSize"
+      android:layout_gravity="center"/>
 
 </FrameLayout>
