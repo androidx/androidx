@@ -31,6 +31,11 @@ import androidx.test.filters.MediumTest
 import androidx.testutils.TestNavigator
 import androidx.testutils.test
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.withIndex
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.inOrder
@@ -100,6 +105,33 @@ class NavBackStackEntryLifecycleTest {
         assertWithMessage("The start destination should be destroyed after pop")
             .that(startBackStackEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
+    @UiThreadTest
+    @Test
+    @Suppress("DEPRECATION", "EXPERIMENTAL_API_USAGE")
+    fun visibleEntriesFlow() = runBlocking {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = 1) {
+            test(1)
+            test(2)
+            test(3)
+        }
+
+        navController.visibleEntries
+            .take(navController.graph.count())
+            .withIndex()
+            .onEach { (index, list) ->
+                val expectedDestination = index + 1
+                assertWithMessage("Flow emitted unexpected back stack entry (wrong destination)")
+                    .that(list)
+                    .containsExactly(navController.currentBackStackEntry)
+
+                if (expectedDestination < navController.graph.count()) {
+                    navController.navigate(expectedDestination + 1)
+                }
+            }
+            .collect()
     }
 
     /**

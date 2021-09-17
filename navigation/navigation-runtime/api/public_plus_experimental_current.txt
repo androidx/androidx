@@ -104,6 +104,7 @@ package androidx.navigation {
     method public androidx.navigation.NavigatorProvider getNavigatorProvider();
     method public androidx.navigation.NavBackStackEntry? getPreviousBackStackEntry();
     method public androidx.lifecycle.ViewModelStoreOwner getViewModelStoreOwner(@IdRes int navGraphId);
+    method public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> getVisibleEntries();
     method @MainThread public boolean handleDeepLink(android.content.Intent? intent);
     method @MainThread public void navigate(@IdRes int resId);
     method @MainThread public void navigate(@IdRes int resId, android.os.Bundle? args);
@@ -142,6 +143,7 @@ package androidx.navigation {
     property public androidx.navigation.NavInflater navInflater;
     property public androidx.navigation.NavigatorProvider navigatorProvider;
     property public androidx.navigation.NavBackStackEntry? previousBackStackEntry;
+    property public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> visibleEntries;
     field public static final androidx.navigation.NavController.Companion Companion;
     field public static final String KEY_DEEP_LINK_INTENT = "android-support-nav:controller:deepLinkIntent";
   }
