@@ -35,6 +35,9 @@ internal class JavacRoundEnv(
         }.toSet()
     }
 
+    override val isProcessingOver: Boolean
+        get() = delegate.processingOver()
+
     override fun getElementsAnnotatedWith(klass: KClass<out Annotation>): Set<XElement> {
         val elements = delegate.getElementsAnnotatedWith(klass.java)
         return wrapAnnotatedElements(elements, klass.java.canonicalName)

@@ -42,6 +42,7 @@ import com.squareup.javapoet.TypeSpec
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import javax.tools.Diagnostic
 import kotlin.reflect.KClass
 
 class XProcessingStepTest {
@@ -492,6 +493,46 @@ class XProcessingStepTest {
     }
 
     @Test
+    fun javacReturnsUnprocessed() {
+        val processingStep = object : XProcessingStep {
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                return elementsByAnnotation.values.flatten().toSet()
+            }
+            override fun annotations(): Set<String> {
+                return setOf(OtherAnnotation::class.qualifiedName!!)
+            }
+        }
+        val main = Source.java(
+            "foo.bar.Other",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.*;
+            @OtherAnnotation("y")
+            class Other {
+            }
+            """.trimIndent()
+        )
+        assertAbout(
+            JavaSourcesSubjectFactory.javaSources()
+        ).that(
+            listOf(main.toJFO())
+        ).processedWith(
+            object : JavacBasicAnnotationProcessor() {
+                override fun processingSteps() = listOf(processingStep)
+            }
+        ).failsToCompile()
+            // processor name is 'null' because it is a local anonymous class
+            .withErrorContaining(
+                "null was unable to process 'foo.bar.Other' because not all of its dependencies " +
+                    "could be resolved. Check for compilation errors or a circular dependency " +
+                    "with generated code."
+            )
+    }
+
+    @Test
     fun kspReturnsUnprocessed() {
         CompilationTestCapabilities.assumeKspIsEnabled()
         var returned: Set<XElement>? = null
@@ -528,14 +569,13 @@ class XProcessingStepTest {
             """.trimIndent()
         )
 
-        compile(
+        val result = compile(
             workingDir = temporaryFolder.root,
             arguments = TestCompilationArguments(
                 sources = listOf(main),
                 symbolProcessorProviders = listOf(processorProvider)
             )
         )
-
         assertThat(returned).apply {
             isNotNull()
             isNotEmpty()
@@ -544,6 +584,15 @@ class XProcessingStepTest {
             returned!!.map { (it as KspElement).declaration }.first() as KSClassDeclaration
         assertThat(element.classKind).isEqualTo(ClassKind.CLASS)
         assertThat(element.qualifiedName!!.asString()).isEqualTo("foo.bar.Other")
+        assertThat(result.success).isFalse()
+        // processor name is 'null' because it is a local anonymous class
+        assertThat(
+            result.diagnostics[Diagnostic.Kind.ERROR]?.map { it.msg } ?: emptyList<String>()
+        ).containsExactly(
+            "null was unable to process 'Other' because not all of its dependencies could be " +
+                "resolved. Check for compilation errors or a circular dependency with generated " +
+                "code."
+        )
     }
 
     @Test
@@ -629,6 +678,7 @@ class XProcessingStepTest {
             """.trimIndent()
         )
         val stepsProcessed = mutableListOf<XProcessingStep>()
+        var invokedProcessOver = 0
         val mainStep = object : XProcessingStep {
             var round = 0
             override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
@@ -652,8 +702,13 @@ class XProcessingStepTest {
                 }
                 return deferredElements
             }
+
+            override fun processOver(env: XProcessingEnv) {
+                invokedProcessOver++
+            }
         }
         var invokedProcessingSteps = 0
+        val invokedPostRound = mutableListOf<Boolean>()
         assertAbout(
             JavaSourcesSubjectFactory.javaSources()
         ).that(
@@ -664,6 +719,10 @@ class XProcessingStepTest {
                     invokedProcessingSteps++
                     return listOf(mainStep)
                 }
+
+                override fun postRound(env: XProcessingEnv, round: XRoundEnv) {
+                    invokedPostRound.add(round.isProcessingOver)
+                }
             }
         ).compilesWithoutError()
 
@@ -672,6 +731,13 @@ class XProcessingStepTest {
 
         // Assert processingSteps() was only called once
         assertThat(invokedProcessingSteps).isEqualTo(1)
+
+        // Assert processOver() was only called once
+        assertThat(invokedProcessOver).isEqualTo(1)
+
+        // Assert postRound() is invoked exactly 3 times, and the last round env reported
+        // that processing was over.
+        assertThat(invokedPostRound).containsExactly(false, false, true)
     }
 
     @Test
@@ -805,6 +871,7 @@ class XProcessingStepTest {
             """.trimIndent()
         )
         val stepsProcessed = mutableListOf<XProcessingStep>()
+        var invokedProcessOver = 0
         val mainStep = object : XProcessingStep {
             var round = 0
             override fun annotations() = setOf(MainAnnotation::class.qualifiedName!!)
@@ -828,14 +895,23 @@ class XProcessingStepTest {
                 }
                 return deferredElements
             }
+
+            override fun processOver(env: XProcessingEnv) {
+                invokedProcessOver++
+            }
         }
         var invokedProcessingSteps = 0
+        val invokedPostRound = mutableListOf<Boolean>()
         val processorProvider = object : SymbolProcessorProvider {
             override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
                 return object : KspBasicAnnotationProcessor(environment) {
                     override fun processingSteps(): List<XProcessingStep> {
                         invokedProcessingSteps++
                         return listOf(mainStep)
+                    }
+
+                    override fun postRound(env: XProcessingEnv, round: XRoundEnv) {
+                        invokedPostRound.add(round.isProcessingOver)
                     }
                 }
             }
@@ -852,6 +928,13 @@ class XProcessingStepTest {
 
         // Assert processingSteps() was only called once
         assertThat(invokedProcessingSteps).isEqualTo(1)
+
+        // Assert processOver() was only called once
+        assertThat(invokedProcessOver).isEqualTo(1)
+
+        // Assert postRound() is invoked exactly 3 times, and the last round env reported
+        // that processing was over.
+        assertThat(invokedPostRound).containsExactly(false, false, true)
     }
 
     @Test

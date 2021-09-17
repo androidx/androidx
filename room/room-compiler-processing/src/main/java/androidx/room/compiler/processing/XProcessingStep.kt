@@ -34,6 +34,13 @@ interface XProcessingStep {
     ): Set<XElement>
 
     /**
+     * An optional hook for logic to be executed in the last round of processing.
+     *
+     * @see [XRoundEnv.isProcessingOver]
+     */
+    fun processOver(env: XProcessingEnv) { }
+
+    /**
      * The set of annotation qualified names processed by this step.
      */
     fun annotations(): Set<String>

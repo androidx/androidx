@@ -26,7 +26,8 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import kotlin.reflect.KClass
 
 internal class KspRoundEnv(
-    private val env: KspProcessingEnv
+    private val env: KspProcessingEnv,
+    override val isProcessingOver: Boolean
 ) : XRoundEnv {
     override val rootElements: Set<XElement>
         get() = TODO("not supported")

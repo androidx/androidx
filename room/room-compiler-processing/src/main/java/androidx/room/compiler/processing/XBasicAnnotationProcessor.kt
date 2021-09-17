@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing
 
+import javax.tools.Diagnostic
+
 /**
  * Common interface for basic annotation processors.
  *
@@ -39,4 +41,37 @@ interface XBasicAnnotationProcessor {
      * Called at the end of a processing round after all [processingSteps] have been executed.
      */
     fun postRound(env: XProcessingEnv, round: XRoundEnv) { }
+
+    companion object {
+        /**
+         * Gets elements annotation with [annotationQualifiedName] from [elementsDeferredBySteps]
+         * belonging to the input [step].
+         */
+        internal fun XBasicAnnotationProcessor.getStepDeferredElementsAnnotatedWith(
+            elementsDeferredBySteps: Map<XProcessingStep, Set<XElement>>,
+            step: XProcessingStep,
+            annotationQualifiedName: String
+        ): Set<XElement> {
+            val className = xProcessingEnv.requireTypeElement(annotationQualifiedName).className
+            return elementsDeferredBySteps.getValue(step)
+                .filter { it.hasAnnotation(className) }
+                .toSet()
+        }
+
+        internal fun XBasicAnnotationProcessor.reportMissingElements(
+            missingElements: Set<XElement>
+        ) {
+            missingElements.forEach { missingElement ->
+                xProcessingEnv.messager.printMessage(
+                    kind = Diagnostic.Kind.ERROR,
+                    msg = (
+                        "%s was unable to process '%s' because not all of its dependencies " +
+                            "could be resolved. Check for compilation errors or a circular " +
+                            "dependency with generated code."
+                        ).format(javaClass.canonicalName, missingElement),
+                    element = missingElement
+                )
+            }
+        }
+    }
 }
