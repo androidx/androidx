@@ -149,6 +149,7 @@ public final class Camera2CameraControl {
      * options are set or camera is closed before the current request completes.
      * Cancelling the ListenableFuture is a no-op.
      */
+    @SuppressWarnings("AsyncSuffixFuture")
     @NonNull
     public ListenableFuture<Void> setCaptureRequestOptions(
             @NonNull CaptureRequestOptions bundle) {
@@ -181,6 +182,7 @@ public final class Camera2CameraControl {
      * completely. The future fails with {@link CameraControl.OperationCanceledException} if newer
      * options are set or camera is closed before the current request completes.
      */
+    @SuppressWarnings("AsyncSuffixFuture")
     @NonNull
     public ListenableFuture<Void> addCaptureRequestOptions(
             @NonNull CaptureRequestOptions bundle) {

@@ -1,5 +1,57 @@
 // Baseline format: 1.0
+AsyncSuffixFuture: androidx.health.services.client.ExerciseClient#addGoalToActiveExercise(androidx.health.services.client.data.ExerciseGoal):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.ExerciseClient#clearUpdateListener(androidx.health.services.client.ExerciseUpdateListener):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.ExerciseClient#endExercise():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.ExerciseClient#flushExercise():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.ExerciseClient#getCapabilities():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.ExerciseClient#getCurrentExerciseInfo():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.ExerciseClient#markLap():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.ExerciseClient#overrideAutoPauseAndResumeForActiveExercise(boolean):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.ExerciseClient#pauseExercise():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.ExerciseClient#prepareExercise(androidx.health.services.client.data.WarmUpConfig):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.ExerciseClient#removeGoalFromActiveExercise(androidx.health.services.client.data.ExerciseGoal):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.ExerciseClient#resumeExercise():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.ExerciseClient#setUpdateListener(androidx.health.services.client.ExerciseUpdateListener):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.ExerciseClient#setUpdateListener(androidx.health.services.client.ExerciseUpdateListener, java.util.concurrent.Executor):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.ExerciseClient#startExercise(androidx.health.services.client.data.ExerciseConfig):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.MeasureClient#getCapabilities():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.MeasureClient#registerCallback(androidx.health.services.client.data.DataType, androidx.health.services.client.MeasureCallback):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.MeasureClient#registerCallback(androidx.health.services.client.data.DataType, androidx.health.services.client.MeasureCallback, java.util.concurrent.Executor):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.MeasureClient#unregisterCallback(androidx.health.services.client.data.DataType, androidx.health.services.client.MeasureCallback):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.PassiveMonitoringClient#flush():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.PassiveMonitoringClient#getCapabilities():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.PassiveMonitoringClient#registerDataCallback(androidx.health.services.client.data.PassiveMonitoringConfig):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.PassiveMonitoringClient#registerDataCallback(androidx.health.services.client.data.PassiveMonitoringConfig, androidx.health.services.client.PassiveMonitoringCallback):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.PassiveMonitoringClient#registerPassiveGoalCallback(androidx.health.services.client.data.PassiveGoal, android.content.ComponentName):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.PassiveMonitoringClient#unregisterDataCallback():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.health.services.client.PassiveMonitoringClient#unregisterPassiveGoalCallback(androidx.health.services.client.data.PassiveGoal):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+
+
 ExecutorRegistration: androidx.health.services.client.ExerciseClient#clearUpdateListener(androidx.health.services.client.ExerciseUpdateListener):
     Registration methods should have overload that accepts delivery Executor: `clearUpdateListener`
-ExecutorRegistration: androidx.health.services.client.PassiveMonitoringClient#registerDataCallback(androidx.health.services.client.data.PassiveMonitoringConfig, androidx.health.services.client.PassiveMonitoringCallback):
-    Registration methods should have overload that accepts delivery Executor: `registerDataCallback`

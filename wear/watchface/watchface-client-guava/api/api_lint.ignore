@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+AsyncSuffixFuture: androidx.wear.watchface.client.ListenableWatchFaceControlClient#createWatchFaceControlClient(android.content.Context, String):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.watchface.client.ListenableWatchFaceControlClient#listenableGetOrCreateInteractiveWatchFaceClient(String, androidx.wear.watchface.client.DeviceConfig, androidx.wear.watchface.client.WatchUiState, androidx.wear.watchface.style.UserStyleData, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.watchface.client.ListenableWatchFaceControlClient.Companion#createWatchFaceControlClient(android.content.Context, String):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function

@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+AsyncSuffixFuture: androidx.wear.watchface.editor.ListenableEditorSession#getListenableComplicationPreviewData():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.watchface.editor.ListenableEditorSession#getListenableComplicationsProviderInfo():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.watchface.editor.ListenableEditorSession#listenableCreateOnWatchEditorSession(androidx.activity.ComponentActivity):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.watchface.editor.ListenableEditorSession#listenableOpenComplicationDataSourceChooser(int):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.watchface.editor.ListenableEditorSession.Companion#listenableCreateOnWatchEditorSession(androidx.activity.ComponentActivity):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
