@@ -62,8 +62,8 @@ class PerfettoCaptureWrapper {
         packages: List<String>,
         block: () -> Unit
     ): String? {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            return null // tracing currently not supported on this version
+        if (Build.VERSION.SDK_INT < 21) {
+            return null // tracing not supported
         }
 
         // Prior to Android 11 (R), a shell property must be set to enable perfetto tracing, see

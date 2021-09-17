@@ -65,7 +65,7 @@ class MacrobenchmarkTest {
         assertTrue(exception.message!!.contains("Require iterations > 0"))
     }
 
-    @SdkSuppress(maxSdkVersion = 28)
+    @SdkSuppress(maxSdkVersion = 22)
     @Test
     fun macrobenchmarkWithStartupMode_sdkVersion() {
         val exception = assertFailsWith<IllegalArgumentException> {
@@ -82,6 +82,6 @@ class MacrobenchmarkTest {
                 measureBlock = {}
             )
         }
-        assertTrue(exception.message!!.contains("requires Android 10 (API 29) or greater"))
+        assertTrue(exception.message!!.contains("requires Android 6 (API 23) or greater"))
     }
 }
