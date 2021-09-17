@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchface.complications
+package androidx.wear.watchface.complications.data
 
 import android.os.Parcel
 import android.os.Parcelable

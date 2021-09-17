@@ -26,13 +26,12 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever;
 
 /**
  * Holder of details of a complication provider, for use by watch faces (for example, to show the
  * current provider in settings). A
- * {@link ComplicationDataSourceInfoRetriever} can be used to obtain
- * instances of this class for each of a watch face's complications.
+ * {@link androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever} can be used to
+ * obtain instances of this class for each of a watch face's complications.
  *
  * @hide
  */
