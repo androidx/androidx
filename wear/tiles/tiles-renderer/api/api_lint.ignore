@@ -1,31 +1,29 @@
 // Baseline format: 1.0
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#getByDocumentId(androidx.appsearch.app.GetByDocumentIdRequest):
+AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#requestApiVersion():
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#getNamespaces():
+AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#requestResources(androidx.wear.tiles.RequestBuilders.ResourcesRequest):
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#getSchema():
+AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#requestTile(androidx.wear.tiles.RequestBuilders.TileRequest):
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#getStorageInfo():
+AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#sendOnTileAddedEvent():
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#put(androidx.appsearch.app.PutDocumentsRequest):
+AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#sendOnTileEnterEvent():
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#remove(String, androidx.appsearch.app.SearchSpec):
+AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#sendOnTileLeaveEvent():
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#remove(androidx.appsearch.app.RemoveByDocumentIdRequest):
+AsyncSuffixFuture: androidx.wear.tiles.client.TileClient#sendOnTileRemovedEvent():
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#reportUsage(androidx.appsearch.app.ReportUsageRequest):
+AsyncSuffixFuture: androidx.wear.tiles.connection.DefaultTileClient#requestApiVersion():
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#requestFlush():
+AsyncSuffixFuture: androidx.wear.tiles.connection.DefaultTileClient#requestResources(androidx.wear.tiles.RequestBuilders.ResourcesRequest):
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.AppSearchSession#setSchema(androidx.appsearch.app.SetSchemaRequest):
+AsyncSuffixFuture: androidx.wear.tiles.connection.DefaultTileClient#requestTile(androidx.wear.tiles.RequestBuilders.TileRequest):
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.GlobalSearchSession#reportSystemUsage(androidx.appsearch.app.ReportSystemUsageRequest):
+AsyncSuffixFuture: androidx.wear.tiles.connection.DefaultTileClient#sendOnTileAddedEvent():
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-AsyncSuffixFuture: androidx.appsearch.app.SearchResults#getNextPage():
+AsyncSuffixFuture: androidx.wear.tiles.connection.DefaultTileClient#sendOnTileEnterEvent():
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
-
-
-NullableCollection: androidx.appsearch.app.GenericDocument#getPropertyDocumentArray(String):
-    Return type of method androidx.appsearch.app.GenericDocument.getPropertyDocumentArray(String) is a nullable collection (`androidx.appsearch.app.GenericDocument[]`); must be non-null
-NullableCollection: androidx.appsearch.app.GenericDocument#getPropertyStringArray(String):
-    Return type of method androidx.appsearch.app.GenericDocument.getPropertyStringArray(String) is a nullable collection (`java.lang.String[]`); must be non-null
+AsyncSuffixFuture: androidx.wear.tiles.connection.DefaultTileClient#sendOnTileLeaveEvent():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.tiles.connection.DefaultTileClient#sendOnTileRemovedEvent():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function

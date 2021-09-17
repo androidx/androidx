@@ -1,4 +1,18 @@
 // Baseline format: 1.0
+AsyncSuffixFuture: androidx.camera.core.CameraControl#cancelFocusAndMetering():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.camera.core.CameraControl#enableTorch(boolean):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.camera.core.CameraControl#setExposureCompensationIndex(int):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.camera.core.CameraControl#setLinearZoom(float):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.camera.core.CameraControl#setZoomRatio(float):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.camera.core.CameraControl#startFocusAndMetering(androidx.camera.core.FocusMeteringAction):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+
+
 BuilderSetStyle: androidx.camera.core.CameraSelector.Builder#requireLensFacing(int):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.camera.core.CameraSelector.Builder.requireLensFacing(int)
 BuilderSetStyle: androidx.camera.core.CameraXConfig.Builder#fromConfig(androidx.camera.core.CameraXConfig):

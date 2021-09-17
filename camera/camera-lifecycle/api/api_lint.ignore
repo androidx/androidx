@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AsyncSuffixFuture: androidx.camera.lifecycle.ProcessCameraProvider#getInstance(android.content.Context):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
