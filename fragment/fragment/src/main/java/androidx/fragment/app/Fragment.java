@@ -2023,7 +2023,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * a previous saved state, this is the state.
      *
      * @deprecated use {@link #onViewCreated(View, Bundle)} for code touching
-     * the Fragment's view and {@link #onCreate(Bundle)} for other initialization.
+     * the view created by {@link #onCreateView} and {@link #onCreate(Bundle)} for other
+     * initialization.
      * To get a callback specifically when a Fragment activity's
      * {@link Activity#onCreate(Bundle)} is called, register a
      * {@link androidx.lifecycle.LifecycleObserver} on the Activity's
