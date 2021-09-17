@@ -17,11 +17,13 @@
 package androidx.camera.video;
 
 import android.Manifest;
+import android.content.Context;
 
 import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
+import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
@@ -36,10 +38,11 @@ import java.util.concurrent.Executor;
  * the controls of the {@link ActiveRecording} class returned by {@link #start()}.
  *
  * <p>A pending recording can be created using one of the {@link Recorder} methods for starting a
- * recording such as {@link Recorder#prepareRecording(MediaStoreOutputOptions)}.
+ * recording such as {@link Recorder#prepareRecording(Context, MediaStoreOutputOptions)}.
  */
 public final class PendingRecording {
 
+    private final Context mContext;
     private final Recorder mRecorder;
     private final OutputOptions mOutputOptions;
     private Consumer<VideoRecordEvent> mEventListener;
@@ -47,7 +50,11 @@ public final class PendingRecording {
 
     private boolean mAudioEnabled = false;
 
-    PendingRecording(@NonNull Recorder recorder, @NonNull OutputOptions options) {
+    PendingRecording(@NonNull Context context, @NonNull Recorder recorder,
+            @NonNull OutputOptions options) {
+        // Application context is sufficient for all our needs, so store that to avoid leaking
+        // unused resources
+        mContext = ContextUtil.getApplicationContext(context);
         mRecorder = recorder;
         mOutputOptions = options;
     }
@@ -109,10 +116,14 @@ public final class PendingRecording {
      * @return this pending recording
      * @throws IllegalStateException if the {@link Recorder} this recording is associated to
      * doesn't support audio.
+     * @throws SecurityException if the {@link Manifest.permission#RECORD_AUDIO} permission is
+     * not granted for the current process or calling IPC process.
      */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @NonNull
     public PendingRecording withAudioEnabled() {
+        // Check permission. Passing a null message will generate a default message in exception.
+        mContext.enforceCallingOrSelfPermission(Manifest.permission.RECORD_AUDIO, /*message=*/null);
         Preconditions.checkState(mRecorder.isAudioSupported(), "The Recorder this recording is "
                 + "associated to doesn't support audio.");
         mAudioEnabled = true;

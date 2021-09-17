@@ -44,7 +44,7 @@ import java.util.concurrent.Executor;
  *
  * <pre>{@code
  *
- * ActiveRecording activeRecording = recorder.prepareRecording(outputOptions)
+ * ActiveRecording activeRecording = recorder.prepareRecording(context, outputOptions)
  *     .withEventListener(ContextCompat.getMainExecutor(context), videoRecordEvent -> {
  *         if (videoRecordEvent instanceof VideoRecordEvent.Start) {
  *             // Handle the start of a new active recording
@@ -212,7 +212,8 @@ public abstract class VideoRecordEvent {
          * The recording failed due to invalid output options.
          *
          * <p>This error is generated when invalid output options have been used while preparing a
-         * recording, such as with the {@link Recorder#prepareRecording(MediaStoreOutputOptions)}
+         * recording, such as with the
+         * {@link Recorder#prepareRecording(android.content.Context, MediaStoreOutputOptions)}
          * method. The error will depend on the subclass of {@link OutputOptions} used, and more
          * information about the error can be retrieved from {@link Finalize#getCause()}.
          */
