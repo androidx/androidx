@@ -197,31 +197,3 @@ public class StartupTimingMetric : Metric() {
         return parseStartupResult(json, packageName)
     }
 }
-
-internal data class MetricsWithUiState(
-    val metrics: Map<String, Double>,
-    val timelineStart: Long? = null,
-    val timelineEnd: Long? = null
-) {
-    operator fun plus(element: MetricsWithUiState) = MetricsWithUiState(
-        metrics = metrics + element.metrics,
-        timelineStart = minOfNullable(timelineStart, element.timelineStart),
-        timelineEnd = maxOfNullable(timelineEnd, element.timelineEnd)
-    )
-
-    companion object {
-        val EMPTY = MetricsWithUiState(mapOf())
-    }
-}
-
-internal fun minOfNullable(a: Long?, b: Long?): Long? {
-    if (a == null) return b
-    if (b == null) return a
-    return minOf(a, b)
-}
-
-internal fun maxOfNullable(a: Long?, b: Long?): Long? {
-    if (a == null) return b
-    if (b == null) return a
-    return maxOf(a, b)
-}
