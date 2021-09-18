@@ -16,8 +16,8 @@
 
 package androidx.car.app.navigation.model;
 
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_MAP;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_NAVIGATION;
-import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_NAVIGATION_MAP;
 import static androidx.car.app.model.constraints.CarColorConstraints.UNCONSTRAINED;
 
 import static java.util.Objects.requireNonNull;
@@ -283,7 +283,6 @@ public final class NavigationTemplate implements Template {
         @Nullable
         PanModeDelegate mPanModeDelegate;
 
-
         /**
          * Sets the navigation information to display on the template.
          *
@@ -375,7 +374,7 @@ public final class NavigationTemplate implements Template {
         @RequiresCarApi(2)
         @NonNull
         public Builder setMapActionStrip(@NonNull ActionStrip actionStrip) {
-            ACTIONS_CONSTRAINTS_NAVIGATION_MAP.validateOrThrow(
+            ACTIONS_CONSTRAINTS_MAP.validateOrThrow(
                     requireNonNull(actionStrip).getActions());
             mMapActionStrip = actionStrip;
             return this;
