@@ -55,7 +55,7 @@ public class WindowInfoRepositoryRxTest {
     @Test
     public fun testWindowLayoutInfoObservable() {
         val feature = mock<FoldingFeature>()
-        val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
+        val expected = WindowLayoutInfo(listOf(feature))
         val mockRepo = mock<WindowInfoRepository>()
         whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
 
@@ -67,7 +67,7 @@ public class WindowInfoRepositoryRxTest {
     @Test
     public fun testWindowLayoutInfoFlowable() {
         val feature = mock<FoldingFeature>()
-        val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
+        val expected = WindowLayoutInfo(listOf(feature))
         val mockRepo = mock<WindowInfoRepository>()
         whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
 
