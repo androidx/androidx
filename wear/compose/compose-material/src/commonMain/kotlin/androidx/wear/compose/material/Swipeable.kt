@@ -39,6 +39,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.horizontalScrollAxisRange
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -553,7 +557,39 @@ fun <T> Modifier.swipeable(
         state.processNewAnchors(oldAnchors, anchors)
     }
 
-    Modifier.draggable(
+    // Swipeables publish scroll range semantics so they look like they can scroll between values
+    // of 0 and 1, inclusive, so that AndroidComposeView can report a value from its canScroll
+    // methods that correctly tells the system's ScrollDismissLayout whether it should intercept
+    // touch values (see b/199908428). This logic is *not* duplicated in the non-Wear swipeable
+    // because it's a bit of a hack to fix navigation in WearOS. Once swipeable implements proper
+    // nested scrolling, and the two swipeable implementations are merged, this fake scrolling stuff
+    // should be gone anyway. Also note that the regular Android swipe-to-go-back gesture works very
+    // differently than the wear gesture so we don't need this workaround to support it.
+    // TODO(b/201009199): Modifier.swipeable should coordinate with the nested scrolling system.
+    val semantics = if (!enabled) Modifier else Modifier.semantics {
+        // Set a fake scroll range axis so that the AndroidComposeView can correctly report whether
+        // scrolling is supported via canScroll{Horizontally,Vertically}.
+        val range = ScrollAxisRange(
+            value = value@{
+                // Avoid dividing by 0.
+                if (state.minBound == state.maxBound) return@value 0f
+                val clampedOffset = state.offset.value.coerceIn(state.minBound, state.maxBound)
+                // [0f, 1f] representing the fraction between the swipe bounds.
+                val swipeFraction =
+                    (clampedOffset - state.minBound) / (state.maxBound - state.minBound)
+                // Invert the swipe fraction.
+                1f - swipeFraction
+            },
+            maxValue = { 1f },
+            reverseScrolling = reverseDirection
+        )
+        when (orientation) {
+            Orientation.Horizontal -> horizontalScrollAxisRange = range
+            Orientation.Vertical -> verticalScrollAxisRange = range
+        }
+    }
+
+    Modifier.then(semantics).draggable(
         orientation = orientation,
         enabled = enabled,
         reverseDirection = reverseDirection,

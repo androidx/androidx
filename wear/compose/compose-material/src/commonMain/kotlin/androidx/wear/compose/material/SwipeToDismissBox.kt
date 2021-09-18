@@ -51,10 +51,6 @@ import kotlin.math.sin
  * Wear Material [SwipeToDismissBox] that handles the swipe-to-dismiss gesture. Takes a single
  * slot for the background (only displayed during the swipe gesture) and the foreground content.
  *
- * [SwipeToDismissBox] has not yet been integrated with Android's
- * default handling for swipe to dismiss on Wear applications. Until that is completed,
- * applications using [SwipeToDismissBox] must disable android:windowSwipeToDismiss.
- *
  * Example usage:
  * @sample androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
  *
