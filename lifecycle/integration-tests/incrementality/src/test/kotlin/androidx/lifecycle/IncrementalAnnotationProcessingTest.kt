@@ -66,7 +66,7 @@ class IncrementalAnnotationProcessingTest {
     private lateinit var minSdkVersion: String
     private lateinit var debugKeystore: String
     private lateinit var agpDependency: String
-    private lateinit var gradleVersion: String
+    private lateinit var gradleDistributionUrl: String
     private lateinit var supportRepo: String
 
     @Before
@@ -116,7 +116,8 @@ class IncrementalAnnotationProcessingTest {
         setupAndroidManifest()
         addSource()
 
-        projectConnection = GradleConnector.newConnector().useGradleVersion(gradleVersion)
+        projectConnection = GradleConnector.newConnector()
+            .useDistribution(File(gradleDistributionUrl).toURI())
             .forProjectDirectory(projectRoot).connect()
     }
 
@@ -389,7 +390,7 @@ class IncrementalAnnotationProcessingTest {
                 minSdkVersion = properties.getProperty("minSdkVersion")
                 debugKeystore = properties.getProperty("debugKeystore")
                 agpDependency = properties.getProperty("agpDependency")
-                gradleVersion = properties.getProperty("gradleVersion")
+                gradleDistributionUrl = properties.getProperty("gradleDistributionUrl")
                 supportRepo = properties.getProperty("localSupportRepo")
             }
     }
