@@ -267,9 +267,12 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                     )
                 }
                 endControlFlow()
-                return@map tempVal
-            }
-            addStatement("return·%T(${tempVariables.joinToString(", ") { it }})", className)
+                arg
+            }.sortedBy { it.defaultValue != null }
+            addStatement(
+                "return·%T(${tempVariables.joinToString(", ") { "__${it.sanitizedName}" }})",
+                className
+            )
         }.build()
 
         val toSavedStateHandleFunSpec = FunSpec.builder("toSavedStateHandle").apply {
@@ -328,9 +331,12 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                     )
                 }
                 endControlFlow()
-                return@map tempVal
-            }
-            addStatement("return·%T(${tempVariables.joinToString(", ") { it }})", className)
+                arg
+            }.sortedBy { it.defaultValue != null }
+            addStatement(
+                "return·%T(${tempVariables.joinToString(", ") { "__${it.sanitizedName}" }})",
+                className
+            )
         }.build()
 
         val typeSpec = TypeSpec.classBuilder(className)
