@@ -168,8 +168,8 @@ public data class MainFragmentArgs(
       } else {
         __enumArg = AccessMode.READ
       }
-      return MainFragmentArgs(__main, __optional, __reference, __referenceZeroDefaultValue,
-          __floatArg, __floatArrayArg, __objectArrayArg, __boolArg, __optionalParcelable, __enumArg)
+      return MainFragmentArgs(__main, __floatArrayArg, __objectArrayArg, __optional, __reference,
+          __referenceZeroDefaultValue, __floatArg, __boolArg, __optionalParcelable, __enumArg)
     }
 
     @JvmStatic
@@ -261,8 +261,8 @@ public data class MainFragmentArgs(
       } else {
         __enumArg = AccessMode.READ
       }
-      return MainFragmentArgs(__main, __optional, __reference, __referenceZeroDefaultValue,
-          __floatArg, __floatArrayArg, __objectArrayArg, __boolArg, __optionalParcelable, __enumArg)
+      return MainFragmentArgs(__main, __floatArrayArg, __objectArrayArg, __optional, __reference,
+          __referenceZeroDefaultValue, __floatArg, __boolArg, __optionalParcelable, __enumArg)
     }
   }
 }
