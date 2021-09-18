@@ -106,6 +106,32 @@ inline fun <reified T> XAnnotation.get(methodName: String): T {
 }
 
 /**
+ * Returns the value of the given [methodName], throwing an exception if the method is not
+ * found or if the given type [T] does not match the actual type.
+ *
+ * This uses a non-reified type and takes in a Class so it is callable by Java users.
+ *
+ * Note that non primitive types are wrapped by interfaces in order to allow them to be
+ * represented by the process:
+ * - "Class" types are represented with [XType]
+ * - Annotations are represented with [XAnnotation]
+ * - Enums are represented with [XEnumEntry]
+ *
+ * For convenience, wrapper functions are provided for these types, eg [XAnnotation.getAsType]
+ */
+fun <T> XAnnotation.get(methodName: String, clazz: Class<T>): T {
+    val argument = annotationValues.firstOrNull { it.name == methodName }
+        ?: error("No property named $methodName was found in annotation $name")
+
+    if (!clazz.isInstance(argument.value)) {
+        error("Value of $methodName of type ${argument.value?.javaClass} cannot be cast to $clazz")
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    return argument.value as T
+}
+
+/**
  * Get a representation of this [XAnnotation] as a [XAnnotationBox]. This is helpful for converting
  * to [XAnnotationBox] after getting annotations with [XAnnotated.getAllAnnotations].
  *
