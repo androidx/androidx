@@ -15,6 +15,9 @@
  */
 package androidx.window.layout
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.TESTS
+
 /**
  * Contains the list of [DisplayFeature]-s located within the window. For example, a hinge or
  * display fold can go across the window, in which case it might make sense to separate the
@@ -24,12 +27,20 @@ package androidx.window.layout
  * positions and sizes can change if the window is moved or resized on screen.
  * @see WindowInfoRepository.windowLayoutInfo
  */
-public class WindowLayoutInfo internal constructor(
+public class WindowLayoutInfo {
+
     /**
      * [displayFeatures] all the [DisplayFeature] within the window.
      */
     public val displayFeatures: List<DisplayFeature>
-) {
+
+    /**
+     * @suppress
+     */
+    @RestrictTo(TESTS)
+    public constructor(displayFeatures: List<DisplayFeature>) {
+        this.displayFeatures = displayFeatures
+    }
 
     override fun toString(): String {
         return displayFeatures.joinToString(
@@ -48,28 +59,5 @@ public class WindowLayoutInfo internal constructor(
 
     override fun hashCode(): Int {
         return displayFeatures.hashCode()
-    }
-
-    /**
-     * Builder for [WindowLayoutInfo] objects.
-     */
-    public class Builder {
-        private var displayFeatures: List<DisplayFeature> = emptyList()
-
-        /**
-         * Sets the display features for the [WindowLayoutInfo] instance.
-         */
-        public fun setDisplayFeatures(displayFeatures: List<DisplayFeature>): Builder {
-            this.displayFeatures = displayFeatures.toList()
-            return this
-        }
-
-        /**
-         * Creates a [WindowLayoutInfo] instance with the specified fields.
-         * @return A WindowLayoutInfo instance.
-         */
-        public fun build(): WindowLayoutInfo {
-            return WindowLayoutInfo(displayFeatures.toList())
-        }
     }
 }

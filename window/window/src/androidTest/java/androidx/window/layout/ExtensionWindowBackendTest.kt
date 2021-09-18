@@ -207,15 +207,10 @@ public class ExtensionWindowBackendTest : WindowTestBase() {
 
     internal companion object {
         private fun newTestWindowLayoutInfo(): WindowLayoutInfo {
-            var builder = WindowLayoutInfo.Builder()
-            val windowLayoutInfo = builder.build()
-            assertTrue(windowLayoutInfo.displayFeatures.isEmpty())
             val feature1: DisplayFeature = HardwareFoldingFeature(Bounds(0, 2, 3, 4), HINGE, FLAT)
             val feature2: DisplayFeature = HardwareFoldingFeature(Bounds(0, 1, 5, 1), HINGE, FLAT)
             val displayFeatures = listOf(feature1, feature2)
-            builder = WindowLayoutInfo.Builder()
-            builder.setDisplayFeatures(displayFeatures)
-            return builder.build()
+            return WindowLayoutInfo(displayFeatures)
         }
     }
 }

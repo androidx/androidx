@@ -182,8 +182,7 @@ public class ExtensionWindowBackendUnitTest {
 
     private companion object {
         private fun newTestWindowLayoutInfo(): WindowLayoutInfo {
-            val builder = WindowLayoutInfo.Builder()
-            return builder.build()
+            return WindowLayoutInfo(emptyList())
         }
     }
 }

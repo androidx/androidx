@@ -70,8 +70,7 @@ class FoldTest {
         with(ActivityScenario.launch(TestActivity::class.java)) {
             withActivity {
                 val testFeature = FoldingFeature(activity = this, orientation = VERTICAL)
-                val info = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(testFeature))
-                    .build()
+                val info = WindowLayoutInfo(listOf(testFeature))
                 rule.overrideWindowLayoutInfo(info)
                 testFeature.bounds
             }
@@ -114,7 +113,7 @@ class FoldTest {
         with(ActivityScenario.launch(TestActivity::class.java)) {
             withActivity {
                 val feature = FoldingFeature(activity = this, orientation = VERTICAL)
-                val info = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
+                val info = WindowLayoutInfo(listOf(feature))
                 rule.overrideWindowLayoutInfo(info)
                 WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this).bounds
             }
@@ -144,9 +143,8 @@ class FoldTest {
                     state = FLAT,
                     orientation = VERTICAL
                 )
-                val halfOpenInfo = WindowLayoutInfo.Builder()
-                    .setDisplayFeatures(listOf(halfOpenFeature)).build()
-                val flatInfo = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(flat)).build()
+                val halfOpenInfo = WindowLayoutInfo(listOf(halfOpenFeature))
+                val flatInfo = WindowLayoutInfo(listOf(flat))
                 rule.overrideWindowLayoutInfo(halfOpenInfo)
                 rule.overrideWindowLayoutInfo(flatInfo)
             }

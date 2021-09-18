@@ -85,7 +85,7 @@ public class WindowInfoRepositoryCallbackAdapterTest {
     @Test
     public fun testRegisterListener() {
         val feature = mock<FoldingFeature>()
-        val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
+        val expected = WindowLayoutInfo(listOf(feature))
         val mockRepo = mock<WindowInfoRepository>()
         whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
         val unitUnderTest = WindowInfoRepositoryCallbackAdapter(mockRepo)
@@ -99,7 +99,7 @@ public class WindowInfoRepositoryCallbackAdapterTest {
     @Test
     public fun testWindowLayoutInfo_registerMultipleIsNoOp() {
         val feature = mock<FoldingFeature>()
-        val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
+        val expected = WindowLayoutInfo(listOf(feature))
         val mockRepo = mock<WindowInfoRepository>()
         whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
         val unitUnderTest = WindowInfoRepositoryCallbackAdapter(mockRepo)
@@ -114,7 +114,7 @@ public class WindowInfoRepositoryCallbackAdapterTest {
     @Test
     public fun testWindowLayoutInfo_unregister() {
         val feature = mock<FoldingFeature>()
-        val info = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
+        val info = WindowLayoutInfo(listOf(feature))
         val mockRepo = mock<WindowInfoRepository>()
         val channel = Channel<WindowLayoutInfo>()
         whenever(mockRepo.windowLayoutInfo).thenReturn(channel.receiveAsFlow())
