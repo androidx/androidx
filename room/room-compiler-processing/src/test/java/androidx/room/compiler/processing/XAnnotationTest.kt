@@ -838,6 +838,32 @@ class XAnnotationTest(
         }
     }
 
+    @Test
+    fun readPrimitiveAnnotationValueUsingClass() {
+        val source = Source.java(
+            "foo.bar.Baz",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.JavaAnnotationWithDefaults;
+            @JavaAnnotationWithDefaults(stringVal = "test")
+            public class Baz {
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(source)
+        ) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
+            val annotation =
+                element.requireAnnotation(ClassName.get(JavaAnnotationWithDefaults::class.java))
+
+            // Even though not necessary for calling from Kotlin, use the version that passes
+            // in a Class to test it.
+            assertThat(annotation.get("stringVal", String::class.java)).isEqualTo("test")
+            assertThat(annotation.get("intVal", Int::class.javaObjectType)).isEqualTo(3)
+        }
+    }
+
     // helper function to read what we need
     private fun XAnnotated.getSuppressValues(): List<String>? {
         return this.findAnnotation<TestSuppressWarnings>()
