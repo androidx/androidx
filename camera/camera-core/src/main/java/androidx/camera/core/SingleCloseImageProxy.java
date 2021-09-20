@@ -17,8 +17,10 @@
 package androidx.camera.core;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.RequiresApi;
 
 /** A {@link ImageProxy} which filters out redundant calls to {@link #close()}. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class SingleCloseImageProxy extends ForwardingImageProxy {
     @GuardedBy("this")
     private boolean mClosed = false;

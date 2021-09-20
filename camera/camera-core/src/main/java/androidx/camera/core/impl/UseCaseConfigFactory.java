@@ -20,11 +20,13 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.InitializationException;
 
 /**
  * A Repository for generating use case configurations.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface UseCaseConfigFactory {
 
     enum CaptureType {

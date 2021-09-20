@@ -17,12 +17,14 @@
 package androidx.camera.core;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /** The camera flash torch state. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class TorchState {
     /** Torch is off. */
     public static final int OFF = 0;

@@ -19,6 +19,7 @@ package androidx.camera.core.internal.compat.quirk;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Quirk;
@@ -35,6 +36,7 @@ import androidx.camera.core.impl.Quirk;
  * calculate the rotation value according to the target rotation setting for the final output
  * image. See: b/171492111.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ImageCaptureRotationOptionQuirk implements Quirk {
 
     static boolean load() {

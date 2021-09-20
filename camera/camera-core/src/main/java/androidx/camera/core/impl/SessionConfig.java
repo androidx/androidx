@@ -23,6 +23,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.internal.compat.workaround.SurfaceSorter;
 
@@ -41,6 +42,7 @@ import java.util.Set;
  * required to initialize a {@link android.hardware.camera2.CameraCaptureSession} and issue a {@link
  * CaptureRequest}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SessionConfig {
 
     /** The set of {@link Surface} that data from the camera will be put into. */

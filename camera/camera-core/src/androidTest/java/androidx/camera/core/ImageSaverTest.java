@@ -48,6 +48,7 @@ import androidx.exifinterface.media.ExifInterface;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -76,6 +77,7 @@ import java.util.concurrent.Semaphore;
  */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class ImageSaverTest {
 
     private static final int WIDTH = 160;

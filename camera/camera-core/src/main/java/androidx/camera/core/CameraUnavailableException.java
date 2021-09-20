@@ -20,6 +20,7 @@ import android.app.NotificationManager;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -29,6 +30,7 @@ import java.lang.annotation.RetentionPolicy;
  * {@code CameraUnavailableException} is thrown when a camera device could not be queried or opened
  * or if the connection to an opened camera device is no longer valid.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CameraUnavailableException extends Exception {
 
     /**

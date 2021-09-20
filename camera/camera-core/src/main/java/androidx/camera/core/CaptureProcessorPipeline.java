@@ -22,6 +22,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.ImageProxyBundle;
 import androidx.camera.core.impl.ImageReaderProxy;
@@ -38,6 +39,7 @@ import java.util.concurrent.Executor;
 /**
  * A CaptureProcessor which can link two CaptureProcessors.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CaptureProcessorPipeline implements CaptureProcessor {
     private final CaptureProcessor mPreCaptureProcessor;
     private final CaptureProcessor mPostCaptureProcessor;

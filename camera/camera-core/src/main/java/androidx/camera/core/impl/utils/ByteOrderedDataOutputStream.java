@@ -16,6 +16,8 @@
 
 package androidx.camera.core.impl.utils;
 
+import androidx.annotation.RequiresApi;
+
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,6 +28,7 @@ import java.nio.ByteOrder;
  * order.
  */
 // Note: This class is adapted from {@link androidx.exifinterface.media.ExifInterface}
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ByteOrderedDataOutputStream extends FilterOutputStream {
     final OutputStream mOutputStream;
     private ByteOrder mByteOrder;

@@ -22,11 +22,13 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.ImageReaderProxy;
 
 import java.nio.ByteBuffer;
 
 /** Utility class to convert an {@link Image} from YUV to RGB. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class ImageProcessingUtil {
 
     private static final String TAG = "ImageProcessingUtil";

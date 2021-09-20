@@ -48,6 +48,7 @@ import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
@@ -76,6 +77,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class ImageCaptureTest {
     private CameraUseCaseAdapter mCameraUseCaseAdapter;
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();

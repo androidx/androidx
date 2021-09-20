@@ -19,6 +19,7 @@ package androidx.camera.core.impl;
 import android.media.CamcorderProfile;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
 
@@ -26,6 +27,7 @@ import com.google.auto.value.AutoValue;
  * CamcorderProfileProxy defines the get methods that is mapping to the fields of
  * {@link CamcorderProfile}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class CamcorderProfileProxy {
 

@@ -16,10 +16,13 @@
 
 package androidx.camera.core.impl;
 
+import androidx.annotation.RequiresApi;
+
 /**
  * This class used to constant values corresponding to the internal defined image format value used
  * in StreamConfigurationMap.java.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ImageFormatConstants {
     // Internal format in StreamConfigurationMap.java that will be mapped to public ImageFormat.JPEG
     public static final int INTERNAL_DEFINED_IMAGE_FORMAT_JPEG = 0x21;

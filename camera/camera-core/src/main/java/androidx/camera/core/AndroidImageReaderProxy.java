@@ -23,6 +23,7 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
 
@@ -34,6 +35,7 @@ import java.util.concurrent.Executor;
  * <p>All methods map one-to-one between this {@link ImageReaderProxy} and the wrapped {@link
  * ImageReader}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class AndroidImageReaderProxy implements ImageReaderProxy {
     @GuardedBy("this")
     private final ImageReader mImageReader;

@@ -20,6 +20,7 @@ import android.graphics.ImageFormat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.CaptureMode;
@@ -31,6 +32,7 @@ import java.util.concurrent.Executor;
 /**
  * Configuration for an image capture use case.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, ImageOutputConfig,
         IoConfig {
 

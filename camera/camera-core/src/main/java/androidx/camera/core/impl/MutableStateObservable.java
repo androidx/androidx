@@ -18,12 +18,14 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * A {@link StateObservable} whose state can be set.
  *
  * @param <T> The state type.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MutableStateObservable<T> extends StateObservable<T> {
 
     private MutableStateObservable(@Nullable Object initialState, boolean isError) {

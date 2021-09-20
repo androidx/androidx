@@ -19,6 +19,7 @@ package androidx.camera.core.impl
 import androidx.camera.testing.asFlow
 import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
@@ -34,6 +35,7 @@ private val TEST_ERROR = TestError("TEST")
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 public class LiveDataObservableTest {
 
     @Test

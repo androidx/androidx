@@ -21,11 +21,13 @@ import android.os.Build
 import androidx.camera.core.impl.CameraCaptureMetaData
 import androidx.exifinterface.media.ExifInterface
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import java.io.File
 
 @LargeTest
+@SdkSuppress(minSdkVersion = 21)
 public class ExifOutputStreamTest {
 
     @Test
