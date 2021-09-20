@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.plusAssign
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 
 /**
@@ -30,7 +29,5 @@ import androidx.wear.compose.material.ExperimentalWearMaterialApi
 @Composable
 @ExperimentalWearMaterialApi
 public fun rememberSwipeDismissableNavController(): NavHostController {
-    return rememberNavController().apply {
-        navigatorProvider += remember(this) { WearNavigator() }
-    }
+    return rememberNavController(remember { WearNavigator() })
 }
