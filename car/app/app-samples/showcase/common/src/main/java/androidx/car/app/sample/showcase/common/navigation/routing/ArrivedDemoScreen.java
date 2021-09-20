@@ -45,7 +45,7 @@ public final class ArrivedDemoScreen extends Screen implements DefaultLifecycleO
                                         new CarIcon.Builder(
                                                 IconCompat.createWithResource(
                                                         getCarContext(),
-                                                        R.drawable.ic_local_gas_station_white_48dp))
+                                                        R.drawable.ic_place_white_24dp))
                                                 .build())
                                 .build())
                 .setActionStrip(RoutingDemoModels.getActionStrip(getCarContext(), this::finish))
