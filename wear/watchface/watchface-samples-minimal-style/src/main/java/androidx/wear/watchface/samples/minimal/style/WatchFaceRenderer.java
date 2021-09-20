@@ -21,32 +21,34 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Rect;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.SurfaceHolder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Px;
+import androidx.annotation.UiThread;
+import androidx.lifecycle.FlowLiveDataConversions;
 import androidx.wear.watchface.CanvasType;
 import androidx.wear.watchface.DrawMode;
+import androidx.wear.watchface.ListenableCanvasRenderer;
 import androidx.wear.watchface.RenderParameters;
-import androidx.wear.watchface.Renderer;
-import androidx.wear.watchface.StateFlowCompatHelper;
 import androidx.wear.watchface.WatchState;
 import androidx.wear.watchface.style.CurrentUserStyleRepository;
-import androidx.wear.watchface.style.UserStyle;
+
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.time.ZonedDateTime;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+
+import kotlin.Unit;
 
 /**
  * Minimal rendered for the watch face, using canvas to render hours, minutes, and a blinking
  * separator.
  */
-public class WatchFaceRenderer extends Renderer.CanvasRenderer {
+public class WatchFaceRenderer extends ListenableCanvasRenderer {
 
     private static final long UPDATE_DELAY_MILLIS = TimeUnit.SECONDS.toMillis(1);
     private static final char[] DIGITS = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
@@ -54,17 +56,10 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
     private final TimeRenderer mMinimalRenderer;
     private final TimeRenderer mSecondsRenderer;
     private final Paint mHighlightPaint;
+    private final CurrentUserStyleRepository mCurrentUserStyleRepository;
+    private final TimeStyle mTimeStyle;
 
     private TimeRenderer mTimeRenderer;
-
-    private final Executor mMainThreadExecutor = new Executor() {
-        final Handler mHandler = new Handler(Looper.getMainLooper());
-
-        @Override
-        public void execute(Runnable command) {
-            mHandler.post(command);
-        }
-    };
 
     public WatchFaceRenderer(
             @NotNull SurfaceHolder surfaceHolder,
@@ -73,15 +68,23 @@ public class WatchFaceRenderer extends Renderer.CanvasRenderer {
             @NotNull TimeStyle timeStyle) {
         super(surfaceHolder, currentUserStyleRepository, watchState, CanvasType.HARDWARE,
                 UPDATE_DELAY_MILLIS);
-        StateFlowCompatHelper<UserStyle> userStyleStateFlowCompatHelper =
-                new StateFlowCompatHelper<>(currentUserStyleRepository.getUserStyle());
-        userStyleStateFlowCompatHelper.addValueChangeListener(
-                userStyle -> updateTimeStyle(timeStyle.get(userStyle)),
-                mMainThreadExecutor);
         mMinimalRenderer = new MinimalRenderer(watchState);
         mSecondsRenderer = new SecondsRenderer(watchState);
         mHighlightPaint = new Paint();
+        mCurrentUserStyleRepository = currentUserStyleRepository;
+        mTimeStyle = timeStyle;
         updateTimeStyle(timeStyle.get(currentUserStyleRepository.getUserStyle().getValue()));
+    }
+
+    @UiThread
+    @NonNull
+    @Override
+    public ListenableFuture<Unit> initFuture() {
+        // observeForever has to be called from the UI thread but the WatchFaceRenderer is called
+        // from a background thread.
+        FlowLiveDataConversions.asLiveData(mCurrentUserStyleRepository.getUserStyle())
+                .observeForever(userStyle -> updateTimeStyle(mTimeStyle.get(userStyle)));
+        return Futures.immediateFuture(Unit.INSTANCE);
     }
 
     @Override
