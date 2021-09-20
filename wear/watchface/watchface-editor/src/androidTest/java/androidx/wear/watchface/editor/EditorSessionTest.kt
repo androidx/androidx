@@ -100,6 +100,7 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlin.test.assertFailsWith
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -114,6 +115,7 @@ import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.mock
+import java.lang.IllegalArgumentException
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
@@ -2178,6 +2180,39 @@ public class EditorSessionTest {
         assertThat(
             EditorRequest.canWatchFaceSupportHeadlessEditing(mockPackageManager, "test.package")
         ).isFalse()
+    }
+
+    @Test
+    public fun cantAssignUnrelatedUserStyle() {
+        val redOption = ListOption(Option.Id("red"), "Red", icon = null)
+        val greenOption = ListOption(Option.Id("green"), "Green", icon = null)
+        val colorStyleList = listOf(redOption, greenOption)
+        val watchColorSetting = UserStyleSetting.ListUserStyleSetting(
+            UserStyleSetting.Id("color_id"),
+            "Color",
+            "Watch face color", /* icon = */
+            null,
+            colorStyleList,
+            listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
+        )
+
+        val scenario = createOnWatchFaceEditingTestActivity(
+            listOf(colorStyleSetting, watchHandStyleSetting),
+            listOf(leftComplication, rightComplication)
+        )
+
+        scenario.onActivity { activity ->
+            try {
+                // Trying to set an unrelated UserStyle should fail.
+                assertFailsWith<IllegalArgumentException> {
+                    activity.editorSession.userStyle.value =
+                        UserStyle(mapOf(watchColorSetting to greenOption))
+                }
+            } finally {
+                activity.editorSession.close()
+                activity.finish()
+            }
+        }
     }
 }
 
