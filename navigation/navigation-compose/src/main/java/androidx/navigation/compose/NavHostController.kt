@@ -29,7 +29,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.Navigator
 
 /**
  * Gets the current navigation back stack entry as a [MutableState]. When the given navController
@@ -58,16 +60,24 @@ public fun NavController.currentBackStackEntryAsState(): State<NavBackStackEntry
 
 /**
  * Creates a NavHostController that handles the adding of the [ComposeNavigator] and
- * [DialogNavigator]. Additional [androidx.navigation.Navigator] instances should be added
- * in a [androidx.compose.runtime.SideEffect] block.
+ * [DialogNavigator]. Additional [Navigator] instances can be passed through [navigators] to
+ * be applied to the returned NavController. Note that each [Navigator] must be separately
+ * remembered before being passed in here: any changes to those inputs will cause the
+ * NavController to be recreated.
  *
  * @see NavHost
  */
 @Composable
-public fun rememberNavController(): NavHostController {
+public fun rememberNavController(
+    vararg navigators: Navigator<out NavDestination>
+): NavHostController {
     val context = LocalContext.current
-    return rememberSaveable(saver = NavControllerSaver(context)) {
+    return rememberSaveable(inputs = navigators, saver = NavControllerSaver(context)) {
         createNavController(context)
+    }.apply {
+        for (navigator in navigators) {
+            navigatorProvider.addNavigator(navigator)
+        }
     }
 }
 
