@@ -57,7 +57,22 @@ abstract class JavacBasicAnnotationProcessor :
     ): Boolean {
         val xRoundEnv = JavacRoundEnv(xEnv, roundEnv)
         if (roundEnv.processingOver()) {
-            steps.forEach { it.processOver(xEnv) }
+            steps.forEach { step ->
+                val elementsByAnnotation = step.annotations().mapNotNull { annotation ->
+                    val annotatedElements = xRoundEnv.getElementsAnnotatedWith(annotation) +
+                        getStepDeferredElementsAnnotatedWith(
+                            elementsDeferredBySteps,
+                            step,
+                            annotation
+                        )
+                    if (annotatedElements.isNotEmpty()) {
+                        annotation to annotatedElements
+                    } else {
+                        null
+                    }
+                }.toMap()
+                step.processOver(xEnv, elementsByAnnotation)
+            }
             postRound(xEnv, xRoundEnv)
             if (!roundEnv.errorRaised()) {
                 // Report missing elements if no error was raised to avoid being noisy.
@@ -76,9 +91,6 @@ abstract class JavacBasicAnnotationProcessor :
         val currentElementsDeferredBySteps = steps.associateWith { step ->
             val deferredElements = mutableSetOf<XElement>()
             val elementsByAnnotation = step.annotations().mapNotNull { annotation ->
-                if (annotation == "*") {
-                    return@mapNotNull null
-                }
                 val annotatedElements = xRoundEnv.getElementsAnnotatedWith(annotation) +
                     getStepDeferredElementsAnnotatedWith(elementsDeferredBySteps, step, annotation)
                 val (validElements, invalidElements) = annotatedElements.partition {

@@ -36,9 +36,12 @@ interface XProcessingStep {
     /**
      * An optional hook for logic to be executed in the last round of processing.
      *
+     * Unlike [process], the elements in [elementsByAnnotation] are not validated and are those
+     * that have been kept being deferred.
+     *
      * @see [XRoundEnv.isProcessingOver]
      */
-    fun processOver(env: XProcessingEnv) { }
+    fun processOver(env: XProcessingEnv, elementsByAnnotation: Map<String, Set<XElement>>) { }
 
     /**
      * The set of annotation qualified names processed by this step.

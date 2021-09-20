@@ -705,7 +705,10 @@ class XProcessingStepTest {
                 return deferredElements
             }
 
-            override fun processOver(env: XProcessingEnv) {
+            override fun processOver(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ) {
                 invokedProcessOver++
             }
         }
@@ -972,7 +975,10 @@ class XProcessingStepTest {
                 return deferredElements
             }
 
-            override fun processOver(env: XProcessingEnv) {
+            override fun processOver(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ) {
                 invokedProcessOver++
             }
         }

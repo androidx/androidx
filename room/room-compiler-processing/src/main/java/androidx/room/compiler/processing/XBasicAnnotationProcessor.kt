@@ -52,6 +52,9 @@ interface XBasicAnnotationProcessor {
             step: XProcessingStep,
             annotationQualifiedName: String
         ): Set<XElement> {
+            if (annotationQualifiedName == "*") {
+                return emptySet()
+            }
             val className = xProcessingEnv.requireTypeElement(annotationQualifiedName).className
             return elementsDeferredBySteps.getValue(step)
                 .filter { it.hasAnnotation(className) }

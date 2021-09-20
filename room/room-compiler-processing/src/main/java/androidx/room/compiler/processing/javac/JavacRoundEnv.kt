@@ -44,6 +44,10 @@ internal class JavacRoundEnv(
     }
 
     override fun getElementsAnnotatedWith(annotationQualifiedName: String): Set<XElement> {
+        if (annotationQualifiedName == "*") {
+            return emptySet()
+        }
+
         val element = env.elementUtils.getTypeElement(annotationQualifiedName)
             ?: error("Cannot find TypeElement: $annotationQualifiedName")
 
