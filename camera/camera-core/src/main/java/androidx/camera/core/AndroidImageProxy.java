@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.media.Image;
 
@@ -57,7 +58,11 @@ final class AndroidImageProxy implements ImageProxy {
             mPlanes = new PlaneProxy[0];
         }
 
-        mImageInfo = ImmutableImageInfo.create(TagBundle.emptyBundle(), image.getTimestamp(), 0);
+        mImageInfo = ImmutableImageInfo.create(
+                TagBundle.emptyBundle(),
+                image.getTimestamp(),
+                0,
+                new Matrix());
     }
 
     @Override

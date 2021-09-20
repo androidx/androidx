@@ -21,6 +21,7 @@ import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_IMAGE_QUEUE_D
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_IMAGE_READER_PROXY_PROVIDER;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_ONE_PIXEL_SHIFT_ENABLED;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_FORMAT;
+import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_ROTATION_ENABLED;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
@@ -38,7 +39,9 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_USE_CASE_EVENT_CALL
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.media.CamcorderProfile;
 import android.media.ImageReader;
 import android.util.Pair;
@@ -180,6 +183,8 @@ public final class ImageAnalysis extends UseCase {
     private static final int DEFAULT_OUTPUT_IMAGE_FORMAT = OUTPUT_IMAGE_FORMAT_YUV_420_888;
     // One pixel shift for YUV.
     private static final Boolean DEFAULT_ONE_PIXEL_SHIFT_ENABLED = null;
+    // Default to disabled for rotation.
+    private static final boolean DEFAULT_OUTPUT_IMAGE_ROTATION_ENABLED = false;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ImageAnalysisAbstractAnalyzer mImageAnalysisAbstractAnalyzer;
@@ -220,6 +225,8 @@ public final class ImageAnalysis extends UseCase {
                     config.getBackgroundExecutor(CameraXExecutors.highPriorityExecutor()));
         }
         mImageAnalysisAbstractAnalyzer.setOutputImageFormat(getOutputImageFormat());
+        mImageAnalysisAbstractAnalyzer.setOutputImageRotationEnabled(
+                isOutputImageRotationEnabled());
     }
 
     /**
@@ -272,20 +279,31 @@ public final class ImageAnalysis extends UseCase {
                             imageQueueDepth));
         }
 
+        boolean flipWH = getCamera() != null ? isFlipWH(getCamera()) : false;
+        int width = flipWH ? resolution.getHeight() : resolution.getWidth();
+        int height = flipWH ? resolution.getWidth() : resolution.getHeight();
+        int format = getOutputImageFormat() == OUTPUT_IMAGE_FORMAT_RGBA_8888
+                ? PixelFormat.RGBA_8888 : ImageFormat.YUV_420_888;
+
+        boolean isYuv2Rgb = getImageFormat() == ImageFormat.YUV_420_888
+                && getOutputImageFormat() == OUTPUT_IMAGE_FORMAT_RGBA_8888;
+        boolean isYuvRotationOrPixelShift = getImageFormat() == ImageFormat.YUV_420_888
+                && ((getCamera() != null && getRelativeRotation(getCamera()) != 0)
+                || Boolean.TRUE.equals(getOnePixelShiftEnabled()));
+
         // TODO(b/195021586): to support RGB format input for image analysis for devices already
         // supporting RGB natively. The logic here will check if the specific configured size is
         // available in RGB and if not, fall back to YUV-RGB conversion.
-        final SafeCloseImageReaderProxy rgbImageReaderProxy =
-                (getImageFormat() == ImageFormat.YUV_420_888
-                        && getOutputImageFormat() == OUTPUT_IMAGE_FORMAT_RGBA_8888)
+        final SafeCloseImageReaderProxy processedImageReaderProxy =
+                (isYuv2Rgb || isYuvRotationOrPixelShift)
                         ? new SafeCloseImageReaderProxy(
                                 ImageReaderProxys.createIsolatedReader(
-                                        resolution.getWidth(),
-                                        resolution.getHeight(),
-                                        PixelFormat.RGBA_8888,
+                                        width,
+                                        height,
+                                        format,
                                         imageReaderProxy.getMaxImages())) : null;
-        if (rgbImageReaderProxy != null) {
-            mImageAnalysisAbstractAnalyzer.setRGBImageReaderProxy(rgbImageReaderProxy);
+        if (processedImageReaderProxy != null) {
+            mImageAnalysisAbstractAnalyzer.setProcessedImageReaderProxy(processedImageReaderProxy);
         }
 
         tryUpdateRelativeRotation();
@@ -303,8 +321,8 @@ public final class ImageAnalysis extends UseCase {
         mDeferrableSurface.getTerminationFuture().addListener(
                 () -> {
                     imageReaderProxy.safeClose();
-                    if (rgbImageReaderProxy != null) {
-                        rgbImageReaderProxy.safeClose();
+                    if (processedImageReaderProxy != null) {
+                        processedImageReaderProxy.safeClose();
                     }
                 },
                 CameraXExecutors.mainThreadExecutor());
@@ -442,17 +460,40 @@ public final class ImageAnalysis extends UseCase {
      */
     public void setAnalyzer(@NonNull Executor executor, @NonNull Analyzer analyzer) {
         synchronized (mAnalysisLock) {
-            mImageAnalysisAbstractAnalyzer.setAnalyzer(executor, image -> {
-                if (getViewPortCropRect() != null) {
-                    image.setCropRect(getViewPortCropRect());
-                }
-                analyzer.analyze(image);
-            });
+            mImageAnalysisAbstractAnalyzer.setAnalyzer(executor, image -> analyzer.analyze(image));
             if (mSubscribedAnalyzer == null) {
                 notifyActive();
             }
             mSubscribedAnalyzer = analyzer;
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public void setViewPortCropRect(@NonNull Rect viewPortCropRect) {
+        super.setViewPortCropRect(viewPortCropRect);
+        mImageAnalysisAbstractAnalyzer.setViewPortCropRect(viewPortCropRect);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public void setSensorToBufferTransformMatrix(@NonNull Matrix matrix) {
+        mImageAnalysisAbstractAnalyzer.setSensorToBufferTransformMatrix(matrix);
+    }
+
+    private boolean isFlipWH(@NonNull CameraInternal cameraInternal) {
+        return isOutputImageRotationEnabled()
+                ? ((getRelativeRotation(cameraInternal) % 180) != 0) : false;
     }
 
     /**
@@ -501,11 +542,23 @@ public final class ImageAnalysis extends UseCase {
      * {@link ImageAnalysis#OUTPUT_IMAGE_FORMAT_RGBA_8888}.
      *
      * @return output image format.
+     * @see ImageAnalysis.Builder#setOutputImageFormat(int)
      */
     @ImageAnalysis.OutputImageFormat
     public int getOutputImageFormat() {
         return ((ImageAnalysisConfig) getCurrentConfig()).getOutputImageFormat(
                 DEFAULT_OUTPUT_IMAGE_FORMAT);
+    }
+
+    /**
+     * Checks if output image rotation is enabled. It returns false by default.
+     *
+     * @return true if enabled, false otherwise.
+     * @see ImageAnalysis.Builder#setOutputImageRotationEnabled(boolean)
+     */
+    public boolean isOutputImageRotationEnabled() {
+        return ((ImageAnalysisConfig) getCurrentConfig()).isOutputImageRotationEnabled(
+                DEFAULT_OUTPUT_IMAGE_ROTATION_ENABLED);
     }
 
     /**
@@ -872,6 +925,32 @@ public final class ImageAnalysis extends UseCase {
         @NonNull
         public Builder setOutputImageFormat(@OutputImageFormat int outputImageFormat) {
             getMutableConfig().insertOption(OPTION_OUTPUT_IMAGE_FORMAT, outputImageFormat);
+            return this;
+        }
+
+        /**
+         * Enable or disable output image rotation.
+         *
+         * <p>{@link ImageAnalysis#setTargetRotation(int)} is to adjust the rotation
+         * degree information returned by {@link ImageInfo#getRotationDegrees()} based on
+         * sensor rotation and user still needs to rotate the output image to achieve the target
+         * rotation. Once this is enabled, user doesn't need to handle the rotation, the output
+         * image will be a rotated {@link ImageProxy} and {@link ImageInfo#getRotationDegrees()}
+         * will return 0.
+         *
+         * <p>Turning this on will add more processing overhead to every image analysis
+         * frame. The average processing time is about 10-15ms for 640x480 image on a mid-range
+         * device.
+         *
+         * By default, the rotation is disabled.
+         *
+         * @param outputImageRotationEnabled flag to enable or disable.
+         * @return The current Builder.
+         */
+        @NonNull
+        public Builder setOutputImageRotationEnabled(boolean outputImageRotationEnabled) {
+            getMutableConfig().insertOption(OPTION_OUTPUT_IMAGE_ROTATION_ENABLED,
+                    outputImageRotationEnabled);
             return this;
         }
 

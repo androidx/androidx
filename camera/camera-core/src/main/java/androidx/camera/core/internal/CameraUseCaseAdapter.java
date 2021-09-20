@@ -16,7 +16,9 @@
 
 package androidx.camera.core.internal;
 
+import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.util.Size;
 import android.view.Surface;
@@ -439,9 +441,30 @@ public final class CameraUseCaseAdapter implements Camera {
                 for (UseCase useCase : useCases) {
                     useCase.setViewPortCropRect(
                             Preconditions.checkNotNull(cropRectMap.get(useCase)));
+                    useCase.setSensorToBufferTransformMatrix(
+                            calculateSensorToBufferTransformMatrix(
+                                    mCameraInternal.getCameraControlInternal().getSensorRect(),
+                                    suggestedResolutionsMap.get(useCase)));
                 }
             }
         }
+    }
+
+    @NonNull
+    private static Matrix calculateSensorToBufferTransformMatrix(
+            @NonNull Rect fullSensorRect,
+            @NonNull Size useCaseSize) {
+        Preconditions.checkArgument(
+                fullSensorRect.width() > 0 && fullSensorRect.height() > 0,
+                "Cannot compute viewport crop rects zero sized sensor rect.");
+        RectF fullSensorRectF = new RectF(fullSensorRect);
+        Matrix sensorToUseCaseTransformation = new Matrix();
+        RectF srcRect = new RectF(0, 0, useCaseSize.getWidth(),
+                useCaseSize.getHeight());
+        sensorToUseCaseTransformation.setRectToRect(srcRect, fullSensorRectF,
+                Matrix.ScaleToFit.CENTER);
+        sensorToUseCaseTransformation.invert(sensorToUseCaseTransformation);
+        return sensorToUseCaseTransformation;
     }
 
     // Pair of UseCase configs. One for the extended config applied on top of the use case and

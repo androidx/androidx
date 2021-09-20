@@ -46,6 +46,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.location.Location;
 import android.media.Image;
@@ -341,6 +342,8 @@ public final class ImageCapture extends UseCase {
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     final Executor mSequentialIoExecutor;
+
+    private Matrix mSensorToBufferTransformMatrix = new Matrix();
 
     /**
      * Creates a new image capture use case from the given configuration.
@@ -840,6 +843,11 @@ public final class ImageCapture extends UseCase {
         return super.getResolutionInfo();
     }
 
+    @Override
+    public void setSensorToBufferTransformMatrix(@NonNull Matrix sensorToBufferTransformMatrix) {
+        mSensorToBufferTransformMatrix = sensorToBufferTransformMatrix;
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -1085,7 +1093,7 @@ public final class ImageCapture extends UseCase {
 
         mImageCaptureRequestProcessor.sendRequest(new ImageCaptureRequest(
                 getRelativeRotation(attachedCamera), jpegQuality, mCropAspectRatio,
-                getViewPortCropRect(), callbackExecutor, callback));
+                getViewPortCropRect(), mSensorToBufferTransformMatrix, callbackExecutor, callback));
     }
 
     private void lockFlashMode() {
@@ -2436,6 +2444,9 @@ public final class ImageCapture extends UseCase {
 
         private final Rect mViewPortCropRect;
 
+        @NonNull
+        private final Matrix mSensorToBufferTransformMatrix;
+
         /**
          * @param rotationDegrees The degrees to rotate the image buffer from sensor
          *                        coordinates into the final output coordinate space.
@@ -2448,6 +2459,7 @@ public final class ImageCapture extends UseCase {
                 @IntRange(from = 1, to = 100) int jpegQuality,
                 Rational targetRatio,
                 @Nullable Rect viewPortCropRect,
+                @NonNull Matrix sensorToBufferTransformMatrix,
                 @NonNull Executor executor,
                 @NonNull OnImageCapturedCallback callback) {
             mRotationDegrees = rotationDegrees;
@@ -2459,6 +2471,7 @@ public final class ImageCapture extends UseCase {
             }
             mTargetRatio = targetRatio;
             mViewPortCropRect = viewPortCropRect;
+            mSensorToBufferTransformMatrix = sensorToBufferTransformMatrix;
             mListenerExecutor = executor;
             mCallback = callback;
         }
@@ -2505,7 +2518,9 @@ public final class ImageCapture extends UseCase {
             // Construct the ImageProxy with the updated rotation & crop for the output
             ImageInfo imageInfo = ImmutableImageInfo.create(
                     image.getImageInfo().getTagBundle(),
-                    image.getImageInfo().getTimestamp(), dispatchRotationDegrees);
+                    image.getImageInfo().getTimestamp(),
+                    dispatchRotationDegrees,
+                    mSensorToBufferTransformMatrix);
 
             final ImageProxy dispatchedImageProxy = new SettableImageProxy(image,
                     dispatchResolution, imageInfo);

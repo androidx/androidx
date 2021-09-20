@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import android.annotation.SuppressLint;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.media.ImageReader;
 import android.util.Size;
@@ -677,6 +678,14 @@ public abstract class UseCase {
     public Rect getViewPortCropRect() {
         return mViewPortCropRect;
     }
+
+    /**
+     * Sets the sensor to image buffer transform matrix.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void setSensorToBufferTransformMatrix(@NonNull Matrix sensorToBufferTransformMatrix) {}
 
     /**
      * Get image format for the use case.

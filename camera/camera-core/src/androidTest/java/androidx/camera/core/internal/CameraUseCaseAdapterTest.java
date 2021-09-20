@@ -25,6 +25,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.util.Rational;
 import android.view.Surface;
 
@@ -276,6 +278,25 @@ public class CameraUseCaseAdapterTest {
         assertThat(fakeUseCase.getViewPortCropRect()).isNotNull();
         assertThat(new Rational(fakeUseCase.getViewPortCropRect().width(),
                 fakeUseCase.getViewPortCropRect().height())).isEqualTo(aspectRatio2);
+    }
+
+    @Test
+    @MediumTest
+    public void addExistingUseCase_setSensorToBufferMatrix()
+            throws CameraUseCaseAdapter.CameraException {
+        Rational aspectRatio = new Rational(1, 1);
+
+        // Arrange: set up adapter with aspect ratio 1.
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+        cameraUseCaseAdapter.setViewPort(
+                new ViewPort.Builder(aspectRatio, Surface.ROTATION_0).build());
+        FakeUseCase fakeUseCase = spy(new FakeUseCase());
+        cameraUseCaseAdapter.addUseCases(Collections.singleton(fakeUseCase));
+
+        verify(fakeUseCase).setViewPortCropRect(new Rect(504, 0, 3528, 3024));
+        verify(fakeUseCase).setSensorToBufferTransformMatrix(new Matrix());
     }
 
     @Test

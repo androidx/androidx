@@ -181,6 +181,7 @@ package androidx.camera.core {
     method public int getOutputImageFormat();
     method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public int getTargetRotation();
+    method public boolean isOutputImageRotationEnabled();
     method public void setAnalyzer(java.util.concurrent.Executor, androidx.camera.core.ImageAnalysis.Analyzer);
     method public void setTargetRotation(int);
     field public static final int OUTPUT_IMAGE_FORMAT_RGBA_8888 = 2; // 0x2
@@ -200,6 +201,7 @@ package androidx.camera.core {
     method public androidx.camera.core.ImageAnalysis.Builder setBackpressureStrategy(int);
     method public androidx.camera.core.ImageAnalysis.Builder setImageQueueDepth(int);
     method public androidx.camera.core.ImageAnalysis.Builder setOutputImageFormat(int);
+    method public androidx.camera.core.ImageAnalysis.Builder setOutputImageRotationEnabled(boolean);
     method public androidx.camera.core.ImageAnalysis.Builder setTargetAspectRatio(int);
     method public androidx.camera.core.ImageAnalysis.Builder setTargetName(String);
     method public androidx.camera.core.ImageAnalysis.Builder setTargetResolution(android.util.Size);
@@ -214,6 +216,7 @@ package androidx.camera.core {
     method public int getTargetRotation();
     method public void setCropAspectRatio(android.util.Rational);
     method public void setFlashMode(int);
+    method public void setSensorToBufferTransformMatrix(android.graphics.Matrix);
     method public void setTargetRotation(int);
     method public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
     method public void takePicture(androidx.camera.core.ImageCapture.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
@@ -285,6 +288,7 @@ package androidx.camera.core {
 
   @RequiresApi(21) public interface ImageInfo {
     method public int getRotationDegrees();
+    method public android.graphics.Matrix getSensorToBufferTransformMatrix();
     method public long getTimestamp();
   }
 
