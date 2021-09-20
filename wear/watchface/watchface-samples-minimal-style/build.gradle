@@ -30,6 +30,7 @@ dependencies {
     api(project(":wear:watchface:watchface-editor-guava"))
     api(project(":wear:watchface:watchface-guava"))
     implementation(libs.guavaAndroid)
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
 }
 
 androidx {

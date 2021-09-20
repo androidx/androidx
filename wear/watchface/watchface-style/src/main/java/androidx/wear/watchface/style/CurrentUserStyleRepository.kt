@@ -432,7 +432,7 @@ public class CurrentUserStyleRepository(public val schema: UserStyleSchema) {
 
     /**
      * The current [UserStyle]. If accessed from java, consider using
-     * [androidx.wear.watchface.StateFlowCompatHelper] to observe callbacks.
+     * [androidx.lifecycle.FlowLiveDataConversions.asLiveData] to observe changes.
      */
     // Unfortunately a dynamic proxy is the only way we can reasonably validate the UserStyle,
     // exceptions thrown within a coroutine are lost and the MutableStateFlow interface includes

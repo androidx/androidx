@@ -111,7 +111,7 @@ public interface EditorSession : AutoCloseable {
      * changes to the watch face will be reverted upon exit.
      *
      * If accessed from java, consider using
-     * [androidx.wear.watchface.StateFlowCompatHelper] to observe callbacks.
+     * [androidx.lifecycle.FlowLiveDataConversions.asLiveData] to observe changes.
      */
     public val userStyle: MutableStateFlow<UserStyle>
 
@@ -126,7 +126,7 @@ public interface EditorSession : AutoCloseable {
      * slot.
      *
      * If accessed from java, consider using
-     * [androidx.wear.watchface.StateFlowCompatHelper] to observe callbacks.
+     * [androidx.lifecycle.FlowLiveDataConversions.asLiveData] to observe changes.
      */
     public val complicationSlotsState: StateFlow<Map<Int, ComplicationSlotState>>
 
@@ -157,7 +157,7 @@ public interface EditorSession : AutoCloseable {
      * [openComplicationDataSourceChooser].
      *
      * If accessed from java, consider using
-     * [androidx.wear.watchface.StateFlowCompatHelper] to observe callbacks.
+     * [androidx.lifecycle.FlowLiveDataConversions.asLiveData] to observe changes.
      */
     public suspend fun getComplicationsPreviewData(): StateFlow<Map<Int, ComplicationData>>
 
