@@ -37,6 +37,8 @@ import androidx.core.widget.setLinearLayoutGravity
 import androidx.core.widget.setRelativeLayoutGravity
 import androidx.glance.Emittable
 import androidx.glance.GlanceInternalApi
+import androidx.glance.appwidget.layout.EmittableLazyColumn
+import androidx.glance.appwidget.layout.EmittableLazyListItem
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.EmittableColumn
@@ -63,9 +65,13 @@ private fun translateComposition(
     )
 }
 
-private data class TranslationContext(val context: Context, val appWidgetId: Int)
+internal data class TranslationContext(
+    val context: Context,
+    val appWidgetId: Int,
+    var listCount: Int = 0
+)
 
-private fun translateChild(
+internal fun translateChild(
     translationContext: TranslationContext,
     element: Emittable
 ): RemoteViews {
@@ -74,11 +80,13 @@ private fun translateChild(
         is EmittableRow -> translateEmittableRow(translationContext, element)
         is EmittableColumn -> translateEmittableColumn(translationContext, element)
         is EmittableText -> translateEmittableText(translationContext, element)
+        is EmittableLazyListItem -> translateEmittableLazyListItem(translationContext, element)
+        is EmittableLazyColumn -> translateEmittableLazyColumn(translationContext, element)
         else -> throw IllegalArgumentException("Unknown element type ${element::javaClass}")
     }
 }
 
-private fun remoteViews(translationContext: TranslationContext, @LayoutRes layoutId: Int) =
+internal fun remoteViews(translationContext: TranslationContext, @LayoutRes layoutId: Int) =
     RemoteViews(translationContext.context.packageName, layoutId)
 
 private fun Alignment.Horizontal.toGravity(): Int =
@@ -185,7 +193,7 @@ private fun RemoteViews.setText(context: Context, text: String, style: TextStyle
 // Sets the emittables as children to the view. This first remove any previously added view, the
 // add a view per child, with a stable id if of Android S+. Currently the stable id is the index
 // of the child in the iterable.
-private fun RemoteViews.setChildren(
+internal fun RemoteViews.setChildren(
     translationContext: TranslationContext,
     viewId: Int,
     children: Iterable<Emittable>
