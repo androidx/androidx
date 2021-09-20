@@ -16,27 +16,36 @@
 
 package androidx.wear.compose.material
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.SpringSpec
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntOffset
+import kotlin.math.PI
 import kotlin.math.roundToInt
+import kotlin.math.sin
 
 /**
  * Wear Material [SwipeToDismissBox] that handles the swipe-to-dismiss gesture. Takes a single
@@ -51,10 +60,9 @@ import kotlin.math.roundToInt
  *
  * @param state State containing information about ongoing swipe or animation.
  * @param modifier Optional [Modifier] for this component.
- * @param scrimColor Optional [Color] used for the scrim over the background and
- * content composables during the swipe gesture. The alpha on the color is ignored,
- * instead being set individually for each of the background and content layers in order to
- * indicate to the user which state will result if the gesture is released.
+ * @param backgroundScrimColor Color for background scrim
+ * @param contentScrimColor Optional [Color] used for the scrim over the
+ * content composable during the swipe gesture.
  * @param backgroundKey Optional [key] which identifies the content currently composed in
  * the [content] block when isBackground == true. Provide the backgroundKey if your background
  * content will be displayed as a foreground after the swipe animation ends
@@ -74,7 +82,8 @@ import kotlin.math.roundToInt
 fun SwipeToDismissBox(
     state: SwipeToDismissBoxState,
     modifier: Modifier = Modifier,
-    scrimColor: Color = MaterialTheme.colors.surface,
+    backgroundScrimColor: Color = MaterialTheme.colors.background,
+    contentScrimColor: Color = contentColorFor(backgroundScrimColor),
     backgroundKey: Any = SwipeToDismissBoxDefaults.BackgroundKey,
     contentKey: Any = SwipeToDismissBoxDefaults.ContentKey,
     hasBackground: Boolean = true,
@@ -96,19 +105,65 @@ fun SwipeToDismissBox(
             )
     ) {
         val offsetPx = state.offset.value.roundToInt()
-        // This temporary variable added to workaround an error
-        // thrown by the compose runtime - see b/199136503, avoids "Invalid Start Index" exception.
-        val pxModifier = Modifier.offset { IntOffset(offsetPx, 0) }.fillMaxSize()
+        val dismissAnimatable = remember { Animatable(0f) }
+
+        LaunchedEffect(state.isAnimationRunning) {
+            if (state.targetValue == SwipeDismissTarget.Dismissal) {
+                dismissAnimatable.animateTo(1f, SpringSpec())
+            } else {
+                // because SwipeToDismiss remains alive, it worth resetting animation to 0
+                // when [targetValue] becomes [Original] again
+                dismissAnimatable.snapTo(0f)
+            }
+        }
+
+        val squeezeMotion = SqueezeMotion(offsetPx, maxWidth)
+
+        val contentForegroundModifier =
+            Modifier.offset { IntOffset(squeezeMotion.contentOffset, 0) }
+                .fillMaxSize()
+                .scale(squeezeMotion.scale(dismissAnimatable.value))
+                .then(
+                    if (isRoundDevice() && squeezeMotion.contentOffset > 0) {
+                        Modifier.clip(CircleShape)
+                    } else {
+                        Modifier
+                    }
+                )
+                .alpha(1 - dismissAnimatable.value)
+                .background(backgroundScrimColor)
+
+        val contentBackgroundModifier = Modifier.fillMaxSize()
+
+        val scrimForegroundModifier = Modifier.background(
+            contentScrimColor.copy(alpha = squeezeMotion.contentScrimAlpha)
+        ).fillMaxSize()
+
+        val scrimBackgroundModifier = Modifier.matchParentSize()
+            .background(
+                backgroundScrimColor
+                    .copy(
+                        alpha = squeezeMotion.backgroundScrimAlpha(
+                            dismissAnimatable.value
+                        )
+                    )
+            )
+
         repeat(2) {
             val isBackground = it == 0
-            // TODO(b/193606660): Add animations that follow after swipe confirmation.
-            val scrimAlpha =
-                if (state.targetValue == SwipeDismissTarget.Original) {
-                    if (isBackground) SwipeStartedBackgroundAlpha else SwipeStartedContentAlpha
-                } else {
-                    if (isBackground) SwipeConfirmedBackgroundAlpha else SwipeConfirmedContentAlpha
-                }
-            val contentModifier = if (isBackground) Modifier.fillMaxSize() else pxModifier
+
+            val contentModifier = if (isBackground) {
+                contentBackgroundModifier
+            } else {
+                contentForegroundModifier
+            }
+
+            val scrimModifier = if (isBackground) {
+                scrimBackgroundModifier
+            } else {
+                scrimForegroundModifier
+            }
+
             key(if (isBackground) backgroundKey else contentKey) {
                 if (!isBackground || (hasBackground && offsetPx > 0)) {
                     Box(contentModifier) {
@@ -117,16 +172,76 @@ fun SwipeToDismissBox(
                         // within the content composable has the same call stack which is used
                         // as part of the hash identity for saveable state.
                         content(isBackground)
-                        Box(
-                            modifier = Modifier
-                                .matchParentSize()
-                                .background(scrimColor.copy(alpha = scrimAlpha))
-                        )
+                        Box(modifier = scrimModifier)
                     }
                 }
             }
         }
     }
+}
+
+/**
+ * A class which is responsible for squeezing animation and all computations related to it
+ */
+private class SqueezeMotion(
+    private val offsetPx: Int,
+    private val maxWidth: Float
+) {
+    private val scaleDelta = 0.2f
+    private val dismissScaleDelta = 0.05f
+    private val offsetFactor = scaleDelta / 2
+    private val contentScrimMaxAlpha = 0.07f
+    private val backgroundScrimMinAlpha = 0.65f
+
+    private val progress = calculateProgress(offsetPx.toFloat(), maxWidth)
+
+    /**
+     * [scale] can change from 1 to 1-[scaleDelta] - [dismissScaleDelta]
+     * As [progress] goes from 0 to 1 and [finalAnimationProgress] from 0 to 1,
+     * [scale] decreases accordingly up to a 1 - [scaleDelta] - [dismissScaleDelta]
+     */
+    fun scale(finalAnimationProgress: Float): Float =
+        (1.0 - progress * scaleDelta - finalAnimationProgress * dismissScaleDelta).toFloat()
+
+    /**
+     * As [progress] goes from 0 to 1, [contentOffset] changes from 0 to maxWidth
+     * mutiplied by [offsetFactor].
+     * If [offsetPx] negative ( <= 0) it remains the same.
+     * This helps to have a resistance animation if page is swiped to the opposite
+     * direction.
+     */
+    val contentOffset: Int
+        get() = if (offsetPx > 0)
+            (maxWidth * progress * offsetFactor).toInt()
+        else
+            offsetPx
+
+    /**
+     * As [progress] goes from 0 to 1, [contentScrimAlpha] changes from 0%
+     * to [contentScrimMaxAlpha].
+     */
+    val contentScrimAlpha: Float
+        get() = contentScrimMaxAlpha * progress
+
+    /**
+     * As [progress] goes from 0 to 1, [backgroundScrimAlpha] is decreasing from 100% to
+     * [backgroundScrimMinAlpha] value. [finalAnimationProgress] makes background completely
+     * transparent by changing its value from [backgroundScrimMinAlpha] to 0.
+     */
+    fun backgroundScrimAlpha(finalAnimationProgress: Float): Float =
+        1 - (1 - backgroundScrimMinAlpha) * progress -
+            backgroundScrimMinAlpha * finalAnimationProgress
+
+    /**
+     *  Computes a progress, which is in range from 0 to 1. As offset value changes from 0 to basis,
+     * the progress changes by sin function
+     */
+    private fun calculateProgress(
+        offset: Float,
+        basis: Float
+    ): Float = if (offset > 0)
+        sin((offset / basis).coerceIn(-1f, 1f) * PI.toFloat() / 2)
+    else 0f
 }
 
 @Stable
@@ -135,6 +250,9 @@ fun SwipeToDismissBox(
  *
  * TODO(b/194492134): extend API to include shortcuts for status and actions like dismissing
  * the screen.
+ *
+ * @param animationSpec The default animation that will be used to animate to a new state.
+ * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
 @ExperimentalWearMaterialApi
 class SwipeToDismissBoxState(
