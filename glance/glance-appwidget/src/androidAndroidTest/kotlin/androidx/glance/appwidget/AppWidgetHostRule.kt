@@ -31,13 +31,13 @@ import androidx.test.espresso.Espresso.onIdle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.test.fail
 
 @SdkSuppress(minSdkVersion = 29)
 class AppWidgetHostRule(
@@ -161,7 +161,11 @@ class AppWidgetHostRule(
         }
     }
 
-    private fun runAndWaitForChildren(action: () -> Unit) {
+    fun runAndObserveUntilDraw(
+        condition: String = "Expected condition to be met within 5 seconds",
+        run: () -> Unit = {},
+        test: () -> Boolean
+    ) {
         val latch = CountDownLatch(1)
         val onDrawListener = ViewTreeObserver.OnDrawListener {
             if (mHostView.childCount > 0) latch.countDown()
@@ -170,14 +174,18 @@ class AppWidgetHostRule(
             mHostView.viewTreeObserver.addOnDrawListener(onDrawListener)
         }
 
-        action()
+        run()
 
         val countedDown = latch.await(5, TimeUnit.SECONDS)
         mActivityRule.scenario.onActivity {
             mHostView.viewTreeObserver.removeOnDrawListener(onDrawListener)
         }
-        if (!countedDown && mHostView.childCount == 0) {
-            Assert.fail("Expected new children on HostView within 5 seconds")
+        if (!countedDown && !test()) fail(condition)
+    }
+
+    private fun runAndWaitForChildren(action: () -> Unit) {
+        runAndObserveUntilDraw("Expected new children on HostView within 5 seconds", action) {
+            mHostView.childCount > 0
         }
     }
 }
