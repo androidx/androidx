@@ -1131,8 +1131,8 @@ class WatchFaceControlClientTest {
         try {
             val wfReady = CompletableDeferred<Unit>()
             interactiveInstance.addWatchFaceReadyListener(
-                { wfReady.complete(Unit) },
-                { runnable -> runnable.run() }
+                { runnable -> runnable.run() },
+                { wfReady.complete(Unit) }
             )
             assertThat(wfReady.isCompleted).isFalse()
 
@@ -1185,8 +1185,8 @@ class WatchFaceControlClientTest {
             val listener =
                 InteractiveWatchFaceClient.WatchFaceReadyListener { listenerCalled = true }
             interactiveInstance.addWatchFaceReadyListener(
-                listener,
-                { runnable -> runnable.run() }
+                { runnable -> runnable.run() },
+                listener
             )
             interactiveInstance.removeWatchFaceReadyListener(listener)
             assertThat(listenerCalled).isFalse()
@@ -1237,8 +1237,8 @@ class WatchFaceControlClientTest {
         try {
             val wfReady = CompletableDeferred<Unit>()
             interactiveInstance.addWatchFaceReadyListener(
-                { wfReady.complete(Unit) },
-                { runnable -> runnable.run() }
+                { runnable -> runnable.run() },
+                { wfReady.complete(Unit) }
             )
             assertThat(wfReady.isCompleted).isFalse()
 

@@ -234,8 +234,11 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      *
      * Note in the event of the watch face disconnecting (e.g. due to a crash) the listener will
      * never get called. Use [ClientDisconnectListener] to observe disconnects.
+     *
+     * @param executor The [Executor] on which to run [WatchFaceReadyListener].
+     * @param listener The [WatchFaceReadyListener] to run when the watchface is ready to render.
      */
-    public fun addWatchFaceReadyListener(listener: WatchFaceReadyListener, executor: Executor)
+    public fun addWatchFaceReadyListener(executor: Executor, listener: WatchFaceReadyListener)
 
     /**
      * Stops listening for events registered by [addWatchFaceReadyListener].
@@ -449,8 +452,8 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     }
 
     override fun addWatchFaceReadyListener(
-        listener: InteractiveWatchFaceClient.WatchFaceReadyListener,
-        executor: Executor
+        executor: Executor,
+        listener: InteractiveWatchFaceClient.WatchFaceReadyListener
     ) {
         synchronized(lock) {
             require(!readyListeners.contains(listener)) {
