@@ -22,9 +22,13 @@ import android.view.ViewGroup
 import android.widget.ListView
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.glance.Modifier
 import androidx.glance.appwidget.layout.LazyColumn
 import androidx.glance.appwidget.layout.ReservedItemIdRangeEnd
 import androidx.glance.layout.Text
+import androidx.glance.layout.padding
+import androidx.glance.unit.Dp
+import androidx.glance.unit.dp
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -38,6 +42,26 @@ import kotlin.test.assertIs
 class LazyColumnTest {
     @get:Rule
     val mHostRule = AppWidgetHostRule()
+
+    @Test
+    fun modifier_modifiesColumn() {
+        TestGlanceAppWidget.uiDefinition = {
+            LazyColumn(modifier = Modifier.padding(5.dp, 6.dp, 7.dp, 8.dp)) {
+                item { Text("1") }
+                item { Text("2") }
+            }
+        }
+
+        mHostRule.startHost()
+
+        waitForListViewChildren { list ->
+            fun Dp.toPx() = toPixels(list.context.resources.displayMetrics)
+            assertThat(list.paddingStart).isEqualTo(5.dp.toPx())
+            assertThat(list.paddingTop).isEqualTo(6.dp.toPx())
+            assertThat(list.paddingEnd).isEqualTo(7.dp.toPx())
+            assertThat(list.paddingBottom).isEqualTo(8.dp.toPx())
+        }
+    }
 
     @FlakyTest
     @Test
