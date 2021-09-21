@@ -229,7 +229,7 @@ class RemoteMediatorAccessorTest {
         // they are waiting for refresh.
         assertThat(remoteMediatorAccessor.state.value).isEqualTo(
             LoadStates(
-                refresh = LoadState.NotLoading.Complete,
+                refresh = LoadState.NotLoading.Incomplete,
                 prepend = LoadState.NotLoading.Complete,
                 append = LoadState.NotLoading.Complete
             )

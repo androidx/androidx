@@ -1134,7 +1134,7 @@ class PageFetcherTest {
             // all remote States should be updated within single LoadStateUpdate
             remoteLoadStateUpdate<Int>(
                 refreshLocal = Loading,
-                refreshRemote = NotLoading.Complete,
+                refreshRemote = NotLoading.Incomplete,
                 prependRemote = NotLoading.Complete,
                 appendRemote = NotLoading.Complete,
             ),
@@ -1148,7 +1148,7 @@ class PageFetcherTest {
             // Remote state carried over from previous generation.
             remoteLoadStateUpdate<Int>(
                 refreshLocal = Loading,
-                refreshRemote = NotLoading.Complete,
+                refreshRemote = NotLoading.Incomplete,
                 prependRemote = NotLoading.Complete,
                 appendRemote = NotLoading.Complete,
             ),
@@ -1160,7 +1160,7 @@ class PageFetcherTest {
             ),
             remoteLoadStateUpdate<Int>(
                 refreshLocal = Loading,
-                refreshRemote = NotLoading.Complete,
+                refreshRemote = NotLoading.Incomplete,
                 prependRemote = NotLoading.Complete,
                 appendRemote = NotLoading.Complete,
             ),
@@ -1203,7 +1203,7 @@ class PageFetcherTest {
             ),
             remoteLoadStateUpdate<Int>(
                 refreshLocal = Loading,
-                refreshRemote = NotLoading.Complete,
+                refreshRemote = NotLoading.Incomplete,
                 prependRemote = NotLoading.Complete,
                 appendRemote = NotLoading.Complete,
             ),
@@ -1213,7 +1213,7 @@ class PageFetcherTest {
                     prepend = NotLoading.Complete,
                 ),
                 mediator = loadStates(
-                    refresh = NotLoading.Complete,
+                    refresh = NotLoading.Incomplete,
                     append = NotLoading.Complete,
                     prepend = NotLoading.Complete,
                 ),
@@ -1454,7 +1454,7 @@ class PageFetcherTest {
                     prepend = NotLoading.Complete,
                 ),
                 mediator = loadStates(
-                    refresh = NotLoading.Complete,
+                    refresh = NotLoading.Incomplete,
                     append = NotLoading.Complete,
                     prepend = NotLoading.Complete,
                 ),
