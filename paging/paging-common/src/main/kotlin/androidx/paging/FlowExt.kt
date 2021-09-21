@@ -16,6 +16,11 @@
 
 package androidx.paging
 
+import androidx.paging.CombineSource.INITIAL
+import androidx.paging.CombineSource.OTHER
+import androidx.paging.CombineSource.RECEIVER
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
@@ -23,6 +28,11 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.yield
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * This File includes custom flow operators that we implement to avoid using experimental APIs
@@ -98,4 +108,114 @@ internal class ChannelFlowCollector<T>(
     override suspend fun emit(value: T) {
         channel.send(value)
     }
+}
+
+/**
+ * Similar to [kotlinx.coroutines.flow.combine], except it never batches reads from its Flows, so
+ * [transform] is always guaranteed to get called for every emission from either Flow after the
+ * initial call (which waits for the first emission from both Flows).
+ *
+ * The emissions for both Flows are also guaranteed to get buffered, so if one Flow emits
+ * multiple times before the other does, [transform] will get called for each emission from the
+ * first Flow instead of just once with the latest values.
+ *
+ * @param transform The transform to apply on each update. This is first called after awaiting an
+ * initial emission from both Flows, and then is guaranteed to be called for every emission from
+ * either Flow.
+ *
+ * For convenience, [CombineSource] is also passed to the transform, which indicates the
+ * origin of the update with the following possible values:
+ *   * [INITIAL]: Initial emission from both Flows
+ *   * [RECEIVER]: Triggered by new emission from receiver
+ *   * [OTHER]: Triggered by new emission from [otherFlow]
+ */
+internal suspend inline fun <T1, T2, R> Flow<T1>.combineWithoutBatching(
+    otherFlow: Flow<T2>,
+    crossinline transform: suspend (T1, T2, updateFrom: CombineSource) -> R,
+): Flow<R> {
+    return simpleChannelFlow {
+        val incompleteFlows = AtomicInteger(2)
+        val unbatchedFlowCombiner = UnbatchedFlowCombiner<T1, T2> { t1, t2, updateFrom ->
+            send(transform(t1, t2, updateFrom))
+        }
+        val parentJob = Job()
+        arrayOf(this@combineWithoutBatching, otherFlow).forEachIndexed { index, flow ->
+            launch(parentJob) {
+                try {
+                    flow.collect { value ->
+                        unbatchedFlowCombiner.onNext(index, value)
+
+                        // Make this more fair, giving the other flow a chance to emit.
+                        yield()
+                    }
+                } finally {
+                    if (incompleteFlows.decrementAndGet() == 0) {
+                        close()
+                    }
+                }
+            }
+        }
+
+        awaitClose { parentJob.cancel() }
+    }
+}
+
+/**
+ * Helper class for [UnbatchedFlowCombiner], which handles dispatching the combined values in the
+ * correct order, and with [CombineSource].
+ *
+ * NOTE: This implementation relies on the fact that [onNext] is called in-order for emissions
+ * from the same Flow. This means that concurrently calling [onNext] with the same index will not
+ * work.
+ *
+ * @see combineWithoutBatching
+ */
+internal class UnbatchedFlowCombiner<T1, T2>(
+    private val send: suspend (t1: T1, t2: T2, updateFrom: CombineSource) -> Unit
+) {
+    private val initialDispatched = CompletableDeferred<Unit>()
+    private val lock = Mutex()
+    private val valueReceived = Array(2) { CompletableDeferred<Unit>() }
+    private val values = Array<Any?>(2) { NULL }
+
+    suspend fun onNext(index: Int, value: Any?) {
+        // Allow the first value to dispatch immediately, but for subsequent values, we should
+        // wait until the other flow emits, so that we don't overwrite the previous value.
+        if (valueReceived[index].isCompleted) {
+            // NOTE: We use a separate Completable here because just awaiting
+            // valueReceived[1 - index] could potentially allow multiple calls to onNext from the
+            // same Flow to trigger out of order.
+            initialDispatched.await()
+        } else {
+            valueReceived[index].complete(Unit)
+        }
+
+        lock.withLock {
+            val isInitial = values.any { it === NULL }
+            values[index] = value
+
+            if (values.none { it === NULL }) {
+                val updateFrom = when {
+                    isInitial -> INITIAL
+                    index == 0 -> RECEIVER
+                    else -> OTHER
+                }
+
+                @Suppress("UNCHECKED_CAST")
+                send(values[0] as T1, values[1] as T2, updateFrom)
+                initialDispatched.complete(Unit)
+            }
+        }
+    }
+}
+
+/**
+ * Used to indicate which Flow emission triggered the transform block in [combineWithoutBatching].
+ *
+ * @see combineWithoutBatching
+ */
+internal enum class CombineSource {
+    INITIAL,
+    RECEIVER,
+    OTHER,
 }
