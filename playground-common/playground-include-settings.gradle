@@ -138,6 +138,3 @@ if (jvmVersion != "11") {
 
 // allow public repositories
 System.setProperty("ALLOW_PUBLIC_REPOS", "true")
-
-// specify out dir location
-System.setProperty("CHECKOUT_ROOT", "${buildscript.sourceFile.parent}/..")
