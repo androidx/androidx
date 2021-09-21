@@ -26,7 +26,6 @@ import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
-import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.InputCallback;
@@ -174,14 +173,6 @@ public class SignInTemplateDemoScreen extends Screen {
                 .setInstructions("Enter your credentials")
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
-                .setActionStrip(
-                        new ActionStrip.Builder()
-                                .addAction(
-                                        new Action.Builder()
-                                                .setTitle("Next")
-                                                .setOnClickListener(this::submitUsername)
-                                                .build())
-                                .build())
                 .build();
     }
 
