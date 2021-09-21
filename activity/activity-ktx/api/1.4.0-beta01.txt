@@ -1,0 +1,43 @@
+// Signature format: 4.0
+package androidx.activity {
+
+  public final class ActivityViewModelLazyKt {
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<? extends VM>! viewModels(androidx.activity.ComponentActivity, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
+  }
+
+  public final class OnBackPressedDispatcherKt {
+    method public static androidx.activity.OnBackPressedCallback addCallback(androidx.activity.OnBackPressedDispatcher, optional androidx.lifecycle.LifecycleOwner? owner, optional boolean enabled, kotlin.jvm.functions.Function1<? super androidx.activity.OnBackPressedCallback,kotlin.Unit> onBackPressed);
+  }
+
+  public final class PipHintTrackerKt {
+  }
+
+}
+
+package androidx.activity.contextaware {
+
+  public final class ContextAwareKt {
+    method public static suspend inline <R> Object? withContextAvailable(androidx.activity.contextaware.ContextAware, kotlin.jvm.functions.Function1<? super android.content.Context,? extends R> onContextAvailable, kotlin.coroutines.Continuation<? super R> p);
+  }
+
+}
+
+package androidx.activity.result {
+
+  public final class ActivityResultCallerKt {
+    method public static <I, O> androidx.activity.result.ActivityResultLauncher<kotlin.Unit> registerForActivityResult(androidx.activity.result.ActivityResultCaller, androidx.activity.result.contract.ActivityResultContract<I,O> contract, I? input, androidx.activity.result.ActivityResultRegistry registry, kotlin.jvm.functions.Function1<? super O,kotlin.Unit> callback);
+    method public static <I, O> androidx.activity.result.ActivityResultLauncher<kotlin.Unit> registerForActivityResult(androidx.activity.result.ActivityResultCaller, androidx.activity.result.contract.ActivityResultContract<I,O> contract, I? input, kotlin.jvm.functions.Function1<? super O,kotlin.Unit> callback);
+  }
+
+  public final class ActivityResultKt {
+    method public static operator int component1(androidx.activity.result.ActivityResult);
+    method public static operator android.content.Intent? component2(androidx.activity.result.ActivityResult);
+  }
+
+  public final class ActivityResultLauncherKt {
+    method public static void launch(androidx.activity.result.ActivityResultLauncher<java.lang.Void>, optional androidx.core.app.ActivityOptionsCompat? options);
+    method public static void launchUnit(androidx.activity.result.ActivityResultLauncher<kotlin.Unit>, optional androidx.core.app.ActivityOptionsCompat? options);
+  }
+
+}
+
