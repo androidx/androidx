@@ -79,6 +79,31 @@ private val FRAGMENT = java(
     """
 )
 
+private val FRAGMENT_MANAGER = java(
+    """
+    package androidx.fragment.app;
+
+    public class FragmentManager {
+        public FragmentTransaction beginTransaction() { }
+    }
+    """
+)
+
+private val FRAGMENT_TRANSACTION = java(
+    """
+    package androidx.fragment.app;
+
+    public class FragmentTransaction {
+        public FragmentTransaction attach(Fragment fragment) { }
+        public FragmentTransaction detach(Fragment fragment) { }
+        public int commit() { }
+        public int commitAllowingStateLoss() { }
+        public int commitNow() { }
+        public int commitNowAllowingStateLoss() { }
+    }
+    """
+)
+
 internal val DIALOG_FRAGMENT = java(
     """
     package androidx.fragment.app;
@@ -221,6 +246,18 @@ private val REPEAT_ON_LIFECYCLE = TestFiles.kt(
         ) { }
     """
 ).indented().within("src")
+
+// stubs for testing fragment transaction stubs
+internal val FRAGMENT_TRANSACTION_STUBS = arrayOf(
+    COMPONENT_ACTIVITY,
+    FRAGMENT,
+    FRAGMENT_MANAGER,
+    FRAGMENT_TRANSACTION,
+    LIFECYCLE,
+    LIFECYCLE_OWNER,
+    MENU_HOST,
+    MENU_PROVIDER
+)
 
 // stubs for testing calls to LiveData.observe calls
 internal val LIVEDATA_STUBS = arrayOf(
