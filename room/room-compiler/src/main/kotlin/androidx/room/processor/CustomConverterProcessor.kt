@@ -69,13 +69,19 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
             converters
                 .groupBy { it.from.typeName to it.to.typeName }
                 .filterValues { it.size > 1 }
-                .values.forEach {
-                    it.forEach { converter ->
-                        context.logger.e(
-                            converter.method,
-                            ProcessorErrors
-                                .duplicateTypeConverters(it.minus(converter))
-                        )
+                .values.forEach { possiblyDuplicateConverters ->
+                    possiblyDuplicateConverters.forEach { converter ->
+                        val duplicates = possiblyDuplicateConverters.filter { duplicate ->
+                            duplicate !== converter &&
+                                duplicate.from.isSameType(converter.from) &&
+                                duplicate.to.isSameType(converter.to)
+                        }
+                        if (duplicates.isNotEmpty()) {
+                            context.logger.e(
+                                converter.method,
+                                ProcessorErrors.duplicateTypeConverters(duplicates)
+                            )
+                        }
                     }
                 }
         }
