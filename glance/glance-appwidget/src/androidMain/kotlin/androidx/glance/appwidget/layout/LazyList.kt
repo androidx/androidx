@@ -157,7 +157,78 @@ interface LazyListScope {
     }
 }
 
-// TODO(b/198618359): Add inline helper functions with List<T> and Array<T> params.
+/**
+ * Adds a list of items.
+ *
+ * @param items the data list
+ * @param itemId a factory of stable and unique ids representing the item. The value may not be
+ * less than or equal to -2^62, as these values are reserved by the Glance API. Specifying
+ * the list item ids will maintain the scroll position through app widget updates in Android
+ * S and higher devices.
+ * @param itemContent the content displayed by a single item
+ */
+inline fun <T> LazyListScope.items(
+    items: List<T>,
+    crossinline itemId: ((item: T) -> Long) = { LazyListScope.UnspecifiedItemId },
+    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
+) = items(items.size, { index: Int -> itemId(items[index]) }) {
+    itemContent(items[it])
+}
+
+/**
+ * Adds a list of items where the content of an item is aware of its index.
+ *
+ * @param items the data list
+ * @param itemId a factory of stable and unique ids representing the item. The value may not be
+ * less than or equal to -2^62, as these values are reserved by the Glance API. Specifying
+ * the list item ids will maintain the scroll position through app widget updates in Android
+ * S and higher devices.
+ * @param itemContent the content displayed by a single item
+ */
+inline fun <T> LazyListScope.itemsIndexed(
+    items: List<T>,
+    crossinline itemId: ((index: Int, item: T) -> Long) =
+        { _, _ -> LazyListScope.UnspecifiedItemId },
+    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
+) = items(items.size, { index: Int -> itemId(index, items[index]) }) {
+    itemContent(it, items[it])
+}
+
+/**
+ * Adds an array of items.
+ *
+ * @param items the data array
+ * @param itemId a factory of stable and unique list item ids. Using the same itemId for multiple
+ * items in the array is not allowed. When you specify the itemId, the scroll position will be
+ * maintained based on the itemId, which means if you add/remove items before the current visible
+ * item the item with the given itemId will be kept as the first visible one.
+ * @param itemContent the content displayed by a single item
+ */
+inline fun <T> LazyListScope.items(
+    items: Array<T>,
+    noinline itemId: ((item: T) -> Long) = { LazyListScope.UnspecifiedItemId },
+    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
+) = items(items.size, { index: Int -> itemId(items[index]) }) {
+    itemContent(items[it])
+}
+
+/**
+ * Adds a array of items where the content of an item is aware of its index.
+ *
+ * @param items the data array
+ * @param itemId a factory of stable and unique list item ids. Using the same itemId for multiple
+ * items in the array is not allowed. When you specify the itemId the scroll position will be
+ * maintained based on the itemId, which means if you add/remove items before the current visible
+ * item the item with the given itemId will be kept as the first visible one.
+ * @param itemContent the content displayed by a single item
+ */
+inline fun <T> LazyListScope.itemsIndexed(
+    items: Array<T>,
+    noinline itemId: ((index: Int, item: T) -> Long) = { _, _ -> LazyListScope.UnspecifiedItemId },
+    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
+) = items(items.size, { index: Int -> itemId(index, items[index]) }) {
+    itemContent(it, items[it])
+}
 
 @OptIn(GlanceInternalApi::class)
 internal abstract class EmittableLazyList : EmittableWithChildren() {
