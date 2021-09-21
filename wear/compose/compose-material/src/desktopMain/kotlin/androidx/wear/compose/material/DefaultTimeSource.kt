@@ -17,18 +17,11 @@
 package androidx.wear.compose.material
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.remember
 
-@Composable
-internal actual fun currentTime(
-    time: () -> Long,
-    timeFormat: String
-): State<String> {
+@ExperimentalWearMaterialApi
+internal actual class DefaultTimeSource actual constructor(timeFormat: String) : TimeSource {
 
-    val timeText = remember {
-        derivedStateOf { "Test time" }
-    }
-    return timeText
+    override val currentTime: String
+        @Composable
+        get() = "Test time"
 }

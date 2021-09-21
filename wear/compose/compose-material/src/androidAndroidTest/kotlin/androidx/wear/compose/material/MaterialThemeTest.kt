@@ -103,7 +103,7 @@ class MaterialThemeTest {
             )
         }
 
-        assertTextStyleEquals(expectedStyle!!, rule.textStyleOf("Test"))
+        assertTextTypographyEquals(expectedStyle!!, rule.textStyleOf("Test"))
     }
 
     @Test
@@ -126,7 +126,7 @@ class MaterialThemeTest {
             }
         }
 
-        assertTextStyleEquals(override, rule.textStyleOf("Test"))
+        assertTextTypographyEquals(override, rule.textStyleOf("Test"))
     }
 
     @Test
@@ -334,9 +334,9 @@ class MaterialThemeTest {
             }
         }
 
-        assertTextStyleEquals(initialStyle, rule.textStyleOf("Test"))
+        assertTextTypographyEquals(initialStyle, rule.textStyleOf("Test"))
         rule.onNodeWithTag("button").performClick()
-        assertTextStyleEquals(overrideTextStyle, rule.textStyleOf("Test"))
+        assertTextTypographyEquals(overrideTextStyle, rule.textStyleOf("Test"))
     }
 
     private fun verifyBackgroundColorIsDynamic(
@@ -449,8 +449,8 @@ class MaterialThemeTest {
             }
         }
 
-        assertTextStyleEquals(initialStyle, rule.textStyleOf("Test"))
+        assertTextTypographyEquals(initialStyle, rule.textStyleOf("Test"))
         rule.onNodeWithTag("button").performClick()
-        assertTextStyleEquals(overrideTextStyle, rule.textStyleOf("Test"))
+        assertTextTypographyEquals(overrideTextStyle, rule.textStyleOf("Test"))
     }
 }

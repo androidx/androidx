@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.text.format.DateFormat
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
@@ -34,8 +35,18 @@ import androidx.compose.ui.platform.LocalContext
 import java.util.Calendar
 import java.util.Locale
 
+@ExperimentalWearMaterialApi
+internal actual class DefaultTimeSource actual constructor(timeFormat: String) : TimeSource {
+    private val _timeFormat = timeFormat
+
+    override val currentTime: String
+        @Composable
+        get() = currentTime({ currentTimeMillis() }, _timeFormat).value
+}
+
 @Composable
-internal actual fun currentTime(
+@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+internal fun currentTime(
     time: () -> Long,
     timeFormat: String
 ): State<String> {

@@ -36,6 +36,9 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -168,6 +171,7 @@ fun CurvedRowScope.BasicCurvedText(
 
     Layout(
         modifier = modifier
+            .semantics { this.text = AnnotatedString(text) }
             .then(CurvedTextModifier())
             .graphicsLayer()
             .drawBehind {
