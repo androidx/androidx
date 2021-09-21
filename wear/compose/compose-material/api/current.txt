@@ -136,6 +136,9 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public static void CurvedText(androidx.wear.compose.foundation.CurvedRowScope, String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long background, optional long fontSize, optional androidx.wear.compose.foundation.CurvedTextStyle style, optional boolean clockwise, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding);
   }
 
+  public final class DefaultTimeSourceKt {
+  }
+
   public final class IconKt {
     method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.vector.ImageVector imageVector, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional long tint);
     method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.ImageBitmap bitmap, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional long tint);
@@ -293,9 +296,6 @@ package androidx.wear.compose.material {
   }
 
   public final class TimeTextKt {
-  }
-
-  public final class TimeUpdateControllerKt {
   }
 
   @androidx.compose.runtime.Stable public interface ToggleButtonColors {

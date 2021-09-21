@@ -79,5 +79,5 @@ fun TimeTextWithCustomSeparator() {
 @Sampled
 @Composable
 fun TimeTextWithFullDateAndTimeFormat() {
-    TimeText(timeFormat = "yyyy-MM-dd hh:mm")
+    TimeText(timeSource = TimeTextDefaults.timeSource("yyyy-MM-dd hh:mm"))
 }

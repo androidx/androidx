@@ -19,13 +19,12 @@ package androidx.wear.compose.material
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 
 @Composable
-internal actual fun isRoundDevice(): Boolean {
-    return LocalContext.current.resources.configuration.isScreenRound
-}
+internal actual fun isRoundDevice(): Boolean = LocalConfiguration.current.isScreenRound
 
 @Composable
 internal actual fun imageResource(res: String): Painter {
