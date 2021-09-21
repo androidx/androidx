@@ -129,44 +129,15 @@ public class ListenableEditorSession(
     override val complicationSlotsState: StateFlow<Map<Int, ComplicationSlotState>> by
     wrappedEditorSession::complicationSlotsState
 
+    override val complicationsPreviewData: StateFlow<Map<Int, ComplicationData>> by
+    wrappedEditorSession::complicationsPreviewData
+
+    override val complicationsDataSourceInfo: StateFlow<Map<Int, ComplicationDataSourceInfo?>> by
+    wrappedEditorSession::complicationsDataSourceInfo
+
     @Suppress("INAPPLICABLE_JVM_NAME")
     @get:JvmName("isCommitChangesOnClose")
     override var commitChangesOnClose: Boolean by wrappedEditorSession::commitChangesOnClose
-
-    /** [ListenableFuture] wrapper around [EditorSession.getComplicationsPreviewData]. */
-    public fun getListenableComplicationPreviewData():
-        ListenableFuture<StateFlow<Map<Int, ComplicationData>>> {
-            val future = ResolvableFuture.create<StateFlow<Map<Int, ComplicationData>>>()
-            getCoroutineScope().launch {
-                try {
-                    future.set(wrappedEditorSession.getComplicationsPreviewData())
-                } catch (e: Exception) {
-                    future.setException(e)
-                }
-            }
-            return future
-        }
-
-    /** [ListenableFuture] wrapper around [EditorSession.getComplicationsDataSourceInfo]. */
-    public fun getListenableComplicationsProviderInfo():
-        ListenableFuture<StateFlow<Map<Int, ComplicationDataSourceInfo?>>> {
-            val future = ResolvableFuture.create<StateFlow<Map<Int, ComplicationDataSourceInfo?>>>()
-            getCoroutineScope().launch {
-                try {
-                    future.set(wrappedEditorSession.getComplicationsDataSourceInfo())
-                } catch (e: Exception) {
-                    future.setException(e)
-                }
-            }
-            return future
-        }
-
-    override suspend fun getComplicationsPreviewData(): StateFlow<Map<Int, ComplicationData>> =
-        wrappedEditorSession.getComplicationsPreviewData()
-
-    override suspend fun
-    getComplicationsDataSourceInfo(): StateFlow<Map<Int, ComplicationDataSourceInfo?>> =
-        wrappedEditorSession.getComplicationsDataSourceInfo()
 
     @get:SuppressWarnings("AutoBoxing")
     override val backgroundComplicationSlotId: Int? by
