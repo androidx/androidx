@@ -17,18 +17,18 @@
 package androidx.room.processor
 
 import androidx.room.RewriteQueriesToDropUnusedColumns
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
 import androidx.room.log.RLog
 import androidx.room.parser.expansion.ProjectionExpander
 import androidx.room.parser.optimization.RemoveUnusedColumnQueryRewriter
 import androidx.room.preconditions.Checks
-import androidx.room.compiler.processing.XElement
-import androidx.room.compiler.processing.XProcessingEnv
-import androidx.room.compiler.processing.XType
 import androidx.room.processor.cache.Cache
 import androidx.room.solver.TypeAdapterStore
 import androidx.room.verifier.DatabaseVerifier
+import androidx.room.vo.BuiltInConverterFlags
 import androidx.room.vo.Warning
-import java.util.LinkedHashSet
 
 class Context private constructor(
     val processingEnv: XProcessingEnv,
@@ -36,7 +36,7 @@ class Context private constructor(
     private val typeConverters: CustomConverterProcessor.ProcessResult,
     private val inheritedAdapterStore: TypeAdapterStore?,
     val cache: Cache,
-    private val canRewriteQueriesToDropUnusedColumns: Boolean
+    private val canRewriteQueriesToDropUnusedColumns: Boolean,
 ) {
     val checker: Checks = Checks(logger)
     val COMMON_TYPES = CommonTypes(processingEnv)
@@ -45,7 +45,10 @@ class Context private constructor(
         if (inheritedAdapterStore != null) {
             TypeAdapterStore.copy(this, inheritedAdapterStore)
         } else {
-            TypeAdapterStore.create(this, typeConverters.converters)
+            TypeAdapterStore.create(
+                this, typeConverters.builtInConverterFlags,
+                typeConverters.converters
+            )
         }
     }
 
@@ -89,7 +92,12 @@ class Context private constructor(
         logger = RLog(processingEnv.messager, emptySet(), null),
         typeConverters = CustomConverterProcessor.ProcessResult.EMPTY,
         inheritedAdapterStore = null,
-        cache = Cache(null, LinkedHashSet(), emptySet()),
+        cache = Cache(
+            parent = null,
+            converters = LinkedHashSet(),
+            suppressedWarnings = emptySet(),
+            builtInConverterFlags = BuiltInConverterFlags.DEFAULT
+        ),
         canRewriteQueriesToDropUnusedColumns = false
     )
 
@@ -136,7 +144,12 @@ class Context private constructor(
     fun fork(element: XElement, forceSuppressedWarnings: Set<Warning> = emptySet()): Context {
         val suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element)
         val processConvertersResult = CustomConverterProcessor.findConverters(this, element)
-        val canReUseAdapterStore = processConvertersResult.classes.isEmpty()
+        val subBuiltInConverterFlags = typeConverters.builtInConverterFlags.withNext(
+            processConvertersResult.builtInConverterFlags
+        )
+        val canReUseAdapterStore =
+            subBuiltInConverterFlags == typeConverters.builtInConverterFlags &&
+                processConvertersResult.classes.isEmpty()
         // order here is important since the sub context should give priority to new converters.
         val subTypeConverters = if (canReUseAdapterStore) {
             this.typeConverters
@@ -145,7 +158,12 @@ class Context private constructor(
         }
         val subSuppressedWarnings =
             forceSuppressedWarnings + suppressedWarnings + logger.suppressedWarnings
-        val subCache = Cache(cache, subTypeConverters.classes, subSuppressedWarnings)
+        val subCache = Cache(
+            parent = cache,
+            converters = subTypeConverters.classes,
+            suppressedWarnings = subSuppressedWarnings,
+            builtInConverterFlags = subBuiltInConverterFlags
+        )
         val subCanRemoveUnusedColumns = canRewriteQueriesToDropUnusedColumns ||
             element.hasRemoveUnusedColumnsAnnotation()
         val subContext = Context(
@@ -177,8 +195,8 @@ class Context private constructor(
     }
 
     enum class BooleanProcessorOptions(val argName: String, private val defaultValue: Boolean) {
-        INCREMENTAL("room.incremental", true),
-        EXPAND_PROJECTION("room.expandProjection", false);
+        INCREMENTAL("room.incremental", defaultValue = true),
+        EXPAND_PROJECTION("room.expandProjection", defaultValue = false);
 
         /**
          * Returns the value of this option passed through the [XProcessingEnv]. If the value

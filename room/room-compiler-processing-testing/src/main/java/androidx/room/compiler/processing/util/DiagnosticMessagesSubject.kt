@@ -25,28 +25,53 @@ import com.google.common.truth.Truth
 /**
  * Truth subject for diagnostic messages
  */
-class DiagnosticMessageSubject internal constructor(
+class DiagnosticMessagesSubject internal constructor(
     failureMetadata: FailureMetadata,
-    private val diagnosticMessage: DiagnosticMessage,
-) : Subject<DiagnosticMessageSubject, DiagnosticMessage>(
-    failureMetadata, diagnosticMessage
+    private val diagnosticMessages: List<DiagnosticMessage>,
+) : Subject<DiagnosticMessagesSubject, List<DiagnosticMessage>>(
+    failureMetadata, diagnosticMessages
 ) {
-    private val lineContent by lazy {
-        val location = diagnosticMessage.location ?: return@lazy null
-        location.source?.contents?.lines()?.getOrNull(
-            location.line - 1
-        )
+
+    private val lineContents by lazy {
+        diagnosticMessages.mapNotNull {
+            it.location?.let { location ->
+                location.source?.contents?.lines()?.getOrNull(
+                    location.line - 1
+                )
+            }
+        }
+    }
+
+    private val locations by lazy {
+        diagnosticMessages.mapNotNull { it.location }
     }
 
     /**
      * Checks the location of the diagnostic message against the given [lineNumber].
+     *
+     * Note that if there are multiple messages, any match will be sufficient.
      */
     fun onLine(lineNumber: Int) = apply {
-        if (diagnosticMessage.location?.line != lineNumber) {
+        if (locations.none {
+            it.line == lineNumber
+        }
+        ) {
             failWithActual(
                 simpleFact(
-                    "expected line $lineNumber but it was ${diagnosticMessage.location}"
+                    "expected line $lineNumber but it was " +
+                        locations.joinToString(",")
                 )
+            )
+        }
+    }
+
+    /**
+     * Checks the number of messages in the subject.
+     */
+    fun hasCount(expected: Int) = apply {
+        if (diagnosticMessages.size != expected) {
+            failWithActual(
+                simpleFact("expected $expected messages, found ${diagnosticMessages.size}")
             )
         }
     }
@@ -55,14 +80,20 @@ class DiagnosticMessageSubject internal constructor(
      * Checks the contents of the line from the original file against the given [content].
      */
     fun onLineContaining(content: String) = apply {
-        if (lineContent == null) {
+        if (lineContents.isEmpty()) {
             failWithActual(
                 simpleFact("Cannot validate line content due to missing location information")
             )
         }
-        if (lineContent?.contains(content) != true) {
+        if (lineContents.none {
+            it.contains(content)
+        }
+        ) {
             failWithActual(
-                simpleFact("expected line content with $content but was $lineContent")
+                simpleFact(
+                    "expected line content with $content but was " +
+                        lineContents.joinToString("\n")
+                )
             )
         }
     }
@@ -72,12 +103,12 @@ class DiagnosticMessageSubject internal constructor(
      * the given [source].
      */
     fun onSource(source: Source) = apply {
-        if (diagnosticMessage.location?.source != source) {
+        if (locations.none { it.source == source }) {
             failWithActual(
                 simpleFact(
                     """
                     Expected diagnostic to be on $source but found it on
-                    ${diagnosticMessage.location?.source}
+                    ${locations.joinToString(",")}
                     """.trimIndent()
                 )
             )
@@ -86,15 +117,15 @@ class DiagnosticMessageSubject internal constructor(
 
     companion object {
         private val FACTORY =
-            Factory<DiagnosticMessageSubject, DiagnosticMessage> { metadata, actual ->
-                DiagnosticMessageSubject(metadata, actual)
+            Factory<DiagnosticMessagesSubject, List<DiagnosticMessage>> { metadata, actual ->
+                DiagnosticMessagesSubject(metadata, actual)
             }
 
         fun assertThat(
-            diagnosticMessage: DiagnosticMessage
-        ): DiagnosticMessageSubject {
+            diagnosticMessages: List<DiagnosticMessage>
+        ): DiagnosticMessagesSubject {
             return Truth.assertAbout(FACTORY).that(
-                diagnosticMessage
+                diagnosticMessages
             )
         }
     }

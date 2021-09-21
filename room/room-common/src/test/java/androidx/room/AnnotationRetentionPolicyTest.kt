@@ -18,6 +18,7 @@ package androidx.room
 
 import com.google.common.reflect.ClassPath
 import org.junit.Test
+import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 
 /** Test to make sure annotations have the correct retention policy. */
@@ -34,7 +35,7 @@ class AnnotationRetentionPolicyTest {
 
         // For Room to be incremental, all annotations need to have CLASS retention policy.
         annotations.forEach {
-            val retentionPolicy = it.getAnnotation(java.lang.annotation.Retention::class.java).value
+            val retentionPolicy = it.getAnnotation(Retention::class.java)?.value
             assert(retentionPolicy == RetentionPolicy.CLASS) {
                 "Expected ${it.name} annotation to have retention policy CLASS" +
                     " but it is $retentionPolicy"
