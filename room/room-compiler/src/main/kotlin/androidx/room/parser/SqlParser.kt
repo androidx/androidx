@@ -271,8 +271,10 @@ enum class SQLTypeAffinity {
 
     /**
      * produce acceptable variations of the given type names.
-     * If it is primitive, we'll add boxed version
-     * If environment is KSP, we'll add a nullable version as well.
+     * For JAVAC:
+     *  - If it is primitive, we'll add boxed version
+     * For KSP:
+     *  - We'll add a nullable version
      */
     private fun withBoxedAndNullableTypes(
         env: XProcessingEnv,
@@ -282,11 +284,10 @@ enum class SQLTypeAffinity {
             sequence {
                 val type = env.requireType(typeName)
                 yield(type)
-                if (typeName.isPrimitive) {
-                    yield(type.boxed())
-                }
                 if (env.backend == XProcessingEnv.Backend.KSP) {
                     yield(type.makeNullable())
+                } else if (typeName.isPrimitive) {
+                    yield(type.boxed())
                 }
             }
         }.toList()
