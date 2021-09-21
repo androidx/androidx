@@ -279,6 +279,42 @@ class CustomConverterProcessorTest {
     }
 
     @Test
+    fun checkDuplicates_nullability() {
+        val source = Source.kotlin(
+            "MyConverter.kt",
+            """
+        package ${CONVERTER.packageName()}
+        import androidx.room.*
+        class ${CONVERTER.simpleName()} {
+            @TypeConverter
+            fun nonNulls(input: Int): String {
+                TODO()
+            }
+            @TypeConverter
+            fun nullableInput(input: Int?): String {
+                TODO()
+            }
+            @TypeConverter
+            fun nullableOutput(input: Int): String? {
+                TODO()
+            }
+        }
+            """.trimIndent()
+        )
+        singleClass(
+            source
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                if (invocation.isKsp) {
+                    // no error
+                } else {
+                    hasErrorContaining("Multiple methods define the same")
+                }
+            }
+        }
+    }
+
+    @Test
     fun invalidConverterType() {
         val source = Source.java(
             "foo.bar.Container",
