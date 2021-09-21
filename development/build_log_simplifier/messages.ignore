@@ -230,8 +230,8 @@ w: \$SUPPORT/compose/ui/ui\-graphics/src/commonMain/kotlin/androidx/compose/ui/g
 Package name 'androidx\.compose\.material\.icons' used in: :compose:material:material\-icons\-extended, :compose:material:material\-icons\-core\.
 # > Task :compose:ui:ui:compileKotlinMetadata
 w: Runtime JAR files in the classpath should have the same version\. These files were found in the classpath:
-\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
-\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-common/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[A-Z0-9]*\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-common/[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[A-Z0-9]*\)
 w: Some runtime JAR files in the classpath have an incompatible version\. Consider removing them from the classpath
 w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/input/key/Key\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
 w: \$SUPPORT/compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/layout/Measured\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental

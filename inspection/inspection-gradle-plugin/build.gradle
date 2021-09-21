@@ -18,6 +18,7 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.Publish
 import androidx.build.SdkResourceGenerator
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -49,6 +50,12 @@ gradlePlugin {
             id = "androidx.inspection"
             implementationClass = "androidx.inspection.gradle.InspectionPlugin"
         }
+    }
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [ "-Xopt-in=kotlin.Experimental" ]
     }
 }
 

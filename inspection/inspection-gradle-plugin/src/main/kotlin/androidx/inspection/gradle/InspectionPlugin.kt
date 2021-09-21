@@ -41,7 +41,7 @@ import java.io.File
 class InspectionPlugin : Plugin<Project> {
     // project.register* are marked with @ExperimentalStdlibApi, because they use experimental
     // string.capitalize call.
-    @ExperimentalStdlibApi
+    @OptIn(ExperimentalStdlibApi::class)
     override fun apply(project: Project) {
         var foundLibraryPlugin = false
         var foundReleaseVariant = false
