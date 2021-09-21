@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -77,7 +78,9 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
     private val pageEventChannelFlowJob = Job()
 
-    val pageEventFlow: Flow<PageEvent<Value>> = cancelableChannelFlow(pageEventChannelFlowJob) {
+    val pageEventFlow: Flow<PageEvent<Value>> = cancelableChannelFlow<PageEvent<Value>>(
+        pageEventChannelFlowJob
+    ) {
         check(pageEventChCollected.compareAndSet(false, true)) {
             "Attempt to collect twice from pageEventFlow, which is an illegal operation. Did you " +
                 "forget to call Flow<PagingData<*>>.cachedIn(coroutineScope)?"
@@ -163,6 +166,12 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         if (stateHolder.withLock { state -> state.sourceLoadStates.get(REFRESH) } !is Error) {
             startConsumingHints()
         }
+    }.onStart {
+        // Immediately emit the initial load state when creating a new generation to give
+        // PageFetcher a real event from source side as soon as possible. This allows PageFetcher
+        // to operate on this stream in a way that waits for a real event (for example, by using
+        // Flow.combine) without the consequence of getting "stuck".
+        emit(LoadStateUpdate(stateHolder.withLock { it.sourceLoadStates.snapshot() }))
     }
 
     @Suppress("SuspendFunctionOnCoroutineScope")
@@ -274,12 +283,12 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         val params = loadParams(REFRESH, initialKey)
         when (val result = pagingSource.load(params)) {
             is Page<Key, Value> -> {
+                // Atomically update load states + pages while still holding the mutex, otherwise
+                // remote state can race here and lead to confusing load states.
                 val insertApplied = stateHolder.withLock { state ->
-                    state.insert(0, REFRESH, result)
-                }
+                    val insertApplied = state.insert(0, REFRESH, result)
 
-                // Update loadStates which are sent along with this load's Insert PageEvent.
-                stateHolder.withLock { state ->
+                    // Update loadStates which are sent along with this load's Insert PageEvent.
                     state.sourceLoadStates.set(
                         type = REFRESH,
                         state = NotLoading.Incomplete
@@ -296,6 +305,8 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                             state = NotLoading.Complete
                         )
                     }
+
+                    insertApplied
                 }
 
                 // Send insert event after load state updates, so that endOfPaginationReached is

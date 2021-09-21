@@ -1257,12 +1257,11 @@ class PagingDataDifferTest {
         advanceTimeBy(600)
 
         assertThat(differ.newCombinedLoadStates()).containsExactly(
-            // remote starts loading
-            remoteLoadStatesOf(
-                refresh = Loading,
-                refreshRemote = Loading,
-            ),
             // local starts loading
+            remoteLoadStatesOf(
+                refreshLocal = Loading,
+            ),
+            // remote starts loading
             remoteLoadStatesOf(
                 refresh = Loading,
                 refreshLocal = Loading,
@@ -1284,11 +1283,6 @@ class PagingDataDifferTest {
         advanceTimeBy(600)
 
         assertThat(differ.newCombinedLoadStates()).containsExactly(
-            // local state is simultaneously reset by the remote mediator state update
-            remoteLoadStatesOf(
-                refresh = Loading,
-                refreshRemote = Loading,
-            ),
             // local starts second refresh while mediator continues remote refresh from before
             remoteLoadStatesOf(
                 refresh = Loading,

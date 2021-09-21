@@ -61,7 +61,7 @@ class TestPagingSource(
         return withContext(loadDispatcher) { getLoadResult(params) }
     }
 
-    private suspend fun getLoadResult(params: LoadParams<Int>): LoadResult<Int, Int> {
+    private fun getLoadResult(params: LoadParams<Int>): LoadResult<Int, Int> {
         val key = params.key ?: 0
 
         val isPrepend = params is LoadParams.Prepend
