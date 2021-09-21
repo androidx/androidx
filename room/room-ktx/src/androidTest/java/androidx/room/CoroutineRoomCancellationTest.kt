@@ -144,6 +144,7 @@ class CoroutineRoomCancellationTest {
         assertThat(cancellationSignal.isCanceled).isFalse()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testSuspend_notCancelled() = runBlocking {
         database.backingFieldMap["QueryDispatcher"] = testDispatcher
