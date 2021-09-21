@@ -679,9 +679,7 @@ public class WatchFaceImpl @UiThread constructor(
 
         override var userStyle: UserStyle
             get() = currentUserStyleRepository.userStyle.value
-            set(value) {
-                currentUserStyleRepository.userStyle.value = value
-            }
+            set(value) { currentUserStyleRepository.updateUserStyle(value) }
 
         override val complicationSlotsManager: ComplicationSlotsManager
             get() = this@WatchFaceImpl.complicationSlotsManager
@@ -749,7 +747,7 @@ public class WatchFaceImpl @UiThread constructor(
     internal fun onSetStyleInternal(style: UserStyle) {
         // No need to echo the userStyle back.
         inOnSetStyle = true
-        currentUserStyleRepository.userStyle.value = style
+        currentUserStyleRepository.updateUserStyle(style)
         inOnSetStyle = false
     }
 

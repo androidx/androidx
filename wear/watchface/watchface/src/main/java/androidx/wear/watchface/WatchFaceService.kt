@@ -1541,17 +1541,20 @@ public abstract class WatchFaceService : WallpaperService() {
             val storedUserStyle = getInitialUserStyle()
             if (storedUserStyle != null) {
                 TraceEvent("WatchFaceImpl.init apply userStyle").use {
-                    currentUserStyleRepository.userStyle.value =
+                    currentUserStyleRepository.updateUserStyle(
                         UserStyle(UserStyleData(storedUserStyle), currentUserStyleRepository.schema)
+                    )
                 }
             } else {
                 TraceEvent("WatchFaceImpl.init apply userStyle from prefs").use {
                     // The system doesn't support preference persistence we need to do it ourselves.
                     val preferencesFile = "watchface_prefs_${_context.javaClass.name}.txt"
 
-                    currentUserStyleRepository.userStyle.value = UserStyle(
-                        UserStyleData(readPrefs(_context, preferencesFile)),
-                        currentUserStyleRepository.schema
+                    currentUserStyleRepository.updateUserStyle(
+                        UserStyle(
+                            UserStyleData(readPrefs(_context, preferencesFile)),
+                            currentUserStyleRepository.schema
+                        )
                     )
 
                     backgroundThreadCoroutineScope.launch {

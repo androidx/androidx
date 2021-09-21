@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.flow.MutableStateFlow
-import java.lang.reflect.Proxy
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * An immutable representation of user style choices that maps each [UserStyleSetting] to
@@ -413,14 +413,14 @@ public class UserStyleSchema(
 
 /**
  * In memory storage for the current user style choices represented as a
- * [MutableStateFlow]<[UserStyle]>. The UserStyle options must be from the supplied
- * [UserStyleSchema].
+ * [MutableStateFlow]<[UserStyle]>.
  *
  * @param schema The [UserStyleSchema] for this CurrentUserStyleRepository which describes the
  * available style categories.
  */
 public class CurrentUserStyleRepository(public val schema: UserStyleSchema) {
-    private var wrappedUserStyle = MutableStateFlow(
+    // Mutable backing field for [userStyle].
+    private val mutableUserStyle = MutableStateFlow(
         UserStyle(
             HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
                 for (setting in schema.userStyleSettings) {
@@ -434,23 +434,17 @@ public class CurrentUserStyleRepository(public val schema: UserStyleSchema) {
      * The current [UserStyle]. If accessed from java, consider using
      * [androidx.lifecycle.FlowLiveDataConversions.asLiveData] to observe changes.
      */
-    // Unfortunately a dynamic proxy is the only way we can reasonably validate the UserStyle,
-    // exceptions thrown within a coroutine are lost and the MutableStateFlow interface includes
-    // internal unstable methods so we can't use a static proxy...
-    @Suppress("BanUncheckedReflection", "UNCHECKED_CAST")
-    public var userStyle: MutableStateFlow<UserStyle> = Proxy.newProxyInstance(
-        MutableStateFlow::class.java.classLoader,
-        arrayOf<Class<*>>(MutableStateFlow::class.java)
-    ) { _, method, args ->
-        if (args == null) {
-            method?.invoke(wrappedUserStyle)
-        } else {
-            if (method?.name == "setValue") {
-                validateUserStyle(args[0] as UserStyle)
-            }
-            method?.invoke(wrappedUserStyle, *args)
-        }
-    } as MutableStateFlow<UserStyle>
+    public val userStyle: StateFlow<UserStyle> by CurrentUserStyleRepository::mutableUserStyle
+
+    /**
+     * The UserStyle options must be from the supplied [UserStyleSchema].
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun updateUserStyle(newUserStyle: UserStyle) {
+        validateUserStyle(newUserStyle)
+        mutableUserStyle.value = newUserStyle
+    }
 
     internal fun validateUserStyle(userStyle: UserStyle) {
         for ((key, value) in userStyle) {

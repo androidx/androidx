@@ -136,7 +136,7 @@ class CurrentUserStyleRepositoryTest {
             )
         )
 
-        userStyleRepository.userStyle.value = newStyle
+        userStyleRepository.updateUserStyle(newStyle)
 
         assertThat(userStyleRepository.userStyle.value[colorStyleSetting])
             .isEqualTo(greenStyleOption)
@@ -170,7 +170,7 @@ class CurrentUserStyleRepositoryTest {
             )
         )
 
-        userStyleRepository.userStyle.value = newStyle
+        userStyleRepository.updateUserStyle(newStyle)
 
         assertThat(userStyleRepository.userStyle.value[colorStyleSetting])
             .isEqualTo(greenStyleOption)
@@ -438,8 +438,9 @@ class CurrentUserStyleRepositoryTest {
         val userStyleSchema = UserStyleSchema(listOf(booleanSetting))
 
         CurrentUserStyleRepository(userStyleSchema).let { currentUserStyleRepository ->
-            currentUserStyleRepository.userStyle.value =
+            currentUserStyleRepository.updateUserStyle(
                 UserStyle(mapOf(booleanSetting to optionFalse))
+            )
             currentUserStyleRepository.userStyle.value.let { userStyle ->
                 assertThat(userStyle[booleanSetting]).isEqualTo(optionFalse)
                 assertThat(userStyle[booleanSettingCopy]).isEqualTo(optionFalse)
@@ -449,8 +450,9 @@ class CurrentUserStyleRepositoryTest {
         }
 
         CurrentUserStyleRepository(userStyleSchema).let { currentUserStyleRepository ->
-            currentUserStyleRepository.userStyle.value =
+            currentUserStyleRepository.updateUserStyle(
                 UserStyle(mapOf(booleanSettingCopy to optionFalse))
+            )
             currentUserStyleRepository.userStyle.value.let { userStyle ->
                 assertThat(userStyle[booleanSetting]).isEqualTo(optionFalse)
                 assertThat(userStyle[booleanSettingCopy]).isEqualTo(optionFalse)
@@ -460,8 +462,9 @@ class CurrentUserStyleRepositoryTest {
         }
 
         CurrentUserStyleRepository(userStyleSchema).let { currentUserStyleRepository ->
-            currentUserStyleRepository.userStyle.value =
+            currentUserStyleRepository.updateUserStyle(
                 UserStyle(mapOf(booleanSettingModifiedInfo to optionFalse))
+            )
             currentUserStyleRepository.userStyle.value.let { userStyle ->
                 assertThat(userStyle[booleanSetting]).isEqualTo(optionFalse)
                 assertThat(userStyle[booleanSettingCopy]).isEqualTo(optionFalse)
@@ -472,12 +475,12 @@ class CurrentUserStyleRepositoryTest {
 
         CurrentUserStyleRepository(userStyleSchema).let { currentUserStyleRepository ->
             assertThrows(
-                java.lang.IllegalArgumentException::class.java,
-                {
-                    currentUserStyleRepository.userStyle.value =
-                        UserStyle(mapOf(booleanSettingModifiedId to optionFalse))
-                }
-            )
+                java.lang.IllegalArgumentException::class.java
+            ) {
+                currentUserStyleRepository.updateUserStyle(
+                    UserStyle(mapOf(booleanSettingModifiedId to optionFalse))
+                )
+            }
         }
     }
 
@@ -556,9 +559,11 @@ class CurrentUserStyleRepositoryTest {
             )
         )
 
-        userStyleRepository.userStyle.value = UserStyle(
-            mapOf(
-                customStyleSetting to CustomValueOption("test".encodeToByteArray())
+        userStyleRepository.updateUserStyle(
+            UserStyle(
+                mapOf(
+                    customStyleSetting to CustomValueOption("test".encodeToByteArray())
+                )
             )
         )
 
