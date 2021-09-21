@@ -1200,6 +1200,8 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.ItemList? getItemList();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.ActionStrip? getMapActionStrip();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PanModeDelegate? getPanModeDelegate();
     method public androidx.car.app.model.CarText? getTitle();
     method public boolean isLoading();
   }
@@ -1211,6 +1213,8 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setLoading(boolean);
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setMapActionStrip(androidx.car.app.model.ActionStrip);
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setTitle(CharSequence);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setTitle(androidx.car.app.model.CarText);
   }
@@ -1219,7 +1223,9 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.ItemList? getItemList();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.ActionStrip? getMapActionStrip();
     method public androidx.car.app.model.Action? getNavigateAction();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PanModeDelegate? getPanModeDelegate();
     method public androidx.car.app.model.CarText? getTitle();
     method public boolean isLoading();
   }
@@ -1231,7 +1237,9 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setLoading(boolean);
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setMapActionStrip(androidx.car.app.model.ActionStrip);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setNavigateAction(androidx.car.app.model.Action);
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setTitle(CharSequence);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setTitle(androidx.car.app.model.CarText);
   }
