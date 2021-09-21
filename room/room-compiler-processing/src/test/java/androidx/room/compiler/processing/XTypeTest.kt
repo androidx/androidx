@@ -443,32 +443,16 @@ class XTypeTest {
         ) { invocation ->
             val elm = invocation.processingEnv.requireTypeElement("SelfReferencing")
             val dump = elm.type.typeName.dumpToString(5)
-            if (invocation.isKsp) {
-                // KSP fails to resolve self referencing java types:
-                // https://github.com/google/ksp/issues/476
-                // keeping this bad assertion here so that when the bug is fixed,
-                // test will fail and it will be cleaned up.
-
-                assertThat(dump).isEqualTo(
-                    """
-                    SelfReferencing<T>
-                    | T
-                    | > SelfReferencing<error.NonExistentClass>
-                    | > | error.NonExistentClass
-                    """.trimIndent()
-                )
-            } else {
-                assertThat(dump).isEqualTo(
-                    """
-                    SelfReferencing<T>
-                    | T
-                    | > SelfReferencing<T>
-                    | > | T
-                    | > | > SelfReferencing<T>
-                    | > | > | T
-                    """.trimIndent()
-                )
-            }
+            assertThat(dump).isEqualTo(
+                """
+                SelfReferencing<T>
+                | T
+                | > SelfReferencing<T>
+                | > | T
+                | > | > SelfReferencing<T>
+                | > | > | T
+                """.trimIndent()
+            )
         }
     }
 

@@ -38,6 +38,7 @@ import kotlinx.coroutines.rx2.asObservable
  */
 // Both annotations are needed here see: https://youtrack.jetbrains.com/issue/KT-45227
 @ExperimentalCoroutinesApi
+@Suppress("EXPERIMENTAL_ANNOTATION_ON_WRONG_TARGET")
 @get:ExperimentalCoroutinesApi
 val <Key : Any, Value : Any> Pager<Key, Value>.observable: Observable<PagingData<Value>>
     get() = flow
@@ -50,6 +51,7 @@ val <Key : Any, Value : Any> Pager<Key, Value>.observable: Observable<PagingData
  */
 // Both annotations are needed here see: https://youtrack.jetbrains.com/issue/KT-45227
 @ExperimentalCoroutinesApi
+@Suppress("EXPERIMENTAL_ANNOTATION_ON_WRONG_TARGET")
 @get:ExperimentalCoroutinesApi
 val <Key : Any, Value : Any> Pager<Key, Value>.flowable: Flowable<PagingData<Value>>
     get() = flow
