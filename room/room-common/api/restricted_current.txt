@@ -7,6 +7,17 @@ package androidx.room {
     method public abstract int to();
   }
 
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({}) public @interface BuiltInTypeConverters {
+    method public abstract androidx.room.BuiltInTypeConverters.State enums() default androidx.room.BuiltInTypeConverters.State.INHERITED;
+    method public abstract androidx.room.BuiltInTypeConverters.State uuid() default androidx.room.BuiltInTypeConverters.State.INHERITED;
+  }
+
+  public enum BuiltInTypeConverters.State {
+    enum_constant public static final androidx.room.BuiltInTypeConverters.State DISABLED;
+    enum_constant public static final androidx.room.BuiltInTypeConverters.State ENABLED;
+    enum_constant public static final androidx.room.BuiltInTypeConverters.State INHERITED;
+  }
+
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface ColumnInfo {
     method @androidx.room.ColumnInfo.Collate public abstract int collate() default androidx.room.ColumnInfo.UNSPECIFIED;
     method public abstract String defaultValue() default androidx.room.ColumnInfo.VALUE_UNSPECIFIED;
@@ -261,7 +272,8 @@ package androidx.room {
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public @interface TypeConverters {
-    method public abstract Class<?>[] value();
+    method public abstract androidx.room.BuiltInTypeConverters builtInTypeConverters() default @androidx.room.BuiltInTypeConverters;
+    method public abstract Class<?>[] value() default {};
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Update {

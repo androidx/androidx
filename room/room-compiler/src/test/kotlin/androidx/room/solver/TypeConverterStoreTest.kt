@@ -23,6 +23,7 @@ import androidx.room.solver.types.CompositeTypeConverter
 import androidx.room.solver.types.CustomTypeConverterWrapper
 import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.context
+import androidx.room.vo.BuiltInConverterFlags
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,6 +68,7 @@ class TypeConverterStoreTest {
                 .process()
             val store = TypeAdapterStore.create(
                 invocation.context,
+                BuiltInConverterFlags.DEFAULT,
                 converters.map(::CustomTypeConverterWrapper)
             )
 

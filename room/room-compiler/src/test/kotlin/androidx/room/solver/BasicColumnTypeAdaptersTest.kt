@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.writeTo
 import androidx.room.processor.Context
+import androidx.room.vo.BuiltInConverterFlags
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
@@ -102,7 +103,10 @@ class BasicColumnTypeAdaptersTest(
         runProcessorTest { invocation ->
             val scope = testCodeGenScope()
             val type = invocation.processingEnv.requireType(input)
-            val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
+            val adapter = TypeAdapterStore.create(
+                Context(invocation.processingEnv),
+                BuiltInConverterFlags.DEFAULT
+            )
                 .findColumnTypeAdapter(
                     out = type,
                     affinity = null,
@@ -130,12 +134,14 @@ class BasicColumnTypeAdaptersTest(
         runProcessorTest { invocation ->
             val scope = testCodeGenScope()
             val boxedType = invocation.processingEnv.requireType(input).boxed()
-            val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
-                .findColumnTypeAdapter(
-                    out = boxedType,
-                    affinity = null,
-                    skipDefaultConverter = false
-                )!!
+            val adapter = TypeAdapterStore.create(
+                Context(invocation.processingEnv),
+                BuiltInConverterFlags.DEFAULT
+            ).findColumnTypeAdapter(
+                out = boxedType,
+                affinity = null,
+                skipDefaultConverter = false
+            )!!
             adapter.bindToStmt("st", "6", "inp", scope)
             val expected = if (invocation.isKsp && !input.isAlwaysCheckedForNull()) {
                 bindCode
@@ -163,7 +169,10 @@ class BasicColumnTypeAdaptersTest(
         runProcessorTest { invocation ->
             val scope = testCodeGenScope()
             val nullableType = invocation.processingEnv.requireType(input).makeNullable()
-            val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
+            val adapter = TypeAdapterStore.create(
+                Context(invocation.processingEnv),
+                BuiltInConverterFlags.DEFAULT
+            )
                 .findColumnTypeAdapter(
                     out = nullableType,
                     affinity = null,
@@ -212,12 +221,14 @@ class BasicColumnTypeAdaptersTest(
         runProcessorTest { invocation ->
             val scope = testCodeGenScope()
             val type = invocation.processingEnv.requireType(input)
-            val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
-                .findColumnTypeAdapter(
-                    out = type,
-                    affinity = null,
-                    skipDefaultConverter = false
-                )!!
+            val adapter = TypeAdapterStore.create(
+                Context(invocation.processingEnv),
+                BuiltInConverterFlags.DEFAULT
+            ).findColumnTypeAdapter(
+                out = type,
+                affinity = null,
+                skipDefaultConverter = false
+            )!!
             val expected = if (input.isAlwaysCheckedForNull()) {
                 """
                 if (crs.isNull(9)) {
@@ -240,12 +251,14 @@ class BasicColumnTypeAdaptersTest(
         runProcessorTest { invocation ->
             val scope = testCodeGenScope()
             val boxedType = invocation.processingEnv.requireType(input).boxed()
-            val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
-                .findColumnTypeAdapter(
-                    out = boxedType,
-                    affinity = null,
-                    skipDefaultConverter = false
-                )!!
+            val adapter = TypeAdapterStore.create(
+                Context(invocation.processingEnv),
+                BuiltInConverterFlags.DEFAULT
+            ).findColumnTypeAdapter(
+                out = boxedType,
+                affinity = null,
+                skipDefaultConverter = false
+            )!!
             adapter.readFromCursor("out", "crs", "9", scope)
             val expected = if (invocation.isKsp && !input.isAlwaysCheckedForNull()) {
                 cursorCode
@@ -273,8 +286,10 @@ class BasicColumnTypeAdaptersTest(
         runProcessorTest { invocation ->
             val scope = testCodeGenScope()
             val nullableType = invocation.processingEnv.requireType(input).makeNullable()
-            val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
-                .findColumnTypeAdapter(nullableType, null, false)!!
+            val adapter = TypeAdapterStore.create(
+                Context(invocation.processingEnv),
+                BuiltInConverterFlags.DEFAULT
+            ).findColumnTypeAdapter(nullableType, null, false)!!
             adapter.readFromCursor("out", "crs", "9", scope)
             assertThat(
                 scope.generate().toString().trim(),
