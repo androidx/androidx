@@ -32,6 +32,7 @@ import androidx.annotation.UiThread
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.ComplicationType.Companion.fromWireType
+import androidx.wear.watchface.complications.data.TimeRange
 
 /**
  * Data associated with complication request in [ComplicationDataSourceService.onComplicationRequest].
@@ -240,6 +241,20 @@ public abstract class ComplicationDataSourceService : Service() {
                             ) {
                                 "Cannot send data of TYPE_NOT_CONFIGURED or " +
                                     "TYPE_EMPTY. Use TYPE_NO_DATA instead."
+                            }
+
+                            require(
+                                dataType == ComplicationType.NO_DATA ||
+                                    dataType == complicationType
+                            ) {
+                                "Preview data should match the requested type. " +
+                                    "Expected $complicationType got $dataType."
+                            }
+
+                            if (complicationData != null) {
+                                require(complicationData.validTimeRange == TimeRange.ALWAYS) {
+                                    "Preview data should have time range set to ALWAYS."
+                                }
                             }
 
                             // When no update is needed, the complicationData is going to be

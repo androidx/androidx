@@ -19,6 +19,7 @@ package androidx.wear.watchface.complications;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
@@ -35,6 +36,7 @@ import androidx.wear.watchface.complications.data.ComplicationText;
 import androidx.wear.watchface.complications.data.ComplicationType;
 import androidx.wear.watchface.complications.data.LongTextComplicationData;
 import androidx.wear.watchface.complications.data.PlainComplicationText;
+import androidx.wear.watchface.complications.data.TimeRange;
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService;
 import androidx.wear.watchface.complications.datasource.ComplicationRequest;
 
@@ -47,6 +49,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLooper;
+
+import java.time.Instant;
 
 /** Tests for {@link ComplicationDataSourceService}. */
 @RunWith(ComplicationsTestRunner.class)
@@ -68,6 +72,7 @@ public class ComplicationDataSourceServiceTest {
 
     private IComplicationProvider.Stub mComplicationProvider;
     private IComplicationProvider.Stub mNoUpdateComplicationProvider;
+    private IComplicationProvider.Stub mWrongComplicationProvider;
 
     private ComplicationDataSourceService mTestService = new ComplicationDataSourceService() {
 
@@ -99,6 +104,37 @@ public class ComplicationDataSourceServiceTest {
                     new PlainComplicationText.Builder("hello preview").build(),
                     ComplicationText.EMPTY
             ).build();
+        }
+    };
+
+    private ComplicationDataSourceService mTestServiceNotValidTimeRange =
+            new ComplicationDataSourceService() {
+
+        @Override
+        public void onComplicationRequest(
+                @NotNull ComplicationRequest request,
+                @NonNull ComplicationRequestListener listener) {
+            try {
+                listener.onComplicationData(
+                        new LongTextComplicationData.Builder(
+                                new PlainComplicationText.Builder(
+                                        "hello " + request.getComplicationInstanceId()
+                                ).build(),
+                                ComplicationText.EMPTY
+                        ).build()
+                );
+            } catch (RemoteException e) {
+                Log.e(TAG, "onComplicationRequest failed with error: ", e);
+            }
+        }
+
+        @Nullable
+        @Override
+        public ComplicationData getPreviewData(@NonNull ComplicationType type) {
+            return new LongTextComplicationData.Builder(
+                    new PlainComplicationText.Builder("hello preview").build(),
+                    ComplicationText.EMPTY
+            ).setValidTimeRange(TimeRange.between(Instant.now(), Instant.now())).build();
         }
     };
 
@@ -139,6 +175,11 @@ public class ComplicationDataSourceServiceTest {
                 (IComplicationProvider.Stub) mNoUpdateTestService.onBind(
                         new Intent(
                                 ComplicationDataSourceService.ACTION_COMPLICATION_UPDATE_REQUEST));
+
+        mWrongComplicationProvider =
+                (IComplicationProvider.Stub) mTestServiceNotValidTimeRange.onBind(
+                        new Intent(
+                                ComplicationDataSourceService.ACTION_COMPLICATION_UPDATE_REQUEST));
     }
 
     @Test
@@ -155,6 +196,22 @@ public class ComplicationDataSourceServiceTest {
         assertThat(data.getValue().getLongText().getTextAt(null, 0)).isEqualTo(
                 "hello " + id
         );
+    }
+
+    @Test
+    public void testOnComplicationRequestWrongType() throws Exception {
+        int id = 123;
+        mComplicationProvider.onUpdate(
+                id, ComplicationType.SHORT_TEXT.toWireComplicationType(), mLocalManager);
+        assertThrows(IllegalArgumentException.class, ShadowLooper::runUiThreadTasks);
+    }
+
+    @Test
+    public void testOnComplicationRequestWrongValidTimeRange() throws Exception {
+        int id = 123;
+        mWrongComplicationProvider.onUpdate(
+                id, ComplicationType.SHORT_TEXT.toWireComplicationType(), mLocalManager);
+        assertThrows(IllegalArgumentException.class, ShadowLooper::runUiThreadTasks);
     }
 
     @Test
