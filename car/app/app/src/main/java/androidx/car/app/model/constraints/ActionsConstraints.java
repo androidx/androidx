@@ -93,12 +93,12 @@ public final class ActionsConstraints {
                     .build();
 
     /**
-     * Constraints for map action buttons in navigation templates.
+     * Constraints for map action buttons.
      *
      * <p>Only buttons with icons are allowed.
      */
     @NonNull
-    public static final ActionsConstraints ACTIONS_CONSTRAINTS_NAVIGATION_MAP =
+    public static final ActionsConstraints ACTIONS_CONSTRAINTS_MAP =
             new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_CONSERVATIVE)
                     .setMaxActions(4)
                     .build();

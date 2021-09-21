@@ -52,6 +52,19 @@ public class PlaceListNavigationTemplateTest {
     private final DistanceSpan mDistanceSpan =
             DistanceSpan.create(
                     Distance.create(/* displayDistance= */ 1, Distance.UNIT_KILOMETERS_P1));
+    private final ActionStrip mActionStrip =
+            new ActionStrip.Builder().addAction(TestUtils.createAction("test", null)).build();
+    private final ActionStrip mMapActionStrip =
+            new ActionStrip.Builder().addAction(
+                    TestUtils.createAction(null, TestUtils.getTestCarIcon(
+                            ApplicationProvider.getApplicationContext(),
+                            "ic_test_1"))).build();
+
+    @Test
+    public void textButtonInMapActionStrip_throws() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new PlaceListNavigationTemplate.Builder().setMapActionStrip(mActionStrip));
+    }
 
     @Test
     public void createInstance_emptyList_notLoading_Throws() {
@@ -205,10 +218,12 @@ public class PlaceListNavigationTemplateTest {
                         .setItemList(itemList)
                         .setTitle(title)
                         .setActionStrip(actionStrip)
+                        .setMapActionStrip(mMapActionStrip)
                         .build();
         assertThat(template.getItemList()).isEqualTo(itemList);
         assertThat(template.getActionStrip()).isEqualTo(actionStrip);
         assertThat(template.getTitle().toString()).isEqualTo(title);
+        assertThat(template.getMapActionStrip()).isEqualTo(mMapActionStrip);
     }
 
     @Test
@@ -324,6 +339,8 @@ public class PlaceListNavigationTemplateTest {
                                 TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
                         .setHeaderAction(Action.BACK)
                         .setActionStrip(new ActionStrip.Builder().addAction(Action.BACK).build())
+                        .setMapActionStrip(mMapActionStrip)
+                        .setPanModeListener((panModechanged) -> {})
                         .setTitle("title")
                         .build();
 
@@ -335,6 +352,8 @@ public class PlaceListNavigationTemplateTest {
                                 .setHeaderAction(Action.BACK)
                                 .setActionStrip(
                                         new ActionStrip.Builder().addAction(Action.BACK).build())
+                                .setMapActionStrip(mMapActionStrip)
+                                .setPanModeListener((panModechanged) -> {})
                                 .setTitle("title")
                                 .build());
     }
@@ -394,6 +413,58 @@ public class PlaceListNavigationTemplateTest {
                                 .setActionStrip(
                                         new ActionStrip.Builder().addAction(
                                                 Action.APP_ICON).build())
+                                .build());
+    }
+
+    @Test
+    public void notEquals_differentMapActionStrip() {
+        PlaceListNavigationTemplate template = new PlaceListNavigationTemplate.Builder()
+                .setTitle("Title")
+                .setItemList(
+                        TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
+                .setActionStrip(
+                        mActionStrip)
+                .setMapActionStrip(mMapActionStrip)
+                .build();
+
+        assertThat(template)
+                .isNotEqualTo(
+                        new PlaceListNavigationTemplate.Builder()
+                                .setTitle("Title")
+                                .setItemList(
+                                        TestUtils.createItemListWithDistanceSpan(6, false,
+                                                mDistanceSpan))
+                                .setActionStrip(mActionStrip)
+                                .setMapActionStrip(new ActionStrip.Builder().addAction(
+                                        TestUtils.createAction(null, TestUtils.getTestCarIcon(
+                                                ApplicationProvider.getApplicationContext(),
+                                                "ic_test_2"))).build())
+                                .build());
+    }
+
+    @Test
+    public void notEquals_panModeListenerChange() {
+        PlaceListNavigationTemplate template = new PlaceListNavigationTemplate.Builder()
+                .setTitle("Title")
+                .setItemList(
+                        TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
+                .setActionStrip(
+                        mActionStrip)
+                .setMapActionStrip(mMapActionStrip)
+                .setPanModeListener((panModechanged) -> {
+                })
+                .build();
+
+        assertThat(template)
+                .isNotEqualTo(
+                        new PlaceListNavigationTemplate.Builder()
+                                .setTitle("Title")
+                                .setItemList(
+                                        TestUtils.createItemListWithDistanceSpan(6, false,
+                                                mDistanceSpan))
+                                .setActionStrip(
+                                        mActionStrip)
+                                .setMapActionStrip(mMapActionStrip)
                                 .build());
     }
 
