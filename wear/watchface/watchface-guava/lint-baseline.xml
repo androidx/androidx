@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="NewApi"
@@ -14,7 +14,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 27 (current min is 26): `WatchFaceControlService`"
+        message="Extending WatchFaceControlService requires API level 27 (current min is 26): `WatchFaceControlService`"
         errorLine1="    private val realService = object : WatchFaceControlService() {"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -36,7 +36,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 27 (current min is 26): `IWatchFaceInstanceServiceStub`"
+        message="Extending IWatchFaceInstanceServiceStub requires API level 27 (current min is 26): `IWatchFaceInstanceServiceStub`"
         errorLine1="            object : IWatchFaceInstanceServiceStub(this, Handler(Looper.getMainLooper())) {"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
