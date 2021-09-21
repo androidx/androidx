@@ -76,6 +76,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import java.lang.reflect.Proxy
 import java.time.Duration
 import java.time.Instant
 import kotlin.coroutines.resume
@@ -798,7 +799,39 @@ internal class OnWatchFaceEditorSessionImpl(
         }
     }
 
-    override val userStyle by lazy { MutableStateFlow(editorDelegate.userStyle) }
+    internal val wrappedUserStyle by lazy { MutableStateFlow(editorDelegate.userStyle) }
+
+    // Unfortunately a dynamic proxy is the only way we can reasonably validate the UserStyle,
+    // exceptions thrown within a coroutine are lost and the MutableStateFlow interface includes
+    // internal unstable methods so we can't use a static proxy...
+    @Suppress("BanUncheckedReflection", "UNCHECKED_CAST")
+    override val userStyle = Proxy.newProxyInstance(
+        MutableStateFlow::class.java.classLoader,
+        arrayOf<Class<*>>(MutableStateFlow::class.java)
+    ) { _, method, args ->
+        if (args == null) {
+            method?.invoke(wrappedUserStyle)
+        } else {
+            if (method?.name == "setValue") {
+                validateAndUpdateUserStyle(args[0] as UserStyle)
+            }
+            method?.invoke(wrappedUserStyle, *args)
+        }
+    } as MutableStateFlow<UserStyle>
+
+    internal fun validateAndUpdateUserStyle(userStyle: UserStyle) {
+        for (userStyleSetting in userStyle.keys) {
+            require(userStyleSchema.userStyleSettings.contains(userStyleSetting)) {
+                "A userStyleSetting (userStyleSetting) in userStyle does not match references in " +
+                    "EditorSession's userStyleSchema."
+            }
+        }
+
+        editorDelegate.userStyle = userStyle
+
+        // Changing the style may enable/disable complications.
+        maybeUpdateComplicationSlotsState()
+    }
 
     private lateinit var previousWatchFaceUserStyle: UserStyle
     private lateinit var backgroundCoroutineScope: CoroutineScope
@@ -871,20 +904,6 @@ internal class OnWatchFaceEditorSessionImpl(
         )
 
         fetchComplicationsDataJob = fetchComplicationsData(backgroundCoroutineScope)
-
-        coroutineScope.launch {
-            var first = true
-            userStyle.collect {
-                // We can ignore the first callback because it's for the initial style.
-                if (!first) {
-                    editorDelegate.userStyle = it
-
-                    // Changing the style may enable/disable complications.
-                    maybeUpdateComplicationSlotsState()
-                }
-                first = false
-            }
-        }
     }
 }
 
