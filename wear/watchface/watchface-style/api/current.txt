@@ -4,10 +4,9 @@ package androidx.wear.watchface.style {
   public final class CurrentUserStyleRepository {
     ctor public CurrentUserStyleRepository(androidx.wear.watchface.style.UserStyleSchema schema);
     method public androidx.wear.watchface.style.UserStyleSchema getSchema();
-    method public kotlinx.coroutines.flow.MutableStateFlow<androidx.wear.watchface.style.UserStyle> getUserStyle();
-    method public void setUserStyle(kotlinx.coroutines.flow.MutableStateFlow<androidx.wear.watchface.style.UserStyle> userStyle);
+    method public kotlinx.coroutines.flow.StateFlow<androidx.wear.watchface.style.UserStyle> getUserStyle();
     property public final androidx.wear.watchface.style.UserStyleSchema schema;
-    property public final kotlinx.coroutines.flow.MutableStateFlow<androidx.wear.watchface.style.UserStyle> userStyle;
+    property public final kotlinx.coroutines.flow.StateFlow<androidx.wear.watchface.style.UserStyle> userStyle;
   }
 
   public final class MutableUserStyle implements java.lang.Iterable<java.util.Map.Entry<? extends androidx.wear.watchface.style.UserStyleSetting,? extends androidx.wear.watchface.style.UserStyleSetting.Option>> kotlin.jvm.internal.markers.KMappedMarker {

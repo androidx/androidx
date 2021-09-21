@@ -553,7 +553,7 @@ public class EditorSessionTest {
             override var userStyle: UserStyle
                 get() = userStyleRepository.userStyle.value
                 set(value) {
-                    userStyleRepository.userStyle.value = value
+                    userStyleRepository.updateUserStyle(value)
                 }
 
             override val complicationSlotsManager = complicationSlotsManager
