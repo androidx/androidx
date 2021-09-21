@@ -421,12 +421,12 @@ class TypeAdapterStoreTest {
                 )
             )
 
-            val converter = store.findTypeConverter(
+            val converter = store.typeConverterStore.findTypeConverter(
                 binders[0].from,
                 invocation.context.COMMON_TYPES.STRING
             )
             assertThat(converter, notNullValue())
-            assertThat(store.reverse(converter!!), `is`(binders[1]))
+            assertThat(store.typeConverterStore.reverse(converter!!), `is`(binders[1]))
         }
     }
 
@@ -449,12 +449,12 @@ class TypeAdapterStoreTest {
             val stmtBinder = store.findStatementValueBinder(binders[0].from, null)
             assertThat(stmtBinder, notNullValue())
 
-            val converter = store.findTypeConverter(
+            val converter = store.typeConverterStore.findTypeConverter(
                 binders[0].from,
                 invocation.context.COMMON_TYPES.STRING
             )
             assertThat(converter, notNullValue())
-            assertThat(store.reverse(converter!!), nullValue())
+            assertThat(store.typeConverterStore.reverse(converter!!), nullValue())
         }
     }
 

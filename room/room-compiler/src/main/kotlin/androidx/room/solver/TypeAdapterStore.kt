@@ -122,9 +122,8 @@ class TypeAdapterStore private constructor(
      * first type adapter has the highest priority
      */
     private val columnTypeAdapters: List<ColumnTypeAdapter>,
-
-    private val typeConverterStore: TypeConverterStore,
-
+    @VisibleForTesting
+    internal val typeConverterStore: TypeConverterStore,
     private val builtInConverterFlags: BuiltInConverterFlags
 ) {
 
@@ -177,7 +176,10 @@ class TypeAdapterStore private constructor(
                 .forEach(::addTypeConverter)
             return TypeAdapterStore(
                 context = context, columnTypeAdapters = adapters,
-                typeConverterStore = TypeConverterStore(converters),
+                typeConverterStore = TypeConverterStore(
+                    typeConverters = converters,
+                    knownColumnTypes = adapters.map { it.out }
+                ),
                 builtInConverterFlags = builtInConverterFlags
             )
         }
@@ -218,11 +220,6 @@ class TypeAdapterStore private constructor(
             add(InstantDeleteOrUpdateMethodBinderProvider(context))
         }
 
-    // type mirrors that be converted into columns w/o an extra converter
-    private val knownColumnTypeMirrors by lazy {
-        columnTypeAdapters.map { it.out }
-    }
-
     /**
      * Searches 1 way to bind a value into a statement.
      */
@@ -239,8 +236,11 @@ class TypeAdapterStore private constructor(
         }
 
         fun findTypeConverterAdapter(): ColumnTypeAdapter? {
-            val targetTypes = targetTypeMirrorsFor(affinity)
-            val binder = findTypeConverter(input, targetTypes) ?: return null
+            val targetTypes = affinity?.getTypeMirrors(context.processingEnv)
+            val binder = typeConverterStore.findConverterIntoStatement(
+                input = input,
+                columnTypes = targetTypes
+            ) ?: return null
             // columnAdapter should not be null but we are receiving errors on crash in `first()` so
             // this safeguard allows us to dispatch the real problem to the user (e.g. why we couldn't
             // find the right adapter)
@@ -260,18 +260,6 @@ class TypeAdapterStore private constructor(
     }
 
     /**
-     * Returns which entities targets the given affinity.
-     */
-    private fun targetTypeMirrorsFor(affinity: SQLTypeAffinity?): List<XType> {
-        val specifiedTargets = affinity?.getTypeMirrors(context.processingEnv)
-        return if (specifiedTargets == null || specifiedTargets.isEmpty()) {
-            knownColumnTypeMirrors
-        } else {
-            specifiedTargets
-        }
-    }
-
-    /**
      * Searches 1 way to read it from cursor
      */
     fun findCursorValueReader(output: XType, affinity: SQLTypeAffinity?): CursorValueReader? {
@@ -285,8 +273,11 @@ class TypeAdapterStore private constructor(
         }
 
         fun findTypeConverterAdapter(): ColumnTypeAdapter? {
-            val targetTypes = targetTypeMirrorsFor(affinity)
-            val converter = findTypeConverter(targetTypes, output) ?: return null
+            val targetTypes = affinity?.getTypeMirrors(context.processingEnv)
+            val converter = typeConverterStore.findConverterFromCursor(
+                columnTypes = targetTypes,
+                output = output
+            ) ?: return null
             return CompositeAdapter(
                 output,
                 getAllColumnAdapters(converter.from).first(), null, converter
@@ -308,14 +299,6 @@ class TypeAdapterStore private constructor(
     }
 
     /**
-     * Tries to reverse the converter going through the same nodes, if possible.
-     */
-    @VisibleForTesting
-    fun reverse(converter: TypeConverter): TypeConverter? {
-        return typeConverterStore.reverse(converter)
-    }
-
-    /**
      * Finds a two way converter, if you need 1 way, use findStatementValueBinder or
      * findCursorValueReader.
      */
@@ -333,11 +316,14 @@ class TypeAdapterStore private constructor(
         }
 
         fun findTypeConverterAdapter(): ColumnTypeAdapter? {
-            val targetTypes = targetTypeMirrorsFor(affinity)
-            val intoStatement = findTypeConverter(out, targetTypes) ?: return null
+            val targetTypes = affinity?.getTypeMirrors(context.processingEnv)
+            val intoStatement = typeConverterStore.findConverterIntoStatement(
+                input = out,
+                columnTypes = targetTypes
+            ) ?: return null
             // ok found a converter, try the reverse now
-            val fromCursor = reverse(intoStatement)
-                ?: findTypeConverter(intoStatement.to, out) ?: return null
+            val fromCursor = typeConverterStore.reverse(intoStatement)
+                ?: typeConverterStore.findTypeConverter(intoStatement.to, out) ?: return null
             return CompositeAdapter(
                 out, getAllColumnAdapters(intoStatement.to).first(), intoStatement, fromCursor
             )
@@ -375,10 +361,6 @@ class TypeAdapterStore private constructor(
         return getAllColumnAdapters(out).firstOrNull {
             affinity == null || it.typeAffinity == affinity
         }
-    }
-
-    fun findTypeConverter(input: XType, output: XType): TypeConverter? {
-        return typeConverterStore.findTypeConverter(listOf(input), listOf(output))
     }
 
     fun findDeleteOrUpdateMethodBinder(typeMirror: XType): DeleteOrUpdateMethodBinder {
@@ -809,14 +791,6 @@ class TypeAdapterStore private constructor(
             val binder = findStatementValueBinder(typeMirror, null) ?: return null
             return BasicQueryParameterAdapter(binder)
         }
-    }
-
-    private fun findTypeConverter(input: XType, outputs: List<XType>): TypeConverter? {
-        return typeConverterStore.findTypeConverter(listOf(input), outputs)
-    }
-
-    private fun findTypeConverter(input: List<XType>, output: XType): TypeConverter? {
-        return typeConverterStore.findTypeConverter(input, listOf(output))
     }
 
     private fun getAllColumnAdapters(input: XType): List<ColumnTypeAdapter> {

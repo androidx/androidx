@@ -49,7 +49,7 @@ class SQLTypeAffinityTest {
             }
 
             val result = SQLTypeAffinity.values().associate {
-                it to it.getTypeMirrors(invocation.processingEnv).map(XType::toSignature)
+                it to it.getTypeMirrors(invocation.processingEnv)?.map(XType::toSignature)
             }
             assertThat(result).containsExactlyEntriesIn(
                 if (invocation.isKsp) KSP_MAPPING
@@ -60,7 +60,7 @@ class SQLTypeAffinityTest {
 
     companion object {
         private val KSP_MAPPING = mapOf(
-            SQLTypeAffinity.NULL to listOf(),
+            SQLTypeAffinity.NULL to null,
             SQLTypeAffinity.TEXT to listOf(
                 "java.lang.String!!",
                 "java.lang.String?"
@@ -96,7 +96,7 @@ class SQLTypeAffinityTest {
             )
         )
         private val JAVAC_MAPPING = mapOf(
-            SQLTypeAffinity.NULL to listOf(),
+            SQLTypeAffinity.NULL to null,
             SQLTypeAffinity.TEXT to listOf(
                 "java.lang.String"
             ),

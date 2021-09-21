@@ -70,7 +70,7 @@ class TypeConverterStoreTest {
                 invocation.context,
                 BuiltInConverterFlags.DEFAULT,
                 converters.map(::CustomTypeConverterWrapper)
-            )
+            ).typeConverterStore
 
             fun findConverter(from: String, to: String): String? {
                 val input = invocation.processingEnv.requireType(from)
