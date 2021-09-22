@@ -119,7 +119,10 @@ private class AccessorState<Key : Any, Value : Any> {
         // b) it might be blocked due to refresh being required first -> Incomplete
         // c) it might have never run -> Incomplete
         return when (blockState) {
-            COMPLETED -> LoadState.NotLoading.Complete
+            COMPLETED -> when (loadType) {
+                LoadType.REFRESH -> LoadState.NotLoading.Incomplete
+                else -> LoadState.NotLoading.Complete
+            }
             REQUIRES_REFRESH -> LoadState.NotLoading.Incomplete
             UNBLOCKED -> LoadState.NotLoading.Incomplete
         }

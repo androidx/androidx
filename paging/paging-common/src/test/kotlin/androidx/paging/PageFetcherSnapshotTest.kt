@@ -2353,7 +2353,7 @@ class PageFetcherSnapshotTest {
 
         assertThat(state.newEvents()).containsExactly(
             remoteLoadStateUpdate<Int>(
-                refreshRemote = NotLoading.Complete,
+                refreshRemote = NotLoading.Incomplete,
                 prependRemote = NotLoading.Complete,
                 appendRemote = NotLoading.Complete,
                 refreshLocal = Loading,
@@ -2368,7 +2368,7 @@ class PageFetcherSnapshotTest {
                     append = NotLoading.Complete,
                 ),
                 mediator = loadStates(
-                    refresh = NotLoading.Complete,
+                    refresh = NotLoading.Incomplete,
                     prepend = NotLoading.Complete,
                     append = NotLoading.Complete,
                 )
@@ -2416,7 +2416,7 @@ class PageFetcherSnapshotTest {
             ),
             remoteLoadStateUpdate<Int>(
                 refreshLocal = Loading,
-                refreshRemote = NotLoading.Complete,
+                refreshRemote = NotLoading.Incomplete,
                 prependRemote = NotLoading.Complete,
                 appendRemote = NotLoading.Complete,
             ),
@@ -2434,7 +2434,7 @@ class PageFetcherSnapshotTest {
                     prepend = NotLoading.Complete,
                 ),
                 mediator = loadStates(
-                    refresh = NotLoading.Complete,
+                    refresh = NotLoading.Incomplete,
                     append = NotLoading.Complete,
                     prepend = NotLoading.Complete,
                 ),
@@ -3071,7 +3071,7 @@ class PageFetcherSnapshotTest {
                 appendLocal = NotLoading.Complete,
                 prependRemote = NotLoading.Complete,
                 appendRemote = NotLoading.Complete,
-                refreshRemote = NotLoading.Complete
+                refreshRemote = NotLoading.Incomplete,
             ),
         )
 

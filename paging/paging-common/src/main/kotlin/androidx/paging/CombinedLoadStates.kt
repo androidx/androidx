@@ -18,6 +18,9 @@ package androidx.paging
 
 /**
  * Collection of pagination [LoadState]s for both a [PagingSource], and [RemoteMediator].
+ *
+ * Note: The [LoadType] [REFRESH][LoadType.REFRESH] always has [LoadState.endOfPaginationReached]
+ * set to `false`.
  */
 public class CombinedLoadStates(
     /**
