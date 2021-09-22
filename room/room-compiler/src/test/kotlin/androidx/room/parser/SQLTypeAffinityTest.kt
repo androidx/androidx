@@ -71,27 +71,20 @@ class SQLTypeAffinityTest {
             ),
             SQLTypeAffinity.INTEGER to listOf(
                 "int!!",
-                "java.lang.Integer!!",
                 "java.lang.Integer?",
                 "byte!!",
-                "java.lang.Byte!!",
                 "java.lang.Byte?",
                 "char!!",
-                "java.lang.Character!!",
                 "java.lang.Character?",
                 "long!!",
-                "java.lang.Long!!",
                 "java.lang.Long?",
                 "short!!",
-                "java.lang.Short!!",
                 "java.lang.Short?"
             ),
             SQLTypeAffinity.REAL to listOf(
                 "double!!",
-                "java.lang.Double!!",
                 "java.lang.Double?",
                 "float!!",
-                "java.lang.Float!!",
                 "java.lang.Float?",
             )
         )
