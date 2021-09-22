@@ -20,6 +20,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraSelector;
@@ -39,6 +40,7 @@ import java.util.Set;
 /**
  * The factory class that creates {@link Camera2CameraImpl} instances.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2CameraFactory implements CameraFactory {
     private static final int DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS = 1;
     private final CameraThreadConfig mThreadConfig;

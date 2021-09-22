@@ -109,6 +109,7 @@ import java.util.concurrent.TimeoutException;
 @SuppressWarnings("unchecked")
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public final class CaptureSessionTest {
     /** Thread for all asynchronous calls. */
     private static HandlerThread sHandlerThread;

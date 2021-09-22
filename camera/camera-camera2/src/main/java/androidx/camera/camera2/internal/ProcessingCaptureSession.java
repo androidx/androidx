@@ -22,6 +22,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
@@ -78,6 +79,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * </pre>
  * <p>This class is not thread-safe. All methods must be executed sequentially.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @OptIn(markerClass = ExperimentalCamera2Interop.class)
 final class ProcessingCaptureSession implements CaptureSessionInterface {
     private static final String TAG = "ProcessingCaptureSession";

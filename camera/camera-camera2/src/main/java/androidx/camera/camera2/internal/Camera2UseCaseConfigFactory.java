@@ -28,6 +28,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.display.DisplayManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.workaround.PreviewPixelHDRnet;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
@@ -40,6 +41,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
  * Implementation of UseCaseConfigFactory to provide the default camera2 configurations for use
  * cases.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
     final DisplayManager mDisplayManager;
 

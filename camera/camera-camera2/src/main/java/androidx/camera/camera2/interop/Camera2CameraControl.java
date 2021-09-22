@@ -18,6 +18,7 @@ package androidx.camera.camera2.interop;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
@@ -47,6 +48,7 @@ import java.util.concurrent.Executor;
  * unexpected behavior depends on the options being applied.
  */
 @ExperimentalCamera2Interop
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2CameraControl {
 
     /** @hide */

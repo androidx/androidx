@@ -32,7 +32,6 @@ import android.os.Looper
 import android.os.SystemClock
 import android.util.Size
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.internal.compat.CameraManagerCompat
 import androidx.camera.camera2.internal.util.RequestProcessorRequest
 import androidx.camera.camera2.interop.CaptureRequestOptions
@@ -59,6 +58,7 @@ import androidx.camera.testing.CameraUtil.CameraDeviceHolder
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
@@ -96,7 +96,7 @@ const val JPEG_QUALITY_VALUE: Byte = 50
  */
 @LargeTest
 @RunWith(Parameterized::class)
-@RequiresApi(23)
+@SdkSuppress(minSdkVersion = 23)
 class ProcessingCaptureSessionTest(
     private var lensFacing: Int,
     // The pair specifies (Origin image format to Transformed format), SessionProcessor will

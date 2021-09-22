@@ -24,6 +24,7 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Logger;
@@ -38,6 +39,7 @@ import java.util.Map;
 /**
  * This class is used to build a camera2 {@link CaptureRequest} from a {@link CaptureConfig}
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class Camera2CaptureRequestBuilder {
     private Camera2CaptureRequestBuilder() {
     }

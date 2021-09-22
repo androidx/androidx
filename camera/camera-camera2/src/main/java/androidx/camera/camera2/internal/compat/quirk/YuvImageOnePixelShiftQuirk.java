@@ -19,6 +19,7 @@ package androidx.camera.camera2.internal.compat.quirk;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.internal.compat.quirk.OnePixelShiftQuirk;
 
@@ -26,6 +27,7 @@ import androidx.camera.core.internal.compat.quirk.OnePixelShiftQuirk;
  * For these devices, workaround will be patched to shift one pixel right to left and
  * duplicate the last pixel for YUV_420_888 data when converting to RGBA.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class YuvImageOnePixelShiftQuirk implements OnePixelShiftQuirk {
 
     static boolean load(@NonNull CameraCharacteristicsCompat characteristicsCompat) {

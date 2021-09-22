@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.impl.SurfaceCombination;
 import androidx.camera.core.impl.SurfaceConfig;
@@ -41,6 +42,7 @@ import java.util.Set;
  * additional YUV/640x480 + PRIV/PREVIEW + YUV/MAXIMUM and YUV/640x480 + YUV/PREVIEW +
  * YUV/MAXIMUM configutations (See b/194149215).
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
     private static final String TAG = "ExtraSupportedSurfaceCombinationsQuirk";
 

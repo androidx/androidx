@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 
@@ -34,6 +35,7 @@ import java.util.Locale;
  *
  * <p>See b/193336562 and b/194046401 for details.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CameraNoResponseWhenEnablingFlashQuirk implements UseTorchAsFlashQuirk {
     @VisibleForTesting
     public static final String BUILD_BRAND = "SAMSUNG";

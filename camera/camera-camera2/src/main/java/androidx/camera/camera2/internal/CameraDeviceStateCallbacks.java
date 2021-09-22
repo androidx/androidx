@@ -19,6 +19,7 @@ package androidx.camera.camera2.internal;
 import android.hardware.camera2.CameraDevice;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +28,7 @@ import java.util.List;
 /**
  * Different implementations of {@link CameraDevice.StateCallback}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraDeviceStateCallbacks {
     private CameraDeviceStateCallbacks() {
     }
@@ -80,6 +82,7 @@ public final class CameraDeviceStateCallbacks {
         }
     }
 
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     private static final class ComboDeviceStateCallback extends CameraDevice.StateCallback {
         private final List<CameraDevice.StateCallback> mCallbacks = new ArrayList<>();
 

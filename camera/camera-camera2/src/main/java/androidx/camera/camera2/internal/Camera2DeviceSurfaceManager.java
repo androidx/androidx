@@ -22,6 +22,7 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
@@ -47,6 +48,7 @@ import java.util.Set;
  * devices. This structure is used to store the guaranteed supported stream capabilities related
  * info.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
     private static final String TAG = "Camera2DeviceSurfaceManager";
     private final Map<String, SupportedSurfaceCombination> mCameraSupportedSurfaceCombinationMap =

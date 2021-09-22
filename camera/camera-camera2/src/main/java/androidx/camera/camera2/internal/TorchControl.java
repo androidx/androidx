@@ -18,10 +18,10 @@ package androidx.camera.camera2.internal;
 
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.TotalCaptureResult;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraControl.OperationCanceledException;
@@ -47,6 +47,7 @@ import java.util.concurrent.Executor;
  * camera device is ready to do torch operations and be deactivated when the camera device is
  * closing or closed.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class TorchControl {
     private static final String TAG = "TorchControl";
     static final int DEFAULT_TORCH_STATE = TorchState.OFF;
@@ -78,9 +79,24 @@ final class TorchControl {
         mExecutor = executor;
         Boolean hasFlashUnit =
                 cameraCharacteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
-        mHasFlashUnit = hasFlashUnit != null && hasFlashUnit.booleanValue();
+        mHasFlashUnit = hasFlashUnit != null && hasFlashUnit;
         mTorchState = new MutableLiveData<>(DEFAULT_TORCH_STATE);
-        mCamera2CameraControlImpl.addCaptureResultListener(mCaptureResultListener);
+        Camera2CameraControlImpl.CaptureResultListener captureResultListener = captureResult -> {
+            if (mEnableTorchCompleter != null) {
+                CaptureRequest captureRequest = captureResult.getRequest();
+                Integer flashMode = captureRequest.get(CaptureRequest.FLASH_MODE);
+                boolean torchEnabled =
+                        flashMode != null && flashMode == CaptureRequest.FLASH_MODE_TORCH;
+
+                if (torchEnabled == mTargetTorchEnabled) {
+                    mEnableTorchCompleter.set(null);
+                    mEnableTorchCompleter = null;
+                }
+            }
+            // Return false to keep getting captureResult.
+            return false;
+        };
+        mCamera2CameraControlImpl.addCaptureResultListener(captureResultListener);
     }
 
     /**
@@ -196,26 +212,4 @@ final class TorchControl {
             liveData.postValue(value);
         }
     }
-
-    private final Camera2CameraControlImpl.CaptureResultListener mCaptureResultListener =
-            new Camera2CameraControlImpl.CaptureResultListener() {
-
-        @ExecutedBy("mExecutor")
-        @Override
-        public boolean onCaptureResult(@NonNull TotalCaptureResult captureResult) {
-            if (mEnableTorchCompleter != null) {
-                CaptureRequest captureRequest = captureResult.getRequest();
-                Integer flashMode = captureRequest.get(CaptureRequest.FLASH_MODE);
-                boolean torchEnabled =
-                        flashMode != null && flashMode == CaptureRequest.FLASH_MODE_TORCH;
-
-                if (torchEnabled == mTargetTorchEnabled) {
-                    mEnableTorchCompleter.set(null);
-                    mEnableTorchCompleter = null;
-                }
-            }
-            // Return false to keep getting captureResult.
-            return false;
-        }
-    };
 }

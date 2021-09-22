@@ -46,6 +46,7 @@ import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -67,6 +68,7 @@ private const val CAPTURE_TIMEOUT = 10_000.toLong() //  10 seconds
 
 @LargeTest
 @RunWith(Parameterized::class)
+@SdkSuppress(minSdkVersion = 21)
 class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String) {
 
     @get:Rule

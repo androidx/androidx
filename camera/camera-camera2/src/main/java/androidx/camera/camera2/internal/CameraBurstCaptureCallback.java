@@ -40,6 +40,7 @@ import java.util.Map;
  * <p>Note this class is not thread-safe and its methods should only be invoked from the single
  * thread.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraBurstCaptureCallback extends CameraCaptureSession.CaptureCallback {
 
     final Map<CaptureRequest, List<CameraCaptureSession.CaptureCallback>> mCallbackMap;
