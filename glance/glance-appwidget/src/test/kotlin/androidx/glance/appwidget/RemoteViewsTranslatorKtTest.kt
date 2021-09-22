@@ -497,7 +497,7 @@ class RemoteViewsTranslatorKtTest {
         val rv = runAndTranslate {
             Text(
                 "test",
-                style = TextStyle(fontWeight = FontWeight.Medium, size = 12.sp),
+                style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 12.sp),
             )
         }
         val view = context.applyRemoteViews(rv)

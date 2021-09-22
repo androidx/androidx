@@ -55,14 +55,14 @@ class ResponsiveAppWidget : GlanceAppWidget() {
                     Text(
                         "Responsive",
                         style = TextStyle(
-                            size = 15.sp, fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp, fontWeight = FontWeight.Bold,
                             textDecoration = TextDecoration.Underline
                         )
                     )
                     Text(
                         " layout",
                         style = TextStyle(
-                            size = 15.sp, fontWeight = FontWeight.Medium,
+                            fontSize = 15.sp, fontWeight = FontWeight.Medium,
                             textDecoration = TextDecoration.Underline
                         )
                     )

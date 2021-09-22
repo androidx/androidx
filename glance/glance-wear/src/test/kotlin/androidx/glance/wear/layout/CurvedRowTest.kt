@@ -20,10 +20,9 @@ import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 import androidx.glance.findModifier
 import androidx.glance.layout.PaddingModifier
-import androidx.glance.layout.TextDecoration
-import androidx.glance.layout.TextStyle
 import androidx.glance.layout.padding
 import androidx.glance.unit.dp
+import androidx.glance.unit.sp
 import androidx.glance.wear.runTestingComposition
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -46,7 +45,7 @@ class CurvedRowTest {
         val root = runTestingComposition {
             CurvedRow(
                 modifier = Modifier.padding(1.dp),
-                anchor = 5f,
+                anchorDegrees = 5f,
                 anchorType = AnchorType.End,
                 radialAlignment = RadialAlignment.Center
             ) {}
@@ -56,7 +55,7 @@ class CurvedRowTest {
 
         val arc = root.children[0] as EmittableCurvedRow
         assertThat(arc.children).hasSize(0)
-        assertThat(arc.anchor).isEqualTo(5f)
+        assertThat(arc.anchorDegrees).isEqualTo(5f)
         assertThat(arc.anchorType).isEqualTo(AnchorType.End)
         assertThat(arc.radialAlignment).isEqualTo(RadialAlignment.Center)
         assertThat(arc.modifier.findModifier<PaddingModifier>()).isNotNull()
@@ -69,7 +68,7 @@ class CurvedRowTest {
                 CurvedText(
                     text = "Hello World",
                     modifier = Modifier.padding(5.dp),
-                    textStyle = TextStyle(textDecoration = TextDecoration.Underline)
+                    textStyle = CurvedTextStyle(fontSize = 24.sp)
                 )
             }
         }
@@ -80,6 +79,6 @@ class CurvedRowTest {
         assertThat(arcText.text).isEqualTo("Hello World")
         assertThat(arcText.modifier.findModifier<PaddingModifier>()).isNotNull()
         assertThat(arcText.textStyle).isNotNull()
-        assertThat(arcText.textStyle!!.textDecoration).isEqualTo(TextDecoration.Underline)
+        assertThat(arcText.textStyle!!.fontSize).isEqualTo(24.sp)
     }
 }
