@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.PackageManager
 import androidx.annotation.OptIn
+import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
@@ -34,6 +35,7 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
@@ -46,6 +48,7 @@ import org.junit.After
 import org.junit.Test
 
 @SmallTest
+@SdkSuppress(minSdkVersion = 21)
 public class ProcessCameraProviderTest {
 
     private val context = ApplicationProvider.getApplicationContext() as Context
@@ -589,6 +592,7 @@ private class TestAppContextWrapper(base: Context, val app: Application? = null)
     }
 }
 
+@RequiresApi(21)
 private class TestApplication(val pm: PackageManager) : Application(), CameraXConfig.Provider {
     private val used = atomic(false)
     val providerUsed: Boolean
