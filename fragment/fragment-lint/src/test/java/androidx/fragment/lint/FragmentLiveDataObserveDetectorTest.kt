@@ -86,7 +86,7 @@ class Foo {
     fun observeData(fragment: Fragment) {
         val liveData = MutableLiveData<String>()
         liveData.observe(LifecycleOwner(), Observer<String> {})
-        liveData.observe(fragment, Observer<String> {}, true)
+        liveData.observe(fragment.viewLifecycleOwner, Observer<String> {}, true)
     }
 
     fun observe(fragment: Fragment) {}
