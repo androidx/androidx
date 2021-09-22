@@ -17,10 +17,9 @@
 package androidx.window.extensions.layout;
 
 import android.app.Activity;
-import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.window.extensions.WindowExtensions;
 
 import java.util.function.Consumer;
 
@@ -36,7 +35,7 @@ import java.util.function.Consumer;
  * relevant logical areas.
  *
  * <p>This interface should be implemented by OEM and deployed to the target devices.
- * @see WindowLayoutComponentProvider
+ * @see WindowExtensions#getWindowLayoutComponent()
  */
 public interface WindowLayoutComponent {
 
@@ -54,19 +53,4 @@ public interface WindowLayoutComponent {
      */
     public void removeWindowLayoutInfoListener(
             @NonNull Consumer<WindowLayoutInfo> consumer);
-
-    /**
-     * Returns the OEM implementation of {@link WindowLayoutComponent} if it is supported on the
-     * device. The implementation must match the API level reported in
-     * {@link androidx.window.extensions.WindowLibraryInfo}. A {@code null} value may be returned
-     * if the device does not support {@link WindowLayoutInfo}. If {@code null} is returned the
-     * core library will ignore all features related to {@link WindowLayoutComponent}. Currently
-     * the developer will receive a single callback with empty data where possible. For
-     * synchronous methods we will return a default value or {@code null}.
-     * @return the OEM implementation of {@link WindowLayoutComponent}
-     */
-    @Nullable
-    public static WindowLayoutComponent getInstance(@NonNull Context context) {
-        throw new UnsupportedOperationException("Stub, replace with implementation.");
-    }
 }
