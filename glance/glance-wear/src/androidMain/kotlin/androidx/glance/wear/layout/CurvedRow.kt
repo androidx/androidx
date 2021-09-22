@@ -19,12 +19,16 @@ package androidx.glance.wear.layout
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
+import androidx.compose.runtime.Immutable
 import androidx.glance.Applier
 import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
+import androidx.glance.layout.FontStyle
+import androidx.glance.layout.FontWeight
 import androidx.glance.layout.TextStyle
+import androidx.glance.unit.Sp
 
 /**
  * The alignment of a [CurvedRow]'s elements, with respect to its anchor angle. This specifies how
@@ -101,7 +105,7 @@ public inline class RadialAlignment private constructor(private val value: Int) 
 internal class EmittableCurvedRow : EmittableWithChildren() {
     override var modifier: Modifier = Modifier
 
-    var anchor: Float = 270f
+    var anchorDegrees: Float = 270f
     var anchorType: AnchorType = AnchorType.Center
     var radialAlignment: RadialAlignment = RadialAlignment.Center
 }
@@ -109,12 +113,12 @@ internal class EmittableCurvedRow : EmittableWithChildren() {
 internal class EmittableCurvedText : Emittable {
     override var modifier: Modifier = Modifier
     var text: String = ""
-    var textStyle: TextStyle? = null
+    var textStyle: CurvedTextStyle? = null
 }
 
 /**
  * A curved container. This container will fill itself to a circle, which fits inside its parent
- * container, and all of its children will be placed on that circle. The parameters [anchor]
+ * container, and all of its children will be placed on that circle. The parameters [anchorDegrees]
  * and [anchorType] can be used to specify where to draw children within this circle. Each
  * child will then be placed, one after the other, clockwise around the circle.
  *
@@ -123,12 +127,12 @@ internal class EmittableCurvedText : Emittable {
  * CurvedRow. Any other element will be drawn normally, at a tangent to the circle.
  *
  * @param modifier Modifiers for this container.
- * @param anchor The angle for the anchor in degrees, used with [anchorType] to determine
+ * @param anchorDegrees The angle for the anchor in degrees, used with [anchorType] to determine
  *   where to draw children. Note that 0 degrees is the 3 o'clock position on a device, and the
  *   angle sweeps clockwise. Values do not have to be clamped to the range 0-360; values less
  *   than 0 degrees will sweep anti-clockwise (i.e. -90 degrees is equivalent to 270 degrees),
  *   and values >360 will be be placed at X mod 360 degrees.
- * @param anchorType Alignment of the contents of this container relative to [anchor].
+ * @param anchorType Alignment of the contents of this container relative to [anchorDegrees].
  * @param radialAlignment specifies where to lay down children that are thinner than the
  *   CurvedRow, either closer to the center (INNER), apart from the center (OUTER) or in the middle
  *   point (CENTER).
@@ -137,7 +141,7 @@ internal class EmittableCurvedText : Emittable {
 @Composable
 public fun CurvedRow(
     modifier: Modifier = Modifier,
-    anchor: Float = 270f,
+    anchorDegrees: Float = 270f,
     anchorType: AnchorType = AnchorType.Center,
     radialAlignment: RadialAlignment = RadialAlignment.Center,
     content: @Composable CurvedRowScope.() -> Unit
@@ -146,12 +150,45 @@ public fun CurvedRow(
         factory = ::EmittableCurvedRow,
         update = {
             this.set(modifier) { this.modifier = it }
-            this.set(anchor) { this.anchor = it }
+            this.set(anchorDegrees) { this.anchorDegrees = it }
             this.set(anchorType) { this.anchorType = it }
             this.set(radialAlignment) { this.radialAlignment = it }
         },
         content = { CurvedRowScope().content() }
     )
+}
+
+/**
+ * Description of a text style for the [CurvedRowScope.CurvedText] composable.
+ */
+@Immutable
+public class CurvedTextStyle(
+    public val fontSize: Sp? = null,
+    public val fontWeight: FontWeight? = null,
+    public val fontStyle: FontStyle? = null
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TextStyle
+
+        if (fontSize != other.fontSize) return false
+        if (fontWeight != other.fontWeight) return false
+        if (fontStyle != other.fontStyle) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = fontSize.hashCode()
+        result = 31 * result + fontWeight.hashCode()
+        result = 31 * result + fontStyle.hashCode()
+        return result
+    }
+
+    override fun toString() =
+        "TextStyle(size=$fontSize, fontWeight=$fontWeight, fontStyle=$fontStyle)"
 }
 
 /** A scope for elements which can only be contained within a [CurvedRow]. */
@@ -167,7 +204,7 @@ class CurvedRowScope {
     public fun CurvedText(
         text: String,
         modifier: Modifier = Modifier,
-        textStyle: TextStyle? = null
+        textStyle: CurvedTextStyle? = null
     ) {
         ComposeNode<EmittableCurvedText, Applier>(
             factory = ::EmittableCurvedText,

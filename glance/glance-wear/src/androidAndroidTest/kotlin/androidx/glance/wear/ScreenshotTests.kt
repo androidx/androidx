@@ -47,6 +47,7 @@ import androidx.glance.unit.dp
 import androidx.glance.unit.sp
 import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.CurvedRow
+import androidx.glance.wear.layout.CurvedTextStyle
 import androidx.glance.wear.layout.RadialAlignment
 import androidx.glance.wear.layout.background
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
@@ -127,11 +128,11 @@ class ScreenshotTests {
         CurvedRow(
             modifier = Modifier.background(Color.Blue),
             radialAlignment = RadialAlignment.Center,
-            anchor = -90f,
+            anchorDegrees = -90f,
             anchorType = AnchorType.Center
         ) {
             CurvedText(text = "Hello World")
-            CurvedText(text = "This is a test!", textStyle = TextStyle(size = 24.sp))
+            CurvedText(text = "This is a test!", textStyle = CurvedTextStyle(fontSize = 24.sp))
         }
     }
 

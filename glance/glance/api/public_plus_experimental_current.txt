@@ -328,14 +328,14 @@ package androidx.glance.layout {
   }
 
   @androidx.compose.runtime.Immutable public final class TextStyle {
-    ctor public TextStyle(optional androidx.glance.unit.Sp? size, optional androidx.glance.layout.FontWeight? fontWeight, optional androidx.glance.layout.FontStyle? fontStyle, optional androidx.glance.layout.TextDecoration? textDecoration);
+    ctor public TextStyle(optional androidx.glance.unit.Sp? fontSize, optional androidx.glance.layout.FontWeight? fontWeight, optional androidx.glance.layout.FontStyle? fontStyle, optional androidx.glance.layout.TextDecoration? textDecoration);
+    method public androidx.glance.unit.Sp? getFontSize();
     method public androidx.glance.layout.FontStyle? getFontStyle();
     method public androidx.glance.layout.FontWeight? getFontWeight();
-    method public androidx.glance.unit.Sp? getSize();
     method public androidx.glance.layout.TextDecoration? getTextDecoration();
+    property public final androidx.glance.unit.Sp? fontSize;
     property public final androidx.glance.layout.FontStyle? fontStyle;
     property public final androidx.glance.layout.FontWeight? fontWeight;
-    property public final androidx.glance.unit.Sp? size;
     property public final androidx.glance.layout.TextDecoration? textDecoration;
   }
 

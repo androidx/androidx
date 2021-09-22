@@ -36,6 +36,7 @@ import androidx.glance.layout.TextStyle
 import androidx.glance.layout.WidthModifier
 import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.BackgroundModifier
+import androidx.glance.wear.layout.CurvedTextStyle
 import androidx.glance.wear.layout.EmittableCurvedRow
 import androidx.glance.wear.layout.EmittableCurvedText
 import androidx.glance.wear.layout.RadialAlignment
@@ -199,7 +200,7 @@ private fun translateEmittableColumn(
 private fun translateTextStyle(style: TextStyle): LayoutElementBuilders.FontStyle {
     val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
 
-    style.size?.let { fontStyleBuilder.setSize(sp(it.value)) }
+    style.fontSize?.let { fontStyleBuilder.setSize(sp(it.value)) }
     style.fontStyle?.let { fontStyleBuilder.setItalic(it == FontStyle.Italic) }
     style.fontWeight?.let {
         fontStyleBuilder.setWeight(
@@ -213,6 +214,25 @@ private fun translateTextStyle(style: TextStyle): LayoutElementBuilders.FontStyl
     }
     style.textDecoration?.let {
         fontStyleBuilder.setUnderline(TextDecoration.Underline in it)
+    }
+
+    return fontStyleBuilder.build()
+}
+
+private fun translateTextStyle(style: CurvedTextStyle): LayoutElementBuilders.FontStyle {
+    val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
+
+    style.fontSize?.let { fontStyleBuilder.setSize(sp(it.value)) }
+    style.fontStyle?.let { fontStyleBuilder.setItalic(it == FontStyle.Italic) }
+    style.fontWeight?.let {
+        fontStyleBuilder.setWeight(
+            when (it) {
+                FontWeight.Normal -> FONT_WEIGHT_NORMAL
+                FontWeight.Medium -> FONT_WEIGHT_MEDIUM
+                FontWeight.Bold -> FONT_WEIGHT_BOLD
+                else -> throw IllegalArgumentException("Unknown font weight $it")
+            }
+        )
     }
 
     return fontStyleBuilder.build()
@@ -250,7 +270,7 @@ private fun translateEmittableCurvedRow(
     // Note: Wear Tiles uses 0 degrees = 12 o clock, but Glance / Wear Compose use 0 degrees = 3
     // o clock. Tiles supports wraparound etc though, so just add on the 90 degrees here.
     val arcBuilder = LayoutElementBuilders.Arc.Builder()
-        .setAnchorAngle(degrees(element.anchor + 90f))
+        .setAnchorAngle(degrees(element.anchorDegrees + 90f))
         .setAnchorType(element.anchorType.toProto())
         .setVerticalAlign(element.radialAlignment.toProto())
 

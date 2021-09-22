@@ -48,7 +48,7 @@ public fun Text(text: String, modifier: Modifier = Modifier, style: TextStyle? =
  */
 @Immutable
 public class TextStyle(
-    public val size: Sp? = null,
+    public val fontSize: Sp? = null,
     public val fontWeight: FontWeight? = null,
     public val fontStyle: FontStyle? = null,
     public val textDecoration: TextDecoration? = null
@@ -59,7 +59,7 @@ public class TextStyle(
 
         other as TextStyle
 
-        if (size != other.size) return false
+        if (fontSize != other.fontSize) return false
         if (fontWeight != other.fontWeight) return false
         if (fontStyle != other.fontStyle) return false
         if (textDecoration != other.textDecoration) return false
@@ -68,7 +68,7 @@ public class TextStyle(
     }
 
     override fun hashCode(): Int {
-        var result = size.hashCode()
+        var result = fontSize.hashCode()
         result = 31 * result + fontWeight.hashCode()
         result = 31 * result + fontStyle.hashCode()
         result = 31 * result + textDecoration.hashCode()
@@ -76,7 +76,7 @@ public class TextStyle(
     }
 
     override fun toString() =
-        "TextStyle(size=$size, fontWeight=$fontWeight, fontStyle=$fontStyle, " +
+        "TextStyle(size=$fontSize, fontWeight=$fontWeight, fontStyle=$fontStyle, " +
             "textDecoration=$textDecoration)"
 }
 
