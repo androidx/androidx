@@ -713,6 +713,57 @@ class PageFetcherSnapshotTest {
     }
 
     @Test
+    fun rapidViewportHints() = testScope.runBlockingTest {
+        val config = PagingConfig(
+            pageSize = 10,
+            prefetchDistance = 5,
+            enablePlaceholders = true,
+            initialLoadSize = 10,
+            maxSize = 100
+        )
+        val pageFetcher = PageFetcher(pagingSourceFactory, 0, config)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+        assertThat(fetcherState.newEvents()).containsExactly(
+            localLoadStateUpdate<Int>(refreshLocal = Loading),
+            createRefresh(0..9, startState = NotLoading.Complete)
+        )
+        pauseDispatcher {
+            val receiver = fetcherState.pagingDataList[0].receiver
+            // send a bunch of access hints while collection is paused
+            (0..9).forEach { pos ->
+                receiver.accessHint(
+                    ViewportHint.Access(
+                        pageOffset = 0,
+                        indexInPage = pos,
+                        presentedItemsBefore = pos,
+                        presentedItemsAfter = 9 - pos,
+                        originalPageOffsetFirst = 0,
+                        originalPageOffsetLast = 0
+                    )
+                )
+            }
+        }
+
+        advanceUntilIdle()
+        assertThat(fetcherState.newEvents()).containsExactly(
+            localLoadStateUpdate<Int>(
+                appendLocal = Loading,
+                prependLocal = NotLoading.Complete
+            ),
+            createAppend(
+                pageOffset = 1,
+                range = 10..19,
+                startState = NotLoading.Complete,
+                endState = NotLoading.Incomplete
+            ),
+        )
+
+        fetcherState.job.cancel()
+    }
+
+    @Test
     fun append() = testScope.runBlockingTest {
         val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
@@ -3444,7 +3495,7 @@ class PageFetcherSnapshotTest {
 
         assertTrue { accessHint.shouldPrioritizeOver(initialHint, PREPEND) }
         assertFalse { initialHint.shouldPrioritizeOver(accessHint, PREPEND) }
-        assertTrue { accessHint.shouldPrioritizeOver(accessHint, APPEND) }
+        assertTrue { accessHint.shouldPrioritizeOver(initialHint, APPEND) }
         assertFalse { initialHint.shouldPrioritizeOver(accessHint, APPEND) }
     }
 

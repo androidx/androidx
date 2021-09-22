@@ -48,6 +48,9 @@ package androidx.paging {
   public final class FlowExtKt {
   }
 
+  public final class HintHandlerKt {
+  }
+
   public final class InvalidatingPagingSourceFactory<Key, Value> implements kotlin.jvm.functions.Function0<androidx.paging.PagingSource<Key,Value>> {
     ctor public InvalidatingPagingSourceFactory(kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
     method public void invalidate();
