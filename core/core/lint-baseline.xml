@@ -3,6 +3,215 @@
 
     <issue
         id="NewApi"
+        message="Call requires API level S (current min is 14): `android.view.ContentInfo#getClip`"
+        errorLine1="            return mWrapped.getClip();"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ContentInfoCompat.java"
+            line="456"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `android.view.ContentInfo#getSource`"
+        errorLine1="            return mWrapped.getSource();"
+        errorLine2="                            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ContentInfoCompat.java"
+            line="462"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `android.view.ContentInfo#getFlags`"
+        errorLine1="            return mWrapped.getFlags();"
+        errorLine2="                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ContentInfoCompat.java"
+            line="468"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `android.view.ContentInfo#getLinkUri`"
+        errorLine1="            return mWrapped.getLinkUri();"
+        errorLine2="                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ContentInfoCompat.java"
+            line="474"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `android.view.ContentInfo#getExtras`"
+        errorLine1="            return mWrapped.getExtras();"
+        errorLine2="                            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ContentInfoCompat.java"
+            line="480"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 30): `new android.widget.EdgeEffect`"
+        errorLine1="                return new EdgeEffect(context, attrs);"
+        errorLine2="                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/EdgeEffectCompat.java"
+            line="306"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 30): `android.widget.EdgeEffect#onPullDistance`"
+        errorLine1="                return edgeEffect.onPullDistance(deltaDistance, displacement);"
+        errorLine2="                                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/EdgeEffectCompat.java"
+            line="319"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 30): `android.widget.EdgeEffect#getDistance`"
+        errorLine1="                return edgeEffect.getDistance();"
+        errorLine2="                                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/EdgeEffectCompat.java"
+            line="329"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 14): `android.location.LocationRequest`"
+        errorLine1="                            LocationRequest.class, Executor.class, LocationListener.class);"
+        errorLine2="                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationManagerCompat.java"
+            line="254"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 14): `android.location.LocationRequest`"
+        errorLine1="                            LocationRequest.class, LocationListener.class, Looper.class);"
+        errorLine2="                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationManagerCompat.java"
+            line="278"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 14): `android.location.LocationRequest`"
+        errorLine1="                            LocationRequest.class, LocationListener.class, Looper.class);"
+        errorLine2="                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationManagerCompat.java"
+            line="333"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `android.location.LocationListener#onLocationChanged`"
+        errorLine1="                listener.onLocationChanged(locations);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationManagerCompat.java"
+            line="692"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 14): `android.location.LocationListener#onFlushComplete`"
+        errorLine1="                listener.onFlushComplete(requestCode);"
+        errorLine2="                         ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationManagerCompat.java"
+            line="707"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 19): `android.location.LocationRequest`"
+        errorLine1="                    sCreateFromDeprecatedProviderMethod = LocationRequest.class.getDeclaredMethod("
+        errorLine2="                                                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationRequestCompat.java"
+            line="251"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 19): `android.location.LocationRequest`"
+        errorLine1="                        (LocationRequest) sCreateFromDeprecatedProviderMethod.invoke(null, provider,"
+        errorLine2="                         ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationRequestCompat.java"
+            line="258"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 19): `android.location.LocationRequest`"
+        errorLine1="                    sSetQualityMethod = LocationRequest.class.getDeclaredMethod("
+        errorLine2="                                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationRequestCompat.java"
+            line="266"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 19): `android.location.LocationRequest`"
+        errorLine1="                        sSetFastestIntervalMethod = LocationRequest.class.getDeclaredMethod("
+        errorLine2="                                                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationRequestCompat.java"
+            line="274"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 19): `android.location.LocationRequest`"
+        errorLine1="                        sSetNumUpdatesMethod = LocationRequest.class.getDeclaredMethod("
+        errorLine2="                                               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationRequestCompat.java"
+            line="284"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 19): `android.location.LocationRequest`"
+        errorLine1="                        sSetExpireInMethod = LocationRequest.class.getDeclaredMethod("
+        errorLine2="                                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/location/LocationRequestCompat.java"
+            line="294"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
         message="Call requires API level 24 (current min is 14): `java.util.Optional#of`"
         errorLine1="                return Optional.of(modeCompat);"
         errorLine2="                                ~~">
