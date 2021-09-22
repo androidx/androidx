@@ -633,6 +633,12 @@ using `context.driver.requestRepeat(detector, scope)`.
 Contains most of the canonical names for android core library classes, as well
 as XML tag names.
 
+## Misc
+
+### What does `VFY` mean?
+
+If you see `VFY` in log files, it's the optcode for class verification.
+
 ## Helpful links
 
 [Writing Custom Lint Rules](https://googlesamples.github.io/android-custom-lint-rules/)
