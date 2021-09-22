@@ -122,7 +122,7 @@ package androidx.wear.watchface.client {
 
   public interface InteractiveWatchFaceClient extends java.lang.AutoCloseable {
     method @AnyThread public void addClientDisconnectListener(androidx.wear.watchface.client.InteractiveWatchFaceClient.ClientDisconnectListener listener, java.util.concurrent.Executor executor);
-    method public void addWatchFaceReadyListener(java.util.concurrent.Executor executor, androidx.wear.watchface.client.InteractiveWatchFaceClient.WatchFaceReadyListener listener);
+    method public void addWatchFaceReadyListener(java.util.concurrent.Executor executor, androidx.wear.watchface.client.InteractiveWatchFaceClient.OnWatchFaceReadyListener listener);
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default Integer? getComplicationIdAt(@Px int x, @Px int y) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState> getComplicationSlotsState();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.util.List<androidx.wear.watchface.ContentDescriptionLabel> getContentDescriptionLabels();
@@ -132,7 +132,7 @@ package androidx.wear.watchface.client {
     method @AnyThread public boolean isConnectionAlive();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void performAmbientTick() throws android.os.RemoteException;
     method @AnyThread public void removeClientDisconnectListener(androidx.wear.watchface.client.InteractiveWatchFaceClient.ClientDisconnectListener listener);
-    method public void removeWatchFaceReadyListener(androidx.wear.watchface.client.InteractiveWatchFaceClient.WatchFaceReadyListener listener);
+    method public void removeWatchFaceReadyListener(androidx.wear.watchface.client.InteractiveWatchFaceClient.OnWatchFaceReadyListener listener);
     method @RequiresApi(27) @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, java.time.Instant instant, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData>? idAndComplicationData) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void sendTouchEvent(@Px int xPosition, @Px int yPosition, @androidx.wear.watchface.TapType int tapType) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void setWatchUiState(androidx.wear.watchface.client.WatchUiState watchUiState) throws android.os.RemoteException;
@@ -160,7 +160,7 @@ package androidx.wear.watchface.client {
     field public static final int TAP_TYPE_UP = 2; // 0x2
   }
 
-  public static fun interface InteractiveWatchFaceClient.WatchFaceReadyListener {
+  public static fun interface InteractiveWatchFaceClient.OnWatchFaceReadyListener {
     method public void onWatchFaceReady();
   }
 

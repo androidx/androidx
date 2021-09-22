@@ -215,10 +215,10 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
 
     /**
      * Interface passed to [addWatchFaceReadyListener] which calls
-     * [WatchFaceReadyListener.onWatchFaceReady] when the watch face is ready to render. Use
-     * [addWatchFaceReadyListener] to register a WatchFaceReadyListener.
+     * [OnWatchFaceReadyListener.onWatchFaceReady] when the watch face is ready to render. Use
+     * [addWatchFaceReadyListener] to register a OnWatchFaceReadyListener.
      */
-    public fun interface WatchFaceReadyListener {
+    public fun interface OnWatchFaceReadyListener {
         /**
          * Called when the watchface is ready to render.
          *
@@ -229,21 +229,21 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     }
 
     /**
-     * Registers a [WatchFaceReadyListener] which gets called when the watch face is ready to
+     * Registers a [OnWatchFaceReadyListener] which gets called when the watch face is ready to
      * render.
      *
      * Note in the event of the watch face disconnecting (e.g. due to a crash) the listener will
      * never get called. Use [ClientDisconnectListener] to observe disconnects.
      *
-     * @param executor The [Executor] on which to run [WatchFaceReadyListener].
-     * @param listener The [WatchFaceReadyListener] to run when the watchface is ready to render.
+     * @param executor The [Executor] on which to run [OnWatchFaceReadyListener].
+     * @param listener The [OnWatchFaceReadyListener] to run when the watchface is ready to render.
      */
-    public fun addWatchFaceReadyListener(executor: Executor, listener: WatchFaceReadyListener)
+    public fun addWatchFaceReadyListener(executor: Executor, listener: OnWatchFaceReadyListener)
 
     /**
      * Stops listening for events registered by [addWatchFaceReadyListener].
      */
-    public fun removeWatchFaceReadyListener(listener: WatchFaceReadyListener)
+    public fun removeWatchFaceReadyListener(listener: OnWatchFaceReadyListener)
 }
 
 /** Controls a stateful remote interactive watch face. */
@@ -255,7 +255,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     private val disconnectListeners =
         HashMap<InteractiveWatchFaceClient.ClientDisconnectListener, Executor>()
     private val readyListeners =
-        HashMap<InteractiveWatchFaceClient.WatchFaceReadyListener, Executor>()
+        HashMap<InteractiveWatchFaceClient.OnWatchFaceReadyListener, Executor>()
     private var watchfaceReadyListenerRegistered = false
 
     init {
@@ -438,7 +438,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     }
 
     internal fun onWatchFaceReady() {
-        var listenerCopy: HashMap<InteractiveWatchFaceClient.WatchFaceReadyListener, Executor>
+        var listenerCopy: HashMap<InteractiveWatchFaceClient.OnWatchFaceReadyListener, Executor>
 
         synchronized(lock) {
             listenerCopy = HashMap(readyListeners)
@@ -453,7 +453,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
 
     override fun addWatchFaceReadyListener(
         executor: Executor,
-        listener: InteractiveWatchFaceClient.WatchFaceReadyListener
+        listener: InteractiveWatchFaceClient.OnWatchFaceReadyListener
     ) {
         synchronized(lock) {
             require(!readyListeners.contains(listener)) {
@@ -465,7 +465,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     }
 
     override fun removeWatchFaceReadyListener(
-        listener: InteractiveWatchFaceClient.WatchFaceReadyListener
+        listener: InteractiveWatchFaceClient.OnWatchFaceReadyListener
     ) {
         synchronized(lock) {
             readyListeners.remove(listener)
