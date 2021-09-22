@@ -25,6 +25,7 @@ import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
+import androidx.annotation.IdRes
 import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 import androidx.glance.action.Action
@@ -36,7 +37,8 @@ import androidx.glance.unit.Dp
 private fun applyAction(
     rv: RemoteViews,
     action: Action,
-    context: Context
+    context: Context,
+    @IdRes viewId: Int
 ) {
     when (action) {
         is LaunchActivityAction -> {
@@ -48,7 +50,7 @@ private fun applyAction(
                     intent,
                     PendingIntent.FLAG_MUTABLE
                 )
-            rv.setOnClickPendingIntent(R.id.glanceView, pendingIntent)
+            rv.setOnClickPendingIntent(viewId, pendingIntent)
         }
         else -> throw IllegalArgumentException("Unrecognized action type.")
     }
@@ -57,7 +59,8 @@ private fun applyAction(
 private fun applyPadding(
     rv: RemoteViews,
     modifier: PaddingModifier,
-    resources: Resources
+    resources: Resources,
+    @IdRes viewId: Int
 ) {
     val displayMetrics = resources.displayMetrics
     val isRtl = modifier.rtlAware &&
@@ -65,7 +68,7 @@ private fun applyPadding(
     val start = modifier.start.toPixels(displayMetrics)
     val end = modifier.end.toPixels(displayMetrics)
     rv.setViewPadding(
-        R.id.glanceView,
+        viewId,
         if (isRtl) end else start,
         modifier.top.toPixels(displayMetrics),
         if (isRtl) start else end,
@@ -73,11 +76,16 @@ private fun applyPadding(
     )
 }
 
-internal fun applyModifiers(context: Context, rv: RemoteViews, modifiers: Modifier) {
+internal fun applyModifiers(
+    context: Context,
+    rv: RemoteViews,
+    modifiers: Modifier,
+    @IdRes viewId: Int = R.id.glanceView
+) {
     modifiers.foldOut(Unit) { modifier, _ ->
         when (modifier) {
-            is ActionModifier -> applyAction(rv, modifier.action, context)
-            is PaddingModifier -> applyPadding(rv, modifier, context.resources)
+            is ActionModifier -> applyAction(rv, modifier.action, context, viewId)
+            is PaddingModifier -> applyPadding(rv, modifier, context.resources, viewId)
         }
     }
 }
