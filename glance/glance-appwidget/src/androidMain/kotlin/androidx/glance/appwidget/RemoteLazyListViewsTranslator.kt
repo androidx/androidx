@@ -50,22 +50,29 @@ internal fun translateEmittableLazyColumn(
 
 @OptIn(GlanceInternalApi::class)
 private fun translateEmittableLazyList(
-    state: TranslationContext,
+    translationContext: TranslationContext,
     element: EmittableLazyList,
     @IdRes viewId: Int,
     @LayoutRes layoutId: Int
-): RemoteViews = remoteViews(state, layoutId)
+): RemoteViews = remoteViews(translationContext, layoutId)
     .also { rv ->
         val items = RemoteViewsCompat.RemoteCollectionItems.Builder().apply {
             element.children.fold(false) { previous, itemEmittable ->
                 val itemId = (itemEmittable as EmittableLazyListItem).itemId
-                addItem(itemId, translateChild(state, itemEmittable))
+                addItem(itemId, translateChild(translationContext, itemEmittable))
                 // If the user specifies any explicit ids, we assume the list to be stable
                 previous || (itemId > ReservedItemIdRangeEnd)
             }.let { setHasStableIds(it) }
             // TODO(b/198618359): assign an explicit view type count
         }.build()
-        RemoteViewsCompat.setRemoteAdapter(state.context, rv, state.appWidgetId, viewId, items)
+        RemoteViewsCompat.setRemoteAdapter(
+            translationContext.context,
+            rv,
+            translationContext.appWidgetId,
+            viewId,
+            items
+        )
+        applyModifiers(translationContext.context, rv, element.modifier, viewId)
     }
 
 /**
