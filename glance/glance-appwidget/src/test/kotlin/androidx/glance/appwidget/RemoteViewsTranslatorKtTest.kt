@@ -37,9 +37,11 @@ import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.compose.runtime.Composable
+import androidx.core.view.children
 import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 import androidx.glance.appwidget.layout.LazyColumn
+import androidx.glance.appwidget.layout.AndroidRemoteViews
 import androidx.glance.appwidget.layout.ReservedItemIdRangeEnd
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -673,6 +675,25 @@ class RemoteViewsTranslatorKtTest {
                 LazyColumn { }
             }
         }
+    }
+
+    @Test
+    fun canTranslateAndroidRemoteViews() = fakeCoroutineScope.runBlockingTest {
+        val sizeContext = SizeContext.DoNotExpand
+        val layoutDef = selectLayout(LayoutSelector.Type.Text, Modifier, sizeContext)
+        val providedViews = RemoteViews(context.packageName, layoutDef.layoutId).also {
+            it.setTextViewText(R.id.glanceView, "Android Remote Views")
+        }
+
+        val result = runAndTranslate {
+            Box {
+                AndroidRemoteViews(providedViews)
+            }
+        }
+
+        val rootLayout = assertIs<ViewGroup>(context.applyRemoteViews(result))
+        val actual = assertIs<TextView>(rootLayout.children.single())
+        assertThat(actual.text).isEqualTo("Android Remote Views")
     }
 
     // Check there is a single span, that it's of the correct type and passes the [check].
