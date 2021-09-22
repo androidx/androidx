@@ -27,7 +27,7 @@ import android.widget.TextView;
 
 import androidx.activity.ComponentActivity;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
+import androidx.lifecycle.FlowLiveDataConversions;
 import androidx.wear.watchface.complications.ComplicationDataSourceInfo;
 import androidx.wear.watchface.complications.data.ComplicationData;
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable;
@@ -35,10 +35,7 @@ import androidx.wear.watchface.editor.ListenableEditorSession;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.Map;
 import java.util.concurrent.Executor;
-
-import kotlinx.coroutines.flow.StateFlow;
 
 /** Configuration activity for the watch face. */
 public class ConfigActivity extends ComponentActivity {
@@ -58,7 +55,8 @@ public class ConfigActivity extends ComponentActivity {
     private ImageView mComplicationPreview;
     private ComplicationDrawable mComplicationPreviewDrawable;
 
-    @Nullable private ListenableEditorSession mEditorSession;
+    @Nullable
+    private ListenableEditorSession mEditorSession;
 
     public ConfigActivity() {
         addCallback(
@@ -68,8 +66,7 @@ public class ConfigActivity extends ComponentActivity {
                     @Override
                     public void onSuccess(ListenableEditorSession editorSession) {
                         super.onSuccess(editorSession);
-                        ConfigActivity.this.mEditorSession = editorSession;
-                        updateComplicationSlotStatus();
+                        setEditorSession(editorSession);
                     }
                 });
     }
@@ -91,52 +88,14 @@ public class ConfigActivity extends ComponentActivity {
         }
     }
 
-    private void changeComplication() {
-        Log.d(TAG, "changeComplication");
-        if (mEditorSession == null) {
-            return;
-        }
-        mEditorSession
-                .listenableOpenComplicationDataSourceChooser(WatchFaceService.COMPLICATION_ID)
-                .addListener(this::updateComplicationSlotStatus, mMainExecutor);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        updateComplicationSlotStatus();
-    }
-
-    @Override
-    protected void onDestroy() {
-        finish();
-        super.onDestroy();
-    }
-
-    private void updateComplicationSlotStatus() {
-        if (mEditorSession == null) {
-            return;
-        }
-        updateComplicationDataSourceName();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            updateComplicationSlotPreview();
-        }
-    }
-
-    private void updateComplicationDataSourceName() {
-        if (mEditorSession == null) {
-            return;
-        }
-        addCallback(
-                mEditorSession.getListenableComplicationsProviderInfo(),
-                new BaseFutureCallback<StateFlow<Map<Integer, ComplicationDataSourceInfo>>>(
-                        this, TAG, "getListenableComplicationsProviderInfo") {
-                    @Override
-                    public void onSuccess(
-                            StateFlow<Map<Integer, ComplicationDataSourceInfo>> flow) {
-                        super.onSuccess(flow);
+    private void setEditorSession(ListenableEditorSession editorSession) {
+        ConfigActivity.this.mEditorSession = editorSession;
+        FlowLiveDataConversions.asLiveData(mEditorSession.getComplicationsDataSourceInfo()).observe(
+                this,
+                complicationDataSourceInfoMap -> {
+                    if (!complicationDataSourceInfoMap.isEmpty()) {
                         ComplicationDataSourceInfo info =
-                                flow.getValue().get(WatchFaceService.COMPLICATION_ID);
+                                complicationDataSourceInfoMap.get(WatchFaceService.COMPLICATION_ID);
                         if (info == null) {
                             mComplicationProviderName.setText(
                                     getString(R.string.complication_none));
@@ -144,23 +103,17 @@ public class ConfigActivity extends ComponentActivity {
                             mComplicationProviderName.setText(info.getName());
                         }
                     }
-                });
-    }
+                }
+        );
 
-    @RequiresApi(Build.VERSION_CODES.R)
-    private void updateComplicationSlotPreview() {
-        if (mEditorSession == null) {
-            return;
-        }
-        addCallback(
-                mEditorSession.getListenableComplicationPreviewData(),
-                new BaseFutureCallback<StateFlow<Map<Integer, ComplicationData>>>(
-                        this, TAG, "getListenableComplicationPreviewData") {
-                    @Override
-                    public void onSuccess(StateFlow<Map<Integer, ComplicationData>> flow) {
-                        super.onSuccess(flow);
+        FlowLiveDataConversions.asLiveData(mEditorSession.getComplicationsPreviewData()).observe(
+                this,
+                complicationsPreviewData -> {
+                    if (complicationsPreviewData.isEmpty()) {
+                        mComplicationPreview.setImageResource(R.drawable.preview_loading);
+                    } else {
                         ComplicationData preview =
-                                flow.getValue().get(WatchFaceService.COMPLICATION_ID);
+                                complicationsPreviewData.get(WatchFaceService.COMPLICATION_ID);
                         if (preview != null) {
                             mComplicationPreview.setImageDrawable(mComplicationPreviewDrawable);
                             mComplicationPreviewDrawable.setComplicationData(preview, true);
@@ -168,13 +121,25 @@ public class ConfigActivity extends ComponentActivity {
                             mComplicationPreview.setImageResource(R.drawable.preview_unavailable);
                         }
                     }
+                }
 
-                    @Override
-                    public void onPending() {
-                        super.onPending();
-                        mComplicationPreview.setImageResource(R.drawable.preview_loading);
-                    }
-                });
+        );
+    }
+
+    private void changeComplication() {
+        Log.d(TAG, "changeComplication");
+        if (mEditorSession == null) {
+            return;
+        }
+        mEditorSession
+                .listenableOpenComplicationDataSourceChooser(WatchFaceService.COMPLICATION_ID)
+                .addListener(() -> { /* Empty on purpose. */ }, mMainExecutor);
+    }
+
+    @Override
+    protected void onDestroy() {
+        finish();
+        super.onDestroy();
     }
 
     private <T> void addCallback(ListenableFuture<T> future, FutureCallback<T> callback) {

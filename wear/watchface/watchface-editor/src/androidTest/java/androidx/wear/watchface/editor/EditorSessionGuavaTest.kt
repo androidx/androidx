@@ -36,7 +36,6 @@ import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.LongTextComplicationData
-import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.CanvasComplication
 import androidx.wear.watchface.ComplicationDataSourceChooserIntent
 import androidx.wear.watchface.ComplicationHelperActivity
@@ -178,35 +177,6 @@ public class EditorSessionGuavaTest {
     }
 
     @Test
-    public fun getListenableComplicationPreviewData() {
-        val scenario = createOnWatchFaceEditingTestActivity(
-            emptyList(),
-            listOf(leftComplication, rightComplication)
-        )
-
-        lateinit var listenableEditorSession: ListenableEditorSession
-        scenario.onActivity { activity ->
-            listenableEditorSession = activity.listenableEditorSession
-        }
-
-        val resources = ApplicationProvider.getApplicationContext<Context>().resources
-        val future = listenableEditorSession.getListenableComplicationPreviewData()
-        val previewData = future.get(TIMEOUT_MS, TimeUnit.MILLISECONDS).value
-
-        val leftComplicationData = previewData[LEFT_COMPLICATION_ID] as
-            ShortTextComplicationData
-        assertThat(
-            leftComplicationData.text.getTextAt(resources, Instant.EPOCH)
-        ).isEqualTo("Left")
-
-        val rightComplicationData = previewData[RIGHT_COMPLICATION_ID] as
-            LongTextComplicationData
-        assertThat(
-            rightComplicationData.text.getTextAt(resources, Instant.EPOCH)
-        ).isEqualTo("Right")
-    }
-
-    @Test
     public fun listenableOpenComplicationDataSourceChooser() {
         ComplicationDataSourceChooserContract.useTestComplicationHelperActivity = true
         val chosenComplicationDataSourceInfo = ComplicationDataSourceInfo(
@@ -254,8 +224,7 @@ public class EditorSessionGuavaTest {
 
         // This should update the preview data to point to the updated dataSource3 data.
         val previewComplication =
-            listenableEditorSession.getListenableComplicationPreviewData()
-                .get(TIMEOUT_MS, TimeUnit.MILLISECONDS).value[LEFT_COMPLICATION_ID]
+            listenableEditorSession.complicationsPreviewData.value[LEFT_COMPLICATION_ID]
                 as LongTextComplicationData
 
         assertThat(

@@ -151,28 +151,29 @@ public interface EditorSession : AutoCloseable {
 
     /**
      * Returns a flow of maps of [androidx.wear.watchface.ComplicationSlot] ids to preview
-     * [ComplicationData] suitable for use in rendering a preview of the watch face. Note if a
-     * slot is configured to be empty then it will an instance of [EmptyComplicationData].
-     * Disabled complicationSlots are included. Note also unlike live data this is static per
-     * complication data source, but it may update (on the UiThread) as a result of
-     * [openComplicationDataSourceChooser].
+     * [ComplicationData] suitable for use in rendering a preview of the watch face. This data is
+     * fetched asynchronously and the map will initially be empty. New data may be pushed as
+     * result of running [openComplicationDataSourceChooser].
+     *
+     * Note if a slot is configured to be empty then the map will contain an instance of
+     * [EmptyComplicationData] for that slot. Disabled complicationSlots are included in the map.
      *
      * If accessed from java, consider using
      * [androidx.lifecycle.FlowLiveDataConversions.asLiveData] to observe changes.
      */
-    public suspend fun getComplicationsPreviewData(): StateFlow<Map<Int, ComplicationData>>
+    public val complicationsPreviewData: StateFlow<Map<Int, ComplicationData>>
 
     /**
      * Returns a flow of maps of [androidx.wear.watchface.ComplicationSlot] ids to
      * [ComplicationDataSourceInfo] that represent the information available about the data
-     * source for each complication.
+     * source for each complication. This data is fetched asynchronously and the map will initially
+     * be empty. New data may be pushed as result of running [openComplicationDataSourceChooser].
      *
-     * A `null` [ComplicationDataSourceInfo] will be associated with a complication slot id if the
-     * [androidx.wear.watchface.ComplicationSlot] is configured to show the empty complication
+     * Note a `null` [ComplicationDataSourceInfo] will be associated with a complication slot id if
+     * the [androidx.wear.watchface.ComplicationSlot] is configured to show the empty complication
      * data source.
      */
-    public suspend fun
-    getComplicationsDataSourceInfo(): StateFlow<Map<Int, ComplicationDataSourceInfo?>>
+    public val complicationsDataSourceInfo: StateFlow<Map<Int, ComplicationDataSourceInfo?>>
 
     /** The ID of the background complication or `null` if there isn't one. */
     @get:SuppressWarnings("AutoBoxing")
@@ -431,19 +432,12 @@ public abstract class BaseEditorSession internal constructor(
      * This is completed when [fetchComplicationsData] has called [getPreviewData] for each
      * complication and each of those have been completed.
      */
-    internal val deferredComplicationPreviewDataMapFlow =
-        CompletableDeferred<MutableStateFlow<Map<Int, ComplicationData>>>()
+    internal val deferredComplicationPreviewDataAvailable = CompletableDeferred<Unit>()
 
-    override suspend fun getComplicationsPreviewData(): StateFlow<Map<Int, ComplicationData>> =
-        deferredComplicationPreviewDataMapFlow.await()
+    override val complicationsPreviewData = MutableStateFlow<Map<Int, ComplicationData>>(emptyMap())
 
-    /** This is completed when [fetchComplicationsData] has fetched the data. */
-    private val deferredComplicationsDataSourceInfoMapFlow =
-        CompletableDeferred<MutableStateFlow<Map<Int, ComplicationDataSourceInfo?>>>()
-
-    override suspend fun
-    getComplicationsDataSourceInfo(): StateFlow<Map<Int, ComplicationDataSourceInfo?>> =
-        deferredComplicationsDataSourceInfoMapFlow.await()
+    override val complicationsDataSourceInfo =
+        MutableStateFlow<Map<Int, ComplicationDataSourceInfo?>>(emptyMap())
 
     /** Pending result for ComplicationDataSourceChooserRequest. */
     internal var pendingComplicationDataSourceChooserResult:
@@ -530,12 +524,11 @@ public abstract class BaseEditorSession internal constructor(
             complicationDataSourceInfoRetrieverProvider.getComplicationDataSourceInfoRetriever()
 
         try {
-            val complicationsDataSourceInfoMapFlow =
-                deferredComplicationsDataSourceInfoMapFlow.await()
+            deferredComplicationPreviewDataAvailable.await()
 
             // Emit an updated complicationsDataSourceInfoMap.
-            complicationsDataSourceInfoMapFlow.value =
-                HashMap(complicationsDataSourceInfoMapFlow.value).apply {
+            complicationsDataSourceInfo.value =
+                HashMap(complicationsDataSourceInfo.value).apply {
                     this[complicationSlotId] = complicationDataSourceChooserResult.dataSourceInfo
                 }
 
@@ -543,11 +536,10 @@ public abstract class BaseEditorSession internal constructor(
                 complicationDataSourceInfoRetriever,
                 complicationDataSourceChooserResult.dataSourceInfo
             )
-            val complicationPreviewDataMapFlow = deferredComplicationPreviewDataMapFlow.await()
 
             // Emit an updated complicationPreviewDataMap.
-            complicationPreviewDataMapFlow.value =
-                HashMap(complicationPreviewDataMapFlow.value).apply {
+            complicationsPreviewData.value =
+                HashMap(complicationsPreviewData.value).apply {
                     this[complicationSlotId] = previewData ?: EmptyComplicationData()
                 }
 
@@ -640,28 +632,23 @@ public abstract class BaseEditorSession internal constructor(
                         watchFaceComponentName,
                         complicationSlotsState.value.keys.toIntArray()
                     )
-                deferredComplicationsDataSourceInfoMapFlow.complete(
-                    MutableStateFlow(
-                        extractComplicationsDataSourceInfoMap(dataSourceInfoArray) ?: emptyMap()
-                    )
-                )
+                complicationsDataSourceInfo.value =
+                    extractComplicationsDataSourceInfoMap(dataSourceInfoArray) ?: emptyMap()
+
                 // Parallel fetch preview ComplicationData.
-                deferredComplicationPreviewDataMapFlow.complete(
-                    MutableStateFlow(
-                        dataSourceInfoArray?.associateBy(
-                            { it.slotId },
-                            {
-                                async {
-                                    getPreviewData(complicationDataSourceInfoRetriever, it.info)
-                                }
-                            }
-                            // Coerce to a Map<Int, ComplicationData> omitting null values.
-                            // If mapNotNullValues existed we would use it here.
-                        )?.mapValues {
-                            it.value.await() ?: EmptyComplicationData()
-                        } ?: emptyMap()
-                    )
-                )
+                complicationsPreviewData.value = dataSourceInfoArray?.associateBy(
+                    { it.slotId },
+                    {
+                        async {
+                            getPreviewData(complicationDataSourceInfoRetriever, it.info)
+                        }
+                    }
+                    // Coerce to a Map<Int, ComplicationData> omitting null values.
+                    // If mapNotNullValues existed we would use it here.
+                )?.mapValues {
+                    it.value.await() ?: EmptyComplicationData()
+                } ?: emptyMap()
+                deferredComplicationPreviewDataAvailable.complete(Unit)
             } finally {
                 complicationDataSourceInfoRetriever.close()
             }
@@ -679,6 +666,7 @@ public abstract class BaseEditorSession internal constructor(
         coroutineScope.launchWithTracing("BaseEditorSession.close") {
             try {
                 withTimeout(CLOSE_BROADCAST_TIMEOUT_MILLIS) {
+                    deferredComplicationPreviewDataAvailable.await()
                     val previewImage =
                         if (commitChangesOnClose && previewScreenshotParams != null &&
                             Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1
@@ -687,7 +675,7 @@ public abstract class BaseEditorSession internal constructor(
                                 renderWatchFaceToBitmap(
                                     previewScreenshotParams.renderParameters,
                                     previewScreenshotParams.instant,
-                                    getComplicationsPreviewData().value
+                                    complicationsPreviewData.value
                                 )
                             )
                         } else {
@@ -697,7 +685,7 @@ public abstract class BaseEditorSession internal constructor(
                         EditorStateWireFormat(
                             watchFaceId.id,
                             userStyle.value.toWireFormat(),
-                            getComplicationsPreviewData().value.mapNotNull {
+                            complicationsPreviewData.value.mapNotNull {
                                 if (complicationSlotsState.value[it.key]!!.isEnabled) {
                                     IdAndComplicationDataWireFormat(
                                         it.key,
@@ -769,21 +757,14 @@ internal class OnWatchFaceEditorSessionImpl(
     }
 
     override fun fetchComplicationSlotsState(): Map<Int, ComplicationSlotState> {
-        val previewDataMap = runBlocking {
-            if (deferredComplicationPreviewDataMapFlow.isCompleted) {
-                deferredComplicationPreviewDataMapFlow.await().value
-            } else {
-                null
-            }
-        }
         return editorDelegate.complicationSlotsManager.complicationSlots.mapValues {
             requireNotClosed()
             // Get the ComplicationType from the preview data if available. This is important
             // because the type and therefore bounds may change based on the selected complication
             // data source.
-            val type = previewDataMap?.let { previewDataMap ->
-                previewDataMap[it.key]!!.type
-            } ?: it.value.complicationData.value.type
+            val type = complicationsPreviewData.value.let { previewDataMap ->
+                previewDataMap[it.key]?.type ?: it.value.complicationData.value.type
+            }
             ComplicationSlotState(
                 it.value.computeBounds(editorDelegate.screenBounds, type),
                 it.value.boundsType,
