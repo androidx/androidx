@@ -81,7 +81,7 @@ internal class ConfigView(
     private val watchFaceConfigActivity: WatchFaceConfigActivity
 ) : SwipeDismissFrameLayout(context) {
 
-    private lateinit var previewComplicationData: StateFlow<Map<Int, ComplicationData>>
+    private lateinit var previewComplicationData: StateFlow<Map<Int, ComplicationData>?>
     private val drawRect = Rect()
 
     // One invisible button per complication.
@@ -112,7 +112,7 @@ internal class ConfigView(
                         watchFaceConfigActivity.coroutineScope.launch {
                             val dataSourceInfo =
                                 watchFaceConfigActivity.editorSession
-                                    .getComplicationsDataSourceInfo().value[entry.key]
+                                    .complicationsDataSourceInfo.value[entry.key]
                             it.tooltipText =
                                 dataSourceInfo?.name ?: "Empty complication data source"
                         }
@@ -127,8 +127,7 @@ internal class ConfigView(
 
     init {
         watchFaceConfigActivity.coroutineScope.launch {
-            previewComplicationData =
-                watchFaceConfigActivity.editorSession.getComplicationsPreviewData()
+            previewComplicationData = watchFaceConfigActivity.editorSession.complicationsPreviewData
             setWillNotDraw(false)
             previewComplicationData.collect {
                 requestLayout()

@@ -42,8 +42,8 @@ package androidx.wear.watchface.editor {
     method public Integer? getBackgroundComplicationSlotId();
     method @UiThread public Integer? getComplicationSlotIdAt(@Px int x, @Px int y);
     method public kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState>> getComplicationSlotsState();
-    method public suspend Object? getComplicationsDataSourceInfo(kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.StateFlow<? extends java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.ComplicationDataSourceInfo>>> p);
-    method public suspend Object? getComplicationsPreviewData(kotlin.coroutines.Continuation<? super kotlinx.coroutines.flow.StateFlow<? extends java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData>>> p);
+    method public kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.ComplicationDataSourceInfo>> getComplicationsDataSourceInfo();
+    method public kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.data.ComplicationData>> getComplicationsPreviewData();
     method public java.time.Instant getPreviewReferenceInstant();
     method public kotlinx.coroutines.flow.MutableStateFlow<androidx.wear.watchface.style.UserStyle> getUserStyle();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
@@ -56,6 +56,8 @@ package androidx.wear.watchface.editor {
     property public abstract Integer? backgroundComplicationSlotId;
     property @UiThread public abstract boolean commitChangesOnClose;
     property public abstract kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState>> complicationSlotsState;
+    property public abstract kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.ComplicationDataSourceInfo>> complicationsDataSourceInfo;
+    property public abstract kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.data.ComplicationData>> complicationsPreviewData;
     property public abstract java.time.Instant previewReferenceInstant;
     property public abstract kotlinx.coroutines.flow.MutableStateFlow<androidx.wear.watchface.style.UserStyle> userStyle;
     property public abstract androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
