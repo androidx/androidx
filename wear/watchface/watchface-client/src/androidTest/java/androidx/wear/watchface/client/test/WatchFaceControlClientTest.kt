@@ -1183,7 +1183,7 @@ class WatchFaceControlClientTest {
         try {
             var listenerCalled = false
             val listener =
-                InteractiveWatchFaceClient.WatchFaceReadyListener { listenerCalled = true }
+                InteractiveWatchFaceClient.OnWatchFaceReadyListener { listenerCalled = true }
             interactiveInstance.addWatchFaceReadyListener(
                 { runnable -> runnable.run() },
                 listener
