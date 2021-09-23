@@ -17,6 +17,7 @@
 package androidx.camera.extensions;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraProvider;
@@ -28,6 +29,7 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * The available modes for the extensions.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ExtensionMode {
     /** Normal mode without any specific effect applied. */
     public static final int NONE = 0;

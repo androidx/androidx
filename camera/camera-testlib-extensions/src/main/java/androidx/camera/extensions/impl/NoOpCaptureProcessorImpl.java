@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,36 @@
 
 package androidx.camera.extensions.impl;
 
-import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.TotalCaptureResult;
+import android.media.Image;
 import android.util.Pair;
+import android.util.Size;
+import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-import java.util.List;
+import java.util.Map;
 
-/**
- * The set of parameters that defines a single capture that will be sent to the camera.
- *
- * @since 1.0
- */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public interface CaptureStageImpl {
-    /** Returns the identifier for the {@link CaptureStageImpl}. */
-    int getId();
+final class NoOpCaptureProcessorImpl implements CaptureProcessorImpl {
+    @Override
+    public void onOutputSurface(@NonNull Surface surface, int imageFormat) {
 
-    /**
-     * Returns the set of {@link CaptureRequest.Key} and the corresponding values that will be
-     * set for a single {@link CaptureRequest}.
-     */
-    List<Pair<CaptureRequest.Key, Object>> getParameters();
+    }
+
+    @Override
+    public void process(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results) {
+
+    }
+
+    @Override
+    public void onResolutionUpdate(@NonNull Size size) {
+
+    }
+
+    @Override
+    public void onImageFormatUpdate(int imageFormat) {
+
+    }
 }

@@ -21,6 +21,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.extensions.impl.advanced.Camera2OutputConfigImpl;
 import androidx.camera.extensions.impl.advanced.ImageReaderOutputConfigImpl;
 import androidx.camera.extensions.impl.advanced.MultiResolutionImageReaderOutputConfigImpl;
@@ -36,6 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * A builder for building {@link Camera2OutputConfig}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class Camera2OutputConfigBuilder {
     private static AtomicInteger sLastId = new AtomicInteger(0);
     private OutputConfig mOutputConfig;

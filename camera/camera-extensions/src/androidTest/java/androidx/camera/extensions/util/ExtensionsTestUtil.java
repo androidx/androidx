@@ -27,6 +27,7 @@ import static junit.framework.TestCase.assertNotNull;
 import android.hardware.camera2.CameraCharacteristics;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
@@ -48,6 +49,7 @@ import java.util.Collection;
 /**
  * Extension test util functions.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExtensionsTestUtil {
     @NonNull
     public static Collection<Object[]> getAllExtensionsLensFacingCombinations() {

@@ -26,6 +26,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.List;
 
@@ -37,6 +38,7 @@ import java.util.List;
  *
  * @since 1.0
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
     private static final int DEFAULT_STAGE_ID = 0;
 
@@ -79,7 +81,38 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
         return null;
     }
 
-    private PreviewImageProcessorImpl mProcessor = new PreviewImageProcessorImpl() {
+    private final PreviewImageProcessorImpl mProcessor =
+            new HdrPreviewExtenderPreviewImageProcessorImpl();
+
+    @Override
+    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
+            Context context) {
+        mRenderer = new GLImage2SurfaceRenderer();
+    }
+
+    @Override
+    public void onDeInit() {
+        mRenderer.close();
+        mRenderer = null;
+    }
+
+    @Override
+    public CaptureStageImpl onPresetSession() {
+        return null;
+    }
+
+    @Override
+    public CaptureStageImpl onEnableSession() {
+        return null;
+    }
+
+    @Override
+    public CaptureStageImpl onDisableSession() {
+        return null;
+    }
+
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+    final class HdrPreviewExtenderPreviewImageProcessorImpl implements PreviewImageProcessorImpl {
         Surface mSurface;
         Size mSize;
 
@@ -112,32 +145,5 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
         public void onImageFormatUpdate(int imageFormat) {
 
         }
-    };
-
-    @Override
-    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
-            Context context) {
-        mRenderer = new GLImage2SurfaceRenderer();
-    }
-
-    @Override
-    public void onDeInit() {
-        mRenderer.close();
-        mRenderer = null;
-    }
-
-    @Override
-    public CaptureStageImpl onPresetSession() {
-        return null;
-    }
-
-    @Override
-    public CaptureStageImpl onEnableSession() {
-        return null;
-    }
-
-    @Override
-    public CaptureStageImpl onDisableSession() {
-        return null;
     }
 }
