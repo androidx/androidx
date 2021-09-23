@@ -427,11 +427,11 @@ class AutoMigrationWriter(
         addedColumns.forEach {
             val addNewColumnSql = buildString {
                 append(
-                    "ALTER TABLE `${it.value.tableName}` ADD COLUMN `${it.key}` " +
-                        "${it.value.fieldBundle.affinity} "
+                    "ALTER TABLE `${it.tableName}` ADD COLUMN `${it.fieldBundle.columnName}` " +
+                        "${it.fieldBundle.affinity} "
                 )
-                if (it.value.fieldBundle.isNonNull) {
-                    append("NOT NULL DEFAULT ${it.value.fieldBundle.defaultValue}")
+                if (it.fieldBundle.isNonNull) {
+                    append("NOT NULL DEFAULT ${it.fieldBundle.defaultValue}")
                 } else {
                     append("DEFAULT NULL")
                 }
