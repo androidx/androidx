@@ -15,7 +15,7 @@
  */
 
 // see ../playground-common/README.md for details on how this works
-rootProject.name = "navigation-playground"
+rootProject.name = "lifecycle-playground"
 apply from: "../playground-common/playground-include-settings.gradle"
 setupPlayground(this, "..")
 selectProjectsFromAndroidX({ name ->
