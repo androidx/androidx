@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2.pipe
 
+import androidx.annotation.RequiresApi
+
 /**
  * Platform-independent Android ImageFormats and their associated values.
  *
@@ -24,6 +26,7 @@ package androidx.camera.camera2.pipe
  * // TODO: Consider adding data-space as a separate property, or finding a way to work it in.
  */
 @Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public inline class StreamFormat(public val value: Int) {
     public companion object {
         public val UNKNOWN: StreamFormat = StreamFormat(0)

@@ -23,6 +23,7 @@ import android.hardware.camera2.CameraConstrainedHighSpeedCaptureSession
 import android.hardware.camera2.params.SessionConfiguration
 import android.hardware.camera2.params.MeteringRectangle
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
 import kotlinx.coroutines.Deferred
@@ -31,6 +32,7 @@ import java.io.Closeable
 /**
  * A [CameraGraph] represents the combined configuration and state of a camera.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraGraph : Closeable {
     public val streams: StreamGraph
 
@@ -122,6 +124,7 @@ public interface CameraGraph : Closeable {
         HIGH_SPEED,
     }
 
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public object Constants3A {
         // Constants related to controlling the time or frame budget a 3A operation should get.
         public const val DEFAULT_FRAME_LIMIT: Int = 60

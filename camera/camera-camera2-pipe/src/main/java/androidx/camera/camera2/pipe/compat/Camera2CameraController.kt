@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.ForCameraGraph
@@ -34,6 +35,7 @@ import javax.inject.Inject
  *
  * TODO: Reorganize these constructor parameters.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraGraphScope
 internal class Camera2CameraController @Inject constructor(
     @ForCameraGraph private val scope: CoroutineScope,
