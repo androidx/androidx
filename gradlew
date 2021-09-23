@@ -230,6 +230,11 @@ else
   cleanCaches=false
 fi
 
+# workaround for https://github.com/gradle/gradle/issues/18386
+if [[ " ${@} " =~ " --profile " ]]; then
+  mkdir -p reports
+fi
+
 # Expand some arguments
 for compact in "--ci" "--strict" "--clean"; do
   if [ "$compact" == "--ci" ]; then
@@ -294,6 +299,8 @@ function removeCaches() {
   rm -rf $SCRIPT_PATH/appsearch/appsearch/.cxx
   rm -rf $SCRIPT_PATH/appsearch/local-backend/.cxx
   rm -rf $SCRIPT_PATH/appsearch/local-storage/.cxx
+  # https://github.com/gradle/gradle/issues/18386
+  rm -rf $SCRIPT_PATH/reports
   rm -rf $OUT_DIR
 }
 
