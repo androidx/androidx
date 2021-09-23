@@ -47,6 +47,8 @@ import java.util.BitSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 @RequiresApi(19)
 class ProfileTranscoder {
@@ -59,11 +61,12 @@ class ProfileTranscoder {
     private static final int INLINE_CACHE_MISSING_TYPES_ENCODING = 6;
     private static final int INLINE_CACHE_MEGAMORPHIC_ENCODING = 7;
 
-    static final byte[] MAGIC = new byte[]{'p', 'r', 'o', '\u0000'};
+    static final byte[] MAGIC_PROF = new byte[]{'p', 'r', 'o', '\u0000'};
+    static final byte[] MAGIC_PROFM = new byte[]{'p', 'r', 'm', '\u0000'};
 
-    static byte[] readHeader(@NonNull InputStream is) throws IOException {
-        byte[] fileMagic = read(is, MAGIC.length);
-        if (!Arrays.equals(MAGIC, fileMagic)) {
+    static byte[] readHeader(@NonNull InputStream is, @NonNull byte[] magic) throws IOException {
+        byte[] fileMagic = read(is, magic.length);
+        if (!Arrays.equals(magic, fileMagic)) {
             // If we find a file that doesn't claim to be a profile, something really unexpected
             // has happened. Fail.
             throw error("Invalid magic");
@@ -72,7 +75,7 @@ class ProfileTranscoder {
     }
 
     static void writeHeader(@NonNull OutputStream os, byte[] version) throws IOException {
-        os.write(MAGIC);
+        os.write(MAGIC_PROF);
         os.write(version);
     }
 
@@ -137,7 +140,7 @@ class ProfileTranscoder {
             String profileKey = generateDexKey(data.apkName, data.dexName, ProfileVersion.V001_N);
             writeUInt16(os, utf8Length(profileKey));
             writeUInt16(os, data.methods.size());
-            writeUInt16(os, data.classes.size());
+            writeUInt16(os, data.classes.length);
             writeUInt32(os, data.dexChecksum);
             writeString(os, profileKey);
 
@@ -245,7 +248,7 @@ class ProfileTranscoder {
                             UINT_16_SIZE);// inline cache size (should always be 0 for us)
             String dexKey = generateDexKey(data.apkName, data.dexName, ProfileVersion.V005_O);
             writeUInt16(os, utf8Length(dexKey));
-            writeUInt16(os, data.classes.size());
+            writeUInt16(os, data.classes.length);
             writeUInt32(os, hotMethodRegionSize);
             writeUInt32(os, data.dexChecksum);
             writeString(os, dexKey);
@@ -466,7 +469,6 @@ class ProfileTranscoder {
         os.write(bitmap);
     }
 
-
     /**
      * Reads and parses data from the InputStream into an in-memory representation, to later be
      * written to disk using [writeProfileForO] or [writeProfileForN]. This method expects that
@@ -531,6 +533,93 @@ class ProfileTranscoder {
     }
 
     /**
+     *
+     *
+     * [profile_header, zipped[[dex_data_header1, dex_data_header2...],[dex_data1,
+     *    dex_data2...], global_aggregation_count]]
+     * profile_header:
+     *   magic,version,number_of_dex_files,uncompressed_size_of_zipped_data,compressed_data_size
+     * dex_data_header:
+     *   dex_location,number_of_classes
+     * dex_data:
+     *   class_id1,class_id2...
+     *
+     * @param is
+     * @param version
+     * @param profile
+     * @return
+     * @throws IOException
+     */
+    static @NonNull DexProfileData[] readMeta(
+            @NonNull InputStream is,
+            @NonNull byte[] version,
+            DexProfileData[] profile
+    ) throws IOException {
+        if (!Arrays.equals(version, ProfileVersion.METADATA_V001_N)) {
+            throw error("Unsupported meta version");
+        }
+        int numberOfDexFiles = readUInt8(is);
+        long uncompressedDataSize = readUInt32(is);
+        long compressedDataSize = readUInt32(is);
+
+        // We are done with the header, so everything that follows is the compressed blob. We
+        // uncompress it all and load it into memory
+        byte[] uncompressedData = readCompressed(
+                is,
+                (int) compressedDataSize,
+                (int) uncompressedDataSize
+        );
+        if (is.read() > 0) throw error("Content found after the end of file");
+
+        try (InputStream dataStream = new ByteArrayInputStream(uncompressedData)) {
+            return readMetadataForNBody(dataStream, numberOfDexFiles, profile);
+        }
+    }
+
+    /**
+     * Parses the un-zipped blob of data in the P+ profile format. It is assumed that no data has
+     * been read from this blob, and that the InputStream that this method is passed was just
+     * decompressed from the original file.
+     *
+     * @return A map of keys (dex names) to the parsed [DexProfileData] for that dex.
+     */
+    private static @NonNull DexProfileData[] readMetadataForNBody(
+            @NonNull InputStream is,
+            int numberOfDexFiles,
+            DexProfileData[] profile
+    ) throws IOException {
+        // If the uncompressed profile data stream is empty then we have nothing more to do.
+        if (is.available() == 0) {
+            return new DexProfileData[0];
+        }
+        if (numberOfDexFiles != profile.length) {
+            throw error("Mismatched number of dex files found in metadata");
+        }
+        // Read the dex file line headers.
+        String[] names = new String[numberOfDexFiles];
+        int[] sizes = new int[numberOfDexFiles];
+        for (int i = 0; i < numberOfDexFiles; i++) {
+            int dexNameSize = readUInt16(is);
+            sizes[i] = readUInt16(is);
+            names[i] = readString(is, dexNameSize);
+        }
+
+        // Load data for each discovered dex file.
+        for (int i = 0; i < numberOfDexFiles; i++) {
+            DexProfileData data = profile[i];
+            if (!data.dexName.equals(names[i])) {
+                throw error("Order of dexfiles in metadata did not match baseline");
+            }
+            data.classSetSize = sizes[i];
+            data.classes = new int[data.classSetSize];
+            // Then the startup classes are stored
+            readClasses(is, data);
+        }
+
+        return profile;
+    }
+
+    /**
      * Return a correctly formatted dex key in the format
      *       APK_NAME SEPARATOR DEX_NAME
      *
@@ -586,8 +675,8 @@ class ProfileTranscoder {
                     (int) numMethodIds,
                     // NOTE: It is important to use LinkedHashSet/LinkedHashMap here to
                     // ensure that iteration order matches insertion order
-                    new LinkedHashSet<>(),
-                    new LinkedHashMap<>()
+                    new int[classSetSize],
+                    new TreeMap<>()
             );
         }
 
@@ -676,7 +765,7 @@ class ProfileTranscoder {
         for (int k = 0; k < data.classSetSize; k++) {
             int diffWithTheLastClassIndex = readUInt16(is);
             int classDexIndex = lastClassIndex + diffWithTheLastClassIndex;
-            data.classes.add(classDexIndex);
+            data.classes[k] = classDexIndex;
             lastClassIndex = classDexIndex;
         }
     }
