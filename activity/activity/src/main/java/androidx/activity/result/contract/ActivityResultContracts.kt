@@ -48,7 +48,7 @@ class ActivityResultContracts private constructor() {
      */
     class StartActivityForResult : ActivityResultContract<Intent, ActivityResult>() {
 
-        internal companion object {
+        companion object {
             /**
              * Key for the extra containing a [android.os.Bundle] generated from
              * [androidx.core.app.ActivityOptionsCompat.toBundle] or
@@ -86,7 +86,7 @@ class ActivityResultContracts private constructor() {
     class StartIntentSenderForResult :
         ActivityResultContract<IntentSenderRequest, ActivityResult>() {
 
-        internal companion object {
+        companion object {
             /**
              * An [Intent] action for making a request via the
              * [Activity.startIntentSenderForResult] API.
@@ -127,7 +127,7 @@ class ActivityResultContracts private constructor() {
     class RequestMultiplePermissions :
         ActivityResultContract<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>() {
 
-        internal companion object {
+        companion object {
             /**
              * An [Intent] action for making a permission request via a regular
              * [Activity.startActivityForResult] API.
