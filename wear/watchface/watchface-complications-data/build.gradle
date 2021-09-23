@@ -40,13 +40,6 @@ dependencies {
     testImplementation(libs.mockitoCore)
     testImplementation(libs.truth)
     testImplementation("junit:junit:4.13")
-    testImplementation(libs.kotlinReflect)
-
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.truth)
 }
 
 android {
@@ -65,9 +58,9 @@ android {
 }
 
 androidx {
-    name = "Android Wear Complications"
+    name = "Android Wear Complications Data"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2020"
-    description = "Android Wear Complications"
+    description = "Android Wear Complications Data"
 }

@@ -20,7 +20,7 @@ import android.content.Context
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.watchface.complications.SharedRobolectricTestRunner
+import androidx.wear.watchface.complications.data.SharedRobolectricTestRunner
 import com.google.common.truth.Truth
 import org.junit.Assert
 import org.junit.Test

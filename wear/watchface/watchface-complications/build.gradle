@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-
 import androidx.build.RunApiTasks
+
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
@@ -23,25 +23,23 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api(project(":wear:watchface:watchface-complications"))
-    api(project(":wear:watchface:watchface-data"))
     api(libs.kotlinStdlib)
-
+    api(project(":wear:watchface:watchface-complications-data"))
     implementation("androidx.core:core:1.1.0")
-    implementation("androidx.preference:preference:1.1.0")
-
+    implementation("androidx.annotation:annotation:1.2.0")
     testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
-    testImplementation(libs.mockitoCore)
     testImplementation(libs.robolectric)
+    testImplementation(libs.mockitoCore)
     testImplementation(libs.truth)
-    testImplementation(libs.kotlinTest)
     testImplementation("junit:junit:4.13")
+    testImplementation(libs.kotlinReflect)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -51,18 +49,20 @@ dependencies {
 }
 
 android {
+    buildFeatures {
+        aidl = true
+    }
     defaultConfig {
         minSdkVersion 26
     }
-
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
 }
 
 androidx {
-    name = "Android Wear Watchface Style"
+    name = "Android Wear Complications"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.WEAR_WATCHFACE
-    inceptionYear = "2020"
-    description = "Android Wear Watchface Style"
+    inceptionYear = "2021"
+    description = "Android Wear Complications"
 }
