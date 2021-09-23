@@ -23,10 +23,10 @@ dependencies {
     api("androidx.drawerlayout:drawerlayout:1.0.0")
     implementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.3.1")
-    implementation(project(":resourceinspection:resourceinspection-annotation"))
+    implementation("androidx.resourceinspection:resourceinspection-annotation:1.0.0-beta01")
     api("androidx.savedstate:savedstate:1.1.0")
 
-    kapt(project(":resourceinspection:resourceinspection-processor"))
+    kapt("androidx.resourceinspection:resourceinspection-processor:1.0.0-beta01")
 
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
