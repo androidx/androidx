@@ -29,6 +29,10 @@ package androidx.glance.wear.layout {
     property public final int Start;
   }
 
+  public final class AndroidLayoutElementKt {
+    method @androidx.compose.runtime.Composable public static void AndroidLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement layoutElement);
+  }
+
   public final class BackgroundKt {
     method public static androidx.glance.Modifier background(androidx.glance.Modifier, int color);
   }

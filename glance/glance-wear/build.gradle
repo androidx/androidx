@@ -47,6 +47,7 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.robolectric)
     // TODO(b/197638718): Remove when tiles-testing dependencies are fixed.
@@ -60,6 +61,7 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.kotlinCoroutinesTest)
 
     // I'm not 100% sure why, but androidTestImplementation doesn't appear to use the standard
