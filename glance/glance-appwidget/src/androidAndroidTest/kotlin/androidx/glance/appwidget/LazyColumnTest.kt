@@ -63,15 +63,9 @@ class LazyColumnTest {
         }
     }
 
-    @FlakyTest
     @Test
     fun item_withoutItemIds_createsNonStableList() {
         TestGlanceAppWidget.uiDefinition = {
-            LazyColumn {
-                item { Text("First row") }
-                item { Text("Second row") }
-            }
-
             LazyColumn {
                 item { Text("First row") }
                 item { Text("Second row") }
