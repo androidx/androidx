@@ -83,6 +83,7 @@ private const val FINALIZE_TIMEOUT = 5000L
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 class RecorderTest {
 
     @get:Rule
@@ -299,7 +300,7 @@ class RecorderTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 25)
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 25)
     @SuppressLint("NewApi") // Intentionally testing behavior of calling from invalid API level
     fun prepareRecordingWithFileDescriptor_throwsExceptionBeforeApi26() {
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }

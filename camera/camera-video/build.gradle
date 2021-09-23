@@ -49,6 +49,7 @@ dependencies {
         exclude group: "androidx.camera", module: "camera-core"
     })
 
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(project(path: ":camera:camera-camera2"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -70,7 +71,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 21
+        multiDexEnabled = true
     }
 
     // Use Robolectric 4.+

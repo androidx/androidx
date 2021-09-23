@@ -17,8 +17,10 @@
 package androidx.camera.video.internal;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /** An exception thrown to indicate an error has occurred during configuring an audio source. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AudioSourceAccessException extends Exception {
 
     public AudioSourceAccessException(@Nullable String message) {

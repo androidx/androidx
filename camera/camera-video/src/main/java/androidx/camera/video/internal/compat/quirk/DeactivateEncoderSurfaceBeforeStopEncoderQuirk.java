@@ -19,6 +19,7 @@ package androidx.camera.video.internal.compat.quirk;
 import android.media.MediaCodec;
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.video.Recorder;
 import androidx.camera.video.VideoCapture;
@@ -38,6 +39,7 @@ import androidx.camera.video.VideoOutput;
  * So making the {@link Recorder} inactive in stopping state will stop the camera from producing
  * frames to the {@link MediaCodec} before actually stopping it.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class DeactivateEncoderSurfaceBeforeStopEncoderQuirk implements Quirk {
 
     static boolean load() {

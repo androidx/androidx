@@ -19,6 +19,7 @@ package androidx.camera.video.internal.encoder;
 import android.media.MediaCodec;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -32,6 +33,7 @@ import java.nio.ByteBuffer;
  *
  * @see EncoderCallback#onEncodedData
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface EncodedData extends AutoCloseable {
     /**
      * Gets the {@link ByteBuffer} of the encoded data.

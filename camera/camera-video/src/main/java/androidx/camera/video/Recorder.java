@@ -134,6 +134,7 @@ import java.util.concurrent.TimeUnit;
  * @see VideoCapture#withOutput(VideoOutput)
  * @see PendingRecording
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Recorder implements VideoOutput {
 
     private static final String TAG = "Recorder";
@@ -2181,6 +2182,7 @@ public final class Recorder implements VideoOutput {
         mAudioState = audioState;
     }
 
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @AutoValue
     abstract static class RecordingRecord {
 
@@ -2228,6 +2230,7 @@ public final class Recorder implements VideoOutput {
     /**
      * Builder class for {@link Recorder} objects.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder {
 
         private final MediaSpec.Builder mMediaSpecBuilder;

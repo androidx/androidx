@@ -25,6 +25,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.video.internal.compat.Api28Impl;
 import androidx.camera.video.internal.compat.Api31Impl;
@@ -39,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Utility class for debugging.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class DebugUtils {
 
     private static final String TAG = "DebugUtils";

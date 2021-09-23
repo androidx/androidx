@@ -22,6 +22,7 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 
 import java.io.File;
@@ -29,6 +30,7 @@ import java.io.File;
 /**
  * Utility class for output related operations.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class OutputUtil {
     private static final String TAG = "OutputUtil";
 
