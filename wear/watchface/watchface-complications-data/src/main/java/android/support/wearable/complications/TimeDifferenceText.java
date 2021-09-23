@@ -23,7 +23,7 @@ import android.os.Parcel;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.wear.watchface.complications.R;
+import androidx.wear.watchface.complications.data.R;
 
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;

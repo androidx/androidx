@@ -20,8 +20,6 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.drawable.Icon
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.watchface.complications.ParcelableSubject
-import androidx.wear.watchface.complications.SharedRobolectricTestRunner
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

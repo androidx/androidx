@@ -21,8 +21,6 @@ import android.icu.util.TimeZone
 import android.support.wearable.complications.ComplicationText
 import android.support.wearable.complications.TimeFormatText
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.watchface.complications.ParcelableSubject
-import androidx.wear.watchface.complications.SharedRobolectricTestRunner
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertNull
 import org.junit.Test

@@ -17,7 +17,6 @@
 package androidx.wear.watchface.complications.data
 
 import android.graphics.drawable.Icon
-import androidx.wear.watchface.complications.SharedRobolectricTestRunner
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
