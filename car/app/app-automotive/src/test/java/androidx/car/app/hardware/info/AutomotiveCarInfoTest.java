@@ -87,7 +87,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class AutomotiveCarInfoTest {
     private List<CarPropertyResponse<?>> mResponse;
     private CountDownLatch mCountDownLatch;
-    private Executor mExecutor = directExecutor();
+    private final Executor mExecutor = directExecutor();
     private AutomotiveCarInfo mAutomotiveCarInfo;
     @Mock
     private Car mCarMock;
@@ -110,11 +110,9 @@ public class AutomotiveCarInfoTest {
     public void getModel_verifyResponse() throws InterruptedException {
         // Add "make", "model", "year" values to the response.
         mResponse.add(CarPropertyResponse.create(INFO_MAKE,
-                STATUS_SUCCESS, 1, "Speedy "
-                        + "Model"));
+                STATUS_SUCCESS, 1, "Toy Vehicle"));
         mResponse.add(CarPropertyResponse.create(INFO_MODEL,
-                STATUS_SUCCESS, 2, "Toy "
-                        + "Vehicle"));
+                STATUS_SUCCESS, 2, "Speedy Model"));
         mResponse.add(CarPropertyResponse.create(INFO_MODEL_YEAR,
                 STATUS_SUCCESS, 3, 2020));
         ListenableFuture<List<CarPropertyResponse<?>>> listenableCarPropertyResponse =
@@ -133,8 +131,8 @@ public class AutomotiveCarInfoTest {
         assertThat(mModel.getName().getValue()).isEqualTo("Speedy Model");
         assertThat(mModel.getManufacturer().getValue()).isEqualTo("Toy Vehicle");
         assertThat(mModel.getYear().getValue()).isEqualTo(2020);
-        assertThat(mModel.getName().getTimestampMillis()).isEqualTo(1);
-        assertThat(mModel.getManufacturer().getTimestampMillis()).isEqualTo(2);
+        assertThat(mModel.getManufacturer().getTimestampMillis()).isEqualTo(1);
+        assertThat(mModel.getName().getTimestampMillis()).isEqualTo(2);
         assertThat(mModel.getYear().getTimestampMillis()).isEqualTo(3);
     }
 
