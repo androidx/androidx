@@ -181,7 +181,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
             listOf(
                 SyntheticExecutableParameterElement(
                     env = env,
-                    origin = this
+                    enclosingMethodElement = this
                 )
             )
         }
@@ -192,29 +192,29 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
         private class SyntheticExecutableParameterElement(
             env: KspProcessingEnv,
-            private val origin: Setter
+            override val enclosingMethodElement: Setter
         ) : XExecutableParameterElement,
             XAnnotated by KspAnnotated.create(
                 env = env,
-                delegate = origin.field.declaration.setter?.parameter,
+                delegate = enclosingMethodElement.field.declaration.setter?.parameter,
                 filter = NO_USE_SITE_OR_SET_PARAM
             ) {
 
             override val name: String by lazy {
-                val originalName = origin.accessor.parameter.name?.asString()
+                val originalName = enclosingMethodElement.accessor.parameter.name?.asString()
                 originalName.sanitizeAsJavaParameterName(0)
             }
             override val type: XType
-                get() = origin.field.type
+                get() = enclosingMethodElement.field.type
 
             override val fallbackLocationText: String
-                get() = "$name in ${origin.fallbackLocationText}"
+                get() = "$name in ${enclosingMethodElement.fallbackLocationText}"
 
             override val hasDefaultValue: Boolean
                 get() = false
 
             override fun asMemberOf(other: XType): XType {
-                return origin.field.asMemberOf(other)
+                return enclosingMethodElement.field.asMemberOf(other)
             }
 
             override val docComment: String?

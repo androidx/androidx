@@ -36,7 +36,7 @@ import com.google.devtools.ksp.symbol.Variance
  */
 internal class KspSyntheticContinuationParameterElement(
     private val env: KspProcessingEnv,
-    private val containing: KspExecutableElement
+    override val enclosingMethodElement: KspExecutableElement
 ) : XExecutableParameterElement,
     XEquality,
     XAnnotated by KspAnnotated.create(
@@ -50,7 +50,7 @@ internal class KspSyntheticContinuationParameterElement(
         var candidate = "continuation"
         var suffix = 0
         while (
-            containing.declaration.parameters.any { it.name?.asString() == candidate }
+            enclosingMethodElement.declaration.parameters.any { it.name?.asString() == candidate }
         ) {
             candidate = "continuation_$suffix"
             suffix ++
@@ -59,7 +59,7 @@ internal class KspSyntheticContinuationParameterElement(
     }
 
     override val equalityItems: Array<out Any?> by lazy {
-        arrayOf("continuation", containing)
+        arrayOf("continuation", enclosingMethodElement)
     }
 
     override val hasDefaultValue: Boolean
@@ -70,7 +70,7 @@ internal class KspSyntheticContinuationParameterElement(
         val contType = continuation.asType(
             listOf(
                 env.resolver.getTypeArgument(
-                    checkNotNull(containing.declaration.returnType) {
+                    checkNotNull(enclosingMethodElement.declaration.returnType) {
                         "cannot find return type for $this"
                     },
                     Variance.CONTRAVARIANT
@@ -84,7 +84,7 @@ internal class KspSyntheticContinuationParameterElement(
     }
 
     override val fallbackLocationText: String
-        get() = "return type of ${containing.fallbackLocationText}"
+        get() = "return type of ${enclosingMethodElement.fallbackLocationText}"
 
     // Not applicable
     override val docComment: String? get() = null
@@ -92,10 +92,10 @@ internal class KspSyntheticContinuationParameterElement(
     override fun asMemberOf(other: XType): XType {
         check(other is KspType)
         val continuation = env.resolver.requireContinuationClass()
-        val asMember = containing.declaration.returnTypeAsMemberOf(
+        val asMember = enclosingMethodElement.declaration.returnTypeAsMemberOf(
             ksType = other.ksType
         )
-        val returnTypeRef = checkNotNull(containing.declaration.returnType) {
+        val returnTypeRef = checkNotNull(enclosingMethodElement.declaration.returnType) {
             "cannot find return type reference for $this"
         }
         val returnTypeAsTypeArgument = env.resolver.getTypeArgument(
