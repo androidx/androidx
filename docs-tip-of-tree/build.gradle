@@ -148,6 +148,7 @@ dependencies {
     docs(project(":hilt:hilt-navigation-fragment"))
     docs(project(":hilt:hilt-work"))
     docs(project(":interpolator:interpolator"))
+    docs(project(":metrics:metrics-performance"))
     docs(project(":leanback:leanback"))
     docs(project(":leanback:leanback-paging"))
     docs(project(":leanback:leanback-preference"))
