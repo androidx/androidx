@@ -464,6 +464,7 @@ includeProject(":fragment:integration-tests:testapp", "fragment/integration-test
 includeProject(":glance:glance", "glance/glance", [BuildType.MAIN])
 includeProject(":glance:glance-appwidget", "glance/glance-appwidget", [BuildType.MAIN])
 includeProject(":glance:glance-appwidget:integration-tests:demos", "glance/glance-appwidget/integration-tests/demos", [BuildType.MAIN])
+includeProject(":glance:glance-appwidget:glance-layout-generator", "glance/glance-appwidget/glance-layout-generator", [BuildType.MAIN])
 includeProject(":glance:glance-wear", "glance/glance-wear", [BuildType.MAIN])
 includeProject(":graphics:graphics-core", "graphics/graphics-core", [BuildType.MAIN])
 includeProject(":gridlayout:gridlayout", "gridlayout/gridlayout", [BuildType.MAIN])

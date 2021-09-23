@@ -18,8 +18,6 @@
 package androidx.glance.appwidget
 
 import android.widget.RemoteViews
-import androidx.annotation.IdRes
-import androidx.annotation.LayoutRes
 import androidx.core.widget.RemoteViewsCompat
 import androidx.glance.GlanceInternalApi
 import androidx.glance.appwidget.layout.EmittableLazyColumn
@@ -33,18 +31,19 @@ internal fun translateEmittableLazyColumn(
     translationContext: TranslationContext,
     element: EmittableLazyColumn,
 ): RemoteViews {
-    val listLayout = requireNotNull(listLayouts.getOrNull(translationContext.listCount)) {
-        """
+    val listLayoutType =
+        requireNotNull(listLayouts.getOrNull(translationContext.listCount.getAndIncrement())) {
+            """
             Glance widgets only support ${listLayouts.size} lazy lists per widget. If you need more
             lists provide a non-composable [RemoteViews].
-        """.trimIndent()
-    }
-    translationContext.listCount++
+            """.trimIndent()
+        }
+    val listLayout =
+        selectLayout(listLayoutType, element.modifier, translationContext.sizeContext)
     return translateEmittableLazyList(
         translationContext,
         element,
-        listLayout.viewId,
-        listLayout.layoutId
+        listLayout,
     )
 }
 
@@ -52,28 +51,28 @@ internal fun translateEmittableLazyColumn(
 private fun translateEmittableLazyList(
     translationContext: TranslationContext,
     element: EmittableLazyList,
-    @IdRes viewId: Int,
-    @LayoutRes layoutId: Int
-): RemoteViews = remoteViews(translationContext, layoutId)
-    .also { rv ->
-        val items = RemoteViewsCompat.RemoteCollectionItems.Builder().apply {
-            element.children.fold(false) { previous, itemEmittable ->
-                val itemId = (itemEmittable as EmittableLazyListItem).itemId
-                addItem(itemId, translateChild(translationContext, itemEmittable))
-                // If the user specifies any explicit ids, we assume the list to be stable
-                previous || (itemId > ReservedItemIdRangeEnd)
-            }.let { setHasStableIds(it) }
-            // TODO(b/198618359): assign an explicit view type count
-        }.build()
-        RemoteViewsCompat.setRemoteAdapter(
-            translationContext.context,
-            rv,
-            translationContext.appWidgetId,
-            viewId,
-            items
-        )
-        applyModifiers(translationContext.context, rv, element.modifier, viewId)
-    }
+    layoutDef: LayoutIds,
+): RemoteViews =
+    remoteViews(translationContext, layoutDef.layoutId)
+        .also { rv ->
+            val items = RemoteViewsCompat.RemoteCollectionItems.Builder().apply {
+                element.children.fold(false) { previous, itemEmittable ->
+                    val itemId = (itemEmittable as EmittableLazyListItem).itemId
+                    addItem(itemId, translateChild(translationContext, itemEmittable))
+                    // If the user specifies any explicit ids, we assume the list to be stable
+                    previous || (itemId > ReservedItemIdRangeEnd)
+                }.let { setHasStableIds(it) }
+                // TODO(b/198618359): assign an explicit view type count
+            }.build()
+            RemoteViewsCompat.setRemoteAdapter(
+                translationContext.context,
+                rv,
+                translationContext.appWidgetId,
+                layoutDef.mainViewId,
+                items
+            )
+            applyModifiers(translationContext, rv, element.modifier, layoutDef)
+        }
 
 /**
  * Translates a list item either to its immediate only child, or a column layout wrapping all its
@@ -92,10 +91,8 @@ internal fun translateEmittableLazyListItem(
         )
     }
 
-private data class LazyListLayout(@IdRes val viewId: Int, @LayoutRes val layoutId: Int)
-
-private val listLayouts: List<LazyListLayout> = listOf(
-    LazyListLayout(R.id.glanceListView1, R.layout.list_layout_1),
-    LazyListLayout(R.id.glanceListView2, R.layout.list_layout_2),
-    LazyListLayout(R.id.glanceListView2, R.layout.list_layout_3),
+private val listLayouts: List<LayoutSelector.Type> = listOf(
+    LayoutSelector.Type.List1,
+    LayoutSelector.Type.List2,
+    LayoutSelector.Type.List3,
 )

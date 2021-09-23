@@ -48,9 +48,13 @@ import androidx.glance.layout.FontStyle
 import androidx.glance.layout.FontWeight
 import androidx.glance.layout.TextDecoration
 import androidx.glance.layout.TextStyle
+import java.util.concurrent.atomic.AtomicInteger
 
 internal fun translateComposition(context: Context, appWidgetId: Int, element: RemoteViewsRoot) =
-    translateComposition(TranslationContext(context, appWidgetId), element)
+    translateComposition(
+        TranslationContext(context, appWidgetId, SizeContext.DoNotExpand),
+        element
+    )
 
 private fun translateComposition(
     translationContext: TranslationContext,
@@ -68,8 +72,38 @@ private fun translateComposition(
 internal data class TranslationContext(
     val context: Context,
     val appWidgetId: Int,
-    var listCount: Int = 0
+    val sizeContext: SizeContext,
+    val listCount: AtomicInteger = AtomicInteger(0),
 )
+
+/**
+ * Context in which the size should be evaluated.
+ *
+ * For example, if [allowExpandingWidth] is true, then a width set to
+ * [androidx.glance.layout.Dimension.Expand] should be interpreted as expanding, but if
+ * [allowExpandingWidth] is false, it should be interpreted as matching its parent's width.
+ */
+internal data class SizeContext(
+    val allowExpandingWidth: Boolean,
+    val allowExpandingHeight: Boolean
+) {
+    companion object {
+        /**
+         * There is no expansion possible in this layout.
+         */
+        val DoNotExpand = SizeContext(allowExpandingWidth = false, allowExpandingHeight = false)
+
+        /**
+         * The layout lays views horizontally.
+         */
+        val HorizontalLayout = SizeContext(allowExpandingWidth = true, allowExpandingHeight = false)
+
+        /**
+         * The layout lays views vertically.
+         */
+        val VerticalLayout = SizeContext(allowExpandingWidth = false, allowExpandingHeight = true)
+    }
+}
 
 internal fun translateChild(
     translationContext: TranslationContext,
@@ -110,55 +144,107 @@ private fun Alignment.toGravity() = horizontal.toGravity() or vertical.toGravity
 private fun translateEmittableBox(
     translationContext: TranslationContext,
     element: EmittableBox
-): RemoteViews =
-    remoteViews(translationContext, R.layout.box_layout)
+): RemoteViews {
+    val layoutDef =
+        selectLayout(LayoutSelector.Type.Box, element.modifier, translationContext.sizeContext)
+    return remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->
-            rv.setRelativeLayoutGravity(R.id.glanceView, element.contentAlignment.toGravity())
-            applyModifiers(translationContext.context, rv, element.modifier)
-            rv.setChildren(translationContext, R.id.glanceView, element.children)
+            rv.setRelativeLayoutGravity(layoutDef.mainViewId, element.contentAlignment.toGravity())
+            applyModifiers(
+                translationContext,
+                rv,
+                element.modifier,
+                layoutDef
+            )
+            rv.setChildren(
+                translationContext,
+                layoutDef.mainViewId,
+                element.children,
+                SizeContext.DoNotExpand
+            )
         }
+}
 
 private fun translateEmittableRow(
     translationContext: TranslationContext,
     element: EmittableRow
-): RemoteViews =
-    remoteViews(translationContext, R.layout.row_layout)
+): RemoteViews {
+    val layoutDef =
+        selectLayout(LayoutSelector.Type.Row, element.modifier, translationContext.sizeContext)
+    return remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->
             rv.setLinearLayoutGravity(
-                R.id.glanceView,
+                layoutDef.mainViewId,
                 element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
             )
-            applyModifiers(translationContext.context, rv, element.modifier)
-            rv.setChildren(translationContext, R.id.glanceView, element.children)
+            applyModifiers(
+                translationContext,
+                rv,
+                element.modifier,
+                layoutDef
+            )
+            rv.setChildren(
+                translationContext,
+                layoutDef.mainViewId,
+                element.children,
+                SizeContext.HorizontalLayout
+            )
         }
+}
 
 private fun translateEmittableColumn(
     translationContext: TranslationContext,
     element: EmittableColumn
-): RemoteViews =
-    remoteViews(translationContext, R.layout.column_layout)
+): RemoteViews {
+    val layoutDef =
+        selectLayout(LayoutSelector.Type.Column, element.modifier, translationContext.sizeContext)
+    return remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->
             rv.setLinearLayoutGravity(
-                R.id.glanceView,
+                layoutDef.mainViewId,
                 element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
             )
-            applyModifiers(translationContext.context, rv, element.modifier)
-            rv.setChildren(translationContext, R.id.glanceView, element.children)
+            applyModifiers(
+                translationContext,
+                rv,
+                element.modifier,
+                layoutDef
+            )
+            rv.setChildren(
+                translationContext,
+                layoutDef.mainViewId,
+                element.children,
+                SizeContext.VerticalLayout
+            )
         }
+}
 
 private fun translateEmittableText(
     translationContext: TranslationContext,
     element: EmittableText
-): RemoteViews =
-    remoteViews(translationContext, R.layout.text_layout)
+): RemoteViews {
+    val layoutDef =
+        selectLayout(LayoutSelector.Type.Text, element.modifier, translationContext.sizeContext)
+    return remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->
-            rv.setText(translationContext.context, element.text, element.style)
-            applyModifiers(translationContext.context, rv, element.modifier)
+            rv.setText(
+                translationContext.context,
+                layoutDef.mainViewId,
+                element.text,
+                element.style
+            )
+            applyModifiers(
+                translationContext,
+                rv,
+                element.modifier,
+                layoutDef
+            )
         }
+}
 
-private fun RemoteViews.setText(context: Context, text: String, style: TextStyle?) {
+private fun RemoteViews.setText(context: Context, resId: Int, text: String, style: TextStyle?) {
     if (style == null) {
-        setTextViewText(R.id.glanceView, text)
+        setTextViewText(resId, text)
         return
     }
     val content = SpannableString(text)
@@ -189,7 +275,7 @@ private fun RemoteViews.setText(context: Context, text: String, style: TextStyle
     spans.forEach { span ->
         content.setSpan(span, 0, length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
     }
-    setTextViewText(R.id.glanceView, content)
+    setTextViewText(resId, content)
 }
 
 // Sets the emittables as children to the view. This first remove any previously added view, the
@@ -198,11 +284,16 @@ private fun RemoteViews.setText(context: Context, text: String, style: TextStyle
 internal fun RemoteViews.setChildren(
     translationContext: TranslationContext,
     viewId: Int,
-    children: Iterable<Emittable>
+    children: Iterable<Emittable>,
+    sizeContext: SizeContext
 ) {
     removeAllViews(viewId)
     children.forEachIndexed { index, child ->
-        addChildView(viewId, translateChild(translationContext, child), index)
+        addChildView(
+            viewId,
+            translateChild(translationContext.copy(sizeContext = sizeContext), child),
+            index
+        )
     }
 }
 

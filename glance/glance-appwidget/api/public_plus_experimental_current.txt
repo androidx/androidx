@@ -12,6 +12,9 @@ package androidx.glance.appwidget {
   public final class CoroutineBroadcastReceiverKt {
   }
 
+  public final class GeneratedLayoutsKt {
+  }
+
   public abstract class GlanceAppWidget {
     ctor public GlanceAppWidget();
     method @androidx.compose.runtime.Composable public abstract void Content();
@@ -30,6 +33,9 @@ package androidx.glance.appwidget {
   }
 
   public interface GlanceId {
+  }
+
+  public final class LayoutIdsKt {
   }
 
   public final class RemoteLazyListViewsTranslatorKt {

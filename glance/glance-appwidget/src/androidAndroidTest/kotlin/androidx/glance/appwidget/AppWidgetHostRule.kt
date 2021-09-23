@@ -45,6 +45,11 @@ class AppWidgetHostRule(
     private var mLandscapeSize: DpSize = DpSize(300.dp, 200.dp)
 ) : TestRule {
 
+    val portraitSize: DpSize
+        get() = mPortraitSize
+    val landscapeSize: DpSize
+        get() = mLandscapeSize
+
     private val mUiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
 
     private val mActivityRule: ActivityScenarioRule<AppWidgetHostTestActivity> =

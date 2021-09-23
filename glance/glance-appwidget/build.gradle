@@ -19,6 +19,7 @@ import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.Publish
+import androidx.glance.appwidget.layoutgenerator.gradle.LayoutGeneratorTask
 
 plugins {
     id("AndroidXPlugin")
@@ -27,7 +28,7 @@ plugins {
 }
 
 // Disable multi-platform; this will only be used on Android.
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */false)
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */ false)
 
 dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
@@ -85,3 +86,9 @@ androidx {
             "using a Jetpack Compose-style API."
     targetsJavaConsumers = false
 }
+
+LayoutGeneratorTask.registerLayoutGenerator(
+        project,
+        android,
+        /* layoutDirectory= */ file("src/androidMain/layoutTemplates")
+)

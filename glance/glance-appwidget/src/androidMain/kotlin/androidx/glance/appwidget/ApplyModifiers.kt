@@ -21,18 +21,28 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
+import android.os.Build
 import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.widget.RemoteViews
 import androidx.annotation.IdRes
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
+import androidx.core.widget.setTextViewHeight
+import androidx.core.widget.setTextViewWidth
 import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LaunchActivityAction
+import androidx.glance.layout.Dimension
+import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
+import androidx.glance.layout.WidthModifier
 import androidx.glance.unit.Dp
+import androidx.glance.unit.dp
 
 private fun applyAction(
     rv: RemoteViews,
@@ -77,18 +87,131 @@ private fun applyPadding(
 }
 
 internal fun applyModifiers(
-    context: Context,
+    translationContext: TranslationContext,
     rv: RemoteViews,
     modifiers: Modifier,
-    @IdRes viewId: Int = R.id.glanceView
+    layoutDef: LayoutIds
 ) {
+    val context = translationContext.context
     modifiers.foldOut(Unit) { modifier, _ ->
         when (modifier) {
-            is ActionModifier -> applyAction(rv, modifier.action, context, viewId)
-            is PaddingModifier -> applyPadding(rv, modifier, context.resources, viewId)
+            is ActionModifier -> applyAction(rv, modifier.action, context, layoutDef.mainViewId)
+            is PaddingModifier -> applyPadding(
+                rv,
+                modifier,
+                context.resources,
+                layoutDef.mainViewId
+            )
+            is WidthModifier -> applyWidthModifier(
+                rv,
+                modifier,
+                context.resources,
+                layoutDef,
+                translationContext.sizeContext
+            )
+            is HeightModifier -> applyHeightModifier(
+                rv,
+                modifier,
+                context.resources,
+                layoutDef,
+                translationContext.sizeContext
+            )
         }
     }
 }
 
 internal fun Dp.toPixels(displayMetrics: DisplayMetrics) =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, displayMetrics).toInt()
+
+private fun applyWidthModifier(
+    rv: RemoteViews,
+    modifier: WidthModifier,
+    resources: Resources,
+    layoutDef: LayoutIds?,
+    sizeContext: SizeContext,
+) {
+    checkNotNull(layoutDef) { "No layout spec, cannot change size" }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (modifier.width is Dimension.Expand && sizeContext.allowExpandingWidth) {
+            ApplyModifiersApi31Impl.setViewWidth(rv, layoutDef.mainViewId, Dimension.Dp(0.dp))
+        } else {
+            ApplyModifiersApi31Impl.setViewWidth(rv, layoutDef.mainViewId, modifier.width)
+        }
+        return
+    }
+    val width = modifier.width
+    if (width !is Dimension.Dp) return
+    checkNotNull(layoutDef.sizeViewId) { "The layout specified does not allow specifying the size" }
+    rv.setTextViewWidth(layoutDef.sizeViewId, width.dp.toPixels(resources.displayMetrics))
+}
+
+private fun applyHeightModifier(
+    rv: RemoteViews,
+    modifier: HeightModifier,
+    resources: Resources,
+    layoutDef: LayoutIds?,
+    sizeContext: SizeContext,
+) {
+    checkNotNull(layoutDef) { "No layout spec, cannot change size" }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (modifier.height is Dimension.Expand && sizeContext.allowExpandingHeight) {
+            ApplyModifiersApi31Impl.setViewHeight(rv, layoutDef.mainViewId, Dimension.Dp(0.dp))
+        } else {
+            ApplyModifiersApi31Impl.setViewHeight(rv, layoutDef.mainViewId, modifier.height)
+        }
+        return
+    }
+    val height = modifier.height
+    if (height !is Dimension.Dp) return
+    checkNotNull(layoutDef.sizeViewId) { "The layout specified does not allow specifying the size" }
+    rv.setTextViewHeight(layoutDef.sizeViewId, height.dp.toPixels(resources.displayMetrics))
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+private object ApplyModifiersApi31Impl {
+    @DoNotInline
+    fun setViewWidth(rv: RemoteViews, viewId: Int, width: Dimension) {
+        when (width) {
+            is Dimension.Wrap -> {
+                rv.setViewLayoutWidth(
+                    viewId,
+                    ViewGroup.LayoutParams.WRAP_CONTENT.toFloat(),
+                    TypedValue.COMPLEX_UNIT_PX
+                )
+            }
+            is Dimension.Expand -> {
+                rv.setViewLayoutWidth(
+                    viewId,
+                    ViewGroup.LayoutParams.MATCH_PARENT.toFloat(),
+                    TypedValue.COMPLEX_UNIT_PX
+                )
+            }
+            is Dimension.Dp -> {
+                rv.setViewLayoutWidth(viewId, width.dp.value, TypedValue.COMPLEX_UNIT_DIP)
+            }
+        }
+    }
+
+    @DoNotInline
+    fun setViewHeight(rv: RemoteViews, viewId: Int, height: Dimension) {
+        when (height) {
+            is Dimension.Wrap -> {
+                rv.setViewLayoutHeight(
+                    viewId,
+                    ViewGroup.LayoutParams.WRAP_CONTENT.toFloat(),
+                    TypedValue.COMPLEX_UNIT_PX
+                )
+            }
+            is Dimension.Expand -> {
+                rv.setViewLayoutHeight(
+                    viewId,
+                    ViewGroup.LayoutParams.MATCH_PARENT.toFloat(),
+                    TypedValue.COMPLEX_UNIT_PX
+                )
+            }
+            is Dimension.Dp -> {
+                rv.setViewLayoutHeight(viewId, height.dp.value, TypedValue.COMPLEX_UNIT_DIP)
+            }
+        }
+    }
+}
