@@ -13,42 +13,51 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/rotationUnlocked"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/rotation_unlocked_orientation" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/rotationLocked"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/rotation_locked_orientation" />
+        <Button
+            android:id="@+id/rotationUnlocked"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/rotation_unlocked_orientation" />
 
-    <Button
-        android:id="@+id/rotationConfigChanges"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/rotation_config_changes_overridden" />
+        <Button
+            android:id="@+id/rotationLocked"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/rotation_locked_orientation" />
 
-    <Button
-        android:id="@+id/viewpager"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/viewpager" />
+        <Button
+            android:id="@+id/rotationConfigChanges"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/rotation_config_changes_overridden" />
 
-    <Button
-        android:id="@+id/viewpager2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/viewpager2" />
+        <Button
+            android:id="@+id/viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/viewpager" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/viewpager2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/viewpager2" />
+
+        <Button
+            android:id="@+id/foldable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/foldable" />
+    </LinearLayout>
+</ScrollView>
