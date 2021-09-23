@@ -140,7 +140,7 @@ class Test {
         )
             .expect(
                 """
-src/com/example/Test.kt:11: Warning: Calling detach() and attach() in the same FragmentTransaction is a no-op, meaning it does not recreate the Fragment's view. If you would like the view to be recreated, separate these operations into separate transactions. [DetachAndAttachFragmentInSameFragmentTransaction]
+src/com/example/Test.kt:11: Warning: Calling detach() and attach() in the same FragmentTransaction is a no-op, meaning it does not recreate the Fragment's view. If you would like the view to be recreated, separate these operations into separate transactions. [DetachAndAttachSameFragment]
         val ft = FragmentManager().beginTransaction()
                                    ~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
@@ -177,7 +177,7 @@ class Test {
         )
             .expect(
                 """
-src/com/example/Test.kt:15: Warning: Calling detach() and attach() in the same FragmentTransaction is a no-op, meaning it does not recreate the Fragment's view. If you would like the view to be recreated, separate these operations into separate transactions. [DetachAndAttachFragmentInSameFragmentTransaction]
+src/com/example/Test.kt:15: Warning: Calling detach() and attach() in the same FragmentTransaction is a no-op, meaning it does not recreate the Fragment's view. If you would like the view to be recreated, separate these operations into separate transactions. [DetachAndAttachSameFragment]
         val ft = FragmentManager().beginTransaction()
                                    ~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
