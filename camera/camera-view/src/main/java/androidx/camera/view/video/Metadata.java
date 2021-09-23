@@ -20,10 +20,12 @@ import android.location.Location;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
 
 /** Holder class for metadata that should be saved alongside captured video. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @ExperimentalVideo
 @AutoValue
 public abstract class Metadata {

@@ -32,6 +32,7 @@ import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -48,6 +49,7 @@ import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(Parameterized::class)
+@SdkSuppress(minSdkVersion = 21)
 public class PreviewViewStreamStateTest(private val implMode: PreviewView.ImplementationMode) {
 
     public companion object {

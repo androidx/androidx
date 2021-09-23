@@ -14,7 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="androidx.camera.camera2.view">
+    <uses-sdk tools:overrideLibrary="android_libs.ub_uiautomator" />
     <application>
         <activity
             android:name="androidx.camera.testing.fakes.FakeActivity"

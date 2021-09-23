@@ -13,4 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<manifest package="androidx.camera.view"/>
+<manifest package="androidx.camera.view"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- TODO(b/201134896): Remove once camera-view joins same-version group -->
+    <uses-sdk
+        tools:overrideLibrary="
+            androidx.camera.camera2,
+            androidx.camera.core,
+            androidx.camera.lifecycle" />
+</manifest>
