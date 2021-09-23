@@ -26,7 +26,6 @@ import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.typeName
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.squareup.javapoet.ClassName
@@ -51,6 +50,7 @@ class XExecutableElementTest {
                     """
                 package foo.bar;
                 public class Baz {
+                    public Baz(String param1) {}
                     private void foo() {}
                     public String bar(String[] param1) {
                         return "";
@@ -79,8 +79,13 @@ class XExecutableElementTest {
                     check(paramType.isArray())
                     assertThat(paramType.componentType.typeName)
                         .isEqualTo(String::class.typeName())
+                    assertThat(param.enclosingMethodElement).isEqualTo(method)
                 }
                 assertThat(method.returnType.typeName).isEqualTo(String::class.typeName())
+            }
+            element.getConstructors().single().let { ctor ->
+                assertThat(ctor.parameters).hasSize(1)
+                assertThat(ctor.parameters.single().enclosingMethodElement).isEqualTo(ctor)
             }
         }
     }
@@ -346,12 +351,15 @@ class XExecutableElementTest {
             }
             subject.getMethod("intReturn").let { method ->
                 assertThat(method.parameters).hasSize(1)
-                assertThat(method.parameters.last().type.typeName).isEqualTo(
-                    ParameterizedTypeName.get(
-                        CONTINUATION_CLASS_NAME,
-                        WildcardTypeName.supertypeOf(Integer::class.java)
+                method.parameters.last().let { cont ->
+                    assertThat(cont.type.typeName).isEqualTo(
+                        ParameterizedTypeName.get(
+                            CONTINUATION_CLASS_NAME,
+                            WildcardTypeName.supertypeOf(Integer::class.java)
+                        )
                     )
-                )
+                    assertThat(cont.enclosingMethodElement).isEqualTo(method)
+                }
                 assertThat(method.isSuspendFunction()).isTrue()
                 assertThat(method.returnType.typeName).isEqualTo(TypeName.OBJECT)
                 method.executableType.parameterTypes.last().let { cont ->
@@ -546,7 +554,7 @@ class XExecutableElementTest {
             }
             listOf(impl, javaImpl).forEach { subject ->
                 listOf("getY", "getX", "setY").forEach { methodName ->
-                    Truth.assertWithMessage("${subject.className}:$methodName").that(
+                    assertWithMessage("${subject.className}:$methodName").that(
                         overrides(
                             owner = subject,
                             ownerMethodName = methodName,
@@ -555,7 +563,7 @@ class XExecutableElementTest {
                     ).isTrue()
                 }
 
-                Truth.assertWithMessage(subject.className.canonicalName()).that(
+                assertWithMessage(subject.className.canonicalName()).that(
                     overrides(
                         owner = subject,
                         ownerMethodName = "getY",
@@ -564,7 +572,7 @@ class XExecutableElementTest {
                     )
                 ).isFalse()
 
-                Truth.assertWithMessage(subject.className.canonicalName()).that(
+                assertWithMessage(subject.className.canonicalName()).that(
                     overrides(
                         owner = subject,
                         ownerMethodName = "getY",
@@ -573,7 +581,7 @@ class XExecutableElementTest {
                     )
                 ).isFalse()
 
-                Truth.assertWithMessage(subject.className.canonicalName()).that(
+                assertWithMessage(subject.className.canonicalName()).that(
                     overrides(
                         owner = base,
                         ownerMethodName = "getX",
@@ -582,7 +590,7 @@ class XExecutableElementTest {
                     )
                 ).isFalse()
 
-                Truth.assertWithMessage(subject.className.canonicalName()).that(
+                assertWithMessage(subject.className.canonicalName()).that(
                     overrides(
                         owner = subject,
                         ownerMethodName = "setY",
@@ -591,7 +599,7 @@ class XExecutableElementTest {
                     )
                 ).isFalse()
 
-                Truth.assertWithMessage(subject.className.canonicalName()).that(
+                assertWithMessage(subject.className.canonicalName()).that(
                     overrides(
                         owner = subject,
                         ownerMethodName = "setY",

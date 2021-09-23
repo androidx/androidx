@@ -124,7 +124,7 @@ internal sealed class KspMethodElement(
         override val parameters: List<XExecutableParameterElement>
             get() = super.parameters + KspSyntheticContinuationParameterElement(
                 env = env,
-                containing = this
+                enclosingMethodElement = this
             )
     }
 
