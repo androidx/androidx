@@ -34,6 +34,7 @@ class FragmentIssueRegistry : IssueRegistry() {
         UseRequireInsteadOfGet.ISSUE,
         UseGetLayoutInflater.ISSUE,
         OnCreateDialogIncorrectCallbackDetector.ISSUE,
-        UnsafeRepeatOnLifecycleDetector.ISSUE
+        UnsafeRepeatOnLifecycleDetector.ISSUE,
+        AttachAndDetachInSameTransactionDetector.DETACH_ATTACH_OPERATIONS_ISSUE
     )
 }
