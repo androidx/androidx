@@ -2168,7 +2168,7 @@ public class EditorSessionTest {
             )
 
         assertThat(
-            EditorRequest.canWatchFaceSupportHeadlessEditing(mockPackageManager, "test.package")
+            EditorRequest.supportsWatchFaceHeadlessEditing(mockPackageManager, "test.package")
         ).isTrue()
     }
 
@@ -2186,7 +2186,7 @@ public class EditorSessionTest {
             )
 
         assertThat(
-            EditorRequest.canWatchFaceSupportHeadlessEditing(mockPackageManager, "test.package")
+            EditorRequest.supportsWatchFaceHeadlessEditing(mockPackageManager, "test.package")
         ).isFalse()
     }
 
