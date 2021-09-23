@@ -35,7 +35,7 @@ dependencies {
     api("androidx.compose.runtime:runtime:1.0.1")
     api("androidx.compose.runtime:runtime-saveable:1.0.1")
     api("androidx.compose.ui:ui:1.0.1")
-    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose"))
+    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0-rc01")
     api(projectOrArtifact(":navigation:navigation-runtime-ktx"))
 
     androidTestImplementation(projectOrArtifact(":compose:material:material"))
