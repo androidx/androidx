@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.testing
 
 import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureResult
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
@@ -32,6 +33,7 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.withTimeout
 
 /** Simulator for observing and responding to interactions with the a [CameraGraph]. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraGraphSimulator(
     private val config: CameraGraph.Config,
     cameraMetadata: CameraMetadata
