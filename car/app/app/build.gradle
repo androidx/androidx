@@ -112,6 +112,26 @@ androidx {
 class ProtocolApiTask extends DefaultTask {
     private final WorkerExecutor workerExecutor
 
+    @Input
+    public Provider<List<File> > classpath = project.provider({
+        FileCollection dependencyClasspath = getLibraryVariant().getCompileClasspath(null)
+
+        def resolvedClasspath = new ArrayList<File>()
+        resolvedClasspath.addAll(getLibraryExtension().bootClasspath)
+        resolvedClasspath.addAll(dependencyClasspath)
+        resolvedClasspath
+    })
+
+    @Input
+    public Provider<List<File> > sourceDirs = project.provider({
+       List<File> resolvedSourceDirs = new ArrayList<File>()
+       for (ConfigurableFileTree fileTree : getLibraryVariant().getSourceFolders(SourceKind
+               .JAVA)) {
+           resolvedSourceDirs.add(fileTree.getDir())
+       }
+       resolvedSourceDirs
+    })
+
     @Inject
     ProtocolApiTask(WorkerExecutor workerExecutor) {
         this.workerExecutor = workerExecutor
@@ -119,7 +139,7 @@ class ProtocolApiTask extends DefaultTask {
 
     @Internal
     def getLibraryVariant() {
-        LibraryExtension extension = project.extensions.getByType(LibraryExtension.class)
+        LibraryExtension extension = getLibraryExtension()
         LibraryApiTaskConfig config = new LibraryApiTaskConfig(extension)
         return config.library.libraryVariants.find({
             it.name == Release.DEFAULT_PUBLISH_CONFIG
@@ -128,32 +148,15 @@ class ProtocolApiTask extends DefaultTask {
 
     @Internal
     def getLibraryExtension() {
-        return project.extensions.getByType(LibraryExtension.class)
-    }
-
-    @Internal
-    def getSourceDirs() {
-        List<File> sourceDirs = new ArrayList<File>()
-        for (ConfigurableFileTree fileTree : getLibraryVariant().getSourceFolders(SourceKind
-                .JAVA)) {
-            if (fileTree.getDir().exists()) {
-                sourceDirs.add(fileTree.getDir())
-            }
-        }
-        return sourceDirs
+        return project.extensions.findByType(LibraryExtension.class)
     }
 
     @Internal
     def runMetalava(List<String> additionalArgs) {
         FileCollection metalavaClasspath = MetalavaRunnerKt.getMetalavaClasspath(project)
-        FileCollection dependencyClasspath = getLibraryVariant().getCompileClasspath(null).filter {
-            it.exists()
-        }
 
-        List<File> classpath = new ArrayList<File>()
-        classpath.addAll(getLibraryExtension().bootClasspath)
-        classpath.addAll(dependencyClasspath)
-
+        List<File> classpath = classpath.get()
+        List<File> sourceDirs = sourceDirs.get().findAll{ it -> it.exists() }
         List<String> standardArgs = [
                 "--classpath",
                 classpath.join(File.pathSeparator),
@@ -184,7 +187,7 @@ class GenerateProtocolApiTask extends ProtocolApiTask {
     @InputFiles
     @PathSensitive(PathSensitivity.RELATIVE)
     def getInputSource() {
-        return sourceDirs // Re-run on source changes
+        return sourceDirs.get() // Re-run on source changes
     }
 
     @OutputFile
