@@ -2291,7 +2291,7 @@ public class MediaSessionCompat {
             if (itemList == null || Build.VERSION.SDK_INT < 21) {
                 return null;
             }
-            List<QueueItem> items = new ArrayList<>();
+            List<QueueItem> items = new ArrayList<>(itemList.size());
             for (Object itemObj : itemList) {
                 items.add(fromQueueItem(itemObj));
             }
@@ -4084,7 +4084,7 @@ public class MediaSessionCompat {
                 mSessionFwk.setQueue(null);
                 return;
             }
-            ArrayList<MediaSession.QueueItem> queueItemFwks = new ArrayList<>();
+            ArrayList<MediaSession.QueueItem> queueItemFwks = new ArrayList<>(queue.size());
             for (QueueItem item : queue) {
                 queueItemFwks.add((MediaSession.QueueItem) item.getQueueItem());
             }
