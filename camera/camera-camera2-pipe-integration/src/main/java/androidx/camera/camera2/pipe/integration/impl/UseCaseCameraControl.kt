@@ -16,6 +16,9 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import androidx.annotation.RequiresApi
+
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface UseCaseCameraControl {
     var useCaseCamera: UseCaseCamera?
     fun reset()

@@ -36,6 +36,7 @@ import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -56,6 +57,7 @@ private val TIMEOUT = TimeUnit.SECONDS.toMillis(10)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalCamera2Interop::class)
+@SdkSuppress(minSdkVersion = 21)
 class CameraControlAdapterDeviceTest {
     private lateinit var cameraSelector: CameraSelector
     private lateinit var context: Context

@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.hardware.camera2.CaptureRequest
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
@@ -33,6 +34,7 @@ import java.util.concurrent.Executor
  * Maps a [CaptureConfig] issued by CameraX (e.g. by the image capture use case) to a [Request]
  * that CameraPipe can submit to the camera.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CaptureConfigAdapter(
     private val surfaceToStreamMap: Map<DeferrableSurface, StreamId>,
     private val callbackExecutor: Executor,

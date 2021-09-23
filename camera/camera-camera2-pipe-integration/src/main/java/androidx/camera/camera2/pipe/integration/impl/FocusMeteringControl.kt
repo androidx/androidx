@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.util.Rational
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
@@ -36,6 +37,7 @@ import java.util.ArrayList
 /**
  * Implementation of focus and metering controls exposed by [CameraControlInternal].
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class FocusMeteringControl(
     val cameraProperties: CameraProperties,
     val useCaseManager: UseCaseManager,
@@ -87,6 +89,7 @@ class FocusMeteringControl(
         return FocusMeteringResult.create(isFocusSuccessful)
     }
 
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     companion object {
         const val METERING_WEIGHT_DEFAULT = MeteringRectangle.METERING_WEIGHT_MAX
 
