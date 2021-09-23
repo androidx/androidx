@@ -26,6 +26,7 @@ class ProfileVersion {
     static final byte[] V009_O_MR1 = new byte[]{'0', '0', '9', '\0'};
     static final byte[] V005_O = new byte[]{'0', '0', '5', '\0'};
     static final byte[] V001_N = new byte[]{'0', '0', '1', '\0'};
+    static final byte[] METADATA_V001_N = new byte[]{'0', '0', '1', '\0'};
     static final int MIN_SUPPORTED_SDK = Build.VERSION_CODES.N;
 
     static String dexKeySeparator(byte[] version) {

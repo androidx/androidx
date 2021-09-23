@@ -16,6 +16,9 @@
 
 package androidx.profileinstaller;
 
+import static androidx.profileinstaller.ProfileTranscoder.MAGIC_PROF;
+import static androidx.profileinstaller.ProfileTranscoder.MAGIC_PROFM;
+
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.os.Build;
@@ -72,6 +75,8 @@ public class DeviceProfileWriter {
     private final String mApkName;
     @NonNull
     private final String mProfileSourceLocation;
+    @NonNull
+    private final String mProfileMetaSourceLocation;
     private boolean mDeviceSupportsAotProfile = false;
     @Nullable
     private DexProfileData[] mProfile;
@@ -86,17 +91,21 @@ public class DeviceProfileWriter {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public DeviceProfileWriter(@NonNull AssetManager assetManager,
+    public DeviceProfileWriter(
+            @NonNull AssetManager assetManager,
             @NonNull Executor executor,
             @NonNull ProfileInstaller.DiagnosticsCallback diagnosticsCallback,
             @NonNull String apkName,
             @NonNull String profileSourceLocation,
-            @NonNull File curProfile) {
+            @NonNull String profileMetaSourceLocation,
+            @NonNull File curProfile
+    ) {
         mAssetManager = assetManager;
         mExecutor = executor;
         mDiagnostics = diagnosticsCallback;
         mApkName = apkName;
         mProfileSourceLocation = profileSourceLocation;
+        mProfileMetaSourceLocation = profileMetaSourceLocation;
         mCurProfile = curProfile;
         mDesiredVersion = desiredVersion();
     }
@@ -153,7 +162,7 @@ public class DeviceProfileWriter {
         }
         try (AssetFileDescriptor fd = mAssetManager.openFd(mProfileSourceLocation)) {
             try (InputStream is = fd.createInputStream()) {
-                byte[] baselineVersion = ProfileTranscoder.readHeader(is);
+                byte[] baselineVersion = ProfileTranscoder.readHeader(is, MAGIC_PROF);
                 mProfile = ProfileTranscoder.readProfile(is, baselineVersion, mApkName);
                 return this;
             }
@@ -163,6 +172,29 @@ public class DeviceProfileWriter {
             mDiagnostics.onResultReceived(ProfileInstaller.RESULT_IO_EXCEPTION, e);
         } catch (IllegalStateException e) {
             mDiagnostics.onResultReceived(ProfileInstaller.RESULT_PARSE_EXCEPTION, e);
+        }
+        DexProfileData[] profile = mProfile;
+        if (profile != null && requiresMetadata()) {
+            try (AssetFileDescriptor fd = mAssetManager.openFd(mProfileMetaSourceLocation)) {
+                try (InputStream is = fd.createInputStream()) {
+                    byte[] metaVersion = ProfileTranscoder.readHeader(is, MAGIC_PROFM);
+                    mProfile = ProfileTranscoder.readMeta(
+                            is,
+                            metaVersion,
+                            profile
+                    );
+                    return this;
+                }
+            } catch (FileNotFoundException e) {
+                mDiagnostics.onResultReceived(
+                        ProfileInstaller.RESULT_META_FILE_REQUIRED_BUT_NOT_FOUND,
+                        e
+                );
+            } catch (IOException e) {
+                mDiagnostics.onResultReceived(ProfileInstaller.RESULT_IO_EXCEPTION, e);
+            } catch (IllegalStateException e) {
+                mDiagnostics.onResultReceived(ProfileInstaller.RESULT_PARSE_EXCEPTION, e);
+            }
         }
         return this;
     }
@@ -275,6 +307,32 @@ public class DeviceProfileWriter {
 
             default:
                 return null;
+        }
+    }
+
+    private static boolean requiresMetadata() {
+        // If SDK is pre-N, we don't want to do anything, so return null.
+        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK) {
+            return false;
+        }
+
+        switch (Build.VERSION.SDK_INT) {
+            // The profiles for N and N_MR1 used class ids to identify classes instead of type
+            // ids, which is what the V0.1.0 profile encodes, so a metadata file is required in
+            // order to transcode to this profile.
+            case Build.VERSION_CODES.N:
+            case Build.VERSION_CODES.N_MR1:
+                return true;
+
+            // for all of these versions, the data encoded in the V0.1.0 profile is enough to
+            // losslessly transcode into these other formats.
+            case Build.VERSION_CODES.O:
+            case Build.VERSION_CODES.O_MR1:
+            case Build.VERSION_CODES.P:
+            case Build.VERSION_CODES.Q:
+            case Build.VERSION_CODES.R:
+            default:
+                return false;
         }
     }
 }
