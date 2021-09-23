@@ -2319,7 +2319,7 @@ public final class MediaBrowserCompat {
             Parcelable[] items = resultData.getParcelableArray(
                     MediaBrowserServiceCompat.KEY_SEARCH_RESULTS);
             if (items != null) {
-                List<MediaItem> results = new ArrayList<>();
+                List<MediaItem> results = new ArrayList<>(items.length);
                 for (Parcelable item : items) {
                     results.add((MediaItem) item);
                 }
