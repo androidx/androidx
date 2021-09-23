@@ -45,7 +45,7 @@ class AttachAndDetachInSameTransactionDetector : Detector(), SourceCodeScanner {
 
     companion object Issues {
         val DETACH_ATTACH_OPERATIONS_ISSUE = Issue.create(
-            id = "DetachAndAttachFragmentInSameFragmentTransaction",
+            id = "DetachAndAttachSameFragment",
             briefDescription = "Separate attach() and detach() into separate FragmentTransactions",
             explanation = """When doing a FragmentTransaction that includes both attach() \
                 and detach() operations being committed on the same fragment instance, it is a \
