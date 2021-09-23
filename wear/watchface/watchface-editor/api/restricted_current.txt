@@ -14,7 +14,6 @@ package androidx.wear.watchface.editor {
   public final class EditorRequest {
     ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, androidx.wear.watchface.style.UserStyleData? initialUserStyle, @RequiresApi androidx.wear.watchface.client.WatchFaceId watchFaceId, androidx.wear.watchface.client.DeviceConfig? headlessDeviceConfig, androidx.wear.watchface.editor.PreviewScreenshotParams? previewScreenshotParams);
     ctor public EditorRequest(android.content.ComponentName watchFaceComponentName, String editorPackageName, androidx.wear.watchface.style.UserStyleData? initialUserStyle);
-    method public static boolean canWatchFaceSupportHeadlessEditing(android.content.pm.PackageManager packageManager, String watchfacePackageName);
     method @kotlin.jvm.Throws(exceptionClasses=TimeoutCancellationException::class) public static androidx.wear.watchface.editor.EditorRequest createFromIntent(android.content.Intent intent) throws kotlinx.coroutines.TimeoutCancellationException;
     method public String getEditorPackageName();
     method public androidx.wear.watchface.client.DeviceConfig? getHeadlessDeviceConfig();
@@ -22,6 +21,7 @@ package androidx.wear.watchface.editor {
     method public androidx.wear.watchface.editor.PreviewScreenshotParams? getPreviewScreenshotParams();
     method public android.content.ComponentName getWatchFaceComponentName();
     method @RequiresApi(android.os.Build.VERSION_CODES.R) public androidx.wear.watchface.client.WatchFaceId getWatchFaceId();
+    method @kotlin.jvm.Throws(exceptionClasses=PackageManager.NameNotFoundException::class) public static boolean supportsWatchFaceHeadlessEditing(android.content.pm.PackageManager packageManager, String watchfacePackageName) throws android.content.pm.PackageManager.NameNotFoundException;
     property public final String editorPackageName;
     property public final androidx.wear.watchface.client.DeviceConfig? headlessDeviceConfig;
     property public final androidx.wear.watchface.style.UserStyleData? initialUserStyle;
@@ -32,8 +32,8 @@ package androidx.wear.watchface.editor {
   }
 
   public static final class EditorRequest.Companion {
-    method public boolean canWatchFaceSupportHeadlessEditing(android.content.pm.PackageManager packageManager, String watchfacePackageName);
     method @kotlin.jvm.Throws(exceptionClasses=TimeoutCancellationException::class) public androidx.wear.watchface.editor.EditorRequest createFromIntent(android.content.Intent intent) throws kotlinx.coroutines.TimeoutCancellationException;
+    method @kotlin.jvm.Throws(exceptionClasses=PackageManager.NameNotFoundException::class) public boolean supportsWatchFaceHeadlessEditing(android.content.pm.PackageManager packageManager, String watchfacePackageName) throws android.content.pm.PackageManager.NameNotFoundException;
   }
 
   public interface EditorSession extends java.lang.AutoCloseable {

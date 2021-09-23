@@ -296,8 +296,12 @@ public sealed class Renderer @WorkerThread constructor(
     @UiThread
     internal abstract fun dumpInternal(writer: IndentingPrintWriter)
 
-    /** Called when adb shell dumpsys is invoked for the WatchFaceService. */
-    public abstract fun dump(writer: PrintWriter)
+    /**
+     * Called when adb shell dumpsys is invoked for the WatchFaceService, allowing the renderer to
+     * optionally record state for debugging purposes.
+     */
+    @UiThread
+    public abstract fun onDump(writer: PrintWriter)
 
     /**
      * Perform UiThread specific initialization.  Will be called once during initialization before
@@ -470,11 +474,11 @@ public sealed class Renderer @WorkerThread constructor(
             )
             writer.println("shouldAnimate=${shouldAnimate()}")
             renderParameters.dump(writer)
-            dump(writer.writer)
+            onDump(writer.writer)
             writer.decreaseIndent()
         }
 
-        override fun dump(writer: PrintWriter) {}
+        override fun onDump(writer: PrintWriter) {}
     }
 
     /**
@@ -1047,10 +1051,10 @@ public sealed class Renderer @WorkerThread constructor(
             )
             writer.println("shouldAnimate=${shouldAnimate()}")
             renderParameters.dump(writer)
-            dump(writer.writer)
+            onDump(writer.writer)
             writer.decreaseIndent()
         }
 
-        override fun dump(writer: PrintWriter) {}
+        override fun onDump(writer: PrintWriter) {}
     }
 }
