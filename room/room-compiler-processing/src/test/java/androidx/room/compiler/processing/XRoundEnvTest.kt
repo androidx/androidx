@@ -316,6 +316,27 @@ class XRoundEnvTest {
         }
     }
 
+    @Test
+    fun getElementsAnnotatedWithMissingTypeAnnotation() {
+        runProcessorTest(
+            listOf(
+                Source.kotlin(
+                    "Baz.kt",
+                    """
+                    class Foo {}
+                    """.trimIndent()
+                )
+            )
+        ) { testInvocation ->
+            // Expect zero elements to be returned from the round for an annotation whose type is
+            // missing. This is allowed since there are processors whose capabilities might be
+            // dynamic based on user classpath.
+            val annotatedElements =
+                testInvocation.roundEnv.getElementsAnnotatedWith("MissingTypeAnnotation")
+            assertThat(annotatedElements).hasSize(0)
+        }
+    }
+
     annotation class TopLevelAnnotation
 
     @Suppress("unused") // used in tests

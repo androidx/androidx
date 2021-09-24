@@ -19,6 +19,7 @@ package androidx.room.compiler.processing
 import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
 import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
 import androidx.room.compiler.processing.ksp.KspElement
+import androidx.room.compiler.processing.testcode.AnywhereAnnotation
 import androidx.room.compiler.processing.testcode.MainAnnotation
 import androidx.room.compiler.processing.testcode.OtherAnnotation
 import androidx.room.compiler.processing.testcode.SingleTypeValueAnnotation
@@ -591,9 +592,9 @@ class XProcessingStepTest {
         assertThat(
             result.diagnostics[Diagnostic.Kind.ERROR]?.map { it.msg } ?: emptyList<String>()
         ).containsExactly(
-            "null was unable to process 'Other' because not all of its dependencies could be " +
-                "resolved. Check for compilation errors or a circular dependency with generated " +
-                "code."
+            "null was unable to process 'foo.bar.Other' because not all of its dependencies " +
+                "could be resolved. Check for compilation errors or a circular dependency with " +
+                "generated code."
         )
     }
 
@@ -1072,5 +1073,183 @@ class XProcessingStepTest {
             )
         )
         assertThat(stepsProcessed).containsExactly(mainStep)
+    }
+
+    @Test
+    fun kspVariousDeferredElements() {
+        val main = Source.kotlin(
+            "Main.kt",
+            """
+            package foo.bar
+            import androidx.room.compiler.processing.testcode.*
+            class Main {
+                @AnywhereAnnotation fun mainMethod() {}
+                class InnerMain {
+                    @AnywhereAnnotation fun innerMethod() {}
+                }
+            }
+            """.trimIndent()
+        )
+        val extra = Source.kotlin(
+            "Extra.kt",
+            """
+            package foo.bar
+            import androidx.room.compiler.processing.testcode.*
+            class Extra {
+                fun mainMethod(@AnywhereAnnotation param: String) {}
+            }
+            """.trimIndent()
+        )
+        val assertRound: (Int, List<XElement>) -> Unit = { roundIndex, roundReceivedElements ->
+            if (roundIndex == 1) {
+                // Verify the deferred elements
+                roundReceivedElements.let { elements ->
+                    val methods = elements.filterIsInstance<XMethodElement>()
+                    val params = elements.filterIsInstance<XExecutableParameterElement>()
+                    assertThat(methods).hasSize(2)
+                    assertThat(methods.firstOrNull { it.name == "mainMethod" }).isNotNull()
+                    assertThat(methods.firstOrNull { it.name == "innerMethod" }).isNotNull()
+                    assertThat(params).hasSize(1)
+                    assertThat(params.firstOrNull { it.name == "param" }).isNotNull()
+                }
+            }
+        }
+        val roundReceivedElementsHashes = mutableListOf<Set<Int>>()
+        val mainStep = object : XProcessingStep {
+            var round = 0
+            override fun annotations() = setOf(AnywhereAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                elementsByAnnotation.values.flatten().let {
+                    assertRound(round, it)
+                    roundReceivedElementsHashes.add(it.map { it.hashCode() }.toSet())
+                }
+                return if (round++ == 0) {
+                    // Generate a random class to trigger another processing round
+                    val className = ClassName.get("foo.bar", "Main_Impl")
+                    val spec = TypeSpec.classBuilder(className).build()
+                    JavaFile.builder(className.packageName(), spec)
+                        .build()
+                        .writeTo(env.filer)
+                    elementsByAnnotation.values.flatten().toSet()
+                } else {
+                    emptySet()
+                }
+            }
+        }
+        val processorProvider = SymbolProcessorProvider { environment ->
+            object : KspBasicAnnotationProcessor(environment) {
+                override fun processingSteps() = listOf(mainStep)
+            }
+        }
+        val compileResult = compile(
+            workingDir = temporaryFolder.root,
+            arguments = TestCompilationArguments(
+                sources = listOf(main, extra),
+                symbolProcessorProviders = listOf(processorProvider)
+            )
+        )
+        assertThat(compileResult.success).isTrue()
+
+        // Expect 2 rounds of processing
+        assertThat(roundReceivedElementsHashes).hasSize(2)
+        // Expect 3 annotated elements at around 0
+        assertThat(roundReceivedElementsHashes[0]).hasSize(3)
+        // Expect 3 annotated elements at around 1 (they were deferred)
+        assertThat(roundReceivedElementsHashes[1]).hasSize(3)
+        // Verify none of the deferred elements match in equality of previous rounds, i.e. they
+        // are not being cached.
+        assertThat(
+            roundReceivedElementsHashes[0].none { roundReceivedElementsHashes[1].contains(it) }
+        ).isTrue()
+    }
+
+    @Test
+    fun javacVariousDeferredElements() {
+        val main = Source.java(
+            "foo.bar.Main",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.*;
+            public class Main {
+                @AnywhereAnnotation void mainMethod() {}
+                static class InnerMain {
+                    @AnywhereAnnotation void innerMethod() {}
+                }
+            }
+            """.trimIndent()
+        ).toJFO()
+        val extra = Source.java(
+            "foo.bar.Extra",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.*;
+            public class Extra {
+                void mainMethod(@AnywhereAnnotation String param) {}
+            }
+            """.trimIndent()
+        ).toJFO()
+        val assertRound: (Int, List<XElement>) -> Unit = { roundIndex, roundReceivedElements ->
+            if (roundIndex == 1) {
+                // Verify the deferred elements
+                roundReceivedElements.let { elements ->
+                    val methods = elements.filterIsInstance<XMethodElement>()
+                    val params = elements.filterIsInstance<XExecutableParameterElement>()
+                    assertThat(methods).hasSize(2)
+                    assertThat(methods.firstOrNull { it.name == "mainMethod" }).isNotNull()
+                    assertThat(methods.firstOrNull { it.name == "innerMethod" }).isNotNull()
+                    assertThat(params).hasSize(1)
+                    assertThat(params.firstOrNull { it.name == "param" }).isNotNull()
+                }
+            }
+        }
+        val roundReceivedElementsHashes = mutableListOf<Set<Int>>()
+        val mainStep = object : XProcessingStep {
+            var round = 0
+            override fun annotations() = setOf(AnywhereAnnotation::class.qualifiedName!!)
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>
+            ): Set<XElement> {
+                elementsByAnnotation.values.flatten().let {
+                    assertRound(round, it)
+                    roundReceivedElementsHashes.add(it.map { it.hashCode() }.toSet())
+                }
+                return if (round++ == 0) {
+                    // Generate a random class to trigger another processing round
+                    val className = ClassName.get("foo.bar", "Main_Impl")
+                    val spec = TypeSpec.classBuilder(className).build()
+                    JavaFile.builder(className.packageName(), spec)
+                        .build()
+                        .writeTo(env.filer)
+                    elementsByAnnotation.values.flatten().toSet()
+                } else {
+                    emptySet()
+                }
+            }
+        }
+        assertAbout(
+            JavaSourcesSubjectFactory.javaSources()
+        ).that(
+            listOf(main, extra)
+        ).processedWith(
+            object : JavacBasicAnnotationProcessor() {
+                override fun processingSteps() = listOf(mainStep)
+            }
+        ).compilesWithoutError()
+
+        // Expect 2 rounds of processing
+        assertThat(roundReceivedElementsHashes).hasSize(2)
+        // Expect 3 annotated elements at around 0
+        assertThat(roundReceivedElementsHashes[0]).hasSize(3)
+        // Expect 3 annotated elements at around 1 (they were deferred)
+        assertThat(roundReceivedElementsHashes[1]).hasSize(3)
+        // Verify none of the deferred elements match in equality of previous rounds, i.e. they
+        // are not being cached.
+        assertThat(
+            roundReceivedElementsHashes[0].none { roundReceivedElementsHashes[1].contains(it) }
+        ).isTrue()
     }
 }

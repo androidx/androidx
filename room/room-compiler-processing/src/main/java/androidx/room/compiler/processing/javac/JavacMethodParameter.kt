@@ -27,9 +27,11 @@ internal class JavacMethodParameter(
     override val enclosingMethodElement: JavacExecutableElement,
     containing: JavacTypeElement,
     element: VariableElement,
-    val kotlinMetadata: KmValueParameter?,
+    kotlinMetadataFactory: () -> KmValueParameter?,
     val argIndex: Int
 ) : JavacVariableElement(env, containing, element), XExecutableParameterElement {
+
+    private val kotlinMetadata by lazy { kotlinMetadataFactory() }
 
     override val name: String
         get() = (kotlinMetadata?.name ?: super.name).sanitizeAsJavaParameterName(

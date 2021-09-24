@@ -47,12 +47,9 @@ internal class JavacRoundEnv(
         if (annotationQualifiedName == "*") {
             return emptySet()
         }
-
-        val element = env.elementUtils.getTypeElement(annotationQualifiedName)
-            ?: error("Cannot find TypeElement: $annotationQualifiedName")
-
-        val elements = delegate.getElementsAnnotatedWith(element)
-
+        val annotationTypeElement =
+            env.elementUtils.getTypeElement(annotationQualifiedName) ?: return emptySet()
+        val elements = delegate.getElementsAnnotatedWith(annotationTypeElement)
         return wrapAnnotatedElements(elements, annotationQualifiedName)
     }
 
