@@ -193,7 +193,7 @@ Do this:
 
 ```kotlin {.good}
 /**
- * * @param T my cool param
+ * @param T my cool param
  */
 ```
 

@@ -73,7 +73,7 @@ navigation/
 
 #### Project creator script {#module-creation}
 
-Note: The terms _project_, _module_, and _library_ are often used
+Note: The terms *project*, *module*, and *library* are often used
 interchangeably within AndroidX, with project being the technical term used by
 Gradle to describe a build target, e.g. a library that maps to a single AAR.
 
@@ -111,7 +111,7 @@ implementation detail shared within the group. Instead, use `-core`.
 
 #### Splitting existing modules
 
-Existing modules _should not_ be split into smaller modules; doing so creates
+Existing modules *should not* be split into smaller modules; doing so creates
 the potential for class duplication issues when a developer depends on a new
 sub-module alongside the older top-level module. Consider the following
 scenario:
@@ -230,7 +230,7 @@ Wear.
 Individual classes or methods may be annotated with the
 [@RequiresApi](https://developer.android.com/reference/android/annotation/RequiresApi.html)
 annotation to indicate divergence from the overall module's minimum SDK version.
-Note that this pattern is _not recommended_ because it leads to confusion for
+Note that this pattern is *not recommended* because it leads to confusion for
 external developers and should be considered a last-resort when backporting
 behavior is not feasible.
 
@@ -250,13 +250,13 @@ Additionally, an extension library **must** specify an `api`-type dependency on
 the base library and **must** be versioned and released identically to the base
 library.
 
-Kotlin extension libraries _should not_ expose new functionality; they should
+Kotlin extension libraries *should not* expose new functionality; they should
 only provide Kotlin-friendly versions of existing Java-facing functionality.
 
 ## Platform compatibility API patterns {#platform-compatibility-apis}
 
 NOTE For all library APIs that wrap or provide parity with platform APIs,
-_parity with the platform APIs overrides API guidelines_. For example, if the
+*parity with the platform APIs overrides API guidelines*. For example, if the
 platform API being wrapped has incorrect `Executor` and `Callback` ordering
 according to the API Guidelines, the corresponding library API should have the
 exact same (incorrect) ordering.
@@ -281,7 +281,7 @@ Implementation requirements
 *   Public method names **must** match platform method names
 *   Public methods **must** be static and take `PlatformClass` as first
     parameter
-*   Implementation _may_ delegate to `PlatformClass` methods when available
+*   Implementation *may* delegate to `PlatformClass` methods when available
 
 #### Sample {#static-shim-sample}
 
@@ -516,7 +516,7 @@ class ModemInfoCompat {
 
 ##### Construction {#wrapper-construction}
 
-*   Class _may_ have public constructor(s) to provide parity with public
+*   Class *may* have public constructor(s) to provide parity with public
     `PlatformClass` constructors
     *   Constructor used to wrap `PlatformClass` **must not** be public
 *   Class **must** implement a static `PlatformClassCompat
@@ -533,7 +533,7 @@ class ModemInfoCompat {
     *   If class does not exist at module's `minSdkVersion`, method must be
         annotated with `@RequiresApi(<sdk>)` for SDK version where class was
         introduced
-*   Implementation _may_ delegate to `PlatformClass` methods when available (see
+*   Implementation *may* delegate to `PlatformClass` methods when available (see
     below note for caveats)
 *   To avoid runtime class verification issues, all operations that interact
     with the internal structure of `PlatformClass` must be implemented in inner
@@ -557,12 +557,12 @@ Implementation requirements
 *   Package name **must** be `androidx.<platform.package>`
 *   Superclass **must not** be `<PlatformClass>`
 *   Class **must not** expose `PlatformClass` in public API
-    *   In exceptional cases, a _released_ standalone class may add conversion
-        between itself and the equivalent platform class; however, _new_ classes
+    *   In exceptional cases, a *released* standalone class may add conversion
+        between itself and the equivalent platform class; however, *new* classes
         that support conversion should follow the [Wrapper](#wrapper)
         guidelines. In these cases, use a `toPlatform<PlatformClass>` and
         `static toCompat<PlatformClass>` method naming convention.
-*   Implementation _may_ delegate to `PlatformClass` methods when available
+*   Implementation *may* delegate to `PlatformClass` methods when available
 
 ### Standalone JAR library (no Android dependencies) {#standalone-jar-library-no-android-dependencies}
 
@@ -784,12 +784,24 @@ removed between library versions.
 storage or inter-process communication. Preserving and verifying compatibility
 is difficult and error-prone.
 
-If you expose a `Bundle` to callers that can cross processes, you should
-[prevent apps from adding their own custom parcelables](https://android.googlesource.com/platform/frameworks/base/+/6cddbe14e1ff67dc4691a013fe38a2eb0893fe03)
-as top-level entries; if *any* entry in a `Bundle` can't be loaded, even if it's
-not actually accessed, the receiving process is likely to crash.
+Developers **should** use protocol buffers for most cases. See
+[Protobuf](#dependencies-protobuf) for more information on using protocol
+buffers in your library.
 
-**Do** use protocol buffers or, in some simpler cases, `VersionedParcelable`.
+Developers **may** use `Bundle` in simple cases that require sending `Binder`s
+or `FileDescriptor`s across IPC. Note that `Bundle` has several caveats:
+
+-   Accessing *any* entry in a `Bundle` will result in the platform attempting
+    to load *every* entry. If a single entry cannot be loaded -- for example if
+    a developer added a custom `Parcelable` that doesn't exist in the receiver's
+    classpath -- an exception will be thrown when accessing *any* entry. Library
+    code that accesses `Bundle`s received from outside the process **must** do
+    so defensively. Library code that sends `Bundle`s outside the process
+    *should* discourage clients from passing custom `Parcelable`s.
+-   `Bundle` provides no versioning and Jetpack provides no affordances for
+    tracking the keys or value types associated with a `Bundle`. Library owners
+    are responsible for providing their own system for guaranteeing wire format
+    compatibility between versions.
 
 #### Communication protocols
 
@@ -1008,7 +1020,7 @@ See also the official Android Gradle Plugin documentation for
 
 Developers **must not** add `<application>`-level `<meta-data>` tags to library
 manifests or advise developers to add such tags to their application manifests.
-Doing so may _inadvertently cause denial-of-service attacks against other apps_.
+Doing so may *inadvertently cause denial-of-service attacks against other apps*.
 
 Assume a library adds a single item of meta-data at the application level. When
 an app uses the library, that meta-data will be merged into the resulting app's
@@ -1104,7 +1116,7 @@ only have implementation-type dependencies, your artifact may carry either the
 `alpha` or `beta` suffix.
 
 Note: This does not apply to test dependencies: suffixes of test dependencies do
-_not_ carry over to your artifact.
+*not* carry over to your artifact.
 
 #### Pinned versions {#dependencies-prebuilt}
 
@@ -1167,10 +1179,45 @@ must conform to the following guidelines:
 Please see Jetpack's [open-source policy page](open_source.md) for more details
 on using third-party libraries.
 
+### Types of dependencies {#dependencies-types}
+
+AndroidX allows dependencies to be specified as `api` or `implementation` with a
+"pinned" Maven spec (ex. `androidx.core:core:1.0.0`) or a "tip-of-tree" project
+spec (ex. `project(":core:core")`).
+
+Projects used in Playground, the experimental GitHub workflow, should use a
+"recent" project or artifact spec (ex. `projectOrArtifact(":core:core")`) which
+will default to tip-of-tree when used outside of the Playground workflow or a
+pinned `SNAPSHOT` artifact otherwise.
+
+Regardless of which dependency spec is used, all projects are built against
+tip-of-tree dependencies in CI to prevent regressions and enforce Jetpack's
+compatible-at-head policy.
+
+#### `api` versus `implementation` {#dependencies-api-vs-impl}
+
+`api`-type dependencies will appear in clients' auto-complete as though they had
+added the dependency directly to their project, and Studio will run any lint
+checks bundled with `api`-type dependencies.
+
+Dependencies whose APIs are exposed in a library's API surface **must** be
+included as `api`-type. For example, if your library's API surface includes
+`AccessibilityNodeInfoCompat` then you will use an `api`-type dependency on the
+`androidx.core:core` library.
+
+NOTE Libraries that provide client-facing lint checks, including
+`annotation-experimental`, **must** be included as `api`-type to ensure that
+lint checks are run in the clients' dependent projects.
+
+`implementation`-type dependencies will be included in the classpath, but will
+not be made available at design time (ex. in auto-complete) unless the client
+explicitly adds them.
+
 ### System health {#dependencies-health}
 
-Libraries should consider the system health implications of their dependencies,
-including:
+Generally, Jetpack libraries should avoid dependencies that negatively impact
+developers without providing substantial benefit. Libraries should consider the
+system health implications of their dependencies, including:
 
 -   Large dependencies where only a small portion is needed (e.g. APK bloat)
 -   Dependencies that slow down build times through annotation processing or
@@ -1178,14 +1225,14 @@ including:
 
 #### Kotlin {#dependencies-kotlin}
 
-Kotlin is _strongly recommended_ for new libraries; however, it's important to
+Kotlin is *strongly recommended* for new libraries; however, it's important to
 consider its size impact on clients. Currently, the Kotlin stdlib adds a minimum
 of 40kB post-optimization. It may not make sense to use Kotlin for a library
 that targets Java-only clients or space-constrained (ex. Android Go) clients.
 
-Existing Java-based libraries are _strongly discouraged_ from using Kotlin,
+Existing Java-based libraries are *strongly discouraged* from using Kotlin,
 primarily because our documentation system does not currently provide a
-Java-facing version of Kotlin API reference docs. Java-based libraries _may_
+Java-facing version of Kotlin API reference docs. Java-based libraries *may*
 migrate to Kotlin, but they must consider the docs usability and size impacts on
 existing Java-only and space-constrained clients.
 
@@ -1207,7 +1254,7 @@ standalone `com.google.guava:listenablefuture` artifact. See
 
 #### Java 8 {#dependencies-java8}
 
-Libraries that take a dependency on a library targeting Java 8 must _also_
+Libraries that take a dependency on a library targeting Java 8 must *also*
 target Java 8, which will incur a ~5% build performance (as of 8/2019) hit for
 clients. New libraries targeting Java 8 may use Java 8 dependencies.
 
@@ -1224,6 +1271,24 @@ android {
 }
 ```
 
+#### Protobuf {#dependencies-protobuf}
+
+[Protocol buffers](https://developers.google.com/protocol-buffers) provide a
+language- and platform-neutral mechanism for serializing structured data. The
+implementation enables developers to maintain protocol compatibility across
+library versions, meaning that two clients can communicate regardless of the
+library versions included in their APKs.
+
+The Protobuf library itself, however, does not guarantee ABI compatibility
+across minor versions and a specific version **must** be bundled with a library
+to avoid conflict with other dependencies used by the developer.
+
+Additionally, the Java API surface generated by the Protobuf compiler is not
+guaranteed to be stable and **must not** be exposed to developers. Library
+owners should wrap the generated API surface with well-documented public APIs
+that follow an appropriate language-specific paradigm for constructing data
+classes, e.g. the Java `Builder` pattern.
+
 ### Open-source compatibility {#dependencies-aosp}
 
 [Jetpack Principles](principles.md) require that libraries consider the
@@ -1239,23 +1304,27 @@ components including libraries and hard-coded references to packages,
 permissions, or IPC mechanisms that may only be fulfulled by closed-source
 components.
 
-Optional artifacts, e.g. `workmanager-gcm`, _may_ depend on closed-source
+Optional artifacts, e.g. `workmanager-gcm`, *may* depend on closed-source
 components or configure a primary artifact to be backed by a closed-source
 component via service discovery or initialization.
 
 Some examples of safely depending on closed-source components include:
 
--   WorkManager's GCM Network Manager integration, which uses manifest metadata
+-   WorkManager's GCM Network Manager integration, which uses
+    [manifest metadata](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:work/workmanager-gcm/src/main/AndroidManifest.xml)
     for service discovery and provides an optional artifact exposing the
     service.
 -   Ads Identifier's Play Services integration, which provides a default backend
-    and uses `Intent` handling as a service discovery mechanism for Play
-    Services.
+    and uses
+    [`Intent` handling](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:ads/ads-identifier-provider/src/main/java/androidx/ads/identifier/provider/AdvertisingIdProviderManager.java;l=108)
+    as a service discovery mechanism for Play Services.
 -   Downloadable Fonts integration with Play Services, which plugs in via a
-    `ContentProvider` as a service discovery mechanism with developer-specified
-    signature verification for additional security.
+    [`ContentProvider`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:core/core/src/androidTest/java/androidx/core/provider/MockFontProvider.java)
+    as a service discovery mechanism with developer-specified
+    [signature verification](https://developer.android.com/guide/topics/ui/look-and-feel/downloadable-fonts#adding-certificates)
+    for additional security.
 
-Note that in all cases, the developer is not _required_ to use GCM or Play
+Note that in all cases, the developer is not *required* to use GCM or Play
 Services and may instead use another compatible service implementing the same
 publicly-defined protocols.
 
@@ -1303,7 +1372,7 @@ that an API is really difficult to use. Jetpack libraries should treat instances
 of `@RequiresOptIn` in JetBrains libraries as indicating **binary instability**
 and avoid using them outside of `alpha`; however, teams are welcome to obtain
 written assurance from JetBrains regarding binary stability of specific APIs.
-`@RequiresOptIn` APIs that are guaranteed to remain binary compatible _may_ be
+`@RequiresOptIn` APIs that are guaranteed to remain binary compatible *may* be
 used in `beta`, but usages must be removed when the library moves to `rc`.
 
 #### How to mark an API surface as experimental
@@ -1365,7 +1434,7 @@ Hiding an API does *not* provide strong guarantees about usage:
 #### When to use `@hide` {#restricted-api-usage}
 
 In other cases, avoid using `@hide` / `@suppress`. These annotations indicates
-that developers should not call an API that is _technically_ public from a Java
+that developers should not call an API that is *technically* public from a Java
 visibility perspective. Hiding APIs is often a sign of a poorly-abstracted API
 surface, and priority should be given to creating public, maintainable APIs and
 using Java visibility modifiers.
@@ -1384,16 +1453,19 @@ language `private` or `default` visibility).
 #### `RestrictTo.Scope` and inter- versus intra-library API surfaces {#private-api-types}
 
 To maintain binary compatibility between different versions of libraries,
-restricted API surfaces that are used between libraries (inter-library APIs)
-must follow the same Semantic Versioning rules as public APIs. Inter-library
-APIs should be annotated with the `@RestrictTo(LIBRARY_GROUP)` source
-annotation.
+restricted API surfaces that are used between libraries within Jetpack
+(inter-library APIs) must follow the same Semantic Versioning rules as public
+APIs. Inter-library APIs should be annotated with the
+`@RestrictTo(LIBRARY_GROUP)` source annotation and `@hide` docs annotation.
 
 Restricted API surfaces used within a single library (intra-library APIs), on
 the other hand, may be added or removed without any compatibility
-considerations. It is safe to assume that developers _never_ call these APIs,
+considerations. It is safe to assume that developers *never* call these APIs,
 even though it is technically feasible. Intra-library APIs should be annotated
-with the `@RestrictTo(LIBRARY)` source annotation.
+with the `@RestrictTo(LIBRARY)` source annotation and `@hide` docs annotation.
+
+In all cases, correctness and compatibility tracking are handled by AndroidX's
+build system and lint checks.
 
 The following table shows the visibility of a hypothetical API within Maven
 coordinate `androidx.concurrent:concurrent` when annotated with a variety of
@@ -1430,12 +1502,12 @@ as to which `@IntDef` defined the value of `1`. The annotations are extracted
 and packaged separately to be read by Android Studio and lint which enforces the
 types in application code.
 
-*   Libraries _must_ `@hide` all `@IntDef`, `@StringDef`, and `@LongDef`
+*   Libraries *must* `@hide` all `@IntDef`, `@StringDef`, and `@LongDef`
     declarations.
-*   Libraries _must_ expose constants used to define the `@IntDef` etc at the
+*   Libraries *must* expose constants used to define the `@IntDef` etc at the
     same Java visibility as the hidden `@IntDef`
-*   Libraries _should_ also use @RestrictTo to create a warning when the type
-    used incorrectly.
+*   Libraries *must* use `@RestrictTo` to create a warning when the type is used
+    incorrectly.
 
 Here is a complete example of an `@IntDef`
 
@@ -1471,7 +1543,7 @@ resource rather than relying on a theme attribute to resolve the default style
 resource. Because this API was added in SDK 21, care must be taken to ensure
 that it is not called through any < SDK 21 code path.
 
-Views _may_ implement a four-arg constructor in one of the following ways:
+Views *may* implement a four-arg constructor in one of the following ways:
 
 1.  Do not implement.
 1.  Implement and annotate with `@RequiresApi(21)`. This means the three-arg
@@ -1493,6 +1565,10 @@ dependency on coroutines.
 Java libraries should prefer `ListenableFuture` and the
 [`CallbackToFutureAdapter`](https://developer.android.com/reference/androidx/concurrent/futures/CallbackToFutureAdapter)
 implementation provided by the `androidx.concurrent:concurrent-futures` library.
+Functions and methods that return `ListenableFuture` should be suffixed by,
+`Async` to reserve the shorter, unmodified name for a `suspend` method or
+extension function in Kotlin that returns the value normally in accordance with
+structured concurrency.
 
 Libraries **must not** use `java.util.concurrent.CompletableFuture`, as it has a
 large API surface that permits arbitrary mutation of the future's value and has
@@ -1504,7 +1580,7 @@ Kotlin coroutines and Guava in your library.
 #### Cancellation
 
 Libraries that expose APIs for performing asynchronous work should support
-cancellation. There are _very few_ cases where it is not feasible to support
+cancellation. There are *very few* cases where it is not feasible to support
 cancellation.
 
 Libraries that use `ListenableFuture` must be careful to follow the exact
@@ -1663,7 +1739,7 @@ with every member name in order as well, you'll also have to manually
 re-implement any old `copy` variants as items are added. If these constraints
 are acceptable, data classes may still be useful to you.
 
-As a result, Kotlin `data` classes are _strongly discouraged_ in library APIs.
+As a result, Kotlin `data` classes are *strongly discouraged* in library APIs.
 Instead, follow best-practices for Java data classes including implementing
 `equals`, `hashCode`, and `toString`.
 

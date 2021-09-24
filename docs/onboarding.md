@@ -8,8 +8,7 @@ make simple changes in Android Studio, and upload commits to Gerrit for review.
 This page does **not** cover best practices for the content of changes. Please
 see [Life of a Jetpack Feature](loaf.md) for details on developing and releasing
 a library, [API Guidelines](api_guidelines.md) for best practices regarding
-public APIs, or [Policies and Processes](policies.md) for an overview of the
-constraints placed on changes.
+public APIs and an overview of the constraints placed on changes.
 
 ## Workstation setup {#setup}
 
@@ -379,9 +378,8 @@ task:
 ./gradlew doclavaDocs
 ```
 
-To generate offline docs use '-PofflineDocs=true' parameter. Places the
-documentation in
-`{androidx-main}/out/dist/out/androidx/docs-tip-of-tree/build/javadoc`
+Places the documentation in
+`{androidx-main}/out/androidx/docs-tip-of-tree/build/javadoc`
 
 #### KotlinDocs
 
@@ -394,6 +392,22 @@ task:
 
 Places the documentation in
 `{androidx-main}/out/dist/out/androidx/docs-tip-of-tree/build/dokkaKotlinDocs`
+
+#### Dackka docs
+
+To build API reference docs for both Java and Kotlin source code using Dackka,
+run the Gradle task:
+
+```
+./gradlew dackkaDocs
+```
+
+Location of generated refdocs:
+
+*   docs-public (what is published to DAC):
+    `{androidx-main}/out/dist/out/androidx/docs-public/build/dackkaDocs`
+*   docs-tip-of-tree:
+    `{androidx-main}/out/dist/out/androidx/docs-tip-of-tree/build/dackkaDocs`
 
 #### Release docs
 
@@ -426,6 +440,15 @@ difference being that we use the Gradle command:
 
 This will create the artifact `{androidx-main}/out/dist/dokka-public-docs-0.zip`
 
+To generate a zip artifact for both Java and Kotlin source code using Dackka:
+
+```
+./gradlew zipDackkaDocs
+```
+
+This will create the artifact
+`{androidx-main}/out/dist/dackka-public-docs-0.zip`
+
 ### Updating public APIs {#updating-public-apis}
 
 Public API tasks -- including tracking, linting, and verifying compatibility --
@@ -454,6 +477,20 @@ This is handled automatically by the `updateApi` Gradle task:
 
 If you change the public APIs without updating the API file, your module will
 still build **but** your CL will fail Treehugger presubmit checks.
+
+#### What are all these files in `api/`? {#updating-public-apis-glossary}
+
+Historical API surfaces are tracked for compatibility and docs generation
+purposes. For each version -- including `current` to represent the tip-of-tree
+version -- we record three different types of API surfaces.
+
+*   `<version>.txt`: Public API surface, tracked for compatibility
+*   `restricted_<version>.txt`: `@RestrictTo` API surface, tracked for
+    compatibility where necessary (see
+    [Restricted APIs](api_guidelines.md#restricted-api))
+*   `public_plus_experimental_<version>.txt`: Public API surface plus
+    `@RequiresOptIn` experimental API surfaces used for documentation (see
+    [Experimental APIs](api_guidelines.md#experimental-api)) and API review
 
 ### Release notes & the `Relnote:` tag {#relnote}
 
@@ -622,11 +659,11 @@ monitoring tests.
 
 The Android Studio instance started by `./studiow` uses a custom SDK directory,
 which means any virtual devices created by a "standard" non-AndroidX instance of
-Android Studio will be _visible_ from the `./studiow` instance but will be
+Android Studio will be *visible* from the `./studiow` instance but will be
 unable to locate the SDK artifacts -- they will display a `Download` button.
 
 You can either use the `Download` button to download an extra copy of the SDK
-artifacts _or_ you can set up a symlink to your "standard" non-AndroidX SDK
+artifacts *or* you can set up a symlink to your "standard" non-AndroidX SDK
 directory to expose your existing artifacts to the `./studiow` instance:
 
 ```shell

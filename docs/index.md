@@ -1,5 +1,7 @@
 # What is Jetpack?
 
+![alt_text](androidx.gif "Androidx Gif")
+
 ## Ethos
 
 To create recommended components, tools, and guidance that makes it quick and
