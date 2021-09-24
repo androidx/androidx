@@ -62,6 +62,9 @@ package androidx.glance.appwidget {
     field public static final androidx.glance.appwidget.SizeMode.Single INSTANCE;
   }
 
+  public final class UtilsKt {
+  }
+
 }
 
 package androidx.glance.appwidget.layout {

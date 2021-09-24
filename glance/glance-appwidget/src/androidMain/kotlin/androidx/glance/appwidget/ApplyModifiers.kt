@@ -22,7 +22,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.os.Build
-import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
@@ -119,9 +118,6 @@ internal fun applyModifiers(
         }
     }
 }
-
-internal fun Dp.toPixels(displayMetrics: DisplayMetrics) =
-    TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, displayMetrics).toInt()
 
 private fun applyWidthModifier(
     rv: RemoteViews,
