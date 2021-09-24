@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="complication_config" msgid="292306201243482945">"Konfiguracija spletova watch facea"</string>
-    <string name="watchface_settings" msgid="4785773105440577595">"Konfiguracija postavki watch facea"</string>
-    <string name="style_config" msgid="2987895585951859981">"Konfiguracija stilova watch facea"</string>
-    <string name="none_background_image_provider" msgid="2326408635673026310">"Ništa"</string>
-    <string name="settings_complications" msgid="7688669266180209514">"Podaci"</string>
-    <string name="settings_background_image" msgid="4866968289579187727">"Slika pozadine"</string>
-    <string name="settings_styles" msgid="5609438460443634575">"Stilovi"</string>
+    <string name="complication_config" msgid="3090406830927670356">"Konfiguriranje komplikacija brojčanika"</string>
+    <string name="watchface_settings" msgid="9086980313887663299">"Konfiguriranje postavki brojčanika"</string>
+    <string name="style_config" msgid="7270818527618953542">"Konfiguriranje stilova brojčanika"</string>
+    <string name="none_background_image_provider" msgid="2763799590544856080">"Nema"</string>
+    <string name="settings_complications" msgid="1425815384891476600">"Podaci"</string>
+    <string name="settings_background_image" msgid="496585675676995765">"Pozadinska slika"</string>
+    <string name="settings_styles" msgid="3243144642316786428">"Stilovi"</string>
 </resources>
