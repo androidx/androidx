@@ -67,8 +67,11 @@ else
   if [ "$DIAGNOSE" == "true" ]; then
     # see if diagnose-build-failure.sh can identify the root cauase
     echo "running diagnose-build-failure.sh, see build.log" >&2
-    # specify a timeout in case we're running on a remote server, so we don't take too long
-    ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 14400 "--ci saveSystemStats $*"
+    # Specify a short timeout in case we're running on a remote server, so we don't take too long.
+    # We probably won't have enough time to fully diagnose the problem given this timeout, but
+    # we might be able to determine whether this problem is reproducible enough for a developer to
+    # more easily investigate further
+    ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 600 "--ci saveSystemStats $*"
   fi
   exit 1
 fi

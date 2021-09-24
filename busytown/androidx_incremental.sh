@@ -16,6 +16,12 @@ mkdir -p "$OUT_DIR"
 export DIST_DIR="$DIST_DIR/incremental"
 mkdir -p "$DIST_DIR"
 
+if echo "$BUILD_NUMBER" | grep "P" >/dev/null; then
+  PRESUBMIT=true
+else
+  PRESUBMIT=false
+fi
+
 function hashOutDir() {
   hashFile=out.hashes
   echo "hashing out dir and saving into $DIST_DIR/$hashFile"
@@ -38,16 +44,23 @@ function zipKotlinMetadata() {
   echo done zipping kotlin metadata
 }
 
+# If we encounter a failure in postsubmit, we try a few things to determine if the failure is
+# reproducible
+DIAGNOSE_ARG=""
+if [ "$PRESUBMIT" == "false" ]; then
+  DIAGNOSE_ARG="--diagnose"
+fi
+
 # Run Gradle
 EXIT_VALUE=0
-if impl/build.sh buildOnServer checkExternalLicenses listTaskOutputs validateAllProperties \
+if impl/build.sh $DIAGNOSE_ARG buildOnServer checkExternalLicenses listTaskOutputs validateAllProperties \
     --profile "$@"; then
   echo build succeeded
   EXIT_VALUE=0
 else
   zipKotlinMetadata
   echo build failed
-  if echo "$BUILD_NUMBER" | grep "P"; then
+  if [ "$PRESUBMIT" == "true" ]; then
     echo androidx_incremental ignoring presubmit failure
   else
     EXIT_VALUE=1
