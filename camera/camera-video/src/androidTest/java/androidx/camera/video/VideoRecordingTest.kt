@@ -275,7 +275,7 @@ class VideoRecordingTest(
         latchForVideoRecording = CountDownLatch(5)
 
         instrumentation.runOnMainSync {
-            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, videoCapture)
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
         }
 
         // Act.
@@ -300,7 +300,7 @@ class VideoRecordingTest(
         @Suppress("UNCHECKED_CAST")
         val mockListener = mock(Consumer::class.java) as Consumer<VideoRecordEvent>
         instrumentation.runOnMainSync {
-            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, videoCapture)
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
         }
         lifecycleOwner.pauseAndStop()
 
