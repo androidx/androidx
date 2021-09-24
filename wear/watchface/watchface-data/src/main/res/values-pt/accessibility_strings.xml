@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="a11y_no_permission" msgid="6173908979849605412">"Sem permissão para acessar os dados"</string>
-    <string name="a11y_no_data" msgid="2401847004061006997">"Não há dados"</string>
-    <string name="a11y_template_range" msgid="2205069205653242011">"<xliff:g id="VALUE">%1$f</xliff:g> de <xliff:g id="MAX">%2$f</xliff:g>"</string>
+    <string name="a11y_no_permission" msgid="6954835069208568445">"Sem permissão para acessar os dados"</string>
+    <string name="a11y_no_data" msgid="1150196161728975556">"Não há dados"</string>
+    <string name="a11y_template_range" msgid="43093005594777633">"<xliff:g id="VALUE">%1$f</xliff:g> de <xliff:g id="MAX">%2$f</xliff:g>"</string>
 </resources>
