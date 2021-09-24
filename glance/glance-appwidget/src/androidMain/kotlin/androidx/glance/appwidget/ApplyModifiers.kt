@@ -36,6 +36,8 @@ import androidx.glance.Modifier
 import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LaunchActivityAction
+import androidx.glance.action.LaunchActivityClassAction
+import androidx.glance.action.LaunchActivityComponentAction
 import androidx.glance.action.UpdateAction
 import androidx.glance.layout.Dimension
 import androidx.glance.layout.HeightModifier
@@ -102,7 +104,12 @@ private fun applyAction(
 ) {
     when (action) {
         is LaunchActivityAction -> {
-            val intent = Intent(context, action.activityClass)
+            val intent = when (action) {
+                is LaunchActivityComponentAction -> Intent().setComponent(action.componentName)
+                is LaunchActivityClassAction -> Intent(context, action.activityClass)
+                else -> error("Action type not defined in app widget package: $action")
+            }
+
             val pendingIntent: PendingIntent =
                 PendingIntent.getActivity(
                     context,

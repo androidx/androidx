@@ -18,16 +18,31 @@ package androidx.glance.action
 
 import android.app.Activity
 import androidx.annotation.RestrictTo
+import android.content.ComponentName
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class LaunchActivityAction(val activityClass: Class<out Activity>) : Action
+public interface LaunchActivityAction : Action
+
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class LaunchActivityComponentAction(val componentName: ComponentName) : LaunchActivityAction
+
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class LaunchActivityClassAction(val activityClass: Class<out Activity>) : LaunchActivityAction
+
+/**
+ * Creates an [Action] that launches the [Activity] specified by the given [ComponentName].
+ */
+public fun launchActivityAction(componentName: ComponentName): Action =
+    LaunchActivityComponentAction(componentName)
 
 /**
  * Creates an [Action] that launches the specified [Activity] when triggered.
  */
 public fun <T : Activity> launchActivityAction(activity: Class<T>): Action =
-    LaunchActivityAction(activity)
+    LaunchActivityClassAction(activity)
 
 @Suppress("MissingNullability") /* Shouldn't need to specify @NonNull. b/199284086 */
 /**

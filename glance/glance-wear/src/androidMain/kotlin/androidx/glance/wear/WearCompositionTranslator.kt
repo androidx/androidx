@@ -24,6 +24,8 @@ import androidx.glance.Emittable
 import androidx.glance.Modifier
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LaunchActivityAction
+import androidx.glance.action.LaunchActivityClassAction
+import androidx.glance.action.LaunchActivityComponentAction
 import androidx.glance.findModifier
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Dimension
@@ -111,8 +113,19 @@ private fun LaunchActivityAction.toProto(context: Context): ActionBuilders.Launc
     ActionBuilders.LaunchAction.Builder()
         .setAndroidActivity(
             ActionBuilders.AndroidActivity.Builder()
-                .setPackageName(context.packageName)
-                .setClassName(this.activityClass.name)
+                .setPackageName(
+                    when (this) {
+                        is LaunchActivityComponentAction -> componentName.packageName
+                        is LaunchActivityClassAction -> context.packageName
+                        else -> error("Action type not defined in wear package: $this")
+                    }
+                )
+                .setClassName(
+                    when (this) {
+                        is LaunchActivityComponentAction -> componentName.className
+                        is LaunchActivityClassAction -> activityClass.name
+                        else -> error("Action type not defined in wear package: $this")
+                    })
                 .build()
         )
         .build()
