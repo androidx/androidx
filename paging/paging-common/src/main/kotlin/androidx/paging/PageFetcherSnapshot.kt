@@ -34,7 +34,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.conflate
@@ -69,8 +68,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         }
     }
 
-    private val hintSharedFlow = MutableSharedFlow<ViewportHint>(replay = 1)
-    private var lastHint: ViewportHint.Access? = null
+    private val hintHandler = HintHandler()
 
     private val pageEventChCollected = AtomicBoolean(false)
     private val pageEventCh = Channel<PageEvent<Value>>(BUFFERED)
@@ -110,7 +108,9 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             retryChannel.consumeAsFlow()
                 .collect {
                     val (sourceLoadStates, remotePagingState) = stateHolder.withLock { state ->
-                        state.sourceLoadStates.snapshot() to state.currentPagingState(lastHint)
+                        state.sourceLoadStates.snapshot() to state.currentPagingState(
+                            hintHandler.lastAccessHint
+                        )
                     }
                     // tell remote mediator to retry and it will trigger necessary work / change
                     // its state as necessary.
@@ -188,17 +188,13 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     "Cannot retry APPEND / PREPEND load on PagingSource without ViewportHint"
                 }
 
-                hintSharedFlow.tryEmit(viewportHint)
+                hintHandler.forceSetHint(loadType, viewportHint)
             }
         }
     }
 
     fun accessHint(viewportHint: ViewportHint) {
-        if (viewportHint is ViewportHint.Access) {
-            lastHint = viewportHint
-        }
-
-        hintSharedFlow.tryEmit(viewportHint)
+        hintHandler.processHint(viewportHint)
     }
 
     fun close() {
@@ -206,19 +202,25 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     }
 
     suspend fun currentPagingState(): PagingState<Key, Value> {
-        return stateHolder.withLock { state -> state.currentPagingState(lastHint) }
+        return stateHolder.withLock { state ->
+            state.currentPagingState(hintHandler.lastAccessHint)
+        }
     }
 
     private fun CoroutineScope.startConsumingHints() {
         // Pseudo-tiling via invalidation on jumps.
         if (config.jumpThreshold != COUNT_UNDEFINED) {
-            launch {
-                hintSharedFlow
-                    .filter { hint ->
+            listOf(
+                APPEND, PREPEND
+            ).forEach { loadType ->
+                launch {
+                    hintHandler.hintFor(
+                        loadType
+                    ).filter { hint ->
                         hint.presentedItemsBefore * -1 > config.jumpThreshold ||
                             hint.presentedItemsAfter * -1 > config.jumpThreshold
-                    }
-                    .collectLatest { invalidate() }
+                    }.collectLatest { invalidate() }
+                }
             }
         }
 
@@ -235,7 +237,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
     /**
      * Maps a [Flow] of generation ids from [PageFetcherSnapshotState] to [ViewportHint]s from
-     * [hintSharedFlow] with back-pressure handling via conflation by prioritizing hints which
+     * [hintHandler] with back-pressure handling via conflation by prioritizing hints which
      * either update presenter state or those that would load the most items.
      *
      * @param loadType [PREPEND] or [APPEND]
@@ -256,19 +258,16 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             }
         }
 
-        hintSharedFlow
+        hintHandler.hintFor(loadType)
             // Prevent infinite loop when competing PREPEND / APPEND cancel each other
             .drop(if (generationId == 0) 0 else 1)
             .map { hint -> GenerationalViewportHint(generationId, hint) }
-    }
+    }.simpleRunningReduce { previous, next ->
         // Prioritize new hints that would load the maximum number of items.
-        .simpleRunningReduce { previous, next ->
-            if (next.shouldPrioritizeOver(previous, loadType)) next else previous
-        }
-        .conflate()
-        .collect { generationalHint ->
-            doLoad(loadType, generationalHint)
-        }
+        if (next.shouldPrioritizeOver(previous, loadType)) next else previous
+    }.conflate().collect { generationalHint ->
+        doLoad(loadType, generationalHint)
+    }
 
     private fun loadParams(loadType: LoadType, key: Key?) = LoadParams.create(
         loadType = loadType,
@@ -324,7 +323,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 if (remoteMediatorConnection != null) {
                     if (result.prevKey == null || result.nextKey == null) {
                         val pagingState = stateHolder.withLock { state ->
-                            state.currentPagingState(lastHint)
+                            state.currentPagingState(hintHandler.lastAccessHint)
                         }
 
                         if (result.prevKey == null) {
@@ -395,7 +394,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             state.nextLoadKeyOrNull(
                 loadType,
                 generationalHint.generationId,
-                generationalHint.presentedItemsBeyondAnchor(loadType) + itemsLoaded,
+                generationalHint.hint.presentedItemsBeyondAnchor(loadType) + itemsLoaded,
             )?.also { state.setLoading(loadType) }
         }
 
@@ -474,7 +473,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 loadKey = state.nextLoadKeyOrNull(
                     loadType,
                     generationalHint.generationId,
-                    generationalHint.presentedItemsBeyondAnchor(loadType) + itemsLoaded,
+                    generationalHint.hint.presentedItemsBeyondAnchor(loadType) + itemsLoaded,
                 )
 
                 // Update load state to success if this is the final load result for this
@@ -501,7 +500,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             val endsAppend = params is LoadParams.Append && result.nextKey == null
             if (remoteMediatorConnection != null && (endsPrepend || endsAppend)) {
                 val pagingState = stateHolder.withLock { state ->
-                    state.currentPagingState(lastHint)
+                    state.currentPagingState(hintHandler.lastAccessHint)
                 }
 
                 if (endsPrepend) {
@@ -576,20 +575,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
  * between loads from jobs that have been cancelled, but continued to run to completion.
  */
 @VisibleForTesting
-internal data class GenerationalViewportHint(val generationId: Int, val hint: ViewportHint) {
-    /**
-     * @return Count of presented items between [hint], and either:
-     *  * the beginning of the list if [loadType] == PREPEND
-     *  * the end of the list if loadType == APPEND
-     */
-    internal fun presentedItemsBeyondAnchor(loadType: LoadType): Int = when (loadType) {
-        REFRESH -> throw IllegalArgumentException(
-            "Cannot get presentedItems for loadType: REFRESH"
-        )
-        PREPEND -> hint.presentedItemsBefore
-        APPEND -> hint.presentedItemsAfter
-    }
-}
+internal data class GenerationalViewportHint(val generationId: Int, val hint: ViewportHint)
 
 /**
  * Helper for [GenerationalViewportHint] prioritization in cases where item accesses are being sent
@@ -609,20 +595,7 @@ internal fun GenerationalViewportHint.shouldPrioritizeOver(
     return when {
         // Prioritize hints from new generations, which increments after dropping.
         generationId > previous.generationId -> true
-        // Prioritize Access hints over Initialize hints
-        previous.hint is ViewportHint.Initial && hint is ViewportHint.Access -> true
-        hint is ViewportHint.Initial && previous.hint is ViewportHint.Access -> false
-        // Prioritize hints from most recent presenter state
-        hint.originalPageOffsetFirst != previous.hint.originalPageOffsetFirst -> true
-        hint.originalPageOffsetLast != previous.hint.originalPageOffsetLast -> true
-        // Prioritize hints that would load the most items in PREPEND direction.
-        loadType == PREPEND && previous.hint.presentedItemsBefore < hint.presentedItemsBefore -> {
-            false
-        }
-        // Prioritize hints that would load the most items in APPEND direction.
-        loadType == APPEND && previous.hint.presentedItemsAfter < hint.presentedItemsAfter -> {
-            false
-        }
-        else -> true
+        generationId < previous.generationId -> false
+        else -> hint.shouldPrioritizeOver(previous.hint, loadType)
     }
 }
