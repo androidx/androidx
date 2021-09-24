@@ -22,6 +22,7 @@ import static androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager.MAX_O
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
@@ -45,6 +46,7 @@ import java.util.List;
  * A fake implementation for the CameraControlInternal interface which is capable of notifying
  * submitted requests onCaptureCancelled/onCaptureCompleted/onCaptureFailed.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FakeCameraControl implements CameraControlInternal {
     private static final String TAG = "FakeCameraControl";
     private final ControlUpdateCallback mControlUpdateCallback;
@@ -211,6 +213,7 @@ public final class FakeCameraControl implements CameraControlInternal {
     }
 
     /** A listener which are used to notify when there are new submitted capture requests */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public interface OnNewCaptureRequestListener {
         /** Called when there are new submitted capture request */
         void onNewCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);
