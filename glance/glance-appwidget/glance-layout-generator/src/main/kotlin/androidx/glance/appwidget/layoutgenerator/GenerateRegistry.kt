@@ -59,8 +59,11 @@ private fun buildInitializer(layouts: Map<File, LayoutProperties>): CodeBlock {
         withIndent {
             add(
                 layouts.map {
-                    createFileInitializer(it.key, it.value.mainViewId)
-                }.joinToCode("")
+                    it.key to createFileInitializer(it.key, it.value.mainViewId)
+                }
+                    .sortedBy { it.first.nameWithoutExtension }
+                    .map { it.second }
+                    .joinToCode("")
             )
         }
         addStatement(")")
