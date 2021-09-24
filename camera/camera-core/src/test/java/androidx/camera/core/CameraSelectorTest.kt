@@ -170,4 +170,22 @@ public class CameraSelectorTest {
         // Should throw an exception if the input is modified.
         cameraSelectorBuilder.build().select(mCameras)
     }
+
+    @Test
+    public fun canFilterCameraInfos() {
+        val cameraInfos = mCameras.map { camera -> camera.cameraInfo }
+        val backCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+        val filteredCameraInfos = backCameraSelector.filter(cameraInfos)
+        assertThat(filteredCameraInfos).isEqualTo(listOf(mRearCamera.cameraInfo))
+    }
+
+    @Test
+    public fun canFilterCameraInfosWithEmptyResult() {
+        val cameraInfos = listOf(mFrontCamera.cameraInfo)
+        val backCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+        val filteredCameraInfos = backCameraSelector.filter(cameraInfos)
+        assertThat(filteredCameraInfos).isEmpty()
+    }
 }

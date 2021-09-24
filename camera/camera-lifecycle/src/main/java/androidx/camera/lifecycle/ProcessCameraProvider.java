@@ -397,6 +397,10 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
 
         LinkedHashSet<CameraInternal> cameraInternals =
                 modifiedSelector.filter(mCameraX.getCameraRepository().getCameras());
+        if (cameraInternals.isEmpty()) {
+            throw new IllegalArgumentException("Provided camera selector unable to resolve a "
+                    + "camera for the given use case");
+        }
         CameraUseCaseAdapter.CameraId cameraId =
                 CameraUseCaseAdapter.generateCameraId(cameraInternals);
 

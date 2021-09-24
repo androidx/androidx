@@ -125,12 +125,12 @@ final class ExtensionsInfo {
                     baseCameraSelector);
             builder.addCameraFilter(getFilter(mode));
 
-            builder.build().filter(cameraProvider.getAvailableCameraInfos());
+            List<CameraInfo> cameraInfos = builder.build().filter(
+                    cameraProvider.getAvailableCameraInfos());
+            return !cameraInfos.isEmpty();
         } catch (IllegalArgumentException e) {
             return false;
         }
-
-        return true;
     }
 
     /**
@@ -169,7 +169,7 @@ final class ExtensionsInfo {
                     newCameraSelector.filter(cameraProvider.getAvailableCameraInfos());
 
             if (cameraInfos.isEmpty()) {
-                return null;
+                throw new IllegalArgumentException("No cameras found for given CameraSelector");
             }
 
             extensionsCameraInfo = cameraInfos.get(0);
