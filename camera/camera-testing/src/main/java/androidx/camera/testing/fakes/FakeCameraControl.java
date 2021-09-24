@@ -26,6 +26,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureFailure;
@@ -36,6 +37,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -56,6 +58,8 @@ public final class FakeCameraControl implements CameraControlInternal {
     private ArrayList<CaptureConfig> mSubmittedCaptureRequests = new ArrayList<>();
     private OnNewCaptureRequestListener mOnNewCaptureRequestListener;
     private MutableOptionsBundle mInteropConfig = MutableOptionsBundle.create();
+    private final ArrayList<CallbackToFutureAdapter.Completer<Void>> mSubmittedCompleterList =
+            new ArrayList<>();
 
     public FakeCameraControl(@NonNull ControlUpdateCallback controlUpdateCallback) {
         mControlUpdateCallback = controlUpdateCallback;
@@ -69,6 +73,12 @@ public final class FakeCameraControl implements CameraControlInternal {
                 cameraCaptureCallback.onCaptureCancelled();
             }
         }
+        for (CallbackToFutureAdapter.Completer<Void> completer : mSubmittedCompleterList) {
+            completer.setException(
+                    new ImageCaptureException(ImageCapture.ERROR_CAMERA_CLOSED, "Simulate "
+                            + "capture cancelled", null));
+        }
+        mSubmittedCompleterList.clear();
         mSubmittedCaptureRequests.clear();
     }
 
@@ -81,17 +91,26 @@ public final class FakeCameraControl implements CameraControlInternal {
                         CameraCaptureFailure.Reason.ERROR));
             }
         }
+        for (CallbackToFutureAdapter.Completer<Void> completer : mSubmittedCompleterList) {
+            completer.setException(new ImageCaptureException(ImageCapture.ERROR_CAPTURE_FAILED,
+                    "Simulate capture fail", null));
+        }
+        mSubmittedCompleterList.clear();
         mSubmittedCaptureRequests.clear();
     }
 
     /** Notifies all submitted requests onCaptureCompleted */
-    public void notifyAllRequestsOnCaptureCompleted(CameraCaptureResult result) {
+    public void notifyAllRequestsOnCaptureCompleted(@NonNull CameraCaptureResult result) {
         for (CaptureConfig captureConfig : mSubmittedCaptureRequests) {
             for (CameraCaptureCallback cameraCaptureCallback :
                     captureConfig.getCameraCaptureCallbacks()) {
                 cameraCaptureCallback.onCaptureCompleted(result);
             }
         }
+        for (CallbackToFutureAdapter.Completer<Void> completer : mSubmittedCompleterList) {
+            completer.set(null);
+        }
+        mSubmittedCompleterList.clear();
         mSubmittedCaptureRequests.clear();
     }
 
@@ -141,13 +160,25 @@ public final class FakeCameraControl implements CameraControlInternal {
         return Futures.immediateFuture(null);
     }
 
+    @NonNull
     @Override
-    public void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
+    public ListenableFuture<List<Void>> submitStillCaptureRequests(
+            @NonNull List<CaptureConfig> captureConfigs,
+            int captureMode, int flashType) {
         mSubmittedCaptureRequests.addAll(captureConfigs);
         mControlUpdateCallback.onCameraControlCaptureRequests(captureConfigs);
+        List<ListenableFuture<Void>> fakeFutures = new ArrayList<>();
+        for (int i = 0; i < captureConfigs.size(); i++) {
+            fakeFutures.add(CallbackToFutureAdapter.getFuture(completer -> {
+                mSubmittedCompleterList.add(completer);
+                return "fakeFuture";
+            }));
+        }
+
         if (mOnNewCaptureRequestListener != null) {
             mOnNewCaptureRequestListener.onNewCaptureRequests(captureConfigs);
         }
+        return Futures.allAsList(fakeFutures);
     }
 
     @NonNull

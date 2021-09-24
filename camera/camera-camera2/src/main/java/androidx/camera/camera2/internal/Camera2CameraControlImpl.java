@@ -128,6 +128,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     private final TorchControl mTorchControl;
     private final ExposureControl mExposureControl;
     private final Camera2CameraControl mCamera2CameraControl;
+    private final Camera2CapturePipeline mCamera2CapturePipeline;
     @GuardedBy("mLock")
     private int mUseCount = 0;
     // use volatile modifier to make these variables in sync in all threads.
@@ -206,6 +207,8 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mOverrideAeModeForStillCapture = new OverrideAeModeForStillCapture(cameraQuirks);
 
         mCamera2CameraControl = new Camera2CameraControl(this, mExecutor);
+        mCamera2CapturePipeline = new Camera2CapturePipeline(this, mCameraCharacteristics,
+                cameraQuirks, mExecutor);
         mExecutor.execute(
                 () -> addCaptureResultListener(mCamera2CameraControl.getCaptureRequestListener()));
     }
@@ -547,45 +550,25 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     }
 
     /** {@inheritDoc} */
+    @NonNull
     @Override
-    public void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
+    public ListenableFuture<List<Void>> submitStillCaptureRequests(
+            @NonNull List<CaptureConfig> captureConfigs,
+            @ImageCapture.CaptureMode int captureMode,
+            @ImageCapture.FlashType int flashType) {
         if (!isControlInUse()) {
             Logger.w(TAG, "Camera is not active.");
-            return;
+            return Futures.immediateFailedFuture(
+                    new OperationCanceledException("Camera is not active."));
         }
-        mExecutor.execute(() -> {
-            List<CaptureConfig> configsToSubmit = new ArrayList<>(captureConfigs);
-            for (int i = 0; i < captureConfigs.size(); i++) {
-                CaptureConfig captureConfig = captureConfigs.get(i);
-                int templateToModify = CaptureConfig.TEMPLATE_TYPE_NONE;
-                if (mTemplate == CameraDevice.TEMPLATE_RECORD && !isLegacyDevice()) {
-                    // Always override template by TEMPLATE_VIDEO_SNAPSHOT when repeating
-                    // template is TEMPLATE_RECORD. Note: TEMPLATE_VIDEO_SNAPSHOT is not
-                    // supported on legacy device.
-                    templateToModify = CameraDevice.TEMPLATE_VIDEO_SNAPSHOT;
-                } else if (captureConfig.getTemplateType() == CaptureConfig.TEMPLATE_TYPE_NONE) {
-                    templateToModify = CameraDevice.TEMPLATE_STILL_CAPTURE;
-                }
 
-                if (templateToModify != CaptureConfig.TEMPLATE_TYPE_NONE
-                        || mOverrideAeModeForStillCapture.shouldSetAeModeAlwaysFlash(mFlashMode)) {
-                    CaptureConfig.Builder configBuilder = CaptureConfig.Builder.from(captureConfig);
-                    if (templateToModify != CaptureConfig.TEMPLATE_TYPE_NONE) {
-                        configBuilder.setTemplateType(templateToModify);
-                    }
-
-                    // Override AE Mode to ON_ALWAYS_FLASH if necessary.
-                    if (mOverrideAeModeForStillCapture.shouldSetAeModeAlwaysFlash(mFlashMode)) {
-                        Camera2ImplConfig.Builder impBuilder = new Camera2ImplConfig.Builder();
-                        impBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
-                                CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH);
-                        configBuilder.addImplementationOptions(impBuilder.build());
-                    }
-                    configsToSubmit.set(i, configBuilder.build());
-                }
-            }
-            submitCaptureRequestsInternal(configsToSubmit);
-        });
+        // Prior to submitStillCaptures, wait until the pending flash mode session change is
+        // completed. On some devices, AE precapture triggered in submitStillCaptures may not
+        // work properly if the repeating request to change the flash mode is not completed.
+        int flashMode = getFlashMode();
+        return FutureChain.from(mFlashModeChangeSessionUpdateFuture).transformAsync(
+                v -> mCamera2CapturePipeline.submitStillCaptures(
+                        captureConfigs, captureMode, flashMode, flashType), mExecutor);
     }
 
     /** {@inheritDoc} */
@@ -608,6 +591,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mTemplate = template;
 
         mFocusMeteringControl.setTemplate(mTemplate);
+        mCamera2CapturePipeline.setTemplate(mTemplate);
     }
 
     @ExecutedBy("mExecutor")
@@ -718,6 +702,10 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         updateSessionConfigSynchronous();
     }
 
+    @ExecutedBy("mExecutor")
+    boolean isTorchOn() {
+        return mIsTorchOn;
+    }
 
     @ExecutedBy("mExecutor")
     void submitCaptureRequestsInternal(final List<CaptureConfig> captureConfigs) {
@@ -902,12 +890,6 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     @VisibleForTesting
     long getCurrentSessionUpdateId() {
         return mCurrentSessionUpdateId;
-    }
-
-    private boolean isLegacyDevice() {
-        Integer level =
-                mCameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
-        return level != null && level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
     }
 
     /** An interface to listen to camera capture results. */

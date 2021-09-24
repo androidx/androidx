@@ -75,7 +75,6 @@ import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ForwardingImageProxy.OnImageCloseListener;
 import androidx.camera.core.impl.CameraCaptureCallback;
-import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
@@ -1123,7 +1122,7 @@ public final class ImageCapture extends UseCase {
         }
     }
 
-    private void unlockFlashMode() {
+    void unlockFlashMode() {
         synchronized (mLockedFlashMode) {
             Integer lockedFlashMode = mLockedFlashMode.getAndSet(null);
             if (lockedFlashMode == null) {
@@ -1208,20 +1207,19 @@ public final class ImageCapture extends UseCase {
                             },
                             CameraXExecutors.mainThreadExecutor());
 
-                    TakePictureState state = new TakePictureState();
-                    ListenableFuture<Void> future = FutureChain.from(preTakePicture(state))
-                            .transformAsync(v -> issueTakePicture(imageCaptureRequest), mExecutor);
+                    lockFlashMode();
+                    ListenableFuture<Void> future = issueTakePicture(imageCaptureRequest);
 
                     Futures.addCallback(future,
                             new FutureCallback<Void>() {
                                 @Override
                                 public void onSuccess(Void result) {
-                                    postTakePicture(state);
+                                    unlockFlashMode();
                                 }
 
                                 @Override
                                 public void onFailure(Throwable throwable) {
-                                    postTakePicture(state);
+                                    unlockFlashMode();
 
                                     completer.setException(throwable);
                                 }
@@ -1425,8 +1423,8 @@ public final class ImageCapture extends UseCase {
     static int getError(Throwable throwable) {
         if (throwable instanceof CameraClosedException) {
             return ERROR_CAMERA_CLOSED;
-        } else if (throwable instanceof CaptureFailedException) {
-            return ERROR_CAPTURE_FAILED;
+        } else if (throwable instanceof ImageCaptureException) {
+            return ((ImageCaptureException) throwable).getImageCaptureError();
         } else {
             return ERROR_UNKNOWN;
         }
@@ -1559,16 +1557,6 @@ public final class ImageCapture extends UseCase {
                 .transformAsync(v -> check3AConverged(state), mExecutor)
                 // Ignore the 3A convergence result.
                 .transform(is3AConverged -> null, mExecutor);
-    }
-
-    /**
-     * Routine after picture was taken.
-     *
-     * <p>For example, cancel 3A scan, close torch if necessary.
-     */
-    void postTakePicture(final TakePictureState state) {
-        cancelAfAndFinishFlashSequence(state);
-        unlockFlashMode();
     }
 
     /**
@@ -1729,7 +1717,6 @@ public final class ImageCapture extends UseCase {
     ListenableFuture<Void> issueTakePicture(@NonNull ImageCaptureRequest imageCaptureRequest) {
         Logger.d(TAG, "issueTakePicture");
 
-        final List<ListenableFuture<Void>> futureList = new ArrayList<>();
         final List<CaptureConfig> captureConfigs = new ArrayList<>();
         String tagBundleKey = null;
 
@@ -1793,60 +1780,13 @@ public final class ImageCapture extends UseCase {
                 builder.addTag(tagBundleKey, captureStage.getId());
             }
             builder.addCameraCaptureCallback(mMetadataMatchingCaptureCallback);
-
-            ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(
-                    completer -> {
-                        CameraCaptureCallback completerCallback = new CameraCaptureCallback() {
-                            @Override
-                            public void onCaptureCompleted(
-                                    @NonNull CameraCaptureResult result) {
-                                completer.set(null);
-                            }
-
-                            @Override
-                            public void onCaptureFailed(
-                                    @NonNull CameraCaptureFailure failure) {
-                                String msg = "Capture request failed with reason "
-                                        + failure.getReason();
-                                completer.setException(new CaptureFailedException(msg));
-                            }
-
-                            @Override
-                            public void onCaptureCancelled() {
-                                String msg = "Capture request is cancelled because "
-                                        + "camera is closed";
-                                completer.setException(new CameraClosedException(msg));
-                            }
-                        };
-                        builder.addCameraCaptureCallback(completerCallback);
-
-                        captureConfigs.add(builder.build());
-                        return "issueTakePicture[stage=" + captureStage.getId() + "]";
-                    });
-            futureList.add(future);
-
+            captureConfigs.add(builder.build());
         }
 
-        getCameraControl().submitStillCaptureRequests(captureConfigs);
-        return Futures.transform(Futures.allAsList(futureList),
+        return Futures.transform(getCameraControl().submitStillCaptureRequests(
+                captureConfigs, mCaptureMode, mFlashType),
                 input -> null, CameraXExecutors.directExecutor());
     }
-
-    /** This exception is thrown when request is failed (reported by framework) */
-    static final class CaptureFailedException extends RuntimeException {
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        CaptureFailedException(String s, Throwable e) {
-            super(s, e);
-        }
-
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        CaptureFailedException(String s) {
-            super(s);
-        }
-    }
-
 
     private CaptureBundle getCaptureBundle(CaptureBundle defaultCaptureBundle) {
         List<CaptureStage> captureStages = mCaptureBundle.getCaptureStages();
