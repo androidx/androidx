@@ -19,7 +19,6 @@ local.properties
 **/gen
 *.iml
 **/out
-build
 buildSrc/build
 buildSrc/lint-checks/build
 buildSrc/jetpad-integration/build
