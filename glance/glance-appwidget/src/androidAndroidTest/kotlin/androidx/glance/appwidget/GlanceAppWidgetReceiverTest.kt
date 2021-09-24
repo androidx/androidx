@@ -26,6 +26,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.Modifier
 import androidx.glance.layout.Box
@@ -47,6 +48,7 @@ import androidx.glance.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertIs
@@ -58,9 +60,19 @@ class GlanceAppWidgetReceiverTest {
     @get:Rule
     val mHostRule = AppWidgetHostRule()
 
+    @Before
+    fun setUp() {
+        // Reset the size mode to the default
+        TestGlanceAppWidget.sizeMode = SizeMode.Single
+    }
+
     @Test
     fun createSimpleAppWidget() {
         TestGlanceAppWidget.uiDefinition = {
+            val density = LocalContext.current.resources.displayMetrics.density
+            val size = LocalSize.current
+            assertThat(size.width.value).isWithin(1 / density).of(40f)
+            assertThat(size.height.value).isWithin(1 / density).of(40f)
             Text(
                 "text content",
                 style = TextStyle(
