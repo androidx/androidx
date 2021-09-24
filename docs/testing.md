@@ -39,7 +39,7 @@ We use the
 to determine what projects have changed since the last merge.
 
 In presubmit, "affected" modules will run all host and device tests regardless
-of size. Modules that _depend_ on affected modules will run all host tests, but
+of size. Modules that *depend* on affected modules will run all host tests, but
 will only run device tests annotated with `@SmallTest` or `@MediumTest`.
 
 When changes are made that can't be associated with a module, are in the root of
@@ -60,7 +60,7 @@ All device tests *should* be given a size annotation, which is one of:
 *   [`@MediumTest`](https://developer.android.com/reference/androidx/test/filters/MediumTest)
 *   [`@LargeTest`](https://developer.android.com/reference/androidx/test/filters/LargeTest)
 
-If a device test is _not_ annotated with its size, it will be run as if it were
+If a device test is *not* annotated with its size, it will be run as if it were
 `@LargeTest` by default. Host tests do not need to be annotated with their size,
 as all host tests are run regardless of size.
 
