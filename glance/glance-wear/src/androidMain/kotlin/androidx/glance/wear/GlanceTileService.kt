@@ -111,7 +111,7 @@ public abstract class GlanceTileService : TileService() {
         recomposer.close()
         recomposer.join()
 
-        translateComposition(root)
+        translateComposition(this@GlanceTileService, root)
     }
 
     /** Implement with the layout to use in your Tile. */

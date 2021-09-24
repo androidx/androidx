@@ -173,7 +173,7 @@ class ScreenshotTests {
     ) = fakeCoroutineScope.runBlockingTest {
         val context = getApplicationContext<Context>()
         val composition = runComposition(content)
-        val translatedComposition = translateComposition(composition)
+        val translatedComposition = translateComposition(context, composition)
 
         val renderer = TileRenderer(
             context,
