@@ -295,10 +295,6 @@ function removeCaches() {
   else
     rm -rf ~/.gradle
   fi
-  # AGP should (also) do this automatically (b/170640263)
-  rm -rf $SCRIPT_PATH/appsearch/appsearch/.cxx
-  rm -rf $SCRIPT_PATH/appsearch/local-backend/.cxx
-  rm -rf $SCRIPT_PATH/appsearch/local-storage/.cxx
   # https://github.com/gradle/gradle/issues/18386
   rm -rf $SCRIPT_PATH/reports
   rm -rf $OUT_DIR
