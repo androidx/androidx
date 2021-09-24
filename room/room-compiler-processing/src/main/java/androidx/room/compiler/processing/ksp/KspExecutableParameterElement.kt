@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_METHOD_PARAMETER
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 
 internal class KspExecutableParameterElement(
@@ -72,5 +73,27 @@ internal class KspExecutableParameterElement(
 
     override fun kindName(): String {
         return "function parameter"
+    }
+
+    companion object {
+        fun create(
+            env: KspProcessingEnv,
+            parameter: KSValueParameter
+        ): KspExecutableParameterElement {
+            val parent = checkNotNull(parameter.parent) {
+                "Expected value parameter '$parameter' to contain a parent node."
+            }
+            if (parent !is KSFunctionDeclaration) {
+                error(
+                    "Don't know how to create a parameter element whose parent is a " +
+                        "'${parent::class}'"
+                )
+            }
+            return KspExecutableParameterElement(
+                env = env,
+                enclosingMethodElement = KspExecutableElement.create(env, parent),
+                parameter = parameter
+            )
+        }
     }
 }
