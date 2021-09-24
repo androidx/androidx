@@ -53,6 +53,7 @@ class GlanceAppWidgetTest {
 
     private lateinit var fakeCoroutineScope: TestCoroutineScope
     private val context = ApplicationProvider.getApplicationContext<Context>()
+    private val displayMetrics = context.resources.displayMetrics
 
     @Before
     fun setUp() {
@@ -261,7 +262,8 @@ class GlanceAppWidgetTest {
             )
         }
 
-        assertThat(composer.appWidgetMinSize(appWidgetManager, 1)).isEqualTo(DpSize(50.dp, 50.dp))
+        assertThat(composer.appWidgetMinSize(displayMetrics, appWidgetManager, 1))
+            .isEqualTo(DpSize(50.dp, 50.dp))
     }
 
     @Test
@@ -279,7 +281,8 @@ class GlanceAppWidgetTest {
             )
         }
 
-        assertThat(composer.appWidgetMinSize(appWidgetManager, 1)).isEqualTo(DpSize(40.dp, 50.dp))
+        assertThat(composer.appWidgetMinSize(displayMetrics, appWidgetManager, 1))
+            .isEqualTo(DpSize(40.dp, 50.dp))
     }
 
     @Test
@@ -297,7 +300,8 @@ class GlanceAppWidgetTest {
             )
         }
 
-        assertThat(composer.appWidgetMinSize(appWidgetManager, 1)).isEqualTo(DpSize(50.dp, 30.dp))
+        assertThat(composer.appWidgetMinSize(displayMetrics, appWidgetManager, 1))
+            .isEqualTo(DpSize(50.dp, 30.dp))
     }
 
     @Test
@@ -315,7 +319,8 @@ class GlanceAppWidgetTest {
             )
         }
 
-        assertThat(composer.appWidgetMinSize(appWidgetManager, 1)).isEqualTo(DpSize(50.dp, 50.dp))
+        assertThat(composer.appWidgetMinSize(displayMetrics, appWidgetManager, 1))
+            .isEqualTo(DpSize(50.dp, 50.dp))
     }
 
     private fun optionsBundleOf(vararg sizes: DpSize): Bundle {
