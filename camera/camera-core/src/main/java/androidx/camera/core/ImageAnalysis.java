@@ -26,7 +26,6 @@ import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOL
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
-import static androidx.camera.core.impl.UseCaseConfig.OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
@@ -74,13 +73,11 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.internal.compat.quirk.OnePixelShiftQuirk;
-import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -1207,17 +1204,6 @@ public final class ImageAnalysis extends UseCase {
                 @NonNull ImageReaderProxyProvider imageReaderProxyProvider) {
             getMutableConfig().insertOption(OPTION_IMAGE_READER_PROXY_PROVIDER,
                     imageReaderProxyProvider);
-            return this;
-        }
-
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @NonNull
-        public Builder setAttachedUseCasesUpdateListener(
-                @NonNull Consumer<Collection<UseCase>> attachedUseCasesUpdateListener) {
-            getMutableConfig().insertOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER,
-                    attachedUseCasesUpdateListener);
             return this;
         }
     }

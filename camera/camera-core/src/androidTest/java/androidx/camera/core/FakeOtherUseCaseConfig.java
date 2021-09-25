@@ -26,9 +26,7 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
-import androidx.core.util.Consumer;
 
-import java.util.Collection;
 import java.util.UUID;
 
 /** A fake configuration for {@link FakeOtherUseCase}. */
@@ -182,17 +180,6 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase> {
         @NonNull
         public Builder setUseCaseEventCallback(@NonNull UseCase.EventCallback eventCallback) {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, eventCallback);
-            return this;
-        }
-
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @Override
-        @NonNull
-        public Builder setAttachedUseCasesUpdateListener(
-                @NonNull Consumer<Collection<UseCase>> attachedUseCasesUpdateListener) {
-            getMutableConfig().insertOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER,
-                    attachedUseCasesUpdateListener);
             return this;
         }
     }
