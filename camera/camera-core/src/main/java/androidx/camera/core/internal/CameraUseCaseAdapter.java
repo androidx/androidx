@@ -44,7 +44,6 @@ import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -259,7 +258,6 @@ public final class CameraUseCaseAdapter implements Camera {
             // use cases.
             mUseCases.addAll(newUseCases);
             if (mAttached) {
-                notifyAttachedUseCasesChange(mUseCases);
                 mCameraInternal.attachUseCases(newUseCases);
             }
 
@@ -323,7 +321,6 @@ public final class CameraUseCaseAdapter implements Camera {
         synchronized (mLock) {
             if (!mAttached) {
                 mCameraInternal.attachUseCases(mUseCases);
-                notifyAttachedUseCasesChange(mUseCases);
                 restoreInteropConfig();
 
                 // Notify to update the use case's active state because it may be cleared if the
@@ -563,22 +560,6 @@ public final class CameraUseCaseAdapter implements Camera {
             //Configure the CameraInternal as well so that it can get SessionProcessor.
             mCameraInternal.setExtendedConfig(mCameraConfig);
         }
-    }
-
-    /**
-     * Notify the attached use cases change to the listener
-     */
-    private void notifyAttachedUseCasesChange(@NonNull List<UseCase> useCases) {
-        CameraXExecutors.mainThreadExecutor().execute(() -> {
-            for (UseCase useCase : useCases) {
-                Consumer<Collection<UseCase>> attachedUseCasesUpdateListener =
-                        useCase.getCurrentConfig().getAttachedUseCasesUpdateListener(null);
-
-                if (attachedUseCasesUpdateListener != null) {
-                    attachedUseCasesUpdateListener.accept(Collections.unmodifiableList(useCases));
-                }
-            }
-        });
     }
 
     /**

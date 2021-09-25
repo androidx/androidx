@@ -31,9 +31,7 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
-import androidx.core.util.Consumer;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -218,15 +216,6 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
         @NonNull
         public Builder setBufferFormat(int imageFormat) {
             getMutableConfig().insertOption(OPTION_INPUT_FORMAT, imageFormat);
-            return this;
-        }
-
-        @NonNull
-        @Override
-        public Builder setAttachedUseCasesUpdateListener(
-                @NonNull Consumer<Collection<UseCase>> attachedUseCasesUpdateListener) {
-            getMutableConfig().insertOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER,
-                    attachedUseCasesUpdateListener);
             return this;
         }
     }
