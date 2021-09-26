@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="a11y_no_permission" msgid="6954835069208568445">"Nema odobrenja za pristup podacima"</string>
-    <string name="a11y_no_data" msgid="1150196161728975556">"Nema podataka"</string>
-    <string name="a11y_template_range" msgid="43093005594777633">"<xliff:g id="VALUE">%1$f</xliff:g> od <xliff:g id="MAX">%2$f</xliff:g>"</string>
+    <string name="a11y_no_permission" msgid="6954835069208568445">"اجازه دسترسی به داده‌ها وجود ندارد"</string>
+    <string name="a11y_no_data" msgid="1150196161728975556">"داده‌ای موجود نیست"</string>
+    <string name="a11y_template_range" msgid="43093005594777633">"<xliff:g id="VALUE">%1$f</xliff:g> از <xliff:g id="MAX">%2$f</xliff:g>"</string>
 </resources>
