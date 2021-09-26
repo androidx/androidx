@@ -1,5 +1,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -71,4 +72,16 @@ androidx {
     mavenGroup = LibraryGroups.FRAGMENT
     inceptionYear = "2011"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
+}
+
+// needed only while https://youtrack.jetbrains.com/issue/KT-47000 isn't resolved which is
+// targeted to 1.6
+if (project.hasProperty("androidx.useMaxDepVersions")){
+    tasks.withType(KotlinCompile).configureEach {
+        kotlinOptions {
+            freeCompilerArgs += [
+                    "-Xjvm-default=enable",
+            ]
+        }
+    }
 }
