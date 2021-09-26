@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="complication_config" msgid="292306201243482945">"Configurar complicacións de esfera de reloxo"</string>
-    <string name="watchface_settings" msgid="4785773105440577595">"Configurar axustes de esfera de reloxo"</string>
-    <string name="style_config" msgid="2987895585951859981">"Configurar estilos de esfera de reloxo"</string>
-    <string name="none_background_image_provider" msgid="2326408635673026310">"Ningunha"</string>
-    <string name="settings_complications" msgid="7688669266180209514">"Datos"</string>
-    <string name="settings_background_image" msgid="4866968289579187727">"Imaxe de fondo"</string>
-    <string name="settings_styles" msgid="5609438460443634575">"Estilos"</string>
+    <string name="complication_config" msgid="3090406830927670356">"Configurar complicacións da esfera do reloxo"</string>
+    <string name="watchface_settings" msgid="9086980313887663299">"Configurar axustes da esfera do reloxo"</string>
+    <string name="style_config" msgid="7270818527618953542">"Configurar estilos da esfera do reloxo"</string>
+    <string name="none_background_image_provider" msgid="2763799590544856080">"Ningún"</string>
+    <string name="settings_complications" msgid="1425815384891476600">"Datos"</string>
+    <string name="settings_background_image" msgid="496585675676995765">"Imaxe de fondo"</string>
+    <string name="settings_styles" msgid="3243144642316786428">"Estilos"</string>
 </resources>

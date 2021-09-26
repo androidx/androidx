@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="complication_config" msgid="292306201243482945">"Configurer les complications du cadran"</string>
-    <string name="watchface_settings" msgid="4785773105440577595">"Configurer les paramètres du cadran"</string>
-    <string name="style_config" msgid="2987895585951859981">"Configurer les styles du cadran"</string>
-    <string name="none_background_image_provider" msgid="2326408635673026310">"Aucun"</string>
-    <string name="settings_complications" msgid="7688669266180209514">"Données"</string>
-    <string name="settings_background_image" msgid="4866968289579187727">"Image de fond"</string>
-    <string name="settings_styles" msgid="5609438460443634575">"Styles"</string>
+    <string name="complication_config" msgid="3090406830927670356">"Configurer les complications du cadran"</string>
+    <string name="watchface_settings" msgid="9086980313887663299">"Configurer les paramètres du cadran"</string>
+    <string name="style_config" msgid="7270818527618953542">"Configurer les styles du cadran"</string>
+    <string name="none_background_image_provider" msgid="2763799590544856080">"Aucun"</string>
+    <string name="settings_complications" msgid="1425815384891476600">"Données"</string>
+    <string name="settings_background_image" msgid="496585675676995765">"Image de fond"</string>
+    <string name="settings_styles" msgid="3243144642316786428">"Styles"</string>
 </resources>
