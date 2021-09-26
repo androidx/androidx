@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <plurals name="time_difference_short_days" formatted="false" msgid="8500262093840795448">
+    <plurals name="time_difference_short_days" formatted="false" msgid="3878057769320887026">
       <item quantity="other"><xliff:g id="NUMBER_OF_DAYS_1">%d</xliff:g> 天</item>
       <item quantity="one"><xliff:g id="NUMBER_OF_DAYS_0">%d</xliff:g> 天</item>
     </plurals>
-    <plurals name="time_difference_short_hours" formatted="false" msgid="3258361256003469346">
+    <plurals name="time_difference_short_hours" formatted="false" msgid="6016687406802669982">
       <item quantity="other"><xliff:g id="NUMBER_OF_HOURS_1">%d</xliff:g> 小時</item>
       <item quantity="one"><xliff:g id="NUMBER_OF_HOURS_0">%d</xliff:g> 小時</item>
     </plurals>
-    <plurals name="time_difference_short_minutes" formatted="false" msgid="3812930575997556650">
+    <plurals name="time_difference_short_minutes" formatted="false" msgid="6752732458902810711">
       <item quantity="other"><xliff:g id="NUMBER_OF_MINUTES_1">%d</xliff:g> 分鐘</item>
       <item quantity="one"><xliff:g id="NUMBER_OF_MINUTES_0">%d</xliff:g> 分鐘</item>
     </plurals>
-    <string name="time_difference_short_days_and_hours" msgid="1756744715731328189">"<xliff:g id="SHORT_DAYS">%1$s</xliff:g> <xliff:g id="SHORT_HOURS">%2$s</xliff:g>"</string>
-    <string name="time_difference_short_hours_and_minutes" msgid="7429995187969936129">"<xliff:g id="SHORT_HOURS">%1$s</xliff:g> <xliff:g id="SHORT_MINUTES">%2$s</xliff:g>"</string>
-    <plurals name="time_difference_words_days" formatted="false" msgid="345557497041553025">
+    <string name="time_difference_short_days_and_hours" msgid="2384500200491672870">"<xliff:g id="SHORT_DAYS">%1$s</xliff:g> <xliff:g id="SHORT_HOURS">%2$s</xliff:g>"</string>
+    <string name="time_difference_short_hours_and_minutes" msgid="8030280938566792191">"<xliff:g id="SHORT_HOURS">%1$s</xliff:g> <xliff:g id="SHORT_MINUTES">%2$s</xliff:g>"</string>
+    <plurals name="time_difference_words_days" formatted="false" msgid="5109682345086392533">
       <item quantity="other"><xliff:g id="NUMBER_OF_DAYS_1">%d</xliff:g> 天</item>
       <item quantity="one"><xliff:g id="NUMBER_OF_DAYS_0">%d</xliff:g> 天</item>
     </plurals>
-    <plurals name="time_difference_words_hours" formatted="false" msgid="2990178439049007198">
+    <plurals name="time_difference_words_hours" formatted="false" msgid="3172220157267000186">
       <item quantity="other"><xliff:g id="NUMBER_OF_HOURS_1">%d</xliff:g> 小時</item>
       <item quantity="one"><xliff:g id="NUMBER_OF_HOURS_0">%d</xliff:g> 小時</item>
     </plurals>
-    <plurals name="time_difference_words_minutes" formatted="false" msgid="9081188175463984403">
+    <plurals name="time_difference_words_minutes" formatted="false" msgid="529404827937478243">
       <item quantity="other"><xliff:g id="NUMBER_OF_MINUTES_1">%d</xliff:g> 分鐘</item>
       <item quantity="one"><xliff:g id="NUMBER_OF_MINUTES_0">%d</xliff:g> 分鐘</item>
     </plurals>
-    <string name="time_difference_now" msgid="1141173224250945412">"現在"</string>
+    <string name="time_difference_now" msgid="2068359133884605223">"現在"</string>
 </resources>
