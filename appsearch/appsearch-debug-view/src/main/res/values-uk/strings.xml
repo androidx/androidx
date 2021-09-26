@@ -17,9 +17,9 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="appsearch_no_documents_error" msgid="2371906054857961621">"У базі даних немає документів AppSearch. Підтвердьте, що назва бази даних дійсна й вибрано правильний тип сховища."</string>
-    <string name="appsearch_no_schema_types_error" msgid="6040453370924007774">"Типів схеми AppSearch не знайдено. Підтвердьте, що назва бази даних дійсна й вибрано правильний тип сховища."</string>
-    <string name="appsearch_documents_loading" msgid="3079225167662255666">"Завантаження документів AppSearch…"</string>
-    <string name="appsearch_schema_types_loading" msgid="5223743742396711620">"Завантаження типів схеми AppSearch…"</string>
-    <string name="appsearch_schema_version" msgid="5289450345246068014">"Версія схеми: %d"</string>
+    <string name="appsearch_no_documents_error" msgid="7957333381856121779">"У базі даних немає документів AppSearch. Підтвердьте, що назва бази даних дійсна й вибрано правильний тип сховища."</string>
+    <string name="appsearch_no_schema_types_error" msgid="5825283982305113887">"Типів схеми AppSearch не знайдено. Підтвердьте, що назва бази даних дійсна й вибрано правильний тип сховища."</string>
+    <string name="appsearch_documents_loading" msgid="1689893533003672860">"Завантаження документів AppSearch…"</string>
+    <string name="appsearch_schema_types_loading" msgid="4961123108404531766">"Завантаження типів схеми AppSearch…"</string>
+    <string name="appsearch_schema_version" msgid="7000254633719373917">"Версія схеми: %d"</string>
 </resources>

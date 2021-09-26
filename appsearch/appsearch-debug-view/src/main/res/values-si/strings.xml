@@ -17,9 +17,9 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="appsearch_no_documents_error" msgid="2371906054857961621">"දත්ත සමුදායේ AppSearch ලේඛන හමු නොවීය. දත්ත සමුදායේ නම වලංගු බව සහ නිවැරදි ගබඩා වර්ගය තෝරා ගත් බව සත්‍යාපනය කරන්න."</string>
-    <string name="appsearch_no_schema_types_error" msgid="6040453370924007774">"AppSearch නිරූපණ වර්ග හමු විය. දත්ත සමුදායේ නම වලංගු බව සහ නිවැරදි ගබඩා වර්ගය තෝරා ගත් බව සත්‍යාපනය කරන්න."</string>
-    <string name="appsearch_documents_loading" msgid="3079225167662255666">"AppSearch ලේඛන පූරණය කරමින්..."</string>
-    <string name="appsearch_schema_types_loading" msgid="5223743742396711620">"AppSearch නිරූපණ වර්ග පූරණය කරමින්..."</string>
-    <string name="appsearch_schema_version" msgid="5289450345246068014">"නිරූපණ අනුවාදය: %d"</string>
+    <string name="appsearch_no_documents_error" msgid="7957333381856121779">"දත්ත සමුදායේ AppSearch ලේඛන හමු නොවීය. දත්ත සමුදායේ නම වලංගු බව සහ නිවැරදි ගබඩා වර්ගය තෝරා ගත් බව සත්‍යාපනය කරන්න."</string>
+    <string name="appsearch_no_schema_types_error" msgid="5825283982305113887">"AppSearch නිරූපණ වර්ග හමු විය. දත්ත සමුදායේ නම වලංගු බව සහ නිවැරදි ගබඩා වර්ගය තෝරා ගත් බව සත්‍යාපනය කරන්න."</string>
+    <string name="appsearch_documents_loading" msgid="1689893533003672860">"AppSearch ලේඛන පූරණය කරමින්..."</string>
+    <string name="appsearch_schema_types_loading" msgid="4961123108404531766">"AppSearch නිරූපණ වර්ග පූරණය කරමින්..."</string>
+    <string name="appsearch_schema_version" msgid="7000254633719373917">"නිරූපණ අනුවාදය: %d"</string>
 </resources>
