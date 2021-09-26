@@ -16,12 +16,15 @@
 
 package androidx.lifecycle;
 
+import static androidx.lifecycle.ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider.NewInstanceFactory;
+import androidx.lifecycle.viewmodel.CreationExtras;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,7 +43,7 @@ public class ViewModelProviderTest {
     }
 
     @Test
-    public void twoViewModelsWithSameKey() throws Throwable {
+    public void twoViewModelsWithSameKey() {
         String key = "the_key";
         ViewModel1 vm1 = mViewModelProvider.get(key, ViewModel1.class);
         assertThat(vm1.mCleared, is(false));
@@ -51,7 +54,7 @@ public class ViewModelProviderTest {
 
 
     @Test
-    public void localViewModel() throws Throwable {
+    public void localViewModel() {
         class VM extends ViewModel1 {
         }
         try {
@@ -72,13 +75,7 @@ public class ViewModelProviderTest {
     @Test
     public void testOwnedBy() {
         final ViewModelStore store = new ViewModelStore();
-        ViewModelStoreOwner owner = new ViewModelStoreOwner() {
-            @NonNull
-            @Override
-            public ViewModelStore getViewModelStore() {
-                return store;
-            }
-        };
+        ViewModelStoreOwner owner = () -> store;
         ViewModelProvider provider = new ViewModelProvider(owner, new NewInstanceFactory());
         ViewModel1 viewModel = provider.get(ViewModel1.class);
         assertThat(viewModel, is(provider.get(ViewModel1.class)));
@@ -98,25 +95,34 @@ public class ViewModelProviderTest {
     @Test
     public void testKeyedFactory() {
         final ViewModelStore store = new ViewModelStore();
-        ViewModelStoreOwner owner = new ViewModelStoreOwner() {
-            @NonNull
-            @Override
-            public ViewModelStore getViewModelStore() {
-                return store;
-            }
-        };
-        ViewModelProvider.KeyedFactory keyed = new ViewModelProvider.KeyedFactory() {
+        ViewModelStoreOwner owner = () -> store;
+        ViewModelProvider.Factory explicitlyKeyed = new ViewModelProvider.Factory() {
             @SuppressWarnings("unchecked")
             @NonNull
             @Override
-            public <T extends ViewModel> T create(@NonNull String key,
-                    @NonNull Class<T> modelClass) {
+            public <T extends ViewModel> T create(@NonNull Class<T> modelClass,
+                    @NonNull CreationExtras extras) {
+                String key = extras.get(VIEW_MODEL_KEY);
                 assertThat(key, is("customkey"));
                 return (T) new ViewModel1();
             }
         };
-        ViewModelProvider provider = new ViewModelProvider(owner, keyed);
+
+        ViewModelProvider provider = new ViewModelProvider(owner, explicitlyKeyed);
         provider.get("customkey", ViewModel1.class);
+
+        ViewModelProvider.Factory implicitlyKeyed = new ViewModelProvider.Factory() {
+            @SuppressWarnings("unchecked")
+            @NonNull
+            @Override
+            public <T extends ViewModel> T create(@NonNull Class<T> modelClass,
+                    @NonNull CreationExtras extras) {
+                String key = extras.get(VIEW_MODEL_KEY);
+                assertThat(key, is(notNullValue()));
+                return (T) new ViewModel1();
+            }
+        };
+        new ViewModelProvider(owner, implicitlyKeyed).get("customkey", ViewModel1.class);
     }
 
     public static class ViewModelStoreOwnerWithFactory implements
