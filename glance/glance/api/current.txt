@@ -51,9 +51,18 @@ package androidx.glance.action {
     method public static androidx.glance.Modifier clickable(androidx.glance.Modifier, androidx.glance.action.Action onClick);
   }
 
+  public interface ActionRunnable {
+    method public suspend Object? run(android.content.Context context, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+  }
+
   public final class LaunchActivityActionKt {
     method public static <T extends android.app.Activity> androidx.glance.action.Action launchActivityAction(Class<T> activity);
     method public static inline <reified T extends android.app.Activity> androidx.glance.action.Action! launchActivityAction();
+  }
+
+  public final class UpdateActionKt {
+    method public static <T extends androidx.glance.action.ActionRunnable> androidx.glance.action.Action updateContentAction(Class<T> runnable);
+    method public static inline <reified T extends androidx.glance.action.ActionRunnable> androidx.glance.action.Action! updateContentAction();
   }
 
 }

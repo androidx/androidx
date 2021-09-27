@@ -16,6 +16,7 @@
 
 package androidx.glance.action
 
+import android.content.Context
 import androidx.glance.Modifier
 import androidx.glance.findModifier
 import org.junit.Test
@@ -23,9 +24,20 @@ import kotlin.test.assertIs
 
 class ActionTest {
     @Test
-    fun test() {
+    fun testLaunch() {
         val modifiers = Modifier.clickable(launchActivityAction(TestActivity::class.java))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
         assertIs<LaunchActivityAction>(modifier.action)
     }
+
+    @Test
+    fun testUpdate() {
+        val modifiers = Modifier.clickable(updateContentAction<TestRunnable>())
+        val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
+        assertIs<UpdateAction>(modifier.action)
+    }
+}
+
+class TestRunnable : ActionRunnable {
+    override suspend fun run(context: Context) { }
 }
