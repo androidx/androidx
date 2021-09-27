@@ -48,9 +48,9 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.navigation.navigation
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -124,6 +124,31 @@ fun NavWithArgs() {
             arguments = listOf(navArgument("userId") { defaultValue = "no value given" })
         ) { backStackEntry ->
             Dashboard(navController, backStackEntry.arguments?.getString("userId"))
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun NestedNavInGraphWithArgs() {
+    val navController = rememberNavController()
+    NavHost(navController, startDestination = Screen.Profile.route) {
+        composable(Screen.Profile.route) { Profile(navController) }
+        navigation(
+            startDestination = "nested",
+            route = Screen.Dashboard.route,
+            // This value will be sent to the start destination of the graph when you navigate to
+            // this graph
+            arguments = listOf(navArgument("userId") { defaultValue = "no value given" })
+        ) {
+            composable(
+                "nested",
+                // We don't need to set a default value here because the start destination will
+                // automatically receive the arguments of its parent graph
+                arguments = listOf(navArgument("userId") { })
+            ) {
+                Dashboard(navController)
+            }
         }
     }
 }
