@@ -26,7 +26,7 @@
     <string name="abc_searchview_description_query" msgid="693312494995508443">"శోధన ప్రశ్న"</string>
     <string name="abc_searchview_description_clear" msgid="3741173234950517107">"ప్రశ్నను తీసివేస్తుంది"</string>
     <string name="abc_searchview_description_submit" msgid="1486535517437947103">"ప్రశ్నని సమర్పిస్తుంది"</string>
-    <string name="abc_searchview_description_voice" msgid="2293578557972875415">"వాయిస్ శోధన"</string>
+    <string name="abc_searchview_description_voice" msgid="2293578557972875415">"వాయిస్ సెర్చ్"</string>
     <string name="abc_activitychooserview_choose_application" msgid="2165779757652331008">"యాప్‌ను ఎంచుకోండి"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="1189761859438369441">"అన్నీ చూడండి"</string>
     <string name="abc_shareactionprovider_share_with_application" msgid="9055268688411532828">"<xliff:g id="APPLICATION_NAME">%s</xliff:g>తో షేర్ చేస్తుంది"</string>
