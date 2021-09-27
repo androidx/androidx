@@ -266,6 +266,7 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
                 closed = true
                 try {
                     context?.unbindService(serviceConnection)
+                    context = null
                 } catch (e: IllegalArgumentException) {
                     Log.e(TAG, "unbindService failed", e)
                 }

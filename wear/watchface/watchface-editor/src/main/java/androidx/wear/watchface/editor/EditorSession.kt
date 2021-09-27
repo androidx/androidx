@@ -28,6 +28,7 @@ import android.os.Looper
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
@@ -397,9 +398,9 @@ internal interface ComplicationDataSourceInfoRetrieverProvider {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class BaseEditorSession internal constructor(
-    private val activity: ComponentActivity,
-    private val complicationDataSourceInfoRetrieverProvider:
-        ComplicationDataSourceInfoRetrieverProvider,
+    private var activity: ComponentActivity?,
+    private var complicationDataSourceInfoRetrieverProvider:
+        ComplicationDataSourceInfoRetrieverProvider?,
     public val coroutineScope: CoroutineScope,
     private val previewScreenshotParams: PreviewScreenshotParams?
 ) : EditorSession {
@@ -443,10 +444,11 @@ public abstract class BaseEditorSession internal constructor(
     internal var pendingComplicationDataSourceChooserResult:
         CompletableDeferred<ComplicationDataSourceChooserResult?>? = null
 
-    private val chooseComplicationDataSource =
-        activity.registerForActivityResult(ComplicationDataSourceChooserContract()) {
-            onComplicationDataSourceChooserResult(it)
-        }
+    private var chooseComplicationDataSource:
+        ActivityResultLauncher<ComplicationDataSourceChooserRequest>? =
+            activity!!.registerForActivityResult(ComplicationDataSourceChooserContract()) {
+                onComplicationDataSourceChooserResult(it)
+            }
 
     // Fetches the current ComplicationSlotState for each complication.
     internal abstract fun fetchComplicationSlotsState(): Map<Int, ComplicationSlotState>
@@ -498,7 +500,7 @@ public abstract class BaseEditorSession internal constructor(
             }
             pendingComplicationDataSourceChooserResult = deferredResult
 
-            chooseComplicationDataSource.launch(
+            chooseComplicationDataSource!!.launch(
                 ComplicationDataSourceChooserRequest(
                     this,
                     complicationSlotId,
@@ -521,7 +523,7 @@ public abstract class BaseEditorSession internal constructor(
         }
 
         val complicationDataSourceInfoRetriever =
-            complicationDataSourceInfoRetrieverProvider.getComplicationDataSourceInfoRetriever()
+            complicationDataSourceInfoRetrieverProvider!!.getComplicationDataSourceInfoRetriever()
 
         try {
             deferredComplicationPreviewDataAvailable.await()
@@ -619,7 +621,7 @@ public abstract class BaseEditorSession internal constructor(
 
     protected fun fetchComplicationsData(fetchCoroutineScope: CoroutineScope): Job {
         val complicationDataSourceInfoRetriever =
-            complicationDataSourceInfoRetrieverProvider.getComplicationDataSourceInfoRetriever()
+            complicationDataSourceInfoRetrieverProvider!!.getComplicationDataSourceInfoRetriever()
         return fetchCoroutineScope.launchWithTracing(
             "BaseEditorSession.fetchComplicationsData"
         ) {
@@ -706,6 +708,9 @@ public abstract class BaseEditorSession internal constructor(
             closed = true
             editorSessionTraceEvent.close()
             coroutineScope.cancel()
+            activity = null
+            complicationDataSourceInfoRetrieverProvider = null
+            chooseComplicationDataSource = null
         }
     }
 
@@ -718,7 +723,10 @@ public abstract class BaseEditorSession internal constructor(
         EditorService.globalEditorService.removeCloseCallback(closeCallback)
         editorSessionTraceEvent.close()
         coroutineScope.cancel()
-        activity.finish()
+        activity?.finish()
+        activity = null
+        complicationDataSourceInfoRetrieverProvider = null
+        chooseComplicationDataSource = null
     }
 
     protected fun requireNotClosed() {
