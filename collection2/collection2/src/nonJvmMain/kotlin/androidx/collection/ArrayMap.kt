@@ -38,7 +38,7 @@ open class ArrayMap<K, V> : SimpleArrayMap<K, V>, MutableMap<K, V> {
     }
 
     /**
-     * Perform a {@link #put(Object, Object)} of all key/value pairs in <var>map</var>
+     * Perform a [put] of all key/value pairs in <var>map</var>
      * @param from The map whose contents are to be retrieved.
      */
     override fun putAll(from: Map<out K, V>) {
@@ -78,17 +78,17 @@ open class ArrayMap<K, V> : SimpleArrayMap<K, V>, MutableMap<K, V> {
     }
 
     /**
-     * Return a {@link Set} for iterating over and interacting with all mappings
+     * Return a [Set] for iterating over and interacting with all mappings
      * in the array map.
      *
      * <p><b>Note:</b> this is a very inefficient way to access the array contents, it
      * requires generating a number of temporary objects.</p>
      *
      * <p><b>Note:</b></p> the semantics of this
-     * Set are subtly different than that of a {@link HashMap}: most important,
-     * the {@link Map.Entry Map.Entry} object returned by its iterator is a single
+     * Set are subtly different than that of a [HashMap]: most important,
+     * the [Map.Entry] object returned by its iterator is a single
      * object that exists for the entire iterator, so you can <b>not</b> hold on to it
-     * after calling {@link Iterator#next() Iterator.next}.</p>
+     * after calling [Iterator.next].</p>
      */
     override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
         get() {
@@ -98,7 +98,7 @@ open class ArrayMap<K, V> : SimpleArrayMap<K, V>, MutableMap<K, V> {
     private var _entries: EntrySet<K, V>? = null
 
     /**
-     * Return a {@link Set} for iterating over and interacting with all keys
+     * Return a [Set] for iterating over and interacting with all keys
      * in the array map.
      *
      * <p><b>Note:</b> this is a fairly inefficient way to access the array contents, it
@@ -112,7 +112,7 @@ open class ArrayMap<K, V> : SimpleArrayMap<K, V>, MutableMap<K, V> {
     private var _keys: KeySet<K, V>? = null
 
     /**
-     * Return a {@link Collection} for iterating over and interacting with all values
+     * Return a [Collection] for iterating over and interacting with all values
      * in the array map.
      *
      * <p><b>Note:</b> this is a fairly inefficient way to access the array contents, it
