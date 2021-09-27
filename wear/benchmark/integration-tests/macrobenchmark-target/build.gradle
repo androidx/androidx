@@ -21,6 +21,10 @@ plugins {
 }
 
 android {
+    defaultConfig {
+        minSdk 28
+    }
+
     buildTypes {
         release {
             minifyEnabled true
@@ -36,4 +40,5 @@ dependencies {
     implementation projectOrArtifact(":activity:activity-ktx")
     implementation 'androidx.core:core-ktx'
     implementation(libs.material)
+    implementation 'androidx.wear:wear:1.1.0'
 }
