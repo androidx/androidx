@@ -42,6 +42,7 @@ import androidx.glance.wear.layout.BackgroundModifier
 import androidx.glance.wear.layout.CurvedTextStyle
 import androidx.glance.wear.layout.EmittableCurvedRow
 import androidx.glance.wear.layout.EmittableCurvedText
+import androidx.glance.wear.layout.EmittableAndroidLayoutElement
 import androidx.glance.wear.layout.RadialAlignment
 import androidx.wear.tiles.ActionBuilders
 import androidx.wear.tiles.ColorBuilders.argb
@@ -378,6 +379,9 @@ private fun translateCompositionInArc(
     }
 }
 
+private fun translateEmittableAndroidLayoutElement(element: EmittableAndroidLayoutElement) =
+    element.layoutElement
+
 /**
  * Translates a Glance Composition to a Wear Tile.
  *
@@ -394,6 +398,7 @@ internal fun translateComposition(
         is EmittableColumn -> translateEmittableColumn(context, element)
         is EmittableText -> translateEmittableText(context, element)
         is EmittableCurvedRow -> translateEmittableCurvedRow(context, element)
+        is EmittableAndroidLayoutElement -> translateEmittableAndroidLayoutElement(element)
         else -> throw IllegalArgumentException("Unknown element $element")
     }
 }
