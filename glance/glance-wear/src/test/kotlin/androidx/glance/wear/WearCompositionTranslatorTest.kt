@@ -44,6 +44,7 @@ import androidx.glance.unit.sp
 import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.CurvedRow
 import androidx.glance.wear.layout.CurvedTextStyle
+import androidx.glance.wear.layout.AndroidLayoutElement
 import androidx.glance.wear.layout.RadialAlignment
 import androidx.glance.wear.layout.background
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
@@ -65,6 +66,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.test.assertIs
 
 @OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -86,7 +88,7 @@ class WearCompositionTranslatorTest {
         val outerBox = content as LayoutElementBuilders.Box
         assertThat(outerBox.contents).hasSize(1)
 
-        assertThat(outerBox.contents[0]).isInstanceOf(LayoutElementBuilders.Box::class.java)
+        assertIs<LayoutElementBuilders.Box>(outerBox.contents[0])
     }
 
     @Test
@@ -193,18 +195,14 @@ class WearCompositionTranslatorTest {
         assertThat(innerColumn.horizontalAlignment!!.value).isEqualTo(HORIZONTAL_ALIGN_CENTER)
 
         // Column should inherit the size of the inner Row
-        assertThat(innerColumn.width).isInstanceOf(
-            DimensionBuilders.ExpandedDimensionProp::class.java
-        )
+        assertIs<DimensionBuilders.ExpandedDimensionProp>(innerColumn.width)
         assertThat((innerColumn.height as DimensionBuilders.DpProp).value).isEqualTo(100f)
 
         // Column should also inherit the modifiers
         assertThat(innerColumn.modifiers!!.background!!.color!!.argb).isEqualTo(0x11223344)
 
         // The row should have a wrapped width, but still use the height
-        assertThat(innerRow.width).isInstanceOf(
-            DimensionBuilders.WrappedDimensionProp::class.java
-        )
+        assertIs<DimensionBuilders.WrappedDimensionProp>(innerRow.width)
         assertThat((innerRow.height as DimensionBuilders.DpProp).value).isEqualTo(100f)
 
         // And no modifiers.
@@ -256,18 +254,14 @@ class WearCompositionTranslatorTest {
 
         // Row should inherit the size of the inner Row
         assertThat((innerRow.width as DimensionBuilders.DpProp).value).isEqualTo(100f)
-        assertThat(innerRow.height).isInstanceOf(
-            DimensionBuilders.ExpandedDimensionProp::class.java
-        )
+        assertIs<DimensionBuilders.ExpandedDimensionProp>(innerRow.height)
 
         // Row should also inherit the modifiers
         assertThat(innerRow.modifiers!!.background!!.color!!.argb).isEqualTo(0x11223344)
 
         // The Column should have a wrapped width, but still use the height
         assertThat((innerColumn.width as DimensionBuilders.DpProp).value).isEqualTo(100f)
-        assertThat(innerColumn.height).isInstanceOf(
-            DimensionBuilders.WrappedDimensionProp::class.java
-        )
+        assertIs<DimensionBuilders.WrappedDimensionProp>(innerColumn.height)
 
         // And no modifiers.
         assertThat(innerColumn.modifiers).isNull()
@@ -393,6 +387,20 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
+    fun canTranslateAndroidLayoutElement() = fakeCoroutineScope.runBlockingTest {
+        val providedLayoutElement =
+            LayoutElementBuilders.Text.Builder().setText("Android Layout Element").build()
+
+        val content = runAndTranslate {
+            AndroidLayoutElement(providedLayoutElement)
+        }
+
+        val box = assertIs<LayoutElementBuilders.Box>(content)
+        val textElement = assertIs<LayoutElementBuilders.Text>(box.contents[0])
+        assertThat(textElement.text!!.value).isEqualTo("Android Layout Element")
+    }
+
+    @Test
     fun otherElementInArcInflatesInArcAdapter() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             CurvedRow {
@@ -403,7 +411,7 @@ class WearCompositionTranslatorTest {
         val innerArc = (content as LayoutElementBuilders.Box).contents[0]
             as LayoutElementBuilders.Arc
         val innerArcAdapter = innerArc.contents[0] as LayoutElementBuilders.ArcAdapter
-        assertThat(innerArcAdapter.content).isInstanceOf(LayoutElementBuilders.Box::class.java)
+        assertIs<LayoutElementBuilders.Box>(innerArcAdapter.content)
     }
 
     @Test
