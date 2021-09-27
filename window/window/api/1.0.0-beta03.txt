@@ -45,10 +45,8 @@ package androidx.window.layout {
   }
 
   public interface WindowInfoRepository {
-    method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowMetrics> getCurrentWindowMetrics();
     method public default static androidx.window.layout.WindowInfoRepository getOrCreate(android.app.Activity);
     method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> getWindowLayoutInfo();
-    property public abstract kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowMetrics> currentWindowMetrics;
     property public abstract kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo;
     field public static final androidx.window.layout.WindowInfoRepository.Companion Companion;
   }

@@ -45,12 +45,10 @@ package androidx.window.layout {
   }
 
   public interface WindowInfoRepository {
-    method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowMetrics> getCurrentWindowMetrics();
     method public default static androidx.window.layout.WindowInfoRepository getOrCreate(android.app.Activity);
     method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> getWindowLayoutInfo();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void overrideDecorator(androidx.window.layout.WindowInfoRepositoryDecorator overridingDecorator);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void reset();
-    property public abstract kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowMetrics> currentWindowMetrics;
     property public abstract kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo;
     field public static final androidx.window.layout.WindowInfoRepository.Companion Companion;
   }

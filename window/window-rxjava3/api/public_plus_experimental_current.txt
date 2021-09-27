@@ -2,8 +2,6 @@
 package androidx.window.rxjava3.layout {
 
   public final class WindowInfoRepositoryRx {
-    method public static io.reactivex.rxjava3.core.Flowable<androidx.window.layout.WindowMetrics> currentWindowMetricsFlowable(androidx.window.layout.WindowInfoRepository);
-    method public static io.reactivex.rxjava3.core.Observable<androidx.window.layout.WindowMetrics> currentWindowMetricsObservable(androidx.window.layout.WindowInfoRepository);
     method public static io.reactivex.rxjava3.core.Flowable<androidx.window.layout.WindowLayoutInfo> windowLayoutInfoFlowable(androidx.window.layout.WindowInfoRepository);
     method public static io.reactivex.rxjava3.core.Observable<androidx.window.layout.WindowLayoutInfo> windowLayoutInfoObservable(androidx.window.layout.WindowInfoRepository);
   }

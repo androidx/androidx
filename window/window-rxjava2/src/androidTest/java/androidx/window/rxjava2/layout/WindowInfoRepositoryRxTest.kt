@@ -16,11 +16,9 @@
 
 package androidx.window.rxjava2.layout
 
-import android.graphics.Rect
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoRepository
 import androidx.window.layout.WindowLayoutInfo
-import androidx.window.layout.WindowMetrics
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.flow.flowOf
@@ -30,27 +28,6 @@ import org.junit.Test
  * Tests for the RxJava 2 adapters.
  */
 public class WindowInfoRepositoryRxTest {
-    @Test
-    public fun testCurrentWindowMetricsObservable() {
-        val expected = WindowMetrics(Rect(0, 1, 2, 3))
-        val mockRepo = mock<WindowInfoRepository>()
-        whenever(mockRepo.currentWindowMetrics).thenReturn(flowOf(expected))
-
-        val testSubscriber = mockRepo.currentWindowMetricsObservable().test()
-
-        testSubscriber.assertValue(expected)
-    }
-
-    @Test
-    public fun testCurrentWindowMetricsFlowable() {
-        val expected = WindowMetrics(Rect(0, 1, 2, 3))
-        val mockRepo = mock<WindowInfoRepository>()
-        whenever(mockRepo.currentWindowMetrics).thenReturn(flowOf(expected))
-
-        val testSubscriber = mockRepo.currentWindowMetricsFlowable().test()
-
-        testSubscriber.assertValue(expected)
-    }
 
     @Test
     public fun testWindowLayoutInfoObservable() {

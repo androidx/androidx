@@ -29,23 +29,6 @@ import kotlinx.coroutines.flow.Flow
 public interface WindowInfoRepository {
 
     /**
-     * Returns a [Flow] for consuming the current [WindowMetrics] according to the current
-     * system state.
-     *
-     * The metrics describe the size of the area the window would occupy with
-     * [MATCH_PARENT][android.view.WindowManager.LayoutParams.MATCH_PARENT] width and height
-     * and any combination of flags that would allow the window to extend behind display cutouts.
-     *
-     * The value of this is based on the **current** windowing state of the system. For
-     * example, for activities in multi-window mode, the metrics returned are based on the
-     * current bounds that the user has selected for the [Activity][android.app.Activity]'s
-     * window.
-     *
-     * @see android.view.WindowManager.getCurrentWindowMetrics
-     */
-    public val currentWindowMetrics: Flow<WindowMetrics>
-
-    /**
      * A [Flow] of [WindowLayoutInfo] that contains all the available features.
      */
     public val windowLayoutInfo: Flow<WindowLayoutInfo>
