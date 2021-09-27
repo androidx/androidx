@@ -50,7 +50,7 @@ internal fun translateEmittableText(
     translationContext: TranslationContext,
     element: EmittableText
 ): RemoteViews {
-    val layoutDef = selectLayout(LayoutSelector.Type.Text, element.modifier)
+    val layoutDef = selectLayout(translationContext, LayoutSelector.Type.Text, element.modifier)
     return remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->
             rv.setText(

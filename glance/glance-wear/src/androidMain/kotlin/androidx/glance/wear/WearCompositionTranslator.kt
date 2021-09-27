@@ -17,6 +17,7 @@
 package androidx.glance.wear
 
 import android.content.Context
+import android.view.ViewGroup
 import androidx.glance.Emittable
 import androidx.glance.Modifier
 import androidx.glance.action.ActionModifier
@@ -37,6 +38,7 @@ import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.dp
 import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.BackgroundModifier
 import androidx.glance.wear.layout.CurvedTextStyle
@@ -131,6 +133,7 @@ private fun Dimension.toContainerDimension(): DimensionBuilders.ContainerDimensi
         is Dimension.Expand -> expand()
         is Dimension.Fill -> expand()
         is Dimension.Dp -> dp(this.dp.value)
+        else -> throw IllegalArgumentException("The dimension should be fully resolved, not $this.")
     }
 
 @ArcAnchorType
@@ -151,13 +154,25 @@ private fun RadialAlignment.toProto(): Int =
         else -> throw IllegalArgumentException("Unknown radial alignment $this")
     }
 
+private fun Dimension.resolve(context: Context): Dimension {
+    if (this !is Dimension.Resource) return this
+    val sizePx = context.resources.getDimension(res)
+    return when (sizePx.toInt()) {
+        ViewGroup.LayoutParams.MATCH_PARENT -> Dimension.Fill
+        ViewGroup.LayoutParams.WRAP_CONTENT -> Dimension.Wrap
+        else -> Dimension.Dp((sizePx / context.resources.displayMetrics.density).dp)
+    }
+}
+
 private fun Modifier.getWidth(
+    context: Context,
     default: Dimension = Dimension.Wrap
-): Dimension = findModifier<WidthModifier>()?.width ?: default
+): Dimension = findModifier<WidthModifier>()?.width?.resolve(context) ?: default
 
 private fun Modifier.getHeight(
+    context: Context,
     default: Dimension = Dimension.Wrap
-): Dimension = findModifier<HeightModifier>()?.height ?: default
+): Dimension = findModifier<HeightModifier>()?.height?.resolve(context) ?: default
 
 private fun translateEmittableBox(
     context: Context,
@@ -166,8 +181,8 @@ private fun translateEmittableBox(
     .setVerticalAlignment(element.contentAlignment.vertical.toProto())
     .setHorizontalAlignment(element.contentAlignment.horizontal.toProto())
     .setModifiers(translateModifiers(context, element.modifier))
-    .setWidth(element.modifier.getWidth().toContainerDimension())
-    .setHeight(element.modifier.getHeight().toContainerDimension())
+    .setWidth(element.modifier.getWidth(context).toContainerDimension())
+    .setHeight(element.modifier.getHeight(context).toContainerDimension())
     .also { box -> element.children.forEach { box.addContent(translateComposition(context, it)) } }
     .build()
 
@@ -175,8 +190,8 @@ private fun translateEmittableRow(
     context: Context,
     element: EmittableRow
 ): LayoutElementBuilders.LayoutElement {
-    val width = element.modifier.getWidth()
-    val height = element.modifier.getHeight()
+    val width = element.modifier.getWidth(context)
+    val height = element.modifier.getHeight(context)
 
     val baseRowBuilder = LayoutElementBuilders.Row.Builder()
         .setHeight(height.toContainerDimension())
@@ -208,8 +223,8 @@ private fun translateEmittableColumn(
     context: Context,
     element: EmittableColumn
 ): LayoutElementBuilders.LayoutElement {
-    val width = element.modifier.getWidth()
-    val height = element.modifier.getHeight()
+    val width = element.modifier.getWidth(context)
+    val height = element.modifier.getHeight(context)
 
     val baseColumnBuilder = LayoutElementBuilders.Column.Builder()
         .setWidth(width.toContainerDimension())
@@ -283,8 +298,8 @@ private fun translateEmittableText(
     element: EmittableText
 ): LayoutElementBuilders.LayoutElement {
     // Does it have a width or height set? If so, we need to wrap it in a Box.
-    val width = element.modifier.getWidth()
-    val height = element.modifier.getHeight()
+    val width = element.modifier.getWidth(context)
+    val height = element.modifier.getHeight(context)
 
     val textBuilder = LayoutElementBuilders.Text.Builder()
         .setText(element.text)
@@ -308,8 +323,8 @@ private fun translateEmittableCurvedRow(
     element: EmittableCurvedRow
 ): LayoutElementBuilders.LayoutElement {
     // Does it have a width or height set? If so, we need to wrap it in a Box.
-    val width = element.modifier.getWidth()
-    val height = element.modifier.getHeight()
+    val width = element.modifier.getWidth(context)
+    val height = element.modifier.getHeight(context)
 
     // Note: Wear Tiles uses 0 degrees = 12 o clock, but Glance / Wear Compose use 0 degrees = 3
     // o clock. Tiles supports wraparound etc though, so just add on the 90 degrees here.

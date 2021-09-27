@@ -38,7 +38,7 @@ internal fun translateEmittableCheckBox(
         LayoutSelector.Type.CheckBoxBackport
     }
 
-    val layoutDef = selectLayout(layoutType, element.modifier)
+    val layoutDef = selectLayout(translationContext, layoutType, element.modifier)
     val rv = remoteViews(translationContext, layoutDef.layoutId)
     val textViewId: Int
 

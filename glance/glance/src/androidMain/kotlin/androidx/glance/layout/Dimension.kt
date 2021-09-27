@@ -16,6 +16,7 @@
 
 package androidx.glance.layout
 
+import androidx.annotation.DimenRes
 import androidx.annotation.RestrictTo
 import androidx.glance.Modifier
 import androidx.glance.unit.Dp
@@ -34,6 +35,7 @@ public sealed class Dimension {
     public object Wrap : Dimension()
     public object Fill : Dimension()
     public object Expand : Dimension()
+    public class Resource(@DimenRes public val res: Int) : Dimension()
 }
 
 /**
@@ -46,6 +48,10 @@ public class WidthModifier(public val width: Dimension) : Modifier.Element
 
 /** Sets the absolute width of an element, in [Dp]. */
 public fun Modifier.width(width: Dp): Modifier = this.then(WidthModifier(Dimension.Dp(width)))
+
+/** Set the width of a view from the value of a resource. */
+public fun Modifier.width(@DimenRes width: Int): Modifier =
+    this.then(WidthModifier(Dimension.Resource(width)))
 
 /** Specifies that the width of the element should wrap its contents. */
 public fun Modifier.wrapContentWidth(): Modifier = this.then(WidthModifier(Dimension.Wrap))
@@ -67,6 +73,10 @@ public class HeightModifier(public val height: Dimension) : Modifier.Element
 
 /** Sets the absolute height of an element, in [Dp]. */
 public fun Modifier.height(height: Dp): Modifier = this.then(HeightModifier(Dimension.Dp(height)))
+
+/** Set the height of the view from a resource. */
+public fun Modifier.height(@DimenRes height: Int): Modifier =
+    this.then(HeightModifier(Dimension.Resource(height)))
 
 /** Specifies that the height of the element should wrap its contents. */
 public fun Modifier.wrapContentHeight(): Modifier = this.then(HeightModifier(Dimension.Wrap))

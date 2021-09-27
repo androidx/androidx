@@ -578,12 +578,11 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslateAndroidRemoteViews() = fakeCoroutineScope.runBlockingTest {
-        val layoutDef = selectLayout(LayoutSelector.Type.Text, Modifier)
-        val providedViews = RemoteViews(context.packageName, layoutDef.layoutId).also {
-            it.setTextViewText(R.id.glanceView, "Android Remote Views")
-        }
-
         val result = runAndTranslate {
+            val providedViews = RemoteViews(context.packageName, R.layout.text_sample).also {
+                it.setTextViewText(R.id.text_view, "Android Remote Views")
+            }
+
             Box {
                 AndroidRemoteViews(providedViews)
             }
@@ -591,6 +590,7 @@ class RemoteViewsTranslatorKtTest {
 
         val rootLayout = assertIs<ViewGroup>(context.applyRemoteViews(result))
         val actual = assertIs<TextView>(rootLayout.children.single())
+        assertThat(actual.id).isEqualTo(R.id.text_view)
         assertThat(actual.text).isEqualTo("Android Remote Views")
     }
 
