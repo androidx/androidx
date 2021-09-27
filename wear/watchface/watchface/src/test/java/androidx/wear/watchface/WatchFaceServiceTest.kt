@@ -905,11 +905,13 @@ public class WatchFaceServiceTest {
 
         verify(tapListener).onTapEvent(
             TapType.DOWN,
-            TapEvent(1, 1, Instant.ofEpochMilli(looperTimeMillis))
+            TapEvent(1, 1, Instant.ofEpochMilli(looperTimeMillis)),
+            null
         )
         verify(tapListener).onTapEvent(
             TapType.UP,
-            TapEvent(1, 1, Instant.ofEpochMilli(looperTimeMillis))
+            TapEvent(1, 1, Instant.ofEpochMilli(looperTimeMillis)),
+            null
         )
     }
 
@@ -953,11 +955,13 @@ public class WatchFaceServiceTest {
 
         verify(tapListener).onTapEvent(
             TapType.DOWN,
-            TapEvent(10, 20, Instant.ofEpochMilli(looperTimeMillis))
+            TapEvent(10, 20, Instant.ofEpochMilli(looperTimeMillis)),
+            null
         )
         verify(tapListener).onTapEvent(
             TapType.UP,
-            TapEvent(10, 20, Instant.ofEpochMilli(looperTimeMillis))
+            TapEvent(10, 20, Instant.ofEpochMilli(looperTimeMillis)),
+            null
         )
     }
 
@@ -973,13 +977,15 @@ public class WatchFaceServiceTest {
         // Tap right complication.
         tapAt(70, 50)
 
-        verify(tapListener, times(0)).onTapEvent(
+        verify(tapListener).onTapEvent(
             TapType.DOWN,
-            TapEvent(70, 50, Instant.ofEpochMilli(looperTimeMillis))
+            TapEvent(70, 50, Instant.ofEpochMilli(looperTimeMillis)),
+            rightComplication
         )
-        verify(tapListener, times(0)).onTapEvent(
+        verify(tapListener).onTapEvent(
             TapType.UP,
-            TapEvent(70, 50, Instant.ofEpochMilli(looperTimeMillis))
+            TapEvent(70, 50, Instant.ofEpochMilli(looperTimeMillis)),
+            rightComplication
         )
     }
 
