@@ -39,6 +39,7 @@ import androidx.glance.Emittable
 import androidx.glance.GlanceInternalApi
 import androidx.glance.appwidget.layout.EmittableLazyColumn
 import androidx.glance.appwidget.layout.EmittableLazyListItem
+import androidx.glance.appwidget.layout.EmittableAndroidRemoteViews
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.EmittableColumn
@@ -116,6 +117,7 @@ internal fun translateChild(
         is EmittableText -> translateEmittableText(translationContext, element)
         is EmittableLazyListItem -> translateEmittableLazyListItem(translationContext, element)
         is EmittableLazyColumn -> translateEmittableLazyColumn(translationContext, element)
+        is EmittableAndroidRemoteViews -> translateEmittableAndroidRemoteViews(element)
         else -> throw IllegalArgumentException("Unknown element type ${element::javaClass}")
     }
 }
@@ -241,6 +243,9 @@ private fun translateEmittableText(
             )
         }
 }
+
+private fun translateEmittableAndroidRemoteViews(element: EmittableAndroidRemoteViews) =
+    element.remoteViews
 
 private fun RemoteViews.setText(context: Context, resId: Int, text: String, style: TextStyle?) {
     if (style == null) {
