@@ -24,10 +24,8 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CON
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER;
 
 import android.content.Context;
-import android.graphics.Point;
 import android.hardware.camera2.CameraDevice;
-import android.util.Size;
-import android.view.WindowManager;
+import android.hardware.display.DisplayManager;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.internal.compat.workaround.PreviewPixelHDRnet;
@@ -43,11 +41,10 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
  * cases.
  */
 public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
-    private static final Size MAX_PREVIEW_SIZE = new Size(1920, 1080);
-    final WindowManager mWindowManager;
+    final DisplayManager mDisplayManager;
 
     public Camera2UseCaseConfigFactory(@NonNull Context context) {
-        mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        mDisplayManager = DisplayUtil.getDisplayManager(context);
     }
 
     /**
@@ -56,7 +53,6 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
      */
     @NonNull
     @Override
-    @SuppressWarnings("deprecation") /* getDefaultDisplay */
     public Config getConfig(@NonNull CaptureType captureType) {
         final MutableOptionsBundle mutableConfig = MutableOptionsBundle.create();
 
@@ -105,32 +101,13 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
                         : Camera2CaptureOptionUnpacker.INSTANCE);
 
         if (captureType == CaptureType.PREVIEW) {
-            mutableConfig.insertOption(OPTION_MAX_RESOLUTION, getPreviewSize());
+            mutableConfig.insertOption(OPTION_MAX_RESOLUTION,
+                    SupportedSurfaceCombination.getPreviewSize(mDisplayManager));
         }
 
-        int targetRotation = mWindowManager.getDefaultDisplay().getRotation();
+        int targetRotation = DisplayUtil.getMaxSizeDisplay(mDisplayManager).getRotation();
         mutableConfig.insertOption(OPTION_TARGET_ROTATION, targetRotation);
 
         return OptionsBundle.from(mutableConfig);
-    }
-
-    /**
-     * Returns the device's screen resolution, or 1080p, whichever is smaller.
-     */
-    @SuppressWarnings("deprecation") /* getDefaultDisplay */
-    private Size getPreviewSize() {
-        Point displaySize = new Point();
-        mWindowManager.getDefaultDisplay().getRealSize(displaySize);
-
-        Size displayViewSize;
-        if (displaySize.x > displaySize.y) {
-            displayViewSize = new Size(displaySize.x, displaySize.y);
-        } else {
-            displayViewSize = new Size(displaySize.y, displaySize.x);
-        }
-
-        return displayViewSize.getWidth() * displayViewSize.getHeight()
-                > MAX_PREVIEW_SIZE.getWidth() * MAX_PREVIEW_SIZE.getHeight() ? MAX_PREVIEW_SIZE
-                : displayViewSize;
     }
 }
