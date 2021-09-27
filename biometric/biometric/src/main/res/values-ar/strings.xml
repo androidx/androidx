@@ -30,4 +30,32 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"لم يتم ضبط رقم تعريف شخصي أو نقش أو كلمة مرور."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"هذا الجهاز لا يتيح استخدام رقم تعريف شخصي أو نقش أو كلمة مرور."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"رمز بصمة الإصبع"</string>
+    <!-- no translation found for use_fingerprint_label (6961788485681412417) -->
+    <skip />
+    <!-- no translation found for use_face_label (6533512708069459542) -->
+    <skip />
+    <!-- no translation found for use_biometric_label (6524145989441579428) -->
+    <skip />
+    <!-- no translation found for use_screen_lock_label (5459869335976243512) -->
+    <skip />
+    <!-- no translation found for use_fingerprint_or_screen_lock_label (7577690399303139443) -->
+    <skip />
+    <!-- no translation found for use_face_or_screen_lock_label (2116180187159450292) -->
+    <skip />
+    <!-- no translation found for use_biometric_or_screen_lock_label (5385448280139639016) -->
+    <skip />
+    <!-- no translation found for fingerprint_prompt_message (7449360011861769080) -->
+    <skip />
+    <!-- no translation found for face_prompt_message (2282389249605674226) -->
+    <skip />
+    <!-- no translation found for biometric_prompt_message (1160635338192065472) -->
+    <skip />
+    <!-- no translation found for screen_lock_prompt_message (5659570757430909869) -->
+    <skip />
+    <!-- no translation found for fingerprint_or_screen_lock_prompt_message (8382576858490514495) -->
+    <skip />
+    <!-- no translation found for face_or_screen_lock_prompt_message (4562557128765735254) -->
+    <skip />
+    <!-- no translation found for biometric_or_screen_lock_prompt_message (2102429900219199821) -->
+    <skip />
 </resources>
