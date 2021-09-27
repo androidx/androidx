@@ -32,9 +32,8 @@ import androidx.glance.layout.Alignment
  * @param horizontalAlignment the horizontal alignment applied to the items.
  * @param content a block which describes the content. Inside this block you can use methods like
  * [LazyListScope.item] to add a single item or [LazyListScope.items] to add a list of items.
- *
- * TODO(b/198618359): apply modifiers for column and column items, support alignment, click handling
  */
+// TODO(b/198618359): interaction handling
 @Composable
 public fun LazyColumn(
     modifier: Modifier = Modifier,
@@ -47,11 +46,17 @@ public fun LazyColumn(
             this.set(modifier) { this.modifier = it }
             this.set(horizontalAlignment) { this.horizontalAlignment = it }
         },
-        content = applyListScope(content)
+        content = applyListScope(
+            Alignment(horizontalAlignment, Alignment.Vertical.CenterVertically),
+            content
+        )
     )
 }
 
-private fun applyListScope(content: LazyListScope.() -> Unit): @Composable () -> Unit {
+private fun applyListScope(
+    alignment: Alignment,
+    content: LazyListScope.() -> Unit
+): @Composable () -> Unit {
     var nextImplicitItemId = ReservedItemIdRangeEnd
     val itemList = mutableListOf<Pair<Long?, @Composable LazyItemScope.() -> Unit>>()
     val listScopeImpl = object : LazyListScope {
@@ -80,7 +85,7 @@ private fun applyListScope(content: LazyListScope.() -> Unit): @Composable () ->
         itemList.forEach { (itemId, composable) ->
             val id = itemId.takeIf { it != LazyListScope.UnspecifiedItemId } ?: nextImplicitItemId--
             check(id != LazyListScope.UnspecifiedItemId) { "Implicit list item ids exhausted." }
-            LazyListItem(id) {
+            LazyListItem(id, alignment) {
                 object : LazyItemScope { }.apply { composable() }
             }
         }
@@ -90,12 +95,14 @@ private fun applyListScope(content: LazyListScope.() -> Unit): @Composable () ->
 @Composable
 private fun LazyListItem(
     itemId: Long,
+    alignment: Alignment,
     content: @Composable () -> Unit
 ) {
     ComposeNode<EmittableLazyListItem, Applier>(
         factory = ::EmittableLazyListItem,
         update = {
             this.set(itemId) { this.itemId = it }
+            this.set(alignment) { this.alignment = it }
         },
         content = content
     )
@@ -232,15 +239,18 @@ internal abstract class EmittableLazyList : EmittableWithChildren() {
     public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
 
     override fun toString() =
-        "EmittableLazyList(modifier=$modifier, children=[\n${childrenToString()}\n])"
+        "EmittableLazyList(modifier=$modifier, horizontalAlignment=$horizontalAlignment, " +
+            "children=[\n${childrenToString()}\n])"
 }
 
 internal class EmittableLazyListItem : EmittableWithChildren() {
     override var modifier: Modifier = Modifier
     var itemId: Long = 0
+    var alignment: Alignment = Alignment.CenterStart
 
     override fun toString() =
-        "EmittableLazyListItem(modifier=$modifier, children=[\n${childrenToString()}\n])"
+        "EmittableLazyListItem(modifier=$modifier, alignment=$alignment, " +
+            "children=[\n${childrenToString()}\n])"
 }
 
 internal class EmittableLazyColumn : EmittableLazyList()
