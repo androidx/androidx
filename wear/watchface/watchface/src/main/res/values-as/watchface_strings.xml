@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="complication_config" msgid="292306201243482945">"watchfaceৰ বিস্তাৰিত সুবিধাসমূহ কনফিগাৰ কৰক"</string>
-    <string name="watchface_settings" msgid="4785773105440577595">"watchfaceৰ ছেটিং কনফিগাৰ কৰক"</string>
-    <string name="style_config" msgid="2987895585951859981">"watchfaceৰ শৈলীসমূহ কনফিগাৰ কৰক"</string>
-    <string name="none_background_image_provider" msgid="2326408635673026310">"নাই"</string>
-    <string name="settings_complications" msgid="7688669266180209514">"ডেটা"</string>
-    <string name="settings_background_image" msgid="4866968289579187727">"নেপথ্যৰ প্ৰতিচ্ছবি"</string>
-    <string name="settings_styles" msgid="5609438460443634575">"শৈলীসমূহ"</string>
+    <string name="complication_config" msgid="3090406830927670356">"watchfaceৰ বিস্তাৰিত সুবিধাসমূহ কনফিগাৰ কৰক"</string>
+    <string name="watchface_settings" msgid="9086980313887663299">"watchfaceৰ ছেটিং কনফিগাৰ কৰক"</string>
+    <string name="style_config" msgid="7270818527618953542">"watchfaceৰ শৈলীসমূহ কনফিগাৰ কৰক"</string>
+    <string name="none_background_image_provider" msgid="2763799590544856080">"নাই"</string>
+    <string name="settings_complications" msgid="1425815384891476600">"ডেটা"</string>
+    <string name="settings_background_image" msgid="496585675676995765">"নেপথ্যৰ প্ৰতিচ্ছবি"</string>
+    <string name="settings_styles" msgid="3243144642316786428">"শৈলী"</string>
 </resources>
