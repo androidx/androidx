@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.camera.view {
 
-  public abstract class CameraController {
+  @RequiresApi(21) public abstract class CameraController {
     method @MainThread public void clearImageAnalysisAnalyzer();
     method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enableTorch(boolean);
     method @MainThread public androidx.camera.core.CameraControl? getCameraControl();
@@ -52,7 +52,7 @@ package androidx.camera.view {
     field public static final int TAP_TO_FOCUS_STARTED = 1; // 0x1
   }
 
-  public static final class CameraController.OutputSize {
+  @RequiresApi(21) public static final class CameraController.OutputSize {
     ctor public CameraController.OutputSize(int);
     ctor public CameraController.OutputSize(android.util.Size);
     method public int getAspectRatio();
@@ -60,13 +60,13 @@ package androidx.camera.view {
     field public static final int UNASSIGNED_ASPECT_RATIO = -1; // 0xffffffff
   }
 
-  public final class LifecycleCameraController extends androidx.camera.view.CameraController {
+  @RequiresApi(21) public final class LifecycleCameraController extends androidx.camera.view.CameraController {
     ctor public LifecycleCameraController(android.content.Context);
     method @MainThread public void bindToLifecycle(androidx.lifecycle.LifecycleOwner);
     method @MainThread public void unbind();
   }
 
-  public final class PreviewView extends android.widget.FrameLayout {
+  @RequiresApi(21) public final class PreviewView extends android.widget.FrameLayout {
     ctor @UiThread public PreviewView(android.content.Context);
     ctor @UiThread public PreviewView(android.content.Context, android.util.AttributeSet?);
     ctor @UiThread public PreviewView(android.content.Context, android.util.AttributeSet?, int);
@@ -85,12 +85,12 @@ package androidx.camera.view {
     method @UiThread public void setScaleType(androidx.camera.view.PreviewView.ScaleType);
   }
 
-  public enum PreviewView.ImplementationMode {
+  @RequiresApi(21) public enum PreviewView.ImplementationMode {
     enum_constant public static final androidx.camera.view.PreviewView.ImplementationMode COMPATIBLE;
     enum_constant public static final androidx.camera.view.PreviewView.ImplementationMode PERFORMANCE;
   }
 
-  public enum PreviewView.ScaleType {
+  @RequiresApi(21) public enum PreviewView.ScaleType {
     enum_constant public static final androidx.camera.view.PreviewView.ScaleType FILL_CENTER;
     enum_constant public static final androidx.camera.view.PreviewView.ScaleType FILL_END;
     enum_constant public static final androidx.camera.view.PreviewView.ScaleType FILL_START;
@@ -104,7 +104,7 @@ package androidx.camera.view {
     enum_constant public static final androidx.camera.view.PreviewView.StreamState STREAMING;
   }
 
-  public final class RotationProvider {
+  @RequiresApi(21) public final class RotationProvider {
     ctor public RotationProvider(android.content.Context);
     method @CheckResult public boolean addListener(java.util.concurrent.Executor, androidx.camera.view.RotationProvider.Listener);
     method public void removeListener(androidx.camera.view.RotationProvider.Listener);
