@@ -295,6 +295,9 @@ class ProcessingCaptureSessionTest(
             captureSessionOpenerBuilder.build()
         ).awaitWithTimeout(3000)
 
+        captureSession.sessionConfig =
+            sessionConfigParameters.getActiveSessionConfigForRepeating()
+
         // Act
         captureSession.issueCaptureRequests(
             listOf(sessionConfigParameters.getStillCaptureCaptureConfig())
@@ -369,6 +372,8 @@ class ProcessingCaptureSessionTest(
         // Arrange
         val cameraDevice = cameraDeviceHolder.get()!!
         val captureSession = createProcessingCaptureSession()
+        captureSession.sessionConfig =
+            sessionConfigParameters.getActiveSessionConfigForRepeating()
 
         // Act
         captureSession.issueCaptureRequests(
