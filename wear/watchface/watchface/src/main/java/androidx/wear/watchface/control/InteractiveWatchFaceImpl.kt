@@ -38,6 +38,7 @@ internal class InteractiveWatchFaceImpl(
     internal var engine: WatchFaceService.EngineWrapper?,
     internal var instanceId: String
 ) : IInteractiveWatchFace.Stub() {
+    private val uiThreadCoroutineScope = engine!!.uiThreadCoroutineScope
 
     private companion object {
         const val TAG = "InteractiveWatchFaceImpl"
@@ -51,10 +52,10 @@ internal class InteractiveWatchFaceImpl(
     ): R = TraceEvent(traceName).use {
         runBlocking {
             try {
-                val watchFaceImpl = engine!!.deferredWatchFaceImpl.await()
-                withContext(engine!!.uiThreadCoroutineScope.coroutineContext) {
-                    task(watchFaceImpl)
-                }
+                val engineCopy = engine
+                require(engineCopy != null) { "Task $traceName posted after close()" }
+                val watchFaceImpl = engineCopy.deferredWatchFaceImpl.await()
+                withContext(uiThreadCoroutineScope.coroutineContext) { task(watchFaceImpl) }
             } catch (e: Exception) {
                 Log.e(TAG, "Operation failed", e)
                 throw e
@@ -94,22 +95,22 @@ internal class InteractiveWatchFaceImpl(
             "InteractiveWatchFaceImpl.getPreviewReferenceTimeMillis"
         ) { watchFaceImpl -> watchFaceImpl.previewReferenceInstant.toEpochMilli() }
 
-    override fun setWatchUiState(watchUiState: WatchUiState) =
+    override fun setWatchUiState(watchUiState: WatchUiState): Unit =
         awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             "InteractiveWatchFaceImpl.setWatchUiState"
-        ) { engine!!.setWatchUiState(watchUiState) }
+        ) { engine?.setWatchUiState(watchUiState) }
 
     override fun getInstanceId(): String = instanceId
 
     override fun ambientTickUpdate() {
-        engine!!.uiThreadCoroutineScope.runBlockingWithTracing(
+        uiThreadCoroutineScope.runBlockingWithTracing(
             "InteractiveWatchFaceImpl.ambientTickUpdate"
-        ) { engine!!.ambientTickUpdate() }
+        ) { engine?.ambientTickUpdate() }
     }
 
     override fun release(): Unit = TraceEvent("InteractiveWatchFaceImpl.release").use {
-        engine?.let {
-            it.uiThreadCoroutineScope.launch {
+        uiThreadCoroutineScope.launch {
+            engine?.let {
                 try {
                     it.deferredWatchFaceImpl.await()
                 } catch (e: Exception) {
@@ -123,9 +124,9 @@ internal class InteractiveWatchFaceImpl(
 
     override fun updateComplicationData(
         complicationDatumWireFormats: MutableList<IdAndComplicationDataWireFormat>
-    ) = engine!!.uiThreadCoroutineScope.runBlockingWithTracing(
+    ): Unit = uiThreadCoroutineScope.runBlockingWithTracing(
         "InteractiveWatchFaceImpl.updateComplicationData"
-    ) { engine!!.setComplicationDataList(complicationDatumWireFormats) }
+    ) { engine?.setComplicationDataList(complicationDatumWireFormats) }
 
     override fun updateWatchfaceInstance(
         newInstanceId: String,
@@ -135,7 +136,7 @@ internal class InteractiveWatchFaceImpl(
          * This is blocking to ensure ordering with respect to any subsequent [getInstanceId] and
          * [getPreviewReferenceTimeMillis] calls.
          */
-        engine!!.uiThreadCoroutineScope.runBlockingWithTracing(
+        uiThreadCoroutineScope.runBlockingWithTracing(
             "InteractiveWatchFaceImpl.updateWatchfaceInstance"
         ) {
             if (instanceId != newInstanceId) {
@@ -163,7 +164,9 @@ internal class InteractiveWatchFaceImpl(
     }
 
     override fun addWatchfaceReadyListener(listener: IWatchfaceReadyListener) {
-        engine!!.addWatchfaceReadyListener(listener)
+        uiThreadCoroutineScope.launch {
+            engine?.addWatchfaceReadyListener(listener)
+        }
     }
 
     fun onDestroy() {

@@ -701,6 +701,7 @@ public abstract class WatchFaceService : WallpaperService() {
         internal var allowWatchfaceToAnimate = allowWatchFaceToAnimate()
 
         internal var destroyed = false
+        internal var surfaceDestroyed = false
 
         internal lateinit var ambientUpdateWakelock: PowerManager.WakeLock
 
@@ -929,11 +930,10 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         /** This can be called on any thread. */
-        internal fun addWatchfaceReadyListener(listener: IWatchfaceReadyListener) {
-            uiThreadCoroutineScope.launch {
-                deferredWatchFaceImpl.await()
-                listener.onWatchfaceReady()
-            }
+        @UiThread
+        internal suspend fun addWatchfaceReadyListener(listener: IWatchfaceReadyListener) {
+            deferredWatchFaceImpl.await()
+            listener.onWatchfaceReady()
         }
 
         @UiThread
@@ -1094,6 +1094,10 @@ public abstract class WatchFaceService : WallpaperService() {
             }
 
             super.onDestroy()
+        }
+
+        override fun onSurfaceDestroyed(holder: SurfaceHolder) {
+            surfaceDestroyed = true
         }
 
         override fun onCommand(
@@ -1495,7 +1499,9 @@ public abstract class WatchFaceService : WallpaperService() {
                 )
 
                 // Perform UI thread render init.
-                watchFaceImpl.renderer.uiThreadInitInternal(uiThreadCoroutineScope)
+                if (!surfaceDestroyed) {
+                    watchFaceImpl.renderer.uiThreadInitInternal(uiThreadCoroutineScope)
+                }
 
                 // Make sure no UI thread rendering (a consequence of completing
                 // deferredWatchFaceImpl) occurs before initStyleAndComplications has
@@ -1519,7 +1525,9 @@ public abstract class WatchFaceService : WallpaperService() {
                 // to draw this expedited first frame.
                 if (!watchState.isHeadless && allowWatchFaceToAnimate()) {
                     TraceEvent("WatchFace.drawFirstFrame").use {
-                        watchFaceImpl.onDraw()
+                        if (!surfaceDestroyed) {
+                            watchFaceImpl.onDraw()
+                        }
                     }
                 }
             }
