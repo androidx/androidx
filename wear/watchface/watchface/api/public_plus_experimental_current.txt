@@ -286,7 +286,7 @@ package androidx.wear.watchface {
   }
 
   public static interface WatchFace.TapListener {
-    method @UiThread public void onTapEvent(int tapType, androidx.wear.watchface.TapEvent tapEvent);
+    method @UiThread public void onTapEvent(int tapType, androidx.wear.watchface.TapEvent tapEvent, androidx.wear.watchface.ComplicationSlot? complicationSlot);
   }
 
   public final class WatchFaceKt {
