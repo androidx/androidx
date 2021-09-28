@@ -13,17 +13,4 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.media2.session">
-    <queries>
-        <intent>
-            <action android:name="android.media.browse.MediaBrowserService" />
-        </intent>
-        <intent>
-            <action android:name="androidx.media2.session.MediaSessionService" />
-        </intent>
-        <intent>
-            <action android:name="androidx.media2.session.MediaLibraryService" />
-        </intent>
-    </queries>
-</manifest>
+<manifest package="androidx.media2.session"/>
