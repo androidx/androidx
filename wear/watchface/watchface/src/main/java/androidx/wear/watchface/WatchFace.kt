@@ -260,10 +260,10 @@ public class WatchFace(
         public fun getSystemTimeZoneId(): ZoneId
     }
 
-    /** Listens for taps on the watchface which didn't land on [ComplicationSlot]s. */
+    /** Listens for taps on the watchface. */
     public interface TapListener {
         /**
-         * Called whenever the user taps on the watchface but doesn't hit a [ComplicationSlot].
+         * Called whenever the user taps on the watchface.
          *
          * The watch face receives three different types of touch events:
          * - [TapType.DOWN] when the user puts the finger down on the touchscreen
@@ -283,11 +283,16 @@ public class WatchFace(
          * If the watch face receives a [TapType.CANCEL] event, it should not trigger any action, as
          * the system is already processing the gesture.
          *
-         * @param tapType the type of touch event sent to the watch face
-         * @param tapEvent the received [TapEvent]
+         * @param tapType The type of touch event sent to the watch face
+         * @param tapEvent The received [TapEvent]
+         * @param complicationSlot The [ComplicationSlot] tapped if any or `null` otherwise
          */
         @UiThread
-        public fun onTapEvent(@TapType tapType: Int, tapEvent: TapEvent)
+        public fun onTapEvent(
+            @TapType tapType: Int,
+            tapEvent: TapEvent,
+            complicationSlot: ComplicationSlot?
+        )
     }
 
     /**
@@ -369,8 +374,8 @@ public class WatchFace(
     }
 
     /**
-     * Sets an optional [TapListener] which if not `null` gets called on the ui thread whenever
-     * the user taps on the watchface but doesn't hit a [ComplicationSlot].
+     * Sets an optional [TapListener] which if not `null` gets called on the ui thread whenever the
+     * user taps on the watchface.
      */
     @SuppressWarnings("ExecutorRegistration")
     public fun setTapListener(tapListener: TapListener?): WatchFace = apply {
@@ -898,10 +903,9 @@ public class WatchFaceImpl @UiThread constructor(
     internal fun onTapCommand(@TapType tapType: Int, tapEvent: TapEvent) {
         val tappedComplication =
             complicationSlotsManager.getComplicationSlotAt(tapEvent.xPos, tapEvent.yPos)
+        tapListener?.onTapEvent(tapType, tapEvent, tappedComplication)
         if (tappedComplication == null) {
-            // The event does not belong to any of the complicationSlots, pass to the listener.
             lastTappedComplicationId = null
-            tapListener?.onTapEvent(tapType, tapEvent)
             return
         }
 
