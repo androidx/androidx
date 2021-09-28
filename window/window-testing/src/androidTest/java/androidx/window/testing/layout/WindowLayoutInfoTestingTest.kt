@@ -13,22 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:JvmName("WindowLayoutInfoTesting")
 
 package androidx.window.testing.layout
 
-import androidx.window.layout.DisplayFeature
+import android.graphics.Rect
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.WindowLayoutInfo
+import org.junit.Assert.assertEquals
+import org.junit.Test
 
-/**
- * Returns a [WindowLayoutInfo] with default values for testing.
- * @param displayFeatures a [List] of [DisplayFeature], the default value is an empty [List].
- * @return [WindowLayoutInfo] with matching [List] of [DisplayFeature]
- * @see WindowLayoutInfoPublisherRule.overrideWindowLayoutInfo
- */
-@Suppress("FunctionName")
-@JvmName("createWindowLayoutInfo")
-@JvmOverloads
-fun TestWindowLayoutInfo(displayFeatures: List<DisplayFeature> = emptyList()): WindowLayoutInfo {
-    return WindowLayoutInfo(displayFeatures)
+class WindowLayoutInfoTestingTest {
+
+    @Test
+    fun testWindowLayoutInfo() {
+        val expected = TestWindowLayoutInfo()
+        val actual = WindowLayoutInfo(emptyList())
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    @OptIn(ExperimentalWindowApi::class)
+    fun testWindowLayoutInfo_foldingFeature() {
+        val feature = FoldingFeature(Rect(0, 1, 2, 3))
+        val expected = TestWindowLayoutInfo(listOf(feature))
+        val actual = WindowLayoutInfo(listOf(feature))
+
+        assertEquals(expected, actual)
+    }
 }
