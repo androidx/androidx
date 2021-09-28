@@ -89,10 +89,9 @@ internal class CardTestCase : LayeredComposeTestCase() {
             title = {
                 Text("TitleCard")
             },
-            body = {
-                Text("body")
-            },
-        )
+        ) {
+            Text("body")
+        }
     }
 
     @Composable
