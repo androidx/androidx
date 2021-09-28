@@ -16,6 +16,8 @@
 
 package androidx.car.app.model;
 
+import static androidx.car.app.model.Action.FLAG_PRIMARY;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -61,6 +63,20 @@ public class ActionStripTest {
 
         // Duplicated custom types will not throw.
         new ActionStrip.Builder().addAction(action1).addAction(action2).addAction(action2).build();
+    }
+
+    @Test
+    public void unsupportedPrimaryActions_throws() {
+        Action primaryAction = new Action.Builder().setTitle("primaryAction")
+                .setOnClickListener(() -> {})
+                .setFlags(FLAG_PRIMARY).build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ActionStrip.Builder()
+                              .addAction(primaryAction)
+        );
+
     }
 
     @Test

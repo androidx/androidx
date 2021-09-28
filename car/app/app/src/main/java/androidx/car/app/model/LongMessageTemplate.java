@@ -16,7 +16,7 @@
 
 package androidx.car.app.model;
 
-import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY;
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 
@@ -240,7 +240,8 @@ public final class LongMessageTemplate implements Template {
          * <h4>Requirements</h4>
          *
          * This template allows up to 2 {@link Action}s in its body, and they must use a
-         * {@link androidx.car.app.model.ParkedOnlyOnClickListener}.
+         * {@link androidx.car.app.model.ParkedOnlyOnClickListener}. One of these actions can be
+         * declared as primary via {@link Action.Builder#setFlags}.
          *
          * Each action's title color can be customized with {@link ForegroundCarColorSpan}
          * instances. Any other span is not supported.
@@ -257,7 +258,7 @@ public final class LongMessageTemplate implements Template {
             }
 
             mActionList.add(action);
-            ACTIONS_CONSTRAINTS_BODY.validateOrThrow(mActionList);
+            ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION.validateOrThrow(mActionList);
             return this;
         }
 
