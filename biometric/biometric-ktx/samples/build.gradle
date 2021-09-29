@@ -35,3 +35,10 @@ androidx {
     inceptionYear = "2021"
     description = "Contains the sample code for the AndroidX Biometric library"
 }
+
+android {
+    lintOptions {
+        // Crashes due tob/187418637
+        disable "EnforceSampledAnnotation"
+    }
+}
