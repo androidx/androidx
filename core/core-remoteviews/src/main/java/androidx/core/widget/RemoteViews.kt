@@ -26,6 +26,7 @@ import androidx.annotation.DimenRes
 import androidx.annotation.DoNotInline
 import androidx.annotation.DrawableRes
 import androidx.annotation.IdRes
+import androidx.annotation.LayoutRes
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
@@ -2992,6 +2993,38 @@ public fun RemoteViews.setViewStateDescription(@IdRes viewId: Int, @StringRes re
 @RequiresApi(31)
 public fun RemoteViews.setViewStateDescriptionAttr(@IdRes viewId: Int, @AttrRes resId: Int) {
     Api31Impl.setCharSequenceAttr(this, viewId, "setStateDescription", resId)
+}
+
+/**
+ * Equivalent to calling [android.view.ViewStub.setInflatedId].
+ *
+ * Note that ViewStub may be used in RemoteViews layouts as of API 16.
+ *
+ * @param viewId The id of the target view
+ * @param inflatedId A positive integer used to identify the inflated view or
+ * [android.view.View.NO_ID] if the inflated view should keep its id.
+ */
+@RequiresApi(16)
+public fun RemoteViews.setViewStubInflatedId(@IdRes viewId: Int, inflatedId: Int) {
+    requireSdk(16, "setInflatedId")
+    setInt(viewId, "setInflatedId", inflatedId)
+}
+
+/**
+ * Equivalent to calling [android.view.ViewStub.setLayoutResource].
+ *
+ * Note that ViewStub may be used in RemoteViews layouts as of API 16.
+ *
+ * @param viewId The id of the target view
+ * @param layoutResource A valid layout resource identifier (different from 0).
+ */
+@RequiresApi(16)
+public fun RemoteViews.setViewStubLayoutResource(
+    @IdRes viewId: Int,
+    @LayoutRes layoutResource: Int
+) {
+    requireSdk(16, "setLayoutResource")
+    setInt(viewId, "setLayoutResource", layoutResource)
 }
 
 /**
