@@ -22,8 +22,8 @@
     <string name="abc_action_menu_overflow_description" msgid="3937310113216875497">"మరిన్ని ఆప్షన్‌లు"</string>
     <string name="abc_toolbar_collapse_description" msgid="1656852541809559762">"కుదిస్తుంది"</string>
     <string name="abc_searchview_description_search" msgid="3417662926640357176">"సెర్చ్"</string>
-    <string name="abc_search_hint" msgid="7208076849092622260">"వెతకండి…"</string>
-    <string name="abc_searchview_description_query" msgid="693312494995508443">"శోధన ప్రశ్న"</string>
+    <string name="abc_search_hint" msgid="7208076849092622260">"సెర్చ్ చేయండి…"</string>
+    <string name="abc_searchview_description_query" msgid="693312494995508443">"సెర్చ్ క్వెరీ"</string>
     <string name="abc_searchview_description_clear" msgid="3741173234950517107">"ప్రశ్నను తీసివేస్తుంది"</string>
     <string name="abc_searchview_description_submit" msgid="1486535517437947103">"ప్రశ్నని సమర్పిస్తుంది"</string>
     <string name="abc_searchview_description_voice" msgid="2293578557972875415">"వాయిస్ సెర్చ్"</string>
