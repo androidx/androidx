@@ -50,6 +50,7 @@ dependencies {
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinReflect)
     // TODO(b/197638718): Remove when tiles-testing dependencies are fixed.
     testImplementation(project(":wear:tiles:tiles-renderer"))
     testImplementation(project(":wear:tiles:tiles-testing"))

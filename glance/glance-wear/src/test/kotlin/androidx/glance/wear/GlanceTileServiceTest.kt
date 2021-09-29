@@ -33,6 +33,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalStdlibApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -77,10 +78,9 @@ class GlanceTileServiceTest {
         assertThat(entry.validity).isNull()
 
         // It always emits a box as the root-level layout.
-        val box = entry.layout!!.root!! as LayoutElementBuilders.Box
+        val box = assertIs<LayoutElementBuilders.Box>(entry.layout!!.root!!)
         assertThat(box.contents).hasSize(1)
-        assertThat(box.contents[0]).isInstanceOf(LayoutElementBuilders.Text::class.java)
-        val text = box.contents[0] as LayoutElementBuilders.Text
+        val text = assertIs<LayoutElementBuilders.Text>(box.contents[0])
 
         assertThat(text.text!!.value).isEqualTo("Hello World!")
     }
