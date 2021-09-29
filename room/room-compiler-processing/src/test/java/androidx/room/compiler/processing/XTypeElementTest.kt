@@ -782,6 +782,69 @@ class XTypeElementTest {
     }
 
     @Test
+    fun overrideMethodWithCovariantReturnType() {
+        val src = Source.kotlin(
+            "ParentWithExplicitOverride.kt",
+            """
+            interface ParentWithExplicitOverride: ChildInterface, Child {
+                override fun child(): Child
+            }
+
+            interface ParentWithoutExplicitOverride: ChildInterface, Child
+
+            interface Child: ChildInterface {
+                override fun child(): Child
+            }
+
+            interface ChildInterface {
+                fun child(): ChildInterface
+            }
+            """.trimIndent()
+        )
+
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            val objectMethodNames = invocation.processingEnv.requireTypeElement(Any::class)
+                .getAllMethods().names()
+            fun XMethodElement.signature(
+                owner: XType
+            ): String {
+                val methodType = this.asMemberOf(owner)
+                val params = methodType.parameterTypes.joinToString(",") {
+                    it.typeName.toString()
+                }
+                return "$name($params):${returnType.typeName}"
+            }
+
+            fun XTypeElement.allMethodSignatures(): List<String> = getAllMethods().filterNot {
+                it.name in objectMethodNames
+            }.map { it.signature(this.type) }.toList()
+
+            invocation.processingEnv.requireTypeElement(
+                "ParentWithExplicitOverride"
+            ).let { parent ->
+                assertWithMessage(parent.qualifiedName).that(
+                    parent.allMethodSignatures()
+                ).containsExactly(
+                    "child():Child"
+                )
+            }
+
+            // TODO(b/201438939): The "child():ChildInterface" method should not appear in the list
+            //  since it is overridden by the "child():Child" method.
+            invocation.processingEnv.requireTypeElement(
+                "ParentWithoutExplicitOverride"
+            ).let { parent ->
+                assertWithMessage(parent.qualifiedName).that(
+                    parent.allMethodSignatures()
+                ).containsExactly(
+                    "child():ChildInterface",
+                    "child():Child"
+                )
+            }
+        }
+    }
+
+    @Test
     fun allMethods() {
         val src = Source.kotlin(
             "Foo.kt",
