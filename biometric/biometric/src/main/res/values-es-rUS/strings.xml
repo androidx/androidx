@@ -30,32 +30,18 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"No se estableció ningún PIN, patrón ni contraseña."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Este dispositivo no admite PIN, patrón ni contraseña."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Ícono de huella dactilar"</string>
-    <!-- no translation found for use_fingerprint_label (6961788485681412417) -->
-    <skip />
-    <!-- no translation found for use_face_label (6533512708069459542) -->
-    <skip />
-    <!-- no translation found for use_biometric_label (6524145989441579428) -->
-    <skip />
-    <!-- no translation found for use_screen_lock_label (5459869335976243512) -->
-    <skip />
-    <!-- no translation found for use_fingerprint_or_screen_lock_label (7577690399303139443) -->
-    <skip />
-    <!-- no translation found for use_face_or_screen_lock_label (2116180187159450292) -->
-    <skip />
-    <!-- no translation found for use_biometric_or_screen_lock_label (5385448280139639016) -->
-    <skip />
-    <!-- no translation found for fingerprint_prompt_message (7449360011861769080) -->
-    <skip />
-    <!-- no translation found for face_prompt_message (2282389249605674226) -->
-    <skip />
-    <!-- no translation found for biometric_prompt_message (1160635338192065472) -->
-    <skip />
-    <!-- no translation found for screen_lock_prompt_message (5659570757430909869) -->
-    <skip />
-    <!-- no translation found for fingerprint_or_screen_lock_prompt_message (8382576858490514495) -->
-    <skip />
-    <!-- no translation found for face_or_screen_lock_prompt_message (4562557128765735254) -->
-    <skip />
-    <!-- no translation found for biometric_or_screen_lock_prompt_message (2102429900219199821) -->
-    <skip />
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"Usar huella dactilar"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"Usar rostro"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"Usar datos biométricos"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"Usar bloqueo de pantalla"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Usar huella dactilar o bloqueo de pantalla"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Usar rostro o bloqueo de pantalla"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Usar datos biométricos o bloqueo de pantalla"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Usa tu huella dactilar para continuar"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"Usa tu rostro para continuar"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"Usa tus datos biométricos para continuar"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"Ingresa tu bloqueo de pantalla para continuar"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"Usa tu huella dactilar o bloqueo de pantalla para continuar"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"Usa tu rostro o bloqueo de pantalla para continuar"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"Usa tus datos biométricos o el bloqueo de pantalla para continuar"</string>
 </resources>
