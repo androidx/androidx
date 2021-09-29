@@ -42,6 +42,11 @@ internal open class JankStatsApi16Impl(
 
     lateinit var viewTreeObserver: ViewTreeObserver
 
+    // Must cache this at init time, from view, since some subclasses will not receive callbacks
+    // on the UI thread, so they will not have access to the appropriate Choreographer for
+    // frame timing values
+    val choreographer = Choreographer.getInstance()
+
     private val onPreDrawListener: ViewTreeObserver.OnPreDrawListener =
         object : ViewTreeObserver.OnPreDrawListener {
 
@@ -52,9 +57,7 @@ internal open class JankStatsApi16Impl(
                     decorView.handler.sendMessageAtFrontOfQueue(
                         Message.obtain(decorView.handler) {
                             val now = System.nanoTime()
-                            val frameStart = choreographerLastFrameTimeField.get(
-                                Choreographer.getInstance()
-                            ) as Long
+                            val frameStart = getFrameStartTime()
                             val expectedDuration = getExpectedFrameDuration(decorView) *
                                 JankStats.jankHeuristicMultiplier
                             jankStats.logFrameData(
@@ -85,6 +88,10 @@ internal open class JankStatsApi16Impl(
                 viewTreeObserver.removeOnPreDrawListener(onPreDrawListener)
             }
         }
+    }
+
+    internal open fun getFrameStartTime(): Long {
+        return choreographerLastFrameTimeField.get(choreographer) as Long
     }
 
     @Suppress("deprecation") /* defaultDisplay */
