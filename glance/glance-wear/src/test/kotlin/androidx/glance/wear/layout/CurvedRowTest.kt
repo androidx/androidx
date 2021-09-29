@@ -16,7 +16,6 @@
 
 package androidx.glance.wear.layout
 
-import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 import androidx.glance.findModifier
 import androidx.glance.layout.PaddingModifier
@@ -31,7 +30,7 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
 
-@OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class CurvedRowTest {
     private lateinit var fakeCoroutineScope: TestCoroutineScope
 

@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
-import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 
 /**
@@ -31,7 +30,6 @@ import androidx.glance.Modifier
  *
  * @param remoteViews the views to add to the composition.
  */
-@OptIn(GlanceInternalApi::class)
 @Composable
 fun AndroidRemoteViews(remoteViews: RemoteViews) {
     AndroidRemoteViews(remoteViews, View.NO_ID) { }
@@ -46,7 +44,6 @@ fun AndroidRemoteViews(remoteViews: RemoteViews) {
  * any children defined in the [content] block will be added with [RemoteViews.addView] (or
  * [RemoteViews.addStableView] if available on the system).
  */
-@OptIn(GlanceInternalApi::class)
 @Composable
 fun AndroidRemoteViews(
     remoteViews: RemoteViews,
@@ -63,7 +60,6 @@ fun AndroidRemoteViews(
     )
 }
 
-@OptIn(GlanceInternalApi::class)
 internal class EmittableAndroidRemoteViews : EmittableWithChildren() {
     override var modifier: Modifier = Modifier
 

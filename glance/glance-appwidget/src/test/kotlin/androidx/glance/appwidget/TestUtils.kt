@@ -27,12 +27,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
 import androidx.glance.Applier
-import androidx.glance.GlanceInternalApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 
-@OptIn(GlanceInternalApi::class)
 internal suspend fun runTestingComposition(content: @Composable () -> Unit): RemoteViewsRoot =
     coroutineScope {
         val root = RemoteViewsRoot(10)

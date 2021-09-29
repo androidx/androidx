@@ -1,4 +1,3 @@
-@file:OptIn(GlanceInternalApi::class)
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -17,7 +16,6 @@
 
 package androidx.glance.action
 
-import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 import androidx.glance.findModifier
 import org.junit.Test

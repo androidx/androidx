@@ -1,4 +1,3 @@
-@file:OptIn(GlanceInternalApi::class)
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -22,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
-import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 import androidx.glance.layout.Alignment
 
@@ -89,7 +87,6 @@ private fun applyListScope(content: LazyListScope.() -> Unit): @Composable () ->
     }
 }
 
-@OptIn(GlanceInternalApi::class)
 @Composable
 private fun LazyListItem(
     itemId: Long,
@@ -230,7 +227,6 @@ inline fun <T> LazyListScope.itemsIndexed(
     itemContent(it, items[it])
 }
 
-@OptIn(GlanceInternalApi::class)
 internal abstract class EmittableLazyList : EmittableWithChildren() {
     override var modifier: Modifier = Modifier
     public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
@@ -239,7 +235,6 @@ internal abstract class EmittableLazyList : EmittableWithChildren() {
         "EmittableLazyList(modifier=$modifier, children=[\n${childrenToString()}\n])"
 }
 
-@OptIn(GlanceInternalApi::class)
 internal class EmittableLazyListItem : EmittableWithChildren() {
     override var modifier: Modifier = Modifier
     var itemId: Long = 0

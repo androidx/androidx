@@ -16,14 +16,15 @@
 
 package androidx.glance.layout
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
-import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 
-@GlanceInternalApi
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class EmittableColumn : EmittableWithChildren() {
     override var modifier: Modifier = Modifier
     public var verticalAlignment: Alignment.Vertical = Alignment.Top
@@ -45,7 +46,6 @@ public class EmittableColumn : EmittableWithChildren() {
  *  than the width of the [Column]
  * @param content The content inside the [Column]
  */
-@OptIn(GlanceInternalApi::class)
 @Composable
 public fun Column(
     modifier: Modifier = Modifier,

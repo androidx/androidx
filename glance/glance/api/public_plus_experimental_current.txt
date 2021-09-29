@@ -1,15 +1,6 @@
 // Signature format: 4.0
 package androidx.glance {
 
-  @androidx.glance.GlanceInternalApi public final class Applier extends androidx.compose.runtime.AbstractApplier<androidx.glance.Emittable> {
-    ctor public Applier(androidx.glance.EmittableWithChildren root);
-    method public void insertBottomUp(int index, androidx.glance.Emittable instance);
-    method public void insertTopDown(int index, androidx.glance.Emittable instance);
-    method public void move(int from, int to, int count);
-    method protected void onClear();
-    method public void remove(int index, int count);
-  }
-
   public final class CombinedModifier implements androidx.glance.Modifier {
     ctor public CombinedModifier(androidx.glance.Modifier outer, androidx.glance.Modifier inner);
     method public boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.Modifier.Element,java.lang.Boolean> predicate);
@@ -21,22 +12,6 @@ package androidx.glance {
   public final class CompositionLocalsKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> getLocalContext();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.unit.DpSize> getLocalSize();
-  }
-
-  @androidx.glance.GlanceInternalApi public interface Emittable {
-    method public androidx.glance.Modifier getModifier();
-    method public void setModifier(androidx.glance.Modifier modifier);
-    property public abstract androidx.glance.Modifier modifier;
-  }
-
-  @androidx.glance.GlanceInternalApi public abstract class EmittableWithChildren implements androidx.glance.Emittable {
-    ctor public EmittableWithChildren(optional int maxDepth);
-    method protected final String childrenToString();
-    method public final java.util.List<androidx.glance.Emittable> getChildren();
-    property public final java.util.List<androidx.glance.Emittable> children;
-  }
-
-  @kotlin.RequiresOptIn(message="This API is used for the implementation of androidx.glance, and should " + "not be used by API consumers.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public @interface GlanceInternalApi {
   }
 
   @androidx.compose.runtime.Stable public interface Modifier {
@@ -63,7 +38,6 @@ package androidx.glance {
   }
 
   public final class UtilsKt {
-    method @androidx.glance.GlanceInternalApi public static inline <reified T> T! findModifier(androidx.glance.Modifier);
   }
 
 }
@@ -75,18 +49,6 @@ package androidx.glance.action {
 
   public final class ActionKt {
     method public static androidx.glance.Modifier clickable(androidx.glance.Modifier, androidx.glance.action.Action onClick);
-  }
-
-  @androidx.glance.GlanceInternalApi public final class ActionModifier implements androidx.glance.Modifier.Element {
-    ctor public ActionModifier(androidx.glance.action.Action action);
-    method public androidx.glance.action.Action getAction();
-    property public final androidx.glance.action.Action action;
-  }
-
-  @androidx.glance.GlanceInternalApi public final class LaunchActivityAction implements androidx.glance.action.Action {
-    ctor public LaunchActivityAction(Class<? extends android.app.Activity> activityClass);
-    method public Class<? extends android.app.Activity> getActivityClass();
-    property public final Class<? extends android.app.Activity> activityClass;
   }
 
   public final class LaunchActivityActionKt {
@@ -174,23 +136,6 @@ package androidx.glance.layout {
     method @androidx.compose.runtime.Composable public static void Column(optional androidx.glance.Modifier modifier, optional int verticalAlignment, optional int horizontalAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
-  @androidx.glance.GlanceInternalApi public abstract sealed class Dimension {
-  }
-
-  public static final class Dimension.Dp extends androidx.glance.layout.Dimension {
-    ctor public Dimension.Dp(float dp);
-    method public float getDp();
-    property public final float dp;
-  }
-
-  public static final class Dimension.Expand extends androidx.glance.layout.Dimension {
-    field public static final androidx.glance.layout.Dimension.Expand INSTANCE;
-  }
-
-  public static final class Dimension.Wrap extends androidx.glance.layout.Dimension {
-    field public static final androidx.glance.layout.Dimension.Wrap INSTANCE;
-  }
-
   public final class DimensionKt {
     method public static androidx.glance.Modifier expandHeight(androidx.glance.Modifier);
     method public static androidx.glance.Modifier expandWidth(androidx.glance.Modifier);
@@ -200,55 +145,6 @@ package androidx.glance.layout {
     method public static androidx.glance.Modifier width(androidx.glance.Modifier, float width);
     method public static androidx.glance.Modifier wrapHeight(androidx.glance.Modifier);
     method public static androidx.glance.Modifier wrapWidth(androidx.glance.Modifier);
-  }
-
-  @androidx.glance.GlanceInternalApi public final class EmittableBox extends androidx.glance.EmittableWithChildren {
-    ctor public EmittableBox();
-    method public androidx.glance.layout.Alignment getContentAlignment();
-    method public androidx.glance.Modifier getModifier();
-    method public void setContentAlignment(androidx.glance.layout.Alignment contentAlignment);
-    method public void setModifier(androidx.glance.Modifier modifier);
-    property public final androidx.glance.layout.Alignment contentAlignment;
-    property public androidx.glance.Modifier modifier;
-  }
-
-  @androidx.glance.GlanceInternalApi public final class EmittableColumn extends androidx.glance.EmittableWithChildren {
-    ctor public EmittableColumn();
-    method public int getHorizontalAlignment();
-    method public androidx.glance.Modifier getModifier();
-    method public int getVerticalAlignment();
-    method public void setHorizontalAlignment(int horizontalAlignment);
-    method public void setModifier(androidx.glance.Modifier modifier);
-    method public void setVerticalAlignment(int verticalAlignment);
-    property public final int horizontalAlignment;
-    property public androidx.glance.Modifier modifier;
-    property public final int verticalAlignment;
-  }
-
-  @androidx.glance.GlanceInternalApi public final class EmittableRow extends androidx.glance.EmittableWithChildren {
-    ctor public EmittableRow();
-    method public int getHorizontalAlignment();
-    method public androidx.glance.Modifier getModifier();
-    method public int getVerticalAlignment();
-    method public void setHorizontalAlignment(int horizontalAlignment);
-    method public void setModifier(androidx.glance.Modifier modifier);
-    method public void setVerticalAlignment(int verticalAlignment);
-    property public final int horizontalAlignment;
-    property public androidx.glance.Modifier modifier;
-    property public final int verticalAlignment;
-  }
-
-  @androidx.glance.GlanceInternalApi public final class EmittableText implements androidx.glance.Emittable {
-    ctor public EmittableText();
-    method public androidx.glance.Modifier getModifier();
-    method public androidx.glance.layout.TextStyle? getStyle();
-    method public String getText();
-    method public void setModifier(androidx.glance.Modifier modifier);
-    method public void setStyle(androidx.glance.layout.TextStyle? style);
-    method public void setText(String text);
-    property public androidx.glance.Modifier modifier;
-    property public final androidx.glance.layout.TextStyle? style;
-    property public final String text;
   }
 
   public final inline class FontStyle {
@@ -278,31 +174,11 @@ package androidx.glance.layout {
     property public final int Normal;
   }
 
-  @androidx.glance.GlanceInternalApi public final class HeightModifier implements androidx.glance.Modifier.Element {
-    ctor public HeightModifier(androidx.glance.layout.Dimension height);
-    method public androidx.glance.layout.Dimension getHeight();
-    property public final androidx.glance.layout.Dimension height;
-  }
-
   public final class PaddingKt {
     method public static androidx.glance.Modifier absolutePadding(androidx.glance.Modifier, optional float left, optional float top, optional float right, optional float bottom);
     method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional float start, optional float top, optional float end, optional float bottom);
     method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional float horizontal, optional float vertical);
     method public static androidx.glance.Modifier padding(androidx.glance.Modifier, float all);
-  }
-
-  @androidx.glance.GlanceInternalApi public final class PaddingModifier implements androidx.glance.Modifier.Element {
-    ctor public PaddingModifier(optional float start, optional float top, optional float end, optional float bottom, boolean rtlAware);
-    method public float getBottom();
-    method public float getEnd();
-    method public boolean getRtlAware();
-    method public float getStart();
-    method public float getTop();
-    property public final float bottom;
-    property public final float end;
-    property public final boolean rtlAware;
-    property public final float start;
-    property public final float top;
   }
 
   public final class RowKt {
@@ -337,12 +213,6 @@ package androidx.glance.layout {
     property public final androidx.glance.layout.FontStyle? fontStyle;
     property public final androidx.glance.layout.FontWeight? fontWeight;
     property public final androidx.glance.layout.TextDecoration? textDecoration;
-  }
-
-  @androidx.glance.GlanceInternalApi public final class WidthModifier implements androidx.glance.Modifier.Element {
-    ctor public WidthModifier(androidx.glance.layout.Dimension width);
-    method public androidx.glance.layout.Dimension getWidth();
-    property public final androidx.glance.layout.Dimension width;
   }
 
 }

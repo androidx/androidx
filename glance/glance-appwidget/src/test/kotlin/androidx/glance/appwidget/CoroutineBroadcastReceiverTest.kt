@@ -22,7 +22,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Looper.getMainLooper
 import android.util.Log
-import androidx.glance.GlanceInternalApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
@@ -39,7 +38,6 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
-@OptIn(GlanceInternalApi::class)
 @RunWith(RobolectricTestRunner::class)
 class CoroutineBroadcastReceiverTest {
 

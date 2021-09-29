@@ -1,4 +1,3 @@
-@file:OptIn(GlanceInternalApi::class)
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -37,10 +36,9 @@ import androidx.annotation.RequiresApi
 import androidx.core.widget.setLinearLayoutGravity
 import androidx.core.widget.setRelativeLayoutGravity
 import androidx.glance.Emittable
-import androidx.glance.GlanceInternalApi
+import androidx.glance.appwidget.layout.EmittableAndroidRemoteViews
 import androidx.glance.appwidget.layout.EmittableLazyColumn
 import androidx.glance.appwidget.layout.EmittableLazyListItem
-import androidx.glance.appwidget.layout.EmittableAndroidRemoteViews
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.EmittableColumn

@@ -1,4 +1,3 @@
-@file:OptIn(GlanceInternalApi::class)
 
 /*
  * Copyright 2021 The Android Open Source Project
@@ -18,14 +17,16 @@
 
 package androidx.glance.layout
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.glance.Applier
 import androidx.glance.Emittable
-import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
+import androidx.glance.layout.FontStyle.Companion.Italic
+import androidx.glance.layout.FontStyle.Companion.Normal
 import androidx.glance.unit.Sp
 
 /**
@@ -187,7 +188,8 @@ public inline class TextDecoration internal constructor(private val mask: Int) {
     }
 }
 
-@GlanceInternalApi
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class EmittableText : Emittable {
     override var modifier: Modifier = Modifier
     public var text: String = ""

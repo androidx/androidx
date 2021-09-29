@@ -27,7 +27,6 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
 import androidx.core.content.ContextCompat
 import androidx.glance.Applier
-import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -66,7 +65,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class ScreenshotTests {
     @get:Rule
     var screenshotRule = AndroidXScreenshotTestRule("glance/glance-wear")

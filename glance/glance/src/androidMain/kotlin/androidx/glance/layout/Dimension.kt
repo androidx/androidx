@@ -1,4 +1,3 @@
-@file:OptIn(GlanceInternalApi::class)
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -17,7 +16,7 @@
 
 package androidx.glance.layout
 
-import androidx.glance.GlanceInternalApi
+import androidx.annotation.RestrictTo
 import androidx.glance.Modifier
 import androidx.glance.unit.Dp
 
@@ -26,16 +25,22 @@ import androidx.glance.unit.Dp
  *
  * These should only be used internally; developers should be using the width/height Modifiers
  * below rather than this class directly.
+ *
+ * @suppress
  */
-@GlanceInternalApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public sealed class Dimension {
     public class Dp(public val dp: androidx.glance.unit.Dp) : Dimension()
     public object Wrap : Dimension()
     public object Expand : Dimension()
 }
 
-/** Modifier to represent the width of an element. */
-@GlanceInternalApi
+/**
+ * Modifier to represent the width of an element.
+ *
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WidthModifier(public val width: Dimension) : Modifier.Element
 
 /** Sets the absolute width of an element, in [Dp]. */
@@ -51,8 +56,12 @@ public fun Modifier.wrapWidth(): Modifier = this.then(WidthModifier(Dimension.Wr
  */
 public fun Modifier.expandWidth(): Modifier = this.then(WidthModifier(Dimension.Expand))
 
-/** Modifier to represent the height of an element. */
-@GlanceInternalApi
+/**
+ * Modifier to represent the height of an element.
+ *
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HeightModifier(public val height: Dimension) : Modifier.Element
 
 /** Sets the absolute height of an element, in [Dp]. */
