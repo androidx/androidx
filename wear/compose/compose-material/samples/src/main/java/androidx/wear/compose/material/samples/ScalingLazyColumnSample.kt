@@ -56,7 +56,6 @@ fun SimpleScalingLazyColumnWithContentPadding() {
     }
 }
 
-@Sampled
 @Composable
 fun ScalingLazyColumnWithHeaders() {
     ScalingLazyColumn {
