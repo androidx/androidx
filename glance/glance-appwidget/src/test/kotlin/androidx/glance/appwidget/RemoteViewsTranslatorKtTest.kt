@@ -40,9 +40,10 @@ import androidx.compose.runtime.Composable
 import androidx.core.view.children
 import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
-import androidx.glance.appwidget.layout.LazyColumn
 import androidx.glance.appwidget.layout.AndroidRemoteViews
+import androidx.glance.appwidget.layout.LazyColumn
 import androidx.glance.appwidget.layout.ReservedItemIdRangeEnd
+import androidx.glance.appwidget.test.R
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -68,7 +69,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.lang.IllegalArgumentException
 import java.util.Locale
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
@@ -695,6 +695,42 @@ class RemoteViewsTranslatorKtTest {
         val actual = assertIs<TextView>(rootLayout.children.single())
         assertThat(actual.text).isEqualTo("Android Remote Views")
     }
+
+    @Test
+    fun canTranslateAndroidRemoteViews_Container() = fakeCoroutineScope.runBlockingTest {
+        val result = runAndTranslate {
+            val providedViews = RemoteViews(context.packageName, R.layout.raw_container)
+            AndroidRemoteViews(
+                providedViews,
+                R.id.raw_container_view
+            ) {
+                Text("inner text 1")
+                Text("inner text 2")
+            }
+        }
+
+        val rootLayout = assertIs<LinearLayout>(context.applyRemoteViews(result))
+        assertThat(rootLayout.orientation).isEqualTo(LinearLayout.VERTICAL)
+        assertThat(rootLayout.childCount).isEqualTo(2)
+        val child1 = assertIs<TextView>(rootLayout.getChildAt(0))
+        assertThat(child1.text.toString()).isEqualTo("inner text 1")
+        val child2 = assertIs<TextView>(rootLayout.getChildAt(1))
+        assertThat(child2.text.toString()).isEqualTo("inner text 2")
+    }
+
+    @Test
+    fun canTranslateAndroidRemoteViews_Container_BadSetupShouldFail() =
+        fakeCoroutineScope.runBlockingTest {
+            assertFailsWith<IllegalStateException> {
+                runAndTranslate {
+                    val providedViews = RemoteViews(context.packageName, R.layout.raw_container)
+                    AndroidRemoteViews(providedViews, View.NO_ID) {
+                        Text("inner text 1")
+                        Text("inner text 2")
+                    }
+                }
+            }
+        }
 
     // Check there is a single span, that it's of the correct type and passes the [check].
     private inline fun <reified T> SpannedString.checkSingleSpan(check: (T) -> Unit) {

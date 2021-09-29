@@ -16,33 +16,58 @@
 
 package androidx.glance.appwidget.layout
 
+import android.view.View
 import android.widget.RemoteViews
+import androidx.annotation.IdRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.glance.Applier
-import androidx.glance.Emittable
+import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 
 /**
  * Add [RemoteViews] into a glance composition.
  *
- * @param remoteViews the views to add to the composition
+ * @param remoteViews the views to add to the composition.
  */
 @OptIn(GlanceInternalApi::class)
 @Composable
 fun AndroidRemoteViews(remoteViews: RemoteViews) {
+    AndroidRemoteViews(remoteViews, View.NO_ID) { }
+}
+
+/**
+ * Add [RemoteViews] into a glance composition as a container.
+ *
+ * @param remoteViews the views to add to the composition.
+ * @param containerViewId defines the view id of the container in the [RemoteViews] provided. Any
+ * pre-existing children of that view will be removed with [RemoteViews.removeAllViews], and
+ * any children defined in the [content] block will be added with [RemoteViews.addView] (or
+ * [RemoteViews.addStableView] if available on the system).
+ */
+@OptIn(GlanceInternalApi::class)
+@Composable
+fun AndroidRemoteViews(
+    remoteViews: RemoteViews,
+    @IdRes containerViewId: Int,
+    content: @Composable () -> Unit,
+) {
     ComposeNode<EmittableAndroidRemoteViews, Applier>(
         factory = ::EmittableAndroidRemoteViews,
         update = {
             this.set(remoteViews) { this.remoteViews = it }
+            this.set(containerViewId) { this.containerViewId = it }
         },
+        content = content
     )
 }
 
 @OptIn(GlanceInternalApi::class)
-internal class EmittableAndroidRemoteViews : Emittable {
+internal class EmittableAndroidRemoteViews : EmittableWithChildren() {
     override var modifier: Modifier = Modifier
 
     lateinit var remoteViews: RemoteViews
+
+    var containerViewId: Int = View.NO_ID
 }
