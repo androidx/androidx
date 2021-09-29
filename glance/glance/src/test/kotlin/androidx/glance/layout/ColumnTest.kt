@@ -25,6 +25,7 @@ import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
+import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ColumnTest {
@@ -64,7 +65,7 @@ class ColumnTest {
     }
 
     @Test
-    fun createComposableRowWithChildren() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableColumnWithChildren() = fakeCoroutineScope.runBlockingTest {
         val root = runTestingComposition {
             Column {
                 Box(contentAlignment = Alignment.BottomCenter) {}
@@ -78,5 +79,21 @@ class ColumnTest {
 
         assertThat(leafBox0.contentAlignment).isEqualTo(Alignment.BottomCenter)
         assertThat(leafBox1.contentAlignment).isEqualTo(Alignment.TopCenter)
+    }
+
+    @Test
+    fun createComposableColumnWithWeightChildren() = fakeCoroutineScope.runBlockingTest {
+        val root = runTestingComposition {
+            Column {
+                Box(modifier = Modifier.defaultWeight()) { }
+            }
+        }
+
+        val column = assertIs<EmittableColumn>(root.children[0])
+        val box = assertIs<EmittableBox>(column.children[0])
+
+        val heightModifier = checkNotNull(box.modifier.findModifier<HeightModifier>())
+        assertThat(heightModifier.height).isSameInstanceAs(Dimension.Expand)
+        assertThat(box.modifier.findModifier<WidthModifier>()).isNull()
     }
 }

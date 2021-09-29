@@ -53,7 +53,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 internal fun translateComposition(context: Context, appWidgetId: Int, element: RemoteViewsRoot) =
     translateComposition(
-        TranslationContext(context, appWidgetId, SizeContext.DoNotExpand),
+        TranslationContext(context, appWidgetId),
         element
     )
 
@@ -73,39 +73,9 @@ private fun translateComposition(
 internal data class TranslationContext(
     val context: Context,
     val appWidgetId: Int,
-    val sizeContext: SizeContext,
     val listCount: AtomicInteger = AtomicInteger(0),
     val areLazyCollectionsAllowed: Boolean = true
 )
-
-/**
- * Context in which the size should be evaluated.
- *
- * For example, if [allowExpandingWidth] is true, then a width set to
- * [androidx.glance.layout.Dimension.Expand] should be interpreted as expanding, but if
- * [allowExpandingWidth] is false, it should be interpreted as matching its parent's width.
- */
-internal data class SizeContext(
-    val allowExpandingWidth: Boolean,
-    val allowExpandingHeight: Boolean
-) {
-    companion object {
-        /**
-         * There is no expansion possible in this layout.
-         */
-        val DoNotExpand = SizeContext(allowExpandingWidth = false, allowExpandingHeight = false)
-
-        /**
-         * The layout lays views horizontally.
-         */
-        val HorizontalLayout = SizeContext(allowExpandingWidth = true, allowExpandingHeight = false)
-
-        /**
-         * The layout lays views vertically.
-         */
-        val VerticalLayout = SizeContext(allowExpandingWidth = false, allowExpandingHeight = true)
-    }
-}
 
 internal fun translateChild(
     translationContext: TranslationContext,
@@ -152,7 +122,7 @@ private fun translateEmittableBox(
     element: EmittableBox
 ): RemoteViews {
     val layoutDef =
-        selectLayout(LayoutSelector.Type.Box, element.modifier, translationContext.sizeContext)
+        selectLayout(LayoutSelector.Type.Box, element.modifier)
     return remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->
             rv.setRelativeLayoutGravity(layoutDef.mainViewId, element.contentAlignment.toGravity())
@@ -165,8 +135,7 @@ private fun translateEmittableBox(
             rv.setChildren(
                 translationContext,
                 layoutDef.mainViewId,
-                element.children,
-                SizeContext.DoNotExpand
+                element.children
             )
         }
 }
@@ -176,7 +145,7 @@ private fun translateEmittableRow(
     element: EmittableRow
 ): RemoteViews {
     val layoutDef =
-        selectLayout(LayoutSelector.Type.Row, element.modifier, translationContext.sizeContext)
+        selectLayout(LayoutSelector.Type.Row, element.modifier)
     return remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->
             rv.setLinearLayoutGravity(
@@ -192,8 +161,7 @@ private fun translateEmittableRow(
             rv.setChildren(
                 translationContext,
                 layoutDef.mainViewId,
-                element.children,
-                SizeContext.HorizontalLayout
+                element.children
             )
         }
 }
@@ -203,7 +171,7 @@ private fun translateEmittableColumn(
     element: EmittableColumn
 ): RemoteViews {
     val layoutDef =
-        selectLayout(LayoutSelector.Type.Column, element.modifier, translationContext.sizeContext)
+        selectLayout(LayoutSelector.Type.Column, element.modifier)
     return remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->
             rv.setLinearLayoutGravity(
@@ -219,8 +187,7 @@ private fun translateEmittableColumn(
             rv.setChildren(
                 translationContext,
                 layoutDef.mainViewId,
-                element.children,
-                SizeContext.VerticalLayout
+                element.children
             )
         }
 }
@@ -230,7 +197,7 @@ private fun translateEmittableText(
     element: EmittableText
 ): RemoteViews {
     val layoutDef =
-        selectLayout(LayoutSelector.Type.Text, element.modifier, translationContext.sizeContext)
+        selectLayout(LayoutSelector.Type.Text, element.modifier)
     return remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->
             rv.setText(
@@ -260,8 +227,7 @@ private fun translateEmittableAndroidRemoteViews(
             setChildren(
                 translationContext,
                 element.containerViewId,
-                element.children,
-                SizeContext.DoNotExpand
+                element.children
             )
         }
     }
@@ -310,14 +276,13 @@ internal fun RemoteViews.setText(context: Context, resId: Int, text: String, sty
 internal fun RemoteViews.setChildren(
     translationContext: TranslationContext,
     viewId: Int,
-    children: Iterable<Emittable>,
-    sizeContext: SizeContext
+    children: Iterable<Emittable>
 ) {
     removeAllViews(viewId)
     children.forEachIndexed { index, child ->
         addChildView(
             viewId,
-            translateChild(translationContext.copy(sizeContext = sizeContext), child),
+            translateChild(translationContext, child),
             index
         )
     }

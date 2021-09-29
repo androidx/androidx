@@ -52,6 +52,7 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
+    testImplementation(libs.kotlinReflect)
 
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":core:core-ktx"))
@@ -65,6 +66,7 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinReflect)
 }
 
 android {

@@ -38,8 +38,8 @@ import androidx.glance.layout.Row
 import androidx.glance.layout.Text
 import androidx.glance.layout.TextDecoration
 import androidx.glance.layout.TextStyle
-import androidx.glance.layout.expandHeight
-import androidx.glance.layout.expandWidth
+import androidx.glance.layout.fillMaxHeight
+import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.size
 import androidx.glance.unit.Color
 import androidx.glance.unit.dp
@@ -148,7 +148,7 @@ class ScreenshotTests {
 
     private suspend fun runComposition(content: @Composable () -> Unit) = coroutineScope {
         val root = EmittableBox()
-        root.modifier = Modifier.expandWidth().expandHeight()
+        root.modifier = Modifier.fillMaxWidth().fillMaxHeight()
         root.contentAlignment = Alignment.Center
 
         val applier = Applier(root)

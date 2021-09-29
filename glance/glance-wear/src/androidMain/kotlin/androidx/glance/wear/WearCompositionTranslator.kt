@@ -127,6 +127,7 @@ private fun Dimension.toContainerDimension(): DimensionBuilders.ContainerDimensi
     when (this) {
         is Dimension.Wrap -> wrap()
         is Dimension.Expand -> expand()
+        is Dimension.Fill -> expand()
         is Dimension.Dp -> dp(this.dp.value)
     }
 

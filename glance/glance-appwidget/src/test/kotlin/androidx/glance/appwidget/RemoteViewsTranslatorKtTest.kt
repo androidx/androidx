@@ -699,8 +699,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslateAndroidRemoteViews() = fakeCoroutineScope.runBlockingTest {
-        val sizeContext = SizeContext.DoNotExpand
-        val layoutDef = selectLayout(LayoutSelector.Type.Text, Modifier, sizeContext)
+        val layoutDef = selectLayout(LayoutSelector.Type.Text, Modifier)
         val providedViews = RemoteViews(context.packageName, layoutDef.layoutId).also {
             it.setTextViewText(R.id.glanceView, "Android Remote Views")
         }

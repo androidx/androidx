@@ -133,18 +133,24 @@ package androidx.glance.layout {
   }
 
   public final class ColumnKt {
-    method @androidx.compose.runtime.Composable public static void Column(optional androidx.glance.Modifier modifier, optional int verticalAlignment, optional int horizontalAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void Column(optional androidx.glance.Modifier modifier, optional int verticalAlignment, optional int horizontalAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.layout.ColumnScope,kotlin.Unit> content);
+  }
+
+  public interface ColumnScope {
+    method public androidx.glance.Modifier defaultWeight(androidx.glance.Modifier);
   }
 
   public final class DimensionKt {
-    method public static androidx.glance.Modifier expandHeight(androidx.glance.Modifier);
-    method public static androidx.glance.Modifier expandWidth(androidx.glance.Modifier);
+    method public static androidx.glance.Modifier fillMaxHeight(androidx.glance.Modifier);
+    method public static androidx.glance.Modifier fillMaxSize(androidx.glance.Modifier);
+    method public static androidx.glance.Modifier fillMaxWidth(androidx.glance.Modifier);
     method public static androidx.glance.Modifier height(androidx.glance.Modifier, float height);
     method public static androidx.glance.Modifier size(androidx.glance.Modifier, float size);
     method public static androidx.glance.Modifier size(androidx.glance.Modifier, float width, float height);
     method public static androidx.glance.Modifier width(androidx.glance.Modifier, float width);
-    method public static androidx.glance.Modifier wrapHeight(androidx.glance.Modifier);
-    method public static androidx.glance.Modifier wrapWidth(androidx.glance.Modifier);
+    method public static androidx.glance.Modifier wrapContentHeight(androidx.glance.Modifier);
+    method public static androidx.glance.Modifier wrapContentSize(androidx.glance.Modifier);
+    method public static androidx.glance.Modifier wrapContentWidth(androidx.glance.Modifier);
   }
 
   public final inline class FontStyle {
@@ -182,7 +188,11 @@ package androidx.glance.layout {
   }
 
   public final class RowKt {
-    method @androidx.compose.runtime.Composable public static void Row(optional androidx.glance.Modifier modifier, optional int horizontalAlignment, optional int verticalAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void Row(optional androidx.glance.Modifier modifier, optional int horizontalAlignment, optional int verticalAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.layout.RowScope,kotlin.Unit> content);
+  }
+
+  public interface RowScope {
+    method public androidx.glance.Modifier defaultWeight(androidx.glance.Modifier);
   }
 
   public final inline class TextDecoration {

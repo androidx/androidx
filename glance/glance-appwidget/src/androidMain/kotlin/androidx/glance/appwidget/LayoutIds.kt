@@ -77,17 +77,16 @@ internal data class LayoutSelector(
  */
 internal fun selectLayout(
     type: LayoutSelector.Type,
-    modifier: Modifier,
-    sizeContext: SizeContext
+    modifier: Modifier
 ): LayoutIds {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        return selectApi31Layout(type, modifier, sizeContext)
+        return selectApi31Layout(type, modifier)
     }
     val widthMod = modifier.findModifier<WidthModifier>()?.width ?: Dimension.Wrap
     val heightMod = modifier.findModifier<HeightModifier>()?.height ?: Dimension.Wrap
     val needResize = widthMod is Dimension.Dp || heightMod is Dimension.Dp
-    val width = widthMod.toSpecSize(sizeContext.allowExpandingWidth)
-    val height = heightMod.toSpecSize(sizeContext.allowExpandingHeight)
+    val width = widthMod.toSpecSize()
+    val height = heightMod.toSpecSize()
     return generatedLayouts[LayoutSelector(type, width, height, needResize)]
         ?: (if (!needResize) generatedLayouts[LayoutSelector(type, width, height, true)] else null)
         ?: throw IllegalArgumentException(
@@ -95,12 +94,12 @@ internal fun selectLayout(
         )
 }
 
-private fun Dimension.toSpecSize(shouldExpand: Boolean): LayoutSelector.Size =
+private fun Dimension.toSpecSize(): LayoutSelector.Size =
     when (this) {
         is Dimension.Dp -> LayoutSelector.Size.Fixed
         is Dimension.Wrap -> LayoutSelector.Size.Wrap
-        is Dimension.Expand ->
-            if (shouldExpand) LayoutSelector.Size.Expand else LayoutSelector.Size.MatchParent
+        is Dimension.Expand -> LayoutSelector.Size.Expand
+        is Dimension.Fill -> LayoutSelector.Size.MatchParent
     }
 
 /**
@@ -109,13 +108,12 @@ private fun Dimension.toSpecSize(shouldExpand: Boolean): LayoutSelector.Size =
  */
 private fun selectApi31Layout(
     type: LayoutSelector.Type,
-    modifier: Modifier,
-    sizeContext: SizeContext
+    modifier: Modifier
 ): LayoutIds {
     val widthMod = modifier.findModifier<WidthModifier>()?.width ?: Dimension.Wrap
     val heightMod = modifier.findModifier<HeightModifier>()?.height ?: Dimension.Wrap
-    val width = widthMod.toSpecSize(sizeContext.allowExpandingWidth)
-    val height = heightMod.toSpecSize(sizeContext.allowExpandingHeight)
+    val width = widthMod.toSpecSize()
+    val height = heightMod.toSpecSize()
     return generatedLayouts[LayoutSelector(type, width, height, canResize = false)]
         ?: throw IllegalArgumentException(
             "Could not find layout for $type, width=$width, height=$height, canResize=false"
