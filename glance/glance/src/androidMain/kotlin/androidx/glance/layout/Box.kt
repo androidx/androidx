@@ -16,14 +16,15 @@
 
 package androidx.glance.layout
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
-import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 
-@GlanceInternalApi
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class EmittableBox : EmittableWithChildren() {
     override var modifier: Modifier = Modifier
     public var contentAlignment: Alignment = Alignment.TopStart
@@ -45,7 +46,6 @@ public class EmittableBox : EmittableWithChildren() {
  * @param contentAlignment The alignment of children within the [Box].
  * @param content The content inside the [Box].
  */
-@OptIn(GlanceInternalApi::class)
 @Composable
 public fun Box(
     modifier: Modifier = Modifier,

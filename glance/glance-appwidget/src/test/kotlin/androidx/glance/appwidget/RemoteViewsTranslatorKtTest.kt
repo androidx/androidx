@@ -38,7 +38,6 @@ import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.core.view.children
-import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 import androidx.glance.appwidget.layout.AndroidRemoteViews
 import androidx.glance.appwidget.layout.LazyColumn
@@ -73,7 +72,7 @@ import java.util.Locale
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 
-@OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class RemoteViewsTranslatorKtTest {
 

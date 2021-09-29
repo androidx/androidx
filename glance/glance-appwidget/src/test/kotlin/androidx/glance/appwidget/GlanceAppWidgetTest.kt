@@ -26,7 +26,6 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.core.os.bundleOf
-import androidx.glance.GlanceInternalApi
 import androidx.glance.LocalSize
 import androidx.glance.layout.Text
 import androidx.glance.unit.DpSize
@@ -47,7 +46,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.test.assertIs
 
-@OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class GlanceAppWidgetTest {
 

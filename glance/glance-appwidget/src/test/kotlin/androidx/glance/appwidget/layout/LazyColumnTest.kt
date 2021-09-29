@@ -16,7 +16,6 @@
 
 package androidx.glance.appwidget.layout
 
-import androidx.glance.GlanceInternalApi
 import androidx.glance.appwidget.runTestingComposition
 import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableText
@@ -30,7 +29,7 @@ import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertIs
 
-@OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class LazyColumnTest {
     private lateinit var fakeCoroutineScope: TestCoroutineScope
 

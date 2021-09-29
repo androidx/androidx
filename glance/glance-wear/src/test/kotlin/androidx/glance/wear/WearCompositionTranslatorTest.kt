@@ -19,7 +19,6 @@ package androidx.glance.wear
 import android.app.Activity
 import android.content.Context
 import androidx.compose.runtime.Composable
-import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 import androidx.glance.action.clickable
 import androidx.glance.action.launchActivityAction
@@ -42,9 +41,9 @@ import androidx.glance.unit.Color
 import androidx.glance.unit.dp
 import androidx.glance.unit.sp
 import androidx.glance.wear.layout.AnchorType
+import androidx.glance.wear.layout.AndroidLayoutElement
 import androidx.glance.wear.layout.CurvedRow
 import androidx.glance.wear.layout.CurvedTextStyle
-import androidx.glance.wear.layout.AndroidLayoutElement
 import androidx.glance.wear.layout.RadialAlignment
 import androidx.glance.wear.layout.background
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
@@ -68,7 +67,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import kotlin.test.assertIs
 
-@OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class WearCompositionTranslatorTest {
     private lateinit var fakeCoroutineScope: TestCoroutineScope

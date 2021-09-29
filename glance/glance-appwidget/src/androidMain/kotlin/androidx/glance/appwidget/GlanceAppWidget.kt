@@ -33,7 +33,6 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Recomposer
 import androidx.glance.Applier
-import androidx.glance.GlanceInternalApi
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.unit.DpSize
@@ -54,7 +53,6 @@ import kotlin.math.min
  * the composition and translate [Content] into a [RemoteViews] which is then sent to the
  * [AppWidgetManager].
  */
-@OptIn(GlanceInternalApi::class)
 public abstract class GlanceAppWidget {
     /**
      * Definition of the UI.

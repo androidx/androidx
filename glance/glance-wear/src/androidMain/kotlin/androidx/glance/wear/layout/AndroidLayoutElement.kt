@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.glance.Applier
 import androidx.glance.Emittable
-import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 import androidx.wear.tiles.LayoutElementBuilders
 
@@ -29,7 +28,6 @@ import androidx.wear.tiles.LayoutElementBuilders
  *
  * @param layoutElement the layout element to add to the composition
  */
-@OptIn(GlanceInternalApi::class)
 @Composable
 fun AndroidLayoutElement(layoutElement: LayoutElementBuilders.LayoutElement) {
     ComposeNode<EmittableAndroidLayoutElement, Applier>(
@@ -40,7 +38,6 @@ fun AndroidLayoutElement(layoutElement: LayoutElementBuilders.LayoutElement) {
     )
 }
 
-@GlanceInternalApi
 internal class EmittableAndroidLayoutElement : Emittable {
     override var modifier: Modifier = Modifier
     lateinit var layoutElement: LayoutElementBuilders.LayoutElement

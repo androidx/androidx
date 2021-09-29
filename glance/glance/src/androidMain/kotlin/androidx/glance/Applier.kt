@@ -16,11 +16,15 @@
 
 package androidx.glance
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.AbstractApplier
 import java.lang.IllegalStateException
 
-/** Applier for the Glance composition. */
-@GlanceInternalApi
+/**
+ * Applier for the Glance composition.
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Applier(root: EmittableWithChildren) : AbstractApplier<Emittable>(root) {
     override fun onClear() {
         (root as EmittableWithChildren).children.clear()

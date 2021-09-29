@@ -1,4 +1,3 @@
-@file:OptIn(GlanceInternalApi::class)
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -16,10 +15,10 @@
  */
 package androidx.glance.layout
 
+import androidx.annotation.RestrictTo
+import androidx.glance.Modifier
 import androidx.glance.unit.Dp
 import androidx.glance.unit.dp
-import androidx.glance.GlanceInternalApi
-import androidx.glance.Modifier
 
 /**
  * Apply additional space along each edge of the content in [Dp]: [start], [top], [end] and
@@ -91,7 +90,8 @@ public fun Modifier.absolutePadding(
     )
 )
 
-@GlanceInternalApi
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PaddingModifier(
     public val start: Dp = 0.dp,
     public val top: Dp = 0.dp,
