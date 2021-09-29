@@ -173,7 +173,7 @@ public final class ExtensionsManager {
                                     }
                                 },
                                 CameraXExecutors.directExecutor());
-                    } catch (NoSuchMethodError | NoClassDefFoundError e) {
+                    } catch (NoSuchMethodError | NoClassDefFoundError | AbstractMethodError e) {
                         Logger.e(TAG, "Failed to initialize extensions. Some classes or methods "
                                 + "are missed in the vendor library. " + e);
                         completer.set(getOrCreateExtensionsManager(
