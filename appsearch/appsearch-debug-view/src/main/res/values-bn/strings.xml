@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="appsearch_no_documents_error" msgid="7957333381856121779">"ডেটাবেসে AppSearch-এর কোনও ডকুমেন্ট খুঁজে পাওয়া যায়নি। ডেটাবেসের নাম ঠিক আছে এবং স্টোরেজের সঠিক ধরন সঠিক বেছে নেওয়া হয়েছে কিনা তা যাচাই করুন।"</string>
+    <string name="appsearch_no_schema_types_error" msgid="5825283982305113887">"কোনও AppSearch স্কিমা খুঁজে পাওয়া যায়নি। ডেটাবেসের নাম ঠিক আছে এবং স্টোরেজের সঠিক ধরন সঠিক বেছে নেওয়া হয়েছে কিনা তা যাচাই করুন।"</string>
+    <string name="appsearch_documents_loading" msgid="1689893533003672860">"AppSearch-এর ডকুমেন্ট লোড করা হচ্ছে..."</string>
+    <string name="appsearch_schema_types_loading" msgid="4961123108404531766">"বিভিন্ন ধরনের AppSearch স্কিমা লোড করা হচ্ছে..."</string>
+    <string name="appsearch_schema_version" msgid="7000254633719373917">"স্কিমা ভার্সন: %d"</string>
+</resources>
