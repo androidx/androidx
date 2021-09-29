@@ -164,7 +164,6 @@ public class DeviceProfileWriter {
             try (InputStream is = fd.createInputStream()) {
                 byte[] baselineVersion = ProfileTranscoder.readHeader(is, MAGIC_PROF);
                 mProfile = ProfileTranscoder.readProfile(is, baselineVersion, mApkName);
-                return this;
             }
         }  catch (FileNotFoundException e) {
             mDiagnostics.onResultReceived(ProfileInstaller.RESULT_BASELINE_PROFILE_NOT_FOUND, e);
