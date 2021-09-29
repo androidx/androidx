@@ -19,13 +19,6 @@ writing and running lint checks, see the official
 If this is the first Lint rule for a library, you will need to create a module
 by doing the following:
 
-Add a new `ignore` rule to the `PublishDocsRules.kt` file to prevent the module
-from showing up in published docs:
-
-```
-ignore(LibraryGroups.MyLibrary.group, "mylibrary-lint")
-```
-
 Include the project in the top-level `settings.gradle` file so that it shows up
 in Android Studio's list of modules:
 
@@ -37,16 +30,12 @@ Manually create a new module in `frameworks/support` (preferably in the
 directory you are making lint rules for). In the new module, add a `src` folder
 and a `build.gradle` file containing the needed dependencies.
 
-build.gradle
+`mylibrary/mylibrary-lint/build.gradle`:
 
 ```
-import static androidx.build.dependencies.DependenciesKt.*
-import androidx.build.AndroidXExtension
-import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
+import androidx.build.LibraryType
 import androidx.build.LibraryVersions
-import androidx.build.SdkHelperKt
-import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -54,35 +43,24 @@ plugins {
 }
 
 dependencies {
-    // compileOnly because lint runtime is provided when checks are run
-    // Use latest lint for running from IDE to make sure checks always run
-    if (rootProject.hasProperty("android.injected.invoked.from.ide")) {
-        compileOnly LINT_API_LATEST
-    } else {
-        compileOnly LINT_API_MIN
-    }
-    compileOnly KOTLIN_STDLIB
+    compileOnly(libs.androidLintMinApi)
+    compileOnly(libs.kotlinStdlib)
 
-    testImplementation KOTLIN_STDLIB
-    testImplementation LINT_CORE
-    testImplementation LINT_TESTS
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.androidLint)
+    testImplementation(libs.androidLintTests)
+    testImplementation(libs.junit)
 }
 
 androidx {
-    name = "Android MyLibrary Lint Checks"
-    toolingProject = true
-    publish = Publish.NONE
+    name = "MyLibrary lint checks"
+    type = LibraryType.LINT
     mavenVersion = LibraryVersions.MYLIBRARY
     mavenGroup = LibraryGroups.MYLIBRARY
     inceptionYear = "2019"
-    description = "Android MyLibrary Lint Checks"
-    url = AndroidXExtension.ARCHITECTURE_URL
-    compilationTarget = CompilationTarget.HOST
+    description = "Lint checks for MyLibrary"
 }
 ```
-
-Build the project and a `mylibrary-lint.iml` file should be created
-automatically in the module directory.
 
 ### Issue registry
 
@@ -92,35 +70,35 @@ checks to be performed on the library. There is an
 class provided by the tools team. Extend this class into your own
 `IssueRegistry` class, and provide it with the issues in the module.
 
-MyLibraryIssueRegistry.kt
+`MyLibraryIssueRegistry.kt`
 
 ```kotlin
 class MyLibraryIssueRegistry : IssueRegistry() {
-    override val api = 6
+    override val api = 11
     override val minApi = CURRENT_API
     override val issues get() = listOf(MyLibraryDetector.ISSUE)
 }
 ```
 
-The maximum version this Lint check will will work with is defined by `api = 6`,
-where versions 0-6 correspond to Lint/Studio versions 3.0-3.6.
+The maximum version this Lint check will will work with is defined by `api =
+11`, where versions `0`-`11` correspond to Lint/Studio versions `3.0`-`3.11`.
 
 `minApi = CURRENT_API` sets the lowest version of Lint that this will work with.
 
 `CURRENT_API` is defined by the Lint API version against which your project is
 compiled, as defined in the module's `build.gradle` file. Jetpack Lint modules
-should compile using Lint API version 3.3 defined in
+should compile using the Lint API version referenced in
 [Dependencies.kt](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/src/main/kotlin/androidx/build/dependencies/Dependencies.kt;l=176).
 
-We guarantee that our Lint checks work with versions 3.3-3.6 by running our
-tests with both versions 3.3 and 3.6. For newer versions of Android Studio (and
-consequently, Lint) the API variable will need to be updated.
+We guarantee that our Lint checks work with the versions referenced by `minApi`
+and `api` by running our tests with both versions. For newer versions of Android
+Studio (and consequently, Lint) the API variable will need to be updated.
 
 The `IssueRegistry` requires a list of all of the issues to check. You must
 override the `IssueRegistry.getIssues()` method. Here, we override that method
 with a Kotlin `get()` property delegate:
 
-[Example IssueRegistry Implementation](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:fragment/fragment-lint/src/main/java/androidx/fragment/lint/FragmentIssueRegistry.kt)
+[Example `IssueRegistry` Implementation](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:fragment/fragment-lint/src/main/java/androidx/fragment/lint/FragmentIssueRegistry.kt)
 
 There are 4 primary types of Lint checks:
 
@@ -607,7 +585,7 @@ androidx.mylibrary.lint.MyLibraryIssueRegistry
 Sometimes it is necessary to implement multiple different scanners in a Lint
 detector. For example, the
 [Unused Resource](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:lint/libs/lint-checks/src/main/java/com/android/tools/lint/checks/UnusedResourceDetector.java)
-Lint check implements an XML and SourceCode Scanner in order to determine if
+Lint check implements an XML and SourceCodeScanner in order to determine if
 resources defined in XML files are ever references in the Java/Kotlin source
 code.
 
@@ -630,14 +608,8 @@ using `context.driver.requestRepeat(detector, scope)`.
 
 ### [`SdkConstants`](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-master-dev:common/src/main/java/com/android/SdkConstants.java)
 
-Contains most of the canonical names for android core library classes, as well
+Contains most of the canonical names for Android core library classes, as well
 as XML tag names.
-
-## Misc
-
-### What does `VFY` mean?
-
-If you see `VFY` in log files, it's the optcode for class verification.
 
 ## Helpful links
 
