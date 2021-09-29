@@ -71,6 +71,7 @@ package androidx.glance.appwidget.layout {
 
   public final class AndroidRemoteViewsKt {
     method @androidx.compose.runtime.Composable public static void AndroidRemoteViews(android.widget.RemoteViews remoteViews);
+    method @androidx.compose.runtime.Composable public static void AndroidRemoteViews(android.widget.RemoteViews remoteViews, @IdRes int containerViewId, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   @androidx.glance.appwidget.layout.LazyScopeMarker public interface LazyItemScope {

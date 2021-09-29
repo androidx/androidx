@@ -29,6 +29,7 @@ import android.text.style.TextAppearanceSpan
 import android.text.style.UnderlineSpan
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.LayoutRes
@@ -117,7 +118,9 @@ internal fun translateChild(
         is EmittableText -> translateEmittableText(translationContext, element)
         is EmittableLazyListItem -> translateEmittableLazyListItem(translationContext, element)
         is EmittableLazyColumn -> translateEmittableLazyColumn(translationContext, element)
-        is EmittableAndroidRemoteViews -> translateEmittableAndroidRemoteViews(element)
+        is EmittableAndroidRemoteViews -> {
+            translateEmittableAndroidRemoteViews(translationContext, element)
+        }
         else -> throw IllegalArgumentException("Unknown element type ${element::javaClass}")
     }
 }
@@ -244,8 +247,25 @@ private fun translateEmittableText(
         }
 }
 
-private fun translateEmittableAndroidRemoteViews(element: EmittableAndroidRemoteViews) =
-    element.remoteViews
+private fun translateEmittableAndroidRemoteViews(
+    translationContext: TranslationContext,
+    element: EmittableAndroidRemoteViews
+): RemoteViews {
+    if (element.children.isNotEmpty()) {
+        check(element.containerViewId != View.NO_ID) {
+            "To add children to an `AndroidRemoteViews`, its `containerViewId` must be set."
+        }
+        return element.remoteViews.copy().apply {
+            setChildren(
+                translationContext,
+                element.containerViewId,
+                element.children,
+                SizeContext.DoNotExpand
+            )
+        }
+    }
+    return element.remoteViews
+}
 
 private fun RemoteViews.setText(context: Context, resId: Int, text: String, style: TextStyle?) {
     if (style == null) {
@@ -302,17 +322,36 @@ internal fun RemoteViews.setChildren(
     }
 }
 
-// Add stable view if on Android S+, otherwise simply add the view.
+/**
+ * Add stable view if on Android S+, otherwise simply add the view.
+ */
 private fun RemoteViews.addChildView(viewId: Int, childView: RemoteViews, stableId: Int) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        Api31Impl.addChildView(this, viewId, childView, stableId)
+        RemoteViewsTranslatorApi31Impl.addChildView(this, viewId, childView, stableId)
         return
     }
     addView(viewId, childView)
 }
 
+/**
+ * Copy a RemoteViews (the exact method depends on the version of Android)
+ */
+@Suppress("DEPRECATION") // RemoteViews.clone must be used before Android P.
+private fun RemoteViews.copy(): RemoteViews =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        RemoteViewsTranslatorApi28Impl.copyRemoteViews(this)
+    } else {
+        clone()
+    }
+
+@RequiresApi(Build.VERSION_CODES.P)
+private object RemoteViewsTranslatorApi28Impl {
+    @DoNotInline
+    fun copyRemoteViews(rv: RemoteViews) = RemoteViews(rv)
+}
+
 @RequiresApi(Build.VERSION_CODES.S)
-private object Api31Impl {
+private object RemoteViewsTranslatorApi31Impl {
     @DoNotInline
     fun addChildView(rv: RemoteViews, viewId: Int, childView: RemoteViews, stableId: Int) {
         rv.addStableView(viewId, childView, stableId)
