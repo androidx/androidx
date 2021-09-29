@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import androidx.camera.core.impl.utils.ContextUtil;
+import androidx.core.content.PermissionChecker;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
@@ -116,14 +117,18 @@ public final class PendingRecording {
      * @return this pending recording
      * @throws IllegalStateException if the {@link Recorder} this recording is associated to
      * doesn't support audio.
-     * @throws SecurityException if the {@link Manifest.permission#RECORD_AUDIO} permission is
-     * not granted for the current process or calling IPC process.
+     * @throws SecurityException if the current application does not have the
+     * {@link Manifest.permission#RECORD_AUDIO} granted.
      */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @NonNull
     public PendingRecording withAudioEnabled() {
-        // Check permission. Passing a null message will generate a default message in exception.
-        mContext.enforceCallingOrSelfPermission(Manifest.permission.RECORD_AUDIO, /*message=*/null);
+        // Check permissions and throw a security exception if RECORD_AUDIO is not granted.
+        if (PermissionChecker.checkSelfPermission(mContext, Manifest.permission.RECORD_AUDIO)
+                == PermissionChecker.PERMISSION_DENIED) {
+            throw new SecurityException("Attempted to enable audio for recording but application "
+                    + "does not have RECORD_AUDIO permission granted.");
+        }
         Preconditions.checkState(mRecorder.isAudioSupported(), "The Recorder this recording is "
                 + "associated to doesn't support audio.");
         mAudioEnabled = true;
