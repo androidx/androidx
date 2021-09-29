@@ -1,5 +1,7 @@
 package androidx.glance
 
+import androidx.annotation.RestrictTo
+
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -16,7 +18,8 @@ package androidx.glance
  * limitations under the License.
  */
 
-@GlanceInternalApi
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 inline fun <reified T> Modifier.findModifier(): T? = this.foldOut<T?>(null) { cur, acc ->
     if (cur is T) {
         cur

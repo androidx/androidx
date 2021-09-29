@@ -1,4 +1,3 @@
-@file:OptIn(GlanceInternalApi::class)
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -19,14 +18,12 @@ package androidx.glance.appwidget
 
 import android.widget.RemoteViews
 import androidx.core.widget.RemoteViewsCompat
-import androidx.glance.GlanceInternalApi
 import androidx.glance.appwidget.layout.EmittableLazyColumn
 import androidx.glance.appwidget.layout.EmittableLazyList
 import androidx.glance.appwidget.layout.EmittableLazyListItem
 import androidx.glance.appwidget.layout.ReservedItemIdRangeEnd
 import androidx.glance.layout.EmittableBox
 
-@OptIn(GlanceInternalApi::class)
 internal fun translateEmittableLazyColumn(
     translationContext: TranslationContext,
     element: EmittableLazyColumn,
@@ -47,7 +44,6 @@ internal fun translateEmittableLazyColumn(
     )
 }
 
-@OptIn(GlanceInternalApi::class)
 private fun translateEmittableLazyList(
     translationContext: TranslationContext,
     element: EmittableLazyList,

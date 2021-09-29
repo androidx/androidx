@@ -16,12 +16,16 @@
 
 package androidx.glance
 
-@GlanceInternalApi
+import androidx.annotation.RestrictTo
+
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Emittable {
     public var modifier: Modifier
 }
 
-@GlanceInternalApi
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class EmittableWithChildren(
     internal var maxDepth: Int = Int.MAX_VALUE
 ) : Emittable {

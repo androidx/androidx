@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
 import androidx.glance.Applier
-import androidx.glance.GlanceInternalApi
 import androidx.glance.layout.EmittableBox
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -64,7 +63,6 @@ import kotlinx.coroutines.launch
  * `com.google.android.wearable.permission.BIND_TILE_PROVIDER`.
  */
 
-@OptIn(GlanceInternalApi::class)
 public abstract class GlanceTileService : TileService() {
     private val lifecycleOwner = object : LifecycleOwner {
         val localLifecycle = LifecycleRegistry(this)

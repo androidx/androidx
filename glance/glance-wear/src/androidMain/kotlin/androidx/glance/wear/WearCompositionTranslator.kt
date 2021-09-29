@@ -1,4 +1,3 @@
-@file:OptIn(GlanceInternalApi::class)
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -19,7 +18,6 @@ package androidx.glance.wear
 
 import android.content.Context
 import androidx.glance.Emittable
-import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LaunchActivityAction
@@ -40,9 +38,9 @@ import androidx.glance.layout.WidthModifier
 import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.BackgroundModifier
 import androidx.glance.wear.layout.CurvedTextStyle
+import androidx.glance.wear.layout.EmittableAndroidLayoutElement
 import androidx.glance.wear.layout.EmittableCurvedRow
 import androidx.glance.wear.layout.EmittableCurvedText
-import androidx.glance.wear.layout.EmittableAndroidLayoutElement
 import androidx.glance.wear.layout.RadialAlignment
 import androidx.wear.tiles.ActionBuilders
 import androidx.wear.tiles.ColorBuilders.argb

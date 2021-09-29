@@ -1,4 +1,3 @@
-@file:OptIn(GlanceInternalApi::class)
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -26,12 +25,11 @@ import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RemoteViews
-import androidx.annotation.IdRes
 import androidx.annotation.DoNotInline
+import androidx.annotation.IdRes
 import androidx.annotation.RequiresApi
 import androidx.core.widget.setTextViewHeight
 import androidx.core.widget.setTextViewWidth
-import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
@@ -40,7 +38,6 @@ import androidx.glance.layout.Dimension
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier
-import androidx.glance.unit.Dp
 import androidx.glance.unit.dp
 
 private fun applyAction(
