@@ -57,18 +57,15 @@ class AutoMigrationWriterTest {
                 from = 1,
                 to = 2,
                 schemaDiff = SchemaDiffResult(
-                    addedColumns = linkedMapOf(
-                        Pair(
-                            "artistId",
-                            AutoMigration.AddedColumn(
-                                "Song",
-                                FieldBundle(
-                                    "artistId",
-                                    "artistId",
-                                    "INTEGER",
-                                    false,
-                                    ""
-                                )
+                    addedColumns = listOf(
+                        AutoMigration.AddedColumn(
+                            "Song",
+                            FieldBundle(
+                                "artistId",
+                                "artistId",
+                                "INTEGER",
+                                false,
+                                ""
                             )
                         )
                     ),
@@ -118,18 +115,15 @@ class AutoMigrationWriterTest {
                 from = 1,
                 to = 2,
                 schemaDiff = SchemaDiffResult(
-                    addedColumns = linkedMapOf(
-                        Pair(
-                            "artistId",
-                            AutoMigration.AddedColumn(
-                                "Song",
-                                FieldBundle(
-                                    "artistId",
-                                    "artistId",
-                                    "INTEGER",
-                                    false,
-                                    ""
-                                )
+                    addedColumns = listOf(
+                        AutoMigration.AddedColumn(
+                            "Song",
+                            FieldBundle(
+                                "artistId",
+                                "artistId",
+                                "INTEGER",
+                                false,
+                                ""
                             )
                         )
                     ),
