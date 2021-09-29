@@ -66,6 +66,7 @@ import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -455,6 +456,7 @@ public class AppCompatEditTextReceiveContentTest {
     }
 
     @UiThreadTest
+    @Ignore("b/201453802")
     @Test
     public void testDragAndDrop_noReceiver() throws Exception {
         setTextAndCursor("xz", 1);
@@ -567,6 +569,7 @@ public class AppCompatEditTextReceiveContentTest {
         assertTextAndCursorPosition(text, cursorPosition);
     }
 
+    @Ignore("b/201453802")
     private void assertTextAndCursorPosition(String expectedText, int cursorPosition) {
         assertThat(mEditText.getText().toString()).isEqualTo(expectedText);
         assertThat(mEditText.getSelectionStart()).isEqualTo(cursorPosition);
