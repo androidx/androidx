@@ -323,6 +323,28 @@ public final class MediaConstants {
             "android.media.browse.CONTENT_STYLE_BROWSABLE_HINT";
 
     /**
+     * Bundle key sent through {@link MediaDescriptionCompat#getExtras()} to the hosting {@link
+     * MediaBrowserCompat} to indicate a preference about how the corresponding {@link
+     * MediaBrowserCompat.MediaItem} is presented.
+     *
+     * <p>This preference takes precedence over those expressed by {@link
+     * #DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_PLAYABLE} and {@link
+     * #DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_BROWSABLE}.
+     *
+     * <p>TYPE: int. Possible values are separate constants.
+     *
+     * @see MediaDescriptionCompat#getExtras()
+     * @see MediaDescriptionCompat.Builder#setExtras(Bundle)
+     * @see #DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM
+     * @see #DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM
+     * @see #DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_LIST_ITEM
+     * @see #DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM
+     */
+    @SuppressLint("IntentName")
+    public static final String DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_SINGLE_ITEM =
+            "android.media.browse.CONTENT_STYLE_SINGLE_ITEM_HINT";
+
+    /**
      * Bundle value passed from the {@link MediaBrowserServiceCompat} to the hosting {@link
      * MediaBrowserCompat} to indicate a preference that certain instances of {@link
      * MediaBrowserCompat.MediaItem} should be presented as list items.
@@ -430,6 +452,25 @@ public final class MediaConstants {
      * @see #DESCRIPTION_EXTRAS_KEY_COMPLETION_STATUS
      */
     public static final int DESCRIPTION_EXTRAS_VALUE_COMPLETION_STATUS_FULLY_PLAYED = 2;
+
+    /**
+     * Bundle key sent through {@link MediaDescriptionCompat#getExtras()} to the hosting {@link
+     * MediaBrowserCompat} to indicate an amount of completion progress for the corresponding
+     * {@link MediaBrowserCompat.MediaItem}. This extra augments {@link
+     * #DESCRIPTION_EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED the partially played status} by
+     * indicating how much has been played by the user.
+     *
+     * <p>TYPE: double, a value between 0.0 and 1.0, inclusive. 0.0 indicates no completion progress
+     * (item is not started) and 1.0 indicates full completion progress (item is fully played).
+     * Values in between indicate partial progress (for example, 0.75 indicates the item is 75%
+     * complete).
+     *
+     * @see MediaDescriptionCompat#getExtras()
+     * @see MediaDescriptionCompat.Builder#setExtras(Bundle)
+     */
+    @SuppressLint("IntentName")
+    public static final String DESCRIPTION_EXTRAS_KEY_COMPLETION_PERCENTAGE =
+            "androidx.media.MediaItem.Extras.COMPLETION_PERCENTAGE";
 
     /**
      * Bundle key used for the media id in {@link PlaybackStateCompat playback state} extras. It's
