@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget
 
+import android.app.Activity
 import android.graphics.Typeface
 import android.os.Build
 import android.text.SpannedString
@@ -23,13 +24,16 @@ import android.text.style.StyleSpan
 import android.text.style.TextAppearanceSpan
 import android.text.style.UnderlineSpan
 import android.view.View
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.Modifier
+import androidx.glance.action.launchActivityAction
 import androidx.glance.layout.Box
+import androidx.glance.layout.Button
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Text
@@ -375,6 +379,23 @@ class GlanceAppWidgetReceiverTest {
                 DpSize(mHostRule.portraitSize.width, 0.dp),
             )
             assertViewSize(child2, DpSize(100.dp, mHostRule.portraitSize.height))
+        }
+    }
+
+    @Test
+    fun createButton() {
+        TestGlanceAppWidget.uiDefinition = {
+            Button("Button", onClick = launchActivityAction<Activity>(), enabled = false)
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onHostView { hostView ->
+            assertThat(hostView.childCount).isEqualTo(1)
+            val button = assertIs<Button>(hostView.getChildAt(0))
+            assertThat(button.text).isEqualTo("Button")
+            assertThat(button.isEnabled).isFalse()
+            assertThat(button.hasOnClickListeners()).isFalse()
         }
     }
 

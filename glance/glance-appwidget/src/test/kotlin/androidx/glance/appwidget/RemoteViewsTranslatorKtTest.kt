@@ -17,6 +17,7 @@
 package androidx.glance.appwidget
 
 import android.annotation.TargetApi
+import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.text.SpannedString
@@ -34,6 +35,7 @@ import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.core.view.children
 import androidx.glance.Modifier
+import androidx.glance.action.launchActivityAction
 import androidx.glance.appwidget.layout.AndroidRemoteViews
 import androidx.glance.appwidget.layout.CheckBox
 import androidx.glance.appwidget.layout.LazyColumn
@@ -41,6 +43,7 @@ import androidx.glance.appwidget.layout.ReservedItemIdRangeEnd
 import androidx.glance.appwidget.test.R
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
+import androidx.glance.layout.Button
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Text
@@ -671,6 +674,38 @@ class RemoteViewsTranslatorKtTest {
         assertThat(textContent.toString()).isEqualTo("test checked")
         assertThat(textContent.getSpans(0, textContent.length, Any::class.java)).hasLength(1)
         textContent.checkHasSingleTypedSpan<StrikethroughSpan> { }
+    }
+
+    @Test
+    fun canTranslateButton() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            Button(
+                "Button",
+                onClick = launchActivityAction<Activity>(),
+                enabled = true
+            )
+        }
+
+        val button = assertIs<android.widget.Button>(context.applyRemoteViews(rv))
+        assertThat(button.text).isEqualTo("Button")
+        assertThat(button.isEnabled).isTrue()
+        assertThat(button.hasOnClickListeners()).isTrue()
+    }
+
+    @Test
+    fun canTranslateButton_disabled() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            Button(
+                "Button",
+                onClick = launchActivityAction<Activity>(),
+                enabled = false
+            )
+        }
+
+        val button = assertIs<android.widget.Button>(context.applyRemoteViews(rv))
+        assertThat(button.text).isEqualTo("Button")
+        assertThat(button.isEnabled).isFalse()
+        assertThat(button.hasOnClickListeners()).isFalse()
     }
 
     // Check there is a single span, that it's of the correct type and passes the [check].

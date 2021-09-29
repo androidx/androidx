@@ -16,12 +16,15 @@
 
 package androidx.glance.appwidget.demos
 
+import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.glance.LocalSize
 import androidx.glance.Modifier
+import androidx.glance.action.launchActivityAction
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.layout.Button
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Text
@@ -69,6 +72,7 @@ class ResponsiveAppWidget : GlanceAppWidget() {
                 }
             }
             Text(content)
+            Button("Button", onClick = launchActivityAction<Activity>())
         }
     }
 }
