@@ -48,8 +48,6 @@ dependencies {
 
     // For kotlin serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
-
-    compileOnly(project(":annotation:annotation-sampled"))
 }
 
 protobuf {
