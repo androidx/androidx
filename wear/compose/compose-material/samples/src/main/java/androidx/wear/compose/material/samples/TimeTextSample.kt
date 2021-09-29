@@ -76,7 +76,6 @@ fun TimeTextWithCustomSeparator() {
 }
 
 @OptIn(ExperimentalWearMaterialApi::class)
-@Sampled
 @Composable
 fun TimeTextWithFullDateAndTimeFormat() {
     TimeText(timeSource = TimeTextDefaults.timeSource("yyyy-MM-dd hh:mm"))
