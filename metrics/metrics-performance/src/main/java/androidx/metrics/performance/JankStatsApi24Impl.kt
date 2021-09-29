@@ -39,18 +39,26 @@ internal open class JankStatsApi24Impl(
 
     private val frameMetricsAvailableListener: Window.OnFrameMetricsAvailableListener =
         Window.OnFrameMetricsAvailableListener { _, frameMetrics, _ ->
-            val startTime = frameMetrics.getMetric(FrameMetrics.VSYNC_TIMESTAMP)
+            val startTime = getFrameStartTime(frameMetrics)
             // ignore historical data gathered before we started listening
             if (startTime >= listenerAddedTime) {
                 val expectedDuration = getExpectedFrameDuration(frameMetrics) *
                     JankStats.jankHeuristicMultiplier
                 jankStats.logFrameData(
                     startTime,
-                    frameMetrics.getMetric(FrameMetrics.TOTAL_DURATION),
+                    getFrameDuration(frameMetrics),
                     expectedDuration.toLong()
                 )
             }
         }
+
+    internal open fun getFrameDuration(frameMetrics: FrameMetrics): Long {
+        return frameMetrics.getMetric(FrameMetrics.TOTAL_DURATION)
+    }
+
+    internal open fun getFrameStartTime(frameMetrics: FrameMetrics): Long {
+        return getFrameStartTime()
+    }
 
     open fun getExpectedFrameDuration(metrics: FrameMetrics): Long {
         return getExpectedFrameDuration(decorViewRef.get())

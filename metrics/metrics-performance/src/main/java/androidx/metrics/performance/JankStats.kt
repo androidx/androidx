@@ -64,7 +64,7 @@ import androidx.annotation.UiThread
  * @param frameListener This listener will be called on any frame in which jank is detected.
  */
 @Suppress("SingletonConstructor", "ExecutorRegistration")
-class JankStats(
+class JankStats @UiThread constructor(
     view: View,
     private val frameListener: OnFrameListener
 ) {
@@ -108,6 +108,9 @@ class JankStats(
             Build.VERSION.SDK_INT >= 31 -> {
                 JankStatsApi31Impl(this, view)
             }
+            Build.VERSION.SDK_INT >= 26 -> {
+                JankStatsApi26Impl(this, view)
+            }
             Build.VERSION.SDK_INT >= 24 -> {
                 JankStatsApi24Impl(this, view)
             }
@@ -128,6 +131,7 @@ class JankStats(
      *
      * @param enabled true to enable tracking, false otherwise
      */
+    @UiThread
     fun setTrackingEnabled(enabled: Boolean) {
         implementation.setupFrameTimer(enabled)
         trackingEnabled = enabled
