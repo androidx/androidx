@@ -49,12 +49,22 @@
             android:name=".SwipeActivity"
             android:exported="true">
             <intent-filter>
+                <action android:name=
+                    "androidx.wear.benchmark.integration.macrobenchmark.target.SWIPE_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ScrollActivity"
+            android:exported="true">
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name=
-                    "androidx.wear.benchmark.integration.macrobenchmark.target.SWIPE_ACTIVITY" />
+                    "androidx.wear.benchmark.integration.macrobenchmark.target.SCROLL_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
