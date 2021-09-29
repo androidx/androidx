@@ -177,8 +177,13 @@ class ProcessingCaptureSessionTest(
 
     @After
     fun tearDown() {
-        CameraUtil.releaseCameraDevice(cameraDeviceHolder)
-        sessionConfigParameters.tearDown()
+        if (::cameraDeviceHolder.isInitialized) {
+            CameraUtil.releaseCameraDevice(cameraDeviceHolder)
+        }
+
+        if (::sessionConfigParameters.isInitialized) {
+            sessionConfigParameters.tearDown()
+        }
     }
 
     private fun createProcessingCaptureSession(): ProcessingCaptureSession {
