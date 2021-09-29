@@ -19,6 +19,8 @@ import os
 import argparse
 from datetime import date
 import subprocess
+from enum import Enum
+from textwrap import dedent
 from shutil import rmtree
 from shutil import copyfile
 from distutils.dir_util import copy_tree
@@ -32,6 +34,7 @@ SAMPLE_OWNERS_FP = os.path.abspath(os.path.join(os.getcwd(), 'kotlin-template', 
 SAMPLE_JAVA_SRC_FP = os.path.abspath(os.path.join(os.getcwd(), 'java-template', 'groupId', 'artifactId'))
 SAMPLE_KOTLIN_SRC_FP = os.path.abspath(os.path.join(os.getcwd(), 'kotlin-template', 'groupId', 'artifactId'))
 SAMPLE_COMPOSE_SRC_FP = os.path.abspath(os.path.join(os.getcwd(), 'compose-template', 'groupId', 'artifactId'))
+NATIVE_SRC_FP = os.path.abspath(os.path.join(os.getcwd(), 'native-template', 'groupId', 'artifactId'))
 SETTINGS_GRADLE_FP = os.path.abspath(os.path.join(os.getcwd(), '..', '..', "settings.gradle"))
 LIBRARY_VERSIONS_REL = './buildSrc/public/src/main/kotlin/androidx/build/LibraryVersions.kt'
 LIBRARY_VERSIONS_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, LIBRARY_VERSIONS_REL)
@@ -49,6 +52,12 @@ parser.add_argument(
 parser.add_argument(
     'artifact_id',
     help='artifact_id for the new library')
+
+
+class ProjectType(Enum):
+    KOTLIN = 0
+    JAVA = 1
+    NATIVE = 2
 
 def print_e(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -127,6 +136,12 @@ def rename_file(src_file, new_file_name):
         return None
     return new_file_path
 
+def create_file(path):
+    """
+    Creates an empty file if it does not already exist.
+    """
+    open(path, "a").close()
+
 def generate_package_name(group_id, artifact_id):
     final_group_id_word = group_id.split(".")[-1]
     artifact_id_suffix = artifact_id.replace(final_group_id_word, "")
@@ -183,6 +198,29 @@ def ask_yes_or_no(question):
             if reply[0] == 'y': return True
             if reply[0] == 'n': return False
         print("Please respond with y/n")
+
+def ask_project_type():
+    """Asks the user which type of project they wish to create"""
+    message = dedent("""
+        Please choose the type of project you would like to create:
+        1: Kotlin (AAR)
+        2: Java (AAR / JAR)
+        3: Native (AAR)
+    """).strip()
+    while(True):
+        reply = str(input(message + "\n")).strip()
+        if reply == "1": return ProjectType.KOTLIN
+        if reply == "2":
+            if confirm_java_project_type():
+                return ProjectType.JAVA
+        if reply == "3": return ProjectType.NATIVE
+        print("Please respond with one of the presented options")
+
+def confirm_java_project_type():
+    return ask_yes_or_no("All new androidx projects are expected and encouraged "
+    "to use Kotlin. Java projects should only be used if "
+    "there is a business need to do so. "
+    "Please ack to proceed:")
 
 def ask_library_purpose():
     question = ("Project description (please complete the sentence): "
@@ -278,7 +316,7 @@ def get_package_documentation_file_dir(group_id, artifact_id):
                         group_id.replace(".", "/")
     return full_artifact_path + group_id_subpath
 
-def get_package_documentation_filename(group_id, artifact_id, is_kotlin_project):
+def get_package_documentation_filename(group_id, artifact_id, project_type):
     """Generates the documentation filename
 
     Given androidx.foo.bar:bar-qux, the structure will be:
@@ -292,28 +330,18 @@ def get_package_documentation_filename(group_id, artifact_id, is_kotlin_project)
         artifact_id: group_id of the new library
         is_kotlin_project: whether or not the library is a kotin project
     """
-    if is_kotlin_project:
+    if project_type == ProjectType.JAVA:
+        return "package-info.java"
+    else:
         formatted_group_id = group_id.replace(".", "-")
         return "%s-%s-documentation.md" % (formatted_group_id, artifact_id)
-    else:
-        return "package-info.java"
 
-def ask_if_kotlin_project(group_id, artifact_id):
-    """Asks the user if the project is a kotlin or java project
+def is_compose_project(group_id, artifact_id):
+    """Returns true if project can be inferred to be a compose / Kotlin project
     """
-    if "compose" in group_id or "compose" in artifact_id:
-        return True
-    elif ask_yes_or_no("Is this a kotlin project?"):
-        return True
-    else:
-        # Confirm that the user is intentionally using java.
-        ask_yes_or_no("All new androidx projects are expected and encouraged "
-                      "to use Kotlin. Java projects should only be used if "
-                      "there is a business need to do so. "
-                      "Please ack to proceed:")
-        return False
+    return  "compose" in group_id or "compose" in artifact_id
 
-def create_directories(group_id, artifact_id, is_kotlin_project):
+def create_directories(group_id, artifact_id, project_type, is_compose_project):
     """Creates the standard directories for the given group_id and artifact_id.
 
     Given androidx.foo.bar:bar-qux, the structure will be:
@@ -338,21 +366,22 @@ def create_directories(group_id, artifact_id, is_kotlin_project):
         copyfile(SAMPLE_OWNERS_FP, group_id_path + "/OWNERS")
 
     # Copy the full src structure, depending on the project source code
-    is_compose_project = False
-    if "compose" in group_id or "compose" in artifact_id:
+    if is_compose_project:
         print("Auto-detected Compose project.")
         cp(SAMPLE_COMPOSE_SRC_FP, full_artifact_path)
-        is_compose_project = True
-    elif is_kotlin_project:
+    elif project_type == ProjectType.NATIVE:
+        cp(NATIVE_SRC_FP, full_artifact_path)
+    elif project_type == ProjectType.KOTLIN:
         cp(SAMPLE_KOTLIN_SRC_FP, full_artifact_path)
     else:
         cp(SAMPLE_JAVA_SRC_FP, full_artifact_path)
 
     # Java only libraries have no dependency on android.
     # Java-only produces a jar, whereas an android library produces an aar.
-    if (get_library_type(artifact_id) == "LINT" or
+    if (project_type == ProjectType.JAVA and
+            (get_library_type(artifact_id) == "LINT" or
         ask_yes_or_no("Is this a java-only library? Java-only libraries produce"
-                      " JARs, whereas Android libraries produce AARs.")):
+                      " JARs, whereas Android libraries produce AARs."))):
         sed("com.android.library", "java-library",
             full_artifact_path + "/build.gradle")
         sed("org.jetbrains.kotlin.android", "kotlin",
@@ -373,7 +402,7 @@ def create_directories(group_id, artifact_id, is_kotlin_project):
 
     # Set up the package documentation.
     full_package_docs_dir = get_package_documentation_file_dir(group_id, artifact_id)
-    package_docs_filename = get_package_documentation_filename(group_id, artifact_id, is_kotlin_project)
+    package_docs_filename = get_package_documentation_filename(group_id, artifact_id, project_type)
     full_package_docs_file = os.path.join(full_package_docs_dir, package_docs_filename)
     # Compose projects use multiple main directories, so we handle it separately
     if is_compose_project:
@@ -382,8 +411,9 @@ def create_directories(group_id, artifact_id, is_kotlin_project):
                     package_docs_filename)
         mv_dir(full_artifact_path + "/src/commonMain/kotlin/groupId", full_package_docs_dir)
     else:
-        if is_kotlin_project:
+        if project_type != ProjectType.JAVA:
             # Kotlin projects use -documentation.md files, so we need to rename it appropriately.
+            # We also rename this file for native projects in case they also have public Kotlin APIs
             rename_file(full_artifact_path + "/src/main/groupId/artifactId-documentation.md",
                         package_docs_filename)
         mv_dir(full_artifact_path + "/src/main/groupId", full_package_docs_dir)
@@ -418,6 +448,10 @@ def create_directories(group_id, artifact_id, is_kotlin_project):
     sed("<GROUPID>", group_id_version_macro, full_artifact_path + "/build.gradle")
     # Update the name and description in the build.gradle
     sed("<NAME>", group_id + ":" + artifact_id, full_artifact_path + "/build.gradle")
+    if project_type == ProjectType.NATIVE:
+        sed("<NAME>", artifact_id, full_artifact_path + "/src/main/cpp/CMakeLists.txt")
+        sed("<TARGET>", artifact_id, full_artifact_path + "/build.gradle")
+        create_file(full_artifact_path + "/src/main/cpp/" + artifact_id + ".cpp")
     sed("<DESCRIPTION>", project_description, full_artifact_path + "/build.gradle")
 
 
@@ -437,7 +471,7 @@ def get_new_settings_gradle_line(group_id, artifact_id):
     """
 
     build_type = "MAIN"
-    if ("compose" in group_id or "compose" in artifact_id):
+    if (is_compose_project(group_id, artifact_id)):
         build_type = "COMPOSE"
 
     gradle_cmd = get_gradle_project_coordinates(group_id, artifact_id)
@@ -666,7 +700,7 @@ def is_group_id_atomic(group_id):
     # The group id does not exist yet, so just default to false.
     return False
 
-def print_todo_list(group_id, artifact_id, is_kotlin_project):
+def print_todo_list(group_id, artifact_id, project_type):
     """Prints to the todo list once the script has finished.
 
     There are some pieces that can not be automated or require human eyes.
@@ -682,7 +716,7 @@ def print_todo_list(group_id, artifact_id, is_kotlin_project):
     owners_file_path = get_group_id_path(group_id) + "/OWNERS"
     package_docs_path = os.path.join(
         get_package_documentation_file_dir(group_id, artifact_id),
-        get_package_documentation_filename(group_id, artifact_id, is_kotlin_project))
+        get_package_documentation_filename(group_id, artifact_id, project_type))
     print("---\n")
     print("Created the project.  The following TODOs need to be completed by "
           "you:\n")
@@ -707,9 +741,16 @@ def main(args):
         sys.exit(1)
     if not validate_name(args.group_id, args.artifact_id):
         sys.exit(1)
-
-    is_kotlin_project = ask_if_kotlin_project(args.group_id, args.artifact_id)
-    create_directories(args.group_id, args.artifact_id, is_kotlin_project)
+    if is_compose_project(args.group_id, args.artifact_id):
+        project_type = ProjectType.KOTLIN
+    else:
+        project_type = ask_project_type()
+    create_directories(
+        args.group_id,
+        args.artifact_id,
+        project_type,
+        is_compose_project(args.group_id, args.artifact_id)
+    )
     update_settings_gradle(args.group_id, args.artifact_id)
     insert_new_group_id_into_library_versions_kt(args.group_id,
                                                  args.artifact_id)
@@ -720,7 +761,7 @@ def main(args):
         print("done.")
     else:
         print("failed.  Please investigate manually.")
-    print_todo_list(args.group_id, args.artifact_id, is_kotlin_project)
+    print_todo_list(args.group_id, args.artifact_id, project_type)
 
 if __name__ == '__main__':
     main(sys.argv)

@@ -83,28 +83,31 @@ class TestNewDirectory(unittest.TestCase):
     def test_get_package_documentation_filename(self):
         frameworks_support_fp = os.path.abspath(os.path.join(os.getcwd(), '..', '..'))
 
-        package_info_dir_filename = get_package_documentation_filename("androidx.foo", "foo", True)
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo", "foo", ProjectType.KOTLIN)
         self.assertEqual("androidx-foo-foo-documentation.md", package_info_dir_filename)
 
-        package_info_dir_filename = get_package_documentation_filename("androidx.foo", "foo-bar", True)
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo", "foo", ProjectType.NATIVE)
+        self.assertEqual("androidx-foo-foo-documentation.md", package_info_dir_filename)
+
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo", "foo-bar", ProjectType.KOTLIN)
         self.assertEqual("androidx-foo-foo-bar-documentation.md", package_info_dir_filename)
 
-        package_info_dir_filename = get_package_documentation_filename("androidx.foo.bar", "bar", True)
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo.bar", "bar", ProjectType.KOTLIN)
         self.assertEqual("androidx-foo-bar-bar-documentation.md", package_info_dir_filename)
 
-        package_info_dir_filename = get_package_documentation_filename("androidx.foo.bar", "bar-qux", True)
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo.bar", "bar-qux", ProjectType.KOTLIN)
         self.assertEqual("androidx-foo-bar-bar-qux-documentation.md", package_info_dir_filename)
 
-        package_info_dir_filename = get_package_documentation_filename("androidx.foo", "foo", False)
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo", "foo", ProjectType.JAVA)
         self.assertEqual("package-info.java", package_info_dir_filename)
 
-        package_info_dir_filename = get_package_documentation_filename("androidx.foo", "foo-bar", False)
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo", "foo-bar", ProjectType.JAVA)
         self.assertEqual("package-info.java", package_info_dir_filename)
 
-        package_info_dir_filename = get_package_documentation_filename("androidx.foo.bar", "bar", False)
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo.bar", "bar", ProjectType.JAVA)
         self.assertEqual("package-info.java", package_info_dir_filename)
 
-        package_info_dir_filename = get_package_documentation_filename("androidx.foo.bar", "bar-qux", False)
+        package_info_dir_filename = get_package_documentation_filename("androidx.foo.bar", "bar-qux", ProjectType.JAVA)
         self.assertEqual("package-info.java", package_info_dir_filename)
 
     def test_group_id_directory_name(self):
