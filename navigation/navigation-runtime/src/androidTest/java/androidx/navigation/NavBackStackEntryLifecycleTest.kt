@@ -30,6 +30,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.TestNavigator
 import androidx.testutils.test
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -260,6 +261,30 @@ class NavBackStackEntryLifecycleTest {
         assertWithMessage("The popped destination should be destroyed")
             .that(secondBackStackEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateOptionSingleTopNestedGraph() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_multiple_navigation)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        val graphEntry = navController.getBackStackEntry(R.id.simple_child_start)
+
+        navController.navigate(
+            R.id.simple_child_start_test, null,
+            navOptions {
+                launchSingleTop = true
+            }
+        )
+
+        navController.popBackStack()
+
+        assertThat(graphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
     }
 
     /**
