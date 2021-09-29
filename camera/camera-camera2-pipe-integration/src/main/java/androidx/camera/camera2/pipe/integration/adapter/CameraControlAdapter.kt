@@ -38,7 +38,6 @@ import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.TorchState
-import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
@@ -157,25 +156,6 @@ class CameraControlAdapter @Inject constructor(
     override fun setFlashMode(flashMode: Int) {
         warn { "TODO: setFlashMode is not yet supported" }
         this.imageCaptureFlashMode = flashMode
-    }
-
-    override fun triggerAf(): ListenableFuture<CameraCaptureResult> {
-        warn { "TODO: triggerAf is not yet supported" }
-        return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create())
-    }
-
-    override fun startFlashSequence(
-        @ImageCapture.FlashType flashType: Int
-    ): ListenableFuture<Void> {
-        warn { "TODO: startFlashSequence is not yet supported" }
-        return Futures.immediateFuture(null)
-    }
-
-    override fun cancelAfAndFinishFlashSequence(
-        cancelAfTrigger: Boolean,
-        finishFlashSequence: Boolean
-    ) {
-        warn { "TODO: cancelAfAndFinishFlashSequence is not yet supported" }
     }
 
     override fun setExposureCompensationIndex(exposure: Int): ListenableFuture<Int> =

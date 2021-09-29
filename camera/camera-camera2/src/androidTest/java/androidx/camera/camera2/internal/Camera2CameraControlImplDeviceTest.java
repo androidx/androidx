@@ -74,6 +74,7 @@ import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.HandlerUtil;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -356,30 +357,17 @@ public final class Camera2CameraControlImplDeviceTest {
     public void triggerAf_futureSucceeds() throws Exception {
         Camera2CameraControlImpl camera2CameraControlImpl =
                 createCamera2CameraControlWithPhysicalCamera();
-        ListenableFuture<CameraCaptureResult> future = camera2CameraControlImpl.triggerAf();
+
+        ListenableFuture<CameraCaptureResult> future = CallbackToFutureAdapter.getFuture(c -> {
+            camera2CameraControlImpl.mExecutor.execute(() ->
+                    camera2CameraControlImpl.getFocusMeteringControl().triggerAf(
+                            c, /* overrideAeMode */ false));
+            return "triggerAf";
+        });
+
         future.get(5, TimeUnit.SECONDS);
     }
 
-    @Test
-    @LargeTest
-    public void startFlashSequence_futureSucceeds() throws Exception {
-        Camera2CameraControlImpl camera2CameraControlImpl =
-                createCamera2CameraControlWithPhysicalCamera();
-        ListenableFuture<Void> future = camera2CameraControlImpl.startFlashSequence(
-                ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH);
-        future.get(5, TimeUnit.SECONDS);
-    }
-
-    @Test
-    @LargeTest
-    public void setFlashModeAndStartFlashSequence_futureSucceeds() throws Exception {
-        Camera2CameraControlImpl camera2CameraControlImpl =
-                createCamera2CameraControlWithPhysicalCamera();
-        camera2CameraControlImpl.setFlashMode(ImageCapture.FLASH_MODE_ON);
-        ListenableFuture<Void> future = camera2CameraControlImpl.startFlashSequence(
-                ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH);
-        future.get(5, TimeUnit.SECONDS);
-    }
     @Test
     public void captureMaxQuality_shouldSuccess()
             throws ExecutionException, InterruptedException, TimeoutException {

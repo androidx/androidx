@@ -54,7 +54,6 @@ import android.media.ImageReader;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Pair;
@@ -75,12 +74,6 @@ import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ForwardingImageProxy.OnImageCloseListener;
 import androidx.camera.core.impl.CameraCaptureCallback;
-import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
-import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
-import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
-import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
-import androidx.camera.core.impl.CameraCaptureResult;
-import androidx.camera.core.impl.CameraCaptureResult.EmptyCameraCaptureResult;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureBundle;
@@ -106,7 +99,6 @@ import androidx.camera.core.impl.utils.Exif;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
-import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.IoConfig;
 import androidx.camera.core.internal.TargetConfig;
@@ -130,10 +122,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executor;
@@ -244,8 +234,6 @@ public final class ImageCapture extends UseCase {
     public static final Defaults DEFAULT_CONFIG = new Defaults();
     private static final String TAG = "ImageCapture";
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    private static final long CHECK_3A_TIMEOUT_IN_MS = 1000L;
-    private static final long CHECK_3A_WITH_FLASH_TIMEOUT_IN_MS = 5000L;
     private static final int MAX_IMAGES = 2;
     // TODO(b/149336664) Move the quality to a compatibility class when there is a per device case.
     private static final byte JPEG_QUALITY_MAXIMIZE_QUALITY_MODE = 100;
@@ -254,8 +242,6 @@ public final class ImageCapture extends UseCase {
     private static final int DEFAULT_CAPTURE_MODE = CAPTURE_MODE_MINIMIZE_LATENCY;
     @FlashMode
     private static final int DEFAULT_FLASH_MODE = FLASH_MODE_OFF;
-
-    private final CaptureCallbackChecker mSessionCallbackChecker = new CaptureCallbackChecker();
 
     private final ImageReaderProxy.OnImageAvailableListener mClosingListener = (imageReader -> {
         try (ImageProxy image = imageReader.acquireLatestImage()) {
@@ -270,15 +256,6 @@ public final class ImageCapture extends UseCase {
     final Executor mIoExecutor;
     @CaptureMode
     private final int mCaptureMode;
-
-    /**
-     * A flag to check 3A converged or not.
-     *
-     * <p>In order to speed up the taking picture process, trigger AF / AE should be skipped when
-     * the flag is disabled. Set it to be enabled in the maximum quality mode and disabled in the
-     * minimum latency mode.
-     */
-    private final boolean mEnableCheck3AConverged;
 
     @GuardedBy("mLockedFlashMode")
     private final AtomicReference<Integer> mLockedFlashMode = new AtomicReference<>(null);
@@ -367,11 +344,6 @@ public final class ImageCapture extends UseCase {
                 useCaseConfig.getIoExecutor(CameraXExecutors.ioExecutor()));
         mSequentialIoExecutor = CameraXExecutors.newSequentialExecutor(mIoExecutor);
 
-        if (mCaptureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
-            mEnableCheck3AConverged = true; // check 3A convergence in MAX_QUALITY mode
-        } else {
-            mEnableCheck3AConverged = false; // skip 3A convergence in MIN_LATENCY mode
-        }
     }
 
     @UiThread
@@ -380,7 +352,6 @@ public final class ImageCapture extends UseCase {
             @NonNull ImageCaptureConfig config, @NonNull Size resolution) {
         Threads.checkMainThread();
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
-        sessionConfigBuilder.addRepeatingCameraCaptureCallback(mSessionCallbackChecker);
         YuvToJpegProcessor softwareJpegProcessor = null;
 
         // Setup the ImageReader to do processing
@@ -1539,173 +1510,6 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
-     * Routine before taking picture.
-     *
-     * <p>For example, trigger 3A scan, open torch and check 3A converged if necessary.
-     */
-    private ListenableFuture<Void> preTakePicture(final TakePictureState state) {
-        lockFlashMode();
-        return FutureChain.from(getPreCaptureStateIfNeeded())
-                .transformAsync(captureResult -> {
-                    state.mPreCaptureState = captureResult;
-                    triggerAfIfNeeded(state);
-                    if (isFlashRequired(state)) {
-                        return startFlashSequence(state);
-                    }
-                    return Futures.immediateFuture(null);
-                }, mExecutor)
-                .transformAsync(v -> check3AConverged(state), mExecutor)
-                // Ignore the 3A convergence result.
-                .transform(is3AConverged -> null, mExecutor);
-    }
-
-    /**
-     * Gets a capture result or not according to current configuration.
-     *
-     * <p>Conditions to get a capture result.
-     *
-     * <p>(1) The enableCheck3AConverged is enabled because it needs to know current AF mode and
-     * state.
-     *
-     * <p>(2) The flashMode is AUTO because it needs to know the current AE state.
-     */
-    // Currently this method is used to prevent there is no repeating surface to get capture result.
-    // If app is in min-latency mode and flash ALWAYS/OFF mode, it can still take picture without
-    // checking the capture result. Remove this check once no repeating surface issue is fixed.
-    private ListenableFuture<CameraCaptureResult> getPreCaptureStateIfNeeded() {
-        if (mEnableCheck3AConverged || getFlashMode() == FLASH_MODE_AUTO) {
-            return mSessionCallbackChecker.checkCaptureResult(
-                    new CaptureCallbackChecker.CaptureResultChecker<CameraCaptureResult>() {
-                        @Override
-                        public CameraCaptureResult check(
-                                @NonNull CameraCaptureResult captureResult) {
-                            if (Logger.isDebugEnabled(TAG)) {
-                                Logger.d(TAG, "preCaptureState, AE=" + captureResult.getAeState()
-                                        + " AF =" + captureResult.getAfState()
-                                        + " AWB=" + captureResult.getAwbState());
-                            }
-                            return captureResult;
-                        }
-                    });
-        }
-        return Futures.immediateFuture(null);
-    }
-
-    boolean isFlashRequired(@NonNull TakePictureState state) {
-        switch (getFlashMode()) {
-            case FLASH_MODE_ON:
-                return true;
-            case FLASH_MODE_AUTO:
-                return state.mPreCaptureState.getAeState() == AeState.FLASH_REQUIRED;
-            case FLASH_MODE_OFF:
-                return false;
-        }
-        throw new AssertionError(getFlashMode());
-    }
-
-    ListenableFuture<Boolean> check3AConverged(TakePictureState state) {
-        if (!mEnableCheck3AConverged && !state.mIsFlashSequenceStarted) {
-            return Futures.immediateFuture(false);
-        }
-
-        long waitTimeout = CHECK_3A_TIMEOUT_IN_MS;
-        if (state.mIsFlashSequenceStarted) {
-            waitTimeout = CHECK_3A_WITH_FLASH_TIMEOUT_IN_MS;
-        }
-
-        return mSessionCallbackChecker.checkCaptureResult(
-                new CaptureCallbackChecker.CaptureResultChecker<Boolean>() {
-                    @Override
-                    public Boolean check(@NonNull CameraCaptureResult captureResult) {
-                        if (Logger.isDebugEnabled(TAG)) {
-                            Logger.d(TAG, "checkCaptureResult, AE=" + captureResult.getAeState()
-                                    + " AF =" + captureResult.getAfState()
-                                    + " AWB=" + captureResult.getAwbState());
-                        }
-
-                        if (is3AConverged(captureResult)) {
-                            return true;
-                        }
-                        // Return null to continue check.
-                        return null;
-                    }
-                },
-                waitTimeout,
-                false);
-    }
-
-    boolean is3AConverged(CameraCaptureResult captureResult) {
-        if (captureResult == null) {
-            return false;
-        }
-
-        // If afMode is OFF or UNKNOWN , no need for waiting.
-        // otherwise wait until af is locked or focused.
-        boolean isAfReady = captureResult.getAfMode() == AfMode.OFF
-                || captureResult.getAfMode() == AfMode.UNKNOWN
-                || captureResult.getAfState() == AfState.PASSIVE_FOCUSED
-                || captureResult.getAfState() == AfState.PASSIVE_NOT_FOCUSED
-                || captureResult.getAfState() == AfState.LOCKED_FOCUSED
-                || captureResult.getAfState() == AfState.LOCKED_NOT_FOCUSED;
-
-        // Unknown means cannot get valid state from CaptureResult
-        boolean isAeReady = captureResult.getAeState() == AeState.CONVERGED
-                || captureResult.getAeState() == AeState.FLASH_REQUIRED
-                || captureResult.getAeState() == AeState.UNKNOWN;
-
-        // Unknown means cannot get valid state from CaptureResult
-        boolean isAwbReady = captureResult.getAwbState() == AwbState.CONVERGED
-                || captureResult.getAwbState() == AwbState.UNKNOWN;
-
-        return (isAfReady && isAeReady && isAwbReady);
-    }
-
-    /**
-     * Issues the AF scan if needed.
-     *
-     * <p>If enableCheck3AConverged is disabled or it is in CAF mode, AF scan should not be
-     * triggered. Trigger AF scan only in {@link AfMode#ON_MANUAL_AUTO} and current AF state is
-     * {@link AfState#INACTIVE}. If the AF mode is {@link AfMode#ON_MANUAL_AUTO} and AF state is not
-     * inactive, it means that a manual or auto focus request may be in progress or completed.
-     */
-    void triggerAfIfNeeded(TakePictureState state) {
-        if (mEnableCheck3AConverged
-                && state.mPreCaptureState.getAfMode() == AfMode.ON_MANUAL_AUTO
-                && state.mPreCaptureState.getAfState() == AfState.INACTIVE) {
-            triggerAf(state);
-        }
-    }
-
-    /** Issues a request to start auto focus scan. */
-    private void triggerAf(TakePictureState state) {
-        Logger.d(TAG, "triggerAf");
-        state.mIsAfTriggered = true;
-        ListenableFuture<CameraCaptureResult> future = getCameraControl().triggerAf();
-        // Add listener to avoid FutureReturnValueIgnored error.
-        future.addListener(() -> {
-        }, CameraXExecutors.directExecutor());
-    }
-
-    /** Issues a request to start auto exposure scan. */
-    @NonNull
-    ListenableFuture<Void> startFlashSequence(@NonNull TakePictureState state) {
-        Logger.d(TAG, "startFlashSequence");
-        state.mIsFlashSequenceStarted = true;
-        return getCameraControl().startFlashSequence(mFlashType);
-    }
-
-    /** Issues a request to cancel auto focus and/or auto exposure scan. */
-    void cancelAfAndFinishFlashSequence(@NonNull TakePictureState state) {
-        if (!state.mIsAfTriggered && !state.mIsFlashSequenceStarted) {
-            return;
-        }
-        getCameraControl().cancelAfAndFinishFlashSequence(state.mIsAfTriggered,
-                state.mIsFlashSequenceStarted);
-        state.mIsAfTriggered = false;
-        state.mIsFlashSequenceStarted = false;
-    }
-
-    /**
      * Initiates a set of captures that will be used to create the output of
      * {@link #takePicture(OutputFileOptions, Executor, OnImageSavedCallback)} and its variants.
      *
@@ -2232,148 +2036,6 @@ public final class ImageCapture extends UseCase {
          */
         public void setLocation(@Nullable Location location) {
             mLocation = location;
-        }
-    }
-
-    /**
-     * An intermediate action recorder while taking picture. It is used to restore certain states.
-     * For example, cancel AF/AE scan, and close flash light.
-     */
-    static final class TakePictureState {
-        CameraCaptureResult mPreCaptureState = EmptyCameraCaptureResult.create();
-        boolean mIsAfTriggered = false;
-        boolean mIsFlashSequenceStarted = false;
-    }
-
-    /**
-     * A helper class to check camera capture result.
-     *
-     * <p>CaptureCallbackChecker is an implementation of {@link CameraCaptureCallback} that checks a
-     * specified list of condition and sets a ListenableFuture when the conditions have been met. It
-     * is mainly used to continuously capture callbacks to detect specific conditions. It also
-     * handles the timeout condition if the check condition does not satisfy the given timeout, and
-     * returns the given default value if the timeout is met.
-     */
-    static final class CaptureCallbackChecker extends CameraCaptureCallback {
-        private static final long NO_TIMEOUT = 0L;
-
-        /** Capture listeners. */
-        private final Set<CaptureResultListener> mCaptureResultListeners = new HashSet<>();
-
-        @Override
-        public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
-            deliverCaptureResultToListeners(cameraCaptureResult);
-        }
-
-        /**
-         * Check the capture results of current session capture callback by giving a {@link
-         * CaptureResultChecker}.
-         *
-         * @param checker a CaptureResult checker that returns an object with type T if the check is
-         *                complete, returning null to continue the check process.
-         * @param <T>     the type parameter for CaptureResult checker.
-         * @return a listenable future for capture result check process.
-         */
-        <T> ListenableFuture<T> checkCaptureResult(CaptureResultChecker<T> checker) {
-            return checkCaptureResult(checker, NO_TIMEOUT, null);
-        }
-
-        /**
-         * Check the capture results of current session capture callback with timeout limit by
-         * giving a {@link CaptureResultChecker}.
-         *
-         * @param checker     a CaptureResult checker that returns an object with type T if the
-         *                    check is
-         *                    complete, returning null to continue the check process.
-         * @param timeoutInMs used to force stop checking.
-         * @param defValue    the default return value if timeout occur.
-         * @param <T>         the type parameter for CaptureResult checker.
-         * @return a listenable future for capture result check process.
-         */
-        <T> ListenableFuture<T> checkCaptureResult(
-                final CaptureResultChecker<T> checker, final long timeoutInMs, final T defValue) {
-            if (timeoutInMs < NO_TIMEOUT) {
-                throw new IllegalArgumentException("Invalid timeout value: " + timeoutInMs);
-            }
-            final long startTimeInMs =
-                    (timeoutInMs != NO_TIMEOUT) ? SystemClock.elapsedRealtime() : 0L;
-
-            return CallbackToFutureAdapter.getFuture(
-                    completer -> {
-                        addListener(
-                                new CaptureResultListener() {
-                                    @Override
-                                    public boolean onCaptureResult(
-                                            @NonNull CameraCaptureResult captureResult) {
-                                        T result = checker.check(captureResult);
-                                        if (result != null) {
-                                            completer.set(result);
-                                            return true;
-                                        } else if (startTimeInMs > 0
-                                                && SystemClock.elapsedRealtime() - startTimeInMs
-                                                > timeoutInMs) {
-                                            completer.set(defValue);
-                                            return true;
-                                        }
-                                        // Return false to continue check.
-                                        return false;
-                                    }
-                                });
-                        return "checkCaptureResult";
-                    });
-        }
-
-        /**
-         * Delivers camera capture result to {@link CaptureCallbackChecker#mCaptureResultListeners}.
-         */
-        private void deliverCaptureResultToListeners(@NonNull CameraCaptureResult captureResult) {
-            synchronized (mCaptureResultListeners) {
-                Set<CaptureResultListener> removeSet = null;
-                for (CaptureResultListener listener : new HashSet<>(mCaptureResultListeners)) {
-                    // Remove listener if the callback return true
-                    if (listener.onCaptureResult(captureResult)) {
-                        if (removeSet == null) {
-                            removeSet = new HashSet<>();
-                        }
-                        removeSet.add(listener);
-                    }
-                }
-                if (removeSet != null) {
-                    mCaptureResultListeners.removeAll(removeSet);
-                }
-            }
-        }
-
-        /** Add capture result listener. */
-        void addListener(CaptureResultListener listener) {
-            synchronized (mCaptureResultListeners) {
-                mCaptureResultListeners.add(listener);
-            }
-        }
-
-        /** An interface to check camera capture result. */
-        public interface CaptureResultChecker<T> {
-
-            /**
-             * The callback to check camera capture result.
-             *
-             * @param captureResult the camera capture result.
-             * @return the check result, return null to continue checking.
-             */
-            @Nullable
-            T check(@NonNull CameraCaptureResult captureResult);
-        }
-
-        /** An interface to listen to camera capture results. */
-        private interface CaptureResultListener {
-
-            /**
-             * Callback to handle camera capture results.
-             *
-             * @param captureResult camera capture result.
-             * @return true to finish listening, false to continue listening.
-             */
-            boolean onCaptureResult(@NonNull CameraCaptureResult captureResult);
         }
     }
 

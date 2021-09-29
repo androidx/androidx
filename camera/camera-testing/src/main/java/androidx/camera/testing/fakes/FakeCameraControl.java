@@ -133,27 +133,6 @@ public final class FakeCameraControl implements CameraControlInternal {
         return Futures.immediateFuture(null);
     }
 
-    @Override
-    @NonNull
-    public ListenableFuture<CameraCaptureResult> triggerAf() {
-        Logger.d(TAG, "triggerAf()");
-        return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create());
-    }
-
-    @Override
-    @NonNull
-    public ListenableFuture<Void> startFlashSequence(@ImageCapture.FlashType int flashType) {
-        Logger.d(TAG, "startFlashSequence()");
-        return Futures.immediateFuture(null);
-    }
-
-    @Override
-    public void cancelAfAndFinishFlashSequence(final boolean cancelAfTrigger,
-            final boolean finishFlashSequence) {
-        Logger.d(TAG, "cancelAfAndFinishFlashSequence(" + cancelAfTrigger + ", "
-                + finishFlashSequence + ")");
-    }
-
     @NonNull
     @Override
     public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {

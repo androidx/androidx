@@ -58,28 +58,6 @@ public interface CameraControlInternal extends CameraControl {
     void setFlashMode(@FlashMode int flashMode);
 
     /**
-     * Performs a AF trigger.
-     *
-     * @return a {@link ListenableFuture} which completes when the request is completed.
-     * Cancelling the ListenableFuture is a no-op.
-     */
-    @NonNull
-    ListenableFuture<CameraCaptureResult> triggerAf();
-
-    /**
-     * Starts a flash sequence.
-     *
-     * @param flashType Uses one shot flash or use torch as flash when taking a picture.
-     * @return a {@link ListenableFuture} which completes when the request is completed.
-     * Cancelling the ListenableFuture is a no-op.
-     */
-    @NonNull
-    ListenableFuture<Void> startFlashSequence(@ImageCapture.FlashType int flashType);
-
-    /** Cancels AF trigger AND/OR finishes flash sequence.* */
-    void cancelAfAndFinishFlashSequence(boolean cancelAfTrigger, boolean finishFlashSequence);
-
-    /**
      * Performs still capture requests with the desired capture mode.
      *
      * @param captureConfigs capture configuration used for creating CaptureRequest
@@ -145,23 +123,6 @@ public interface CameraControlInternal extends CameraControl {
         @Override
         public ListenableFuture<Void> enableTorch(boolean torch) {
             return Futures.immediateFuture(null);
-        }
-
-        @Override
-        @NonNull
-        public ListenableFuture<CameraCaptureResult> triggerAf() {
-            return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create());
-        }
-
-        @Override
-        @NonNull
-        public ListenableFuture<Void> startFlashSequence(@ImageCapture.FlashType int flashType) {
-            return Futures.immediateFuture(null);
-        }
-
-        @Override
-        public void cancelAfAndFinishFlashSequence(boolean cancelAfTrigger,
-                boolean finishFlashSequence) {
         }
 
         @NonNull
