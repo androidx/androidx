@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="appsearch_no_documents_error" msgid="7957333381856121779">"ડેટાબેઝમાં AppSearchના કોઈ દસ્તાવેજ મળ્યા નથી. ડેટાબેઝનું નામ માન્ય હોવાની અને પસંદ કરેલા સ્ટોરેજનો પ્રકાર યોગ્ય હોવાની ચકાસણી કરો."</string>
+    <string name="appsearch_no_schema_types_error" msgid="5825283982305113887">"AppSearch સ્કીમાના કોઈ પ્રકાર મળ્યા નથી. ડેટાબેઝનું નામ માન્ય હોવાની અને પસંદ કરેલા સ્ટોરેજનો પ્રકાર યોગ્ય હોવાની ચકાસણી કરો."</string>
+    <string name="appsearch_documents_loading" msgid="1689893533003672860">"AppSearchના દસ્તાવેજો લોડ કરી રહ્યાં છીએ…"</string>
+    <string name="appsearch_schema_types_loading" msgid="4961123108404531766">"AppSearch સ્કીમાના પ્રકારો લોડ કરી રહ્યાં છીએ…"</string>
+    <string name="appsearch_schema_version" msgid="7000254633719373917">"સ્કીમા વર્ઝન: %d"</string>
+</resources>
