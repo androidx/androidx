@@ -204,6 +204,17 @@ for the possibility it is due to some incorrect settings or other generated
 files, you can run `./studiow --clean main <project subset>` or `./studiow
 --reinstall <project subset>` to clean generated files or reinstall Studio.
 
+> Tip: If you don't see a specific Gradle task listed in Studio's Gradle pane,
+> check the following:
+>
+> *   Studio might be running a different project subset than the one intended.
+>     For example, `./studiow main` only loads the `main` set of androidx
+>     projects; run `./studiow compose` to load the tasks specific to Compose.
+>
+> *   Gradle tasks aren't being loaded. Under Studio's settings => Experimental,
+>     make sure that "Do not build Gradle task list during Gradle sync" is
+>     unchecked. (Note that unchecking this can reduce Studio's performance)
+
 ## Making changes {#changes}
 
 Similar to Android framework development, library development should occur in
