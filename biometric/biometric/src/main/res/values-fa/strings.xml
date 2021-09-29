@@ -30,32 +30,18 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"پین، الگو، یا گذرواژه‌ای تنظیم نشده است."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"این دستگاه از پین، الگو، یا گذرواژه پشتیبانی نمی‌کند."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"نماد اثر انگشت"</string>
-    <!-- no translation found for use_fingerprint_label (6961788485681412417) -->
-    <skip />
-    <!-- no translation found for use_face_label (6533512708069459542) -->
-    <skip />
-    <!-- no translation found for use_biometric_label (6524145989441579428) -->
-    <skip />
-    <!-- no translation found for use_screen_lock_label (5459869335976243512) -->
-    <skip />
-    <!-- no translation found for use_fingerprint_or_screen_lock_label (7577690399303139443) -->
-    <skip />
-    <!-- no translation found for use_face_or_screen_lock_label (2116180187159450292) -->
-    <skip />
-    <!-- no translation found for use_biometric_or_screen_lock_label (5385448280139639016) -->
-    <skip />
-    <!-- no translation found for fingerprint_prompt_message (7449360011861769080) -->
-    <skip />
-    <!-- no translation found for face_prompt_message (2282389249605674226) -->
-    <skip />
-    <!-- no translation found for biometric_prompt_message (1160635338192065472) -->
-    <skip />
-    <!-- no translation found for screen_lock_prompt_message (5659570757430909869) -->
-    <skip />
-    <!-- no translation found for fingerprint_or_screen_lock_prompt_message (8382576858490514495) -->
-    <skip />
-    <!-- no translation found for face_or_screen_lock_prompt_message (4562557128765735254) -->
-    <skip />
-    <!-- no translation found for biometric_or_screen_lock_prompt_message (2102429900219199821) -->
-    <skip />
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"استفاده از اثر انگشت"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"استفاده از چهره"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"استفاده از زیست‌سنجشی"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"از قفل صفحه استفاده کنید"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"استفاده از اثر انگشت یا قفل صفحه"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"استفاده از قفل صفحه یا چهره"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"استفاده از زیست‌سنجشی یا قفل صفحه"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"برای ادامه، از اثر انگشتتان استفاده کنید"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"برای ادامه، از چهره‌تان استفاده کنید"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"برای ادامه، از زیست‌سنجشی استفاده کنید"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"برای ادامه، قفل صفحه‌تان را وارد کنید"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"برای ادامه، از اثر انگشت یا قفل صفحه استفاده کنید"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"برای ادامه، از تشخیص چهره یا قفل صفحه استفاده کنید"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"برای ادامه، از زیست‌سنجشی یا قفل صفحه استفاده کنید"</string>
 </resources>

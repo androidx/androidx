@@ -30,32 +30,18 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Ez da ezarri PIN koderik, eredurik edo pasahitzik."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Gailuak ez du onartzen PIN, eredu edo pasahitzik."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Hatz-markaren ikonoa"</string>
-    <!-- no translation found for use_fingerprint_label (6961788485681412417) -->
-    <skip />
-    <!-- no translation found for use_face_label (6533512708069459542) -->
-    <skip />
-    <!-- no translation found for use_biometric_label (6524145989441579428) -->
-    <skip />
-    <!-- no translation found for use_screen_lock_label (5459869335976243512) -->
-    <skip />
-    <!-- no translation found for use_fingerprint_or_screen_lock_label (7577690399303139443) -->
-    <skip />
-    <!-- no translation found for use_face_or_screen_lock_label (2116180187159450292) -->
-    <skip />
-    <!-- no translation found for use_biometric_or_screen_lock_label (5385448280139639016) -->
-    <skip />
-    <!-- no translation found for fingerprint_prompt_message (7449360011861769080) -->
-    <skip />
-    <!-- no translation found for face_prompt_message (2282389249605674226) -->
-    <skip />
-    <!-- no translation found for biometric_prompt_message (1160635338192065472) -->
-    <skip />
-    <!-- no translation found for screen_lock_prompt_message (5659570757430909869) -->
-    <skip />
-    <!-- no translation found for fingerprint_or_screen_lock_prompt_message (8382576858490514495) -->
-    <skip />
-    <!-- no translation found for face_or_screen_lock_prompt_message (4562557128765735254) -->
-    <skip />
-    <!-- no translation found for biometric_or_screen_lock_prompt_message (2102429900219199821) -->
-    <skip />
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"Erabili hatz-marka"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"Erabili aurpegia"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"Erabili sistema biometrikoak"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"Erabili pantailaren blokeoa"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Erabili hatz-marka edo pantailaren blokeoa"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Erabili aurpegia edo pantailaren blokeoa"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Erabili sistema biometrikoak edo pantailaren blokeoa"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Aurrera egiteko, erabili hatz-marka"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"Aurrera egiteko, erabili aurpegia"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"Aurrera egiteko, erabili sistema biometrikoak"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"Aurrera egiteko, desblokeatu pantailaren blokeoa"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"Aurrera egiteko, erabili hatz-marka edo pantailaren blokeoa"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"Aurrera egiteko, erabili aurpegia edo pantailaren blokeoa"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"Aurrera egiteko, erabili sistema biometrikoak edo pantailaren blokeoa"</string>
 </resources>

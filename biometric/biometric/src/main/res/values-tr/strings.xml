@@ -30,32 +30,18 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"PIN, desen veya şifre seti yok"</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Bu cihaz PIN, desen veya şifre kullanımını desteklemiyor"</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Parmak izi simgesi"</string>
-    <!-- no translation found for use_fingerprint_label (6961788485681412417) -->
-    <skip />
-    <!-- no translation found for use_face_label (6533512708069459542) -->
-    <skip />
-    <!-- no translation found for use_biometric_label (6524145989441579428) -->
-    <skip />
-    <!-- no translation found for use_screen_lock_label (5459869335976243512) -->
-    <skip />
-    <!-- no translation found for use_fingerprint_or_screen_lock_label (7577690399303139443) -->
-    <skip />
-    <!-- no translation found for use_face_or_screen_lock_label (2116180187159450292) -->
-    <skip />
-    <!-- no translation found for use_biometric_or_screen_lock_label (5385448280139639016) -->
-    <skip />
-    <!-- no translation found for fingerprint_prompt_message (7449360011861769080) -->
-    <skip />
-    <!-- no translation found for face_prompt_message (2282389249605674226) -->
-    <skip />
-    <!-- no translation found for biometric_prompt_message (1160635338192065472) -->
-    <skip />
-    <!-- no translation found for screen_lock_prompt_message (5659570757430909869) -->
-    <skip />
-    <!-- no translation found for fingerprint_or_screen_lock_prompt_message (8382576858490514495) -->
-    <skip />
-    <!-- no translation found for face_or_screen_lock_prompt_message (4562557128765735254) -->
-    <skip />
-    <!-- no translation found for biometric_or_screen_lock_prompt_message (2102429900219199821) -->
-    <skip />
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"Parmak izi kullan"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"Yüz tanıma kullan"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"Biyometri kullan"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"Ekran kilidi kullan"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Parmak izi veya ekran kilidi kullan"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Yüz tanıma veya ekran kilidi kullan"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Biyometri veya ekran kilidi kullan"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Devam etmek için parmak izinizi kullanın"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"Devam etmek için yüzünüzü kullanın"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"Devam etmek için biyometrik kimlik bilginizi kullanın"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"Devam etmek için ekran kilidinizi girin"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"Devam etmek için parmak izi veya ekran kilidinizi kullanın"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"Devam etmek için yüz veya ekran kilidinizi kullanın"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"Devam etmek için biyometrik kimlik bilginizi veya ekran kilidinizi kullanın"</string>
 </resources>
