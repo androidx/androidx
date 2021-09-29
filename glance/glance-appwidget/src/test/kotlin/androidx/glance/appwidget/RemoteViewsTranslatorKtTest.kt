@@ -68,6 +68,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.lang.IllegalArgumentException
+import java.lang.IllegalStateException
 import java.util.Locale
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
@@ -672,6 +674,23 @@ class RemoteViewsTranslatorKtTest {
                 LazyColumn { }
                 LazyColumn { }
                 LazyColumn { }
+            }
+        }
+    }
+
+    @Test
+    fun cannotTranslateNestedLists() = fakeCoroutineScope.runBlockingTest {
+        assertFailsWith<IllegalStateException> {
+            runAndTranslate {
+                LazyColumn {
+                    item {
+                        LazyColumn {
+                            item {
+                                Text("Crash expected")
+                            }
+                        }
+                    }
+                }
             }
         }
     }
