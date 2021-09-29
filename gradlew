@@ -294,6 +294,14 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
   fi
 done
 
+if [[ " ${@} " =~ " --scan " ]]; then
+  if [[ " ${@} " =~ " --offline " ]]; then
+    echo "--scan incompatible with --offline"
+    echo "you could try --no-ci"
+    exit 1
+  fi
+fi
+
 function removeCaches() {
   rm -rf $SCRIPT_PATH/.gradle
   rm -rf $SCRIPT_PATH/buildSrc/.gradle
