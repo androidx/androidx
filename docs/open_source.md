@@ -117,11 +117,11 @@ be provided; only that it is possible to write one.
         limiting developer choice. Features in primary artifacts which may
         delegate to proprietary services must allow developers to choose a
         different delegate. Reflection on a fully-qualified class name does
-        _not_ allow multiple delegates to exist on the classpath and is not a
+        *not* allow multiple delegates to exist on the classpath and is not a
         suitable service discovery mechanism.
     *   **How to fix?** This library should use a more suitable service
         discovery mechanism that allows multiple providers to coexist and
-        ensures the the developer is able to choose among them.
+        ensures the developer is able to choose among them.
 *   A primary artifact provides a service discovery mechanism that allows
     multiple providers and exposes an API that lets the developer specify a
     preference. Communication with the service is managed through a `Bundle`
