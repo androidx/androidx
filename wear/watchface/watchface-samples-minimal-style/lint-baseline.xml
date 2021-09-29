@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="true" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
+
+    <issue
+        id="MissingClass"
+        message="Class referenced in the layout file, `androidx.wear.widget.SwipeDismissFrameLayout`, was not found in the project or the libraries"
+        errorLine1="&lt;androidx.wear.widget.SwipeDismissFrameLayout"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/complication_config_layout.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MissingClass"
+        message="Class referenced in the layout file, `androidx.wear.widget.SwipeDismissFrameLayout`, was not found in the project or the libraries"
+        errorLine1="&lt;androidx.wear.widget.SwipeDismissFrameLayout"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/config_layout.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MissingClass"
+        message="Class referenced in the layout file, `androidx.wear.widget.WearableRecyclerView`, was not found in the project or the libraries"
+        errorLine1="    &lt;androidx.wear.widget.WearableRecyclerView"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/config_layout.xml"
+            line="11"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingClass"
+        message="Class referenced in the layout file, `androidx.wear.widget.SwipeDismissFrameLayout`, was not found in the project or the libraries"
+        errorLine1="&lt;androidx.wear.widget.SwipeDismissFrameLayout"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout/style_options_layout.xml"
+            line="2"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="MissingClass"
+        message="Class referenced in the layout file, `androidx.wear.widget.WearableRecyclerView`, was not found in the project or the libraries"
+        errorLine1="    &lt;androidx.wear.widget.WearableRecyclerView"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/layout/style_options_layout.xml"
+            line="10"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 30; however, the containing class androidx.wear.watchface.WatchFaceImpl is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            renderer.surfaceHolder.surface.setFrameRate("
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/WatchFace.kt"
+            line="601"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;3878057769320887026&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/complication_strings.xml"
+            line="4"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_hours&quot; formatted=&quot;false&quot; msgid=&quot;6016687406802669982&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/complication_strings.xml"
+            line="8"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_short_minutes&quot; formatted=&quot;false&quot; msgid=&quot;6752732458902810711&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/complication_strings.xml"
+            line="12"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_days&quot; formatted=&quot;false&quot; msgid=&quot;5109682345086392533&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/complication_strings.xml"
+            line="18"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_hours&quot; formatted=&quot;false&quot; msgid=&quot;3172220157267000186&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/complication_strings.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;time_difference_words_minutes&quot; formatted=&quot;false&quot; msgid=&quot;529404827937478243&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-fr/complication_strings.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+</issues>
