@@ -363,8 +363,8 @@ as no stability\/compatibility guarantees are given on
 compiler or generated code\. Use it at your own risk\!
 # > Task :compose:ui:ui-util:compileReleaseKotlin
 \-XXLanguage\:\+InlineClasses
-# > Task :docs-public:lintRelease
-Wrote HTML report to file://\$OUT_DIR/androidx/docs\-public/build/reports/lint\-results\-release\.html
+# > Task :docs-public:lintDebug
+Wrote HTML report to file://\$OUT_DIR/androidx/docs\-public/build/reports/lint\-results\-debug\.html
 # > Task :camera:camera-core:compileDebugJavaWithJavac
 warning: unknown enum constant AnnotationRetention\.BINARY
 # > Task :compose:ui:ui:processDebugUnitTestManifest
@@ -581,8 +581,8 @@ javadoc\: warning \- Multiple sources of package comments found for package \"ja
 # > Task :stripArchiveForPartialDejetification
 Execution optimizations have been disabled for task ':stripArchiveForPartialDejetification' to ensure correctness due to the following reasons:
 \- Gradle detected a problem with the following location: '\$DIST_DIR/top\-of\-tree\-m2repository\-all\-.*.zip'\. Reason: Task ':stripArchiveForPartialDejetification' uses this output of task ':benchmark:benchmark\-gradle\-plugin:buildOnServer' without declaring an explicit or implicit dependency\. This can lead to incorrect results being produced, depending on what order the tasks are executed\. Please refer to https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/validation_problems\.html\#implicit_dependency for more details about this problem\.
-# > Task :icing:lintRelease
-Wrote HTML report to file://\$OUT_DIR/androidx/icing/build/reports/lint\-results\-release\.html
+# > Task :icing:lintDebug
+Wrote HTML report to file://\$OUT_DIR/androidx/icing/build/reports/lint\-results\-debug\.html
 # https://youtrack.jetbrains.com/issue/KT-30589
 WARNING: Illegal reflective access by org\.jetbrains\.kotlin\.kapt3\.base\.javac\.KaptJavaFileManager .* to method com\.sun\.tools\.javac\.file\.BaseFileManager\.handleOption\(com\.sun\.tools\.javac\.main\.Option,java\.lang\.String\)
 # > Task :benchmark:benchmark-macro:compileReleaseKotlin
@@ -650,8 +650,6 @@ Unable to detect AGP versions for included builds\. All projects in the build sh
 To honour the JVM settings for this build a single\-use Daemon process will be forked.*
 # > Task :work:work-benchmark:processReleaseAndroidTestManifest
 \$SUPPORT/work/work\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :lint-checks:integration-tests:copyReleaseAndroidLintReports
-Copying lint text report to \$OUT_DIR/androidx/lint\-checks/integration\-tests/build/lint\-results\-release\.txt
 [0-9]+ problems were found storing the configuration cache\.
 [0-9]+ problems were found storing the configuration cache, [0-9]+ of which seems unique\.
 # > Task :car:app:app:generateProtocolApi

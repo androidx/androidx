@@ -17,14 +17,18 @@ package androidx.metrics.performance.test
 
 import android.content.Context
 import android.graphics.Canvas
+import android.os.Build
 import android.util.AttributeSet
 import android.view.View
+import androidx.annotation.RequiresApi
 
 /**
  * This custom view is used to inject an artificial, random delay during drawing, to simulate
  * jank on the UI thread.
  */
 public class MyCustomView : View {
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     public constructor(
         context: Context?,
         attrs: AttributeSet? = null,

@@ -46,7 +46,7 @@ android {
     lintOptions {
         // lint is supposed to detect errors in this project
         // We don't need to see the errors in stdout
-        textOutput("${buildDir}/lint-results-release.txt") // Set to this value for b/189877657
+        textOutput("${buildDir}/lint-results-debug.txt") // Set to this value for b/189877657
         // We don't want errors to cause lint to fail
         abortOnError false
     }
@@ -75,5 +75,12 @@ class CompareFilesTask extends DefaultTask {
                 "Actual   output at: " + actualFile + "\n" +
                 "Expected output at: " + expectedFile + "\n")
         }
+    }
+}
+
+// workaround for b/189877657
+afterEvaluate {
+    tasks.named("copyDebugAndroidLintReports").configure {
+        enabled = false
     }
 }

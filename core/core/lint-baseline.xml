@@ -982,6 +982,127 @@
 
     <issue
         id="NewApi"
+        message="Call requires API level 29 (current min is 28): `COLOR_DODGE`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.COLOR_DODGE, null);"
+        errorLine2="                                                      ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="100"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `COLOR_BURN`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.COLOR_BURN, null);"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="101"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `HARD_LIGHT`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.HARD_LIGHT, null);"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="102"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `SOFT_LIGHT`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.SOFT_LIGHT, null);"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="103"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `DIFFERENCE`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.DIFFERENCE, null);"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="104"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `EXCLUSION`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.EXCLUSION, null);"
+        errorLine2="                                                      ~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="105"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `MULTIPLY`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.MULTIPLY, null);"
+        errorLine2="                                                      ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="108"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `HUE`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.HUE, null);"
+        errorLine2="                                                      ~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="109"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `SATURATION`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.SATURATION, null);"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="110"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `COLOR`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.COLOR, null);"
+        errorLine2="                                                      ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="111"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `LUMINOSITY`"
+        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.LUMINOSITY, null);"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
+            line="112"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
         message="Call requires API level 29 (current min is 14): `android.graphics.Paint#getBlendMode`"
         errorLine1="            assertEquals(blendMode, p.getBlendMode());"
         errorLine2="                                      ~~~~~~~~~~~~">
@@ -1313,6 +1434,72 @@
     <issue
         id="NewApi"
         message="Field requires API level 23 (current min is 21): `scenario`"
+        errorLine1="        val decorView = scenario.withActivity { window.decorView }"
+        errorLine2="                        ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
+            line="319"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `scenario`"
+        errorLine1="        scenario.onActivity {"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
+            line="298"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `windowInsetsController`"
+        errorLine1="            windowInsetsController.systemBarsBehavior ="
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
+            line="299"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `scenario`"
+        errorLine1="        val decorView = scenario.withActivity { window.decorView }"
+        errorLine2="                        ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
+            line="302"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `scenario`"
+        errorLine1="        scenario.onActivity {"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
+            line="315"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `windowInsetsController`"
+        errorLine1="            windowInsetsController.systemBarsBehavior ="
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
+            line="316"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `scenario`"
         errorLine1="        val decorView = scenario.withActivity { window.decorView }"
         errorLine2="                        ~~~~~~~~">
         <location
