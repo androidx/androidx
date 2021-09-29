@@ -214,9 +214,9 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     public fun isConnectionAlive(): Boolean
 
     /**
-     * Interface passed to [addWatchFaceReadyListener] which calls
+     * Interface passed to [addOnWatchFaceReadyListener] which calls
      * [OnWatchFaceReadyListener.onWatchFaceReady] when the watch face is ready to render. Use
-     * [addWatchFaceReadyListener] to register a OnWatchFaceReadyListener.
+     * [addOnWatchFaceReadyListener] to register a OnWatchFaceReadyListener.
      */
     public fun interface OnWatchFaceReadyListener {
         /**
@@ -238,12 +238,12 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * @param executor The [Executor] on which to run [OnWatchFaceReadyListener].
      * @param listener The [OnWatchFaceReadyListener] to run when the watchface is ready to render.
      */
-    public fun addWatchFaceReadyListener(executor: Executor, listener: OnWatchFaceReadyListener)
+    public fun addOnWatchFaceReadyListener(executor: Executor, listener: OnWatchFaceReadyListener)
 
     /**
-     * Stops listening for events registered by [addWatchFaceReadyListener].
+     * Stops listening for events registered by [addOnWatchFaceReadyListener].
      */
-    public fun removeWatchFaceReadyListener(listener: OnWatchFaceReadyListener)
+    public fun removeOnWatchFaceReadyListener(listener: OnWatchFaceReadyListener)
 }
 
 /** Controls a stateful remote interactive watch face. */
@@ -451,7 +451,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         }
     }
 
-    override fun addWatchFaceReadyListener(
+    override fun addOnWatchFaceReadyListener(
         executor: Executor,
         listener: InteractiveWatchFaceClient.OnWatchFaceReadyListener
     ) {
@@ -464,7 +464,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         }
     }
 
-    override fun removeWatchFaceReadyListener(
+    override fun removeOnWatchFaceReadyListener(
         listener: InteractiveWatchFaceClient.OnWatchFaceReadyListener
     ) {
         synchronized(lock) {
