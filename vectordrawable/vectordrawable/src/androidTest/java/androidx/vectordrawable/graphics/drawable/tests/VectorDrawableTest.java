@@ -49,6 +49,7 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 import androidx.vectordrawable.test.R;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.xmlpull.v1.XmlPullParserException;
@@ -461,6 +462,7 @@ public class VectorDrawableTest {
         assertEquals(1, constantState.getChangingConfigurations());
     }
 
+    @Ignore("b/201453802")
     @Test
     public void testMutate() {
         VectorDrawableCompat d1 =
