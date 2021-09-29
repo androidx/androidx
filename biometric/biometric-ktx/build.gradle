@@ -27,6 +27,8 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
     api(project(":biometric:biometric"))
+
+    samples(project(":biometric:biometric-ktx-samples"))
 }
 
 androidx {

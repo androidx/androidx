@@ -45,6 +45,8 @@ dependencies {
 
     lintChecks(projectOrArtifact(":activity:activity-compose-lint"))
     lintPublish(projectOrArtifact(":activity:activity-compose-lint"))
+
+    samples(projectOrArtifact(":activity:activity-compose:activity-compose-samples"))
 }
 
 androidx {

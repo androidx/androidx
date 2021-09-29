@@ -43,6 +43,8 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":appcompat:appcompat"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
+
+    samples(project(":core:core-splashscreen:core-splashscreen-samples"))
 }
 
 androidx {

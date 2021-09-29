@@ -74,6 +74,8 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(compileOnly(project(":window:window-extensions")))
     androidTestImplementation(compileOnly(project(":window:window-sidecar")))
+
+    samples(project(":window:window-samples"))
 }
 
 androidx {

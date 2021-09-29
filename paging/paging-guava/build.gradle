@@ -35,6 +35,8 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)
+
+    samples(project(":paging:paging-samples"))
 }
 
 androidx {

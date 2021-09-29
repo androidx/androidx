@@ -54,6 +54,8 @@ dependencies {
     kaptAndroidTest(libs.hiltCompiler)
     androidTestImplementation projectOrArtifact(":compose:material:material")
     androidTestImplementation projectOrArtifact(":compose:test-utils")
+
+    samples(projectOrArtifact(":hilt:hilt-navigation-compose-samples"))
 }
 
 hilt {

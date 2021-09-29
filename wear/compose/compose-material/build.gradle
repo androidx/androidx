@@ -48,6 +48,8 @@ dependencies {
         androidTestImplementation project(":test:screenshot:screenshot")
         androidTestImplementation(libs.testRunner)
         androidTestImplementation(libs.truth)
+
+        samples(project(":wear:compose:compose-material-samples"))
     }
 }
 

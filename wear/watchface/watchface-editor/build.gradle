@@ -47,6 +47,8 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.truth)
+
+    samples(project(":wear:watchface:watchface-samples"))
 }
 
 android {
