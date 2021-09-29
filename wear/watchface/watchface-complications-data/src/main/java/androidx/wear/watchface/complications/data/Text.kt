@@ -109,7 +109,7 @@ public class PlainComplicationText internal constructor(
 }
 
 /** The styling used for showing a time different by [ComplicationText#TimeDifferenceBuilder]. */
-public enum class TimeDifferenceStyle(internal var wireStyle: Int) {
+public enum class TimeDifferenceStyle(internal val wireStyle: Int) {
 
     /**
      * Style for time differences shown in a numeric fashion like a timer.
@@ -316,7 +316,7 @@ public class TimeDifferenceComplicationText internal constructor(
 }
 
 /** The format in which the time should be displayed. */
-public enum class TimeFormatStyle(internal var wireStyle: Int) {
+public enum class TimeFormatStyle(internal val wireStyle: Int) {
     DEFAULT(WireComplicationText.FORMAT_STYLE_DEFAULT),
     UPPER_CASE(WireComplicationText.FORMAT_STYLE_UPPER_CASE),
     LOWER_CASE(WireComplicationText.FORMAT_STYLE_LOWER_CASE);
