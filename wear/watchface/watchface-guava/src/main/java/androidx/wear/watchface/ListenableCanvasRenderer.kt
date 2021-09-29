@@ -45,7 +45,8 @@ public abstract class ListenableCanvasRenderer(
 ) {
     /**
      * Perform UiThread specific initialization.  Will be called once during initialization
-     * before any subsequent calls to [render].
+     * before any subsequent calls to [render].  Note cancellation of the returned future is not
+     * supported.
      *
      * @return A ListenableFuture<Unit> which is resolved when UiThread has completed. Rendering
      * will be blocked until this has resolved.
