@@ -54,6 +54,8 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinTest)
+
+    samples(project(":wear:watchface:watchface-samples"))
 }
 
 android {

@@ -41,6 +41,8 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
+
+    samples(projectOrArtifact(":paging:paging-compose:paging-compose-samples"))
 }
 
 androidx {

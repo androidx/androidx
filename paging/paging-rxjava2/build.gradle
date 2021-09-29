@@ -43,6 +43,8 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
+
+    samples(project(":paging:paging-samples"))
 }
 
 androidx {
