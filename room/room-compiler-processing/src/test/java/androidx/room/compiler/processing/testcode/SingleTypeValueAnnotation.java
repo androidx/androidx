@@ -14,24 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.room.compiler.processing
+package androidx.room.compiler.processing.testcode;
 
-import kotlin.contracts.contract
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
- * Type elements that represent Enum declarations.
+ * used in compilation tests
  */
-interface XEnumTypeElement : XTypeElement {
-    val entries: Set<XEnumEntry>
-
-    override fun getEnclosedElements(): List<XElement> {
-        return super.getEnclosedElements() + entries
-    }
-}
-
-fun XTypeElement.isEnum(): Boolean {
-    contract {
-        returns(true) implies (this@isEnum is XEnumTypeElement)
-    }
-    return this is XEnumTypeElement
+@Retention(RetentionPolicy.RUNTIME)
+public @interface SingleTypeValueAnnotation {
+    Class<?> value();
 }

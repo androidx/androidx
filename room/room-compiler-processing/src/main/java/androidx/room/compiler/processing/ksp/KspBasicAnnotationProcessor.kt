@@ -16,16 +16,15 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.CommonProcessorDelegate
 import androidx.room.compiler.processing.XBasicAnnotationProcessor
-import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
-import com.google.devtools.ksp.isLocal
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSAnnotated
-import com.google.devtools.ksp.symbol.KSDeclaration
-import com.google.devtools.ksp.validate
+import com.google.devtools.ksp.symbol.KSNode
 
 /**
  * KSP implementation of a [XBasicAnnotationProcessor] with built-in support for validating and
@@ -35,57 +34,55 @@ abstract class KspBasicAnnotationProcessor(
     val symbolProcessorEnvironment: SymbolProcessorEnvironment
 ) : SymbolProcessor, XBasicAnnotationProcessor {
 
+    private val logger = DelegateLogger(symbolProcessorEnvironment.logger)
+
     private val xEnv = KspProcessingEnv(
         symbolProcessorEnvironment.options,
         symbolProcessorEnvironment.codeGenerator,
-        symbolProcessorEnvironment.logger
+        logger
     )
+
+    // Cache and lazily get steps during the initial process() so steps initialization is done once.
+    private val steps by lazy { processingSteps().toList() }
+
+    private val commonDelegate by lazy { CommonProcessorDelegate(this.javaClass, xEnv, steps) }
 
     final override val xProcessingEnv: XProcessingEnv get() = xEnv
 
-    // Cache and lazily get steps during the initial process() so steps initialization is done once.
-    private val steps by lazy { processingSteps() }
-
     final override fun process(resolver: Resolver): List<KSAnnotated> {
         xEnv.resolver = resolver // Set the resolver at the beginning of each round
-        val xRoundEnv = KspRoundEnv(xEnv)
-        val deferredElements = steps.flatMap { step ->
-            val invalidElements = mutableSetOf<XElement>()
-            val elementsByAnnotation = step.annotations().mapNotNull { annotation ->
-                val annotatedElements = xRoundEnv.getElementsAnnotatedWith(annotation)
-                val validElements = annotatedElements
-                    .filter { (it as KspElement).declaration.validateExceptLocals() }
-                    .toSet()
-                invalidElements.addAll(annotatedElements - validElements)
-                if (validElements.isNotEmpty()) {
-                    annotation to validElements
-                } else {
-                    null
-                }
-            }.toMap()
-            // Only process the step if there are annotated elements found for this step.
-            if (elementsByAnnotation.isNotEmpty()) {
-                invalidElements + step.process(xEnv, elementsByAnnotation)
-            } else {
-                invalidElements
-            }
-        }
+        val xRoundEnv = KspRoundEnv(xEnv, false)
+        commonDelegate.processRound(xRoundEnv)
         postRound(xEnv, xRoundEnv)
         xEnv.clearCache() // Reset cache after every round to avoid leaking elements across rounds
-        return deferredElements.map { (it as KspElement).declaration }
+        // TODO(b/201307003): Use KSP deferring API.
+        // For now don't defer symbols since this impl of basic annotation processor mimics
+        // javac's impl where elements are deferred by remembering the name of the closest enclosing
+        // type element and later in a subsequent round finding the type element using the
+        // Resolver and then searching it for annotations requested by the steps.
+        return emptyList()
     }
-}
 
-/**
- * TODO remove this once we update to KSP beta03
- * https://github.com/google/ksp/pull/479
- */
-private fun KSAnnotated.validateExceptLocals(): Boolean {
-    return this.validate { parent, current ->
-        // skip locals
-        // https://github.com/google/ksp/issues/489
-        val skip = (parent as? KSDeclaration)?.isLocal() == true ||
-            (current as? KSDeclaration)?.isLocal() == true
-        !skip
+    final override fun finish() {
+        val xRoundEnv = KspRoundEnv(xEnv, true)
+        val missingElements = commonDelegate.processLastRound()
+        postRound(xEnv, xRoundEnv)
+        if (!logger.hasError) {
+            // Report missing elements if no error was raised to avoid being noisy.
+            commonDelegate.reportMissingElements(missingElements)
+        }
+    }
+
+    // KSPLogger delegate to keep track if an error was raised or not.
+    private class DelegateLogger(val delegate: KSPLogger) : KSPLogger by delegate {
+        var hasError = false
+        override fun error(message: String, symbol: KSNode?) {
+            hasError = true
+            delegate.error(message, symbol)
+        }
+        override fun exception(e: Throwable) {
+            hasError = true
+            delegate.exception(e)
+        }
     }
 }

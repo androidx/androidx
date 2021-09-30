@@ -80,11 +80,16 @@ class PojoProcessor private constructor(
         ): PojoProcessor {
             val (pojoElement, delegate) = if (element.hasAnnotation(AutoValue::class)) {
                 val processingEnv = context.processingEnv
-                val autoValueGeneratedElement = element.let {
-                    val typeName = AutoValuePojoProcessorDelegate.getGeneratedClassName(it)
-                    processingEnv.findTypeElement(typeName) ?: throw MissingTypeException(typeName)
+                val autoValueGeneratedTypeName =
+                    AutoValuePojoProcessorDelegate.getGeneratedClassName(element)
+                val autoValueGeneratedElement =
+                    processingEnv.findTypeElement(autoValueGeneratedTypeName)
+                if (autoValueGeneratedElement != null) {
+                    autoValueGeneratedElement to AutoValuePojoProcessorDelegate(context, element)
+                } else {
+                    context.reportMissingType(autoValueGeneratedTypeName)
+                    element to EmptyDelegate
                 }
-                autoValueGeneratedElement to AutoValuePojoProcessorDelegate(context, element)
             } else {
                 element to DefaultDelegate(context)
             }
@@ -112,6 +117,17 @@ class PojoProcessor private constructor(
     }
 
     private fun doProcess(): Pojo {
+        if (!element.validate()) {
+            context.reportMissingTypeReference(element.qualifiedName)
+            return delegate.createPojo(
+                element = element,
+                declaredType = element.type,
+                fields = emptyList(),
+                embeddedFields = emptyList(),
+                relations = emptyList(),
+                constructor = null
+            )
+        }
         delegate.onPreProcess(element)
 
         val declaredType = element.type
@@ -429,7 +445,7 @@ class PojoProcessor private constructor(
 
     private fun processRelationField(
         myFields: List<Field>,
-        container: XType?,
+        container: XType,
         relationElement: XFieldElement
     ): androidx.room.vo.Relation? {
         val annotation = relationElement.getAnnotation(Relation::class)!!
@@ -449,11 +465,7 @@ class PojoProcessor private constructor(
             return null
         }
         // parse it as an entity.
-        val asMember = relationElement.asMemberOf(container!!)
-        if (asMember.isError()) {
-            context.logger.e(relationElement, ProcessorErrors.CANNOT_FIND_TYPE)
-            return null
-        }
+        val asMember = relationElement.asMemberOf(container)
         val asType = if (asMember.isCollection()) {
             asMember.typeArguments.first().extendsBoundOrSelf()
         } else {
@@ -465,10 +477,6 @@ class PojoProcessor private constructor(
                 relationElement,
                 ProcessorErrors.RELATION_TYPE_MUST_BE_A_CLASS_OR_INTERFACE
             )
-            return null
-        }
-        if (asType.isError()) {
-            context.logger.e(typeElement, ProcessorErrors.CANNOT_FIND_TYPE)
             return null
         }
 
@@ -970,6 +978,30 @@ class PojoProcessor private constructor(
                 embeddedFields = embeddedFields,
                 relations = relations,
                 constructor = constructor
+            )
+        }
+    }
+
+    private object EmptyDelegate : Delegate {
+        override fun onPreProcess(element: XTypeElement) {}
+
+        override fun findConstructors(element: XTypeElement): List<XExecutableElement> = emptyList()
+
+        override fun createPojo(
+            element: XTypeElement,
+            declaredType: XType,
+            fields: List<Field>,
+            embeddedFields: List<EmbeddedField>,
+            relations: List<androidx.room.vo.Relation>,
+            constructor: Constructor?
+        ): Pojo {
+            return Pojo(
+                element = element,
+                type = declaredType,
+                fields = emptyList(),
+                embeddedFields = emptyList(),
+                relations = emptyList(),
+                constructor = null
             )
         }
     }

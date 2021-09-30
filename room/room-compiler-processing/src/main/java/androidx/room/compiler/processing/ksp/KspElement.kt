@@ -23,6 +23,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.validate
 import java.util.Locale
 
 internal abstract class KspElement(
@@ -54,5 +55,9 @@ internal abstract class KspElement(
 
     override val docComment: String? by lazy {
         (declaration as? KSDeclaration)?.docString
+    }
+
+    override fun validate(): Boolean {
+        return declaration.validate()
     }
 }

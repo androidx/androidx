@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.room.processor
+package androidx.room.compiler.processing.testcode;
 
-/**
- * Exception thrown when a type element is not found due to it being possibly generated at a later
- * annotation processing round.
- *
- * This exception should be thrown to abandon processing a class since it requires types that are
- * not present. This case is specially handled by deferring processing the class to a later round.
- */
-class MissingTypeException(val typeName: String) : RuntimeException("Type $typeName is not present")
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+@Retention(RetentionPolicy.CLASS)
+public @interface AnywhereAnnotation {
+}

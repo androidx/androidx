@@ -171,4 +171,11 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
      * objects.
      */
     fun getEnclosedTypeElements(): List<XTypeElement>
+
+    fun getEnclosedElements(): List<XElement> = mutableListOf<XElement>().apply {
+        addAll(getEnclosedTypeElements())
+        addAll(getDeclaredFields())
+        addAll(getConstructors())
+        addAll(getDeclaredMethods())
+    }
 }

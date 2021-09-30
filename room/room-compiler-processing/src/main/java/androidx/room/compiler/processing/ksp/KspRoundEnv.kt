@@ -23,10 +23,12 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyAccessor
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSValueParameter
 import kotlin.reflect.KClass
 
 internal class KspRoundEnv(
-    private val env: KspProcessingEnv
+    private val env: KspProcessingEnv,
+    override val isProcessingOver: Boolean
 ) : XRoundEnv {
     override val rootElements: Set<XElement>
         get() = TODO("not supported")
@@ -52,6 +54,9 @@ internal class KspRoundEnv(
                     }
                     is KSPropertyAccessor -> {
                         KspSyntheticPropertyMethodElement.create(env, symbol)
+                    }
+                    is KSValueParameter -> {
+                        KspExecutableParameterElement.create(env, symbol)
                     }
                     else -> error("Unsupported $symbol with annotation $annotationQualifiedName")
                 }
