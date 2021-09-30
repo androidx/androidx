@@ -49,6 +49,11 @@ interface XElement : XAnnotated {
      * The documentation comment of the element, or null if there is none.
      */
     val docComment: String?
+
+    /**
+     * Returns true if all types referenced by this element are valid, i.e. resolvable.
+     */
+    fun validate(): Boolean
 }
 
 /**
@@ -73,6 +78,16 @@ fun XElement.isVariableElement(): Boolean {
 }
 
 /**
+ * Checks whether this element represents an [XFieldElement].
+ */
+fun XElement.isField(): Boolean {
+    contract {
+        returns(true) implies (this@isField is XFieldElement)
+    }
+    return this is XFieldElement
+}
+
+/**
  * Checks whether this element represents an [XMethodElement].
  */
 fun XElement.isMethod(): Boolean {
@@ -82,6 +97,19 @@ fun XElement.isMethod(): Boolean {
     return this is XMethodElement
 }
 
+/**
+ * Checks whether this element represents an [XExecutableParameterElement].
+ */
+fun XElement.isMethodParameter(): Boolean {
+    contract {
+        returns(true) implies (this@isMethodParameter is XExecutableParameterElement)
+    }
+    return this is XExecutableParameterElement
+}
+
+/**
+ * Checks whether this element represents an [XConstructorElement].
+ */
 fun XElement.isConstructor(): Boolean {
     contract {
         returns(true) implies (this@isConstructor is XConstructorElement)

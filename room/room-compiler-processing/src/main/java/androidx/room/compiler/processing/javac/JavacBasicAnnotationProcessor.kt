@@ -16,58 +16,54 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.processing.CommonProcessorDelegate
 import androidx.room.compiler.processing.XBasicAnnotationProcessor
-import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
-import androidx.room.compiler.processing.XProcessingStep
-import com.google.auto.common.BasicAnnotationProcessor
-import com.google.common.collect.ImmutableSetMultimap
+import javax.annotation.processing.AbstractProcessor
+import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
-import javax.lang.model.element.Element
+import javax.lang.model.element.TypeElement
 
 /**
  * Javac implementation of a [XBasicAnnotationProcessor] with built-in support for validating and
- * deferring elements via auto-common's [BasicAnnotationProcessor].
+ * deferring elements.
  */
 abstract class JavacBasicAnnotationProcessor :
-    BasicAnnotationProcessor(), XBasicAnnotationProcessor {
+    AbstractProcessor(), XBasicAnnotationProcessor {
 
     private val xEnv: JavacProcessingEnv by lazy { JavacProcessingEnv(processingEnv) }
 
+    // Cache and lazily get steps during the initial process() so steps initialization is done once.
+    private val steps by lazy { processingSteps().toList() }
+
+    private val commonDelegate by lazy { CommonProcessorDelegate(this.javaClass, xEnv, steps) }
+
     final override val xProcessingEnv: XProcessingEnv get() = xEnv
 
-    final override fun steps(): Iterable<Step> {
-        return processingSteps().map { DelegatingStep(it) }
+    final override fun init(processingEnv: ProcessingEnvironment?) {
+        super.init(processingEnv)
     }
 
-    @Suppress("DEPRECATION") // Override initSteps to make it final.
-    final override fun initSteps() = super.initSteps()
+    final override fun getSupportedAnnotationTypes() = steps.flatMap { it.annotations() }.toSet()
 
-    /** A [Step] that delegates to an [XProcessingStep]. */
-    private inner class DelegatingStep(val xStep: XProcessingStep) : Step {
-        override fun annotations() = xStep.annotations()
-
-        override fun process(
-            elementsByAnnotation: ImmutableSetMultimap<String, Element>
-        ): Set<Element> {
-            // The first step in a round initializes the cachedXEnv. Note: the "first" step can
-            // change each round depending on which annotations are present in the current round and
-            // which elements were deferred in the previous round.
-            val xElementsByAnnotation = mutableMapOf<String, Set<XElement>>()
-            xStep.annotations().forEach { annotation ->
-                xElementsByAnnotation[annotation] =
-                    elementsByAnnotation[annotation].mapNotNull { element ->
-                        xEnv.wrapAnnotatedElement(element, annotation)
-                    }.toSet()
+    final override fun process(
+        annotations: MutableSet<out TypeElement>,
+        roundEnv: RoundEnvironment
+    ): Boolean {
+        val xRoundEnv = JavacRoundEnv(xEnv, roundEnv)
+        if (roundEnv.processingOver()) {
+            val missingElements = commonDelegate.processLastRound()
+            postRound(xEnv, xRoundEnv)
+            if (!roundEnv.errorRaised()) {
+                // Report missing elements if no error was raised to avoid being noisy.
+                commonDelegate.reportMissingElements(missingElements)
             }
-            return xStep.process(xEnv, xElementsByAnnotation).map {
-                (it as JavacElement).element
-            }.toSet()
+        } else {
+            commonDelegate.processRound(xRoundEnv)
+            postRound(xEnv, xRoundEnv)
+            xEnv.clearCache()
         }
-    }
 
-    final override fun postRound(roundEnv: RoundEnvironment) {
-        postRound(xEnv, JavacRoundEnv(xEnv, roundEnv))
-        xEnv.clearCache() // Reset cache after every round to avoid leaking elements across rounds
+        return false
     }
 }

@@ -48,6 +48,22 @@ class DaoProcessor(
     }
 
     fun process(): Dao {
+        if (!element.validate()) {
+            context.reportMissingTypeReference(element.qualifiedName)
+            return Dao(
+                element = element,
+                type = element.type,
+                queryMethods = emptyList(),
+                rawQueryMethods = emptyList(),
+                insertionMethods = emptyList(),
+                deletionMethods = emptyList(),
+                updateMethods = emptyList(),
+                transactionMethods = emptyList(),
+                delegatingMethods = emptyList(),
+                kotlinDefaultMethodDelegates = emptyList(),
+                constructorParamType = null
+            )
+        }
         context.checker.hasAnnotation(
             element, androidx.room.Dao::class,
             ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO

@@ -46,37 +46,40 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
             isError() || isVoid() || isNone()
 
         fun findConverters(context: Context, element: XElement): ProcessResult {
-            val annotation = element.getAnnotation(TypeConverters::class)
-            return annotation?.let {
-                val classes = it.getAsTypeList("value")
-                    .mapTo(LinkedHashSet()) { it }
-                val converters = classes.flatMap {
-                    val typeElement = it.typeElement
-                    if (typeElement == null) {
-                        context.logger.e(
-                            element,
-                            ProcessorErrors.typeConverterMustBeDeclared(it.typeName)
-                        )
-                        emptyList()
-                    } else {
-                        CustomConverterProcessor(context, typeElement).process()
-                    }
+            if (!element.hasAnnotation(TypeConverters::class)) {
+                return ProcessResult.EMPTY
+            }
+            if (!element.validate()) {
+                context.reportMissingTypeReference(element.toString())
+                return ProcessResult.EMPTY
+            }
+            val annotation = element.requireAnnotation(TypeConverters::class)
+            val classes = annotation.getAsTypeList("value").mapTo(LinkedHashSet()) { it }
+            val converters = classes.flatMap {
+                val typeElement = it.typeElement
+                if (typeElement == null) {
+                    context.logger.e(
+                        element,
+                        ProcessorErrors.typeConverterMustBeDeclared(it.typeName)
+                    )
+                    emptyList()
+                } else {
+                    CustomConverterProcessor(context, typeElement).process()
                 }
-                reportDuplicates(context, converters)
-                val builtInStates = it
-                    .getAsAnnotationBox<BuiltInTypeConverters>("builtInTypeConverters")
-                    .let {
-                        BuiltInConverterFlags(
-                            enums = it.value.enums,
-                            uuid = it.value.uuid
-                        )
-                    }
-                ProcessResult(
-                    classes = classes,
-                    converters = converters.map(::CustomTypeConverterWrapper),
-                    builtInConverterFlags = builtInStates
-                )
-            } ?: ProcessResult.EMPTY
+            }
+            reportDuplicates(context, converters)
+            val builtInStates =
+                annotation.getAsAnnotationBox<BuiltInTypeConverters>("builtInTypeConverters").let {
+                    BuiltInConverterFlags(
+                        enums = it.value.enums,
+                        uuid = it.value.uuid
+                    )
+                }
+            return ProcessResult(
+                classes = classes,
+                converters = converters.map(::CustomTypeConverterWrapper),
+                builtInConverterFlags = builtInStates
+            )
         }
 
         private fun reportDuplicates(context: Context, converters: List<CustomTypeConverter>) {
@@ -102,6 +105,9 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
     }
 
     fun process(): List<CustomTypeConverter> {
+        if (!element.validate()) {
+            context.reportMissingTypeReference(element.qualifiedName)
+        }
         val methods = element.getAllMethods()
         val converterMethods = methods.filter {
             it.hasAnnotation(TypeConverter::class)

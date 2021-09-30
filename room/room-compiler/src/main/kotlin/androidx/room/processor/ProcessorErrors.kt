@@ -452,8 +452,6 @@ object ProcessorErrors {
 
     val RELATION_IN_ENTITY = "Entities cannot have relations."
 
-    val CANNOT_FIND_TYPE = "Cannot find type."
-
     fun relationAffinityMismatch(
         parentColumn: String,
         childColumn: String,

@@ -190,6 +190,17 @@ class Context private constructor(
         }
     }
 
+    fun reportMissingType(typeName: String) {
+        logger.e("${RLog.MISSING_TYPE_PREFIX}: Type '$typeName' is not present")
+    }
+
+    fun reportMissingTypeReference(containerName: String) {
+        logger.e(
+            "${RLog.MISSING_TYPE_PREFIX}: Element '$containerName' references a type that is " +
+                "not present"
+        )
+    }
+
     enum class ProcessorOptions(val argName: String) {
         OPTION_SCHEMA_FOLDER("room.schemaLocation")
     }
