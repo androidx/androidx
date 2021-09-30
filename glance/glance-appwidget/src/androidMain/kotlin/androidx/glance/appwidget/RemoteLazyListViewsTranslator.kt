@@ -51,10 +51,14 @@ private fun translateEmittableLazyList(
 ): RemoteViews =
     remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->
+            check(translationContext.areLazyCollectionsAllowed) {
+                "Glance does not support nested list views."
+            }
             val items = RemoteViewsCompat.RemoteCollectionItems.Builder().apply {
+                val childContext = translationContext.copy(areLazyCollectionsAllowed = false)
                 element.children.fold(false) { previous, itemEmittable ->
                     val itemId = (itemEmittable as EmittableLazyListItem).itemId
-                    addItem(itemId, translateChild(translationContext, itemEmittable))
+                    addItem(itemId, translateChild(childContext, itemEmittable))
                     // If the user specifies any explicit ids, we assume the list to be stable
                     previous || (itemId > ReservedItemIdRangeEnd)
                 }.let { setHasStableIds(it) }
