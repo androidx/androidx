@@ -32,6 +32,7 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
+@RequiresApi(Build.VERSION_CODES.M)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class NotificationApiHelperForM {
 
@@ -40,7 +41,6 @@ public class NotificationApiHelperForM {
      * added in API 18, returning the result as StatusBarNotification[] would prevent classes from
      * being verified on earlier Jellybean builds.
      */
-    @RequiresApi(Build.VERSION_CODES.M)
     @NonNull
     static Parcelable[] getActiveNotifications(NotificationManager manager) {
         return manager.getActiveNotifications();

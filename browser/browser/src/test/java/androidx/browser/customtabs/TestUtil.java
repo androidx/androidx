@@ -23,14 +23,18 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.support.customtabs.ICustomTabsCallback;
 import android.support.customtabs.ICustomTabsService;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * Utilities for unit testing Custom Tabs.
  */
+// minSdk For Bundle#getBinder
+@RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class TestUtil {
 
     @NonNull
