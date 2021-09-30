@@ -36,7 +36,8 @@ import java.util.Set;
 public class CameraUseInconsistentTimebaseQuirk implements Quirk {
     private static final Set<String> BUILD_HARDWARE_SET = new HashSet<>(Arrays.asList(
             "samsungexynos7570",
-            "samsungexynos7870"
+            "samsungexynos7870",
+            "qcom"
     ));
 
     static boolean load() {
