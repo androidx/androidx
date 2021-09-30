@@ -16,6 +16,8 @@
 
 package androidx.glance.appwidget
 
+import androidx.glance.appwidget.layout.CheckBox
+import androidx.glance.layout.Column
 import androidx.glance.layout.FontStyle
 import androidx.glance.layout.FontWeight
 import androidx.glance.layout.Text
@@ -54,5 +56,35 @@ class GlanceAppWidgetReceiverScreenshotTest {
         mHostRule.startHost()
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "simpleAppWidget")
+    }
+
+    @Test
+    fun createCheckBoxAppWidget() {
+        TestGlanceAppWidget.uiDefinition = {
+            Column {
+                CheckBox(
+                    checked = true,
+                    text = "Hello Checked Checkbox",
+                    textStyle = TextStyle(
+                        fontWeight = FontWeight.Bold,
+                        fontStyle = FontStyle.Normal,
+                    )
+                )
+
+                CheckBox(
+                    checked = false,
+                    text = "Hello Unchecked Checkbox",
+                    textStyle = TextStyle(
+                        textDecoration = TextDecoration.Underline,
+                        fontWeight = FontWeight.Medium,
+                        fontStyle = FontStyle.Italic,
+                    )
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "checkBoxWidget")
     }
 }

@@ -20,4 +20,5 @@
     <string name="responsive_widget_name">Responsive Widget</string>
     <string name="responsive_widget_title"><u>Responsive</u></string>
     <string name="resizing_widget_name">Resizing Widget</string>
+    <string name="check_box_widget_name">CheckBox Widget</string>
 </resources>
