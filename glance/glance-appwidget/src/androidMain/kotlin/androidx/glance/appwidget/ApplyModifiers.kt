@@ -102,15 +102,13 @@ internal fun applyModifiers(
                 rv,
                 modifier,
                 context.resources,
-                layoutDef,
-                translationContext.sizeContext
+                layoutDef
             )
             is HeightModifier -> applyHeightModifier(
                 rv,
                 modifier,
                 context.resources,
-                layoutDef,
-                translationContext.sizeContext
+                layoutDef
             )
         }
     }
@@ -121,11 +119,10 @@ private fun applyWidthModifier(
     modifier: WidthModifier,
     resources: Resources,
     layoutDef: LayoutIds?,
-    sizeContext: SizeContext,
 ) {
     checkNotNull(layoutDef) { "No layout spec, cannot change size" }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        if (modifier.width is Dimension.Expand && sizeContext.allowExpandingWidth) {
+        if (modifier.width is Dimension.Expand) {
             ApplyModifiersApi31Impl.setViewWidth(rv, layoutDef.mainViewId, Dimension.Dp(0.dp))
         } else {
             ApplyModifiersApi31Impl.setViewWidth(rv, layoutDef.mainViewId, modifier.width)
@@ -143,11 +140,10 @@ private fun applyHeightModifier(
     modifier: HeightModifier,
     resources: Resources,
     layoutDef: LayoutIds?,
-    sizeContext: SizeContext,
 ) {
     checkNotNull(layoutDef) { "No layout spec, cannot change size" }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        if (modifier.height is Dimension.Expand && sizeContext.allowExpandingHeight) {
+        if (modifier.height is Dimension.Expand) {
             ApplyModifiersApi31Impl.setViewHeight(rv, layoutDef.mainViewId, Dimension.Dp(0.dp))
         } else {
             ApplyModifiersApi31Impl.setViewHeight(rv, layoutDef.mainViewId, modifier.height)

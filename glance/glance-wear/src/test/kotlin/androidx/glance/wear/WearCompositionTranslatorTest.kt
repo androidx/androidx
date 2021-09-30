@@ -31,8 +31,8 @@ import androidx.glance.layout.Row
 import androidx.glance.layout.Text
 import androidx.glance.layout.TextDecoration
 import androidx.glance.layout.TextStyle
-import androidx.glance.layout.expandHeight
-import androidx.glance.layout.expandWidth
+import androidx.glance.layout.fillMaxHeight
+import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
@@ -183,7 +183,7 @@ class WearCompositionTranslatorTest {
             Row(
                 verticalAlignment = Alignment.Vertical.CenterVertically,
                 horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
-                modifier = Modifier.expandWidth().height(100.dp).background(Color(0x11223344))
+                modifier = Modifier.fillMaxWidth().height(100.dp).background(Color(0x11223344))
             ) {}
         }
 
@@ -241,7 +241,7 @@ class WearCompositionTranslatorTest {
             Column(
                 verticalAlignment = Alignment.Vertical.CenterVertically,
                 horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
-                modifier = Modifier.expandHeight().width(100.dp).background(Color(0x11223344))
+                modifier = Modifier.fillMaxHeight().width(100.dp).background(Color(0x11223344))
             ) {}
         }
 

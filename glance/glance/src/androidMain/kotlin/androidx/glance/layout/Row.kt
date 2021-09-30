@@ -31,6 +31,23 @@ public class EmittableRow : EmittableWithChildren() {
     public var verticalAlignment: Alignment.Vertical = Alignment.Top
 }
 
+/** Scope defining modifiers only available on rows. */
+public interface RowScope {
+    /**
+     * Size the element's width to split the available space with other weighted sibling elements
+     * in the [Row]. The parent will divide the horizontal space remaining after measuring
+     * unweighted child elements and distribute it according to the weights, the default weight
+     * being 1.
+     */
+    fun Modifier.defaultWeight(): Modifier
+}
+
+private object RowScopeImplInstance : RowScope {
+    override fun Modifier.defaultWeight(): Modifier {
+        return this.then(WidthModifier(Dimension.Expand))
+    }
+}
+
 /**
  * A layout composable with [content], which lays its children out in a Row.
  *
@@ -51,7 +68,7 @@ public fun Row(
     modifier: Modifier = Modifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
-    content: @Composable () -> Unit
+    content: @Composable RowScope.() -> Unit
 ) {
     ComposeNode<EmittableRow, Applier>(
         factory = ::EmittableRow,
@@ -60,6 +77,6 @@ public fun Row(
             this.set(verticalAlignment) { this.verticalAlignment = it }
             this.set(horizontalAlignment) { this.horizontalAlignment = it }
         },
-        content = content
+        content = { RowScopeImplInstance.content() }
     )
 }

@@ -43,6 +43,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinTest)
+    testImplementation(libs.kotlinReflect)
 }
 
 android {
