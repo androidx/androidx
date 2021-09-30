@@ -17,6 +17,7 @@
 package androidx.glance.appwidget.layoutgenerator.gradle
 
 import androidx.glance.appwidget.layoutgenerator.LayoutGenerator
+import androidx.glance.appwidget.layoutgenerator.cleanResources
 import androidx.glance.appwidget.layoutgenerator.generateRegistry
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.DefaultTask
@@ -54,6 +55,7 @@ abstract class LayoutGeneratorTask : DefaultTask() {
             outputResourcesDir.get().asFile
         )
         generateRegistry(outputModule, generatedFiles, outputSourceDir.get().asFile)
+        cleanResources(outputResourcesDir.get().asFile, generatedFiles.keys)
     }
 
     companion object {
