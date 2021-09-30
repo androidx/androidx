@@ -37,8 +37,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * listener} to the pending recording before starting.
  *
  * <p>Either {@link #stop()} or {@link #close()} can be called when it is desired to
- * stop the recording, and must be called before this object and the
- * {@link Recorder} from which this object was created will no longer be referenced.
+ * stop the recording. If {@link #stop()} or {@link #close()} are not called on this object
+ * before it is no longer referenced, it will be automatically stopped at a future point in time
+ * when the object is garbage collected, and no new recordings can be started from the same
+ * {@link Recorder} that generated the object until that occurs.
  */
 public final class ActiveRecording implements AutoCloseable {
 

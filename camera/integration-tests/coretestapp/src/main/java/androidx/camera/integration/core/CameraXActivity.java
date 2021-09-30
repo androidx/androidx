@@ -25,7 +25,7 @@ import static androidx.camera.video.QualitySelector.QUALITY_NONE;
 import static androidx.camera.video.QualitySelector.QUALITY_SD;
 import static androidx.camera.video.QualitySelector.QUALITY_UHD;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
-import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_DISK;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE;
 
@@ -483,7 +483,7 @@ public class CameraXActivity extends AppCompatActivity {
             switch (finalize.getError()) {
                 case ERROR_NONE:
                 case ERROR_FILE_SIZE_LIMIT_REACHED:
-                case ERROR_INSUFFICIENT_DISK:
+                case ERROR_INSUFFICIENT_STORAGE:
                 case ERROR_SOURCE_INACTIVE:
                     Uri uri = finalize.getOutputResults().getOutputUri();
                     OutputOptions outputOptions = finalize.getOutputOptions();

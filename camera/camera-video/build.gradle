@@ -18,6 +18,7 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
+import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -81,6 +82,7 @@ android {
 androidx {
     name = "Jetpack Camera Video Library"
     publish = Publish.NONE
+    runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
     mavenVersion = LibraryVersions.CAMERA_VIDEO
     mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2020"
