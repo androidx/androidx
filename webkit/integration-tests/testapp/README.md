@@ -29,7 +29,7 @@ cd frameworks/support/
 ./gradlew :webkit:integration-tests:testapp:installDebug
 
 # Check for Lint warnings
-./gradlew :webkit:integration-tests:testapp:lintRelease
+./gradlew :webkit:integration-tests:testapp:lintDebug
 
 # Run automated espresso tests
 ./gradlew :webkit:integration-tests:testapp:connectedAndroidTest

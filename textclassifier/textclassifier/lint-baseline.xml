@@ -46,6 +46,50 @@
     </issue>
 
     <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `FLOATING_TOOLBAR_TAG`"
+        errorLine1="        final Object tag = FloatingToolbar.FLOATING_TOOLBAR_TAG;"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/textclassifier/widget/FloatingToolbarEspressoUtils.java"
+            line="45"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `MAIN_PANEL_TAG`"
+        errorLine1="        final Object tag = FloatingToolbar.MAIN_PANEL_TAG;"
+        errorLine2="                                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/textclassifier/widget/FloatingToolbarEspressoUtils.java"
+            line="61"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `OVERFLOW_PANEL_TAG`"
+        errorLine1="        final Object tag = FloatingToolbar.OVERFLOW_PANEL_TAG;"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/textclassifier/widget/FloatingToolbarEspressoUtils.java"
+            line="66"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 14): `FLOATING_TOOLBAR_TAG`"
+        errorLine1="        final Object tag = FloatingToolbar.FLOATING_TOOLBAR_TAG;"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/textclassifier/widget/FloatingToolbarEspressoUtils.java"
+            line="71"
+            column="44"/>
+    </issue>
+
+    <issue
         id="WrongConstant"
         message="Must be one of: ConversationAction.TYPE_VIEW_CALENDAR, ConversationAction.TYPE_VIEW_MAP, ConversationAction.TYPE_TRACK_FLIGHT, ConversationAction.TYPE_OPEN_URL, ConversationAction.TYPE_SEND_SMS, ConversationAction.TYPE_CALL_PHONE, ConversationAction.TYPE_SEND_EMAIL, ConversationAction.TYPE_TEXT_REPLY, ConversationAction.TYPE_CREATE_REMINDER, ConversationAction.TYPE_SHARE_LOCATION, ConversationAction.TYPE_ADD_CONTACT, ConversationAction.TYPE_COPY, but could be ConversationAction.TYPE_VIEW_CALENDAR, ConversationAction.TYPE_VIEW_MAP, ConversationAction.TYPE_TRACK_FLIGHT, ConversationAction.TYPE_OPEN_URL, ConversationAction.TYPE_SEND_SMS, ConversationAction.TYPE_CALL_PHONE, ConversationAction.TYPE_SEND_EMAIL, ConversationAction.TYPE_TEXT_REPLY, ConversationAction.TYPE_CREATE_REMINDER, ConversationAction.TYPE_SHARE_LOCATION"
         errorLine1="        return new ConversationAction.Builder(conversationAction.getType())"
