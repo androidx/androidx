@@ -49,6 +49,7 @@ internal data class LayoutSelector(
 
     internal enum class Size {
         Wrap,
+        Fixed,
         Expand,
         MatchParent,
     }
@@ -96,7 +97,7 @@ internal fun selectLayout(
 
 private fun Dimension.toSpecSize(shouldExpand: Boolean): LayoutSelector.Size =
     when (this) {
-        is Dimension.Dp -> LayoutSelector.Size.Wrap
+        is Dimension.Dp -> LayoutSelector.Size.Fixed
         is Dimension.Wrap -> LayoutSelector.Size.Wrap
         is Dimension.Expand ->
             if (shouldExpand) LayoutSelector.Size.Expand else LayoutSelector.Size.MatchParent
