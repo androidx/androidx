@@ -230,19 +230,28 @@ else
   cleanCaches=false
 fi
 
+if [[ " ${@} " =~ " --no-ci " ]]; then
+  disableCi=true
+else
+  disableCi=false
+fi
+
 # workaround for https://github.com/gradle/gradle/issues/18386
 if [[ " ${@} " =~ " --profile " ]]; then
   mkdir -p reports
 fi
 
 # Expand some arguments
-for compact in "--ci" "--strict" "--clean"; do
+for compact in "--ci" "--strict" "--clean" "--no-ci"; do
+  expanded=""
   if [ "$compact" == "--ci" ]; then
-    expanded="--strict\
-     --stacktrace\
-     -Pandroidx.summarizeStderr\
-     -Pandroidx.enableAffectedModuleDetection\
-     --no-watch-fs"
+    if [ "$disableCi" == "false" ]; then
+      expanded="--strict\
+       --stacktrace\
+       -Pandroidx.summarizeStderr\
+       -Pandroidx.enableAffectedModuleDetection\
+       --no-watch-fs"
+    fi
   fi
   if [ "$compact" == "--strict" ]; then
     expanded="-Pandroidx.allWarningsAsErrors\
@@ -252,9 +261,8 @@ for compact in "--ci" "--strict" "--clean"; do
      --no-daemon\
      --offline"
   fi
-  if [ "$compact" == "--clean" ]; then
-    expanded="" # we parsed the argument above but we still have to remove it to avoid confusing Gradle
-  fi
+  # if compact is something else then we parsed the argument above but
+  # still have to remove it (expanded == "") to avoid confusing Gradle
 
   # check whether this particular compat argument was passed (and therefore needs expansion)
   if [[ " ${@} " =~ " $compact " ]]; then
@@ -285,6 +293,14 @@ for compact in "--ci" "--strict" "--clean"; do
     done
   fi
 done
+
+if [[ " ${@} " =~ " --scan " ]]; then
+  if [[ " ${@} " =~ " --offline " ]]; then
+    echo "--scan incompatible with --offline"
+    echo "you could try --no-ci"
+    exit 1
+  fi
+fi
 
 function removeCaches() {
   rm -rf $SCRIPT_PATH/.gradle
