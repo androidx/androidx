@@ -17,6 +17,7 @@
 package androidx.car.app;
 
 import android.graphics.Rect;
+import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.annotations.RequiresCarApi;
@@ -30,6 +31,9 @@ public interface SurfaceCallback {
      * instance, the size or DPI may change without the underlying surface being destroyed.
      *
      * <p>This method is guaranteed to be called before any other methods on this listener.
+     *
+     * <p><b>Important:</b> every instance of {@link android.view.Surface} received through this
+     * method must be released by calling {@link Surface#release()}.
      *
      * @param surfaceContainer the {@link SurfaceContainer} that is ready for drawing
      */
