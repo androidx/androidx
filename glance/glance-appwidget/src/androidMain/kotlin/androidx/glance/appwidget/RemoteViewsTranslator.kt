@@ -74,6 +74,7 @@ internal data class TranslationContext(
     val appWidgetId: Int,
     val sizeContext: SizeContext,
     val listCount: AtomicInteger = AtomicInteger(0),
+    val areLazyCollectionsAllowed: Boolean = true
 )
 
 /**
