@@ -66,6 +66,10 @@ android {
         minSdkVersion 21
     }
 
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
+
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
 }

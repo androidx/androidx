@@ -27,6 +27,13 @@ android {
         versionCode 1
         multiDexEnabled true
     }
+
+    buildTypes.all {
+        minifyEnabled true
+        shrinkResources true
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
 }
 
 dependencies {
