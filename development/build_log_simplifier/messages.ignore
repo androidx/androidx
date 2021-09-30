@@ -660,3 +660,19 @@ To honour the JVM settings for this build a single\-use Daemon process will be f
 [0-9]+ problems were found storing the configuration cache, [0-9]+ of which seems unique\.
 # > Task :car:app:app:generateProtocolApi
 \- Task `:car:app:app:generateProtocolApi` of type `GenerateProtocolApiTask`: invocation of 'Task\.project' at execution time is unsupported\.
+# > Tasks configureCMakeRelWithDebInfo or configureCMakeDebug
+C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :  \$OUT_DIR/androidx/[0-9a-zA-Z-\/]+/nativeBuildStaging/(Debug|RelWithDebInfo)/[0-9a-zA-Z]+/(x86_64|x86|arm64\-v8a|armeabi\-v7a)/CMakeFiles/3.18.1\-g4c455b0/CMakeSystem\.cmake\:[0-9]+ \(include\)
+C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :  \$OUT_DIR/androidx/[0-9a-zA-Z-\/]+/nativeBuildStaging/(Debug|RelWithDebInfo)/[0-9a-zA-Z]+/(x86_64|x86|arm64\-v8a|armeabi\-v7a)/CMakeFiles/CMakeTmp/CMakeLists\.txt:[0-9]+ \(project\)
+C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :  CMakeLists\.txt:[0-9]+ \(project\)
+C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :CMake Warning at \$CHECKOUT/prebuilts/fullsdk\-linux/ndk/build/cmake/android\-legacy\.toolchain\.cmake:[0-9]+ \(message\):
+C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :  An old version of CMake is being used that cannot automatically detect
+C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :  compiler attributes\.  Compiler identification is being bypassed\.  Some
+C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :  values may be wrong or missing\.  Update to CMake [0-9]+\.[0-9]+ or newer to use
+C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :  CMake's built\-in compiler identification\.
+C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :Call Stack \(most recent call first\):
+C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :  \$CHECKOUT/prebuilts/fullsdk\-linux/ndk/build/cmake/android\.toolchain\.cmake:[0-9]+ \(include\)
+C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :  \$CHECKOUT/prebuilts/fullsdk\-linux/cmake/share/cmake\-[0-9]+\.[0-9]+/Modules/CMakeDetermineSystem\.cmake:[0-9]+ \(include\)
+C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :Building ver\.\: [0-9]+\.[0-9]+\.[0-9]+
+C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :Packaging for\: (amd\-[0-9]+|armhf\-[0-9]+|x86\-[0-9]+)
+C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :  CMakeLists\.txt:[0-9]+ \(PROJECT\)
+C/C\+\+: (debug|release)\|(x86_64|x86|arm64\-v8a|armeabi\-v7a) :Compiling for ARM
