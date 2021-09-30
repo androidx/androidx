@@ -128,6 +128,7 @@ private val LayoutIds = ClassName("androidx.glance.appwidget", "LayoutIds")
 private val LayoutsMap = Map::class.asTypeName().parameterizedBy(LayoutSelector, LayoutIds)
 private const val LayoutSpecSize = "androidx.glance.appwidget.LayoutSelector.Size"
 private val WrapValue = MemberName("$LayoutSpecSize", "Wrap")
+private val FixedValue = MemberName("$LayoutSpecSize", "Fixed")
 private val MatchValue = MemberName("$LayoutSpecSize", "MatchParent")
 private val ExpandValue = MemberName("$LayoutSpecSize", "Expand")
 
@@ -143,6 +144,7 @@ private val snakeRegex = "_[a-zA-Z0-9]".toRegex()
 
 private fun ValidSize.toValue() = when (this) {
     ValidSize.Wrap -> WrapValue
+    ValidSize.Fixed -> FixedValue
     ValidSize.Expand -> ExpandValue
     ValidSize.Match -> MatchValue
 }
