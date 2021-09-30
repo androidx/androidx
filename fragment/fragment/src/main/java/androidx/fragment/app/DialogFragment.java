@@ -256,6 +256,7 @@ public class DialogFragment extends Fragment
         mDismissed = false;
         mShownByMe = true;
         FragmentTransaction ft = manager.beginTransaction();
+        ft.setReorderingAllowed(true);
         ft.add(this, tag);
         ft.commit();
     }
@@ -293,6 +294,7 @@ public class DialogFragment extends Fragment
         mDismissed = false;
         mShownByMe = true;
         FragmentTransaction ft = manager.beginTransaction();
+        ft.setReorderingAllowed(true);
         ft.add(this, tag);
         ft.commitNow();
     }
@@ -348,6 +350,7 @@ public class DialogFragment extends Fragment
             mBackStackId = -1;
         } else {
             FragmentTransaction ft = getParentFragmentManager().beginTransaction();
+            ft.setReorderingAllowed(true);
             ft.remove(this);
             if (allowStateLoss) {
                 ft.commitAllowingStateLoss();
