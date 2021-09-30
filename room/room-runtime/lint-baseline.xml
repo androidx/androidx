@@ -410,6 +410,28 @@
 
     <issue
         id="NewApi"
+        message="Call requires API level 16 (current min is 14): `WRITE_AHEAD_LOGGING`"
+        errorLine1="                .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING).build();"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/room/BuilderTest.java"
+            line="411"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 16 (current min is 14): `WRITE_AHEAD_LOGGING`"
+        errorLine1="        assertThat(config.journalMode, is(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING));"
+        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/room/BuilderTest.java"
+            line="414"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="NewApi"
         message="Call requires API level 21 (current min is 14): `java.util.Locale#forLanguageTag`"
         errorLine1="        Locale.setDefault(Locale.forLanguageTag(&quot;tr-TR&quot;));"
         errorLine2="                                 ~~~~~~~~~~~~~~">
