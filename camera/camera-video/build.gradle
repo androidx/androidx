@@ -81,9 +81,8 @@ android {
 
 androidx {
     name = "Jetpack Camera Video Library"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_AND_RELEASE
     runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
-    mavenVersion = LibraryVersions.CAMERA_VIDEO
     mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2020"
     description = "Video components for the Jetpack Camera Library, a library providing a " +
