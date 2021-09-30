@@ -166,15 +166,24 @@ public final class CameraManagerCompat {
         synchronized (mCameraCharacteristicsMap) {
             characteristics = mCameraCharacteristicsMap.get(cameraId);
             if (characteristics == null) {
-                characteristics =
-                        CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-                                mImpl.getCameraCharacteristics(cameraId));
-                mCameraCharacteristicsMap.put(cameraId, characteristics);
+                try {
+                    characteristics =
+                            CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+                                    mImpl.getCameraCharacteristics(cameraId));
+                    mCameraCharacteristicsMap.put(cameraId, characteristics);
+                } catch (AssertionError e) {
+                    // Some devices may throw AssertionError when creating CameraCharacteristics
+                    // and FPS ranges are null. Catch the AssertionError and throw a
+                    // CameraAccessExceptionCompat to make the app be able to receive an
+                    // exception to gracefully handle it.
+                    throw new CameraAccessExceptionCompat(
+                            CameraAccessExceptionCompat.CAMERA_CHARACTERISTICS_CREATION_ERROR,
+                            e.getMessage(), e);
+                }
             }
         }
         return characteristics;
     }
-
 
     /**
      * Open a connection to a camera with the given ID.
