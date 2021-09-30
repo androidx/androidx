@@ -137,6 +137,7 @@ Daemon will be stopped at the end of the build
 # > Configure project :appsearch:appsearch\-local\-backend
 Configuration on demand is an incubating feature\.
 Configuration cache is an incubating feature\.
+Calculating task graph as configuration cache cannot be reused because environment variable '.*' has changed\.
 Calculating task graph as configuration cache cannot be reused because file '[^ ]*' has changed\.
 Calculating task graph as no configuration cache is available for tasks:.*
 Reusing configuration cache\.
@@ -163,11 +164,13 @@ See https://kotlinlang\.org/docs/reference/building\-mpp\-with\-gradle\.html\#co
 \* jvmMain
 # > Task :listTaskOutputs
 Wrote \$DIST_DIR/task_outputs\.txt
+[0-9]+ problem was found reusing the configuration cache\.
 Deprecated Gradle features were used in this build, making it incompatible with Gradle [0-9]+\.[0-9]+\.
 See https://docs.gradle.org/.*/userguide/command_line_interface\.html#sec:command_line_warnings
 Execution optimizations have been disabled for [0-9]+ invalid unit\(s\) of work during this build to ensure correctness\.
 Please consult deprecation warnings for more details\.
 BUILD SUCCESSFUL in .*
+Configuration cache entry reused with [0-9]+ problem\.
 # > Task :doclava:compileJava
 Note\: Some input files use or override a deprecated API\.
 Note: Some input files use or override a deprecated API that is marked for removal\.
@@ -318,6 +321,7 @@ See https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/configuration_cache\.html
 \- Task `:compose:animation:animation\-core:animation\-core\-samples:compile[^ ]*Kotlin` of type `org\.jetbrains\.kotlin\.gradle\.tasks\.KotlinCompileWithWorkers`: cannot serialize object of type 'org\.gradle\.api\.internal\.project\.DefaultProject', a subtype of 'org\.gradle\.api\.Project', as these are not supported with the configuration cache\.
 \- Task `:docs\-tip\-of\-tree:unzipSampleSources` of type `org\.gradle\.api\.tasks\.Sync`: cannot serialize object of type 'org\.gradle\.api\.internal\.project\.DefaultProject', a subtype of 'org\.gradle\.api\.Project', as these are not supported with the configuration cache\.
 [0-9]+ problem was found storing the configuration cache.
+\- Task `:listTaskOutputs` of type `androidx\.build\.ListTaskOutputsTask`: invocation of 'Task\.project' at execution time is unsupported\.
 \- Task `[^ ]*checkExternalLicenses` of type `[^ ]*CheckExternalDependencyLicensesTask`: invocation of 'Task\.project' at execution time is unsupported\.
 \- Plugin class 'androidx\.build\.AndroidXImplPlugin': read system property 'user\.dir'
 See https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/configuration_cache\.html\#config_cache:requirements:undeclared_sys_prop_read
