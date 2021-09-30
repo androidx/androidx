@@ -996,6 +996,11 @@ package androidx.car.app.model.signin {
     method public androidx.car.app.model.Action getAction();
   }
 
+  @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public final class QRCodeSignInMethod implements androidx.car.app.model.signin.SignInTemplate.SignInMethod {
+    ctor public QRCodeSignInMethod(android.net.Uri);
+    method public android.net.Uri getUri();
+  }
+
   @androidx.car.app.annotations.RequiresCarApi(2) public final class SignInTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
     method public java.util.List<androidx.car.app.model.Action!> getActions();
