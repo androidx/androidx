@@ -24,13 +24,15 @@ import androidx.glance.appwidget.SizeMode
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Text
-import androidx.glance.layout.TextDecoration
-import androidx.glance.layout.TextStyle
 import androidx.glance.layout.fillMaxHeight
+import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
+import androidx.glance.text.TextAlign
+import androidx.glance.text.TextDecoration
+import androidx.glance.text.TextStyle
 import androidx.glance.unit.dp
 
 class ResizingAppWidget : GlanceAppWidget() {
@@ -39,21 +41,46 @@ class ResizingAppWidget : GlanceAppWidget() {
 
     @Composable
     override fun Content() {
-        Column(modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(16.dp)) {
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
             Row(modifier = Modifier.fillMaxWidth()) {
-                Text("left")
+                Text("first")
                 Text(
-                    "center",
-                    style = TextStyle(textDecoration = TextDecoration.LineThrough),
+                    "second",
+                    style = TextStyle(
+                        textDecoration = TextDecoration.LineThrough,
+                        textAlign = TextAlign.Center,
+                    ),
                     modifier = Modifier.defaultWeight().height(50.dp)
                 )
-                Text("right")
+                Text("third")
             }
             Text("middle", modifier = Modifier.fillMaxHeight().width(50.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text("", modifier = Modifier.defaultWeight())
                 Text("bottom center")
                 Text("", modifier = Modifier.defaultWeight())
+            }
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    "left",
+                    style = TextStyle(textAlign = TextAlign.Left),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    "right",
+                    style = TextStyle(textAlign = TextAlign.Right),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    "start",
+                    style = TextStyle(textAlign = TextAlign.Start),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    "end",
+                    style = TextStyle(textAlign = TextAlign.End),
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }

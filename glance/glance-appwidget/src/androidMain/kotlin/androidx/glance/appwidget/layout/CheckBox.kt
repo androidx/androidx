@@ -21,7 +21,7 @@ import androidx.compose.runtime.ComposeNode
 import androidx.glance.Applier
 import androidx.glance.Emittable
 import androidx.glance.Modifier
-import androidx.glance.layout.TextStyle
+import androidx.glance.text.TextStyle
 
 /**
  * Adds a check box view to the glance view.

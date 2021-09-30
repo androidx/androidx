@@ -76,6 +76,12 @@ android {
     sourceSets {
         androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/glance/glance-appwidget"
     }
+
+    buildTypes {
+        debug {
+            pseudoLocalesEnabled true
+        }
+    }
 }
 
 androidx {

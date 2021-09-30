@@ -26,6 +26,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
+import android.os.LocaleList
 import android.util.Log
 import android.view.Gravity
 import android.view.WindowManager
@@ -37,6 +38,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import androidx.glance.appwidget.test.R
 import androidx.glance.unit.DpSize
+import java.util.Locale
 
 @RequiresApi(26)
 class AppWidgetHostTestActivity : Activity() {
@@ -81,7 +83,14 @@ class AppWidgetHostTestActivity : Activity() {
         }
 
         val info = appWidgetManager.getAppWidgetInfo(appWidgetId)
-        val hostView = host.createView(this, appWidgetId, info) as TestAppWidgetHostView
+        val context = forceRtl?.let { isRtl ->
+            val locale = if (isRtl) Locale("he") else Locale.US
+            val config = resources.configuration
+            config.setLocales(LocaleList(locale))
+            config.setLayoutDirection(locale)
+            this.createConfigurationContext(config)
+        } ?: this
+        val hostView = host.createView(context, appWidgetId, info) as TestAppWidgetHostView
         hostView.setPadding(0, 0, 0, 0)
         val contentFrame = findViewById<FrameLayout>(R.id.content)
         contentFrame.addView(hostView)

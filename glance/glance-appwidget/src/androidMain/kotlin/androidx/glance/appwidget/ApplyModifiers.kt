@@ -22,7 +22,6 @@ import android.content.Intent
 import android.content.res.Resources
 import android.os.Build
 import android.util.TypedValue
-import android.view.View
 import android.view.ViewGroup
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
@@ -65,12 +64,11 @@ private fun applyAction(
 private fun applyPadding(
     rv: RemoteViews,
     modifier: PaddingModifier,
-    resources: Resources,
+    translationContext: TranslationContext,
     @IdRes viewId: Int
 ) {
-    val displayMetrics = resources.displayMetrics
-    val isRtl = modifier.rtlAware &&
-        resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
+    val displayMetrics = translationContext.context.resources.displayMetrics
+    val isRtl = modifier.rtlAware && translationContext.isRtl
     val start = modifier.start.toPixels(displayMetrics)
     val end = modifier.end.toPixels(displayMetrics)
     rv.setViewPadding(
@@ -95,7 +93,7 @@ internal fun applyModifiers(
             is PaddingModifier -> applyPadding(
                 rv,
                 modifier,
-                context.resources,
+                translationContext,
                 layoutDef.mainViewId
             )
             is WidthModifier -> applyWidthModifier(
