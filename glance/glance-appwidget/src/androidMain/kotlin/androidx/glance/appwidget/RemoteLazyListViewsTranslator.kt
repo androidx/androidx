@@ -36,7 +36,7 @@ internal fun translateEmittableLazyColumn(
             """.trimIndent()
         }
     val listLayout =
-        selectLayout(listLayoutType, element.modifier, translationContext.sizeContext)
+        selectLayout(listLayoutType, element.modifier)
     return translateEmittableLazyList(
         translationContext,
         element,

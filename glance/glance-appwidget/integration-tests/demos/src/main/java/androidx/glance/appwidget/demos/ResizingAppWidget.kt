@@ -26,8 +26,8 @@ import androidx.glance.layout.Row
 import androidx.glance.layout.Text
 import androidx.glance.layout.TextDecoration
 import androidx.glance.layout.TextStyle
-import androidx.glance.layout.expandHeight
-import androidx.glance.layout.expandWidth
+import androidx.glance.layout.fillMaxHeight
+import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
@@ -39,21 +39,21 @@ class ResizingAppWidget : GlanceAppWidget() {
 
     @Composable
     override fun Content() {
-        Column(modifier = Modifier.expandWidth().expandHeight().padding(16.dp)) {
-            Row(modifier = Modifier.expandWidth()) {
+        Column(modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(16.dp)) {
+            Row(modifier = Modifier.fillMaxWidth()) {
                 Text("left")
                 Text(
                     "center",
                     style = TextStyle(textDecoration = TextDecoration.LineThrough),
-                    modifier = Modifier.expandWidth().height(50.dp)
+                    modifier = Modifier.defaultWeight().height(50.dp)
                 )
                 Text("right")
             }
-            Text("middle", modifier = Modifier.expandHeight().width(50.dp))
-            Row(modifier = Modifier.expandWidth()) {
-                Text("", modifier = Modifier.expandWidth())
+            Text("middle", modifier = Modifier.fillMaxHeight().width(50.dp))
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text("", modifier = Modifier.defaultWeight())
                 Text("bottom center")
-                Text("", modifier = Modifier.expandWidth())
+                Text("", modifier = Modifier.defaultWeight())
             }
         }
     }

@@ -76,13 +76,13 @@ class TextTest {
     @Test
     fun createComposableTextWithModifiers() = fakeCoroutineScope.runBlockingTest {
         val root = runTestingComposition {
-            Text("text", modifier = Modifier.expandWidth())
+            Text("text", modifier = Modifier.fillMaxWidth())
         }
 
         assertThat(root.children).hasSize(1)
         assertThat(root.children[0]).isInstanceOf(EmittableText::class.java)
         assertThat(root.children[0].modifier.findModifier<WidthModifier>()?.width)
-            .isEqualTo(Dimension.Expand)
+            .isEqualTo(Dimension.Fill)
     }
 
     @Test

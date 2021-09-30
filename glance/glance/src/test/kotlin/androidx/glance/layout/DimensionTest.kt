@@ -21,6 +21,7 @@ import androidx.glance.findModifier
 import androidx.glance.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
+import kotlin.test.assertIs
 
 class DimensionTest {
     @Test
@@ -29,24 +30,24 @@ class DimensionTest {
 
         val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
 
-        val width = widthModifier.width as Dimension.Dp
+        val width = assertIs<Dimension.Dp>(widthModifier.width)
         assertThat(width.dp).isEqualTo(5.dp)
     }
 
     @Test
     fun wrapWidthModifier() {
-        val modifier = Modifier.wrapWidth()
+        val modifier = Modifier.wrapContentWidth()
 
         val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
-        assertThat(widthModifier.width).isInstanceOf(Dimension.Wrap::class.java)
+        assertThat(widthModifier.width).isSameInstanceAs(Dimension.Wrap)
     }
 
     @Test
-    fun expandWidthModifier() {
-        val modifier = Modifier.expandWidth()
+    fun fillMaxWidthModifier() {
+        val modifier = Modifier.fillMaxWidth()
 
         val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
-        assertThat(widthModifier.width).isInstanceOf(Dimension.Expand::class.java)
+        assertThat(widthModifier.width).isSameInstanceAs(Dimension.Fill)
     }
 
     @Test
@@ -55,24 +56,24 @@ class DimensionTest {
 
         val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
 
-        val height = heightModifier.height as Dimension.Dp
+        val height = assertIs<Dimension.Dp>(heightModifier.height)
         assertThat(height.dp).isEqualTo(5.dp)
     }
 
     @Test
     fun wrapHeightModifier() {
-        val modifier = Modifier.wrapHeight()
+        val modifier = Modifier.wrapContentHeight()
 
         val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
         assertThat(heightModifier.height).isInstanceOf(Dimension.Wrap::class.java)
     }
 
     @Test
-    fun expandHeightModifier() {
-        val modifier = Modifier.expandHeight()
+    fun fillMaxHeightModifier() {
+        val modifier = Modifier.fillMaxHeight()
 
         val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
-        assertThat(heightModifier.height).isInstanceOf(Dimension.Expand::class.java)
+        assertThat(heightModifier.height).isSameInstanceAs(Dimension.Fill)
     }
 
     @Test
@@ -82,8 +83,8 @@ class DimensionTest {
         val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
         val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
 
-        val width = widthModifier.width as Dimension.Dp
-        val height = heightModifier.height as Dimension.Dp
+        val width = assertIs<Dimension.Dp>(widthModifier.width)
+        val height = assertIs<Dimension.Dp>(heightModifier.height)
 
         assertThat(width.dp).isEqualTo(1.dp)
         assertThat(height.dp).isEqualTo(2.dp)
@@ -96,10 +97,32 @@ class DimensionTest {
         val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
         val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
 
-        val width = widthModifier.width as Dimension.Dp
-        val height = heightModifier.height as Dimension.Dp
+        val width = assertIs<Dimension.Dp>(widthModifier.width)
+        val height = assertIs<Dimension.Dp>(heightModifier.height)
 
         assertThat(width.dp).isEqualTo(10.dp)
         assertThat(height.dp).isEqualTo(10.dp)
+    }
+
+    @Test
+    fun fillMaxSizeModifier() {
+        val modifier = Modifier.fillMaxSize()
+
+        val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
+        val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
+
+        assertThat(widthModifier.width).isSameInstanceAs(Dimension.Fill)
+        assertThat(heightModifier.height).isSameInstanceAs(Dimension.Fill)
+    }
+
+    @Test
+    fun wrapContentSizeModifier() {
+        val modifier = Modifier.wrapContentSize()
+
+        val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
+        val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
+
+        assertThat(widthModifier.width).isSameInstanceAs(Dimension.Wrap)
+        assertThat(heightModifier.height).isSameInstanceAs(Dimension.Wrap)
     }
 }

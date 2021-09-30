@@ -37,11 +37,11 @@ import androidx.glance.layout.Row
 import androidx.glance.layout.Text
 import androidx.glance.layout.TextDecoration
 import androidx.glance.layout.TextStyle
-import androidx.glance.layout.expandHeight
-import androidx.glance.layout.expandWidth
+import androidx.glance.layout.fillMaxHeight
+import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.width
-import androidx.glance.layout.wrapHeight
+import androidx.glance.layout.wrapContentHeight
 import androidx.glance.unit.Dp
 import androidx.glance.unit.DpSize
 import androidx.glance.unit.dp
@@ -170,9 +170,9 @@ class GlanceAppWidgetReceiverTest {
     }
 
     @Test
-    fun createTextWithExpandDimensions() {
+    fun createTextWithFillMaxDimensions() {
         TestGlanceAppWidget.uiDefinition = {
-            Text("expanded text", modifier = Modifier.expandWidth().expandHeight())
+            Text("expanded text", modifier = Modifier.fillMaxWidth().fillMaxHeight())
         }
 
         mHostRule.startHost()
@@ -202,7 +202,7 @@ class GlanceAppWidgetReceiverTest {
     @Test
     fun createTextViewWithMixedDimensions() {
         TestGlanceAppWidget.uiDefinition = {
-            Text("expanded text", modifier = Modifier.expandWidth().height(110.dp))
+            Text("expanded text", modifier = Modifier.fillMaxWidth().height(110.dp))
         }
 
         mHostRule.startHost()
@@ -238,7 +238,7 @@ class GlanceAppWidgetReceiverTest {
     @Test
     fun createBoxWithMixedDimensions() {
         TestGlanceAppWidget.uiDefinition = {
-            Box(modifier = Modifier.width(150.dp).wrapHeight()) {
+            Box(modifier = Modifier.width(150.dp).wrapContentHeight()) {
                 Text("Inside")
             }
         }
@@ -257,7 +257,7 @@ class GlanceAppWidgetReceiverTest {
     @Test
     fun createColumnWithMixedDimensions() {
         TestGlanceAppWidget.uiDefinition = {
-            Column(modifier = Modifier.width(150.dp).expandHeight()) {
+            Column(modifier = Modifier.width(150.dp).fillMaxHeight()) {
                 Text("Inside 1")
                 Text("Inside 2")
                 Text("Inside 3")
@@ -280,7 +280,7 @@ class GlanceAppWidgetReceiverTest {
     @Test
     fun createRowWithMixedDimensions() {
         TestGlanceAppWidget.uiDefinition = {
-            Row(modifier = Modifier.expandWidth().height(200.dp)) {
+            Row(modifier = Modifier.fillMaxWidth().height(200.dp)) {
                 Text("Inside 1")
                 Text("Inside 2")
                 Text("Inside 3")
@@ -303,9 +303,9 @@ class GlanceAppWidgetReceiverTest {
     @Test
     fun createRowWithTwoTexts() {
         TestGlanceAppWidget.uiDefinition = {
-            Row(modifier = Modifier.expandWidth().expandHeight()) {
-                Text("Inside 1", modifier = Modifier.expandWidth().height(100.dp))
-                Text("Inside 2", modifier = Modifier.expandWidth().expandHeight())
+            Row(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
+                Text("Inside 1", modifier = Modifier.defaultWeight().height(100.dp))
+                Text("Inside 2", modifier = Modifier.defaultWeight().fillMaxHeight())
             }
         }
 
@@ -329,9 +329,9 @@ class GlanceAppWidgetReceiverTest {
     @Test
     fun createColumnWithTwoTexts() {
         TestGlanceAppWidget.uiDefinition = {
-            Column(modifier = Modifier.expandWidth().expandHeight()) {
-                Text("Inside 1", modifier = Modifier.expandWidth().expandHeight())
-                Text("Inside 2", modifier = Modifier.width(100.dp).expandHeight())
+            Column(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
+                Text("Inside 1", modifier = Modifier.fillMaxWidth().defaultWeight())
+                Text("Inside 2", modifier = Modifier.width(100.dp).defaultWeight())
             }
         }
 
@@ -349,6 +349,32 @@ class GlanceAppWidgetReceiverTest {
                 DpSize(mHostRule.portraitSize.width, mHostRule.portraitSize.height / 2),
             )
             assertViewSize(child2, DpSize(100.dp, mHostRule.portraitSize.height / 2))
+        }
+    }
+
+    @Test
+    fun createColumnWithTwoTexts2() {
+        TestGlanceAppWidget.uiDefinition = {
+            Column(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
+                Text("Inside 1", modifier = Modifier.fillMaxWidth().defaultWeight())
+                Text("Inside 2", modifier = Modifier.width(100.dp).fillMaxHeight())
+            }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onHostView { hostView ->
+            assertThat(hostView.childCount).isEqualTo(1)
+            val row = assertIs<LinearLayout>(hostView.getChildAt(0))
+            assertThat(row.orientation).isEqualTo(LinearLayout.VERTICAL)
+            assertThat(row.childCount).isEqualTo(2)
+            val child1 = assertIs<TextView>(row.getChildAt(0))
+            val child2 = assertIs<TextView>(row.getChildAt(1).getTargetView())
+            assertViewSize(
+                child1,
+                DpSize(mHostRule.portraitSize.width, 0.dp),
+            )
+            assertViewSize(child2, DpSize(100.dp, mHostRule.portraitSize.height))
         }
     }
 

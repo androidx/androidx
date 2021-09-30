@@ -31,6 +31,22 @@ public class EmittableColumn : EmittableWithChildren() {
     public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
 }
 
+/** Scope defining modifiers only available on rows. */
+public interface ColumnScope {
+    /**
+     * Size the element's height to split the available space with other weighted sibling elements
+     * in the [Column]. The parent will divide the vertical space remaining after measuring
+     * unweighted child elements and distribute it according to the weights, the default weight
+     * being 1.
+     */
+    fun Modifier.defaultWeight(): Modifier
+}
+
+private object ColumnScopeImplInstance : ColumnScope {
+    override fun Modifier.defaultWeight(): Modifier =
+        this.then(HeightModifier(Dimension.Expand))
+}
+
 /**
  * A layout composable with [content], which lays its children out in a Column.
  *
@@ -51,7 +67,7 @@ public fun Column(
     modifier: Modifier = Modifier,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    content: @Composable () -> Unit
+    content: @Composable ColumnScope.() -> Unit
 ) {
     ComposeNode<EmittableColumn, Applier>(
         factory = ::EmittableColumn,
@@ -60,6 +76,6 @@ public fun Column(
             this.set(horizontalAlignment) { this.horizontalAlignment = it }
             this.set(verticalAlignment) { this.verticalAlignment = it }
         },
-        content = content
+        content = { ColumnScopeImplInstance.content() }
     )
 }
