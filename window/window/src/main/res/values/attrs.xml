@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources>
+    <!-- Defines what part of the width should be given to the primary activity. Defaults to an
+    equal width split. -->
+    <attr name="splitRatio" format="float" />
+    <!-- The smallest value of width of the parent window when the split should be used. -->
+    <attr name="splitMinWidth" format="dimension" />
+    <!-- The smallest value of the smallest-width (sw) of the parent window in any rotation when
+     the split should be used. -->
+    <attr name="splitMinSmallestWidth" format="dimension" />
+    <attr name="splitLayoutDirection" format="enum">
+        <enum name="locale" value="0" />
+        <enum name="ltr" value="1" />
+        <enum name="rtl" value="2" />
+    </attr>
+
+    <!-- Split configuration rules for activity pairs. Must contain at least one SplitPairFilter.
+    See androidx.window.embedding.SplitPairRule for complete documentation. -->
+    <declare-styleable name="SplitPairRule">
+        <!-- When all activities are finished in the secondary container, the activity in the
+         primary container that created the split should also be finished. Defaults to "false". -->
+        <attr name="finishPrimaryWithSecondary" format="boolean" />
+        <!-- When all activities are finished in the primary container, the activities in the
+         secondary container in the split should also be finished. Defaults to "true". -->
+        <attr name="finishSecondaryWithPrimary" format="boolean" />
+        <!-- If there is an existing split with the same primary container, indicates whether the
+        existing secondary container on top and all activities in it should be destroyed when a new
+        split is created using this rule. Otherwise the new secondary will appear on top. Defaults
+         to "false". -->
+        <attr name="clearTop" format="boolean" />
+        <attr name="splitRatio"/>
+        <attr name="splitMinWidth"/>
+        <attr name="splitMinSmallestWidth"/>
+        <attr name="splitLayoutDirection"/>
+    </declare-styleable>
+
+    <!-- Configuration rules for split placeholders. Must contain at least one ActivityFilter for
+    the primary activity for which the rule should be applied.
+    See androidx.window.embedding.SplitPlaceholderRule for complete documentation. -->
+    <declare-styleable name="SplitPlaceholderRule">
+        <!-- Component name of the placeholder activity in the split. Must be non-empty. -->
+        <attr name="placeholderActivityName" format="string" />
+        <attr name="splitRatio"/>
+        <attr name="splitMinWidth"/>
+        <attr name="splitMinSmallestWidth"/>
+        <attr name="splitLayoutDirection"/>
+    </declare-styleable>
+
+    <!-- Filter used to find if a pair of activities should be put in a split. -->
+    <declare-styleable name="SplitPairFilter">
+        <!-- Component name of the primary activity in the split. Must be non-empty. Can contain a
+         wildcard at the end or instead of package name and/or class name. -->
+        <attr name="primaryActivityName" format="string" />
+        <!-- Component name of the secondary activity in the split. Must be non-empty. Can contain a
+         wildcard at the end or instead of package name and/or class name. -->
+        <attr name="secondaryActivityName" format="string" />
+        <!-- Action used for secondary activity launch. May be empty. Must not contain wildcards.
+         -->
+        <attr name="secondaryActivityAction" format="string" />
+    </declare-styleable>
+
+    <!-- Layout configuration rules for individual activities. Takes precedence over
+    SplitPairRule. Must contain at least one ActivityFilter.
+    See androidx.window.layout.ActivityRule for complete documentation. -->
+    <declare-styleable name="ActivityRule">
+        <!-- Whether the activity should always be expanded on launch. -->
+        <attr name="alwaysExpand" format="boolean" />
+    </declare-styleable>
+
+    <!-- Filter for ActivityRule. -->
+    <declare-styleable name="ActivityFilter">
+        <!-- Component name of the primary activity in the split. Must be non-empty. Can contain a
+         single wildcard at the end. -->
+        <attr name="activityName" format="string" />
+        <!-- Action used for activity launch. May be empty. Must not contain wildcards.
+         -->
+        <attr name="activityAction" format="string" />
+    </declare-styleable>
+</resources>
