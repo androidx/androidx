@@ -230,8 +230,8 @@ public class CardColorTest {
         var expectedAppColor = Color.Transparent
         var expectedTimeColor = Color.Transparent
         var expectedTitleColor = Color.Transparent
-        var expectedBodyColor = Color.Transparent
-        var actualBodyColor = Color.Transparent
+        var expectedContentColor = Color.Transparent
+        var actualContentColor = Color.Transparent
         var actualTitleColor = Color.Transparent
         var actualTimeColor = Color.Transparent
         var actualAppColor = Color.Transparent
@@ -241,7 +241,7 @@ public class CardColorTest {
             expectedAppColor = MaterialTheme.colors.onSurfaceVariant
             expectedTimeColor = MaterialTheme.colors.onSurfaceVariant
             expectedTitleColor = MaterialTheme.colors.onSurface
-            expectedBodyColor = MaterialTheme.colors.onSurfaceVariant2
+            expectedContentColor = MaterialTheme.colors.onSurfaceVariant2
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -251,25 +251,26 @@ public class CardColorTest {
                     onClick = {},
                     appName = { actualAppColor = LocalContentColor.current },
                     time = { actualTimeColor = LocalContentColor.current },
-                    body = { actualBodyColor = LocalContentColor.current },
                     title = { actualTitleColor = LocalContentColor.current },
                     modifier = Modifier.testTag(TEST_TAG)
-                )
+                ) {
+                    actualContentColor = LocalContentColor.current
+                }
             }
         }
 
         assertEquals(expectedAppColor, actualAppColor)
         assertEquals(expectedTimeColor, actualTimeColor)
         assertEquals(expectedTitleColor, actualTitleColor)
-        assertEquals(expectedBodyColor, actualBodyColor)
+        assertEquals(expectedContentColor, actualContentColor)
     }
 
     @Test
     public fun title_card_gives_default_colors() {
         var expectedTimeColor = Color.Transparent
         var expectedTitleColor = Color.Transparent
-        var expectedBodyColor = Color.Transparent
-        var actualBodyColor = Color.Transparent
+        var expectedContentColor = Color.Transparent
+        var actualContentColor = Color.Transparent
         var actualTitleColor = Color.Transparent
         var actualTimeColor = Color.Transparent
         val testBackground = Color.White
@@ -277,7 +278,7 @@ public class CardColorTest {
         rule.setContentWithTheme {
             expectedTimeColor = MaterialTheme.colors.onSurfaceVariant
             expectedTitleColor = MaterialTheme.colors.onSurface
-            expectedBodyColor = MaterialTheme.colors.onSurfaceVariant2
+            expectedContentColor = MaterialTheme.colors.onSurfaceVariant2
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -286,16 +287,17 @@ public class CardColorTest {
                 TitleCard(
                     onClick = {},
                     time = { actualTimeColor = LocalContentColor.current },
-                    body = { actualBodyColor = LocalContentColor.current },
                     title = { actualTitleColor = LocalContentColor.current },
                     modifier = Modifier.testTag(TEST_TAG)
-                )
+                ) {
+                    actualContentColor = LocalContentColor.current
+                }
             }
         }
 
         assertEquals(expectedTimeColor, actualTimeColor)
         assertEquals(expectedTitleColor, actualTitleColor)
-        assertEquals(expectedBodyColor, actualBodyColor)
+        assertEquals(expectedContentColor, actualContentColor)
     }
 
     private fun verifyColors(
@@ -353,17 +355,17 @@ public class CardFontTest {
         var actualAppTextStyle = TextStyle.Default
         var actualTimeTextStyle = TextStyle.Default
         var actualTitleTextStyle = TextStyle.Default
-        var actualBodyTextStyle = TextStyle.Default
+        var actuaContentTextStyle = TextStyle.Default
         var expectedAppTextStyle = TextStyle.Default
         var expectedTimeTextStyle = TextStyle.Default
         var expectedTitleTextStyle = TextStyle.Default
-        var expectedBodyTextStyle = TextStyle.Default
+        var expectedContentTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
             expectedAppTextStyle = MaterialTheme.typography.caption1
             expectedTimeTextStyle = MaterialTheme.typography.caption1
             expectedTitleTextStyle = MaterialTheme.typography.title3
-            expectedBodyTextStyle = MaterialTheme.typography.body1
+            expectedContentTextStyle = MaterialTheme.typography.body1
 
             AppCard(
                 onClick = {},
@@ -376,31 +378,30 @@ public class CardFontTest {
                 title = {
                     actualTitleTextStyle = LocalTextStyle.current
                 },
-                body = {
-                    actualBodyTextStyle = LocalTextStyle.current
-                },
                 modifier = Modifier.testTag(TEST_TAG)
-            )
+            ) {
+                actuaContentTextStyle = LocalTextStyle.current
+            }
         }
         assertEquals(expectedAppTextStyle, actualAppTextStyle)
         assertEquals(expectedTimeTextStyle, actualTimeTextStyle)
         assertEquals(expectedTitleTextStyle, actualTitleTextStyle)
-        assertEquals(expectedBodyTextStyle, actualBodyTextStyle)
+        assertEquals(expectedContentTextStyle, actuaContentTextStyle)
     }
 
     @Test
     public fun title_card_gives_correct_text_style_base() {
         var actualTimeTextStyle = TextStyle.Default
         var actualTitleTextStyle = TextStyle.Default
-        var actualBodyTextStyle = TextStyle.Default
+        var actuaContentTextStyle = TextStyle.Default
         var expectedTimeTextStyle = TextStyle.Default
         var expectedTitleTextStyle = TextStyle.Default
-        var expectedBodyTextStyle = TextStyle.Default
+        var expectedContentTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
             expectedTimeTextStyle = MaterialTheme.typography.caption1
             expectedTitleTextStyle = MaterialTheme.typography.title3
-            expectedBodyTextStyle = MaterialTheme.typography.body1
+            expectedContentTextStyle = MaterialTheme.typography.body1
 
             TitleCard(
                 onClick = {},
@@ -410,15 +411,14 @@ public class CardFontTest {
                 title = {
                     actualTitleTextStyle = LocalTextStyle.current
                 },
-                body = {
-                    actualBodyTextStyle = LocalTextStyle.current
-                },
                 modifier = Modifier.testTag(TEST_TAG)
-            )
+            ) {
+                actuaContentTextStyle = LocalTextStyle.current
+            }
         }
         assertEquals(expectedTimeTextStyle, actualTimeTextStyle)
         assertEquals(expectedTitleTextStyle, actualTitleTextStyle)
-        assertEquals(expectedBodyTextStyle, actualBodyTextStyle)
+        assertEquals(expectedContentTextStyle, actuaContentTextStyle)
     }
 }
 

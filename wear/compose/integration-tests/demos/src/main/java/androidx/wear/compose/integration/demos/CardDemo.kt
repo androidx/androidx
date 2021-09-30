@@ -64,13 +64,12 @@ fun CardDemo() {
                 appName = { Text("AppName") },
                 title = { Text("AppCard") },
                 time = { Text("now") },
-                body = {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text("Some body content")
-                        Text("and some more body content")
-                    }
-                },
-            )
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text("Some body content")
+                    Text("and some more body content")
+                }
+            }
         }
         item {
             AppCard(
@@ -79,65 +78,60 @@ fun CardDemo() {
                 appImage = { DemoImage(resourceId = R.drawable.ic_maps_icon) },
                 title = { Text("AppCard") },
                 time = { Text("now") },
-                body = {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text("Some body content")
-                        Text("and some more body content")
-                    }
-                },
-            )
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text("Some body content")
+                    Text("and some more body content")
+                }
+            }
         }
         item {
             TitleCard(
                 onClick = {},
                 title = { Text("TitleCard") },
                 time = { Text("now") },
-                body = {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text("Some body content")
-                        Text("and some more body content")
-                    }
-                },
-            )
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text("Some body content")
+                    Text("and some more body content")
+                }
+            }
         }
         item {
             TitleCard(
                 onClick = {},
                 title = { Text("TitleCard") },
-                body = {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text("This title card doesn't show time")
-                    }
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text("This title card doesn't show time")
                 }
-            )
+            }
         }
         item {
             TitleCard(
                 onClick = {},
                 title = { Text("Custom TitleCard") },
-                body = {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text("This title card emphasises the title with custom color")
-                    }
-                },
                 titleColor = Color.Yellow
-            )
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text("This title card emphasises the title with custom color")
+                }
+            }
         }
         item {
             TitleCard(
                 onClick = {},
                 title = { Text("TitleCard With an ImageBackground") },
-                body = {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text("Text coloured to stand out on the image")
-                    }
-                },
                 backgroundPainter = CardDefaults.imageWithScrimBackgroundPainter(
                     backgroundImagePainter = painterResource(id = R.drawable.backgroundimage1)
                 ),
-                bodyColor = MaterialTheme.colors.onSurface,
+                contentColor = MaterialTheme.colors.onSurface,
                 titleColor = MaterialTheme.colors.onSurface,
-            )
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text("Text coloured to stand out on the image")
+                }
+            }
         }
     }
 }
