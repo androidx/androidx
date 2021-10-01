@@ -4,9 +4,6 @@ package androidx.glance.appwidget {
   public final class ApplyModifiersKt {
   }
 
-  public final class CheckBoxTranslatorKt {
-  }
-
   public final class CompositionLocalsKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.os.Bundle> getLocalAppWidgetOptions();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.appwidget.GlanceId> getLocalGlanceId();
@@ -78,7 +75,7 @@ package androidx.glance.appwidget.layout {
   }
 
   public final class CheckBoxKt {
-    method @androidx.compose.runtime.Composable public static void CheckBox(boolean checked, optional androidx.glance.Modifier modifier, optional String text, optional androidx.glance.layout.TextStyle? textStyle);
+    method @androidx.compose.runtime.Composable public static void CheckBox(boolean checked, optional androidx.glance.Modifier modifier, optional String text, optional androidx.glance.text.TextStyle? textStyle);
   }
 
   @androidx.glance.appwidget.layout.LazyScopeMarker public interface LazyItemScope {
@@ -104,6 +101,16 @@ package androidx.glance.appwidget.layout {
   }
 
   @kotlin.DslMarker public @interface LazyScopeMarker {
+  }
+
+}
+
+package androidx.glance.appwidget.translators {
+
+  public final class CheckBoxTranslatorKt {
+  }
+
+  public final class TextTranslatorKt {
   }
 
 }

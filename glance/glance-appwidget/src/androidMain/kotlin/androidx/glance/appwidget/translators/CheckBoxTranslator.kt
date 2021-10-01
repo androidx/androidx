@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.glance.appwidget
+package androidx.glance.appwidget.translators
 
 import android.os.Build
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.glance.appwidget.LayoutSelector
+import androidx.glance.appwidget.R
+import androidx.glance.appwidget.TranslationContext
+import androidx.glance.appwidget.applyModifiers
 import androidx.glance.appwidget.layout.EmittableCheckBox
+import androidx.glance.appwidget.remoteViews
+import androidx.glance.appwidget.selectLayout
 
 internal fun translateEmittableCheckBox(
     translationContext: TranslationContext,
@@ -52,7 +58,7 @@ internal fun translateEmittableCheckBox(
         rv.setBoolean(R.id.checkBoxIcon, "setEnabled", element.checked)
     }
 
-    rv.setText(translationContext.context, textViewId, element.text, element.textStyle)
+    rv.setText(translationContext, textViewId, element.text, element.textStyle)
     applyModifiers(translationContext, rv, element.modifier, layoutDef)
     return rv
 }
