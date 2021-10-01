@@ -21,8 +21,8 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -2160,14 +2160,18 @@ public class EditorSessionTest {
     public fun watchfaceSupportsHeadlessEditing() {
         val mockPackageManager = Mockito.mock(PackageManager::class.java)
 
-        `when`(mockPackageManager.getApplicationInfo("test.package", PackageManager.GET_META_DATA))
-            .thenReturn(
-                ApplicationInfo().apply {
-                    metaData = Bundle().apply {
-                        putString(EditorRequest.ANDROIDX_WATCHFACE_API_VERSION, "4")
-                    }
-                }
+        `when`(
+            mockPackageManager.getServiceInfo(
+                ComponentName("test.package", EditorRequest.WATCHFACE_CONTROL_SERVICE),
+                PackageManager.GET_META_DATA
             )
+        ).thenReturn(
+            ServiceInfo().apply {
+                metaData = Bundle().apply {
+                    putInt(EditorRequest.ANDROIDX_WATCHFACE_API_VERSION, 4)
+                }
+            }
+        )
 
         assertThat(
             EditorRequest.supportsWatchFaceHeadlessEditing(mockPackageManager, "test.package")
@@ -2178,14 +2182,18 @@ public class EditorSessionTest {
     public fun watchfaceSupportsHeadlessEditing_oldApi() {
         val mockPackageManager = Mockito.mock(PackageManager::class.java)
 
-        `when`(mockPackageManager.getApplicationInfo("test.package", PackageManager.GET_META_DATA))
-            .thenReturn(
-                ApplicationInfo().apply {
-                    metaData = Bundle().apply {
-                        putString(EditorRequest.ANDROIDX_WATCHFACE_API_VERSION, "3")
-                    }
-                }
+        `when`(
+            mockPackageManager.getServiceInfo(
+                ComponentName("test.package", EditorRequest.WATCHFACE_CONTROL_SERVICE),
+                PackageManager.GET_META_DATA
             )
+        ).thenReturn(
+            ServiceInfo().apply {
+                metaData = Bundle().apply {
+                    putInt(EditorRequest.ANDROIDX_WATCHFACE_API_VERSION, 3)
+                }
+            }
+        )
 
         assertThat(
             EditorRequest.supportsWatchFaceHeadlessEditing(mockPackageManager, "test.package")
