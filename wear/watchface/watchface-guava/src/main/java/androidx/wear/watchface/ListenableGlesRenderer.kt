@@ -26,9 +26,9 @@ import androidx.wear.watchface.style.CurrentUserStyleRepository
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 internal val EGL_CONFIG_ATTRIB_LIST = intArrayOf(
     EGL14.EGL_RENDERABLE_TYPE,
@@ -126,7 +126,7 @@ public abstract class ListenableGlesRenderer(
         }
     }
 
-    override suspend fun onBackgroundThreadGlContextCreated(): Unit = suspendCoroutine {
+    override suspend fun onBackgroundThreadGlContextCreated(): Unit = suspendCancellableCoroutine {
         val future = onBackgroundThreadGlContextCreatedFuture()
         future.addListener(
             { it.resume(future.get()) },
@@ -154,7 +154,7 @@ public abstract class ListenableGlesRenderer(
     }
 
     override suspend fun onUiThreadGlSurfaceCreated(@Px width: Int, @Px height: Int): Unit =
-        suspendCoroutine {
+        suspendCancellableCoroutine {
             val future = onUiThreadGlSurfaceCreatedFuture(width, height)
             future.addListener(
                 { it.resume(future.get()) },

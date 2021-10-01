@@ -42,9 +42,9 @@ import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * Connects to a watch face's WatchFaceControlService which allows the user to control the watch
@@ -279,7 +279,7 @@ internal class WatchFaceControlClientImpl internal constructor(
             "WatchFaceControlClientImpl" +
                 ".getOrCreateWallpaperServiceBackedInteractiveWatchFaceClientAsync"
         )
-        return suspendCoroutine { continuation ->
+        return suspendCancellableCoroutine { continuation ->
             // [IWatchFaceControlService.getOrCreateInteractiveWatchFaceWCS] has an asynchronous
             // callback and it's possible the watch face might crash during start up so we register
             // a death observer.
@@ -313,7 +313,7 @@ internal class WatchFaceControlClientImpl internal constructor(
                     }
                 ),
                 object : IPendingInteractiveWatchFace.Stub() {
-                    override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
+                    override fun getApiVersion() = API_VERSION
 
                     override fun onInteractiveWatchFaceCreated(
                         iInteractiveWatchFace: IInteractiveWatchFace
