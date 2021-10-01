@@ -52,7 +52,7 @@ internal var forceRtl: Boolean? = null
 
 private val Context.isRtl: Boolean
     get() = forceRtl
-        ?: resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
+        ?: (resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL)
 
 private fun translateComposition(
     translationContext: TranslationContext,

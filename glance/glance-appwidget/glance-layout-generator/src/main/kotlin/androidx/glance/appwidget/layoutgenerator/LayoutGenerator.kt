@@ -127,6 +127,7 @@ internal class LayoutGenerator {
             if (width == ValidSize.Expand || height == ValidSize.Expand) {
                 setNamedItemNS(generated.androidWeight("1"))
             }
+            setNamedItemNS(generated.androidLayoutDirection("locale"))
         }
         return generated
     }
@@ -225,6 +226,7 @@ internal class LayoutGenerator {
                 setNamedItemNS(generated.androidAttr("layout_alignTop", "@id/sizeView"))
                 setNamedItemNS(generated.androidAttr("layout_alignBottom", "@id/sizeView"))
             }
+            setNamedItemNS(generated.androidLayoutDirection("locale"))
         }
         return generated
     }
@@ -263,6 +265,9 @@ internal fun Document.androidHeight(value: ValidSize) =
     androidAttr("layout_height", value.androidValue)
 
 internal fun Document.androidWeight(value: String) = androidAttr("layout_weight", value)
+
+internal fun Document.androidLayoutDirection(value: String) =
+    androidAttr("layoutDirection", value)
 
 internal val Document.androidNamespace
     get() = createAttribute("xmlns:android").apply {

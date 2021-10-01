@@ -44,6 +44,7 @@ class GlanceAppWidgetReceiverScreenshotTest {
     @Rule
     @JvmField
     val mRule: TestRule = RuleChain.outerRule(mHostRule).around(mScreenshotRule)
+        .around(WithRtlRule)
 
     @Test
     fun createSimpleAppWidget() {
@@ -102,6 +103,16 @@ class GlanceAppWidgetReceiverScreenshotTest {
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "rowWidget")
     }
 
+    @WithRtl
+    @Test
+    fun createRowWidget_rtl() {
+        TestGlanceAppWidget.uiDefinition = { RowTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "rowWidget_rtl")
+    }
+
     @Test
     fun checkTextAlignment() {
         TestGlanceAppWidget.uiDefinition = { TextAlignmentTest() }
@@ -109,6 +120,16 @@ class GlanceAppWidgetReceiverScreenshotTest {
         mHostRule.startHost()
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "textAlignment")
+    }
+
+    @WithRtl
+    @Test
+    fun checkTextAlignment_rtl() {
+        TestGlanceAppWidget.uiDefinition = { TextAlignmentTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "textAlignment_rtl")
     }
 }
 
