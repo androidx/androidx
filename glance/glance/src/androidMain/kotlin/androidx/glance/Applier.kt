@@ -26,6 +26,8 @@ import java.lang.IllegalStateException
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Applier(root: EmittableWithChildren) : AbstractApplier<Emittable>(root) {
+    private val newRootMaxDepth = root.maxDepth
+
     override fun onClear() {
         (root as EmittableWithChildren).children.clear()
     }
@@ -40,7 +42,13 @@ public class Applier(root: EmittableWithChildren) : AbstractApplier<Emittable>(r
             "Too many embedded views for the current surface. The maximum depth is: " +
                 "${(root as EmittableWithChildren).maxDepth}"
         }
-        if (instance is EmittableWithChildren) instance.maxDepth = parent.maxDepth - 1
+        if (instance is EmittableWithChildren) {
+            instance.maxDepth = if (instance.resetsDepthForChildren) {
+                newRootMaxDepth
+            } else {
+                parent.maxDepth - 1
+            }
+        }
         currentChildren.add(index, instance)
     }
 
