@@ -47,8 +47,8 @@ public final class UnusedAppRestrictionsConstants {
     /**
      * Unused App Restrictions introduced by Android API 30, and since made available on earlier
      * (API 23-29) devices are enabled for this app:
-     * <a href="https://developer.android.com/training/permissions/requesting?hl=hu
-     * #auto-reset-permissions-unused-apps">permission auto-reset</a>.
+     * <a href="https://developer.android.com/training/permissions/requesting#auto-reset-permissions-unused-apps"
+     * >permission auto-reset</a>.
      *
      * Note: This value is only used on API 29 or earlier devices.
      */
@@ -56,8 +56,8 @@ public final class UnusedAppRestrictionsConstants {
 
     /**
      * Unused App Restrictions introduced by Android API 30 are enabled for this app:
-     * <a href="https://developer.android.com/training/permissions/requesting?hl=hu
-     * #auto-reset-permissions-unused-apps">permission auto-reset</a>.
+     * <a href="https://developer.android.com/training/permissions/requesting#auto-reset-permissions-unused-apps"
+     * >permission auto-reset</a>.
      *
      * Note: This value is only used on API 30 or later devices.
      */
@@ -65,8 +65,8 @@ public final class UnusedAppRestrictionsConstants {
 
     /**
      * Unused App Restrictions introduced by Android API 31 are enabled for this app:
-     * <a href="https://developer.android.com/training/permissions/requesting?hl=hu
-     * #auto-reset-permissions-unused-apps">permission auto-reset</a> and
+     * <a href="https://developer.android.com/training/permissions/requesting#auto-reset-permissions-unused-apps"
+     * >permission auto-reset</a> and
      * <a href="https://developer.android.com/about/versions/12/behavior-changes-12#app-hibernation"
      * >app hibernation</a>.
      *

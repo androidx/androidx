@@ -99,16 +99,16 @@ public final class PackageManagerCompat {
      *     <li>{@link UnusedAppRestrictionsConstants#API_30_BACKPORT}: Unused App Restrictions
      *     introduced by Android API 30, and since made available on earlier (API 23-29) devices
      *     are enabled for this app:
-     *     <a href="https://developer.android.com/training/permissions/requesting?hl=hu
-     *     #auto-reset-permissions-unused-apps">permission auto-reset</a>.</li>
+     *     <a href="https://developer.android.com/training/permissions/requesting#auto-reset-permissions-unused-apps"
+     *     >permission auto-reset</a>.</li>
      *     <li>{@link UnusedAppRestrictionsConstants#API_30}: Unused App Restrictions introduced
      *     by Android API 30 are enabled for this app:
-     *     <a href="https://developer.android.com/training/permissions/requesting?hl=hu
-     *     #auto-reset-permissions-unused-apps">permission auto-reset</a>.</li>
+     *     <a href="https://developer.android.com/training/permissions/requesting#auto-reset-permissions-unused-apps"
+     *     >permission auto-reset</a>.</li>
      *     <li>{@link UnusedAppRestrictionsConstants#API_31}: Unused App Restrictions introduced
      *     by Android API 31 are enabled for this app:
-     *     <a href="https://developer.android.com/training/permissions/requesting?hl=hu
-     *     #auto-reset-permissions-unused-apps">permission auto-reset</a> and
+     *     <a href="https://developer.android.com/training/permissions/requesting#auto-reset-permissions-unused-apps"
+     *     >permission auto-reset</a> and
      *     <a href="https://developer.android.com/about/versions/12/behavior-changes-12#app-hibernation"
      *     >app hibernation</a>.</li>
      * </ul>
