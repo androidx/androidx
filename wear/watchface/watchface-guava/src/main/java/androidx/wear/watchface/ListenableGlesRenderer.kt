@@ -115,7 +115,7 @@ public abstract class ListenableGlesRenderer(
      * Called once a background thread when a new GL context is created on the background
      * thread, before any subsequent calls to [render]. Note this function is called inside a
      * lambda passed to [runBackgroundThreadGlCommands] which has synchronized access to the
-     * GL context.
+     * GL context. Note cancellation of the returned future is not supported.
      *
      * @return A ListenableFuture<Unit> which is resolved when background thread work has
      * completed. Rendering will be blocked until this has resolved.
@@ -137,8 +137,9 @@ public abstract class ListenableGlesRenderer(
     /**
      * Called when a new GL surface is created on the UiThread, before any subsequent calls
      * to [render] and in response to [SurfaceHolder.Callback.surfaceChanged]. Note this function
-     * is  called inside a lambda passed to [Renderer.GlesRenderer.runUiThreadGlCommands] which
-     * has synchronized access to the GL context.
+     * is called inside a lambda passed to [Renderer.GlesRenderer.runUiThreadGlCommands] which
+     * has synchronized access to the GL context.  Note cancellation of the returned future is not
+     * supported.
      *
      * @param width width of surface in pixels
      * @param height height of surface in pixels
