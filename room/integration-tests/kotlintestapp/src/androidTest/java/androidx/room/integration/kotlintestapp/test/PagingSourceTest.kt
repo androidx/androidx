@@ -69,6 +69,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.Executors
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -83,7 +84,10 @@ class PagingSourceTest {
     private lateinit var coroutineScope: CoroutineScope
     private lateinit var db: Paging3Db
     private lateinit var itemStore: ItemStore
-    private val queryExecutor = FilteringExecutor()
+
+    // Multiple threads are necessary to prevent deadlock, since Room will acquire a thread to
+    // dispatch on, when using the query / transaction dispatchers.
+    private val queryExecutor = FilteringExecutor(delegate = Executors.newFixedThreadPool(2))
     private val mainThreadQueries = mutableListOf<Pair<String, String>>()
     private val pagingSources = mutableListOf<PagingSource<Int, PagingEntity>>()
 
