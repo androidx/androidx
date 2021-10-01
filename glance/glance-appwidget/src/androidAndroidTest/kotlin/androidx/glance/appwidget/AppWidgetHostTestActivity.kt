@@ -29,10 +29,12 @@ import android.os.Bundle
 import android.os.LocaleList
 import android.util.Log
 import android.view.Gravity
+import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
+import androidx.core.text.layoutDirection
 import org.junit.Assert.fail
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -83,13 +85,12 @@ class AppWidgetHostTestActivity : Activity() {
         }
 
         val info = appWidgetManager.getAppWidgetInfo(appWidgetId)
-        val context = forceRtl?.let { isRtl ->
-            val locale = if (isRtl) Locale("he") else Locale.US
-            val config = resources.configuration
-            config.setLocales(LocaleList(locale))
-            config.setLayoutDirection(locale)
-            this.createConfigurationContext(config)
-        } ?: this
+        val locale = Locale.getDefault()
+        val config = resources.configuration
+        config.setLocales(LocaleList(locale))
+        config.setLayoutDirection(locale)
+        val context = this.createConfigurationContext(config)
+
         val hostView = host.createView(context, appWidgetId, info) as TestAppWidgetHostView
         hostView.setPadding(0, 0, 0, 0)
         val contentFrame = findViewById<FrameLayout>(R.id.content)
@@ -130,6 +131,7 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
     init {
         // Prevent asynchronous inflation of the App Widget
         setExecutor(null)
+        layoutDirection = View.LAYOUT_DIRECTION_LOCALE
     }
 
     private var mLatch: CountDownLatch? = null
