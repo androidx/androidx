@@ -277,6 +277,8 @@ package androidx.core.widget {
     method @RequiresApi(30) public static void setViewStateDescription(android.widget.RemoteViews, @IdRes int viewId, CharSequence? stateDescription);
     method @RequiresApi(31) public static void setViewStateDescription(android.widget.RemoteViews, @IdRes int viewId, @StringRes int resId);
     method @RequiresApi(31) public static void setViewStateDescriptionAttr(android.widget.RemoteViews, @IdRes int viewId, @AttrRes int resId);
+    method @RequiresApi(16) public static void setViewStubInflatedId(android.widget.RemoteViews, @IdRes int viewId, int inflatedId);
+    method @RequiresApi(16) public static void setViewStubLayoutResource(android.widget.RemoteViews, @IdRes int viewId, @LayoutRes int layoutResource);
     method @RequiresApi(31) public static void setViewTranslationXDimen(android.widget.RemoteViews, @IdRes int viewId, float value, int unit);
     method @RequiresApi(31) public static void setViewTranslationXDimen(android.widget.RemoteViews, @IdRes int viewId, @DimenRes int resId);
     method @RequiresApi(31) public static void setViewTranslationXDimenAttr(android.widget.RemoteViews, @IdRes int viewId, @AttrRes int resId);
