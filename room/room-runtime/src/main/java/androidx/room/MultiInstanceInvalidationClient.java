@@ -142,10 +142,12 @@ class MultiInstanceInvalidationClient {
      * @param context             The Context to be used for binding
      *                            {@link IMultiInstanceInvalidationService}.
      * @param name                The name of the database file.
+     * @param serviceIntent       The {@link Intent} used for binding
+     *                            {@link IMultiInstanceInvalidationService}.
      * @param invalidationTracker The {@link InvalidationTracker}
      * @param executor            The background executor.
      */
-    MultiInstanceInvalidationClient(Context context, String name,
+    MultiInstanceInvalidationClient(Context context, String name, Intent serviceIntent,
             InvalidationTracker invalidationTracker, Executor executor) {
         mAppContext = context.getApplicationContext();
         mName = name;
@@ -174,8 +176,7 @@ class MultiInstanceInvalidationClient {
                 return true;
             }
         };
-        Intent intent = new Intent(mAppContext, MultiInstanceInvalidationService.class);
-        mAppContext.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        mAppContext.bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     void stop() {

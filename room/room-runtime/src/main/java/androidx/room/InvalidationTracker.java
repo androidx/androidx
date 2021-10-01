@@ -18,6 +18,7 @@ package androidx.room;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
@@ -210,9 +211,9 @@ public class InvalidationTracker {
         }
     }
 
-    void startMultiInstanceInvalidation(Context context, String name) {
-        mMultiInstanceInvalidationClient = new MultiInstanceInvalidationClient(context, name, this,
-                mDatabase.getQueryExecutor());
+    void startMultiInstanceInvalidation(Context context, String name, Intent serviceIntent) {
+        mMultiInstanceInvalidationClient = new MultiInstanceInvalidationClient(context, name,
+                serviceIntent, this, mDatabase.getQueryExecutor());
     }
 
     void stopMultiInstanceInvalidation() {
