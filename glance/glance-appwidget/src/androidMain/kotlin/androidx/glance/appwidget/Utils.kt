@@ -18,6 +18,7 @@ package androidx.glance.appwidget
 
 import android.util.DisplayMetrics
 import android.util.TypedValue
+import android.widget.RemoteViews
 import androidx.glance.unit.Dp
 import androidx.glance.unit.dp
 
@@ -26,3 +27,11 @@ internal fun Dp.toPixels(displayMetrics: DisplayMetrics) =
 
 internal fun Int.pixelsToDp(displayMetrics: DisplayMetrics) =
     (this / displayMetrics.density).dp
+
+/**
+ * KTX for calling `setEnabled` on a View. Note that this is **not safe on TextViews (and
+ * descendants) before API 24**, but it is safe for any other view type.
+ */
+internal fun RemoteViews.setViewEnabled(viewId: Int, enabled: Boolean) {
+    setBoolean(viewId, "setEnabled", enabled)
+}

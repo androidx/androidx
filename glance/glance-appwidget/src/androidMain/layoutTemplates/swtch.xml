@@ -14,12 +14,5 @@
   limitations under the License.
   -->
 
-<resources>
-    <string name="demos_label">Glance AppWidget Demos</string>
-    <!-- Name of the app widget with a responsive layout. -->
-    <string name="responsive_widget_name">Responsive Widget</string>
-    <string name="responsive_widget_title"><u>Responsive</u></string>
-    <string name="resizing_widget_name">Resizing Widget</string>
-    <string name="check_box_widget_name">CheckBox Widget</string>
-    <string name="switch_widget_name">Switch Widget</string>
-</resources>
+<Switch xmlns:android="http://schemas.android.com/apk/res/android"
+    android:textDirection="locale" />

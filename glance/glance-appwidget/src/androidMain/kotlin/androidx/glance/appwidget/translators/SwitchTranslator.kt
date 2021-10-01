@@ -22,20 +22,20 @@ import androidx.glance.appwidget.LayoutSelector
 import androidx.glance.appwidget.R
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
-import androidx.glance.appwidget.layout.EmittableCheckBox
+import androidx.glance.appwidget.layout.EmittableSwitch
 import androidx.glance.appwidget.remoteViews
 import androidx.glance.appwidget.selectLayout
 import androidx.glance.appwidget.setViewEnabled
 
-internal fun translateEmittableCheckBox(
+internal fun translateEmittableSwitch(
     translationContext: TranslationContext,
-    element: EmittableCheckBox
+    element: EmittableSwitch
 ): RemoteViews {
 
     val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        LayoutSelector.Type.CheckBox
+        LayoutSelector.Type.Swtch
     } else {
-        LayoutSelector.Type.CheckBoxBackport
+        LayoutSelector.Type.SwtchBackport
     }
 
     val layoutDef = selectLayout(layoutType, element.modifier)
@@ -50,8 +50,9 @@ internal fun translateEmittableCheckBox(
             element.checked
         )
     } else {
-        textViewId = R.id.checkBoxText
-        rv.setViewEnabled(R.id.checkBoxIcon, element.checked)
+        textViewId = R.id.switchText
+        rv.setViewEnabled(R.id.switchThumb, element.checked)
+        rv.setViewEnabled(R.id.switchTrack, element.checked)
     }
 
     rv.setText(translationContext, textViewId, element.text, element.textStyle)

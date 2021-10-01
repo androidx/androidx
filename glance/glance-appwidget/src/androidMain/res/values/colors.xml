@@ -15,11 +15,8 @@
   -->
 
 <resources>
-    <string name="demos_label">Glance AppWidget Demos</string>
-    <!-- Name of the app widget with a responsive layout. -->
-    <string name="responsive_widget_name">Responsive Widget</string>
-    <string name="responsive_widget_title"><u>Responsive</u></string>
-    <string name="resizing_widget_name">Resizing Widget</string>
-    <string name="check_box_widget_name">CheckBox Widget</string>
-    <string name="switch_widget_name">Switch Widget</string>
+    <color name="switch_thumb_normal_material_dark">#ffbdbdbd</color>
+    <color name="switch_thumb_normal_material_light">#fff1f1f1</color>
+    <color name="switch_thumb_disabled_material_dark">#ff616161</color>
+    <color name="switch_thumb_disabled_material_light">#ffbdbdbd</color>
 </resources>
