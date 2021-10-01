@@ -56,6 +56,9 @@ import androidx.compose.ui.unit.dp
  * [ToggleButton]s can be enabled or disabled. A disabled toggle button will not respond to click
  * events.
  *
+ * Example of a [ToggleButton] with an icon:
+ * @sample androidx.wear.compose.material.samples.ToggleButtonWithIcon
+ *
  * @param checked Boolean flag indicating whether this toggle button is currently checked.
  * @param onCheckedChange Callback to be invoked when this toggle button is clicked.
  * @param modifier Modifier to be applied to the toggle button.
