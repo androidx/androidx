@@ -19,6 +19,7 @@
 package androidx.sample.consumer
 
 import sample.annotation.provider.ExperimentalSampleAnnotationJava
+import sample.annotation.provider.RequiresOptInSampleAnnotationJava
 
 class OutsideGroupExperimentalAnnotatedClass {
 
@@ -29,7 +30,12 @@ class OutsideGroupExperimentalAnnotatedClass {
 //    }
 
     @ExperimentalSampleAnnotationJava
-    fun invalidAnnotatedMethod() {
+    fun invalidExperimentalAnnotatedMethod() {
+        // Nothing to see here.
+    }
+
+    @RequiresOptInSampleAnnotationJava
+    fun invalidRequiresOptInAnnotatedMethod() {
         // Nothing to see here.
     }
 }

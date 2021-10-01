@@ -64,6 +64,7 @@ No warnings.
             .files(
                 ktSample("sample.annotation.provider.ExperimentalSampleAnnotation"),
                 javaSample("sample.annotation.provider.ExperimentalSampleAnnotationJava"),
+                javaSample("sample.annotation.provider.RequiresOptInSampleAnnotationJava"),
                 gradle(
                     """
                     apply plugin: 'com.android.library'
@@ -88,10 +89,13 @@ No warnings.
 
         /* ktlint-disable max-line-length */
         val expected = """
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:31: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:32: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
     @ExperimentalSampleAnnotationJava
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:37: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+    @RequiresOptInSampleAnnotationJava
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
