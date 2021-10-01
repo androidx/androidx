@@ -126,10 +126,12 @@ package androidx.wear.compose.material {
 
   public final class ContentAlphaKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Float> getLocalContentAlpha();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Float> LocalContentAlpha;
   }
 
   public final class ContentColorKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> getLocalContentColor();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalContentColor;
   }
 
   public final class CurvedTextKt {
@@ -143,6 +145,19 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.vector.ImageVector imageVector, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional long tint);
     method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.ImageBitmap bitmap, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional long tint);
     method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.painter.Painter painter, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional long tint);
+  }
+
+  @androidx.compose.runtime.Stable public interface InlineSliderColors {
+    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> backgroundColor(boolean enabled);
+    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> barColor(boolean enabled, boolean selected);
+    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> spacerColor(boolean enabled);
+  }
+
+  public final class InlineSliderDefaults {
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material.InlineSliderColors colors(optional long backgroundColor, optional long spacerColor, optional long selectedBarColor, optional long unselectedBarColor, optional long disabledBackgroundColor, optional long disabledSpacerColor, optional long disabledSelectedBarColor, optional long disabledUnselectedBarColor);
+    method public androidx.compose.ui.graphics.vector.ImageVector getDecreaseIcon();
+    property public final androidx.compose.ui.graphics.vector.ImageVector DecreaseIcon;
+    field public static final androidx.wear.compose.material.InlineSliderDefaults INSTANCE;
   }
 
   public final class ListHeaderKt {
@@ -282,6 +297,10 @@ package androidx.wear.compose.material {
   public final class ShapesKt {
   }
 
+  public final class SliderKt {
+    method @androidx.compose.runtime.Composable public static void InlineSlider(float value, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange, int steps, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional boolean segmented, optional kotlin.jvm.functions.Function0<kotlin.Unit> decreaseIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit> increaseIcon, optional androidx.wear.compose.material.InlineSliderColors colors);
+  }
+
   public final class SwipeToDismissBoxKt {
   }
 
@@ -293,6 +312,7 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
     method @androidx.compose.runtime.Composable public static void Text(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent> inlineContent, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> getLocalTextStyle();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
   }
 
   public final class TimeTextKt {
