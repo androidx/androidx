@@ -75,13 +75,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import java.lang.reflect.Proxy
 import java.time.Duration
 import java.time.Instant
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * Interface for manipulating watch face state during a watch face editing session. The editor
@@ -247,7 +247,7 @@ public interface EditorSession : AutoCloseable {
         public suspend fun createOnWatchEditorSession(activity: ComponentActivity): EditorSession {
             var editorSession: EditorSession? = null
             // Wait until Lifecycle.Event.ON_CREATE.
-            suspendCoroutine<Unit> { continuation ->
+            suspendCancellableCoroutine<Unit> { continuation ->
                 activity.lifecycle.addObserver(
                     object : DefaultLifecycleObserver {
                         override fun onCreate(owner: LifecycleOwner) {

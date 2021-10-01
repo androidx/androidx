@@ -19,8 +19,8 @@ package androidx.wear.watchface
 import android.view.SurfaceHolder
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * [ListenableFuture]-based compatibility wrapper around [WatchFaceService]'s suspending
@@ -40,7 +40,7 @@ public abstract class ListenableWatchFaceService : WatchFaceService() {
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ): WatchFace = suspendCoroutine {
+    ): WatchFace = suspendCancellableCoroutine {
         val future = createWatchFaceFuture(
             surfaceHolder,
             watchState,
