@@ -17,6 +17,7 @@
 package androidx.camera.testing.fakes;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.ExtendableBuilder;
@@ -31,6 +32,7 @@ import androidx.camera.core.impl.ReadableConfig;
  *
  * @hide
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class FakeConfig implements ReadableConfig {
 
@@ -47,6 +49,7 @@ public final class FakeConfig implements ReadableConfig {
     }
 
     /** Builder for an empty Config */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder implements ExtendableBuilder<FakeConfig> {
 
         private final MutableOptionsBundle mOptionsBundle;

@@ -27,6 +27,7 @@ import androidx.camera.core.impl.utils.Exif
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -45,6 +46,7 @@ private const val HEIGHT = 60
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 public class FileTransformFactoryDeviceTest {
 
     private lateinit var factory: FileTransformFactory

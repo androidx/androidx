@@ -24,6 +24,7 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.camera.core.MeteringPointFactory;
@@ -34,6 +35,7 @@ import androidx.camera.core.impl.utils.Threads;
  *
  * @hide
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class PreviewViewMeteringPointFactory extends MeteringPointFactory {
 

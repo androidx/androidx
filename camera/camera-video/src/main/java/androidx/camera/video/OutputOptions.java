@@ -17,6 +17,7 @@
 package androidx.camera.video;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * Options for configuring output destination for generating a recording.
@@ -29,6 +30,7 @@ import androidx.annotation.NonNull;
  * @see FileDescriptorOutputOptions
  * @see MediaStoreOutputOptions
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class OutputOptions {
 
     /** Represents an unbound file size. */

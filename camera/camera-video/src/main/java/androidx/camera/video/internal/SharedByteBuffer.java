@@ -18,6 +18,7 @@ package androidx.camera.video.internal;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.core.util.Pair;
 import androidx.core.util.Preconditions;
@@ -41,6 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * {@link #close()} has not been called. Once {@link #close()} has been called, it should be
  * assumed the {@link ByteBuffer} contains invalid data.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SharedByteBuffer implements Closeable {
 
     private static final String TAG = "SharedByteBuffer";

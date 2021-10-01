@@ -42,6 +42,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
@@ -101,6 +102,7 @@ import java.util.concurrent.Executor;
  *
  * @param <T> the type of VideoOutput
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static final String TAG = "VideoCapture";
     private static final Defaults DEFAULT_CONFIG = new Defaults();
@@ -575,6 +577,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * @param <T> the type of VideoOutput
      * @hide
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @RestrictTo(Scope.LIBRARY_GROUP)
     @SuppressWarnings("ObjectToString")
     public static final class Builder<T extends VideoOutput> implements

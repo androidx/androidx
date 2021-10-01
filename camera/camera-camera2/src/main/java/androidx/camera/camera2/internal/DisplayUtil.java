@@ -22,10 +22,12 @@ import android.hardware.display.DisplayManager;
 import android.view.Display;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * Utility class for {@link Display} related information.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class DisplayUtil {
     /**
      * Retrieves the display which has the max size among all displays.

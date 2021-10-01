@@ -21,6 +21,7 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -39,6 +40,7 @@ import java.util.List;
  * triggering
  * AF/AE.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraControlInternal extends CameraControl {
 
     /** Returns the current flash mode. */

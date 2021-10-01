@@ -18,6 +18,7 @@ package androidx.camera.core.internal.compat.quirk;
 
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.internal.compat.workaround.SurfaceSorter;
 
@@ -35,6 +36,7 @@ import java.util.Set;
  *
  * @see SurfaceSorter
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SurfaceOrderQuirk implements Quirk {
 
     private static final Set<String> BUILD_HARDWARE_SET = new HashSet<>(Arrays.asList(

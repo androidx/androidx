@@ -16,9 +16,12 @@
 
 package androidx.camera.extensions.internal.sessionprocessor;
 
+import androidx.annotation.RequiresApi;
+
 /**
  * Surface will be created by constructing a MultiResolutionImageReader.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface MultiResolutionImageReaderOutputConfig extends Camera2OutputConfig {
     /**
      * Gets the image format of the surface.

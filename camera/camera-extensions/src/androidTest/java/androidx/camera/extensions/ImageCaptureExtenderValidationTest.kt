@@ -51,6 +51,7 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(Parameterized::class)
+@SdkSuppress(minSdkVersion = 21)
 class ImageCaptureExtenderValidationTest(
     @field:Mode @param:Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
@@ -137,7 +138,7 @@ class ImageCaptureExtenderValidationTest(
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.O_MR1)
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = Build.VERSION_CODES.O_MR1)
     fun returnsNullFromOnPresetSession_whenAPILevelOlderThan28() {
         // Creates the ImageCaptureExtenderImpl to check that onPresetSession() returns null when
         // API level is older than 28.

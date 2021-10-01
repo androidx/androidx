@@ -68,6 +68,7 @@ dependencies {
     testImplementation(project(":internal-testutils-ktx"))
     testImplementation(project(":internal-testutils-truth"))
 
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
@@ -82,7 +83,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 21
+        multiDexEnabled = true
     }
 }
 

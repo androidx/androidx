@@ -21,6 +21,7 @@ import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.video.internal.compat.quirk.CameraUseInconsistentTimebaseQuirk;
 
@@ -36,6 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @see CameraUseInconsistentTimebaseQuirk
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CorrectVideoTimeByTimebase {
     private static final String TAG = "CorrectVideoTimeByTimebase";
 

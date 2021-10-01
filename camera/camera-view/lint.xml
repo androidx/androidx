@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Disable NewApi lint check temporarily for unit tests.
+    This file can be removed once b/200599470 is resolved. -->
+    <issue id="NewApi">
+        <ignore path="src/test/**" />
+    </issue>
+</lint>

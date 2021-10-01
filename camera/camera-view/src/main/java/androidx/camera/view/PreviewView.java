@@ -44,6 +44,7 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraControl;
@@ -94,6 +95,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link View} visible, or initially hiding the {@link View} by setting its
  * {@linkplain View#setAlpha(float) opacity} to 0, then setting it to 1.0F to show it.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class PreviewView extends FrameLayout {
 
     private static final String TAG = "PreviewView";
@@ -625,6 +627,7 @@ public final class PreviewView extends FrameLayout {
      * {@link PreviewView} to decide what is the best internal implementation given the device
      * capabilities and user configurations.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public enum ImplementationMode {
 
         /**
@@ -680,6 +683,7 @@ public final class PreviewView extends FrameLayout {
     }
 
     /** Options for scaling the preview vis-à-vis its container {@link PreviewView}. */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public enum ScaleType {
         /**
          * Scale the preview, maintaining the source aspect ratio, so it fills the entire

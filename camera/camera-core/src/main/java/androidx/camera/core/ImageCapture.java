@@ -70,6 +70,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
@@ -164,6 +165,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p>When capturing to memory, the captured image is made available through an {@link ImageProxy}
  * via an {@link ImageCapture.OnImageCapturedCallback}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ImageCapture extends UseCase {
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -1788,6 +1790,7 @@ public final class ImageCapture extends UseCase {
     }
 
     /** Listener containing callbacks for image file I/O events. */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public interface OnImageSavedCallback {
         /** Called when an image has been successfully saved. */
         void onImageSaved(@NonNull OutputFileResults outputFileResults);
@@ -1804,6 +1807,7 @@ public final class ImageCapture extends UseCase {
     /**
      * Callback for when an image capture has completed.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public abstract static class OnImageCapturedCallback {
         /**
          * Callback for when the image has been captured.
@@ -1885,6 +1889,7 @@ public final class ImageCapture extends UseCase {
      * either a {@link File}, {@link MediaStore} or a {@link OutputStream}. The metadata will be
      * stored with the saved image. For JPEG this will be included in the EXIF.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class OutputFileOptions {
 
         @Nullable
@@ -1955,6 +1960,7 @@ public final class ImageCapture extends UseCase {
         /**
          * Builder class for {@link OutputFileOptions}.
          */
+        @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info
         public static final class Builder {
             @Nullable
             private File mFile;
@@ -2045,6 +2051,7 @@ public final class ImageCapture extends UseCase {
     /**
      * Info about the saved image file.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class OutputFileResults {
         @Nullable
         private Uri mSavedUri;
@@ -2067,6 +2074,7 @@ public final class ImageCapture extends UseCase {
     }
 
     /** Holder class for metadata that will be saved with captured images. */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Metadata {
         /**
          * Indicates a left-right mirroring (reflection).
@@ -2308,6 +2316,7 @@ public final class ImageCapture extends UseCase {
     }
 
     @VisibleForTesting
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     static class ImageCaptureRequest {
         @RotationValue
         final int mRotationDegrees;
@@ -2496,6 +2505,7 @@ public final class ImageCapture extends UseCase {
 
     /** Builder for an {@link ImageCapture}. */
     @SuppressWarnings("ObjectToString")
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder implements
             UseCaseConfig.Builder<ImageCapture, ImageCaptureConfig, Builder>,
             ImageOutputConfig.Builder<Builder>,

@@ -27,6 +27,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
@@ -49,6 +50,7 @@ import java.util.Map;
  * Base class for SessionProcessor implementation. It is responsible for creating image readers and
  * maintaining the {@link ImageProcessor} associated with the image reader.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 abstract class SessionProcessorBase implements SessionProcessor {
     private static final String TAG = "SessionProcessorBase";
     @NonNull
@@ -190,6 +192,7 @@ abstract class SessionProcessorBase implements SessionProcessor {
 
     protected abstract void deInitSessionInternal();
 
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     private static class ImageRefHolder implements ImageReference {
         private int mRefCount;
         private Image mImage;

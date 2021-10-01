@@ -28,6 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /** Compat functions for {@link Looper} */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class LooperCompat {
     /** Returns the {@link MessageQueue} for the given {@link Looper}. */
     public static MessageQueue getQueue(Looper looper) {

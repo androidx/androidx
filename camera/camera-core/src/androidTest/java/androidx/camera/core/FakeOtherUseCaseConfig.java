@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
@@ -30,6 +31,7 @@ import androidx.camera.core.impl.UseCaseConfig;
 import java.util.UUID;
 
 /** A fake configuration for {@link FakeOtherUseCase}. */
+@RequiresApi(21)
 public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase> {
 
     private final Config mConfig;

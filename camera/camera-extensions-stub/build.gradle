@@ -26,12 +26,6 @@ dependencies {
     api("androidx.annotation:annotation:1.0.0")
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 21
-    }
-}
-
 androidx {
     name = "Jetpack Camera Library OEM Extensions Stub"
     publish = Publish.NONE

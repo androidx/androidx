@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureStage;
 
@@ -28,6 +29,7 @@ import java.util.List;
 /**
  * Different implementations of {@link CaptureBundle}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class CaptureBundles {
     /** Creates a {@link CaptureBundle} which contain a single default {@link CaptureStage}. */
     @NonNull

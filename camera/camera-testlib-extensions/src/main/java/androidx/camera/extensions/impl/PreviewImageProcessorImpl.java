@@ -20,12 +20,15 @@ import android.graphics.ImageFormat;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
 
+import androidx.annotation.RequiresApi;
+
 /**
  * Processing a single {@link Image} and {@link TotalCaptureResult} to produce an output to a
  * stream.
  *
  * @since 1.0
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface PreviewImageProcessorImpl extends ProcessorImpl {
     /**
      * Processes the requested image capture.

@@ -18,11 +18,13 @@ package androidx.camera.video.internal.encoder;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /** An exception thrown to indicate an error has occurred during encoding. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class EncodeException extends Exception {
     /** Unknown error. */
     public static final int ERROR_UNKNOWN = 0;

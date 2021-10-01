@@ -28,6 +28,7 @@ import android.media.Image;
 
 import androidx.annotation.OptIn;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -41,6 +42,7 @@ import java.nio.ByteBuffer;
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public final class AndroidImageProxyTest {
     private static final long INITIAL_TIMESTAMP = 138990020L;
 

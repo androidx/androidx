@@ -19,6 +19,7 @@ package androidx.camera.video;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.SurfaceRequest;
@@ -39,6 +40,7 @@ import java.util.concurrent.Executor;
  * {@link Recorder}. This interface is usually only needs to be implemented by applications for
  * advanced use cases.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface VideoOutput {
     /**
      * A state which represents whether the video frame producer is producing frames to the

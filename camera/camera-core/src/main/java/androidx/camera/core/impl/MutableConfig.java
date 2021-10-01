@@ -18,12 +18,14 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * MutableConfig is a {@link Config} that can be modified.
  *
  * <p>MutableConfig is the interface used to create immutable Config objects.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface MutableConfig extends Config {
 
     /**

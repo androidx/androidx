@@ -164,6 +164,7 @@ class OutputConfigurationCompatApi26Impl extends OutputConfigurationCompatApi24I
         return ((OutputConfigurationParamsApi26) mObject).mOutputConfiguration;
     }
 
+    @RequiresApi(21)
     private static final class OutputConfigurationParamsApi26 {
         final OutputConfiguration mOutputConfiguration;
         @Nullable

@@ -21,6 +21,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
@@ -45,6 +46,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * <p>Currently, can only be used to schedule future non-repeating tasks.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class HandlerScheduledExecutorService extends AbstractExecutorService implements
         ScheduledExecutorService {
 

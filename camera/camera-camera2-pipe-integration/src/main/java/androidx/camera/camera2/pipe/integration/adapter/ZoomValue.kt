@@ -16,11 +16,13 @@
 
 package androidx.camera.camera2.pipe.integration.adapter
 
+import androidx.annotation.RequiresApi
 import androidx.camera.core.ZoomState
 
 /**
  * Immutable adaptor to the ZoomState interface.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 data class ZoomValue(
     private val zoomRatio: Float,
     private val minZoomRatio: Float,

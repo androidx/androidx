@@ -17,12 +17,14 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * A callback object for tracking the progress of a capture request submitted to the camera device.
  * Once one of the methods is called, other methods won't be called again on the same instance.
  *
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class CameraCaptureCallback {
 
     /**

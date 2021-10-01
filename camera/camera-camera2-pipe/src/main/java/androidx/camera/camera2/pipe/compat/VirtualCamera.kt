@@ -15,11 +15,13 @@
  */
 
 @file:Suppress("EXPERIMENTAL_API_USAGE")
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 
 package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraDevice
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.Debug
@@ -162,6 +164,7 @@ internal class VirtualCameraState(
 
 internal val androidCameraDebugIds = atomic(0)
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class AndroidCameraState(
     val cameraId: CameraId,
     val metadata: CameraMetadata,

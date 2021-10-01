@@ -50,6 +50,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -93,6 +94,7 @@ import java.util.concurrent.Executor;
  * Failing to close the image will cause future images to be stalled or dropped depending on the
  * backpressure strategy.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ImageAnalysis extends UseCase {
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -672,6 +674,7 @@ public final class ImageAnalysis extends UseCase {
      * to receive images and perform custom processing by implementing the
      * {@link ImageAnalysis.Analyzer#analyze(ImageProxy)} function.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public interface Analyzer {
         /**
          * Analyzes an image to produce a result.
@@ -719,6 +722,7 @@ public final class ImageAnalysis extends UseCase {
      *
      * @hide
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<ImageAnalysisConfig> {
         private static final Size DEFAULT_TARGET_RESOLUTION = new Size(640, 480);
@@ -745,6 +749,7 @@ public final class ImageAnalysis extends UseCase {
 
     /** Builder for a {@link ImageAnalysis}. */
     @SuppressWarnings("ObjectToString")
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder
             implements ImageOutputConfig.Builder<Builder>,
             ThreadConfig.Builder<Builder>,

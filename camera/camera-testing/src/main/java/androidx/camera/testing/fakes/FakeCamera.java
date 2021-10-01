@@ -22,6 +22,7 @@ import android.view.Surface;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraControlInternal;
@@ -49,6 +50,7 @@ import java.util.Set;
 /**
  * A fake camera which will not produce any data, but provides a valid Camera implementation.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FakeCamera implements CameraInternal {
     private static final String TAG = "FakeCamera";
     private static final String DEFAULT_CAMERA_ID = "0";

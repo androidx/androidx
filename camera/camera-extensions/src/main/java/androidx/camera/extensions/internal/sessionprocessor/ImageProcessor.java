@@ -18,10 +18,12 @@ package androidx.camera.extensions.internal.sessionprocessor;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * An interface to receive and process the upcoming next available Image.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface ImageProcessor {
     /**
      * The reference count will be decremented when this method returns. If an extension wants

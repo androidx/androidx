@@ -17,6 +17,7 @@
 package androidx.camera.video;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
@@ -34,6 +35,7 @@ import java.util.concurrent.Executor;
  * {@link VideoRecordEvent#getRecordingStats()}.
  * @see PendingRecording#withEventListener(Executor, Consumer)
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class RecordingStats {
 

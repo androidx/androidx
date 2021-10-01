@@ -49,6 +49,7 @@ import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -63,6 +64,7 @@ import java.util.List;
 /** JUnit test cases for {@link CameraUseCaseAdapter} class. */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class CameraUseCaseAdapterTest {
     FakeCameraDeviceSurfaceManager mFakeCameraDeviceSurfaceManager;
     FakeCamera mFakeCamera;

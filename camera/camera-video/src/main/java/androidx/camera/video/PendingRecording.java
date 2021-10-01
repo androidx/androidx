@@ -22,6 +22,7 @@ import android.content.Context;
 import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.core.content.PermissionChecker;
@@ -46,6 +47,7 @@ import java.util.concurrent.Executor;
  * the {@link Recorder.Builder} methods to configure before creating the {@link Recorder}
  * instance, then create the pending recording with it.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class PendingRecording {
 
     private final Context mContext;

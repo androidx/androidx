@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.integration.impl.DEVICE_STATE_CALLBACK_OPTION
 import androidx.camera.camera2.pipe.integration.impl.SESSION_CAPTURE_CALLBACK_OPTION
@@ -34,6 +35,7 @@ import androidx.camera.core.impl.Config
  *
  * @constructor Private constructor to ensure this class isn't instantiated.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @ExperimentalCamera2Interop
 class Camera2Interop private constructor() {
 

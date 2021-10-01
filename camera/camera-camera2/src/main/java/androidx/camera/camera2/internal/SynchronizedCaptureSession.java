@@ -52,6 +52,7 @@ import java.util.concurrent.Executor;
  *
  * @see SynchronizedCaptureSessionOpener
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface SynchronizedCaptureSession {
 
     @NonNull

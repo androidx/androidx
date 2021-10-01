@@ -24,6 +24,7 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
@@ -63,6 +64,7 @@ import java.util.Map;
  * extensions in order to select the correct CameraInternal instance which has the required
  * camera id.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraUseCaseAdapter implements Camera {
     @NonNull
     private CameraInternal mCameraInternal;

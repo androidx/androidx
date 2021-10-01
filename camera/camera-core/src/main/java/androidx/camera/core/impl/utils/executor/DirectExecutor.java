@@ -16,12 +16,15 @@
 
 package androidx.camera.core.impl.utils.executor;
 
+import androidx.annotation.RequiresApi;
+
 import java.util.concurrent.Executor;
 
 /**
  * An {@link Executor} that runs each task in the thread that invokes {@link Executor#execute
  * execute}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class DirectExecutor implements Executor {
     private static volatile DirectExecutor sDirectExecutor;
 

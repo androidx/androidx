@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
@@ -37,6 +38,7 @@ import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CompletableDeferred
@@ -54,10 +56,12 @@ import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import java.util.concurrent.TimeUnit
 
+@RequiresApi(21)
 private const val DEFAULT_LENS_FACING_SELECTOR = CameraSelector.LENS_FACING_BACK
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 class CaptureConfigAdapterDeviceTest {
 
     @get:Rule
@@ -142,6 +146,7 @@ class CaptureConfigAdapterDeviceTest {
     }
 }
 
+@RequiresApi(21)
 private class FakeTestUseCase(
     config: FakeUseCaseConfig,
 ) : FakeUseCase(config) {
@@ -152,6 +157,7 @@ private class FakeTestUseCase(
     }
 }
 
+@RequiresApi(21)
 private class TestDeferrableSurface : DeferrableSurface() {
     init {
         terminationFuture.addListener(

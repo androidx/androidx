@@ -16,10 +16,12 @@
 
 package androidx.camera.camera2.internal;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.ZoomState;
 import androidx.core.math.MathUtils;
 
 /** An implementation of {@link ZoomState} where the values can be set. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ZoomStateImpl implements ZoomState {
     private float mZoomRatio;
     private final float mMaxZoomRatio;

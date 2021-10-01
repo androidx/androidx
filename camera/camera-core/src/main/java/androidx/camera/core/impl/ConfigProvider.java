@@ -17,12 +17,14 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * A class which provides a {@link Config} object.
  *
  * @param <C> the {@link Config} type provided
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface ConfigProvider<C extends Config> {
 
     /**

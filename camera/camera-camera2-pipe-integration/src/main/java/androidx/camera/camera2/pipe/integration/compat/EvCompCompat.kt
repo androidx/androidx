@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.integration.compat
 
 import android.hardware.camera2.CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE
@@ -22,6 +24,7 @@ import android.hardware.camera2.CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION
 import android.hardware.camera2.CaptureResult
 import android.util.Range
 import android.util.Rational
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
@@ -65,6 +68,7 @@ internal val EMPTY_RANGE = Range(0, 0)
  * to the camera, and wait for the exposure value of the camera reach to the new target.
  * It receives the [FrameInfo] via the [ComboRequestListener] to monitor the capture result.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
 class EvCompImpl @Inject constructor(
     private val cameraProperties: CameraProperties,

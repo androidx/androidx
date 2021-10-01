@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.camera.camera2 {
 
-  public final class Camera2Config {
+  @RequiresApi(21) public final class Camera2Config {
     method public static androidx.camera.core.CameraXConfig defaultConfig();
   }
 
@@ -9,23 +9,23 @@ package androidx.camera.camera2 {
 
 package androidx.camera.camera2.interop {
 
-  @androidx.camera.camera2.interop.ExperimentalCamera2Interop public final class Camera2CameraControl {
+  @RequiresApi(21) @androidx.camera.camera2.interop.ExperimentalCamera2Interop public final class Camera2CameraControl {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> addCaptureRequestOptions(androidx.camera.camera2.interop.CaptureRequestOptions);
     method public static androidx.camera.camera2.interop.Camera2CameraControl from(androidx.camera.core.CameraControl);
     method public androidx.camera.camera2.interop.CaptureRequestOptions getCaptureRequestOptions();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setCaptureRequestOptions(androidx.camera.camera2.interop.CaptureRequestOptions);
   }
 
-  @androidx.camera.camera2.interop.ExperimentalCamera2Interop public final class Camera2CameraInfo {
+  @RequiresApi(21) @androidx.camera.camera2.interop.ExperimentalCamera2Interop public final class Camera2CameraInfo {
     method public static androidx.camera.camera2.interop.Camera2CameraInfo from(androidx.camera.core.CameraInfo);
     method public <T> T? getCameraCharacteristic(android.hardware.camera2.CameraCharacteristics.Key<T!>);
     method public String getCameraId();
   }
 
-  @androidx.camera.camera2.interop.ExperimentalCamera2Interop public final class Camera2Interop {
+  @RequiresApi(21) @androidx.camera.camera2.interop.ExperimentalCamera2Interop public final class Camera2Interop {
   }
 
-  public static final class Camera2Interop.Extender<T> {
+  @RequiresApi(21) public static final class Camera2Interop.Extender<T> {
     ctor public Camera2Interop.Extender(androidx.camera.core.ExtendableBuilder<T!>);
     method public <ValueT> androidx.camera.camera2.interop.Camera2Interop.Extender<T!> setCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT!>, ValueT);
     method public androidx.camera.camera2.interop.Camera2Interop.Extender<T!> setDeviceStateCallback(android.hardware.camera2.CameraDevice.StateCallback);
@@ -33,12 +33,12 @@ package androidx.camera.camera2.interop {
     method public androidx.camera.camera2.interop.Camera2Interop.Extender<T!> setSessionStateCallback(android.hardware.camera2.CameraCaptureSession.StateCallback);
   }
 
-  @androidx.camera.camera2.interop.ExperimentalCamera2Interop public class CaptureRequestOptions {
+  @RequiresApi(21) @androidx.camera.camera2.interop.ExperimentalCamera2Interop public class CaptureRequestOptions {
     ctor public CaptureRequestOptions(androidx.camera.core.impl.Config);
     method public <ValueT> ValueT? getCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT!>);
   }
 
-  public static final class CaptureRequestOptions.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.camera2.interop.CaptureRequestOptions> {
+  @RequiresApi(21) public static final class CaptureRequestOptions.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.camera2.interop.CaptureRequestOptions> {
     ctor public CaptureRequestOptions.Builder();
     method public androidx.camera.camera2.interop.CaptureRequestOptions build();
     method public <ValueT> androidx.camera.camera2.interop.CaptureRequestOptions.Builder clearCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT!>);

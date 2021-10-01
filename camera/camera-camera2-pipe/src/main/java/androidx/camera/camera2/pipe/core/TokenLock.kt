@@ -15,10 +15,12 @@
  */
 
 @file:Suppress("NOTHING_TO_INLINE")
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 
 package androidx.camera.camera2.pipe.core
 
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine

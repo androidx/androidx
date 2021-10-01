@@ -17,6 +17,7 @@
 package androidx.camera.video.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
@@ -30,6 +31,7 @@ import androidx.camera.video.VideoCaptureLegacy;
  *
  * <p>In the earlier stage, the VideoCaptureLegacy is deprioritized.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class VideoCaptureLegacyConfig
         implements UseCaseConfig<VideoCaptureLegacy>,
         ImageOutputConfig,
