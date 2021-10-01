@@ -37,7 +37,7 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
 import com.squareup.javapoet.WildcardTypeName
-import kotlin.IllegalStateException
+import kotlin.coroutines.Continuation
 
 // Catch-all type name when we cannot resolve to anything. This is what KAPT uses as error type
 // and we use the same type in KSP for consistency.
@@ -184,15 +184,21 @@ private fun KSType.typeName(
     typeArgumentTypeLookup: TypeArgumentTypeLookup
 ): TypeName {
     return if (this.arguments.isNotEmpty()) {
-        val args: Array<TypeName> = this.arguments.mapIndexed { index, typeArg ->
-            typeArg.typeName(
-                param = this.declaration.typeParameters[index],
-                resolver = resolver,
-                typeArgumentTypeLookup = typeArgumentTypeLookup
-            )
-        }.map {
-            it.tryBox()
-        }.toTypedArray()
+        val args: Array<TypeName> = this.arguments
+            .mapIndexed { index, typeArg ->
+                typeArg.typeName(
+                    param = this.declaration.typeParameters[index],
+                    resolver = resolver,
+                    typeArgumentTypeLookup = typeArgumentTypeLookup
+                )
+            }
+            .map { it.tryBox() }
+            .let { args ->
+                if (this.isSuspendFunctionType) args.convertToSuspendSignature()
+                else args
+            }
+            .toTypedArray()
+
         when (
             val typeName = declaration
                 .typeName(resolver, typeArgumentTypeLookup).tryBox()
@@ -207,6 +213,29 @@ private fun KSType.typeName(
     } else {
         this.declaration.typeName(resolver, typeArgumentTypeLookup)
     }
+}
+
+/**
+ * Transforms [this] list of arguments to a suspend signature. For a [suspend] functional type, we
+ * need to transform it to be a FunctionX with a [Continuation] with the correct return type. A
+ * transformed SuspendFunction looks like this:
+ *
+ * FunctionX<[? super $params], ? super Continuation<? super $ReturnType>, ?>
+ */
+private fun List<TypeName>.convertToSuspendSignature(): List<TypeName> {
+    val args = this
+
+    // The last arg is the return type, so take everything except the last arg
+    val actualArgs = args.subList(0, args.size - 1)
+    val continuationReturnType = WildcardTypeName.supertypeOf(args.last())
+    val continuationType = ParameterizedTypeName.get(
+        ClassName.get(Continuation::class.java),
+        continuationReturnType
+    )
+    return actualArgs + listOf(
+        WildcardTypeName.supertypeOf(continuationType),
+        WildcardTypeName.subtypeOf(TypeName.OBJECT)
+    )
 }
 
 /**
