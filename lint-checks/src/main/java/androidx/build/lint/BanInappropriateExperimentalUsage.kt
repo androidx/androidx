@@ -104,7 +104,12 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
     companion object {
         private const val DEBUG = false
 
+        /**
+         * Even though Kotlin's [Experimental] annotation is deprecated in favor of [RequiresOptIn],
+         * we still want to check for its use in Lint.
+         */
         private const val KOTLIN_EXPERIMENTAL_ANNOTATION = "kotlin.Experimental"
+
         private const val KOTLIN_REQUIRES_OPT_IN_ANNOTATION = "kotlin.RequiresOptIn"
         private const val JAVA_EXPERIMENTAL_ANNOTATION =
             "androidx.annotation.experimental.Experimental"

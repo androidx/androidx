@@ -18,12 +18,17 @@
 
 package androidx.sample.consumer
 
-import sample.annotation.provider.ExperimentalSampleAnnotation
 import sample.annotation.provider.ExperimentalSampleAnnotationJava
 
 class OutsideGroupExperimentalAnnotatedClass {
+
+    // b/201564937 (comments 3, 5-7) - temporarily commenting out due to import issue
+//    @ExperimentalSampleAnnotation
+//    fun invalidAnnotatedFunction() {
+//        // Nothing to see here.
+//    }
+
     @ExperimentalSampleAnnotationJava
-    @ExperimentalSampleAnnotation
     fun invalidAnnotatedMethod() {
         // Nothing to see here.
     }

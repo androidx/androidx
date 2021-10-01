@@ -19,7 +19,7 @@
 package androidx.build.lint
 
 import com.android.tools.lint.checks.infrastructure.ProjectDescription
-import org.junit.Ignore
+import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -55,7 +55,6 @@ No warnings.
         check(provider).expect(expected)
     }
 
-    @Ignore("b/188814760")
     @Test
     fun `Test cross-module Experimental usage via Gradle model`() {
         val provider = project()
@@ -89,13 +88,14 @@ No warnings.
 
         /* ktlint-disable max-line-length */
         val expected = """
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:25: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:31: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
     @ExperimentalSampleAnnotationJava
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        check(provider, consumer).expect(expected)
+        // TODO: Using TestMode.DEFAULT due to b/188814760; remove testModes once bug is resolved
+        check(provider, consumer, testModes = listOf(TestMode.DEFAULT)).expect(expected)
     }
 }
