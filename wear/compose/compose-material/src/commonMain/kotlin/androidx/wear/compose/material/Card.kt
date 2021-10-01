@@ -164,6 +164,9 @@ public fun Card(
  * If more than one composable is provided in the content slot it is the responsibility of the
  * caller to determine how to layout the contents, e.g. provide either a row or a column.
  *
+ * Example of an [AppCard] with icon, title, time and two lines of body text:
+ * @sample androidx.wear.compose.material.samples.AppCardWithIcon
+ *
  * @param onClick Will be called when the user clicks the card
  * @param appName A slot for displaying the application name, expected to be a single line of start
  * aligned text of [Typography.title3]
@@ -266,6 +269,12 @@ public fun AppCard(
  *
  * If more than one composable is provided in the content slot it is the responsibility of the
  * caller to determine how to layout the contents, e.g. provide either a row or a column.
+ *
+ * Example of a [TitleCard] with two lines of body text:
+ * @sample androidx.wear.compose.material.samples.TitleCardStandard
+ *
+ * Example of a title card with a background image:
+ * @sample androidx.wear.compose.material.samples.TitleCardWithImage
  *
  * @param onClick Will be called when the user clicks the card
  * @param title A slot for displaying the title of the card, expected to be one or two lines of text

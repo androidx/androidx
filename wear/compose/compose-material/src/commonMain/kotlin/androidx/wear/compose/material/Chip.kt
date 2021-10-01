@@ -168,6 +168,9 @@ public fun Chip(
  *
  * Chips can be enabled or disabled. A disabled chip will not respond to click events.
  *
+ * Example of a [Chip] with icon, label and secondary label:
+ * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabels
+ *
  * @param label A slot for providing the chip's main label. The contents are expected to be text
  * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
  * @param onClick Will be called when the user clicks the chip
@@ -280,6 +283,9 @@ public fun Chip(
  * [Colors.onPrimary].
  *
  * Chips can be enabled or disabled. A disabled chip will not respond to click events.
+ *
+ * Example of a [CompactChip] with icon and single line of label text:
+ * @sample androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
  *
  * @param onClick Will be called when the user clicks the chip
  * @param modifier Modifier to be applied to the chip
