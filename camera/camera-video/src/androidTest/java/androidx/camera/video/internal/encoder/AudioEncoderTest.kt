@@ -22,6 +22,7 @@ import androidx.camera.video.internal.BufferProvider.State
 import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -52,6 +53,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 class AudioEncoderTest {
 
     companion object {

@@ -22,6 +22,7 @@ import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.SessionConfig;
 
@@ -37,6 +38,7 @@ import java.util.List;
  * #close()} been called then it is permanently closed so a new session has to be created for
  * capturing images.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface CaptureSessionInterface {
     /**
      * Opens the capture session.

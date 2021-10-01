@@ -34,6 +34,7 @@ import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
@@ -44,6 +45,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+@SdkSuppress(minSdkVersion = 21)
 public final class SurfaceOrientedMeteringPointFactoryTest {
     private static final float WIDTH = 480;
     private static final float HEIGHT = 640;

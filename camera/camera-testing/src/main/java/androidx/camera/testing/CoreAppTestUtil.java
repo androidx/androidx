@@ -27,6 +27,7 @@ import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.testing.activity.ForegroundTestActivity;
 import androidx.test.espresso.Espresso;
@@ -39,6 +40,7 @@ import org.junit.AssumptionViolatedException;
 import java.io.IOException;
 
 /** Utility functions of tests on CoreTestApp. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CoreAppTestUtil {
 
     /** ADB shell input key code for dismissing keyguard for device with API level <= 22. */
@@ -186,6 +188,7 @@ public final class CoreAppTestUtil {
     }
 
     /** The display foreground of the device is occupied that cannot execute UI related test. */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class ForegroundOccupiedError extends Exception {
         public ForegroundOccupiedError(@NonNull String message) {
             super(message);

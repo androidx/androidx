@@ -20,6 +20,7 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.Config;
@@ -29,6 +30,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 /**
  * A fake {@link UseCase}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FakeUseCase extends UseCase {
     private volatile boolean mIsDetached = false;
 

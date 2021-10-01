@@ -21,6 +21,7 @@ import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.extensions.impl.advanced.Camera2SessionConfigImpl;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import java.util.Map;
 /**
  * A builder implementation to build the {@link Camera2SessionConfig} instance.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class Camera2SessionConfigBuilder {
     private int mSessionTemplateId = CameraDevice.TEMPLATE_PREVIEW;
     private Map<CaptureRequest.Key<?>, Object> mSessionParameters = new HashMap<>();

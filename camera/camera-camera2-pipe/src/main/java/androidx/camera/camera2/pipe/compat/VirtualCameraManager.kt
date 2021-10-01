@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.compat
 
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraManager
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
@@ -57,6 +60,7 @@ internal object RequestCloseAll : CameraRequest()
 private const val requestQueueDepth = 8
 
 @Suppress("EXPERIMENTAL_API_USAGE")
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
 internal class VirtualCameraManager @Inject constructor(
     private val cameraManager: Provider<CameraManager>,

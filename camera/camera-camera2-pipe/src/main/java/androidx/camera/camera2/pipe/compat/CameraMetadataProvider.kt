@@ -16,12 +16,14 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 
 /**
  * Interface that can be used to query for [CameraMetadata] using an existing [CameraId].
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface CameraMetadataProvider {
     /**
      * Attempt to retrieve [CameraMetadata], suspending the caller if it is not yet available.

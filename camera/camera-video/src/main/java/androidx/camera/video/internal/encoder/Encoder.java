@@ -19,6 +19,7 @@ package androidx.camera.video.internal.encoder;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.video.internal.BufferProvider;
 
 import java.util.concurrent.Executor;
@@ -29,6 +30,7 @@ import java.util.concurrent.Executor;
  * <p>An encoder could be either a video encoder or an audio encoder. The interface defines the
  * common APIs to communicate with an encoder.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface Encoder {
 
     /** Returns the encoder's input instance. */

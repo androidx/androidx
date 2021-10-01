@@ -104,6 +104,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * {@link UseCase}s freezes the preview for a short period of time. To avoid the glitch, the
  * {@link UseCase}s need to be enabled/disabled before the controller is set on {@link PreviewView}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class CameraController {
 
     private static final String TAG = "CameraController";
@@ -1747,6 +1748,7 @@ public abstract class CameraController {
      * @see #setImageCaptureTargetSize(OutputSize)
      * @see #setVideoCaptureTargetSize(OutputSize)
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class OutputSize {
 
         /**

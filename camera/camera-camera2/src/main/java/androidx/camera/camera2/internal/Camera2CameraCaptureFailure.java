@@ -19,9 +19,11 @@ package androidx.camera.camera2.internal;
 import android.hardware.camera2.CaptureFailure;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraCaptureFailure;
 
 /** The camera2 implementation for the capture failure */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2CameraCaptureFailure extends CameraCaptureFailure {
     private final CaptureFailure mCaptureFailure;
     public Camera2CameraCaptureFailure(@NonNull Reason reason,

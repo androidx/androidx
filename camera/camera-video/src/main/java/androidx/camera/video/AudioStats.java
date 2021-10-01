@@ -19,6 +19,7 @@ package androidx.camera.video;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import com.google.auto.value.AutoValue;
@@ -35,6 +36,7 @@ import java.util.Set;
  *
  * <p>The audio information will be contained in every {@link RecordingStats}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class AudioStats {
 

@@ -18,6 +18,7 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
@@ -34,6 +35,7 @@ import java.util.LinkedHashSet;
  *
  * <p> It is a Camera instance backed by a single physical camera.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
     /**
      * The state of a camera within the process.

@@ -15,10 +15,12 @@
  */
 
 @file:Suppress("NOTHING_TO_INLINE")
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 
 package androidx.camera.camera2.pipe.core
 
 import android.os.SystemClock
+import androidx.annotation.RequiresApi
 
 /**
  * A nanosecond timestamp
@@ -44,6 +46,7 @@ public inline class DurationNs(public val value: Long) {
         TimestampNs(value + other.value)
 }
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public object Timestamps {
     public inline fun now(): TimestampNs = TimestampNs(SystemClock.elapsedRealtimeNanos())
 

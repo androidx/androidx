@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
@@ -31,6 +32,7 @@ import androidx.camera.core.impl.UseCaseConfig;
  * A {@link SessionConfig.OptionUnpacker} implementation for unpacking Camera2 options into a
  * {@link SessionConfig.Builder}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class Camera2SessionOptionUnpacker implements SessionConfig.OptionUnpacker {
 
     static final Camera2SessionOptionUnpacker INSTANCE = new Camera2SessionOptionUnpacker();

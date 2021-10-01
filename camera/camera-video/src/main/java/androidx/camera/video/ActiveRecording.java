@@ -17,6 +17,7 @@
 package androidx.camera.video;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.CloseGuardHelper;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
@@ -42,6 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * when the object is garbage collected, and no new recordings can be started from the same
  * {@link Recorder} that generated the object until that occurs.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ActiveRecording implements AutoCloseable {
 
     // Indicates the recording has been explicitly stopped by users.

@@ -22,6 +22,7 @@ import android.hardware.camera2.CaptureResult;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
@@ -33,6 +34,7 @@ import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.ExifData;
 
 /** The camera2 implementation for the capture result of a single image capture. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class Camera2CameraCaptureResult implements CameraCaptureResult {
     private static final String TAG = "C2CameraCaptureResult";
 

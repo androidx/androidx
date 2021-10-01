@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraDevice;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import java.util.concurrent.Executor;
  * <p> The repository also help to close the created SynchronizedCaptureSession when the camera is
  * disconnected.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CaptureSessionRepository {
     /** Executor for all the callbacks from the {@link CameraCaptureSession}. */
     @NonNull

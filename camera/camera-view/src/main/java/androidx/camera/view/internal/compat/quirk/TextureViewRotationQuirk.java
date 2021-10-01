@@ -19,6 +19,7 @@ package androidx.camera.view.internal.compat.quirk;
 import android.os.Build;
 import android.view.TextureView;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -27,6 +28,7 @@ import androidx.camera.core.impl.Quirk;
  * <p> On certain devices, the rotation of the output is incorrect. One example is b/177561470.
  * In which case, the extra rotation is needed to correct the output on {@link TextureView}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class TextureViewRotationQuirk implements Quirk {
 
     private static final String FAIRPHONE = "Fairphone";

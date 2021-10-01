@@ -71,6 +71,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -126,6 +127,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @hide
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class VideoCaptureLegacy extends UseCase {
 
@@ -1116,6 +1118,7 @@ public final class VideoCaptureLegacy extends UseCase {
      *
      * @hide
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults
             implements ConfigProvider<VideoCaptureLegacyConfig> {

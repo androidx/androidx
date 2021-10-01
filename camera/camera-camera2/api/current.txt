@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.camera.camera2 {
 
-  public final class Camera2Config {
+  @RequiresApi(21) public final class Camera2Config {
     method public static androidx.camera.core.CameraXConfig defaultConfig();
   }
 

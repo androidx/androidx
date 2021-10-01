@@ -19,10 +19,12 @@ package androidx.camera.extensions.internal.sessionprocessor;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * Surface will be created by constructing an ImageReader.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface ImageReaderOutputConfig extends Camera2OutputConfig {
     /**
      * Returns the size of the surface.

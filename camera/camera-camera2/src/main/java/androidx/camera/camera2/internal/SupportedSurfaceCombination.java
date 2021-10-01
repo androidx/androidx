@@ -33,6 +33,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
@@ -71,6 +72,7 @@ import java.util.Map;
  * devices. This structure is used to store a list of surface combinations that are guaranteed to
  * support for this camera device.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class SupportedSurfaceCombination {
     private static final String TAG = "SupportedSurfaceCombination";
     private static final Size MAX_PREVIEW_SIZE = new Size(1920, 1080);
@@ -1334,6 +1336,7 @@ final class SupportedSurfaceCombination {
     }
 
     /** Comparator based on area of the given {@link Size} objects. */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     static final class CompareSizesByArea implements Comparator<Size> {
         private boolean mReverse = false;
 
@@ -1361,6 +1364,7 @@ final class SupportedSurfaceCombination {
     }
 
     /** Comparator based on how close they are to the target aspect ratio. */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     static final class CompareAspectRatiosByDistanceToTargetRatio implements Comparator<Rational> {
         private Rational mTargetRatio;
 

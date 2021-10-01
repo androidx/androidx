@@ -31,6 +31,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
@@ -62,6 +63,7 @@ import java.util.concurrent.Executor;
  *
  * @hide
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @MainThread
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraX {

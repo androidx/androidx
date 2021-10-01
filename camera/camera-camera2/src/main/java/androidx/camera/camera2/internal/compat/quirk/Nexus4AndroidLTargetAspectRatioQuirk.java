@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal.compat.quirk;
 
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
 import androidx.camera.core.impl.Quirk;
 
@@ -31,6 +32,7 @@ import java.util.List;
  * configuring a JPEG that doesn't actually have the same aspect ratio as the maximum JPEG
  * resolution. See: b/19606058.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class Nexus4AndroidLTargetAspectRatioQuirk implements Quirk {
     // List of devices with the issue.
     private static final List<String> DEVICE_MODELS = Arrays.asList(

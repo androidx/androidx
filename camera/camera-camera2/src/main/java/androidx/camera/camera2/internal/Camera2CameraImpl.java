@@ -33,8 +33,10 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
+import androidx.camera.camera2.internal.compat.ApiCompat;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
@@ -98,6 +100,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>Capture requests will be issued only for use cases which are in both the attached and active
  * state.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class Camera2CameraImpl implements CameraInternal {
     private static final String TAG = "Camera2CameraImpl";
     private static final int ERROR_NONE = 0;
@@ -518,6 +521,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
         // Add a callback to clear the future and notify if the camera and all capture sessions
         // are released
+
         Futures.addCallback(releaseFuture, new FutureCallback<Void>() {
             @ExecutedBy("mExecutor")
             @Override
@@ -533,7 +537,7 @@ final class Camera2CameraImpl implements CameraInternal {
                     case CLOSING:
                     case RELEASING:
                         if (isSessionCloseComplete() && mCameraDevice != null) {
-                            mCameraDevice.close();
+                            ApiCompat.Api21Impl.close(mCameraDevice);
                             mCameraDevice = null;
                         }
                         break;
@@ -1463,6 +1467,7 @@ final class Camera2CameraImpl implements CameraInternal {
         abstract Size getSurfaceResolution();
     }
 
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     final class StateCallback extends CameraDevice.StateCallback {
 
         // Delay long enough to guarantee the app could have been backgrounded.

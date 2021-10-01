@@ -31,6 +31,7 @@ import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeImageReaderProxy;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -39,6 +40,7 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class SafeCloseImageReaderProxyTest {
     private FakeImageReaderProxy mFakeImageReaderProxy;
     private SafeCloseImageReaderProxy mSafeCloseImageReaderProxy;

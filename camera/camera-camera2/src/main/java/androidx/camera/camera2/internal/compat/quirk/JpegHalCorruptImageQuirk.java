@@ -19,6 +19,7 @@ package androidx.camera.camera2.internal.compat.quirk;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.internal.compat.quirk.SoftwareJpegEncodingPreferredQuirk;
 
@@ -36,6 +37,7 @@ import java.util.Set;
  *
  * @see <a href="https://issuetracker.google.com/159831206">issuetracker.google.com/159831206</a>
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class JpegHalCorruptImageQuirk implements SoftwareJpegEncodingPreferredQuirk {
 
     private static final Set<String> KNOWN_AFFECTED_DEVICES = new HashSet<>(

@@ -27,6 +27,7 @@ import android.graphics.Rect;
 
 import androidx.annotation.OptIn;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -41,6 +42,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public final class ForwardingImageProxyTest {
 
     private final ImageProxy mBaseImageProxy = mock(ImageProxy.class);

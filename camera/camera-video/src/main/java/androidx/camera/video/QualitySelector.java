@@ -22,6 +22,7 @@ import android.util.Size;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraInfo;
@@ -76,6 +77,7 @@ import java.util.Set;
  * the quality that is closest to and lower than QUALITY_FHD. If no lower quality is supported,
  * the quality that is closest to and higher than QUALITY_FHD will be selected.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class QualitySelector {
     private static final String TAG = "QualitySelector";
 
@@ -526,6 +528,7 @@ public class QualitySelector {
      *                   QualitySelector.FALLBACK_STRATEGY_STRICTLY_LOWER)
      * }</pre>
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class Procedure {
         private final List<Integer> mPreferredQualityList = new ArrayList<>();
 

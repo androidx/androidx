@@ -18,6 +18,7 @@ package androidx.camera.testing.fakes;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
@@ -29,6 +30,7 @@ import androidx.camera.core.impl.CameraFactory;
  *
  * <p>This {@link CameraXConfig} contains all fake CameraX implementation components.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FakeAppConfig {
     private FakeAppConfig() {
     }
@@ -77,6 +79,7 @@ public final class FakeAppConfig {
     }
 
     /** @hide */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final class DefaultProvider implements CameraXConfig.Provider {
 

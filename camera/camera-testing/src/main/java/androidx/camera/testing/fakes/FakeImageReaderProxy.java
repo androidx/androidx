@@ -21,6 +21,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.TagBundle;
@@ -40,6 +41,7 @@ import java.util.concurrent.TimeUnit;
  * A fake implementation of ImageReaderProxy where the values are settable and the
  * OnImageAvailableListener can be triggered.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FakeImageReaderProxy implements ImageReaderProxy {
     private int mWidth = 100;
     private int mHeight = 100;

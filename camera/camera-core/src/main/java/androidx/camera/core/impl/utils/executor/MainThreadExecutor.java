@@ -19,6 +19,8 @@ package androidx.camera.core.impl.utils.executor;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.RequiresApi;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -29,6 +31,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * <p>Since {@link ScheduledExecutorService} implements {@link Executor}, this can also be used
  * as a simple Executor.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class MainThreadExecutor {
     private static volatile ScheduledExecutorService sInstance;
 

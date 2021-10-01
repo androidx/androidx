@@ -36,6 +36,8 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
 import android.opengl.GLES20;
 
+import androidx.annotation.RequiresApi;
+
 import java.util.Objects;
 
 /**
@@ -43,6 +45,7 @@ import java.util.Objects;
  *
  * <p> These utility methods are meant only for testing purposes.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class GLUtil {
     private GLUtil() {
     }

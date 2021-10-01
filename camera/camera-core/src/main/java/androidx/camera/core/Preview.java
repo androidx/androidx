@@ -53,6 +53,7 @@ import android.view.TextureView;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
@@ -132,6 +133,7 @@ import java.util.concurrent.Executor;
  *     </code>
  * </pre>
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Preview extends UseCase {
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -559,6 +561,7 @@ public final class Preview extends UseCase {
      *
      * @see Preview#setSurfaceProvider(Executor, SurfaceProvider)
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public interface SurfaceProvider {
         /**
          * Called when a new {@link Surface} has been requested by the camera.
@@ -648,6 +651,7 @@ public final class Preview extends UseCase {
 
     /** Builder for a {@link Preview}. */
     @SuppressWarnings("ObjectToString")
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder
             implements UseCaseConfig.Builder<Preview, PreviewConfig, Builder>,
             ImageOutputConfig.Builder<Builder>,

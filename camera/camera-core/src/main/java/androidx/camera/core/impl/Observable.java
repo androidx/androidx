@@ -18,6 +18,7 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -28,6 +29,7 @@ import java.util.concurrent.Executor;
  *
  * @param <T> The type of the data in the stream.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface Observable<T> {
 
     /**

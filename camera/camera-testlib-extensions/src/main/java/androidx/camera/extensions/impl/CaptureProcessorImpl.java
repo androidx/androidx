@@ -23,6 +23,8 @@ import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.RequiresApi;
+
 import java.util.Map;
 
 /**
@@ -30,6 +32,7 @@ import java.util.Map;
  *
  * @since 1.0
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CaptureProcessorImpl {
     /**
      * This gets called to update where the CaptureProcessor should write the output of {@link

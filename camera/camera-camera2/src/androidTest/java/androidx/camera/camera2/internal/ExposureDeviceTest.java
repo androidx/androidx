@@ -65,6 +65,7 @@ import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -92,6 +93,7 @@ import java.util.concurrent.TimeoutException;
  */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class ExposureDeviceTest {
 
     @CameraSelector.LensFacing

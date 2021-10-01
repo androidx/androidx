@@ -20,10 +20,12 @@ import android.media.MediaFormat;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
 
 /** {@inheritDoc} */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class VideoEncoderConfig implements EncoderConfig {
 

@@ -15,7 +15,11 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="androidx.camera.testing">
+
+    <uses-sdk tools:overrideLibrary="android_libs.ub_uiautomator" />
+
     <uses-permission android:name="android.permission.CAMERA" />
     <application>
         <activity

@@ -21,9 +21,11 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
 /** An empty activity that checks the activity's <em>main</em> window currently has window focus. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ForegroundTestActivity extends Activity {
 
     final CountingIdlingResource mViewReady = new CountingIdlingResource("ViewReady");

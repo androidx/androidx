@@ -18,12 +18,14 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageInfo;
 
 /**
  * A processing step that updates the necessary {@link CaptureStage} based on the current
  * {@link ImageInfo}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface ImageInfoProcessor {
     /**
      * Returns the {@link CaptureStage} which should be issued for the processing.

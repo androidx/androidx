@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal.compat.quirk;
 
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 import java.util.Arrays;
@@ -31,6 +32,7 @@ import java.util.List;
  * https://issuetracker.google.com/161730578 and
  * https://issuetracker.google.com/194046401
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CrashWhenTakingPhotoWithAutoFlashAEModeQuirk implements Quirk {
     static final List<String> AFFECTED_MODELS = Arrays.asList(
             // Enables on all Galaxy A3 devices.

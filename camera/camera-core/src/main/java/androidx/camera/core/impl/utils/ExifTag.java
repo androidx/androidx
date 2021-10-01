@@ -24,6 +24,7 @@ import static androidx.camera.core.impl.utils.ExifAttribute.IFD_FORMAT_ULONG;
 import static androidx.camera.core.impl.utils.ExifAttribute.IFD_FORMAT_UNDEFINED;
 import static androidx.camera.core.impl.utils.ExifAttribute.IFD_FORMAT_USHORT;
 
+import androidx.annotation.RequiresApi;
 import androidx.exifinterface.media.ExifInterface;
 
 /**
@@ -34,6 +35,7 @@ import androidx.exifinterface.media.ExifInterface;
  *
  * @see ExifInterface
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ExifTag {
     public final int number;
     public final String name;

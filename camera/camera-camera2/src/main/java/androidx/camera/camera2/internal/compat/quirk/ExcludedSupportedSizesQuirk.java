@@ -21,6 +21,7 @@ import android.os.Build;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.Quirk;
@@ -40,6 +41,7 @@ import java.util.List;
  * Preview resolutions are used together with a large zoom in value. The same symptom happens on
  * ImageAnalysis. See https://issuetracker.google.com/192129158.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExcludedSupportedSizesQuirk implements Quirk {
 
     private static final String TAG = "ExcludedSupportedSizesQuirk";

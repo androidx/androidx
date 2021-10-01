@@ -20,6 +20,7 @@ import android.hardware.camera2.CaptureResult;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.Camera2CameraCaptureFailure;
 import androidx.camera.camera2.internal.Camera2CameraCaptureResult;
 import androidx.camera.core.impl.CameraCaptureFailure;
@@ -28,6 +29,7 @@ import androidx.camera.core.impl.CameraCaptureResult;
 /**
 * An utility class to convert {@link CameraCaptureResult} to camera2 {@link CaptureResult}.
 */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2CameraCaptureResultConverter {
     /**
      * Converts {@link CameraCaptureResult} to camera2 {@link CaptureResult}.

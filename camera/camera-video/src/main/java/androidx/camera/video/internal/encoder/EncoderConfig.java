@@ -19,12 +19,14 @@ package androidx.camera.video.internal.encoder;
 import android.media.MediaFormat;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * The configuration represents the required parameters to configure an encoder.
  *
  * <p>An {@code EncoderConfig} is used to configure an {@link Encoder}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface EncoderConfig {
     /**
      * The mime type of the encoder.

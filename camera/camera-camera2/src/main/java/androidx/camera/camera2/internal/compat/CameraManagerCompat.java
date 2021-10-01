@@ -278,6 +278,7 @@ public final class CameraManagerCompat {
         }
     }
 
+    @RequiresApi(21)
     static final class AvailabilityCallbackExecutorWrapper extends
             CameraManager.AvailabilityCallback {
 
@@ -306,12 +307,8 @@ public final class CameraManagerCompat {
         public void onCameraAccessPrioritiesChanged() {
             synchronized (mLock) {
                 if (!mDisabled) {
-                    mExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            ApiCompat.Api29Impl.onCameraAccessPrioritiesChanged(mWrappedCallback);
-                        }
-                    });
+                    mExecutor.execute(() -> ApiCompat.Api29Impl.onCameraAccessPrioritiesChanged(
+                            mWrappedCallback));
                 }
             }
         }
@@ -320,12 +317,7 @@ public final class CameraManagerCompat {
         public void onCameraAvailable(@NonNull final String cameraId) {
             synchronized (mLock) {
                 if (!mDisabled) {
-                    mExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mWrappedCallback.onCameraAvailable(cameraId);
-                        }
-                    });
+                    mExecutor.execute(() -> mWrappedCallback.onCameraAvailable(cameraId));
                 }
             }
         }
@@ -334,12 +326,7 @@ public final class CameraManagerCompat {
         public void onCameraUnavailable(@NonNull final String cameraId) {
             synchronized (mLock) {
                 if (!mDisabled) {
-                    mExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            mWrappedCallback.onCameraUnavailable(cameraId);
-                        }
-                    });
+                    mExecutor.execute(() -> mWrappedCallback.onCameraUnavailable(cameraId));
                 }
             }
         }

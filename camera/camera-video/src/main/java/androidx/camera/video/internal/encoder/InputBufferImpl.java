@@ -20,6 +20,7 @@ import android.media.MediaCodec;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
@@ -31,6 +32,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class InputBufferImpl implements InputBuffer {
     private final MediaCodec mMediaCodec;
     private final int mBufferIndex;

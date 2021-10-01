@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
 import androidx.camera.core.impl.Quirk;
@@ -33,6 +34,7 @@ import androidx.camera.core.impl.Quirk;
  * output. There is a bug because of a flipped scaling factor in the intermediate texture
  * transform matrix, and it was fixed in L MR1. See: b/128924712.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AspectRatioLegacyApi21Quirk implements Quirk {
 
     static boolean load(@NonNull final CameraCharacteristicsCompat cameraCharacteristicsCompat) {

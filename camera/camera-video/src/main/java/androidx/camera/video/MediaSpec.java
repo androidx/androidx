@@ -22,6 +22,7 @@ import android.media.MediaMuxer;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.core.util.Consumer;
@@ -36,6 +37,7 @@ import java.lang.annotation.RetentionPolicy;
  * video and audio inputs to the VideoOutput.
  * @hide
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY)
 @AutoValue
 public abstract class MediaSpec {

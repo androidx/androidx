@@ -37,6 +37,7 @@ import androidx.camera.core.ViewPort;
 import androidx.camera.core.internal.ViewPorts;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -56,6 +57,7 @@ import java.util.Map;
 @SmallTest
 @SuppressLint("UnsupportedTestRunner")
 @RunWith(Enclosed.class)
+@SdkSuppress(minSdkVersion = 21)
 public class ViewPortsTest {
 
     // Rotation degrees.

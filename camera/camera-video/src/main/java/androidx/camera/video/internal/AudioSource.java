@@ -30,6 +30,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.Observable;
@@ -65,6 +66,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @see BufferProvider
  * @see AudioRecord
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class AudioSource {
     private static final String TAG = "AudioSource";
     // Common sample rate options to choose from in descending order.
@@ -146,30 +148,34 @@ public final class AudioSource {
         }
 
         if (Build.VERSION.SDK_INT >= 29) {
-            mAudioRecordingCallback = new AudioManager.AudioRecordingCallback() {
-                @Override
-                public void onRecordingConfigChanged(List<AudioRecordingConfiguration> configs) {
-                    super.onRecordingConfigChanged(configs);
-                    if (mCallbackExecutor != null && mAudioSourceCallback != null) {
-                        for (AudioRecordingConfiguration config : configs) {
-                            if (Api24Impl.getClientAudioSessionId(config)
-                                    == mAudioRecord.getAudioSessionId()) {
-                                boolean isSilenced = Api29Impl.isClientSilenced(config);
-                                if (mSourceSilence.getAndSet(isSilenced) != isSilenced) {
-                                    mCallbackExecutor.execute(
-                                            () -> mAudioSourceCallback.onSilenced(isSilenced));
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-            };
+            mAudioRecordingCallback = new AudioRecordingApi29Callback();
             Api29Impl.registerAudioRecordingCallback(mAudioRecord, mExecutor,
                     mAudioRecordingCallback);
         }
 
         mBufferProvider.addObserver(mExecutor, mStateObserver);
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @RequiresApi(29)
+    class AudioRecordingApi29Callback extends AudioManager.AudioRecordingCallback {
+        @Override
+        public void onRecordingConfigChanged(List<AudioRecordingConfiguration> configs) {
+            super.onRecordingConfigChanged(configs);
+            if (mCallbackExecutor != null && mAudioSourceCallback != null) {
+                for (AudioRecordingConfiguration config : configs) {
+                    if (Api24Impl.getClientAudioSessionId(config)
+                            == mAudioRecord.getAudioSessionId()) {
+                        boolean isSilenced = Api29Impl.isClientSilenced(config);
+                        if (mSourceSilence.getAndSet(isSilenced) != isSilenced) {
+                            mCallbackExecutor.execute(
+                                    () -> mAudioSourceCallback.onSilenced(isSilenced));
+                        }
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     /**

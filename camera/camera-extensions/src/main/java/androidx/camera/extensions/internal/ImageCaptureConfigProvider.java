@@ -26,6 +26,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
@@ -53,6 +54,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Provides extensions related configs for image capture
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureConfig> {
     private static final String TAG = "ImageCaptureConfigProvider";
     static final Config.Option<Integer> OPTION_IMAGE_CAPTURE_CONFIG_PROVIDER_MODE =

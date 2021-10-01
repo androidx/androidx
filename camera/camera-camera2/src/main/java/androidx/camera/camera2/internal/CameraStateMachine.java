@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraState;
 import androidx.camera.core.CameraState.StateError;
 import androidx.camera.core.Logger;
@@ -29,6 +30,7 @@ import androidx.lifecycle.MutableLiveData;
 import java.util.Objects;
 
 /** State machine that computes the camera's public state from its internal state. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraStateMachine {
 
     private static final String TAG = "CameraStateMachine";

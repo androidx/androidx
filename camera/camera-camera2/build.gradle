@@ -47,6 +47,7 @@ dependencies {
     testImplementation("androidx.arch.core:core-testing:2.1.0")
     testImplementation("org.apache.maven:maven-ant-tasks:2.1.3")
 
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -68,7 +69,7 @@ dependencies {
 }
 android {
     defaultConfig {
-        minSdkVersion 21
+        multiDexEnabled = true
     }
 
     buildTypes.all {

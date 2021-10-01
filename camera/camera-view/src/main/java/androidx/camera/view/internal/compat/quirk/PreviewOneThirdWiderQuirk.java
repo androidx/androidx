@@ -18,6 +18,7 @@ package androidx.camera.view.internal.compat.quirk;
 
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -27,6 +28,7 @@ import androidx.camera.core.impl.Quirk;
  * preview Surface is 800x600, it's actually has a FOV of 1066x600 with the same center point,
  * but squeezed to fit the 800x600 buffer.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class PreviewOneThirdWiderQuirk implements Quirk {
 
     private static final String SAMSUNG_A3_2017 = "A3Y17LTE"; // b/180121821

@@ -191,6 +191,7 @@ class OutputConfigurationCompatBaseImpl implements
         return mObject.hashCode();
     }
 
+    @RequiresApi(21)
     private static final class OutputConfigurationParamsApi21 {
         /**
          * Maximum number of surfaces supported by one {@link OutputConfigurationCompat}.

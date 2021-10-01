@@ -19,10 +19,12 @@ package androidx.camera.extensions.internal.sessionprocessor;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * Use Surface directly to create the OutputConfiguration.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface SurfaceOutputConfig extends Camera2OutputConfig {
     /**
      * Get the {@link Surface}. It'll return a valid surface only when type is TYPE_SURFACE.

@@ -30,6 +30,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.camera.testing.fakes.FakeUseCase
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.assertThrows
@@ -48,6 +49,7 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(Parameterized::class)
+@SdkSuppress(minSdkVersion = 21)
 class ExtensionsManagerTest(
     @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int

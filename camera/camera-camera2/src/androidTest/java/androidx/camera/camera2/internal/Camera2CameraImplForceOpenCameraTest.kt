@@ -62,6 +62,7 @@ import java.util.concurrent.TimeUnit
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 public class Camera2CameraImplForceOpenCameraTest {
 
     @get:Rule
@@ -100,7 +101,7 @@ public class Camera2CameraImplForceOpenCameraTest {
         cameraXCameraOpen.await()
     }
 
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1)
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1)
     @Test
     public fun openCameraWhenAvailable_ifCameraCannotBeStolen() {
         // Open the camera with Camera2

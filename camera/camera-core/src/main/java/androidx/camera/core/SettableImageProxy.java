@@ -21,10 +21,12 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * An {@link ImageProxy} which overwrites the {@link ImageInfo}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class SettableImageProxy extends ForwardingImageProxy{
     private final ImageInfo mImageInfo;
 

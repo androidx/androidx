@@ -17,6 +17,7 @@
 package androidx.camera.testing;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -29,6 +30,7 @@ import java.util.Map;
 /**
  * Utility functions related to operating on androidx.camera.core.impl.Config instances.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Configs {
     /** Return a map that associates UseCases to UseCaseConfigs with default settings. */
     @NonNull
