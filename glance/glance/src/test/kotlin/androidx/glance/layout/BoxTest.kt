@@ -25,6 +25,7 @@ import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
+import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class BoxTest {
@@ -43,10 +44,10 @@ class BoxTest {
 
         // Outer box (added by runTestingComposition) should have a single child box.
         assertThat(root.children).hasSize(1)
-        assertThat(root.children[0]).isInstanceOf(EmittableBox::class.java)
+        val child = assertIs<EmittableBox>(root.children[0])
 
         // The Box added above should not have any other children.
-        assertThat((root.children[0] as EmittableBox).children).hasSize(0)
+        assertThat(child.children).hasSize(0)
     }
 
     @Test
@@ -55,7 +56,7 @@ class BoxTest {
             Box(modifier = Modifier.padding(1.dp)) {}
         }
 
-        val innerBox = root.children[0] as EmittableBox
+        val innerBox = assertIs<EmittableBox>(root.children[0])
         val paddingModifier = requireNotNull(innerBox.modifier.findModifier<PaddingModifier>())
 
         // Don't need to test all elements, that's covered in PaddingTest
@@ -68,7 +69,7 @@ class BoxTest {
             Box(contentAlignment = Alignment.Center) {}
         }
 
-        val innerBox = root.children[0] as EmittableBox
+        val innerBox = assertIs<EmittableBox>(root.children[0])
 
         assertThat(innerBox.contentAlignment).isEqualTo(Alignment.Center)
     }
@@ -82,12 +83,12 @@ class BoxTest {
             }
         }
 
-        val innerBox = root.children[0] as EmittableBox
+        val innerBox = assertIs<EmittableBox>(root.children[0])
 
         assertThat(innerBox.children).hasSize(2)
 
-        val leafBox0 = innerBox.children[0] as EmittableBox
-        val leafBox1 = innerBox.children[1] as EmittableBox
+        val leafBox0 = assertIs<EmittableBox>(innerBox.children[0])
+        val leafBox1 = assertIs<EmittableBox>(innerBox.children[1])
 
         assertThat(leafBox0.contentAlignment).isEqualTo(Alignment.BottomCenter)
         assertThat(leafBox1.contentAlignment).isEqualTo(Alignment.TopCenter)

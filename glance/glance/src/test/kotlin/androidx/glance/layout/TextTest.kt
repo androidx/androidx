@@ -25,6 +25,7 @@ import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
+import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TextTest {
@@ -42,8 +43,8 @@ class TextTest {
         }
 
         assertThat(root.children).hasSize(1)
-        assertThat(root.children[0]).isInstanceOf(EmittableText::class.java)
-        assertThat((root.children[0] as EmittableText).text).isEqualTo("text")
+        val text = assertIs<EmittableText>(root.children[0])
+        assertThat(text.text).isEqualTo("text")
     }
 
     @Test
@@ -60,8 +61,7 @@ class TextTest {
         }
 
         assertThat(root.children).hasSize(1)
-        assertThat(root.children[0]).isInstanceOf(EmittableText::class.java)
-        val text = root.children[0] as EmittableText
+        val text = assertIs<EmittableText>(root.children[0])
         assertThat(text.text).isEqualTo("text")
         assertThat(text.style)
             .isEqualTo(
@@ -80,8 +80,8 @@ class TextTest {
         }
 
         assertThat(root.children).hasSize(1)
-        assertThat(root.children[0]).isInstanceOf(EmittableText::class.java)
-        assertThat(root.children[0].modifier.findModifier<WidthModifier>()?.width)
+        val text = assertIs<EmittableText>(root.children[0])
+        assertThat(text.modifier.findModifier<WidthModifier>()?.width)
             .isEqualTo(Dimension.Fill)
     }
 
