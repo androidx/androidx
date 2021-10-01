@@ -227,7 +227,7 @@ inline fun <T> LazyListScope.itemsIndexed(
     itemContent(it, items[it])
 }
 
-internal abstract class EmittableLazyList : EmittableWithChildren() {
+internal abstract class EmittableLazyList : EmittableWithChildren(resetsDepthForChildren = true) {
     override var modifier: Modifier = Modifier
     public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
 
