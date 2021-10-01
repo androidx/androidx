@@ -212,6 +212,39 @@
 
     <issue
         id="NewApi"
+        message="Call requires API level S (current min is 19): `android.location.LocationRequest#getQuality`"
+        errorLine1="                builder.build().toLocationRequest(&quot;test&quot;).getQuality());"
+        errorLine2="                                                          ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/location/LocationRequestCompatTest.java"
+            line="107"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level S (current min is 19): `android.location.LocationRequest#getQuality`"
+        errorLine1="        assertEquals(QUALITY_HIGH_ACCURACY, builder.build().toLocationRequest(&quot;test&quot;).getQuality());"
+        errorLine2="                                                                                      ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/location/LocationRequestCompatTest.java"
+            line="115"
+            column="87"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level S (current min is 30): `android.location.LocationRequest`"
+        errorLine1="            sGetExpireInMethod = LocationRequest.class.getDeclaredMethod(&quot;getExpireIn&quot;);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/location/LocationRequestCompatTest.java"
+            line="242"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
         message="Call requires API level 24 (current min is 14): `java.util.Optional#of`"
         errorLine1="                return Optional.of(modeCompat);"
         errorLine2="                                ~~">
