@@ -307,7 +307,7 @@ class RecorderTest {
             file,
             ParcelFileDescriptor.MODE_READ_WRITE
         ).use { pfd ->
-            assertThrows(IllegalStateException::class.java) {
+            assertThrows(UnsupportedOperationException::class.java) {
                 recorder.prepareRecording(context, FileDescriptorOutputOptions.Builder(pfd).build())
             }
         }
