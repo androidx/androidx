@@ -29,6 +29,7 @@ import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
+import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CurvedRowTest {
@@ -52,7 +53,7 @@ class CurvedRowTest {
 
         assertThat(root.children).hasSize(1)
 
-        val arc = root.children[0] as EmittableCurvedRow
+        val arc = assertIs<EmittableCurvedRow>(root.children[0])
         assertThat(arc.children).hasSize(0)
         assertThat(arc.anchorDegrees).isEqualTo(5f)
         assertThat(arc.anchorType).isEqualTo(AnchorType.End)
@@ -72,8 +73,8 @@ class CurvedRowTest {
             }
         }
 
-        val arc = root.children[0] as EmittableCurvedRow
-        val arcText = arc.children[0] as EmittableCurvedText
+        val arc = assertIs<EmittableCurvedRow>(root.children[0])
+        val arcText = assertIs<EmittableCurvedText>(arc.children[0])
 
         assertThat(arcText.text).isEqualTo("Hello World")
         assertThat(arcText.modifier.findModifier<PaddingModifier>()).isNotNull()
