@@ -31,7 +31,7 @@ import org.junit.Test
 import java.util.concurrent.Executor
 
 @OptIn(ExperimentalCoroutinesApi::class)
-public class WindowInfoRepositoryImplTest {
+public class WindowInfoTrackerImplTest {
 
     @get:Rule
     public val activityScenario: ActivityScenarioRule<TestActivity> =
@@ -44,14 +44,13 @@ public class WindowInfoRepositoryImplTest {
         activityScenario.scenario.onActivity { testActivity ->
             val windowMetricsCalculator = WindowMetricsCalculatorCompat
             val fakeBackend = FakeWindowBackend()
-            val repo = WindowInfoRepositoryImpl(
-                testActivity,
+            val repo = WindowInfoTrackerImpl(
                 windowMetricsCalculator,
                 fakeBackend
             )
             val collector = TestConsumer<WindowLayoutInfo>()
             testScope.launch {
-                repo.windowLayoutInfo.collect(collector::accept)
+                repo.windowLayoutInfo(testActivity).collect(collector::accept)
             }
             fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
             collector.assertValue(WindowLayoutInfo(emptyList()))
@@ -63,17 +62,16 @@ public class WindowInfoRepositoryImplTest {
         activityScenario.scenario.onActivity { testActivity ->
             val windowMetricsCalculator = WindowMetricsCalculatorCompat
             val fakeBackend = FakeWindowBackend()
-            val repo = WindowInfoRepositoryImpl(
-                testActivity,
+            val repo = WindowInfoTrackerImpl(
                 windowMetricsCalculator,
                 fakeBackend
             )
             val collector = TestConsumer<WindowLayoutInfo>()
             testScope.launch {
-                repo.windowLayoutInfo.collect(collector::accept)
+                repo.windowLayoutInfo(testActivity).collect(collector::accept)
             }
             testScope.launch {
-                repo.windowLayoutInfo.collect(collector::accept)
+                repo.windowLayoutInfo(testActivity).collect(collector::accept)
             }
             fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
             collector.assertValues(WindowLayoutInfo(emptyList()), WindowLayoutInfo(emptyList()))

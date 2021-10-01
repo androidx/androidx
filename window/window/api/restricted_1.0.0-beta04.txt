@@ -44,23 +44,22 @@ package androidx.window.layout {
   public static final class FoldingFeature.State.Companion {
   }
 
-  public interface WindowInfoRepository {
-    method public default static androidx.window.layout.WindowInfoRepository getOrCreate(android.app.Activity);
-    method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> getWindowLayoutInfo();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void overrideDecorator(androidx.window.layout.WindowInfoRepositoryDecorator overridingDecorator);
+  public interface WindowInfoTracker {
+    method public default static androidx.window.layout.WindowInfoTracker getOrCreate(android.content.Context context);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void overrideDecorator(androidx.window.layout.WindowInfoTrackerDecorator overridingDecorator);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public default static void reset();
-    property public abstract kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo;
-    field public static final androidx.window.layout.WindowInfoRepository.Companion Companion;
+    method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(android.app.Activity activity);
+    field public static final androidx.window.layout.WindowInfoTracker.Companion Companion;
   }
 
-  public static final class WindowInfoRepository.Companion {
-    method public androidx.window.layout.WindowInfoRepository getOrCreate(android.app.Activity);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void overrideDecorator(androidx.window.layout.WindowInfoRepositoryDecorator overridingDecorator);
+  public static final class WindowInfoTracker.Companion {
+    method public androidx.window.layout.WindowInfoTracker getOrCreate(android.content.Context context);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void overrideDecorator(androidx.window.layout.WindowInfoTrackerDecorator overridingDecorator);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void reset();
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface WindowInfoRepositoryDecorator {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.window.layout.WindowInfoRepository decorate(androidx.window.layout.WindowInfoRepository repository);
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface WindowInfoTrackerDecorator {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.window.layout.WindowInfoTracker decorate(androidx.window.layout.WindowInfoTracker tracker);
   }
 
   public final class WindowLayoutInfo {

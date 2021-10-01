@@ -16,8 +16,9 @@
 
 package androidx.window.rxjava3.layout
 
+import android.app.Activity
 import androidx.window.layout.FoldingFeature
-import androidx.window.layout.WindowInfoRepository
+import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -27,30 +28,32 @@ import org.junit.Test
 /**
  * Test for the adapter functions that convert to [io.reactivex.rxjava3.core.Observable] or
  * [io.reactivex.rxjava3.core.Flowable] and ensure that data is forwarded appropriately.
- * @see WindowInfoRepository
+ * @see WindowInfoTracker
  */
-public class WindowInfoRepositoryRxTest {
+public class WindowInfoTrackerRxTest {
 
     @Test
     public fun testWindowLayoutInfoObservable() {
+        val activity = mock<Activity>()
         val feature = mock<FoldingFeature>()
         val expected = WindowLayoutInfo(listOf(feature))
-        val mockRepo = mock<WindowInfoRepository>()
-        whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
+        val mockTracker = mock<WindowInfoTracker>()
+        whenever(mockTracker.windowLayoutInfo(activity)).thenReturn(flowOf(expected))
 
-        val testSubscriber = mockRepo.windowLayoutInfoObservable().test()
+        val testSubscriber = mockTracker.windowLayoutInfoObservable(activity).test()
 
         testSubscriber.assertValue(expected)
     }
 
     @Test
     public fun testWindowLayoutInfoFlowable() {
+        val activity = mock<Activity>()
         val feature = mock<FoldingFeature>()
         val expected = WindowLayoutInfo(listOf(feature))
-        val mockRepo = mock<WindowInfoRepository>()
-        whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
+        val mockTracker = mock<WindowInfoTracker>()
+        whenever(mockTracker.windowLayoutInfo(activity)).thenReturn(flowOf(expected))
 
-        val testSubscriber = mockRepo.windowLayoutInfoFlowable().test()
+        val testSubscriber = mockTracker.windowLayoutInfoFlowable(activity).test()
 
         testSubscriber.assertValue(expected)
     }

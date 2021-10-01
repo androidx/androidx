@@ -25,43 +25,40 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 /**
- * An implementation of [WindowInfoRepository] that provides the [WindowLayoutInfo] and
+ * An implementation of [WindowInfoTracker] that provides the [WindowLayoutInfo] and
  * [WindowMetrics] for the given [Activity].
  *
- * @param activity that the provided window is based on.
  * @param windowMetricsCalculator a helper to calculate the [WindowMetrics] for the [Activity].
  * @param windowBackend a helper to provide the [WindowLayoutInfo].
  */
-internal class WindowInfoRepositoryImpl(
-    private val activity: Activity,
+internal class WindowInfoTrackerImpl(
     private val windowMetricsCalculator: WindowMetricsCalculator,
     private val windowBackend: WindowBackend
-) : WindowInfoRepository {
+) : WindowInfoTracker {
 
     /**
      * A [Flow] of window layout changes in the current visual [Context].
      *
      * @see Activity.onAttachedToWindow
      */
-    override val windowLayoutInfo: Flow<WindowLayoutInfo>
-        get() {
-            // TODO(b/191386826) migrate to callbackFlow once the API is stable
-            return flow {
-                val channel = Channel<WindowLayoutInfo>(
-                    capacity = BUFFER_CAPACITY,
-                    onBufferOverflow = DROP_OLDEST
-                )
-                val listener = Consumer<WindowLayoutInfo> { info -> channel.trySend(info) }
-                windowBackend.registerLayoutChangeCallback(activity, Runnable::run, listener)
-                try {
-                    for (item in channel) {
-                        emit(item)
-                    }
-                } finally {
-                    windowBackend.unregisterLayoutChangeCallback(listener)
+    override fun windowLayoutInfo(activity: Activity): Flow<WindowLayoutInfo> {
+        // TODO(b/191386826) migrate to callbackFlow once the API is stable
+        return flow {
+            val channel = Channel<WindowLayoutInfo>(
+                capacity = BUFFER_CAPACITY,
+                onBufferOverflow = DROP_OLDEST
+            )
+            val listener = Consumer<WindowLayoutInfo> { info -> channel.trySend(info) }
+            windowBackend.registerLayoutChangeCallback(activity, Runnable::run, listener)
+            try {
+                for (item in channel) {
+                    emit(item)
                 }
+            } finally {
+                windowBackend.unregisterLayoutChangeCallback(listener)
             }
         }
+    }
 
     internal companion object {
         private const val BUFFER_CAPACITY = 10
