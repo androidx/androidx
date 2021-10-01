@@ -252,10 +252,9 @@ public abstract class WatchFaceService : WallpaperService() {
     ): ComplicationSlotsManager = ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
 
     /**
-     * Override this factory method to create your [WatchFace]. This method will be called by the
-     * library on the UiThread. If possible any expensive initialization should be done on a
-     * background thread to avoid blocking the UiThread. This will be called from a background
-     * thread but the [WatchFace] and its [Renderer] should be accessed exclusively from the
+     * Override this factory method to create your WatchFaceImpl. This method will be called by the
+     * library on a background thread, if possible any expensive initialization should be done
+     * asynchronously. The [WatchFace] and its [Renderer] should be accessed exclusively from the
      * UiThread afterwards. There is a memory barrier between construction and rendering so no
      * special threading primitives are required.
      *
