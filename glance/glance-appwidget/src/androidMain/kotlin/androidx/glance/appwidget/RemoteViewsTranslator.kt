@@ -17,22 +17,14 @@
 package androidx.glance.appwidget
 
 import android.content.Context
-import android.graphics.Typeface
 import android.os.Build
-import android.text.ParcelableSpan
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.StrikethroughSpan
-import android.text.style.StyleSpan
-import android.text.style.TextAppearanceSpan
-import android.text.style.UnderlineSpan
-import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.core.widget.setLinearLayoutGravity
 import androidx.core.widget.setRelativeLayoutGravity
 import androidx.glance.Emittable
@@ -40,22 +32,27 @@ import androidx.glance.appwidget.layout.EmittableAndroidRemoteViews
 import androidx.glance.appwidget.layout.EmittableCheckBox
 import androidx.glance.appwidget.layout.EmittableLazyColumn
 import androidx.glance.appwidget.layout.EmittableLazyListItem
+import androidx.glance.appwidget.translators.translateEmittableCheckBox
+import androidx.glance.appwidget.translators.translateEmittableText
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.EmittableColumn
 import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableText
-import androidx.glance.layout.FontStyle
-import androidx.glance.layout.FontWeight
-import androidx.glance.layout.TextDecoration
-import androidx.glance.layout.TextStyle
 import java.util.concurrent.atomic.AtomicInteger
 
 internal fun translateComposition(context: Context, appWidgetId: Int, element: RemoteViewsRoot) =
     translateComposition(
-        TranslationContext(context, appWidgetId),
+        TranslationContext(context, appWidgetId, context.isRtl),
         element
     )
+
+@VisibleForTesting
+internal var forceRtl: Boolean? = null
+
+private val Context.isRtl: Boolean
+    get() = forceRtl
+        ?: resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
 
 private fun translateComposition(
     translationContext: TranslationContext,
@@ -73,6 +70,7 @@ private fun translateComposition(
 internal data class TranslationContext(
     val context: Context,
     val appWidgetId: Int,
+    val isRtl: Boolean,
     val listCount: AtomicInteger = AtomicInteger(0),
     val areLazyCollectionsAllowed: Boolean = true
 )
@@ -192,29 +190,6 @@ private fun translateEmittableColumn(
         }
 }
 
-private fun translateEmittableText(
-    translationContext: TranslationContext,
-    element: EmittableText
-): RemoteViews {
-    val layoutDef =
-        selectLayout(LayoutSelector.Type.Text, element.modifier)
-    return remoteViews(translationContext, layoutDef.layoutId)
-        .also { rv ->
-            rv.setText(
-                translationContext.context,
-                layoutDef.mainViewId,
-                element.text,
-                element.style
-            )
-            applyModifiers(
-                translationContext,
-                rv,
-                element.modifier,
-                layoutDef
-            )
-        }
-}
-
 private fun translateEmittableAndroidRemoteViews(
     translationContext: TranslationContext,
     element: EmittableAndroidRemoteViews
@@ -232,42 +207,6 @@ private fun translateEmittableAndroidRemoteViews(
         }
     }
     return element.remoteViews
-}
-
-internal fun RemoteViews.setText(context: Context, resId: Int, text: String, style: TextStyle?) {
-    if (style == null) {
-        setTextViewText(resId, text)
-        return
-    }
-    val content = SpannableString(text)
-    val length = content.length
-    style.fontSize?.let {
-        setTextViewTextSize(resId, TypedValue.COMPLEX_UNIT_SP, it.value)
-    }
-    val spans = mutableListOf<ParcelableSpan>()
-    style.textDecoration?.let {
-        if (TextDecoration.LineThrough in it) {
-            spans.add(StrikethroughSpan())
-        }
-        if (TextDecoration.Underline in it) {
-            spans.add(UnderlineSpan())
-        }
-    }
-    style.fontStyle?.let {
-        spans.add(StyleSpan(if (it == FontStyle.Italic) Typeface.ITALIC else Typeface.NORMAL))
-    }
-    style.fontWeight?.let {
-        val textAppearance = when (it) {
-            FontWeight.Bold -> R.style.TextAppearance_Bold
-            FontWeight.Medium -> R.style.TextAppearance_Medium
-            else -> R.style.TextAppearance_Normal
-        }
-        spans.add(TextAppearanceSpan(context, textAppearance))
-    }
-    spans.forEach { span ->
-        content.setSpan(span, 0, length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
-    }
-    setTextViewText(resId, content)
 }
 
 // Sets the emittables as children to the view. This first remove any previously added view, the

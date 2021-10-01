@@ -28,13 +28,13 @@ import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.EmittableColumn
 import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableText
-import androidx.glance.layout.FontStyle
-import androidx.glance.layout.FontWeight
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
-import androidx.glance.layout.TextDecoration
-import androidx.glance.layout.TextStyle
 import androidx.glance.layout.WidthModifier
+import androidx.glance.text.FontStyle
+import androidx.glance.text.FontWeight
+import androidx.glance.text.TextDecoration
+import androidx.glance.text.TextStyle
 import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.BackgroundModifier
 import androidx.glance.wear.layout.CurvedTextStyle

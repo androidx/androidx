@@ -21,9 +21,9 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.layout.CheckBox
 import androidx.glance.layout.Column
-import androidx.glance.layout.FontStyle
-import androidx.glance.layout.FontWeight
-import androidx.glance.layout.TextStyle
+import androidx.glance.text.FontStyle
+import androidx.glance.text.FontWeight
+import androidx.glance.text.TextStyle
 import androidx.glance.unit.sp
 
 class CheckBoxAppWidget : GlanceAppWidget() {

@@ -16,13 +16,18 @@
 
 package androidx.glance.appwidget
 
+import androidx.compose.runtime.Composable
+import androidx.glance.Modifier
 import androidx.glance.appwidget.layout.CheckBox
 import androidx.glance.layout.Column
-import androidx.glance.layout.FontStyle
-import androidx.glance.layout.FontWeight
+import androidx.glance.layout.Row
 import androidx.glance.layout.Text
-import androidx.glance.layout.TextDecoration
-import androidx.glance.layout.TextStyle
+import androidx.glance.layout.fillMaxWidth
+import androidx.glance.text.FontStyle
+import androidx.glance.text.FontWeight
+import androidx.glance.text.TextAlign
+import androidx.glance.text.TextDecoration
+import androidx.glance.text.TextStyle
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Rule
@@ -86,5 +91,73 @@ class GlanceAppWidgetReceiverScreenshotTest {
         mHostRule.startHost()
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "checkBoxWidget")
+    }
+
+    @Test
+    fun createRowWidget() {
+        TestGlanceAppWidget.uiDefinition = { RowTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "rowWidget")
+    }
+
+    @Test
+    fun checkTextAlignment() {
+        TestGlanceAppWidget.uiDefinition = { TextAlignmentTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "textAlignment")
+    }
+}
+
+@Composable
+private fun TextAlignmentTest() {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            "Center",
+            style = TextStyle(textAlign = TextAlign.Center),
+            modifier = Modifier.fillMaxWidth()
+        )
+        Text(
+            "Left",
+            style = TextStyle(textAlign = TextAlign.Left),
+            modifier = Modifier.fillMaxWidth()
+        )
+        Text(
+            "Right",
+            style = TextStyle(textAlign = TextAlign.Right),
+            modifier = Modifier.fillMaxWidth()
+        )
+        Text(
+            "Start",
+            style = TextStyle(textAlign = TextAlign.Start),
+            modifier = Modifier.fillMaxWidth()
+        )
+        Text(
+            "End",
+            style = TextStyle(textAlign = TextAlign.End),
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun RowTest() {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            "Start",
+            style = TextStyle(textAlign = TextAlign.Start),
+            modifier = Modifier.defaultWeight()
+        )
+        Text(
+            "Center",
+            style = TextStyle(textAlign = TextAlign.Center),
+            modifier = Modifier.defaultWeight()
+        )
+        Text("End",
+            style = TextStyle(textAlign = TextAlign.End),
+            modifier = Modifier.defaultWeight())
     }
 }

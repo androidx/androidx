@@ -18,6 +18,11 @@ package androidx.glance.layout
 
 import androidx.glance.Modifier
 import androidx.glance.findModifier
+import androidx.glance.text.FontStyle
+import androidx.glance.text.FontWeight
+import androidx.glance.text.TextAlign
+import androidx.glance.text.TextDecoration
+import androidx.glance.text.TextStyle
 import androidx.glance.unit.sp
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -98,5 +103,16 @@ class TextTest {
             TextDecoration.combine(listOf(TextDecoration.LineThrough, TextDecoration.Underline))
         assertThat(TextDecoration.LineThrough in combined).isTrue()
         assertThat(TextDecoration.Underline in combined).isTrue()
+    }
+
+    @Test
+    fun textAlign() = fakeCoroutineScope.runBlockingTest {
+        val root = runTestingComposition {
+            Text("text", style = TextStyle(textAlign = TextAlign.Center))
+        }
+
+        assertThat(root.children).hasSize(1)
+        val child = assertIs<EmittableText>(root.children[0])
+        assertThat(child.style?.textAlign).isEqualTo(TextAlign.Center)
     }
 }

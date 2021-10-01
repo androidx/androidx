@@ -18,16 +18,10 @@ package androidx.glance.appwidget
 
 import android.annotation.TargetApi
 import android.content.Context
-import android.content.res.Configuration
-import android.graphics.Typeface
 import android.os.Build
 import android.text.SpannedString
-import android.text.TextUtils
 import android.text.style.StrikethroughSpan
-import android.text.style.StyleSpan
-import android.text.style.TextAppearanceSpan
 import android.text.style.UnderlineSpan
-import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -48,18 +42,14 @@ import androidx.glance.appwidget.test.R
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
-import androidx.glance.layout.FontStyle
-import androidx.glance.layout.FontWeight
 import androidx.glance.layout.Row
 import androidx.glance.layout.Text
-import androidx.glance.layout.TextDecoration
-import androidx.glance.layout.TextStyle
 import androidx.glance.layout.absolutePadding
 import androidx.glance.layout.padding
+import androidx.glance.text.TextDecoration
+import androidx.glance.text.TextStyle
 import androidx.glance.unit.Dp
-import androidx.glance.unit.Sp
 import androidx.glance.unit.dp
-import androidx.glance.unit.sp
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -72,7 +62,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
-import java.util.Locale
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 
@@ -91,7 +80,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslateBox() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate { Box {} }
+        val rv = context.runAndTranslate { Box {} }
         val view = context.applyRemoteViews(rv)
 
         assertIs<RelativeLayout>(view)
@@ -100,7 +89,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslateBoxWithAlignment() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+        val rv = context.runAndTranslate {
             Box(contentAlignment = Alignment.BottomEnd) { }
         }
         val view = context.applyRemoteViews(rv)
@@ -111,7 +100,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslateBoxWithChildren() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+        val rv = context.runAndTranslate {
             Box {
                 Box(contentAlignment = Alignment.Center) {}
                 Box(contentAlignment = Alignment.BottomEnd) {}
@@ -131,7 +120,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canReapplyTranslateBox() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+        val rv = context.runAndTranslate {
             Box {
                 Box(contentAlignment = Alignment.Center) {}
                 Box(contentAlignment = Alignment.BottomEnd) {}
@@ -164,7 +153,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslateMultipleNodes() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+        val rv = context.runAndTranslate {
             Box(contentAlignment = Alignment.Center) {}
             Box(contentAlignment = Alignment.BottomEnd) {}
         }
@@ -182,7 +171,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslatePaddingModifier() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+        val rv = context.runAndTranslate {
             Box(
                 modifier = Modifier.padding(
                     start = 4.dp,
@@ -203,7 +192,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslatePaddingRTL() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslateInRtl {
+        val rv = context.runAndTranslateInRtl {
             Box(
                 modifier = Modifier.padding(
                     start = 4.dp,
@@ -224,7 +213,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslateAbsolutePaddingRTL() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslateInRtl {
+        val rv = context.runAndTranslateInRtl {
             Box(
                 modifier = Modifier.absolutePadding(
                     left = 4.dp,
@@ -245,7 +234,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslateRow() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate { Row { } }
+        val rv = context.runAndTranslate { Row { } }
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
@@ -254,7 +243,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslateColumn() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate { Column { } }
+        val rv = context.runAndTranslate { Column { } }
         val view = context.applyRemoteViews(rv)
 
         assertIs<LinearLayout>(view)
@@ -264,7 +253,7 @@ class RemoteViewsTranslatorKtTest {
     @Test
     @TargetApi(24)
     fun canTranslateRowWithAlignment() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+        val rv = context.runAndTranslate {
             Row(
                 horizontalAlignment = Alignment.End,
                 verticalAlignment = Alignment.Bottom
@@ -279,7 +268,7 @@ class RemoteViewsTranslatorKtTest {
     @Test
     @TargetApi(24)
     fun canTranslateColumnWithAlignment() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+        val rv = context.runAndTranslate {
             Column(
                 horizontalAlignment = Alignment.Start,
                 verticalAlignment = Alignment.Bottom
@@ -294,7 +283,7 @@ class RemoteViewsTranslatorKtTest {
     @Test
     @TargetApi(24)
     fun canTranslateRowWithChildren() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+        val rv = context.runAndTranslate {
             Row {
                 Row(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -328,7 +317,7 @@ class RemoteViewsTranslatorKtTest {
     @Test
     @TargetApi(24)
     fun canTranslateColumnWithChildren() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+        val rv = context.runAndTranslate {
             Column {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -361,7 +350,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslateRowPaddingModifier() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+        val rv = context.runAndTranslate {
             Row(
                 modifier = Modifier.padding(
                     start = 17.dp,
@@ -382,7 +371,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslateColumnPaddingModifier() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
+        val rv = context.runAndTranslate {
             Column(
                 modifier = Modifier.padding(
                     start = 13.dp,
@@ -403,7 +392,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslateRowPaddingRTL() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslateInRtl {
+        val rv = context.runAndTranslateInRtl {
             Row(
                 modifier = Modifier.padding(
                     start = 4.dp,
@@ -424,7 +413,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslateColumnPaddingRTL() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslateInRtl {
+        val rv = context.runAndTranslateInRtl {
             Column(
                 modifier = Modifier.padding(
                     start = 8.dp,
@@ -445,7 +434,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslateRowAbsolutePaddingRTL() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslateInRtl {
+        val rv = context.runAndTranslateInRtl {
             Row(
                 modifier = Modifier.absolutePadding(
                     left = 12.dp,
@@ -466,7 +455,7 @@ class RemoteViewsTranslatorKtTest {
 
     @Test
     fun canTranslateColumnAbsolutePaddingRTL() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslateInRtl {
+        val rv = context.runAndTranslateInRtl {
             Column(
                 modifier = Modifier.absolutePadding(
                     left = 16.dp,
@@ -483,119 +472,6 @@ class RemoteViewsTranslatorKtTest {
         assertThat(view.paddingRight).isEqualTo(17.dp.toPixels())
         assertThat(view.paddingTop).isEqualTo(18.dp.toPixels())
         assertThat(view.paddingBottom).isEqualTo(19.dp.toPixels())
-    }
-
-    @Test
-    fun canTranslateText() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
-            Text("test")
-        }
-        val view = context.applyRemoteViews(rv)
-
-        assertIs<TextView>(view)
-        assertThat(view.text.toString()).isEqualTo("test")
-    }
-
-    @Test
-    @Config(sdk = [23, 29])
-    fun canTranslateText_withStyleWeightAndSize() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
-            Text(
-                "test",
-                style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 12.sp),
-            )
-        }
-        val view = context.applyRemoteViews(rv)
-
-        assertIs<TextView>(view)
-        assertThat(view.textSize).isEqualTo(12.sp.toPixels())
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        content.checkSingleSpan<TextAppearanceSpan> {
-            if (Build.VERSION.SDK_INT >= 29) {
-                assertThat(it.textFontWeight).isEqualTo(FontWeight.Medium.value)
-                // Note: textStyle is always set, but to NORMAL if unspecified
-                assertThat(it.textStyle).isEqualTo(Typeface.NORMAL)
-            } else {
-                assertThat(it.textStyle).isEqualTo(Typeface.BOLD)
-            }
-        }
-    }
-
-    @Test
-    fun canTranslateText_withStyleStrikeThrough() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
-            Text("test", style = TextStyle(textDecoration = TextDecoration.LineThrough))
-        }
-        val view = context.applyRemoteViews(rv)
-
-        assertIs<TextView>(view)
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        content.checkSingleSpan<StrikethroughSpan> { }
-    }
-
-    @Test
-    fun canTranslateText_withStyleUnderline() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
-            Text("test", style = TextStyle(textDecoration = TextDecoration.Underline))
-        }
-        val view = context.applyRemoteViews(rv)
-
-        assertIs<TextView>(view)
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        content.checkSingleSpan<UnderlineSpan> { }
-    }
-
-    @Test
-    fun canTranslateText_withStyleItalic() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
-            Text("test", style = TextStyle(fontStyle = FontStyle.Italic))
-        }
-        val view = context.applyRemoteViews(rv)
-
-        assertIs<TextView>(view)
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        content.checkSingleSpan<StyleSpan> {
-            assertThat(it.style).isEqualTo(Typeface.ITALIC)
-        }
-    }
-
-    @Test
-    @Config(sdk = [23, 29])
-    fun canTranslateText_withComplexStyle() = fakeCoroutineScope.runBlockingTest {
-        val rv = runAndTranslate {
-            Text(
-                "test",
-                style = TextStyle(
-                    textDecoration = TextDecoration.Underline + TextDecoration.LineThrough,
-                    fontStyle = FontStyle.Italic,
-                    fontWeight = FontWeight.Bold,
-                ),
-            )
-        }
-        val view = context.applyRemoteViews(rv)
-
-        assertIs<TextView>(view)
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        assertThat(content.getSpans(0, content.length, Any::class.java)).hasLength(4)
-        content.checkHasSingleTypedSpan<UnderlineSpan> { }
-        content.checkHasSingleTypedSpan<StrikethroughSpan> { }
-        content.checkHasSingleTypedSpan<StyleSpan> {
-            assertThat(it.style).isEqualTo(Typeface.ITALIC)
-        }
-        content.checkHasSingleTypedSpan<TextAppearanceSpan> {
-            if (Build.VERSION.SDK_INT >= 29) {
-                assertThat(it.textFontWeight).isEqualTo(FontWeight.Bold.value)
-                // Note: textStyle is always set, but to NORMAL if unspecified
-                assertThat(it.textStyle).isEqualTo(Typeface.NORMAL)
-            } else {
-                assertThat(it.textStyle).isEqualTo(Typeface.BOLD)
-            }
-        }
     }
 
     @Test
@@ -768,7 +644,7 @@ class RemoteViewsTranslatorKtTest {
         assertThat(iconView.isEnabled).isFalse()
 
         val textView = view.findViewById<TextView>(R.id.checkBoxText)
-        val textContent = textView.text as SpannedString
+        val textContent = assertIs<SpannedString>(textView.text)
         assertThat(textContent.toString()).isEqualTo("test")
         assertThat(textContent.getSpans(0, textContent.length, Any::class.java)).hasLength(1)
         textContent.checkHasSingleTypedSpan<UnderlineSpan> { }
@@ -791,7 +667,7 @@ class RemoteViewsTranslatorKtTest {
         assertThat(iconView.isEnabled).isTrue()
 
         val textView = view.findViewById<TextView>(R.id.checkBoxText)
-        val textContent = textView.text as SpannedString
+        val textContent = assertIs<SpannedString>(textView.text)
         assertThat(textContent.toString()).isEqualTo("test checked")
         assertThat(textContent.getSpans(0, textContent.length, Any::class.java)).hasLength(1)
         textContent.checkHasSingleTypedSpan<StrikethroughSpan> { }
@@ -825,22 +701,5 @@ class RemoteViewsTranslatorKtTest {
         return translateComposition(context, appWidgetId, root)
     }
 
-    private suspend fun runAndTranslateInRtl(
-        appWidgetId: Int = 0,
-        content: @Composable () -> Unit
-    ): RemoteViews {
-        val rtlLocale = Locale.getAvailableLocales().first {
-            TextUtils.getLayoutDirectionFromLocale(it) == View.LAYOUT_DIRECTION_RTL
-        }
-        val rtlContext = context.createConfigurationContext(
-            Configuration(context.resources.configuration).also {
-                it.setLayoutDirection(rtlLocale)
-            }
-        )
-        return runAndTranslate(rtlContext, appWidgetId, content = content)
-    }
-
     private fun Dp.toPixels() = toPixels(displayMetrics)
-    private fun Sp.toPixels() =
-        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, displayMetrics).toInt()
 }

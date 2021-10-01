@@ -153,6 +153,29 @@ package androidx.glance.layout {
     method public static androidx.glance.Modifier wrapContentWidth(androidx.glance.Modifier);
   }
 
+  public final class PaddingKt {
+    method public static androidx.glance.Modifier absolutePadding(androidx.glance.Modifier, optional float left, optional float top, optional float right, optional float bottom);
+    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional float start, optional float top, optional float end, optional float bottom);
+    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional float horizontal, optional float vertical);
+    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, float all);
+  }
+
+  public final class RowKt {
+    method @androidx.compose.runtime.Composable public static void Row(optional androidx.glance.Modifier modifier, optional int horizontalAlignment, optional int verticalAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.layout.RowScope,kotlin.Unit> content);
+  }
+
+  public interface RowScope {
+    method public androidx.glance.Modifier defaultWeight(androidx.glance.Modifier);
+  }
+
+  public final class TextKt {
+    method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.glance.Modifier modifier, optional androidx.glance.text.TextStyle? style);
+  }
+
+}
+
+package androidx.glance.text {
+
   public final inline class FontStyle {
     ctor public FontStyle();
   }
@@ -160,7 +183,7 @@ package androidx.glance.layout {
   public static final class FontStyle.Companion {
     method public int getItalic();
     method public int getNormal();
-    method public java.util.List<androidx.glance.layout.FontStyle> values();
+    method public java.util.List<androidx.glance.text.FontStyle> values();
     property public final int Italic;
     property public final int Normal;
   }
@@ -180,19 +203,22 @@ package androidx.glance.layout {
     property public final int Normal;
   }
 
-  public final class PaddingKt {
-    method public static androidx.glance.Modifier absolutePadding(androidx.glance.Modifier, optional float left, optional float top, optional float right, optional float bottom);
-    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional float start, optional float top, optional float end, optional float bottom);
-    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional float horizontal, optional float vertical);
-    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, float all);
+  public final inline class TextAlign {
+    ctor public TextAlign();
   }
 
-  public final class RowKt {
-    method @androidx.compose.runtime.Composable public static void Row(optional androidx.glance.Modifier modifier, optional int horizontalAlignment, optional int verticalAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.layout.RowScope,kotlin.Unit> content);
-  }
-
-  public interface RowScope {
-    method public androidx.glance.Modifier defaultWeight(androidx.glance.Modifier);
+  public static final class TextAlign.Companion {
+    method public int getCenter();
+    method public int getEnd();
+    method public int getLeft();
+    method public int getRight();
+    method public int getStart();
+    method public java.util.List<androidx.glance.text.TextAlign> values();
+    property public final int Center;
+    property public final int End;
+    property public final int Left;
+    property public final int Right;
+    property public final int Start;
   }
 
   public final inline class TextDecoration {
@@ -200,7 +226,7 @@ package androidx.glance.layout {
   }
 
   public static final class TextDecoration.Companion {
-    method public int combine(java.util.List<androidx.glance.layout.TextDecoration> decorations);
+    method public int combine(java.util.List<androidx.glance.text.TextDecoration> decorations);
     method public int getLineThrough();
     method public int getNone();
     method public int getUnderline();
@@ -209,20 +235,18 @@ package androidx.glance.layout {
     property public final int Underline;
   }
 
-  public final class TextKt {
-    method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.glance.Modifier modifier, optional androidx.glance.layout.TextStyle? style);
-  }
-
   @androidx.compose.runtime.Immutable public final class TextStyle {
-    ctor public TextStyle(optional androidx.glance.unit.Sp? fontSize, optional androidx.glance.layout.FontWeight? fontWeight, optional androidx.glance.layout.FontStyle? fontStyle, optional androidx.glance.layout.TextDecoration? textDecoration);
+    ctor public TextStyle(optional androidx.glance.unit.Sp? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration);
     method public androidx.glance.unit.Sp? getFontSize();
-    method public androidx.glance.layout.FontStyle? getFontStyle();
-    method public androidx.glance.layout.FontWeight? getFontWeight();
-    method public androidx.glance.layout.TextDecoration? getTextDecoration();
+    method public androidx.glance.text.FontStyle? getFontStyle();
+    method public androidx.glance.text.FontWeight? getFontWeight();
+    method public androidx.glance.text.TextAlign? getTextAlign();
+    method public androidx.glance.text.TextDecoration? getTextDecoration();
     property public final androidx.glance.unit.Sp? fontSize;
-    property public final androidx.glance.layout.FontStyle? fontStyle;
-    property public final androidx.glance.layout.FontWeight? fontWeight;
-    property public final androidx.glance.layout.TextDecoration? textDecoration;
+    property public final androidx.glance.text.FontStyle? fontStyle;
+    property public final androidx.glance.text.FontWeight? fontWeight;
+    property public final androidx.glance.text.TextAlign? textAlign;
+    property public final androidx.glance.text.TextDecoration? textDecoration;
   }
 
 }

@@ -18,7 +18,11 @@ package androidx.glance.appwidget
 
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Parcel
+import android.text.TextUtils
+import android.util.DisplayMetrics
+import android.util.TypedValue
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.RemoteViews
@@ -27,9 +31,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
 import androidx.glance.Applier
+import androidx.glance.unit.Sp
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 internal suspend fun runTestingComposition(content: @Composable () -> Unit): RemoteViewsRoot =
     coroutineScope {
@@ -62,7 +68,33 @@ internal fun Context.applyRemoteViews(rv: RemoteViews): View {
     }
 }
 
+internal suspend fun Context.runAndTranslate(
+    appWidgetId: Int = 0,
+    content: @Composable () -> Unit
+): RemoteViews {
+    val root = runTestingComposition(content)
+    return translateComposition(this, appWidgetId, root)
+}
+
+internal suspend fun Context.runAndTranslateInRtl(
+    appWidgetId: Int = 0,
+    content: @Composable () -> Unit
+): RemoteViews {
+    val rtlLocale = Locale.getAvailableLocales().first {
+        TextUtils.getLayoutDirectionFromLocale(it) == View.LAYOUT_DIRECTION_RTL
+    }
+    val rtlContext = createConfigurationContext(
+        Configuration(resources.configuration).also {
+            it.setLayoutDirection(rtlLocale)
+        }
+    )
+    return rtlContext.runAndTranslate(appWidgetId, content = content)
+}
+
 internal fun appWidgetProviderInfo(
     builder: AppWidgetProviderInfo.() -> Unit
 ): AppWidgetProviderInfo =
     AppWidgetProviderInfo().apply(builder)
+
+internal fun Sp.toPixels(displayMetrics: DisplayMetrics) =
+    TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, displayMetrics).toInt()
