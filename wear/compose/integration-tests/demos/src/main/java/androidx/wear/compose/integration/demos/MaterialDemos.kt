@@ -19,6 +19,12 @@ package androidx.wear.compose.integration.demos
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
+import androidx.wear.compose.material.samples.AppCardWithIcon
+import androidx.wear.compose.material.samples.ButtonWithIcon
+import androidx.wear.compose.material.samples.ButtonWithText
+import androidx.wear.compose.material.samples.ChipWithIconAndLabels
+import androidx.wear.compose.material.samples.CompactButtonWithIcon
+import androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
 import androidx.wear.compose.material.samples.CurvedTextDemo
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeadersReversed
@@ -26,8 +32,13 @@ import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumn
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContentPadding
 import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
+import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
 import androidx.wear.compose.material.samples.TimeTextWithCustomSeparator
 import androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
+import androidx.wear.compose.material.samples.TitleCardStandard
+import androidx.wear.compose.material.samples.TitleCardWithImage
+import androidx.wear.compose.material.samples.ToggleButtonWithIcon
+import androidx.wear.compose.material.samples.ToggleChipWithIcon
 
 // Declare the swipe to dismiss demos so that we can use this variable as the background composable
 // for the SwipeToDismissDemo itself.
@@ -79,30 +90,94 @@ val WearMaterialDemos = DemoCategory(
         DemoCategory(
             "Button",
             listOf(
-                ComposableDemo("Button Sizes") { ButtonSizes() },
-                ComposableDemo("Button Styles") { ButtonStyles() },
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("ButtonWithIcon") { Centralize({ ButtonWithIcon() }) },
+                        ComposableDemo("ButtonWithText") { Centralize({ ButtonWithText() }) },
+                        ComposableDemo("CompactButtonWithIcon") {
+                            Centralize({ CompactButtonWithIcon() })
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Button Sizes") { ButtonSizes() },
+                        ComposableDemo("Button Styles") { ButtonStyles() },
+                    )
+                )
             )
         ),
-        ComposableDemo("Toggle Button") { ToggleButtons() },
+        DemoCategory("ToggleButton",
+            listOf(
+                ComposableDemo("Sample") { Centralize({ ToggleButtonWithIcon() }) },
+                ComposableDemo("Demos") { ToggleButtons() },
+            )
+        ),
         DemoCategory(
             "Chips",
             listOf(
-                ComposableDemo("Chip") { StandardChips() },
-                ComposableDemo("Compact chip") { SmallChips() },
-                ComposableDemo("Avatar chip") { AvatarChips() },
-                ComposableDemo("Rtl chips") { RtlChips() },
-                ComposableDemo("Custom chips") { CustomChips() },
-                ComposableDemo("Image background chips") { ImageBackgroundChips() },
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("ChipWithIconAndLabels") {
+                            Centralize({ ChipWithIconAndLabels() })
+                        },
+                        ComposableDemo("CompactChipWithIconAndLabel") {
+                            Centralize({ CompactChipWithIconAndLabel() })
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Chip") { StandardChips() },
+                        ComposableDemo("Compact chip") { SmallChips() },
+                        ComposableDemo("Avatar chip") { AvatarChips() },
+                        ComposableDemo("Rtl chips") { RtlChips() },
+                        ComposableDemo("Custom chips") { CustomChips() },
+                        ComposableDemo("Image background chips") { ImageBackgroundChips() },
+                    )
+                )
             )
         ),
         DemoCategory(
             "Toggle Chip",
             listOf(
-                ComposableDemo("Toggle chip") { ToggleChips() },
-                ComposableDemo("RTL Toggle chip") { RtlToggleChips() },
+                DemoCategory("Samples",
+                    listOf(
+                        ComposableDemo("ToggleChipWithIcon") {
+                            Centralize({ ToggleChipWithIcon() })
+                        },
+                        ComposableDemo("SplitToggleChipWithCheckbox") {
+                            Centralize({ SplitToggleChipWithCheckbox() })
+                        }
+                    )
+                ),
+                DemoCategory("Demos",
+                    listOf(
+                        ComposableDemo("Toggle chip") { ToggleChips() },
+                        ComposableDemo("RTL Toggle chip") { RtlToggleChips() },
+                    )
+                )
             )
         ),
-        ComposableDemo("Card") { CardDemo() },
+        DemoCategory("Card",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("AppCard") { Centralize({ AppCardWithIcon() }) },
+                        ComposableDemo("TitleCard") { Centralize({ TitleCardStandard() }) },
+                        ComposableDemo("TitleCardWithImage") {
+                            Centralize({ TitleCardWithImage() })
+                        },
+                    )
+                ),
+                ComposableDemo("Demos") { CardDemo() },
+            )
+        ),
         SwipeToDismissDemos,
         DemoCategory(
             "List",

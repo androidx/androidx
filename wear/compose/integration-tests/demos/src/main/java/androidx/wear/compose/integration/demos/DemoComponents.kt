@@ -19,7 +19,10 @@ package androidx.wear.compose.integration.demos
 import android.app.Activity
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -137,6 +140,17 @@ fun TextIcon(
                 style = style
             )
         }
+    }
+}
+
+@Composable
+fun Centralize(content: @Composable () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        content()
     }
 }
 
