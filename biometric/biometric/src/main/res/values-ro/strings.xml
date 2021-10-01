@@ -31,7 +31,7 @@
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Dispozitivul nu acceptă codul PIN, modelul sau parola."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Pictograma amprentă"</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"Folosiți amprenta"</string>
-    <string name="use_face_label" msgid="6533512708069459542">"Folosiți fața"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"Folosiți chipul"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"Folosiți sistemele biometrice"</string>
     <string name="use_screen_lock_label" msgid="5459869335976243512">"Folosiți blocarea ecranului"</string>
     <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Folosiți amprenta sau blocarea ecranului"</string>
