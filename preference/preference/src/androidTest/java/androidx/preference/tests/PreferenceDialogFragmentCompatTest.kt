@@ -90,6 +90,7 @@ class InflatedFragment(val xmlLayoutId: Int) : PreferenceFragmentCompat() {
         setPreferencesFromResource(xmlLayoutId, rootKey)
     }
 
+    @Suppress("DEPRECATION")
     override fun onDisplayPreferenceDialog(preference: Preference) {
         dialogFragment = DialogFragment(preference.key)
             .also { it.setTargetFragment(this, 0) }
