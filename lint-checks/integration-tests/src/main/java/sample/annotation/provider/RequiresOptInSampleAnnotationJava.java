@@ -22,8 +22,9 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-@SuppressWarnings("deprecation")
-@kotlin.Experimental
+import kotlin.RequiresOptIn;
+
+@RequiresOptIn
 @Retention(CLASS)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface ExperimentalSampleAnnotationJava {}
+public @interface RequiresOptInSampleAnnotationJava {}

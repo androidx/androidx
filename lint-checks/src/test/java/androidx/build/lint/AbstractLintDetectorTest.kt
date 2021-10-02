@@ -40,8 +40,15 @@ abstract class AbstractLintDetectorTest(
 
     override fun getIssues(): List<Issue> = useIssues
 
+    /**
+     * Runs lint checks for the given [projects] using (optionally) specified [testModes].
+     *
+     * Test mode modification is available to work around issues regarding partial analysis
+     * (b/188814760, b/201086161#comment4).
+     */
     fun check(
-        vararg projects: ProjectDescription
+        vararg projects: ProjectDescription,
+        testModes: List<TestMode> = listOf(TestMode.DEFAULT, TestMode.PARTIAL)
     ): TestLintResult {
         // If we have stubs, push those into a virtual project and pass them through the call to
         // projects(), since attempting to call files() would overwrite the call to projects().
@@ -52,7 +59,8 @@ abstract class AbstractLintDetectorTest(
         }
 
         return lint()
-            .projects(*projectsWithStubs).testModes(TestMode.DEFAULT, TestMode.PARTIAL)
+            .projects(*projectsWithStubs)
+            .testModes(testModes)
             .run()
     }
 
