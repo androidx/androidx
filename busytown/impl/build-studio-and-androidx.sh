@@ -66,6 +66,7 @@ export LINT_PRINT_STACKTRACE=true
 
 function buildAndroidx() {
   LOG_PROCESSOR="$SCRIPTS_DIR/../development/build_log_processor.sh"
+  properties="-Pandroidx.summarizeStderr --no-daemon"
   "$LOG_PROCESSOR"                   $gw $properties -p frameworks/support    $androidxArguments --profile
   $SCRIPTS_DIR/impl/parse_profile_htmls.sh
 }
