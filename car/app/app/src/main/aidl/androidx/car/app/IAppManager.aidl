@@ -26,4 +26,10 @@ oneway interface IAppManager {
 
   /** Notifies that the host received a back button press. */
   void onBackPressed(IOnDoneCallback callback) = 2;
+
+  /** Requests the app to send location updates. */
+  void startLocationUpdates(IOnDoneCallback callback) = 3;
+
+  /** Requests the app to stop sending location updates. */
+  void stopLocationUpdates(IOnDoneCallback callback) = 4;
 }

@@ -35,6 +35,7 @@ import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -109,6 +110,10 @@ public class CarContextTest {
 
                             @Override
                             public void setSurfaceCallback(@Nullable ISurfaceCallback callback) {
+                            }
+
+                            @Override
+                            public void sendLocation(Location location) {
                             }
                         }.asBinder());
 
