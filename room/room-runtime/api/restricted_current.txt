@@ -8,7 +8,8 @@ package androidx.room {
     ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context, String?, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback!>?, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer!>?, String?, java.io.File?, java.util.concurrent.Callable<java.io.InputStream!>?);
     ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context, String?, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback!>?, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer!>?, String?, java.io.File?, java.util.concurrent.Callable<java.io.InputStream!>?, androidx.room.RoomDatabase.PrepackagedDatabaseCallback?);
     ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context, String?, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback!>?, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer!>?, String?, java.io.File?, java.util.concurrent.Callable<java.io.InputStream!>?, androidx.room.RoomDatabase.PrepackagedDatabaseCallback?, java.util.List<java.lang.Object!>?);
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context, String?, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback!>?, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer!>?, String?, java.io.File?, java.util.concurrent.Callable<java.io.InputStream!>?, androidx.room.RoomDatabase.PrepackagedDatabaseCallback?, java.util.List<java.lang.Object!>?, java.util.List<androidx.room.migration.AutoMigrationSpec!>?);
+    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context, String?, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback!>?, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer!>?, String?, java.io.File?, java.util.concurrent.Callable<java.io.InputStream!>?, androidx.room.RoomDatabase.PrepackagedDatabaseCallback?, java.util.List<java.lang.Object!>?, java.util.List<androidx.room.migration.AutoMigrationSpec!>?);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context, String?, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback!>?, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, java.util.concurrent.Executor, android.content.Intent?, boolean, boolean, java.util.Set<java.lang.Integer!>?, String?, java.io.File?, java.util.concurrent.Callable<java.io.InputStream!>?, androidx.room.RoomDatabase.PrepackagedDatabaseCallback?, java.util.List<java.lang.Object!>?, java.util.List<androidx.room.migration.AutoMigrationSpec!>?);
     method public boolean isMigrationRequired(int, int);
     method @Deprecated public boolean isMigrationRequiredFrom(int);
     field public final boolean allowDestructiveMigrationOnDowngrade;
@@ -22,6 +23,7 @@ package androidx.room {
     field public final androidx.room.RoomDatabase.JournalMode! journalMode;
     field public final androidx.room.RoomDatabase.MigrationContainer migrationContainer;
     field public final boolean multiInstanceInvalidation;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final android.content.Intent! multiInstanceInvalidationServiceIntent;
     field public final String? name;
     field public final androidx.room.RoomDatabase.PrepackagedDatabaseCallback? prepackagedDatabaseCallback;
     field public final java.util.concurrent.Executor queryExecutor;
@@ -70,11 +72,6 @@ package androidx.room {
     ctor protected InvalidationTracker.Observer(String, java.lang.String!...);
     ctor public InvalidationTracker.Observer(String![]);
     method public abstract void onInvalidated(java.util.Set<java.lang.String!>);
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class MultiInstanceInvalidationService extends android.app.Service {
-    ctor public MultiInstanceInvalidationService();
-    method public android.os.IBinder? onBind(android.content.Intent!);
   }
 
   public class Room {

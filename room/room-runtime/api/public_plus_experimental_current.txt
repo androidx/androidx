@@ -24,7 +24,7 @@ package androidx.room {
     field public final java.util.List<java.lang.Object!> typeConverters;
   }
 
-  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public @interface ExperimentalRoomApi {
+  @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.METHOD}) public @interface ExperimentalRoomApi {
   }
 
   public class InvalidationTracker {
@@ -37,6 +37,11 @@ package androidx.room {
     ctor protected InvalidationTracker.Observer(String, java.lang.String!...);
     ctor public InvalidationTracker.Observer(String![]);
     method public abstract void onInvalidated(java.util.Set<java.lang.String!>);
+  }
+
+  @androidx.room.ExperimentalRoomApi public class MultiInstanceInvalidationService extends android.app.Service {
+    ctor public MultiInstanceInvalidationService();
+    method public android.os.IBinder? onBind(android.content.Intent);
   }
 
   public class Room {
@@ -93,6 +98,7 @@ package androidx.room {
     method public androidx.room.RoomDatabase.Builder<T!> openHelperFactory(androidx.sqlite.db.SupportSQLiteOpenHelper.Factory?);
     method @androidx.room.ExperimentalRoomApi public androidx.room.RoomDatabase.Builder<T!> setAutoCloseTimeout(@IntRange(from=0) long, java.util.concurrent.TimeUnit);
     method public androidx.room.RoomDatabase.Builder<T!> setJournalMode(androidx.room.RoomDatabase.JournalMode);
+    method @androidx.room.ExperimentalRoomApi public androidx.room.RoomDatabase.Builder<T!> setMultiInstanceInvalidationServiceIntent(android.content.Intent);
     method public androidx.room.RoomDatabase.Builder<T!> setQueryCallback(androidx.room.RoomDatabase.QueryCallback, java.util.concurrent.Executor);
     method public androidx.room.RoomDatabase.Builder<T!> setQueryExecutor(java.util.concurrent.Executor);
     method public androidx.room.RoomDatabase.Builder<T!> setTransactionExecutor(java.util.concurrent.Executor);
