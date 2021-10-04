@@ -24,6 +24,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.tracing.trace
 import java.io.File
 import java.io.InputStream
 import java.nio.charset.Charset
@@ -362,7 +363,7 @@ private object ShellImpl {
             executeCommand("cp ${writableScriptFile.absolutePath} $runnableScriptPath")
             Shell.chmodExecutable(runnableScriptPath)
 
-            val stdout = executeCommand(runnableScriptPath)
+            val stdout = trace("executeCommand") { executeCommand(runnableScriptPath) }
             val stderr = stderrPath?.run { executeCommand("cat $stderrPath") }
 
             return Pair(stdout, stderr)

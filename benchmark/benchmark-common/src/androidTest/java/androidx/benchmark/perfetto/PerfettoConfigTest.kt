@@ -119,4 +119,31 @@ class PerfettoConfigTest {
             actual = exception.message
         )
     }
+
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 23)
+    @Test
+    fun validateAndEncode_invalidLength() {
+        val invalidConfig = perfettoConfig(
+            listOf(
+                "0123456789",
+                "0123456789",
+                "0123456789",
+                "0123456789",
+                "0123456789",
+                "0123456789",
+                "0123456789",
+                "0123456789",
+                "0123456789",
+            )
+        )
+        val exception = assertFailsWith<IllegalStateException> {
+            invalidConfig.validateAndEncode()
+        }
+        assertEquals(
+            expected = "Unable to trace package list (\"0123456789,0123456789,0123456789," +
+                "0123456789,0123456789,0123456789,0123456789,0123456789,0123456789\").length" +
+                " = 98 > 91 chars, which is the limit before API 24",
+            actual = exception.message
+        )
+    }
 }

@@ -177,5 +177,13 @@ internal fun TraceConfig.validateAndEncode(): ByteArray {
             "Support for wildcard (*) app matching in atrace added in API 28"
         }
     }
+
+    if (Build.VERSION.SDK_INT < 24) {
+        val packageList = ftraceConfig.atrace_apps.joinToString(",")
+        check(packageList.length <= 91) {
+            "Unable to trace package list (\"$packageList\").length = " +
+                "${packageList.length} > 91 chars, which is the limit before API 24"
+        }
+    }
     return encode()
 }
