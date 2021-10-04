@@ -44,6 +44,7 @@ class DialogFragmentNavigatorTest {
 
     companion object {
         private const val INITIAL_FRAGMENT = 1
+        private const val SECOND_FRAGMENT = 2
     }
 
     @Suppress("DEPRECATION")
@@ -139,6 +140,97 @@ class DialogFragmentNavigatorTest {
         assertWithMessage("Pop should dismiss the DialogFragment")
             .that(dialogFragment.requireDialog().isShowing)
             .isFalse()
+        fragmentManager.executePendingTransactions()
+        assertWithMessage("Dismiss should remove the dialog")
+            .that(dialogFragment.dialog)
+            .isNull()
+        assertWithMessage("Dismissed DialogFragment should be removed from the FragmentManager")
+            .that(fragmentManager.fragments)
+            .doesNotContain(dialogFragment)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testDismiss() {
+        lateinit var dialogFragment: DialogFragment
+        fragmentManager.fragmentFactory = object : FragmentFactory() {
+            override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
+                return super.instantiate(classLoader, className).also { fragment ->
+                    if (fragment is DialogFragment) {
+                        dialogFragment = fragment
+                    }
+                }
+            }
+        }
+        val entry = createBackStackEntry()
+
+        dialogNavigator.navigate(listOf(entry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
+        fragmentManager.executePendingTransactions()
+        assertWithMessage("Dialog should be shown")
+            .that(dialogFragment.requireDialog().isShowing)
+            .isTrue()
+
+        dialogFragment.dismiss()
+        fragmentManager.executePendingTransactions()
+        assertWithMessage("Dismiss should remove the dialog from the back stack")
+            .that(navigatorState.backStack.value)
+            .isEmpty()
+        assertWithMessage("Dismiss should remove the dialog")
+            .that(dialogFragment.dialog)
+            .isNull()
+        assertWithMessage("Dismissed DialogFragment should be removed from the FragmentManager")
+            .that(fragmentManager.fragments)
+            .doesNotContain(dialogFragment)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testDismissAndNavigate() {
+        val dialogFragments = mutableListOf<DialogFragment>()
+        fragmentManager.fragmentFactory = object : FragmentFactory() {
+            override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
+                return super.instantiate(classLoader, className).also { fragment ->
+                    if (fragment is DialogFragment) {
+                        dialogFragments += fragment
+                    }
+                }
+            }
+        }
+        val entry = createBackStackEntry()
+
+        dialogNavigator.navigate(listOf(entry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
+        fragmentManager.executePendingTransactions()
+        assertWithMessage("Dialog should be shown")
+            .that(dialogFragments[0].requireDialog().isShowing)
+            .isTrue()
+
+        val secondEntry = createBackStackEntry(SECOND_FRAGMENT)
+
+        // Call dismiss and, before executing pending transactions, call navigate()
+        dialogFragments[0].dismiss()
+        dialogNavigator.navigate(listOf(secondEntry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, secondEntry).inOrder()
+        fragmentManager.executePendingTransactions()
+        assertWithMessage("Dismiss should remove the dialogs from the back stack")
+            .that(navigatorState.backStack.value)
+            .isEmpty()
+        assertWithMessage("Dismiss should remove the dialog")
+            .that(dialogFragments[0].dialog)
+            .isNull()
+        assertWithMessage("Dismissed DialogFragment should be removed from the FragmentManager")
+            .that(fragmentManager.fragments)
+            .doesNotContain(dialogFragments[0])
+        assertWithMessage("Dismiss should remove the second dialog")
+            .that(dialogFragments[1].dialog)
+            .isNull()
+        assertWithMessage("Second DialogFragment should be removed from the FragmentManager")
+            .that(fragmentManager.fragments)
+            .doesNotContain(dialogFragments[1])
     }
 
     private fun createBackStackEntry(
