@@ -26,7 +26,7 @@
         android:theme="@android:style/Theme.DeviceDefault">
         <activity
             android:name=".MainActivity"
-            android:theme="@style/AppThemeNoSwipe"
+            android:theme="@android:style/Theme.DeviceDefault"
             android:exported="true"
             android:label="@string/app_name">
             <intent-filter>

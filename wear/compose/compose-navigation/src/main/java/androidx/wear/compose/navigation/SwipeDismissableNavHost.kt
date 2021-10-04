@@ -54,9 +54,7 @@ import androidx.wear.compose.material.rememberSwipeToDismissBoxState
  *
  * Content is displayed within a [SwipeToDismissBox], showing the current navigation level.
  * During a swipe-to-dismiss gesture, the previous navigation level (if any) is shown in
- * the background. [SwipeToDismissBox] has not yet been integrated with Android's
- * default handling for swipe to dismiss on Wear applications - until that is completed,
- * android:windowSwipeToDismiss must be disabled for applications using [SwipeDismissableNavHost].
+ * the background.
  *
  * @param navController The navController for this host
  * @param startDestination The route for the start destination
@@ -93,9 +91,7 @@ public fun SwipeDismissableNavHost(
  *
  * Content is displayed within a [SwipeToDismissBox], showing the current navigation level.
  * During a swipe-to-dismiss gesture, the previous navigation level (if any) is shown in
- * the background. [SwipeToDismissBox] has not yet been integrated with Android's
- * default handling for swipe to dismiss on Wear applications - until that is completed,
- * android:windowSwipeToDismiss must be disabled for applications using [SwipeDismissableNavHost].
+ * the background.
  *
  * @param navController [NavHostController] for this host
  * @param graph Graph for this host
