@@ -52,8 +52,8 @@ public fun Modifier.wrapContentWidth(): Modifier = this.then(WidthModifier(Dimen
 
 /**
  * Specifies that the width of the element should expand to the size of its parent. Note that if
- * multiple elements within a linear container (e.g. Row or Column) have their width as expandWidth,
- * then they will all share the remaining space.
+ * multiple elements within a linear container (e.g. Row or Column) have their width as
+ * [fillMaxWidth], then they will all share the remaining space.
  */
 public fun Modifier.fillMaxWidth(): Modifier = this.then(WidthModifier(Dimension.Fill))
 

@@ -113,7 +113,7 @@ private fun Alignment.Vertical.toGravity(): Int =
         else -> throw IllegalArgumentException("Unknown vertical alignment: $this")
     }
 
-private fun Alignment.toGravity() = horizontal.toGravity() or vertical.toGravity()
+internal fun Alignment.toGravity() = horizontal.toGravity() or vertical.toGravity()
 
 private fun translateEmittableBox(
     translationContext: TranslationContext,
