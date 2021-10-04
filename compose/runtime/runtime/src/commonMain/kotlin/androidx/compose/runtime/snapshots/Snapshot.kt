@@ -532,15 +532,18 @@ open class MutableSnapshot internal constructor(
     ): MutableSnapshot {
         validateNotDisposed()
         validateNotApplied()
+        val previousId = id
         return advance {
             sync {
                 val newId = nextSnapshotId++
                 openSnapshots = openSnapshots.set(newId)
-                val invalid = invalid
-                this.invalid = invalid.set(newId)
+                var currentInvalid = invalid
+                for (invalidId in previousId + 1 until newId) {
+                    currentInvalid = currentInvalid.set(invalidId)
+                }
                 NestedMutableSnapshot(
                     newId,
-                    invalid,
+                    currentInvalid,
                     mergedReadObserver(readObserver, this.readObserver),
                     mergedWriteObserver(writeObserver, this.writeObserver),
                     this
