@@ -7,14 +7,19 @@ on:
 jobs:
   run_integration_tests:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        java-version: [ 11.0.3, 11 ]
+        distro: [ 'zulu' ]
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Run integration tests on FTL
     steps:
-      - name: Set up JDK 11
+      - name: Set up JDK ${{ matrix.java-version }}
         uses: actions/setup-java@v2
         with:
-          java-version: '11'
-          distribution: 'adopt'
+          java-version: ${{ matrix.java-version }}
+          distribution: 'zulu'
       - name: "set output directory"
         run: echo "::set-output name=output-dir::$(readlink -f .)/outputs"
         id: dirs
