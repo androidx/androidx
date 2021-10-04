@@ -150,6 +150,7 @@ rxjava2 = { module = "io.reactivex.rxjava2:rxjava", version = "2.2.9" }
 rxjava3 = { module = "io.reactivex.rxjava3:rxjava", version = "3.0.0" }
 shadow = { module = "com.github.jengelman.gradle.plugins:shadow", version = "6.1.0" }
 skiko = { module = "org.jetbrains.skiko:skiko-jvm", version.ref = "skiko" }
+skikoCommon = { module = "org.jetbrains.skiko:skiko", version.ref = "skiko" }
 skikoMacOsArm64 = { module = "org.jetbrains.skiko:skiko-jvm-runtime-macos-arm64", version.ref = "skiko" }
 skikoMacOsX64 = { module = "org.jetbrains.skiko:skiko-jvm-runtime-macos-x64", version.ref = "skiko" }
 skikoWindowsX64 = { module = "org.jetbrains.skiko:skiko-jvm-runtime-windows-x64", version.ref = "skiko" }
