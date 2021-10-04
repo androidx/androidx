@@ -65,3 +65,44 @@ public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
         }
     )
 }
+
+/**
+ * Returns a property delegate to access a [ViewModel] scoped to a navigation graph present on the
+ * {@link NavController} back stack:
+ * ```
+ * class MyFragment : Fragment() {
+ *     val viewModel: MainViewModel by navGraphViewModels("main")
+ * }
+ * ```
+ *
+ * Custom [ViewModelProvider.Factory] can be defined via [factoryProducer] parameter,
+ * factory returned by it will be used to create [ViewModel]:
+ * ```
+ * class MyFragment : Fragment() {
+ *     val viewModel: MainViewModel by navGraphViewModels("main") { myFactory }
+ * }
+ * ```
+ *
+ * This property can be accessed only after this NavGraph is on the NavController back stack,
+ * and an attempt access prior to that will result in an IllegalArgumentException.
+ *
+ * @param navGraphRoute route of a NavGraph that exists on the [NavController] back stack
+ */
+@MainThread
+public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
+    navGraphRoute: String,
+    noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
+): Lazy<VM> {
+    val backStackEntry by lazy {
+        findNavController().getBackStackEntry(navGraphRoute)
+    }
+    val storeProducer: () -> ViewModelStore = {
+        backStackEntry.viewModelStore
+    }
+    return createViewModelLazy(
+        VM::class, storeProducer,
+        {
+            factoryProducer?.invoke() ?: backStackEntry.defaultViewModelProviderFactory
+        }
+    )
+}

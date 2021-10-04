@@ -3,6 +3,8 @@ DocumentExceptions: androidx.navigation.fragment.FragmentNavArgsLazyKt#navArgs(a
     Method FragmentNavArgsLazyKt.navArgs appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 
 
+MissingNullability: androidx.navigation.NavGraphViewModelLazyKt#navGraphViewModels(androidx.fragment.app.Fragment, String, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>):
+    Missing nullability on method `navGraphViewModels` return
 MissingNullability: androidx.navigation.NavGraphViewModelLazyKt#navGraphViewModels(androidx.fragment.app.Fragment, int, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>):
     Missing nullability on method `navGraphViewModels` return
 MissingNullability: androidx.navigation.fragment.FragmentNavArgsLazyKt#navArgs(androidx.fragment.app.Fragment):
