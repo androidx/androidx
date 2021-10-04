@@ -69,8 +69,8 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean containsKey(@Nullable Object value) {
-        return super.containsKey((K) value);
+    public boolean containsKey(@Nullable Object key) {
+        return super.containsKey((K) key);
     }
 
     @Override
