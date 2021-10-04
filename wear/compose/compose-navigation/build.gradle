@@ -30,11 +30,11 @@ dependencies {
 
     api(project(":compose:ui:ui"))
     api(project(":compose:runtime:runtime"))
-    api(project(":navigation:navigation-runtime"))
+    api("androidx.navigation:navigation-runtime:2.4.0-alpha10")
     api(project(":wear:compose:compose-material"))
 
     implementation(libs.kotlinStdlib)
-    implementation(project(":navigation:navigation-compose"))
+    implementation("androidx.navigation:navigation-compose:2.4.0-alpha10")
 
     androidTestImplementation project(path: ':compose:ui:ui-test')
     androidTestImplementation project(path: ':compose:ui:ui-test-junit4')
