@@ -29,6 +29,7 @@ dependencies {
     api("androidx.activity:activity-ktx:1.2.3")
     api("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
     api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
+    api("androidx.annotation:annotation-experimental:1.1.0")
 
     api(libs.kotlinStdlib)
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
@@ -62,14 +63,14 @@ androidx {
     description = "Android Navigation-Runtime"
 }
 
-// needed only while https://youtrack.jetbrains.com/issue/KT-47000 isn't resolved which is
-// targeted to 1.6
-if (project.hasProperty("androidx.useMaxDepVersions")){
-    tasks.withType(KotlinCompile).configureEach {
-        kotlinOptions {
-            freeCompilerArgs += [
-                    "-Xjvm-default=enable",
-            ]
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        // Allow usage of Kotlin's @OptIn.
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+        // needed only while https://youtrack.jetbrains.com/issue/KT-47000 isn't resolved which is
+        // targeted to 1.6
+        if (project.hasProperty("androidx.useMaxDepVersions")) {
+            freeCompilerArgs += ["-Xjvm-default=enable"]
         }
     }
 }
