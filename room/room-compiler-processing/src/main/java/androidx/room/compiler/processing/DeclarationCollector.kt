@@ -24,21 +24,23 @@ internal fun collectFieldsIncludingPrivateSupers(
 ): Sequence<XFieldElement> {
     return sequence {
         val existingFieldNames = mutableSetOf<String>()
-
-        // yield all fields declared directly on this type
-        xTypeElement.getDeclaredFields().forEach {
-            if (existingFieldNames.add(it.name)) {
-                yield(it)
-            }
-        }
-        // yield all fields on the parents
-        xTypeElement.superType?.typeElement?.let { parent ->
-            parent.getAllFieldsIncludingPrivateSupers().forEach {
+        suspend fun SequenceScope<XFieldElement>.yieldAllFields(type: XTypeElement) {
+            // yield all fields declared directly on this type
+            type.getDeclaredFields().forEach {
                 if (existingFieldNames.add(it.name)) {
-                    yield(it.copyTo(xTypeElement))
+                    if (type == xTypeElement) {
+                        yield(it)
+                    } else {
+                        yield(it.copyTo(xTypeElement))
+                    }
                 }
             }
+            // visit all declared fields on super types
+            type.superType?.typeElement?.let { parent ->
+                yieldAllFields(parent)
+            }
         }
+        yieldAllFields(xTypeElement)
     }
 }
 
@@ -51,15 +53,14 @@ internal fun collectAllMethods(
     return sequence {
         // group methods by name for faster override checks
         val methodsByName = mutableMapOf<String, LinkedHashSet<XMethodElement>>()
-        val visitedTypes = mutableSetOf<XTypeElement>()
+        val visitedInterfaces = mutableSetOf<XTypeElement>()
         fun collectAllMethodsByName(type: XTypeElement) {
-            if (!visitedTypes.add(type)) {
-                // Just return if we've already visited the methods in this type.
-                return
-            }
             // First, visit all super interface methods.
             type.getSuperInterfaceElements().forEach {
-                collectAllMethodsByName(it)
+                // Skip if we've already visited the methods in this interface.
+                if (visitedInterfaces.add(it)) {
+                    collectAllMethodsByName(it)
+                }
             }
             // Next, visit all super class methods.
             type.superType?.typeElement?.let {
@@ -96,8 +97,8 @@ internal fun collectAllMethods(
                     methods.subList(i + 1, methods.size).forEach { methodTwo ->
                         if (methodTwo.overrides(methodOne, xTypeElement)) {
                             overridden.add(methodOne)
-                            // Once we've added methodI, we can break out of this inner loop since
-                            // additional checks would only try to add methodI again.
+                            // Once we've added methodOne, we can break out of this inner loop since
+                            // additional checks would only try to add methodOne again.
                             return@forEachIndexed
                         }
                     }
