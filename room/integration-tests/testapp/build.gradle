@@ -68,6 +68,18 @@ android {
                 }
             }
         }
+        withNullAwareTypeConverter {
+            dimension "processorConfiguration"
+            javaCompileOptions {
+                annotationProcessorOptions {
+                    arguments = [
+                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
+                            "room.expandProjection"  : "false",
+                            "room.useNullAwareTypeAnalysis": "true"
+                    ]
+                }
+            }
+        }
     }
 }
 

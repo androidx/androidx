@@ -41,6 +41,15 @@ class Context private constructor(
     val checker: Checks = Checks(logger)
     val COMMON_TYPES = CommonTypes(processingEnv)
 
+    /**
+     * Checks whether we should use the TypeConverter store that has a specific heuristic for
+     * nullability. Defaults to true in KSP, false in javac.
+     */
+    val useNullAwareConverter: Boolean by lazy {
+        BooleanProcessorOptions.USE_NULL_AWARE_CONVERTER.getInputValue(processingEnv)
+            ?: (processingEnv.backend == XProcessingEnv.Backend.KSP)
+    }
+
     val typeAdapterStore by lazy {
         if (inheritedAdapterStore != null) {
             TypeAdapterStore.copy(this, inheritedAdapterStore)
@@ -207,19 +216,21 @@ class Context private constructor(
 
     enum class BooleanProcessorOptions(val argName: String, private val defaultValue: Boolean) {
         INCREMENTAL("room.incremental", defaultValue = true),
-        EXPAND_PROJECTION("room.expandProjection", defaultValue = false);
+        EXPAND_PROJECTION("room.expandProjection", defaultValue = false),
+        USE_NULL_AWARE_CONVERTER("room.useNullAwareTypeAnalysis", defaultValue = false);
 
         /**
          * Returns the value of this option passed through the [XProcessingEnv]. If the value
          * is null or blank, it returns the default value instead.
          */
         fun getValue(processingEnv: XProcessingEnv): Boolean {
-            val value = processingEnv.options[argName]
-            return if (value.isNullOrBlank()) {
-                defaultValue
-            } else {
-                value.toBoolean()
-            }
+            return getInputValue(processingEnv) ?: defaultValue
+        }
+
+        fun getInputValue(processingEnv: XProcessingEnv): Boolean? {
+            return processingEnv.options[argName]?.takeIf {
+                it.isNotBlank()
+            }?.toBoolean()
         }
     }
 }
