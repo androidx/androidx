@@ -39,10 +39,16 @@ internal fun BroadcastReceiver.goAsync(
 
     coroutineScope.launch {
         try {
-            block()
+            try {
+                block()
+            } finally {
+                // Nothing can be in the `finally` block after this, as this throws a
+                // `CancellationException`
+                coroutineScope.cancel()
+            }
         } finally {
+            // This must be the last call, as the process may be killed after calling this.
             pendingResult.finish()
-            coroutineScope.cancel()
         }
     }
 }
