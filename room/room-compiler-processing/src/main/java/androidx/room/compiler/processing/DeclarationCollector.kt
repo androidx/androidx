@@ -17,119 +17,29 @@
 package androidx.room.compiler.processing
 
 /**
- * Helper method to collect declarations from a type element and its parents.
- *
- * To be able to benefit from multi level caching (e.g. each type element caching its important
- * fields / declarations), parents are not visited recursively. Instead, callers are expected to
- * call the right methods when traversing immediate parents / interfaces.
- */
-private fun <T> collectDeclarations(
-    /**
-     * The root element
-     */
-    target: XTypeElement,
-    /**
-     * Elements that will be added without verification. These are usually inherited from the
-     * root element.
-     */
-    initialList: List<T>,
-    /**
-     * Returns a list of possible elements that can be included in the final list.
-     * The receiver is either a super class or interface.
-     */
-    getCandidateDeclarations: XTypeElement.() -> Sequence<T>,
-    /**
-     * Returns a partitan key for each element to optimize override checks etc.
-     */
-    getPartitionKey: T.() -> String,
-    /**
-     * Returns true if this item should be added to the list, false otherwise.
-     */
-    isAcceptable: (candidate: T, existing: List<T>) -> Boolean,
-    /**
-     * Copies the element to the root element
-     */
-    copyToTarget: (T) -> T,
-    /**
-     * If true, parent class will be visited.
-     */
-    visitParent: Boolean,
-    /**
-     * If true, parent interfaces will be visited.
-     */
-    visitInterfaces: Boolean
-): Sequence<T> {
-    val parents = sequence {
-        if (visitParent) {
-            target.superType?.typeElement?.let {
-                yield(it)
-            }
-        }
-        if (visitInterfaces) {
-            yieldAll(target.getSuperInterfaceElements())
-        }
-    }
-    return sequence {
-        // group members by name for faster override checks
-        val selectionByName = mutableMapOf<String, MutableList<T>>()
-        suspend fun SequenceScope<T>.addToSelection(item: T) {
-            val key = getPartitionKey(item)
-            selectionByName.getOrPut(key) {
-                mutableListOf()
-            }.add(item)
-            yield(item)
-        }
-
-        suspend fun SequenceScope<T>.maybeAddToSelection(candidate: T) {
-            val partitionKey = candidate.getPartitionKey()
-            val existing = selectionByName[partitionKey] ?: emptyList()
-            if (isAcceptable(candidate, existing)) {
-                addToSelection(copyToTarget(candidate))
-            }
-        }
-
-        // yield everything in the root list
-        initialList.forEach {
-            addToSelection(it)
-        }
-        // now start yielding it from parents
-        parents.flatMap { it.getCandidateDeclarations() }.forEach {
-            maybeAddToSelection(copyToTarget(it))
-        }
-    }
-}
-
-private fun XTypeElement.canAccessSuperMethod(other: XMethodElement): Boolean {
-    if (other.isPublic() || other.isProtected()) {
-        return true
-    }
-    if (other.isPrivate()) {
-        return false
-    }
-    // check package
-    return packageName == other.enclosingElement.className.packageName()
-}
-
-/**
  * see [XTypeElement.getAllFieldsIncludingPrivateSupers]
  */
 internal fun collectFieldsIncludingPrivateSupers(
     xTypeElement: XTypeElement
 ): Sequence<XFieldElement> {
-    return collectDeclarations(
-        target = xTypeElement,
-        visitParent = true,
-        visitInterfaces = false,
-        getPartitionKey = XFieldElement::name,
-        initialList = xTypeElement.getDeclaredFields(),
-        copyToTarget = {
-            it.copyTo(xTypeElement)
-        },
-        isAcceptable = { _, existing ->
-            existing.isEmpty()
-        },
-        getCandidateDeclarations = XTypeElement::getAllFieldsIncludingPrivateSupers
-    )
+    return sequence {
+        val existingFieldNames = mutableSetOf<String>()
+
+        // yield all fields declared directly on this type
+        xTypeElement.getDeclaredFields().forEach {
+            if (existingFieldNames.add(it.name)) {
+                yield(it)
+            }
+        }
+        // yield all fields on the parents
+        xTypeElement.superType?.typeElement?.let { parent ->
+            parent.getAllFieldsIncludingPrivateSupers().forEach {
+                if (existingFieldNames.add(it.name)) {
+                    yield(it.copyTo(xTypeElement))
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -138,35 +48,77 @@ internal fun collectFieldsIncludingPrivateSupers(
 internal fun collectAllMethods(
     xTypeElement: XTypeElement
 ): Sequence<XMethodElement> {
-    return collectDeclarations(
-        target = xTypeElement,
-        visitParent = true,
-        visitInterfaces = true,
-        getPartitionKey = XMethodElement::name,
-        initialList = xTypeElement.getDeclaredMethods(),
-        copyToTarget = {
-            it.copyTo(xTypeElement)
-        },
-        isAcceptable = { candidate, existing ->
-            when {
-                // my method, accept all
-                candidate.enclosingElement == xTypeElement -> true
-                // cannot access, reject
-                !xTypeElement.canAccessSuperMethod(candidate) -> false
-                // static in an interface
-                candidate.isStatic() &&
-                    (candidate.enclosingElement as? XTypeElement)?.isInterface() == true ->
-                    false
-                // accept if not overridden
-                else -> existing.none {
-                    // we might see the same method twice due to diamond inheritance so we need
-                    // check for equals in addition to overrides
-                    // note that this is OK to check because you cannot implement the same interface
-                    // twice with different type parameters (due to erasure).
-                    it == candidate || it.overrides(candidate, xTypeElement)
-                }
+    return sequence {
+        // group methods by name for faster override checks
+        val methodsByName = mutableMapOf<String, LinkedHashSet<XMethodElement>>()
+        val visitedTypes = mutableSetOf<XTypeElement>()
+        fun collectAllMethodsByName(type: XTypeElement) {
+            if (!visitedTypes.add(type)) {
+                // Just return if we've already visited the methods in this type.
+                return
             }
-        },
-        getCandidateDeclarations = XTypeElement::getAllMethods,
-    )
+            // First, visit all super interface methods.
+            type.getSuperInterfaceElements().forEach {
+                collectAllMethodsByName(it)
+            }
+            // Next, visit all super class methods.
+            type.superType?.typeElement?.let {
+                collectAllMethodsByName(it)
+            }
+            // Finally, visit all methods declared in this type.
+            if (type == xTypeElement) {
+                type.getDeclaredMethods().forEach {
+                    methodsByName.getOrPut(it.name) { linkedSetOf() }.add(it)
+                }
+            } else {
+                type.getDeclaredMethods()
+                    .filter { it.isAccessibleFrom(type.packageName) }
+                    .filterNot { it.isStaticInterfaceMethod() }
+                    .map { it.copyTo(xTypeElement) }
+                    .forEach { methodsByName.getOrPut(it.name) { linkedSetOf() }.add(it) }
+            }
+        }
+        collectAllMethodsByName(xTypeElement)
+
+        // Yield all non-overridden methods
+        methodsByName.values.forEach { methodSet ->
+            if (methodSet.size == 1) {
+                // There's only one method with this name, so it can't be overridden
+                yield(methodSet.single())
+            } else {
+                // There are multiple methods with the same name, so we must check for overridden
+                // methods. The order of the methods should guarantee that any potentially
+                // overridden method comes first in the list, so we only need to check each method
+                // against subsequent methods.
+                val methods = methodSet.toList()
+                val overridden = mutableSetOf<XMethodElement>()
+                methods.forEachIndexed { i, methodOne ->
+                    methods.subList(i + 1, methods.size).forEach { methodTwo ->
+                        if (methodTwo.overrides(methodOne, xTypeElement)) {
+                            overridden.add(methodOne)
+                            // Once we've added methodI, we can break out of this inner loop since
+                            // additional checks would only try to add methodI again.
+                            return@forEachIndexed
+                        }
+                    }
+                }
+                methods.filterNot { overridden.contains(it) }.forEach { yield(it) }
+            }
+        }
+    }
+}
+
+private fun XMethodElement.isAccessibleFrom(packageName: String): Boolean {
+    if (isPublic() || isProtected()) {
+        return true
+    }
+    if (isPrivate()) {
+        return false
+    }
+    // check package
+    return packageName == enclosingElement.className.packageName()
+}
+
+private fun XMethodElement.isStaticInterfaceMethod(): Boolean {
+    return isStatic() && (enclosingElement as? XTypeElement)?.isInterface() == true
 }

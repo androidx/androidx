@@ -103,7 +103,8 @@ internal class JavacMethodElement(
     override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
         check(other is JavacMethodElement)
         check(owner is JavacTypeElement)
-        return env.elementUtils.overrides(element, other.element, owner.element)
+        // Use auto-common's overrides, which provides consistency across javac and ejc (Eclipse).
+        return MoreElements.overrides(element, other.element, owner.element, env.typeUtils)
     }
 
     override fun copyTo(newContainer: XTypeElement): XMethodElement {

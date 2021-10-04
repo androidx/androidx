@@ -1033,11 +1033,11 @@ class XExecutableElementTest {
             ).isEqualTo(
                 """
                 getAndReturnKey(java.lang.Integer):java.lang.Integer
-                getAndReturnKeyOverridden(int):java.lang.Integer
                 getAndReturnKeyOverridden(java.lang.Integer):java.lang.Integer
+                getAndReturnKeyOverridden(int):java.lang.Integer
                 getKey(java.lang.Integer):void
-                getKeyOverridden(int):void
                 getKeyOverridden(java.lang.Integer):void
+                getKeyOverridden(int):void
                 returnKey():java.lang.Integer
                 returnKeyOverridden():java.lang.Integer
                 """.trimIndent()
