@@ -57,6 +57,17 @@
     </issue>
 
     <issue
+        id="WrongThread"
+        message="Method addTapListener must be called from the UI thread, currently inferred thread is worker thread"
+        errorLine1="        complicationSlotsManager.addTapListener("
+        errorLine2="        ^">
+        <location
+            file="src/test/java/androidx/wear/watchface/TestCommon.kt"
+            line="91"
+            column="9"/>
+    </issue>
+
+    <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 30; however, the containing class androidx.wear.watchface.WatchFaceImpl is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            renderer.surfaceHolder.surface.setFrameRate("

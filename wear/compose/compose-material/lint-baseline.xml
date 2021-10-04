@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
 
     <issue
         id="NewApi"
@@ -74,7 +74,7 @@
         errorLine2="             ~~~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
-            line="528"
+            line="564"
             column="14"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="             ~~~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
-            line="549"
+            line="585"
             column="14"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="             ~~~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
-            line="724"
+            line="757"
             column="14"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="             ~~~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
-            line="799"
+            line="832"
             column="14"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="         ~~~~~~~~~~~~~~">
         <location
             file="src/androidAndroidTest/kotlin/androidx/wear/compose/material/ChipTest.kt"
-            line="888"
+            line="983"
             column="10"/>
     </issue>
 
