@@ -20,25 +20,21 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Looper.getMainLooper
-import android.util.Log
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows.shadowOf
+import java.io.FileInputStream
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
-@RunWith(RobolectricTestRunner::class)
 class CoroutineBroadcastReceiverTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -55,12 +51,10 @@ class CoroutineBroadcastReceiverTest {
                     try {
                         awaitCancellation()
                     } catch (ex: CancellationException) {
-                        Log.i("CoroutineBRTest", "Scope cancelled")
                         scopeCancelled.countDown()
                         throw ex
                     }
                 }
-                Log.i("CoroutineBRTest", "Broadcast executed")
                 broadcastExecuted.countDown()
             }
         }
@@ -68,7 +62,6 @@ class CoroutineBroadcastReceiverTest {
 
     @MediumTest
     @Test
-    @FlakyTest
     fun onReceive() {
         val broadcastReceiver = TestBroadcast()
         context.registerReceiver(
@@ -77,8 +70,12 @@ class CoroutineBroadcastReceiverTest {
         )
 
         val value = "value"
-        context.sendBroadcast(Intent(BROADCAST_ACTION).putExtra(EXTRA_STRING, value))
-        shadowOf(getMainLooper()).idle()
+        context.sendBroadcast(
+            Intent(BROADCAST_ACTION)
+                .putExtra(EXTRA_STRING, value)
+                .addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+        )
+        waitForBroadcastIdle()
 
         assertWithMessage("Broadcast receiver did not execute")
             .that(broadcastReceiver.broadcastExecuted.await(5, TimeUnit.SECONDS))
@@ -87,6 +84,15 @@ class CoroutineBroadcastReceiverTest {
             .that(broadcastReceiver.scopeCancelled.await(5, TimeUnit.SECONDS))
             .isTrue()
         assertThat(broadcastReceiver.extraValue.get()).isEqualTo(value)
+    }
+
+    private fun waitForBroadcastIdle() {
+        val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        val outputFd = uiAutomation.executeShellCommand("am wait-for-broadcast-idle")
+        val output = FileInputStream(outputFd.fileDescriptor).use { it.readBytes() }
+
+        assertThat(String(output, StandardCharsets.US_ASCII))
+            .contains("All broadcast queues are idle!")
     }
 
     private companion object {
