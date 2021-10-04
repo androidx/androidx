@@ -33,8 +33,17 @@ public class PackageIdentifier {
     /**
      * Creates a unique identifier for a package.
      *
+     * <p>SHA-256 certificate digests for a signed application can be retrieved with the
+     * <a href="{@docRoot}studio/command-line/apksigner/">apksigner tool</a> that is part of the
+     * Android SDK build tools. Use {@code apksigner verify --print-certs path/to/apk.apk} to
+     * retrieve the SHA-256 certificate digest for the target application. Once retrieved, the
+     * SHA-256 certificate digest should be converted to a {@code byte[]} by decoding it in base16:
+     * <pre>
+     * new android.content.pm.Signature(outputDigest).toByteArray();
+     * </pre>
+     *
      * @param packageName Name of the package.
-     * @param sha256Certificate SHA256 certificate digest of the package.
+     * @param sha256Certificate SHA-256 certificate digest of the package.
      */
     public PackageIdentifier(@NonNull String packageName, @NonNull byte[] sha256Certificate) {
         mBundle = new Bundle();
