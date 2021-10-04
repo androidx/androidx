@@ -61,5 +61,11 @@ private fun PreparedStatement.tryGetAffinity(columnIndex: Int): SQLTypeAffinity 
 
 internal fun PreparedStatement.columnInfo(): List<ColumnInfo> {
     // see: http://sqlite.1065341.n5.nabble.com/Column-order-in-resultset-td23127.html
-    return map { index, data -> ColumnInfo(data.getColumnName(index), tryGetAffinity(index)) }
+    return map { index, data ->
+        ColumnInfo(
+            name = data.getColumnName(index),
+            type = tryGetAffinity(index),
+            originTable = data.getTableName(index)?.ifEmpty { null }
+        )
+    }
 }
