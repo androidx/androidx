@@ -17,6 +17,8 @@
 package androidx.graphics.opengl.egl
 
 import android.opengl.EGL14
+import android.opengl.EGLConfig
+import android.opengl.EGLContext
 
 /**
  * Interface for accessing various EGL facilities independent of EGL versions.
@@ -39,10 +41,43 @@ interface EglSpec {
      */
     fun initialize(): EglVersion
 
+    /**
+     * Load a corresponding EGLConfig from the provided [EglConfigAttributes]
+     * If the EGLConfig could not be loaded, null is returned
+     * @param configAttributes Desired [EglConfigAttributes] to create an [EGLConfig]
+     *
+     * @return the [EGLConfig] with the provided [EglConfigAttributes] or null if
+     * an [EGLConfig] could not be created with the specified attributes
+     */
+    fun loadConfig(configAttributes: EglConfigAttributes): EGLConfig?
+
+    /**
+     * Create an EGLContext with the default display. If createContext fails to create a
+     * rendering context, EGL_NO_CONTEXT is returned
+     *
+     * @param config [EGLConfig] used to create the [EGLContext]
+     */
+    fun createContext(config: EGLConfig): EGLContext?
+
+    /**
+     * Destroy the given EGLContext generated in [createContext]
+     */
+    fun destroyContext(eglContext: EGLContext)
+
     companion object {
 
         @JvmField
         val Egl14 = object : EglSpec {
+
+            // Tuples of attribute identifiers along with their corresponding values.
+            // EGL_NONE is used as a termination value similar to a null terminated string
+            private val contextAttributes = intArrayOf(
+                EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, // GLES VERSION 2
+                // HWUI provides the ability to configure a context priority as well but that only
+                // seems to be configured on SystemUIApplication. This might be useful for
+                // front buffer rendering situations for performance.
+                EGL14.EGL_NONE
+            )
 
             override fun initialize(): EglVersion {
                 // eglInitialize is destructive so create 2 separate arrays to store the major and
@@ -60,6 +95,40 @@ interface EglSpec {
 
             override fun eglQueryString(nameId: Int): String =
                 EGL14.eglQueryString(getDefaultDisplay(), nameId)
+
+            override fun loadConfig(configAttributes: EglConfigAttributes): EGLConfig? {
+                val configs = arrayOfNulls<EGLConfig?>(1)
+                return if (EGL14.eglChooseConfig(
+                    getDefaultDisplay(),
+                    configAttributes.attrs,
+                    0,
+                    configs,
+                    0,
+                    1,
+                    intArrayOf(1),
+                    0
+                )) {
+                    configs[0]
+                } else {
+                    null
+                }
+            }
+
+            override fun createContext(config: EGLConfig): EGLContext {
+                return EGL14.eglCreateContext(
+                    getDefaultDisplay(),
+                    config,
+                    EGL14.EGL_NO_CONTEXT, // not creating from a shared context
+                    contextAttributes,
+                    0
+                )
+            }
+
+            override fun destroyContext(eglContext: EGLContext) {
+                if (!EGL14.eglDestroyContext(getDefaultDisplay(), eglContext)) {
+                    throw EglException(EGL14.eglGetError(), "Unable to destroy EGLContext")
+                }
+            }
 
             private fun getDefaultDisplay() = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
         }
