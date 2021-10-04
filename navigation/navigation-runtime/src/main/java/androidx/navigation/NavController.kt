@@ -337,7 +337,7 @@ public open class NavController(
                 if (entry.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
                     entry.maxLifecycle = Lifecycle.State.DESTROYED
                 }
-                if (!savedState) {
+                if (backQueue.none { it.id == entry.id } && !savedState) {
                     viewModel?.clear(entry.id)
                 }
                 updateBackStackLifecycle()
@@ -1662,9 +1662,13 @@ public open class NavController(
             if (navOptions?.shouldLaunchSingleTop() == true &&
                 node.id == currentBackStackEntry?.destination?.id
             ) {
-                backQueue.removeLast()
+                unlinkChildFromParent(backQueue.removeLast())
                 val newEntry = NavBackStackEntry(currentBackStackEntry, finalArgs)
                 backQueue.addLast(newEntry)
+                val parent = newEntry.destination.parent
+                if (parent != null) {
+                    linkChildToParent(newEntry, getBackStackEntry(parent.id))
+                }
                 navigator.onLaunchSingleTop(newEntry)
                 launchSingleTop = true
             } else {

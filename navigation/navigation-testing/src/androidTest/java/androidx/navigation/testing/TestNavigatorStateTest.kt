@@ -154,6 +154,7 @@ class TestNavigatorStateTest {
         val firstEntry = state.createBackStackEntry(navigator.createDestination(), null)
 
         navigator.navigate(listOf(firstEntry), null, null)
+        state.markTransitionComplete(firstEntry)
 
         val secondEntry = state.createBackStackEntry(navigator.createDestination(), null)
         navigator.navigate(listOf(secondEntry), null, null)
@@ -165,6 +166,8 @@ class TestNavigatorStateTest {
         navigator.popBackStack(secondEntry, true)
         assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
         assertThat(state.transitionsInProgress.value.contains(secondEntry)).isTrue()
+        state.markTransitionComplete(firstEntry)
+        state.markTransitionComplete(secondEntry)
         val restoredSecondEntry = state.restoreBackStackEntry(secondEntry)
         navigator.navigate(listOf(restoredSecondEntry), null, null)
         assertThat(
