@@ -28,15 +28,58 @@ import java.util.LinkedList
  * provided type converters.
  */
 class TypeConverterStore(
-    private val typeConverters: List<TypeConverter>
+    /**
+     * Available TypeConverters
+     */
+    private val typeConverters: List<TypeConverter>,
+    /**
+     * List of types that can be saved into db/read from without a converter.
+     */
+    private val knownColumnTypes: List<XType>
 ) {
     /**
-     * Finds a type converter that can conver one of the input valuese to one of the output values.
+     * Finds a [TypeConverter] (might be composite) that can convert the given [input] type into
+     * one of the given [columnTypes]. If [columnTypes] is not specified, targets all
+     * [knownColumnTypes].
+     */
+    fun findConverterIntoStatement(
+        input: XType,
+        columnTypes: List<XType>? = null
+    ) = findTypeConverter(
+        inputs = listOf(input),
+        outputs = columnTypes ?: knownColumnTypes
+    )
+
+    /**
+     * Finds a [TypeConverter] (might be composite) that can convert the given [columnTypes] into
+     * the [output] type. If [columnTypes] is not specified, uses all [knownColumnTypes].
+     */
+    fun findConverterFromCursor(
+        columnTypes: List<XType>? = null,
+        output: XType
+    ) = findTypeConverter(
+        inputs = columnTypes ?: knownColumnTypes,
+        outputs = listOf(output)
+    )
+
+    /**
+     * Finds a [TypeConverter] from [input] to [output].
+     */
+    fun findTypeConverter(
+        input: XType,
+        output: XType
+    ) = findTypeConverter(
+        inputs = listOf(input),
+        outputs = listOf(output)
+    )
+
+    /**
+     * Finds a type converter that can convert one of the input values to one of the output values.
      *
      * When multiple conversion paths are possible, shortest path (least amount of conversion) is
      * preferred.
      */
-    fun findTypeConverter(
+    private fun findTypeConverter(
         inputs: List<XType>,
         outputs: List<XType>
     ): TypeConverter? {
@@ -119,6 +162,7 @@ class TypeConverterStore(
             }
         }
     }
+
     /**
      * Tries to reverse the converter going through the same nodes, if possible.
      */

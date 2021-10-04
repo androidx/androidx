@@ -256,7 +256,7 @@ enum class SQLTypeAffinity {
     REAL,
     BLOB;
 
-    fun getTypeMirrors(env: XProcessingEnv): List<XType> {
+    fun getTypeMirrors(env: XProcessingEnv): List<XType>? {
         return when (this) {
             TEXT -> withBoxedAndNullableTypes(env, CommonTypeNames.STRING)
             INTEGER -> withBoxedAndNullableTypes(
@@ -265,7 +265,7 @@ enum class SQLTypeAffinity {
             )
             REAL -> withBoxedAndNullableTypes(env, TypeName.DOUBLE, TypeName.FLOAT)
             BLOB -> withBoxedAndNullableTypes(env, ArrayTypeName.of(TypeName.BYTE))
-            else -> emptyList()
+            else -> null
         }
     }
 
