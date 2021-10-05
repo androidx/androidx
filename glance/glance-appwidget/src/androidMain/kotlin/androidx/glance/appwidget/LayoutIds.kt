@@ -16,12 +16,15 @@
 
 package androidx.glance.appwidget
 
+import android.content.Context
 import android.os.Build
+import android.view.ViewGroup
 import androidx.glance.Modifier
 import androidx.glance.findModifier
 import androidx.glance.layout.Dimension
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.WidthModifier
+import androidx.glance.unit.dp
 
 /**
  * Set of ids defining a layout.
@@ -80,17 +83,19 @@ internal data class LayoutSelector(
  * the layout they can be applied on.
  */
 internal fun selectLayout(
+    translationContext: TranslationContext,
     type: LayoutSelector.Type,
     modifier: Modifier
 ): LayoutIds {
+    val context = translationContext.context
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         return selectApi31Layout(type, modifier)
     }
     val widthMod = modifier.findModifier<WidthModifier>()?.width ?: Dimension.Wrap
     val heightMod = modifier.findModifier<HeightModifier>()?.height ?: Dimension.Wrap
-    val needResize = widthMod is Dimension.Dp || heightMod is Dimension.Dp
-    val width = widthMod.toSpecSize()
-    val height = heightMod.toSpecSize()
+    val width = widthMod.resolveDimension(context).toSpecSize()
+    val height = heightMod.resolveDimension(context).toSpecSize()
+    val needResize = width == LayoutSelector.Size.Fixed || height == LayoutSelector.Size.Fixed
     return generatedLayouts[LayoutSelector(type, width, height, needResize)]
         ?: (if (!needResize) generatedLayouts[LayoutSelector(type, width, height, true)] else null)
         ?: throw IllegalArgumentException(
@@ -104,7 +109,18 @@ private fun Dimension.toSpecSize(): LayoutSelector.Size =
         is Dimension.Wrap -> LayoutSelector.Size.Wrap
         is Dimension.Expand -> LayoutSelector.Size.Expand
         is Dimension.Fill -> LayoutSelector.Size.MatchParent
+        else -> LayoutSelector.Size.Fixed
     }
+
+private fun Dimension.resolveDimension(context: Context): Dimension {
+    if (this !is Dimension.Resource) return this
+    val sizePx = context.resources.getDimension(res)
+    return when (sizePx.toInt()) {
+        ViewGroup.LayoutParams.MATCH_PARENT -> Dimension.Fill
+        ViewGroup.LayoutParams.WRAP_CONTENT -> Dimension.Wrap
+        else -> Dimension.Dp((sizePx / context.resources.displayMetrics.density).dp)
+    }
+}
 
 /**
  * For API 31, we will always select layouts marked as non-resizable, as starting Android S, we

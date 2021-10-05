@@ -125,4 +125,24 @@ class DimensionTest {
         assertThat(widthModifier.width).isSameInstanceAs(Dimension.Wrap)
         assertThat(heightModifier.height).isSameInstanceAs(Dimension.Wrap)
     }
+
+    @Test
+    fun resourceWidthModifier() {
+        val modifier = Modifier.width(123)
+
+        val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
+
+        val width = assertIs<Dimension.Resource>(widthModifier.width)
+        assertThat(width.res).isEqualTo(123)
+    }
+
+    @Test
+    fun resourceHeightModifier() {
+        val modifier = Modifier.height(123)
+
+        val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
+
+        val height = assertIs<Dimension.Resource>(heightModifier.height)
+        assertThat(height.res).isEqualTo(123)
+    }
 }

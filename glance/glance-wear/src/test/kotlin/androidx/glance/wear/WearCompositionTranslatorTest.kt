@@ -47,6 +47,7 @@ import androidx.glance.wear.layout.CurvedRow
 import androidx.glance.wear.layout.CurvedTextStyle
 import androidx.glance.wear.layout.RadialAlignment
 import androidx.glance.wear.layout.background
+import androidx.glance.wear.test.R
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.wear.tiles.ActionBuilders
 import androidx.wear.tiles.DimensionBuilders
@@ -469,6 +470,28 @@ class WearCompositionTranslatorTest {
         assertThat(innerText.modifiers!!.clickable).isNotNull()
         assertThat(innerText.modifiers!!.clickable!!.onClick)
             .isInstanceOf(ActionBuilders.LaunchAction::class.java)
+    }
+
+    @Test
+    fun setSizeFromResource() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            Column(
+                modifier = Modifier.width(R.dimen.dimension1)
+                    .height(R.dimen.dimension2)
+            ) {}
+        }
+
+        val innerColumn =
+            (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Column
+        val context = getApplicationContext<Context>()
+
+        // Row should inherit the size of the inner Row
+        assertThat((innerColumn.width as DimensionBuilders.DpProp).value).isEqualTo(
+            context.resources.getDimension(R.dimen.dimension1)
+        )
+        assertThat((innerColumn.height as DimensionBuilders.DpProp).value).isEqualTo(
+            context.resources.getDimension(R.dimen.dimension2)
+        )
     }
 
     private suspend fun runAndTranslate(

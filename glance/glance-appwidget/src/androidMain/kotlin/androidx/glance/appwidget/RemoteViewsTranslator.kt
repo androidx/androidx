@@ -125,8 +125,7 @@ private fun translateEmittableBox(
     translationContext: TranslationContext,
     element: EmittableBox
 ): RemoteViews {
-    val layoutDef =
-        selectLayout(LayoutSelector.Type.Box, element.modifier)
+    val layoutDef = selectLayout(translationContext, LayoutSelector.Type.Box, element.modifier)
     return remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->
             rv.setRelativeLayoutGravity(layoutDef.mainViewId, element.contentAlignment.toGravity())
@@ -148,8 +147,7 @@ private fun translateEmittableRow(
     translationContext: TranslationContext,
     element: EmittableRow
 ): RemoteViews {
-    val layoutDef =
-        selectLayout(LayoutSelector.Type.Row, element.modifier)
+    val layoutDef = selectLayout(translationContext, LayoutSelector.Type.Row, element.modifier)
     return remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->
             rv.setLinearLayoutGravity(
@@ -174,8 +172,7 @@ private fun translateEmittableColumn(
     translationContext: TranslationContext,
     element: EmittableColumn
 ): RemoteViews {
-    val layoutDef =
-        selectLayout(LayoutSelector.Type.Column, element.modifier)
+    val layoutDef = selectLayout(translationContext, LayoutSelector.Type.Column, element.modifier)
     return remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->
             rv.setLinearLayoutGravity(
@@ -220,7 +217,7 @@ private fun translateEmittableButton(
     element: EmittableButton
 ): RemoteViews {
     val layoutDef =
-        selectLayout(LayoutSelector.Type.Button, element.modifier)
+        selectLayout(translationContext, LayoutSelector.Type.Button, element.modifier)
     return remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->
             rv.setText(

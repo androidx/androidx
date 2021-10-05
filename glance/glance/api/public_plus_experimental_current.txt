@@ -158,9 +158,11 @@ package androidx.glance.layout {
     method public static androidx.glance.Modifier fillMaxSize(androidx.glance.Modifier);
     method public static androidx.glance.Modifier fillMaxWidth(androidx.glance.Modifier);
     method public static androidx.glance.Modifier height(androidx.glance.Modifier, float height);
+    method public static androidx.glance.Modifier height(androidx.glance.Modifier, @DimenRes int height);
     method public static androidx.glance.Modifier size(androidx.glance.Modifier, float size);
     method public static androidx.glance.Modifier size(androidx.glance.Modifier, float width, float height);
     method public static androidx.glance.Modifier width(androidx.glance.Modifier, float width);
+    method public static androidx.glance.Modifier width(androidx.glance.Modifier, @DimenRes int width);
     method public static androidx.glance.Modifier wrapContentHeight(androidx.glance.Modifier);
     method public static androidx.glance.Modifier wrapContentSize(androidx.glance.Modifier);
     method public static androidx.glance.Modifier wrapContentWidth(androidx.glance.Modifier);

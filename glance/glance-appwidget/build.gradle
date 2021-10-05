@@ -39,6 +39,7 @@ dependencies {
 
     implementation project(path: ':annotation:annotation')
     implementation project(path: ':core:core-remoteviews')
+    implementation project(path: ':core:core-ktx')
     implementation(libs.kotlinStdlib)
 
     testImplementation(project(":core:core-ktx"))
