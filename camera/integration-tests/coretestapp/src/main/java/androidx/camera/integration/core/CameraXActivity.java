@@ -37,9 +37,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.hardware.display.DisplayManager;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -57,7 +55,6 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewStub;
-import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -96,10 +93,8 @@ import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.video.ActiveRecording;
-import androidx.camera.video.FileOutputOptions;
 import androidx.camera.video.MediaStoreOutputOptions;
 import androidx.camera.video.OutputOptions;
-import androidx.camera.video.PendingRecording;
 import androidx.camera.video.QualitySelector;
 import androidx.camera.video.Recorder;
 import androidx.camera.video.RecordingStats;
@@ -378,20 +373,10 @@ public class CameraXActivity extends AppCompatActivity {
             switch (state) {
                 case IDLE:
                     createDefaultVideoFolderIfNotExist();
-                    PendingRecording pendingRecording = null;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        // For Android 10 or versions above, use MediaStoreOutputOptions for public
-                        // share media storage.
-                        pendingRecording = getVideoCapture().getOutput()
-                                .prepareRecording(this, getNewVideoOutputMediaStoreOptions());
-                    } else {
-                        // For Android 9 or versions below, use FileOutputOptions. Can still use
-                        // MediaStoreOutputOptions, but there are some known issues, b/197476455 or
-                        // b/198543058.
-                        pendingRecording = getVideoCapture().getOutput()
-                                .prepareRecording(this, getNewVideoOutputFileOptions());
-                    }
-                    mActiveRecording = pendingRecording.withAudioEnabled()
+                    // Use MediaStoreOutputOptions for public share media storage.
+                    mActiveRecording = getVideoCapture().getOutput()
+                            .prepareRecording(this, getNewVideoOutputMediaStoreOptions())
+                            .withAudioEnabled()
                             .withEventListener(ContextCompat.getMainExecutor(CameraXActivity.this),
                                     mVideoRecordEventListener)
                             .start();
@@ -495,16 +480,6 @@ public class CameraXActivity extends AppCompatActivity {
                                 getApplicationContext().getContentResolver(),
                                 uri
                         );
-                        // For OutputOptionsType is OutputOptions.OPTIONS_TYPE_MEDIA_STORE,
-                        // the Photo/Gallery apps on devices (API Level < Q) sometimes will
-                        // not show the video files saved in MediaStore, suggest to call
-                        // scanFile still to force scan the media file.
-                        // scanVideoOutputFile(new File(videoFilePath));
-                    } else if (outputOptions instanceof FileOutputOptions) {
-                        videoFilePath = ((FileOutputOptions) outputOptions)
-                                .getFile().getAbsolutePath();
-                        msg = "Saved video file: " + videoFilePath;
-                        scanVideoOutputFile(new File(videoFilePath));
                     } else {
                         throw new AssertionError("Unknown or unsupported OutputOptions type: "
                                 + outputOptions.getClass().getSimpleName());
@@ -541,34 +516,6 @@ public class CameraXActivity extends AppCompatActivity {
                 MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
                 .setContentValues(contentValues)
                 .build();
-    }
-
-    @NonNull
-    private FileOutputOptions getNewVideoOutputFileOptions() {
-        String videoFileName = "video_" + System.currentTimeMillis();
-        File videoFile = new File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES),
-                videoFileName + ".mp4");
-        Log.d(TAG, "VideoOutputFileOptions file: " + videoFile.getAbsolutePath());
-        return new FileOutputOptions.Builder(videoFile).build();
-    }
-
-    @NonNull
-    private void scanVideoOutputFile(@NonNull File videoFile) {
-        String extension = MimeTypeMap.getFileExtensionFromUrl(videoFile.getName());
-        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-        MediaScannerConnection.scanFile(this,
-                new String[] {videoFile.getAbsolutePath()},
-                new String[] {mimeType},
-                new MediaScannerConnection.OnScanCompletedListener() {
-                    @Override
-                    public void onScanCompleted(final String path, final Uri uri) {
-                        Log.d(TAG, "Video scanned into media store: " + path
-                                + ", Uri: " + uri
-                                + ", mimetype: " + mimeType
-                                + ".");
-                    }
-                });
     }
 
     private void updateRecordingStats(@NonNull RecordingStats stats) {
