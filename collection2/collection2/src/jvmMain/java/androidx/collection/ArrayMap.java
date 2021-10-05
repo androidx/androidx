@@ -26,6 +26,12 @@ import java.util.Set;
 /**
  * Memory-efficient map of keys to values with list-style random-access semantics.
  *
+ * <p><b>Note:</b></p> This is the only class in this package that is implemented in Java. It is
+ * difficult to implement this class in Kotlin without breaking runtime or compile-time
+ * compatibility due to the many implicit bridges between Kotlin's and Java's collection classes
+ * and methods. See https://youtrack.jetbrains.com/issue/KT-43543 and
+ * https://youtrack.jetbrains.com/issue/KT-43542 for why we have arrived at this decision.
+ *
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
  */
