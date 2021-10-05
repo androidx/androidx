@@ -13,8 +13,8 @@ dependencies {
     api(project(":annotation:annotation"))
     api(project(":core:core"))
 
-    implementation("androidx.emoji2:emoji2:1.0.0-beta01")
-    implementation("androidx.emoji2:emoji2-views-helper:1.0.0-beta01")
+    implementation(project(":emoji2:emoji2"))
+    implementation(project(":emoji2:emoji2-views-helper"))
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.cursoradapter:cursoradapter:1.0.0")
     api("androidx.activity:activity:1.2.4")
@@ -23,10 +23,10 @@ dependencies {
     api("androidx.drawerlayout:drawerlayout:1.0.0")
     implementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.3.1")
-    implementation("androidx.resourceinspection:resourceinspection-annotation:1.0.0-beta01")
+    implementation(project(":resourceinspection:resourceinspection-annotation"))
     api("androidx.savedstate:savedstate:1.1.0")
 
-    kapt("androidx.resourceinspection:resourceinspection-processor:1.0.0-beta01")
+    kapt(project(":resourceinspection:resourceinspection-processor"))
 
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
