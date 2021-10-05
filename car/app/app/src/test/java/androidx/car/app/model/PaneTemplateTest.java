@@ -16,6 +16,8 @@
 
 package androidx.car.app.model;
 
+import static androidx.car.app.model.Action.FLAG_PRIMARY;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -90,6 +92,28 @@ public class PaneTemplateTest {
         new PaneTemplate.Builder(new Pane.Builder().addRow(rowMeetingMaxTexts).build())
                 .setTitle("Title")
                 .build();
+    }
+
+    @Test
+    public void pane_moreThanMaxPrimaryButtons_throws() {
+        Action primaryAction = new Action.Builder().setTitle("primaryAction")
+                                       .setOnClickListener(() -> {})
+                                       .setFlags(FLAG_PRIMARY).build();
+        Row rowMeetingMaxTexts =
+                new Row.Builder().setTitle("Title").addText("text1").addText("text2").build();
+
+        Pane paneExceedsMaxPrimaryAction =
+                new Pane.Builder()
+                        .addAction(primaryAction)
+                        .addAction(primaryAction)
+                        .addRow(rowMeetingMaxTexts)
+                        .build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new PaneTemplate.Builder(paneExceedsMaxPrimaryAction)
+                              .setTitle("Title")
+                              .build());
     }
 
     @Test
