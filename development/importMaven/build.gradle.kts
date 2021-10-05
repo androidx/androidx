@@ -72,13 +72,13 @@ plugins {
 
 val metalavaBuildId: String? = findProperty("metalavaBuildId") as String?
 repositories {
+    if (metalavaBuildId != null) {
+        maven(url="https://androidx.dev/metalava/builds/${metalavaBuildId}/artifacts/repo/m2repository")
+    }
     jcenter()
     mavenCentral()
     google()
     gradlePluginPortal()
-    if (metalavaBuildId != null) {
-        maven(url="https://androidx.dev/metalava/builds/${metalavaBuildId}/artifacts/repo/m2repository")
-    }
 
     val allowBintray: String? = findProperty("allowBintray") as String?
     if (allowBintray != null) {
