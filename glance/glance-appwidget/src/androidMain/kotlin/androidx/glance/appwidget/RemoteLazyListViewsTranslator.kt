@@ -36,8 +36,7 @@ internal fun translateEmittableLazyColumn(
             lists provide a non-composable [RemoteViews].
             """.trimIndent()
         }
-    val listLayout =
-        selectLayout(listLayoutType, element.modifier)
+    val listLayout = selectLayout(translationContext, listLayoutType, element.modifier)
     return translateEmittableLazyList(
         translationContext,
         element,

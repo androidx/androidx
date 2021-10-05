@@ -38,7 +38,7 @@ internal fun translateEmittableSwitch(
         LayoutSelector.Type.SwtchBackport
     }
 
-    val layoutDef = selectLayout(layoutType, element.modifier)
+    val layoutDef = selectLayout(translationContext, layoutType, element.modifier)
     val rv = remoteViews(translationContext, layoutDef.layoutId)
     val textViewId: Int
 
