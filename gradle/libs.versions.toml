@@ -35,7 +35,7 @@ ksp = "1.5.31-1.0.0"
 ktlint = "0.42.1"
 leakcanary = "2.7"
 mockito = "2.25.0"
-skiko = "0.4.12"
+skiko = "0.4.16"
 sqldelight = "1.3.0"
 wire = "3.6.0"
 
