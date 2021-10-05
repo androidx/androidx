@@ -64,7 +64,8 @@ internal data class LayoutSelector(
         List3,
         ListItem,
         CheckBox,
-        CheckBoxBackport
+        CheckBoxBackport,
+        Button
     }
 }
 

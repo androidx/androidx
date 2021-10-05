@@ -34,8 +34,10 @@ import androidx.glance.appwidget.layout.EmittableLazyColumn
 import androidx.glance.appwidget.layout.EmittableLazyListItem
 import androidx.glance.appwidget.translators.translateEmittableCheckBox
 import androidx.glance.appwidget.translators.translateEmittableText
+import androidx.glance.appwidget.translators.setText
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
+import androidx.glance.layout.EmittableButton
 import androidx.glance.layout.EmittableColumn
 import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableText
@@ -81,6 +83,7 @@ internal fun translateChild(
 ): RemoteViews {
     return when (element) {
         is EmittableBox -> translateEmittableBox(translationContext, element)
+        is EmittableButton -> translateEmittableButton(translationContext, element)
         is EmittableRow -> translateEmittableRow(translationContext, element)
         is EmittableColumn -> translateEmittableColumn(translationContext, element)
         is EmittableText -> translateEmittableText(translationContext, element)
@@ -207,6 +210,25 @@ private fun translateEmittableAndroidRemoteViews(
         }
     }
     return element.remoteViews
+}
+
+private fun translateEmittableButton(
+    translationContext: TranslationContext,
+    element: EmittableButton
+): RemoteViews {
+    val layoutDef =
+        selectLayout(LayoutSelector.Type.Button, element.modifier)
+    return remoteViews(translationContext, layoutDef.layoutId)
+        .also { rv ->
+            rv.setText(
+                translationContext,
+                layoutDef.mainViewId,
+                element.text,
+                element.style
+            )
+            rv.setBoolean(layoutDef.mainViewId, "setEnabled", element.enabled)
+            applyModifiers(translationContext, rv, element.modifier, layoutDef)
+        }
 }
 
 // Sets the emittables as children to the view. This first remove any previously added view, the

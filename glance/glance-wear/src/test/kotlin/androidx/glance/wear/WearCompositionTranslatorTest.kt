@@ -24,6 +24,7 @@ import androidx.glance.action.clickable
 import androidx.glance.action.launchActivityAction
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
+import androidx.glance.layout.Button
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Text
@@ -436,6 +437,38 @@ class WearCompositionTranslatorTest {
         assertThat(launchAction.androidActivity!!.packageName).isEqualTo(packageName)
         assertThat(launchAction.androidActivity!!.className)
             .isEqualTo(TestActivity::class.qualifiedName)
+    }
+
+    @Test
+    fun canTranslateButton() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            val style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Italic,
+                textDecoration = TextDecoration.Underline
+            )
+            Button(
+                "Hello World",
+                onClick = launchActivityAction(TestActivity::class.java),
+                modifier = Modifier.padding(1.dp),
+                style = style
+            )
+        }
+
+        val box = assertIs<LayoutElementBuilders.Box>(content)
+        val innerText = assertIs<LayoutElementBuilders.Text>(box.contents[0])
+
+        assertThat(innerText.text!!.value).isEqualTo("Hello World")
+
+        assertThat(innerText.fontStyle!!.size!!.value).isEqualTo(16f)
+        assertThat(innerText.fontStyle!!.italic!!.value).isTrue()
+        assertThat(innerText.fontStyle!!.weight!!.value).isEqualTo(FONT_WEIGHT_BOLD)
+        assertThat(innerText.fontStyle!!.underline!!.value).isTrue()
+
+        assertThat(innerText.modifiers!!.clickable).isNotNull()
+        assertThat(innerText.modifiers!!.clickable!!.onClick)
+            .isInstanceOf(ActionBuilders.LaunchAction::class.java)
     }
 
     private suspend fun runAndTranslate(

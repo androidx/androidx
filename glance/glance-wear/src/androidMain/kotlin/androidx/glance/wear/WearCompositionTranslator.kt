@@ -25,11 +25,13 @@ import androidx.glance.findModifier
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Dimension
 import androidx.glance.layout.EmittableBox
+import androidx.glance.layout.EmittableButton
 import androidx.glance.layout.EmittableColumn
 import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableText
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
+import androidx.glance.layout.toEmittableText
 import androidx.glance.layout.WidthModifier
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
@@ -398,6 +400,7 @@ internal fun translateComposition(
         is EmittableText -> translateEmittableText(context, element)
         is EmittableCurvedRow -> translateEmittableCurvedRow(context, element)
         is EmittableAndroidLayoutElement -> translateEmittableAndroidLayoutElement(element)
+        is EmittableButton -> translateEmittableText(context, element.toEmittableText())
         else -> throw IllegalArgumentException("Unknown element $element")
     }
 }
