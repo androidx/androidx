@@ -16,12 +16,16 @@
 
 package androidx.car.app.model;
 
+import static androidx.car.app.model.Action.FLAG_PRIMARY;
+
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action.ActionType;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
@@ -119,6 +123,8 @@ public final class ActionStrip {
          *
          * <p>Background colors are not supported on an action inside an {@link ActionStrip}.
          *
+         * <p>Primary actions are not supported.
+         *
          * <p>Spans are not supported in the title of the action and will be ignored.
          *
          * @throws IllegalArgumentException if the background color of the action is specified,
@@ -128,12 +134,17 @@ public final class ActionStrip {
          * @throws NullPointerException     if {@code action} is {@code null}
          */
         @NonNull
+        @OptIn(markerClass = ExperimentalCarApi.class)
         public Builder addAction(@NonNull Action action) {
             Action actionObj = requireNonNull(action);
             int actionType = actionObj.getType();
             if (actionType != Action.TYPE_CUSTOM && mAddedActionTypes.contains(actionType)) {
                 throw new IllegalArgumentException(
                         "Duplicated action types are disallowed: " + action);
+            }
+            if ((action.getFlags() & FLAG_PRIMARY) != 0) {
+                throw new IllegalArgumentException(
+                        "Primary actions are disallowed: " + action);
             }
             if (!CarColor.DEFAULT.equals(actionObj.getBackgroundColor())) {
                 throw new IllegalArgumentException(
