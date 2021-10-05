@@ -31,7 +31,7 @@
         <activity
             android:name="androidx.wear.widget.DismissibleFrameLayoutTestActivity"
             android:exported="false"
-            android:theme="@style/AppThemeNoSwipe">
+            android:theme="@android:style/Theme.DeviceDefault.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

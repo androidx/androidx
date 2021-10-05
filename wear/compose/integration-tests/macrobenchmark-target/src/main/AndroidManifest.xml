@@ -48,7 +48,7 @@
 
         <activity
             android:name=".SwipeActivity"
-            android:theme="@style/AppThemeNoSwipe"
+            android:theme="@style/AppTheme"
             android:exported="true">
             <intent-filter>
                 <action android:name=
@@ -59,7 +59,7 @@
 
         <activity
             android:name=".ScrollActivity"
-            android:theme="@style/AppThemeNoSwipe"
+            android:theme="@style/AppTheme"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

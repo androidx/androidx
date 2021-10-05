@@ -1,6 +1,4 @@
 <resources>
     <string name="app_name">Wear Compose Integration Macrobenchmark Target</string>
-    <style name="AppThemeNoSwipe" parent="@android:style/Theme.DeviceDefault">
-        <item name="android:windowSwipeToDismiss">false</item>
-    </style>
+    <style name="AppTheme" parent="@android:style/Theme.DeviceDefault"/>
 </resources>
