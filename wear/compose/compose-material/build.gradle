@@ -103,6 +103,9 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
         }
     }
+    dependencies {
+        samples(project(":wear:compose:compose-material-samples"))
+    }
 }
 
 android {
