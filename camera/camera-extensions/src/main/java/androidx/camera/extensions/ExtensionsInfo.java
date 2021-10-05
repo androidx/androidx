@@ -249,6 +249,11 @@ final class ExtensionsInfo {
     private static VendorExtender getVendorExtender(int mode) {
         boolean isAdvancedExtenderSupported = isAdvancedExtenderSupported();
 
+        // Disable Advanced Extender until it is well tested.
+        if (isAdvancedExtenderSupported) {
+            return new DisabledVendorExtender();
+        }
+
         // Force disable extension for some devices by quirk.
         if (sExtensionDisabledValidator.shouldDisableExtension(isAdvancedExtenderSupported)) {
             return new DisabledVendorExtender();
