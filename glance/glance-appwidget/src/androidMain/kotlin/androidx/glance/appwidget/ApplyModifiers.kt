@@ -33,6 +33,7 @@ import androidx.glance.Modifier
 import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LaunchActivityAction
+import androidx.glance.action.UpdateAction
 import androidx.glance.layout.Dimension
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
@@ -55,6 +56,11 @@ private fun applyAction(
                     intent,
                     PendingIntent.FLAG_MUTABLE
                 )
+            rv.setOnClickPendingIntent(viewId, pendingIntent)
+        }
+        is UpdateAction -> {
+            val pendingIntent =
+                ActionRunnableBroadcastReceiver.createPendingIntent(context, action.runnableClass)
             rv.setOnClickPendingIntent(viewId, pendingIntent)
         }
         else -> throw IllegalArgumentException("Unrecognized action type.")
