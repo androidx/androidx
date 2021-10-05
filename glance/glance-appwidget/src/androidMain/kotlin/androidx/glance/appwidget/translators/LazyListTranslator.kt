@@ -14,14 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.glance.appwidget
+package androidx.glance.appwidget.translators
 
 import android.widget.RemoteViews
 import androidx.core.widget.RemoteViewsCompat
+import androidx.glance.appwidget.GeneratedLayoutCount
+import androidx.glance.appwidget.LayoutIds
+import androidx.glance.appwidget.LayoutSelector
+import androidx.glance.appwidget.TranslationContext
+import androidx.glance.appwidget.applyModifiers
 import androidx.glance.appwidget.layout.EmittableLazyColumn
 import androidx.glance.appwidget.layout.EmittableLazyList
 import androidx.glance.appwidget.layout.EmittableLazyListItem
 import androidx.glance.appwidget.layout.ReservedItemIdRangeEnd
+import androidx.glance.appwidget.remoteViews
+import androidx.glance.appwidget.selectLayout
+import androidx.glance.appwidget.translateChild
+import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.fillMaxWidth
 
@@ -62,7 +71,7 @@ private fun translateEmittableLazyList(
                     // If the user specifies any explicit ids, we assume the list to be stable
                     previous || (itemId > ReservedItemIdRangeEnd)
                 }.let { setHasStableIds(it) }
-                // TODO(b/198618359): assign an explicit view type count
+                setViewTypeCount(GeneratedLayoutCount)
             }.build()
             RemoteViewsCompat.setRemoteAdapter(
                 translationContext.context,
@@ -78,18 +87,23 @@ private fun translateEmittableLazyList(
  * Translates a list item either to its immediate only child, or a column layout wrapping all its
  * children.
  */
+// TODO(b/202382495): Use complex generated layout instead of wrapping in an emittable box to
+// support interaction animations in immediate children, e.g. checkboxes,  pre-S
 internal fun translateEmittableLazyListItem(
     translationContext: TranslationContext,
     element: EmittableLazyListItem
-): RemoteViews =
-    translateChild(
-        translationContext,
+): RemoteViews {
+    val child = if (element.children.size == 1 && element.alignment == Alignment.CenterStart) {
+        element.children.single()
+    } else {
         EmittableBox().apply {
             modifier = modifier.fillMaxWidth()
             contentAlignment = element.alignment
             children.addAll(element.children)
         }
-    )
+    }
+    return translateChild(translationContext, child)
+}
 
 private val listLayouts: List<LayoutSelector.Type> = listOf(
     LayoutSelector.Type.List1,
