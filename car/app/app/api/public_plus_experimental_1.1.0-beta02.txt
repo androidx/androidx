@@ -224,13 +224,17 @@ package androidx.car.app.hardware {
 package androidx.car.app.hardware.common {
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class CarUnit {
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final int IMPERIAL_GALLON = 204; // 0xcc
     field public static final int KILOMETER = 3; // 0x3
     field public static final int KILOMETERS_PER_HOUR = 102; // 0x66
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final int LITER = 202; // 0xca
     field public static final int METER = 2; // 0x2
     field public static final int METERS_PER_SEC = 101; // 0x65
     field public static final int MILE = 4; // 0x4
     field public static final int MILES_PER_HOUR = 103; // 0x67
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final int MILLILITER = 201; // 0xc9
     field public static final int MILLIMETER = 1; // 0x1
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final int US_GALLON = 203; // 0xcb
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class CarValue<T> {
@@ -299,6 +303,7 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getDistanceDisplayUnit();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Boolean!> getEnergyIsLow();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getFuelPercent();
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.hardware.common.CarValue<java.lang.Integer!> getFuelVolumeDisplayUnit();
     method public androidx.car.app.hardware.common.CarValue<java.lang.Float!> getRangeRemainingMeters();
   }
 
@@ -309,6 +314,7 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setDistanceDisplayUnit(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setEnergyIsLow(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setFuelPercent(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
+    method @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.hardware.info.EnergyLevel.Builder setFuelVolumeDisplayUnit(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
     method public androidx.car.app.hardware.info.EnergyLevel.Builder setRangeRemainingMeters(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
   }
 

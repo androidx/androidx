@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 import java.lang.annotation.ElementType;
@@ -28,7 +29,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** Units such as speed and distance for car hardware measurements and display. */
+/** Units such as speed, distance and volume for car hardware measurements and display. */
 @CarProtocol
 @RequiresCarApi(3)
 public final class CarUnit {
@@ -64,6 +65,49 @@ public final class CarUnit {
     /** Miles unit. */
     @CarDistanceUnit
     public static final int MILE = 4;
+
+    /**
+     * Defines the possible volume units from car hardware.
+     *
+     * @hide
+     */
+    // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
+    @ExperimentalCarApi
+    @IntDef({
+            MILLILITER,
+            LITER,
+            US_GALLON,
+            IMPERIAL_GALLON
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @Target({ElementType.TYPE_USE})
+    @RestrictTo(LIBRARY)
+    public @interface CarVolumeUnit {
+    }
+
+    /** Milliliter unit. */
+    // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
+    @ExperimentalCarApi
+    @CarVolumeUnit
+    public static final int MILLILITER = 201;
+
+    /** Liter unit. */
+    // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
+    @ExperimentalCarApi
+    @CarVolumeUnit
+    public static final int LITER = 202;
+
+    /** US Gallon unit. */
+    // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
+    @ExperimentalCarApi
+    @CarVolumeUnit
+    public static final int US_GALLON = 203;
+
+    /** Imperial Gallon unit. */
+    // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
+    @ExperimentalCarApi
+    @CarVolumeUnit
+    public static final int IMPERIAL_GALLON = 204;
 
     /**
      * Defines the possible distance units from car hardware.
