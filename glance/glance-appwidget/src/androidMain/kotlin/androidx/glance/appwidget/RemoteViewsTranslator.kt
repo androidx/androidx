@@ -32,7 +32,9 @@ import androidx.glance.appwidget.layout.EmittableAndroidRemoteViews
 import androidx.glance.appwidget.layout.EmittableCheckBox
 import androidx.glance.appwidget.layout.EmittableLazyColumn
 import androidx.glance.appwidget.layout.EmittableLazyListItem
+import androidx.glance.appwidget.layout.EmittableSwitch
 import androidx.glance.appwidget.translators.translateEmittableCheckBox
+import androidx.glance.appwidget.translators.translateEmittableSwitch
 import androidx.glance.appwidget.translators.translateEmittableText
 import androidx.glance.appwidget.translators.setText
 import androidx.glance.layout.Alignment
@@ -93,6 +95,7 @@ internal fun translateChild(
             translateEmittableAndroidRemoteViews(translationContext, element)
         }
         is EmittableCheckBox -> translateEmittableCheckBox(translationContext, element)
+        is EmittableSwitch -> translateEmittableSwitch(translationContext, element)
         else -> throw IllegalArgumentException("Unknown element type ${element::javaClass}")
     }
 }

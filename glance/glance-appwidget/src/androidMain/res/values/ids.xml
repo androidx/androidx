@@ -23,4 +23,7 @@
     <id name="glanceListView3"/>
     <id name="relativeLayout"/>
     <id name="sizeView"/>
+    <id name="switchText"/>
+    <id name="switchTrack"/>
+    <id name="switchThumb"/>
 </resources>

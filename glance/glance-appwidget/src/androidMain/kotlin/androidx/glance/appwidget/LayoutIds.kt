@@ -65,7 +65,10 @@ internal data class LayoutSelector(
         ListItem,
         CheckBox,
         CheckBoxBackport,
-        Button
+        Button,
+        // Note: Java keywords, such as 'switch', can't be used for layout ids.
+        Swtch,
+        SwtchBackport
     }
 }
 

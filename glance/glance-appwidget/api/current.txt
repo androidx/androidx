@@ -103,11 +103,18 @@ package androidx.glance.appwidget.layout {
   @kotlin.DslMarker public @interface LazyScopeMarker {
   }
 
+  public final class SwitchKt {
+    method @androidx.compose.runtime.Composable public static void Switch(boolean checked, optional androidx.glance.Modifier modifier, optional String text, optional androidx.glance.text.TextStyle? textStyle);
+  }
+
 }
 
 package androidx.glance.appwidget.translators {
 
   public final class CheckBoxTranslatorKt {
+  }
+
+  public final class SwitchTranslatorKt {
   }
 
   public final class TextTranslatorKt {
