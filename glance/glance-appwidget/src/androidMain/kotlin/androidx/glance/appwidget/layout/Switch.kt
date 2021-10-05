@@ -24,22 +24,22 @@ import androidx.glance.Modifier
 import androidx.glance.text.TextStyle
 
 /**
- * Adds a check box view to the glance view.
+ * Adds a switch view to the glance view.
  *
- * @param checked whether the check box is checked.
- * @param modifier the modifier to apply to the check box.
- * @param text the text to display to the end of the check box.
+ * @param checked whether the switch is checked.
+ * @param modifier the modifier to apply to the switch.
+ * @param text the text to display to the end of the switch.
  * @param textStyle the style to apply to [text].
  */
 @Composable
-public fun CheckBox(
+fun Switch(
     checked: Boolean,
     modifier: Modifier = Modifier,
     text: String = "",
     textStyle: TextStyle? = null
 ) {
-    ComposeNode<EmittableCheckBox, Applier>(
-        factory = ::EmittableCheckBox,
+    ComposeNode<EmittableSwitch, Applier>(
+        factory = ::EmittableSwitch,
         update = {
             this.set(checked) { this.checked = it }
             this.set(text) { this.text = it }
@@ -49,13 +49,13 @@ public fun CheckBox(
     )
 }
 
-internal class EmittableCheckBox : Emittable {
+internal class EmittableSwitch : Emittable {
     override var modifier: Modifier = Modifier
     var checked: Boolean = false
     var text: String = ""
     var textStyle: TextStyle? = null
 
-    override fun toString(): String = "EmittableCheckBox(" +
+    override fun toString(): String = "EmittableSwitch(" +
         "$text, " +
         "checked=$checked, " +
         "textStyle=$textStyle, " +
