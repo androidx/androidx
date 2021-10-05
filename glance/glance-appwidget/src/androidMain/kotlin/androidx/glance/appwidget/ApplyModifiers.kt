@@ -23,11 +23,14 @@ import android.os.Build
 import android.util.TypedValue
 import android.view.ViewGroup
 import android.widget.RemoteViews
+import androidx.annotation.ColorInt
 import androidx.annotation.DoNotInline
 import androidx.annotation.IdRes
 import androidx.annotation.RequiresApi
 import androidx.core.widget.setTextViewHeight
 import androidx.core.widget.setTextViewWidth
+import androidx.core.widget.setViewBackgroundColor
+import androidx.glance.BackgroundModifier
 import androidx.glance.Modifier
 import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
@@ -37,7 +40,9 @@ import androidx.glance.layout.Dimension
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier
+import androidx.glance.unit.Color
 import androidx.glance.unit.dp
+import kotlin.math.roundToInt
 
 internal fun applyModifiers(
     translationContext: TranslationContext,
@@ -65,6 +70,11 @@ internal fun applyModifiers(
                 rv,
                 modifier,
                 context,
+                layoutDef
+            )
+            is BackgroundModifier -> applyBackgroundModifier(
+                rv,
+                modifier,
                 layoutDef
             )
         }
@@ -174,6 +184,27 @@ private fun applyHeightModifier(
     if (heightPx < 0) return
     checkNotNull(layoutDef.sizeViewId) { "The layout specified does not allow specifying the size" }
     rv.setTextViewHeight(layoutDef.sizeViewId, heightPx)
+}
+
+private fun applyBackgroundModifier(
+    rv: RemoteViews,
+    modifier: BackgroundModifier,
+    layoutDef: LayoutIds
+) {
+    rv.setViewBackgroundColor(layoutDef.mainViewId, modifier.color.toArgb())
+}
+
+// TODO(b/202150620): Use the shared Compose utility when we use the same Color class.
+@ColorInt
+private fun Color.toArgb(): Int {
+    // Converts a value from a float in [0,1] to an int in [0x00,0xFF].
+    fun Float.toColorComponent() = (this * 0xFF).roundToInt()
+    return android.graphics.Color.argb(
+        /* alpha= */ alpha.toColorComponent(),
+        /* red= */ red.toColorComponent(),
+        /* green= */ green.toColorComponent(),
+        /* blue= */ blue.toColorComponent()
+    )
 }
 
 @RequiresApi(Build.VERSION_CODES.S)

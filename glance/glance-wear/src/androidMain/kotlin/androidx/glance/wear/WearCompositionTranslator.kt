@@ -18,6 +18,7 @@ package androidx.glance.wear
 
 import android.content.Context
 import android.view.ViewGroup
+import androidx.glance.BackgroundModifier
 import androidx.glance.Emittable
 import androidx.glance.Modifier
 import androidx.glance.action.ActionModifier
@@ -40,7 +41,6 @@ import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.dp
 import androidx.glance.wear.layout.AnchorType
-import androidx.glance.wear.layout.BackgroundModifier
 import androidx.glance.wear.layout.CurvedTextStyle
 import androidx.glance.wear.layout.EmittableAndroidLayoutElement
 import androidx.glance.wear.layout.EmittableCurvedRow

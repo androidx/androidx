@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.glance.wear.layout
+package androidx.glance
 
-import androidx.glance.Modifier
+import androidx.annotation.RestrictTo
 import androidx.glance.unit.Color
 
-internal class BackgroundModifier(public val color: Color) : Modifier.Element {
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class BackgroundModifier(public val color: Color) : Modifier.Element {
     override fun toString(): String = "BackgroundModifier(color=$color)"
 }
 
