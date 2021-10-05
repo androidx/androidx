@@ -174,9 +174,13 @@ package androidx.glance.layout {
 
   public final class PaddingKt {
     method public static androidx.glance.Modifier absolutePadding(androidx.glance.Modifier, optional float left, optional float top, optional float right, optional float bottom);
+    method public static androidx.glance.Modifier absolutePadding(androidx.glance.Modifier, optional @DimenRes int left, optional @DimenRes int top, optional @DimenRes int right, optional @DimenRes int bottom);
     method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional float start, optional float top, optional float end, optional float bottom);
+    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional @DimenRes int start, optional @DimenRes int top, optional @DimenRes int end, optional @DimenRes int bottom);
     method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional float horizontal, optional float vertical);
+    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional @DimenRes int horizontal, optional @DimenRes int vertical);
     method public static androidx.glance.Modifier padding(androidx.glance.Modifier, float all);
+    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, @DimenRes int all);
   }
 
   public final class RowKt {

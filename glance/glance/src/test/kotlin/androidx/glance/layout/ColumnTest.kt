@@ -59,7 +59,7 @@ class ColumnTest {
 
         val innerColumn = assertIs<EmittableColumn>(root.children[0])
         val paddingModifier = requireNotNull(innerColumn.modifier.findModifier<PaddingModifier>())
-        assertThat(paddingModifier.top).isEqualTo(2.dp)
+        assertThat(paddingModifier.top).isEqualTo(PaddingDimension(2.dp))
         assertThat(innerColumn.horizontalAlignment).isEqualTo(Alignment.CenterHorizontally)
         assertThat(innerColumn.verticalAlignment).isEqualTo(Alignment.CenterVertically)
     }
