@@ -4,6 +4,9 @@ package androidx.benchmark.macro {
   @RequiresApi(29) public final class Api29Kt {
   }
 
+  public final class BaselineProfilesKt {
+  }
+
   public abstract sealed class CompilationMode {
   }
 
