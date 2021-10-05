@@ -163,4 +163,40 @@ public class ImageUtilTest {
             assertEquals(HEIGHT, resultRect.height());
         }
     }
+
+    @Test
+    public void computeCropRectFromDispatchInfo_dispatchBufferRotated90() {
+        assertComputeCropRectFromDispatchInfo(90, new Size(4, 6), new Rect(3, 0, 4, 1));
+    }
+
+    @Test
+    public void computeCropRectFromDispatchInfo_dispatchBufferRotated180() {
+        assertComputeCropRectFromDispatchInfo(180, new Size(6, 4), new Rect(5, 3, 6, 4));
+    }
+
+    @Test
+    public void computeCropRectFromDispatchInfo_dispatchBufferRotated270() {
+        assertComputeCropRectFromDispatchInfo(270, new Size(4, 6), new Rect(0, 5, 1, 6));
+    }
+
+    @Test
+    public void computeCropRectFromDispatchInfo_dispatchBufferRotated0() {
+        assertComputeCropRectFromDispatchInfo(0, new Size(6, 4), new Rect(0, 0, 1, 1));
+    }
+
+    private void assertComputeCropRectFromDispatchInfo(int outputDegrees, Size dispatchResolution,
+            Rect dispatchRect) {
+        // Arrange:
+        // Surface crop rect stays the same regardless of HAL rotations.
+        Rect surfaceCropRect = new Rect(0, 0, 1, 1);
+        // Exif degrees being 0 means HAL consumed the target rotation.
+        int exifRotationDegrees = 0;
+
+        // Act.
+        Rect dispatchCropRect = ImageUtil.computeCropRectFromDispatchInfo(
+                surfaceCropRect, outputDegrees, dispatchResolution, exifRotationDegrees);
+
+        // Assert.
+        assertThat(dispatchCropRect).isEqualTo(dispatchRect);
+    }
 }

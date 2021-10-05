@@ -46,6 +46,7 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.ViewPort
 import androidx.camera.core.impl.CaptureBundle
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.CaptureProcessor
@@ -1010,6 +1011,73 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val aspectRatioThreshold = 0.01
         assertThat(
             abs(resultCroppingRatio.toDouble() - targetCroppingAspectRatio.toDouble())
+        ).isLessThan(aspectRatioThreshold)
+    }
+
+    @Test
+    fun capturedImageHasCorrectCroppingSize_viewPortOverwriteCropAspectRatio() = runBlocking {
+        skipTestOnCameraPipeConfig()
+
+        val sensorOrientation = CameraUtil.getSensorOrientation(BACK_LENS_FACING)
+        val isRotateNeeded = sensorOrientation!! % 180 != 0
+
+        val useCase = ImageCapture.Builder()
+            .setTargetRotation(if (isRotateNeeded) Surface.ROTATION_90 else Surface.ROTATION_0)
+            .build()
+
+        // Sets a crop aspect ratio to the use case. This will be overwritten by the view port
+        // setting.
+        val useCaseCroppingAspectRatio = Rational(4, 3)
+        useCase.setCropAspectRatio(useCaseCroppingAspectRatio)
+
+        camera = CameraUtil.createCameraUseCaseAdapter(context, BACK_SELECTOR)
+
+        val viewPortAspectRatio = Rational(2, 1)
+        val viewPort = ViewPort.Builder(
+            viewPortAspectRatio,
+            if (isRotateNeeded) Surface.ROTATION_90 else Surface.ROTATION_0
+        ).build()
+
+        // Sets view port with different aspect ratio and then attach the use case
+        camera.setViewPort(viewPort)
+
+        withContext(Dispatchers.Main) {
+            camera.addUseCases(listOf(useCase))
+        }
+
+        val callback = FakeImageCaptureCallback(capturesCount = 1)
+
+        useCase.takePicture(mainExecutor, callback)
+
+        // Wait for the signal that the image has been captured.
+        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
+
+        // After target rotation is updated, the result cropping aspect ratio should still the
+        // same as original one.
+        val imageProperties = callback.results.first()
+        val cropRect = imageProperties.cropRect
+
+        // Rotate the captured ImageProxy's crop rect into the coordinate space of the final
+        // displayed image
+        val resultCroppingRatio: Rational = if (imageProperties.rotationDegrees % 180 != 0) {
+            Rational(cropRect!!.height(), cropRect.width())
+        } else {
+            Rational(cropRect!!.width(), cropRect.height())
+        }
+
+        if (imageProperties.format == ImageFormat.JPEG) {
+            assertThat(imageProperties.rotationDegrees).isEqualTo(
+                imageProperties.exif!!.rotation
+            )
+        }
+
+        // Compare aspect ratio with a threshold due to floating point rounding. Can't do direct
+        // comparison of height and width, because the target aspect ratio of ImageCapture will
+        // be corrected in API 21 Legacy devices and the captured image will be scaled to fit
+        // within the cropping aspect ratio.
+        val aspectRatioThreshold = 0.01
+        assertThat(
+            abs(resultCroppingRatio.toDouble() - viewPortAspectRatio.toDouble())
         ).isLessThan(aspectRatioThreshold)
     }
 

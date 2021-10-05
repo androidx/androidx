@@ -106,42 +106,6 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public void getDispatchCropRect_dispatchBufferRotated90() {
-        assertGetDispatchCropRect(90, new Size(4, 6), new Rect(3, 0, 4, 1));
-    }
-
-    @Test
-    public void getDispatchCropRect_dispatchBufferRotated180() {
-        assertGetDispatchCropRect(180, new Size(6, 4), new Rect(5, 3, 6, 4));
-    }
-
-    @Test
-    public void getDispatchCropRect_dispatchBufferRotated270() {
-        assertGetDispatchCropRect(270, new Size(4, 6), new Rect(0, 5, 1, 6));
-    }
-
-    @Test
-    public void getDispatchCropRect_dispatchBufferRotated0() {
-        assertGetDispatchCropRect(0, new Size(6, 4), new Rect(0, 0, 1, 1));
-    }
-
-    private void assertGetDispatchCropRect(int outputDegrees, Size dispatchResolution,
-            Rect dispatchRect) {
-        // Arrange:
-        // Surface crop rect stays the same regardless of HAL rotations.
-        Rect surfaceCropRect = new Rect(0, 0, 1, 1);
-        // Exif degrees being 0 means HAL consumed the target rotation.
-        int exifRotationDegrees = 0;
-
-        // Act.
-        Rect dispatchCropRect = ImageCapture.ImageCaptureRequest.getDispatchCropRect(
-                surfaceCropRect, outputDegrees, dispatchResolution, exifRotationDegrees);
-
-        // Assert.
-        assertThat(dispatchCropRect).isEqualTo(dispatchRect);
-    }
-
-    @Test
     public void onCaptureCancelled_onErrorCAMERA_CLOSED() {
         ImageCapture imageCapture = new ImageCapture.Builder().build();
 
