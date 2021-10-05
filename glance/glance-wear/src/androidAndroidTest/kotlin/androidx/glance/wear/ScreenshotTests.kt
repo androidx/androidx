@@ -28,6 +28,7 @@ import androidx.compose.runtime.Recomposer
 import androidx.core.content.ContextCompat
 import androidx.glance.Applier
 import androidx.glance.Modifier
+import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -48,7 +49,6 @@ import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.CurvedRow
 import androidx.glance.wear.layout.CurvedTextStyle
 import androidx.glance.wear.layout.RadialAlignment
-import androidx.glance.wear.layout.background
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.MSSIMMatcher

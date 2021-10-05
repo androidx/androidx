@@ -18,17 +18,24 @@ package androidx.glance.appwidget
 
 import androidx.compose.runtime.Composable
 import androidx.glance.Modifier
+import androidx.glance.background
 import androidx.glance.appwidget.layout.CheckBox
 import androidx.glance.appwidget.layout.Switch
+import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Text
 import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.height
+import androidx.glance.layout.padding
+import androidx.glance.layout.width
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.Color
+import androidx.glance.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Rule
@@ -162,6 +169,40 @@ class GlanceAppWidgetReceiverScreenshotTest {
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "textAlignment_rtl")
     }
+
+    @Test
+    fun checkBackgroundColor() {
+        TestGlanceAppWidget.uiDefinition = {
+            Column(modifier = Modifier.background(Color.White)) {
+                Text(
+                    "100x50 and cyan",
+                    modifier = Modifier.width(100.dp).height(50.dp).background(Color.Cyan)
+                )
+                Text(
+                    "Transparent background",
+                    modifier = Modifier.height(50.dp).background(Color.Transparent)
+                )
+                Text(
+                    "wrapx50 and red",
+                    modifier = Modifier.height(50.dp).background(Color.Red)
+                )
+                Text("Below this should be 4 color boxes")
+                Row(modifier = Modifier.padding(8.dp)) {
+                    val colors = listOf(Color.Black, Color.Red, Color.Green, Color.Blue)
+                    repeat(4) {
+                        Box(
+                            modifier = Modifier.width(32.dp).height(32.dp).background(colors[it])
+                        ) {}
+                        Box(modifier = Modifier.width(8.dp).height(1.dp)) {}
+                    }
+                }
+            }
+        }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "backgroundColor")
+    }
 }
 
 @Composable
@@ -208,8 +249,10 @@ private fun RowTest() {
             style = TextStyle(textAlign = TextAlign.Center),
             modifier = Modifier.defaultWeight()
         )
-        Text("End",
+        Text(
+            "End",
             style = TextStyle(textAlign = TextAlign.End),
-            modifier = Modifier.defaultWeight())
+            modifier = Modifier.defaultWeight()
+        )
     }
 }

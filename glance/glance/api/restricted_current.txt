@@ -1,6 +1,10 @@
 // Signature format: 4.0
 package androidx.glance {
 
+  public final class BackgroundKt {
+    method public static androidx.glance.Modifier background(androidx.glance.Modifier, int color);
+  }
+
   public final class CombinedModifier implements androidx.glance.Modifier {
     ctor public CombinedModifier(androidx.glance.Modifier outer, androidx.glance.Modifier inner);
     method public boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.Modifier.Element,java.lang.Boolean> predicate);

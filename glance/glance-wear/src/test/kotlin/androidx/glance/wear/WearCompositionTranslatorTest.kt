@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.glance.Modifier
+import androidx.glance.background
 import androidx.glance.action.clickable
 import androidx.glance.action.launchActivityAction
 import androidx.glance.layout.Alignment
@@ -46,7 +47,6 @@ import androidx.glance.wear.layout.AndroidLayoutElement
 import androidx.glance.wear.layout.CurvedRow
 import androidx.glance.wear.layout.CurvedTextStyle
 import androidx.glance.wear.layout.RadialAlignment
-import androidx.glance.wear.layout.background
 import androidx.glance.wear.test.R
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.wear.tiles.ActionBuilders
