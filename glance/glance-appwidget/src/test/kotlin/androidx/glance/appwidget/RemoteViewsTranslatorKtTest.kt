@@ -19,6 +19,7 @@ package androidx.glance.appwidget
 import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.text.SpannedString
 import android.text.style.StrikethroughSpan
@@ -41,6 +42,7 @@ import androidx.glance.appwidget.layout.CheckBox
 import androidx.glance.appwidget.layout.LazyColumn
 import androidx.glance.appwidget.layout.ReservedItemIdRangeEnd
 import androidx.glance.appwidget.test.R
+import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Button
@@ -51,6 +53,7 @@ import androidx.glance.layout.absolutePadding
 import androidx.glance.layout.padding
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.Color
 import androidx.glance.unit.Dp
 import androidx.glance.unit.dp
 import androidx.test.core.app.ApplicationProvider
@@ -706,6 +709,42 @@ class RemoteViewsTranslatorKtTest {
         assertThat(button.text).isEqualTo("Button")
         assertThat(button.isEnabled).isFalse()
         assertThat(button.hasOnClickListeners()).isFalse()
+    }
+
+    @Test
+    fun canTranslateBackground_red() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            Box(modifier = Modifier.background(Color.Red)) {}
+        }
+
+        val view = context.applyRemoteViews(rv)
+        val background = view.background
+        assertIs<ColorDrawable>(background)
+        assertThat(background.color).isEqualTo(android.graphics.Color.RED)
+    }
+
+    @Test
+    fun canTranslateBackground_partialColor() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            Box(modifier = Modifier.background(Color(red = 0.4f, green = 0.5f, blue = 0.6f))) {}
+        }
+
+        val view = context.applyRemoteViews(rv)
+        val background = view.background
+        assertIs<ColorDrawable>(background)
+        assertThat(background.color).isEqualTo(android.graphics.Color.argb(255, 102, 128, 153))
+    }
+
+    @Test
+    fun canTranslateBackground_transparent() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            Box(modifier = Modifier.background(Color.Transparent)) {}
+        }
+
+        val view = context.applyRemoteViews(rv)
+        val background = view.background
+        assertIs<ColorDrawable>(background)
+        assertThat(background.color).isEqualTo(android.graphics.Color.TRANSPARENT)
     }
 
     // Check there is a single span, that it's of the correct type and passes the [check].
