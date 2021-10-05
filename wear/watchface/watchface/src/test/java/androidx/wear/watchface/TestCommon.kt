@@ -28,6 +28,7 @@ import android.support.wearable.complications.ComplicationText
 import android.support.wearable.watchface.IWatchFaceService
 import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
+import android.view.Choreographer
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.watchface.complications.data.toApiComplicationData
@@ -53,7 +54,8 @@ internal class TestWatchFaceService(
     private val handler: Handler,
     private val tapListener: WatchFace.TapListener?,
     private val preAndroidR: Boolean,
-    private val directBootParams: WallpaperInteractiveWatchFaceInstanceParams?
+    private val directBootParams: WallpaperInteractiveWatchFaceInstanceParams?,
+    private val choreographer: Choreographer
 ) : WatchFaceService() {
     /** The ids of the [ComplicationSlot]s that have been tapped. */
     val tappedComplicationSlotIds: List<Int>
@@ -120,6 +122,8 @@ internal class TestWatchFaceService(
     override fun getBackgroundThreadHandlerImpl() = handler
 
     override fun getMutableWatchState() = watchState
+
+    override fun getChoreographer() = choreographer
 
     fun setIsVisible(isVisible: Boolean) {
         watchState.isVisible.value = isVisible

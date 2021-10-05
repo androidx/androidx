@@ -451,6 +451,12 @@ public class WatchFaceImpl @UiThread constructor(
         // available programmatically. The value below is the default but it could be overridden
         // by OEMs.
         internal const val INITIAL_LOW_BATTERY_THRESHOLD = 15.0f
+
+        // Number of milliseconds before the target draw time for the delayed task to run and post a
+        // choreographer frame. This is necessary when rendering at less than 60 fps to make sure we
+        // post the choreographer frame in time to for us to render in the desired frame.
+        // NOTE this value must be less than 16 or we'll render too early.
+        internal const val POST_CHOREOGRAPHER_FRAME_MILLIS_BEFORE_DEADLINE = 10
     }
 
     private val defaultRenderParametersForDrawMode: HashMap<DrawMode, RenderParameters> =
@@ -496,7 +502,7 @@ public class WatchFaceImpl @UiThread constructor(
 
     // True if 'Do Not Disturb' mode is on.
     private var muteMode = false
-    private var nextDrawTimeMillis: Long = 0
+    internal var nextDrawTimeMillis: Long = 0
 
     private val pendingUpdateTime: CancellableUniqueTask =
         CancellableUniqueTask(watchFaceHostApi.getUiThreadHandler())
@@ -555,17 +561,6 @@ public class WatchFaceImpl @UiThread constructor(
 
     private var inOnSetStyle = false
     internal var initComplete = false
-
-    private fun ambient() {
-        TraceEvent("WatchFaceImpl.ambient").use {
-            // It's not safe to draw until initComplete because the ComplicationSlotManager init
-            // may not have completed.
-            if (initComplete) {
-                onDraw()
-            }
-            scheduleDraw()
-        }
-    }
 
     private fun interruptionFilter(it: Int) {
         // We are in mute mode in any of the following modes. The specific mode depends on the
@@ -635,7 +630,14 @@ public class WatchFaceImpl @UiThread constructor(
 
         mainScope.launch {
             watchState.isAmbient.collect {
-                ambient()
+                TraceEvent("WatchFaceImpl.ambient").use {
+                    // It's not safe to draw until initComplete because the ComplicationSlotManager
+                    // init may not have completed.
+                    if (initComplete) {
+                        onDraw()
+                    }
+                    scheduleDraw()
+                }
             }
         }
 
@@ -832,14 +834,26 @@ public class WatchFaceImpl @UiThread constructor(
     /** @hide */
     @UiThread
     internal fun onDraw() {
+        val startTime = getZonedDateTime()
+        val startTimeMillis = startTime.toInstant().toEpochMilli()
         maybeUpdateDrawMode()
-        renderer.renderInternal(getZonedDateTime())
+        renderer.renderInternal(startTime)
 
-        val currentTimeMillis = systemTimeProvider.getSystemTimeMillis()
         if (renderer.shouldAnimate()) {
-            val delayMillis = computeDelayTillNextFrame(nextDrawTimeMillis, currentTimeMillis)
-            nextDrawTimeMillis = currentTimeMillis + delayMillis
-            pendingUpdateTime.postDelayedUnique(delayMillis) { watchFaceHostApi.invalidate() }
+            val currentTimeMillis = systemTimeProvider.getSystemTimeMillis()
+            var delay = computeDelayTillNextFrame(startTimeMillis, currentTimeMillis)
+            nextDrawTimeMillis = currentTimeMillis + delay
+
+            // We want to post our delayed task to post the choreographer frame a bit earlier than
+            // the deadline because if we post it too close to the deadline we'll miss it. If we're
+            // close to the deadline we post the choreographer frame immediately.
+            delay -= POST_CHOREOGRAPHER_FRAME_MILLIS_BEFORE_DEADLINE
+
+            if (delay <= 0) {
+                watchFaceHostApi.invalidate()
+            } else {
+                pendingUpdateTime.postDelayedUnique(delay) { watchFaceHostApi.invalidate() }
+            }
         }
     }
 
@@ -851,7 +865,7 @@ public class WatchFaceImpl @UiThread constructor(
     /** @hide */
     @UiThread
     internal fun computeDelayTillNextFrame(
-        beginFrameTimeMillis: Long,
+        startTimeMillis: Long,
         currentTimeMillis: Long
     ): Long {
         // Limit update rate to conserve power when the battery is low and not charging.
@@ -864,19 +878,35 @@ public class WatchFaceImpl @UiThread constructor(
             } else {
                 renderer.interactiveDrawModeUpdateDelayMillis
             }
-        // Note beginFrameTimeMillis could be in the future if the user adjusted the time so we need
-        // to compute min(beginFrameTimeMillis, currentTimeMillis).
-        var nextFrameTimeMillis =
-            Math.min(beginFrameTimeMillis, currentTimeMillis) + updateRateMillis
-        // Drop frames if needed (happens when onDraw is slow).
-        if (nextFrameTimeMillis <= currentTimeMillis) {
-            // Compute the next runtime after currentTimeMillis with the same phase as
-            // beginFrameTimeMillis to keep the animation smooth.
-            val phaseAdjust =
-                updateRateMillis +
-                    ((nextFrameTimeMillis - currentTimeMillis) % updateRateMillis)
-            nextFrameTimeMillis = currentTimeMillis + phaseAdjust
+
+        var previousRequestedFrameTimeMillis = nextDrawTimeMillis
+
+        // Its possible for nextDrawTimeMillis to be in the past (it's initialized to 0) or the
+        // future (the user might have changed the system time) which we need to account for.
+        val earliestSensiblePreviousRequestedFrameTimeMillis = startTimeMillis - updateRateMillis
+        if (previousRequestedFrameTimeMillis < earliestSensiblePreviousRequestedFrameTimeMillis) {
+            previousRequestedFrameTimeMillis = startTimeMillis
         }
+        if (previousRequestedFrameTimeMillis > startTimeMillis) {
+            previousRequestedFrameTimeMillis = startTimeMillis
+        }
+
+        // If the delay is long then round to the beginning of the next period.
+        var nextFrameTimeMillis = if (updateRateMillis >= 500) {
+            val nextUnroundedTime = previousRequestedFrameTimeMillis + updateRateMillis
+            val delay =
+                (updateRateMillis - (nextUnroundedTime % updateRateMillis)) % updateRateMillis
+            previousRequestedFrameTimeMillis + delay
+        } else {
+            previousRequestedFrameTimeMillis + updateRateMillis
+        }
+
+        // If updateRateMillis is a multiple of 1 minute then align rendering to the beginning of
+        // the minute.
+        if ((updateRateMillis % 60000) == 60L) {
+            nextFrameTimeMillis += (60000 - (nextFrameTimeMillis % 60000)) % 60000
+        }
+
         return nextFrameTimeMillis - currentTimeMillis
     }
 
