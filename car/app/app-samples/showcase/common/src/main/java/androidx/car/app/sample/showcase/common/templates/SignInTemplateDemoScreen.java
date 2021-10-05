@@ -184,7 +184,7 @@ public class SignInTemplateDemoScreen extends Screen {
         return new SignInTemplate.Builder(signInMethod)
                 .addAction(mProviderSignInAction)
                 .addAction(mQRCodeSignInAction)
-                .setTitle("Sign in with username and password")
+                .setTitle("Sign in")
                 .setInstructions("Enter your credentials")
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
@@ -252,7 +252,7 @@ public class SignInTemplateDemoScreen extends Screen {
         return new SignInTemplate.Builder(signInMethod)
                 .addAction(mProviderSignInAction)
                 .addAction(mQRCodeSignInAction)
-                .setTitle("Sign in with username and password")
+                .setTitle("Sign in")
                 .setInstructions("Username: " + mUsername)
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
@@ -262,7 +262,7 @@ public class SignInTemplateDemoScreen extends Screen {
     private Template getPinSignInTemplate() {
         PinSignInMethod pinSignInMethod = new PinSignInMethod("123456789ABC");
         return new SignInTemplate.Builder(pinSignInMethod)
-                .setTitle("Sign in with PIN")
+                .setTitle("Sign in")
                 .setInstructions("Type this PIN in your phone")
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
@@ -299,7 +299,7 @@ public class SignInTemplateDemoScreen extends Screen {
                                 this::performSignInWithGoogleFlow)).build());
 
         return new SignInTemplate.Builder(providerSignInMethod)
-                .setTitle("Sign in with Google")
+                .setTitle("Sign in")
                 .setInstructions("Use this button to complete your Google sign-in")
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
