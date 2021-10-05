@@ -681,6 +681,7 @@ class TypeAdapterStore private constructor(
                     PojoRowAdapter(
                         context = subContext,
                         info = resultInfo,
+                        query = query,
                         pojo = pojo,
                         out = typeMirror
                     )
@@ -749,6 +750,7 @@ class TypeAdapterStore private constructor(
                 return PojoRowAdapter(
                     context = context,
                     info = null,
+                    query = query,
                     pojo = pojo,
                     out = typeMirror
                 )

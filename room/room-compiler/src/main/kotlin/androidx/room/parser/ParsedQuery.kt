@@ -50,11 +50,13 @@ sealed class Section {
 }
 
 data class Table(val name: String, val alias: String)
+
 data class ParsedQuery(
     val original: String,
     val type: QueryType,
     val inputs: List<BindParameterNode>,
     val tables: Set<Table>, // pairs of table name and alias
+    val hasTopStarProjection: Boolean?, // null means unknown
     val syntaxErrors: List<String>
 ) {
     companion object {
@@ -64,6 +66,7 @@ data class ParsedQuery(
             type = QueryType.UNKNOWN,
             inputs = emptyList(),
             tables = emptySet(),
+            hasTopStarProjection = null,
             syntaxErrors = emptyList()
         )
     }

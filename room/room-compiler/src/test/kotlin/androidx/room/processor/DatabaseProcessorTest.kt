@@ -1461,7 +1461,7 @@ class DatabaseProcessorTest {
                     viewName = viewName,
                     query = ParsedQuery(
                         "", QueryType.SELECT, emptyList(),
-                        names.map { Table(it, it) }.toSet(),
+                        names.map { Table(it, it) }.toSet(), null,
                         emptyList()
                     ),
                     type = mock(XType::class.java),
