@@ -208,11 +208,11 @@ public final class PlaceListMapTemplate implements Template {
         /**
          * Sets whether to show the current location in the map.
          *
-         * <p>The map template will show the user's current location on the map, which is normally
-         * indicated by a blue dot.
+         * <p>The map template will show the user's current location on the map.
          *
          * <p>This functionality requires the app to have the {@code ACCESS_FINE_LOCATION}
-         * permission.
+         * permission. When {@code isEnabled} is {@code true}, the host may receive location
+         * updates from the app in order to show the user's current location.
          */
         @NonNull
         public Builder setCurrentLocationEnabled(boolean isEnabled) {
