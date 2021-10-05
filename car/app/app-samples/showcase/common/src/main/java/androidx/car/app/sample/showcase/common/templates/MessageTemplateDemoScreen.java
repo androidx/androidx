@@ -18,11 +18,14 @@ package androidx.car.app.sample.showcase.common.templates;
 
 import static androidx.car.app.CarToast.LENGTH_LONG;
 import static androidx.car.app.model.Action.BACK;
+import static androidx.car.app.model.Action.FLAG_PRIMARY;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
@@ -41,6 +44,8 @@ public class MessageTemplateDemoScreen extends Screen {
 
     @NonNull
     @Override
+    // TODO(b/201548973): Remove this annotation once set/getFlags are ready
+    @OptIn(markerClass = ExperimentalCarApi.class)
     public Template onGetTemplate() {
         return new MessageTemplate.Builder("Message goes here.\nMore text on second line.")
                 .setTitle("Message Template Demo")
@@ -52,8 +57,18 @@ public class MessageTemplateDemoScreen extends Screen {
                                 .setTint(CarColor.GREEN)
                                 .build())
                 .setHeaderAction(BACK)
-                .addAction(new Action.Builder().setOnClickListener(() -> {
-                }).setTitle("OK").build())
+                .addAction(
+                        new Action.Builder()
+                                .setOnClickListener(() -> {
+                                    CarToast.makeText(
+                                            getCarContext(),
+                                            "Clicked primary button",
+                                            LENGTH_LONG
+                                    ).show();
+                                })
+                                .setTitle("OK")
+                                .setFlags(FLAG_PRIMARY)
+                                .build())
                 .addAction(
                         new Action.Builder()
                                 .setBackgroundColor(CarColor.RED)
