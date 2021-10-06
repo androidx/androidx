@@ -34,13 +34,12 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
-import androidx.core.text.layoutDirection
-import org.junit.Assert.fail
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import androidx.glance.appwidget.test.R
 import androidx.glance.unit.DpSize
+import org.junit.Assert.fail
 import java.util.Locale
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @RequiresApi(26)
 class AppWidgetHostTestActivity : Activity() {
@@ -102,13 +101,14 @@ class AppWidgetHostTestActivity : Activity() {
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
+        Log.i("YOLO", "Changing configuration, orientation = ${newConfig.orientation}")
         super.onConfigurationChanged(newConfig)
-        updateAllSizes()
+        updateAllSizes(newConfig.orientation)
         reapplyRemoteViews()
     }
 
-    fun updateAllSizes() {
-        mHostViews.forEach { it.updateSize() }
+    fun updateAllSizes(orientation: Int) {
+        mHostViews.forEach { it.updateSize(orientation) }
     }
 
     fun reapplyRemoteViews() {
@@ -173,11 +173,11 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
     fun setSizes(portraitSize: DpSize, landscapeSize: DpSize) {
         mPortraitSize = portraitSize
         mLandscapeSize = landscapeSize
-        updateSize()
+        updateSize(resources.configuration.orientation)
     }
 
-    fun updateSize() {
-        val size = when (context.resources.configuration.orientation) {
+    fun updateSize(orientation: Int) {
+        val size = when (orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> mLandscapeSize
             Configuration.ORIENTATION_PORTRAIT -> mPortraitSize
             else -> error("Unknown orientation ${context.resources.configuration.orientation}")

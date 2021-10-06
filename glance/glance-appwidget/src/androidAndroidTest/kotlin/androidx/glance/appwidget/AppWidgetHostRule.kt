@@ -17,20 +17,29 @@
 package androidx.glance.appwidget
 
 import android.Manifest
+import android.app.Activity
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.pm.ActivityInfo
-import android.content.res.Configuration
+import android.os.Build
+import android.view.View
 import android.view.ViewTreeObserver
 import androidx.glance.unit.DpSize
 import androidx.glance.unit.dp
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onIdle
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
+import androidx.test.uiautomator.UiDevice
+import org.hamcrest.Matcher
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -50,24 +59,22 @@ class AppWidgetHostRule(
     val landscapeSize: DpSize
         get() = mLandscapeSize
 
-    private val mUiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+    private val mInstrumentation = InstrumentationRegistry.getInstrumentation()
+    private val mUiAutomation = mInstrumentation.uiAutomation
 
     private val mActivityRule: ActivityScenarioRule<AppWidgetHostTestActivity> =
         ActivityScenarioRule(AppWidgetHostTestActivity::class.java)
+
+    private val mUiDevice = UiDevice.getInstance(mInstrumentation)
 
     // Ensure the screen starts in portrait and restore the orientation on leaving
     private val mOrientationRule = TestRule { base, _ ->
         object : Statement() {
             override fun evaluate() {
-                var orientation: Int = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                mScenario.onActivity {
-                    orientation = it.resources.configuration.orientation.toActivityInfoOrientation()
-                    it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                }
+                mUiDevice.freezeRotation()
+                mUiDevice.setOrientationNatural()
                 base.evaluate()
-                mScenario.onActivity {
-                    it.requestedOrientation = orientation
-                }
+                mUiDevice.unfreezeRotation()
             }
         }
     }
@@ -118,27 +125,14 @@ class AppWidgetHostRule(
         onHostActivity { block(mHostView) }
     }
 
-    /** Change the orientation to landscape using [setOrientation] .*/
+    /** Change the orientation to landscape.*/
     fun setLandscapeOrientation() {
-        setOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+        onView(isRoot()).perform(orientationLandscape())
     }
 
-    /** Change the orientation to portrait using [setOrientation] .*/
+    /** Change the orientation to portrait.*/
     fun setPortraitOrientation() {
-        setOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-    }
-
-    /**
-     * Change the orientation of the screen, then update the view sizes and reapply the RemoteViews.
-     */
-    private fun setOrientation(orientation: Int) {
-        mScenario.onActivity { it.requestedOrientation = orientation }
-        onIdle()
-        mScenario.onActivity {
-            it.updateAllSizes()
-            it.reapplyRemoteViews()
-        }
-        onIdle()
+        onView(isRoot()).perform(orientationPortrait())
     }
 
     /**
@@ -202,11 +196,46 @@ class AppWidgetHostRule(
             mHostView.childCount > 0
         }
     }
-}
 
-private fun Int.toActivityInfoOrientation(): Int =
-    if (this == Configuration.ORIENTATION_PORTRAIT) {
-        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-    } else {
-        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+    private inner class OrientationChangeAction constructor(private val orientation: Int) :
+        ViewAction {
+        override fun getConstraints(): Matcher<View> = isRoot()
+
+        override fun getDescription() = "change orientation to $orientationName"
+
+        private val orientationName: String
+            get() =
+                if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+                    "landscape"
+                } else {
+                    "portrait"
+                }
+
+        override fun perform(uiController: UiController, view: View) {
+            uiController.loopMainThreadUntilIdle()
+            mActivityRule.scenario.onActivity { it.requestedOrientation = orientation }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                // Somehow, before Android S, changing the orientation doesn't trigger the
+                // onConfigurationChange
+                uiController.loopMainThreadUntilIdle()
+                mScenario.onActivity {
+                    it.updateAllSizes(it.resources.configuration.orientation)
+                    it.reapplyRemoteViews()
+                }
+            }
+            val resumedActivities: Collection<Activity> =
+                ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+            if (resumedActivities.isEmpty()) {
+                throw RuntimeException("Could not change orientation")
+            }
+        }
     }
+
+    private fun orientationLandscape(): ViewAction {
+        return OrientationChangeAction(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+    }
+
+    private fun orientationPortrait(): ViewAction {
+        return OrientationChangeAction(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+    }
+}
