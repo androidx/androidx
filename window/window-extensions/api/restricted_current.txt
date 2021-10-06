@@ -3,8 +3,7 @@ package androidx.window.extensions {
 
   public interface WindowExtensions {
     method public default int getVendorApiLevel();
-    method public androidx.window.extensions.layout.WindowLayoutComponent getWindowLayoutComponent();
-    method public boolean isWindowLayoutComponentAvailable();
+    method public androidx.window.extensions.layout.WindowLayoutComponent? getWindowLayoutComponent();
   }
 
   public class WindowExtensionsProvider {

@@ -16,7 +16,7 @@
 
 package androidx.window.extensions;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent;
 import androidx.window.extensions.layout.WindowLayoutComponent;
 
@@ -43,42 +43,22 @@ public interface WindowExtensions {
     }
 
     /**
-     * Returns {@code true} if {@link WindowLayoutComponent} is present on the device,
-     * {@code false} otherwise.
-     */
-    boolean isWindowLayoutComponentAvailable();
-
-    /**
      * Returns the OEM implementation of {@link WindowLayoutComponent} if it is supported on the
-     * device. The implementation must match the API level reported in
-     * {@link WindowExtensions}. Use {@link WindowExtensions#isWindowLayoutComponentAvailable()} to
-     * determine if {@link WindowLayoutComponent} is present.
+     * device, {@code null} otherwise. The implementation must match the API level reported in
+     * {@link WindowExtensions}.
      * @return the OEM implementation of {@link WindowLayoutComponent}
      * @throws UnsupportedOperationException if the device does not support
      */
-    @NonNull
+    @Nullable
     WindowLayoutComponent getWindowLayoutComponent();
-
-
-    /**
-     * Returns {@code true} if {@link ActivityEmbeddingComponent} is present on the device,
-     * {@code false} otherwise. If the component is not available the developer will receive a
-     * single callback with empty data or default values where possible.
-     */
-    @ExperimentalWindowExtensionsApi
-    boolean isEmbeddingComponentAvailable();
 
     /**
      * Returns the OEM implementation of {@link ActivityEmbeddingComponent} if it is supported on
-     * the device. The implementation must match the API level reported in
-     * {@link WindowExtensions}. An
-     * {@link UnsupportedOperationException} will be thrown if the device does not support
-     * Activity Embedding. Use
-     * {@link WindowExtensions#isEmbeddingComponentAvailable()} to determine if
-     * {@link ActivityEmbeddingComponent} is present.
+     * the device, {@code null} otherwise. The implementation must match the API level reported in
+     * {@link WindowExtensions}.
      * @return the OEM implementation of {@link ActivityEmbeddingComponent}
      */
-    @NonNull
+    @Nullable
     @ExperimentalWindowExtensionsApi
     ActivityEmbeddingComponent getActivityEmbeddingComponent();
 }

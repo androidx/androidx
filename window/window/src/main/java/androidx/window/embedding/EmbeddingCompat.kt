@@ -35,11 +35,7 @@ internal class EmbeddingCompat constructor(
     private val adapter: EmbeddingAdapter
 ) : EmbeddingInterfaceCompat {
     constructor() : this(
-        if (isEmbeddingAvailable()) {
-            WindowExtensionsProvider.getWindowExtensions().getActivityEmbeddingComponent()
-        } else {
-            EmptyEmbeddingComponent()
-        },
+        embeddingComponent(),
         EmbeddingAdapter()
     )
 
@@ -74,7 +70,7 @@ internal class EmbeddingCompat constructor(
 
         fun isEmbeddingAvailable(): Boolean {
             return try {
-                WindowExtensionsProvider.getWindowExtensions().isEmbeddingComponentAvailable
+                WindowExtensionsProvider.getWindowExtensions().activityEmbeddingComponent != null
             } catch (e: NoClassDefFoundError) {
                 if (DEBUG) {
                     Log.d(TAG, "Embedding extension version not found")
@@ -85,6 +81,15 @@ internal class EmbeddingCompat constructor(
                     Log.d(TAG, "Stub Extension")
                 }
                 false
+            }
+        }
+
+        fun embeddingComponent(): ActivityEmbeddingComponent {
+            return if (isEmbeddingAvailable()) {
+                WindowExtensionsProvider.getWindowExtensions().getActivityEmbeddingComponent()
+                    ?: EmptyEmbeddingComponent()
+            } else {
+                EmptyEmbeddingComponent()
             }
         }
     }
