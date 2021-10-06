@@ -67,6 +67,10 @@ import kotlin.math.min
  *
  * Cards can be enabled or disabled. A disabled card will not respond to click events.
  *
+ * For more information, see the
+ * [Cards](https://developer.android.com/training/wearables/components/cards)
+ * guide.
+ *
  * @param onClick Will be called when the user clicks the card
  * @param modifier Modifier to be applied to the card
  * @param backgroundPainter A painter used to paint the background of the card. A card will
@@ -166,6 +170,10 @@ public fun Card(
  *
  * Example of an [AppCard] with icon, title, time and two lines of body text:
  * @sample androidx.wear.compose.material.samples.AppCardWithIcon
+ *
+ * For more information, see the
+ * [Cards](https://developer.android.com/training/wearables/components/cards)
+ * guide.
  *
  * @param onClick Will be called when the user clicks the card
  * @param appName A slot for displaying the application name, expected to be a single line of start
@@ -275,6 +283,10 @@ public fun AppCard(
  *
  * Example of a title card with a background image:
  * @sample androidx.wear.compose.material.samples.TitleCardWithImage
+ *
+ * For more information, see the
+ * [Cards](https://developer.android.com/training/wearables/components/cards)
+ * guide.
  *
  * @param onClick Will be called when the user clicks the card
  * @param title A slot for displaying the title of the card, expected to be one or two lines of text

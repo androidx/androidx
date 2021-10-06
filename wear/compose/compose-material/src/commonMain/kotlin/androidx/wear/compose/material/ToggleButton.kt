@@ -59,6 +59,10 @@ import androidx.compose.ui.unit.dp
  * Example of a [ToggleButton] with an icon:
  * @sample androidx.wear.compose.material.samples.ToggleButtonWithIcon
  *
+ * For more information, see the
+ * [Buttons](https://developer.android.com/training/wearables/components/buttons#toggle-button)
+ * guide.
+ *
  * @param checked Boolean flag indicating whether this toggle button is currently checked.
  * @param onCheckedChange Callback to be invoked when this toggle button is clicked.
  * @param modifier Modifier to be applied to the toggle button.
