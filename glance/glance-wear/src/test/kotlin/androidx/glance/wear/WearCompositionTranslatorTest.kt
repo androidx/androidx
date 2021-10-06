@@ -156,6 +156,19 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
+    fun canTranslateBackgroundModifier_resId() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            Box(modifier = Modifier.background(R.color.color1)) {}
+        }
+
+        val innerBox =
+            (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Box
+        val background = requireNotNull(innerBox.modifiers!!.background)
+
+        assertThat(background.color!!.argb).isEqualTo(android.graphics.Color.rgb(0xC0, 0xFF, 0xEE))
+    }
+
+    @Test
     fun canTranslateRow() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             Row(verticalAlignment = Alignment.Vertical.CenterVertically) {

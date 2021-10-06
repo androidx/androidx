@@ -31,6 +31,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.widget.setTextViewHeight
 import androidx.core.widget.setTextViewWidth
 import androidx.core.widget.setViewBackgroundColor
+import androidx.core.widget.setViewBackgroundColorResource
 import androidx.glance.BackgroundModifier
 import androidx.glance.Modifier
 import androidx.glance.action.Action
@@ -40,12 +41,15 @@ import androidx.glance.action.LaunchActivityClassAction
 import androidx.glance.action.LaunchActivityComponentAction
 import androidx.glance.action.UpdateContentAction
 import androidx.glance.appwidget.action.LaunchActivityIntentAction
+import androidx.glance.appwidget.unit.DayNightColorProvider
 import androidx.glance.layout.Dimension
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier
 import androidx.glance.layout.collectPaddingInDp
 import androidx.glance.unit.Color
+import androidx.glance.unit.FixedColorProvider
+import androidx.glance.unit.ResourceColorProvider
 import androidx.glance.unit.dp
 import kotlin.math.roundToInt
 
@@ -74,6 +78,7 @@ internal fun applyModifiers(
             is BackgroundModifier -> applyBackgroundModifier(
                 rv,
                 modifier,
+                context,
                 layoutDef
             )
             is PaddingModifier -> {
@@ -192,9 +197,26 @@ private fun applyHeightModifier(
 private fun applyBackgroundModifier(
     rv: RemoteViews,
     modifier: BackgroundModifier,
+    context: Context,
     layoutDef: LayoutIds
 ) {
-    rv.setViewBackgroundColor(layoutDef.mainViewId, modifier.color.toArgb())
+    val viewId = layoutDef.mainViewId
+    when (val colorProvider = modifier.colorProvider) {
+        is FixedColorProvider -> rv.setViewBackgroundColor(viewId, colorProvider.color.toArgb())
+        is ResourceColorProvider -> rv.setViewBackgroundColorResource(viewId, colorProvider.resId)
+        is DayNightColorProvider -> {
+            if (Build.VERSION.SDK_INT >= 31) {
+                rv.setViewBackgroundColor(
+                    viewId,
+                    colorProvider.day.toArgb(),
+                    colorProvider.night.toArgb()
+                )
+            } else {
+                rv.setViewBackgroundColor(viewId, colorProvider.resolve(context).toArgb())
+            }
+        }
+        else -> Log.w(GlanceAppWidgetTag, "Unexpected background color modifier: $colorProvider")
+    }
 }
 
 // TODO(b/202150620): Use the shared Compose utility when we use the same Color class.

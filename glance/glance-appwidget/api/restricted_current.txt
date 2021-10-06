@@ -4,6 +4,10 @@ package androidx.glance.appwidget {
   public final class ApplyModifiersKt {
   }
 
+  public final class BackgroundKt {
+    method public static androidx.glance.Modifier background(androidx.glance.Modifier, int day, int night);
+  }
+
   public final class CompositionLocalsKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.os.Bundle> getLocalAppWidgetOptions();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.appwidget.GlanceId> getLocalGlanceId();
@@ -126,6 +130,14 @@ package androidx.glance.appwidget.translators {
   }
 
   public final class TextTranslatorKt {
+  }
+
+}
+
+package androidx.glance.appwidget.unit {
+
+  public final class ColorProviderKt {
+    method public static androidx.glance.unit.ColorProvider ColorProvider(int day, int night);
   }
 
 }

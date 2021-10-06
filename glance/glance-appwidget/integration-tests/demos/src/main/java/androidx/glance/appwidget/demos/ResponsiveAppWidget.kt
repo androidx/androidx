@@ -33,7 +33,6 @@ import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.Color
 import androidx.glance.unit.DpSize
 import androidx.glance.unit.dp
 import androidx.glance.unit.sp
@@ -50,7 +49,11 @@ class ResponsiveAppWidget : GlanceAppWidget() {
     override fun Content() {
         val size = LocalSize.current
         val context = LocalContext.current
-        Column(modifier = Modifier.padding(8.dp).background(Color.LightGray)) {
+        Column(
+            modifier = Modifier
+                .padding(8.dp)
+                .background(R.color.responsive_widget_background)
+        ) {
             val content = if (size.width < 100.dp) {
                 "${size.width.value}dp x ${size.height.value}dp"
             } else {

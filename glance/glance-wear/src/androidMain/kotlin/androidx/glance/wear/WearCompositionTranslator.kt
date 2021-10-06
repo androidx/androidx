@@ -44,7 +44,11 @@ import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
+import androidx.glance.unit.FixedColorProvider
+import androidx.glance.unit.ResourceColorProvider
 import androidx.glance.unit.dp
+import androidx.glance.unit.resolve
 import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.CurvedTextStyle
 import androidx.glance.wear.layout.EmittableAndroidLayoutElement
@@ -104,10 +108,16 @@ private fun PaddingInDp.toProto(): ModifiersBuilders.Padding =
         .setRtlAware(true)
         .build()
 
-private fun BackgroundModifier.toProto(): ModifiersBuilders.Background =
+private fun BackgroundModifier.toProto(context: Context): ModifiersBuilders.Background =
     ModifiersBuilders.Background.Builder()
-        .setColor(argb(this.color.value.toInt()))
+        .setColor(argb(this.colorProvider.getColor(context).value.toInt()))
         .build()
+
+private fun ColorProvider.getColor(context: Context) = when (this) {
+    is FixedColorProvider -> color
+    is ResourceColorProvider -> resolve(context)
+    else -> error("Unsupported color provider: $this")
+}
 
 private fun LaunchActivityAction.toProto(context: Context): ActionBuilders.LaunchAction =
     ActionBuilders.LaunchAction.Builder()
@@ -392,7 +402,7 @@ private fun translateModifiers(
 ): ModifiersBuilders.Modifiers =
     modifier.foldIn(ModifiersBuilders.Modifiers.Builder()) { builder, element ->
         when (element) {
-            is BackgroundModifier -> builder.setBackground(element.toProto())
+            is BackgroundModifier -> builder.setBackground(element.toProto(context))
             is WidthModifier -> builder /* Skip for now, handled elsewhere. */
             is HeightModifier -> builder /* Skip for now, handled elsewhere. */
             is ActionModifier -> builder.setClickable(element.toProto(context))
