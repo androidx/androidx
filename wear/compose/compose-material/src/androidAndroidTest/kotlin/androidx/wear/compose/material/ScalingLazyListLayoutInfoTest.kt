@@ -29,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
@@ -47,6 +48,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.math.roundToInt
+import kotlin.properties.Delegates
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -131,6 +133,63 @@ public class ScalingLazyListLayoutInfoTest {
                 state.scrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
             }
             state.layoutInfo.assertVisibleItems(count = 4, startIndex = 1)
+        }
+    }
+
+    @Test
+    fun itemLargerThanViewPortDoesNotGetScaled() {
+        lateinit var state: ScalingLazyListState
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState().also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp
+                ),
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp * 5))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollBy(itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+            }
+            val firstItem = state.layoutInfo.visibleItemsInfo.first()
+            assertThat(firstItem.offset).isLessThan(0)
+            assertThat(firstItem.offset + firstItem.size).isGreaterThan(itemSizePx)
+            assertThat(state.layoutInfo.visibleItemsInfo.first().scale).isEqualTo(1.0f)
+        }
+    }
+
+    @Test
+    fun itemStraddlingCenterLineDoesNotGetScaled() {
+        lateinit var state: ScalingLazyListState
+        var viewPortHeight by Delegates.notNull<Int>()
+        rule.setContent {
+            ScalingLazyColumn(
+                state = rememberScalingLazyListState().also { state = it },
+                modifier = Modifier.requiredSize(
+                    itemSizeDp * 3
+                ).onSizeChanged { viewPortHeight = it.height },
+            ) {
+                items(5) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            // Get the middle item on the screen
+            val secondItem = state.layoutInfo.visibleItemsInfo[1]
+            // Confirm it's the second item in the list
+            assertThat(secondItem.index).isEqualTo(1)
+            // And that it is located either side of the center line
+            assertThat(secondItem.offset).isLessThan(viewPortHeight / 2)
+            assertThat(secondItem.offset + secondItem.size).isGreaterThan(viewPortHeight / 2)
+            // And that it is not scaled
+            assertThat(secondItem.scale).isEqualTo(1.0f)
         }
     }
 
