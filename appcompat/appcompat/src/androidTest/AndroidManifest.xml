@@ -330,7 +330,9 @@
 
         <activity android:name="androidx.appcompat.app.LocalesCustomAttachBaseContextActivity"/>
 
-        <activity android:name="androidx.appcompat.app.LocalesRotateDoesNotRecreateActivity"/>
+        <activity
+            android:name="androidx.appcompat.app.LocalesRotateDoesNotRecreateActivity"
+            android:configChanges="orientation|screenSize"/>
 
         <activity android:name="androidx.appcompat.app.LocalesActivityA"/>
 
