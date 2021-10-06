@@ -36,10 +36,12 @@ import kotlinx.coroutines.flow.StateFlow
  * [NotificationManager.INTERRUPTION_FILTER_ALL],
  * [NotificationManager.INTERRUPTION_FILTER_ALARMS], or
  * [NotificationManager.INTERRUPTION_FILTER_UNKNOWN].
- * @param isAmbient Whether or not the watch is in ambient mode. The watch face should switch to a
- * simplified low intensity display when in ambient mode. E.g. if the watch face displays seconds,
- * it should hide them in ambient mode. NB the order in which ambient vs style changes are
- * reported is not guaranteed.
+ * @param isAmbient Whether or not the watch is in ambient mode. The order in which ambient vs style
+ * changes are reported is not guaranteed. Likewise the order of isAmbient flow callbacks and
+ * [Renderer.CanvasRenderer.render] or [Renderer.GlesRenderer.render] calls is not defined. For
+ * rendering please refer to [RenderParameters.drawMode] instead of isAmbient because you might
+ * receive requests for rendering non-ambient frames while the watch is ambient (e.g. editing from
+ * the companion phone).
  * @param isBatteryLowAndNotCharging Whether or not we should conserve power due to a low battery
  * which isn't charging. Only valid if
  * [android.support.wearable.watchface.WatchFaceStyle.hideNotificationIndicator] is true.
