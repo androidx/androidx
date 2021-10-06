@@ -74,6 +74,10 @@ import androidx.compose.ui.unit.dp
  *
  * Chips can be enabled or disabled. A disabled chip will not respond to click events.
  *
+ * For more information, see the
+ * [Chips](https://developer.android.com/training/wearables/components/chips)
+ * guide.
+ *
  * @param onClick Will be called when the user clicks the chip
  * @param colors [ChipColors] that will be used to resolve the background and content color for
  * this chip in different states. See [ChipDefaults.chipColors].
@@ -170,6 +174,10 @@ public fun Chip(
  *
  * Example of a [Chip] with icon, label and secondary label:
  * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabels
+ *
+ * For more information, see the
+ * [Chips](https://developer.android.com/training/wearables/components/chips)
+ * guide.
  *
  * @param label A slot for providing the chip's main label. The contents are expected to be text
  * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
@@ -286,6 +294,10 @@ public fun Chip(
  *
  * Example of a [CompactChip] with icon and single line of label text:
  * @sample androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
+ *
+ * For more information, see the
+ * [Chips](https://developer.android.com/training/wearables/components/chips)
+ * guide.
  *
  * @param onClick Will be called when the user clicks the chip
  * @param modifier Modifier to be applied to the chip

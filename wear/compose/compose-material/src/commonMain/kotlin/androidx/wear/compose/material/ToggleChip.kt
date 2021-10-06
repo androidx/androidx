@@ -83,6 +83,10 @@ import androidx.compose.ui.unit.dp
  * Example of a [ToggleChip] with an icon, label and secondary label (defaults to switch toggle):
  * @sample androidx.wear.compose.material.samples.ToggleChipWithIcon
  *
+ * For more information, see the
+ * [Toggle Chips](https://developer.android.com/training/wearables/components/toggle-chips)
+ * guide.
+ *
  * @param checked Boolean flag indicating whether this button is currently checked.
  * @param onCheckedChange Callback to be invoked when this buttons checked/selected status is
  * @param label A slot for providing the chip's main label. The contents are expected to be text
@@ -249,6 +253,10 @@ public fun ToggleChip(
  *
  * Example of a [SplitToggleChip] with a label and the toggle icon changed to checkbox:
  * @sample androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
+ *
+ * For more information, see the
+ * [Toggle Chips](https://developer.android.com/training/wearables/components/toggle-chips)
+ * guide.
  *
  * @param checked Boolean flag indicating whether this button is currently checked.
  * @param onCheckedChange Callback to be invoked when this buttons checked/selected status is

@@ -89,6 +89,10 @@ interface PositionIndicatorState {
  * Creates an [PositionIndicator] based on the values in a [ScrollState] object.
  * e.g. a [Column] implementing [Modifier.verticalScroll] provides a [ScrollState].
  *
+ * For more information, see the
+ * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll)
+ * guide.
+ *
  * @param scrollState the scrollState to use as the basis for the PositionIndicatorState.
  * @param modifier The modifier to be applied to the component
  */
@@ -110,6 +114,10 @@ public fun PositionIndicator(
 /**
  * Creates an [PositionIndicator] based on the values in a [ScalingLazyListState] object that
  * a [ScalingLazyColumn] uses.
+ *
+ * For more information, see the
+ * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll)
+ * guide.
  *
  * @param scalingLazyListState the [ScalingLazyListState] to use as the basis for the
  * PositionIndicatorState.
@@ -136,6 +144,10 @@ public fun PositionIndicator(
  * Creates an [PositionIndicator] based on the values in a [LazyListState] object that
  * a [LazyColumn] uses.
  *
+ * For more information, see the
+ * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll)
+ * guide.
+ *
  * @param lazyListState the [LazyListState] to use as the basis for the
  * PositionIndicatorState.
  * @param modifier The modifier to be applied to the component
@@ -159,6 +171,10 @@ public fun PositionIndicator(
 
 /**
  * Creates an [PositionIndicator] for a rotating side button or rotating bezel style indicator.
+ *
+ * For more information, see the
+ * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll)
+ * guide.
  *
  * @param rsbRatio the value of the rsb/bezel indicator in the range 0..1 where 1 represents the
  * maximum value. E.g. If displaying a volume value say from 0..11 then the rsbRatio would be
@@ -199,6 +215,10 @@ public fun PositionIndicator(
  * it needs to be able take the whole screen, but also needs the actual dimensions it needs to be
  * draw [indicatorHeight] and [indicatorWidth], and position with respect to the right edge
  * [paddingRight]
+ *
+ * For more information, see the
+ * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll)
+ * guide.
  *
  * @param state the [PositionIndicatorState] of the state we are displaying
  * @param indicatorHeight the height of the position indicator in Dp.
