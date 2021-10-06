@@ -16,7 +16,8 @@ package androidx.window.testing.layout {
   }
 
   public final class WindowLayoutInfoTesting {
-    method public static androidx.window.layout.WindowLayoutInfo createWindowLayoutInfo(java.util.List<? extends androidx.window.layout.DisplayFeature> displayFeatures);
+    method public static androidx.window.layout.WindowLayoutInfo createWindowLayoutInfo(optional java.util.List<? extends androidx.window.layout.DisplayFeature> displayFeatures);
+    method public static androidx.window.layout.WindowLayoutInfo createWindowLayoutInfo();
   }
 
 }
