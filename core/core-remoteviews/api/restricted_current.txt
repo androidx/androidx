@@ -234,7 +234,7 @@ package androidx.core.widget {
     method public static void setViewBackgroundColor(android.widget.RemoteViews, @IdRes int viewId, @ColorInt int color);
     method @RequiresApi(31) public static void setViewBackgroundColor(android.widget.RemoteViews, @IdRes int viewId, @ColorInt int notNight, @ColorInt int night);
     method @RequiresApi(31) public static void setViewBackgroundColorAttr(android.widget.RemoteViews, @IdRes int viewId, @AttrRes int resId);
-    method @RequiresApi(31) public static void setViewBackgroundColorResource(android.widget.RemoteViews, @IdRes int viewId, @ColorRes int resId);
+    method public static void setViewBackgroundColorResource(android.widget.RemoteViews, @IdRes int viewId, @ColorRes int resId);
     method public static void setViewBackgroundResource(android.widget.RemoteViews, @IdRes int viewId, @DrawableRes int resId);
     method @RequiresApi(31) public static void setViewBackgroundTintBlendMode(android.widget.RemoteViews, @IdRes int viewId, android.graphics.BlendMode? blendMode);
     method @RequiresApi(31) public static void setViewBackgroundTintList(android.widget.RemoteViews, @IdRes int viewId, android.content.res.ColorStateList? tint);
