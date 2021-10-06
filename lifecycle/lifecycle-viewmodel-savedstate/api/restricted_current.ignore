@@ -1,9 +1,0 @@
-// Baseline format: 1.0
-RemovedInterface: androidx.lifecycle.AbstractSavedStateViewModelFactory:
-    Class androidx.lifecycle.AbstractSavedStateViewModelFactory no longer implements androidx.lifecycle.ViewModelProvider.Factory
-RemovedInterface: androidx.lifecycle.SavedStateViewModelFactory:
-    Class androidx.lifecycle.SavedStateViewModelFactory no longer implements androidx.lifecycle.ViewModelProvider.Factory
-
-
-RemovedMethod: androidx.lifecycle.SavedStateViewModelFactory#create(Class<T>):
-    Removed method androidx.lifecycle.SavedStateViewModelFactory.create(Class<T>)
