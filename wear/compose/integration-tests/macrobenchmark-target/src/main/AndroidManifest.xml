@@ -51,6 +51,10 @@
             android:theme="@style/AppTheme"
             android:exported="true">
             <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name=
                     "androidx.wear.compose.integration.macrobenchmark.target.SWIPE_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -61,10 +65,6 @@
             android:name=".ScrollActivity"
             android:theme="@style/AppTheme"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
             <intent-filter>
                 <action android:name=
                     "androidx.wear.compose.integration.macrobenchmark.target.SCROLL_ACTIVITY" />

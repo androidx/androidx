@@ -24,8 +24,17 @@
     tools:context=".SwipeActivity"
     tools:deviceIds="wear">
 
+    <TextView
+        android:id="@+id/test_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:text="Text in the background"
+        android:textColor="@color/black" />
+
     <androidx.wear.widget.SwipeDismissFrameLayout
         android:id="@+id/swipe_dismiss"
+        android:background="@color/gray"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
