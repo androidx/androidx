@@ -14,14 +14,14 @@
   limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@android:id/background"
-    android:background="@color/light_gray"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Loading ..." />
-</FrameLayout>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="100dp"
+    android:minHeight="100dp"
+    android:minResizeWidth="40dp"
+    android:minResizeHeight="40dp"
+    android:initialLayout="@layout/empty_layout"
+    android:previewLayout="@layout/exact_preview_layout"
+    android:previewImage="@drawable/exact_preview_image"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen">
+</appwidget-provider>
