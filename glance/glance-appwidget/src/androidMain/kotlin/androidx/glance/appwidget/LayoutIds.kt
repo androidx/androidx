@@ -21,12 +21,12 @@ import android.os.Build
 import android.view.ViewGroup
 import android.widget.RemoteViews
 import androidx.annotation.LayoutRes
+import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.glance.layout.Dimension
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.WidthModifier
-import androidx.compose.ui.unit.dp
 
 /**
  * Information about a generated layout, including the layout id, ids of elements within, and other
@@ -85,7 +85,10 @@ internal data class LayoutSelector(
 
         // Note: Java keywords, such as 'switch', can't be used for layout ids.
         Swtch,
-        SwtchBackport
+        SwtchBackport,
+        ImageCrop,
+        ImageFit,
+        ImageFillBounds,
     }
 }
 
@@ -118,11 +121,13 @@ internal fun createRemoteViews(
             ?: throw IllegalArgumentException(
                 "Could not find complex layout for width=$width, height=$height"
             )
-        val childLayout = generatedLayouts[LayoutSelector(
-            type,
-            LayoutSelector.Size.MatchParent,
-            LayoutSelector.Size.MatchParent
-        )]
+        val childLayout = generatedLayouts[
+            LayoutSelector(
+                type,
+                LayoutSelector.Size.MatchParent,
+                LayoutSelector.Size.MatchParent
+            )
+        ]
             ?: throw IllegalArgumentException(
                 "Could not find layout for $type, width=${LayoutSelector.Size.MatchParent}, " +
                     "height=${LayoutSelector.Size.MatchParent}"
@@ -176,11 +181,13 @@ private fun selectApi31Layout(
     val heightMod = modifier.findModifier<HeightModifier>()?.height ?: Dimension.Wrap
     val width = widthMod.toSpecSize()
     val height = heightMod.toSpecSize()
-    return generatedLayouts[LayoutSelector(
-        type,
-        width,
-        height,
-    )]
+    return generatedLayouts[
+        LayoutSelector(
+            type,
+            width,
+            height,
+        )
+    ]
         ?: throw IllegalArgumentException(
             "Could not find layout for $type, width=$width, height=$height, canResize=false"
         )

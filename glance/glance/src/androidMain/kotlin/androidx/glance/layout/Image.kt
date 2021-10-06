@@ -16,7 +16,11 @@
 
 package androidx.glance.layout
 
+import android.graphics.Bitmap
+import android.graphics.drawable.Icon
+import android.os.Build
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
@@ -33,6 +37,14 @@ public interface ImageProvider
 /** @suppress */
 public class AndroidResourceImageProvider(@DrawableRes public val resId: Int) : ImageProvider
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** @suppress */
+public class BitmapImageProvider(val bitmap: Bitmap) : ImageProvider
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** @suppress */
+public class IconImageProvider(val icon: Icon) : ImageProvider
+
 /**
  * Image resource from an Android Drawable resource.
  *
@@ -40,6 +52,21 @@ public class AndroidResourceImageProvider(@DrawableRes public val resId: Int) : 
  */
 public fun ImageProvider(@DrawableRes resId: Int): ImageProvider =
     AndroidResourceImageProvider(resId)
+
+/**
+ * Image resource from a bitmap.
+ *
+ * @param bitmap The bitmap to be displayed.
+ */
+public fun ImageProvider(bitmap: Bitmap): ImageProvider = BitmapImageProvider(bitmap)
+
+/**
+ * Image resource from an icon.
+ *
+ * @param icon The icon to be displayed.
+ */
+@RequiresApi(Build.VERSION_CODES.M)
+public fun ImageProvider(icon: Icon): ImageProvider = IconImageProvider(icon)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 /** @suppress */
