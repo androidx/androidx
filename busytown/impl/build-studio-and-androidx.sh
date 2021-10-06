@@ -38,7 +38,7 @@ gw="$TOOLS_DIR/gradlew -Dorg.gradle.jvmargs=-Xmx24g"
 
 function buildStudio() {
   STUDIO_BUILD_LOG="$OUT_DIR/studio.log"
-  if JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/jdk11/$STUDIO_JDK" $gw -p $TOOLS_DIR publishLocal --stacktrace > "$STUDIO_BUILD_LOG" 2>&1; then
+  if JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/jdk11/$STUDIO_JDK" $gw -p $TOOLS_DIR publishLocal --stacktrace --no-daemon > "$STUDIO_BUILD_LOG" 2>&1; then
     echo built studio successfully
   else
     cat "$STUDIO_BUILD_LOG" >&2
