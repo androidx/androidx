@@ -20,7 +20,6 @@ import androidx.room.compiler.processing.XType
 import androidx.room.solver.types.CompositeTypeConverter
 import androidx.room.solver.types.NoOpConverter
 import androidx.room.solver.types.TypeConverter
-import com.google.common.annotations.VisibleForTesting
 import java.util.LinkedList
 
 /**
@@ -166,7 +165,6 @@ class TypeConverterStore(
     /**
      * Tries to reverse the converter going through the same nodes, if possible.
      */
-    @VisibleForTesting
     fun reverse(converter: TypeConverter): TypeConverter? {
         return when (converter) {
             is NoOpConverter -> converter
