@@ -195,7 +195,7 @@ private fun RuleContext.ancestors(): Sequence<RuleContext> = generateSequence(pa
 /**
  * Whether this [RuleContext] is the top SELECT statement.
  */
-private val RuleContext.isCoreSelect: Boolean
+internal val RuleContext.isCoreSelect: Boolean
     get() {
         return this is SQLiteParser.Select_or_valuesContext &&
             ancestors().none { it is SQLiteParser.Select_or_valuesContext }
