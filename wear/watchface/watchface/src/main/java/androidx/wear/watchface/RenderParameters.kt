@@ -48,6 +48,11 @@ public enum class DrawMode {
 
     /**
      * In this mode as few pixels as possible should be turned on, ideally with darker colors.
+     *
+     * Typically watch faces switch to a simplified display when in ambient mode. E.g. if the watch
+     * face displays seconds, it should hide them in ambient mode.
+     *
+     * Note: In ambient mode the watch face will be rendered once per minute.
      */
     AMBIENT
 }
