@@ -74,6 +74,10 @@ public interface ScalingLazyListScope {
  * Example usage:
  * @sample androidx.wear.compose.material.samples.SimpleScalingLazyColumn
  *
+ * For more information, see the
+ * [Lists](https://developer.android.com/training/wearables/components/lists)
+ * guide.
+ *
  * @param modifier The modifier to be applied to the component
  * @param scalingParams The parameters to configure the scaling and transparency effects for the
  * component
