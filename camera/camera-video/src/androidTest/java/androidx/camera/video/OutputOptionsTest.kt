@@ -71,7 +71,7 @@ class OutputOptionsTest {
         ).setContentValues(contentValues).setFileSizeLimit(FILE_SIZE_LIMIT).build()
 
         assertThat(mediaStoreOutputOptions.contentResolver).isEqualTo(contentResolver)
-        assertThat(mediaStoreOutputOptions.collection).isEqualTo(
+        assertThat(mediaStoreOutputOptions.collectionUri).isEqualTo(
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         )
         assertThat(mediaStoreOutputOptions.contentValues).isEqualTo(contentValues)
