@@ -33,7 +33,8 @@ import org.junit.runners.model.Statement
  * @suppress
  */
 @RequiresApi(28)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+// Ideally we want to restrict this to tests, but this is the next best thing.
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class BaselineProfileRule : TestRule {
     private lateinit var currentDescription: Description
 
