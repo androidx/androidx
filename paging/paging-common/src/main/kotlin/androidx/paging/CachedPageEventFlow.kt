@@ -167,6 +167,9 @@ internal class FlattenedPageEventStorage<T : Any> {
             is PageEvent.Insert<T> -> handleInsert(event)
             is PageEvent.Drop<T> -> handlePageDrop(event)
             is PageEvent.LoadStateUpdate<T> -> handleLoadStateUpdate(event)
+            is PageEvent.StaticList -> {
+                // TODO: Fix exhaustive when b/206683042
+            }
         }
     }
 

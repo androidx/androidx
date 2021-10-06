@@ -677,6 +677,14 @@ public class ComplicationSlot internal constructor(
                     )
                 }
             }
+
+            is HighlightedElement.UserStyle -> {
+                // Nothing
+            }
+
+            null -> {
+                // Nothing
+            }
         }
     }
 
