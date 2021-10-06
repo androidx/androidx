@@ -36,6 +36,8 @@ object ProcessorErrors {
         return this.trimIndent().replace("\n", " ")
     }
 
+    val ISSUE_TRACKER_LINK = "https://issuetracker.google.com/issues/new?component=413107"
+
     val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"
     val MISSING_INSERT_ANNOTATION = "Insertion methods must be annotated with ${Insert::class.java}"
     val MISSING_DELETE_ANNOTATION = "Deletion methods must be annotated with ${Delete::class.java}"

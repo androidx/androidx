@@ -20,6 +20,7 @@ import androidx.room.ColumnInfo
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CommonTypeNames
+import androidx.room.parser.expansion.isCoreSelect
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.TypeName
 import org.antlr.v4.runtime.tree.ParseTree
@@ -30,14 +31,14 @@ import java.util.Locale
 class QueryVisitor(
     private val original: String,
     private val syntaxErrors: List<String>,
-    statement: ParseTree,
-    private val forRuntimeQuery: Boolean
+    statement: ParseTree
 ) : SQLiteBaseVisitor<Void?>() {
     private val bindingExpressions = arrayListOf<BindParameterNode>()
     // table name alias mappings
     private val tableNames = mutableSetOf<Table>()
     private val withClauseNames = mutableSetOf<String>()
     private val queryType: QueryType
+    private var foundTopLevelStarProjection: Boolean = false
 
     init {
         queryType = (0 until statement.childCount).map {
@@ -82,6 +83,13 @@ class QueryVisitor(
         return super.visitExpr(ctx)
     }
 
+    override fun visitResult_column(ctx: SQLiteParser.Result_columnContext): Void? {
+        if (ctx.parent.isCoreSelect && ctx.text == "*") {
+            foundTopLevelStarProjection = true
+        }
+        return super.visitResult_column(ctx)
+    }
+
     /**
      * Check if a comma separated expression (where multiple binding parameters are accepted) is
      * part of a function expression that receives a fixed number of parameters. This is
@@ -107,6 +115,8 @@ class QueryVisitor(
             type = queryType,
             inputs = bindingExpressions.sortedBy { it.sourceInterval.a },
             tables = tableNames,
+            hasTopStarProjection =
+                if (queryType == QueryType.SELECT) foundTopLevelStarProjection else null,
             syntaxErrors = syntaxErrors,
         )
     }
@@ -197,8 +207,7 @@ class SqlParser {
                 QueryVisitor(
                     original = input,
                     syntaxErrors = syntaxErrors,
-                    statement = statement,
-                    forRuntimeQuery = false
+                    statement = statement
                 ).createParsedQuery()
             },
             fallback = { syntaxErrors ->
@@ -207,6 +216,7 @@ class SqlParser {
                     type = QueryType.UNKNOWN,
                     inputs = emptyList(),
                     tables = emptySet(),
+                    hasTopStarProjection = null,
                     syntaxErrors = syntaxErrors,
                 )
             }
@@ -224,6 +234,7 @@ class SqlParser {
                 type = QueryType.UNKNOWN,
                 inputs = emptyList(),
                 tables = tableNames.map { Table(name = it, alias = it) }.toSet(),
+                hasTopStarProjection = null,
                 syntaxErrors = emptyList(),
             )
         }

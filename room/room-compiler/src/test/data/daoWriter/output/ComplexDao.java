@@ -54,8 +54,8 @@ public final class ComplexDao_Impl extends ComplexDao {
         __db.assertNotSuspendingTransaction();
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
-            final int _cursorIndexOfFullName = CursorUtil.getColumnIndexOrThrow(_cursor, "fullName");
-            final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+            final int _cursorIndexOfFullName = 0;
+            final int _cursorIndexOfId = 1;
             final List<ComplexDao.FullName> _result = new ArrayList<ComplexDao.FullName>(_cursor.getCount());
             while(_cursor.moveToNext()) {
                 final ComplexDao.FullName _item;
@@ -603,6 +603,34 @@ public final class ComplexDao_Impl extends ComplexDao {
                 }
             }
         }, _statement, true, _cancellationSignal);
+    }
+
+    @Override
+    public List<UserSummary> getUserNames() {
+        final String _sql = "SELECT `uid`, `name` FROM (SELECT * FROM User)";
+        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+        __db.assertNotSuspendingTransaction();
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+            final int _cursorIndexOfUid = 0;
+            final int _cursorIndexOfName = 1;
+            final List<UserSummary> _result = new ArrayList<UserSummary>(_cursor.getCount());
+            while(_cursor.moveToNext()) {
+                final UserSummary _item;
+                _item = new UserSummary();
+                _item.uid = _cursor.getInt(_cursorIndexOfUid);
+                if (_cursor.isNull(_cursorIndexOfName)) {
+                    _item.name = null;
+                } else {
+                    _item.name = _cursor.getString(_cursorIndexOfName);
+                }
+                _result.add(_item);
+            }
+            return _result;
+        } finally {
+            _cursor.close();
+            _statement.release();
+        }
     }
 
     public static List<Class<?>> getRequiredConverters() {
