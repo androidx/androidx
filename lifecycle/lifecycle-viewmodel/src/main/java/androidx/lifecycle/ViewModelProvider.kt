@@ -82,40 +82,6 @@ public open class ViewModelProvider(
     }
 
     /**
-     * Implementations of `Factory` interface are responsible to instantiate ViewModels.
-     *
-     *
-     * This is more advanced version of [Factory] that receives a key specified for requested
-     * [ViewModel].
-     *
-     * @suppress
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public abstract class KeyedFactory : OnRequeryFactory(), Factory {
-        /**
-         * Creates a new instance of the given `Class`.
-         *
-         * @param key a key associated with the requested ViewModel
-         * @param modelClass a `Class` whose instance is requested
-         * @return a newly created ViewModel
-         */
-        public abstract fun <T : ViewModel> create(
-            key: String,
-            modelClass: Class<T>
-        ): T
-
-        override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
-            return create(extras[VIEW_MODEL_KEY]!!, modelClass)
-        }
-
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            throw UnsupportedOperationException(
-                "create(String, Class<?>) must be called on implementations of KeyedFactory"
-            )
-        }
-    }
-
-    /**
      * Creates `ViewModelProvider`. This will create `ViewModels`
      * and retain them in a store of the given `ViewModelStoreOwner`.
      *

@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+ChangedSuperclass: androidx.lifecycle.AbstractSavedStateViewModelFactory:
+    Class androidx.lifecycle.AbstractSavedStateViewModelFactory superclass changed from androidx.lifecycle.ViewModelProvider.KeyedFactory to androidx.lifecycle.ViewModelProvider.OnRequeryFactory
+ChangedSuperclass: androidx.lifecycle.SavedStateViewModelFactory:
+    Class androidx.lifecycle.SavedStateViewModelFactory superclass changed from androidx.lifecycle.ViewModelProvider.KeyedFactory to androidx.lifecycle.ViewModelProvider.OnRequeryFactory
+
+
+RemovedMethod: androidx.lifecycle.AbstractSavedStateViewModelFactory#create(String, Class<T>):
+    Removed method androidx.lifecycle.AbstractSavedStateViewModelFactory.create(String,Class<T>)

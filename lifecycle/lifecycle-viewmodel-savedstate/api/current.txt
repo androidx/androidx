@@ -3,6 +3,7 @@ package androidx.lifecycle {
 
   public abstract class AbstractSavedStateViewModelFactory implements androidx.lifecycle.ViewModelProvider.Factory {
     ctor public AbstractSavedStateViewModelFactory(androidx.savedstate.SavedStateRegistryOwner, android.os.Bundle?);
+    method public final <T extends androidx.lifecycle.ViewModel> T create(Class<T!>, androidx.lifecycle.viewmodel.CreationExtras);
     method public final <T extends androidx.lifecycle.ViewModel> T create(Class<T!>);
     method protected abstract <T extends androidx.lifecycle.ViewModel> T create(String, Class<T!>, androidx.lifecycle.SavedStateHandle);
   }
