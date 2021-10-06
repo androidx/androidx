@@ -570,15 +570,16 @@ fun <T> Modifier.swipeable(
         // Set a fake scroll range axis so that the AndroidComposeView can correctly report whether
         // scrolling is supported via canScroll{Horizontally,Vertically}.
         val range = ScrollAxisRange(
-            value = value@{
+            value = {
                 // Avoid dividing by 0.
-                if (state.minBound == state.maxBound) return@value 0f
-                val clampedOffset = state.offset.value.coerceIn(state.minBound, state.maxBound)
-                // [0f, 1f] representing the fraction between the swipe bounds.
-                val swipeFraction =
-                    (clampedOffset - state.minBound) / (state.maxBound - state.minBound)
-                // Invert the swipe fraction.
-                1f - swipeFraction
+                if (state.minBound == state.maxBound) {
+                    0f
+                } else {
+                    val clampedOffset = state.offset.value.coerceIn(state.minBound, state.maxBound)
+                    // [0f, 1f] representing the fraction between the swipe bounds.
+                    // Return the remaining fraction available to swipe.
+                    (state.maxBound - clampedOffset) / (state.maxBound - state.minBound)
+                }
             },
             maxValue = { 1f },
             reverseScrolling = reverseDirection
