@@ -25,14 +25,10 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/responsive_widget_title"
+        android:text="@string/exact_widget_title"
         android:textAppearance="@style/TextAppearance.Title"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Current layout: 100dp x 100dp" />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text = "Button" />
+        android:text="Current layout: 130.12dp x 101.12dp" />
 </LinearLayout>
