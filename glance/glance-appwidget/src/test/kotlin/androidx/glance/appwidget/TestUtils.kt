@@ -24,12 +24,14 @@ import android.text.TextUtils
 import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.RemoteViews
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
+import androidx.core.view.children
 import androidx.glance.Applier
 import androidx.glance.unit.Sp
 import kotlinx.coroutines.coroutineScope
@@ -98,3 +100,24 @@ internal fun appWidgetProviderInfo(
 
 internal fun Sp.toPixels(displayMetrics: DisplayMetrics) =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, displayMetrics).toInt()
+
+inline fun <reified T : View> View.findView(noinline pred: (T) -> Boolean) =
+    findView(pred, T::class.java)
+
+inline fun <reified T : View> View.findViewByType() =
+    findView({ true }, T::class.java)
+
+fun <T : View> View.findView(predicate: (T) -> Boolean, klass: Class<T>): T? {
+    try {
+        val castView = klass.cast(this)!!
+        if (predicate(castView)) {
+            return castView
+        }
+    } catch (e: ClassCastException) {
+        // Nothing to do
+    }
+    if (this !is ViewGroup) {
+        return null
+    }
+    return children.mapNotNull { it.findView(predicate, klass) }.firstOrNull()
+}

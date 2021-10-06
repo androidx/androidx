@@ -48,9 +48,20 @@ public class DialogFragmentNavigator(
         if (event == Lifecycle.Event.ON_STOP) {
             val dialogFragment = source as DialogFragment
             if (!dialogFragment.requireDialog().isShowing) {
-                // Update the NavigatorState to indicate that the Dialog was popped
-                val entry = state.backStack.value.first { it.id == dialogFragment.tag }
-                state.pop(entry, false)
+                val beforePopList = state.backStack.value
+                val poppedEntry = checkNotNull(beforePopList.lastOrNull {
+                    it.id == dialogFragment.tag
+                }) {
+                    "Dialog $dialogFragment has already been popped off of the Navigation " +
+                        "back stack"
+                }
+                if (beforePopList.lastOrNull() != poppedEntry) {
+                    Log.i(
+                        TAG, "Dialog $dialogFragment was dismissed while it was not the top " +
+                            "of the back stack, popping all dialogs above this dismissed dialog"
+                    )
+                }
+                popBackStack(poppedEntry, false)
             }
         }
     }

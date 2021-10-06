@@ -16,7 +16,9 @@
 
 package androidx.glance.wear.layout
 
+import androidx.glance.BackgroundModifier
 import androidx.glance.Modifier
+import androidx.glance.background
 import androidx.glance.findModifier
 import androidx.glance.unit.Color
 import com.google.common.truth.Truth.assertThat

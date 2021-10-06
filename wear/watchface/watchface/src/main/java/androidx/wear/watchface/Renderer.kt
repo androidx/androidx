@@ -117,7 +117,7 @@ private val HIGHLIGHT_LAYER_COMPOSITE_PAINT = Paint().apply {
  * will be clamped to 10fps. Watch faces are recommended to use lower frame rates if possible for
  * better battery life. Variable frame rates can also help preserve battery life, e.g. if a watch
  * face has a short animation once per second it can adjust the frame rate inorder to sleep when
- * not animating.
+ * not animating. In ambient mode the watch face will be rendered once per minute.
  */
 public sealed class Renderer @WorkerThread constructor(
     public val surfaceHolder: SurfaceHolder,
@@ -423,10 +423,14 @@ public sealed class Renderer @WorkerThread constructor(
 
         /**
          * Sub-classes should override this to implement their watch face rendering logic which
-         * should respect the current [renderParameters]. Any highlights due to
-         * [RenderParameters.highlightLayer] should be rendered by [renderHighlightLayer] instead
-         * where possible. For correct behavior this function must use the supplied [ZonedDateTime]
-         * in favor of any other ways of getting the time.
+         * should respect the current [renderParameters]. Please note [WatchState.isAmbient] may not
+         * match the [RenderParameters.drawMode] and should not be used to decide what to render.
+         * E.g. when editing from the companion phone while the watch is ambient, renders
+         * may be requested with [DrawMode.INTERACTIVE].
+         *
+         * Any highlights due to [RenderParameters.highlightLayer] should be rendered by
+         * [renderHighlightLayer] instead where possible. For correct behavior this function must
+         * use the supplied [ZonedDateTime] in favor of any other ways of getting the time.
          *
          * Before any calls to render, [init] will be called once.
          *
@@ -1002,10 +1006,14 @@ public sealed class Renderer @WorkerThread constructor(
 
         /**
          * Sub-classes should override this to implement their watch face rendering logic which
-         * should respect the current [renderParameters]. Any highlights due to
-         * [RenderParameters.highlightLayer] should be rendered by [renderHighlightLayer] instead
-         * where possible. For correct behavior this function must use the supplied [ZonedDateTime]
-         * in favor of any other ways of getting the time.
+         * should respect the current [renderParameters]. Please note [WatchState.isAmbient] may not
+         * match the [RenderParameters.drawMode] and should not be used to decide what to render.
+         * E.g. when editing from the companion phone while the watch is ambient, renders
+         * may be requested with [DrawMode.INTERACTIVE].
+         *
+         * Any highlights due to [RenderParameters.highlightLayer] should be rendered by
+         * [renderHighlightLayer] instead where possible. For correct behavior this function must
+         * use the supplied [ZonedDateTime] in favor of any other ways of getting the time.
          *
          * Note this function is called inside a lambda passed to [runUiThreadGlCommands] which
          * has synchronized access to the GL context.

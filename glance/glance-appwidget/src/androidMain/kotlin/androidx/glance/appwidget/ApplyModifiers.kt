@@ -19,25 +19,67 @@ package androidx.glance.appwidget
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
 import android.os.Build
 import android.util.TypedValue
 import android.view.ViewGroup
 import android.widget.RemoteViews
+import androidx.annotation.ColorInt
 import androidx.annotation.DoNotInline
 import androidx.annotation.IdRes
 import androidx.annotation.RequiresApi
 import androidx.core.widget.setTextViewHeight
 import androidx.core.widget.setTextViewWidth
+import androidx.core.widget.setViewBackgroundColor
+import androidx.glance.BackgroundModifier
 import androidx.glance.Modifier
 import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LaunchActivityAction
+import androidx.glance.action.UpdateAction
 import androidx.glance.layout.Dimension
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier
+import androidx.glance.unit.Color
 import androidx.glance.unit.dp
+import kotlin.math.roundToInt
+
+internal fun applyModifiers(
+    translationContext: TranslationContext,
+    rv: RemoteViews,
+    modifiers: Modifier,
+    layoutDef: LayoutIds
+) {
+    val context = translationContext.context
+    modifiers.foldOut(Unit) { modifier, _ ->
+        when (modifier) {
+            is ActionModifier -> applyAction(rv, modifier.action, context, layoutDef.mainViewId)
+            is PaddingModifier -> applyPadding(
+                rv,
+                modifier,
+                translationContext,
+                layoutDef.mainViewId
+            )
+            is WidthModifier -> applyWidthModifier(
+                rv,
+                modifier,
+                context,
+                layoutDef
+            )
+            is HeightModifier -> applyHeightModifier(
+                rv,
+                modifier,
+                context,
+                layoutDef
+            )
+            is BackgroundModifier -> applyBackgroundModifier(
+                rv,
+                modifier,
+                layoutDef
+            )
+        }
+    }
+}
 
 private fun applyAction(
     rv: RemoteViews,
@@ -55,6 +97,11 @@ private fun applyAction(
                     intent,
                     PendingIntent.FLAG_MUTABLE
                 )
+            rv.setOnClickPendingIntent(viewId, pendingIntent)
+        }
+        is UpdateAction -> {
+            val pendingIntent =
+                ActionRunnableBroadcastReceiver.createPendingIntent(context, action.runnableClass)
             rv.setOnClickPendingIntent(viewId, pendingIntent)
         }
         else -> throw IllegalArgumentException("Unrecognized action type.")
@@ -80,42 +127,10 @@ private fun applyPadding(
     )
 }
 
-internal fun applyModifiers(
-    translationContext: TranslationContext,
-    rv: RemoteViews,
-    modifiers: Modifier,
-    layoutDef: LayoutIds
-) {
-    val context = translationContext.context
-    modifiers.foldOut(Unit) { modifier, _ ->
-        when (modifier) {
-            is ActionModifier -> applyAction(rv, modifier.action, context, layoutDef.mainViewId)
-            is PaddingModifier -> applyPadding(
-                rv,
-                modifier,
-                translationContext,
-                layoutDef.mainViewId
-            )
-            is WidthModifier -> applyWidthModifier(
-                rv,
-                modifier,
-                context.resources,
-                layoutDef
-            )
-            is HeightModifier -> applyHeightModifier(
-                rv,
-                modifier,
-                context.resources,
-                layoutDef
-            )
-        }
-    }
-}
-
 private fun applyWidthModifier(
     rv: RemoteViews,
     modifier: WidthModifier,
-    resources: Resources,
+    context: Context,
     layoutDef: LayoutIds?,
 ) {
     checkNotNull(layoutDef) { "No layout spec, cannot change size" }
@@ -127,16 +142,33 @@ private fun applyWidthModifier(
         }
         return
     }
-    val width = modifier.width
-    if (width !is Dimension.Dp) return
+    val widthPx = modifier.width.toPixels(context)
+    // Sizes in pixel must be >= 0 to be valid
+    if (widthPx < 0) return
     checkNotNull(layoutDef.sizeViewId) { "The layout specified does not allow specifying the size" }
-    rv.setTextViewWidth(layoutDef.sizeViewId, width.dp.toPixels(resources.displayMetrics))
+    rv.setTextViewWidth(layoutDef.sizeViewId, widthPx)
+}
+
+/**
+ * Returns the dimension, in pixels, from the given context or a negative value if the Dimension is
+ * not in Pixels (i.e. Wrap, Fill or Expand).
+ *
+ * @return the size in Pixel, or a negative number if the dimension cannot be computed (e.g.
+ * set by choosing the correct layout).
+ */
+private fun Dimension.toPixels(context: Context): Int {
+    val resources = context.resources
+    return when (this) {
+        is Dimension.Dp -> dp.toPixels(resources.displayMetrics)
+        is Dimension.Resource -> resources.getDimensionPixelSize(res)
+        else -> -1
+    }
 }
 
 private fun applyHeightModifier(
     rv: RemoteViews,
     modifier: HeightModifier,
-    resources: Resources,
+    context: Context,
     layoutDef: LayoutIds?,
 ) {
     checkNotNull(layoutDef) { "No layout spec, cannot change size" }
@@ -148,10 +180,31 @@ private fun applyHeightModifier(
         }
         return
     }
-    val height = modifier.height
-    if (height !is Dimension.Dp) return
+    val heightPx = modifier.height.toPixels(context)
+    if (heightPx < 0) return
     checkNotNull(layoutDef.sizeViewId) { "The layout specified does not allow specifying the size" }
-    rv.setTextViewHeight(layoutDef.sizeViewId, height.dp.toPixels(resources.displayMetrics))
+    rv.setTextViewHeight(layoutDef.sizeViewId, heightPx)
+}
+
+private fun applyBackgroundModifier(
+    rv: RemoteViews,
+    modifier: BackgroundModifier,
+    layoutDef: LayoutIds
+) {
+    rv.setViewBackgroundColor(layoutDef.mainViewId, modifier.color.toArgb())
+}
+
+// TODO(b/202150620): Use the shared Compose utility when we use the same Color class.
+@ColorInt
+private fun Color.toArgb(): Int {
+    // Converts a value from a float in [0,1] to an int in [0x00,0xFF].
+    fun Float.toColorComponent() = (this * 0xFF).roundToInt()
+    return android.graphics.Color.argb(
+        /* alpha= */ alpha.toColorComponent(),
+        /* red= */ red.toColorComponent(),
+        /* green= */ green.toColorComponent(),
+        /* blue= */ blue.toColorComponent()
+    )
 }
 
 @RequiresApi(Build.VERSION_CODES.S)
@@ -176,6 +229,7 @@ private object ApplyModifiersApi31Impl {
             is Dimension.Dp -> {
                 rv.setViewLayoutWidth(viewId, width.dp.value, TypedValue.COMPLEX_UNIT_DIP)
             }
+            is Dimension.Resource -> rv.setViewLayoutWidthDimen(viewId, width.res)
         }
     }
 
@@ -199,6 +253,7 @@ private object ApplyModifiersApi31Impl {
             is Dimension.Dp -> {
                 rv.setViewLayoutHeight(viewId, height.dp.value, TypedValue.COMPLEX_UNIT_DIP)
             }
+            is Dimension.Resource -> rv.setViewLayoutHeightDimen(viewId, height.res)
         }
     }
 }

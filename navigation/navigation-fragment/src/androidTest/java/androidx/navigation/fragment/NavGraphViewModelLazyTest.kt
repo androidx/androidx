@@ -30,6 +30,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStore
 import androidx.navigation.NavHostController
 import androidx.navigation.Navigation
+import androidx.navigation.createGraph
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.test.R
 import androidx.navigation.navGraphViewModels
@@ -138,13 +139,105 @@ class NavGraphViewModelLazyTest {
             assertThat(recreatedValue).isEqualTo("test")
         }
     }
+
+    @Test
+    fun sameViewModelAcrossFragmentsWithRoutes() {
+        with(ActivityScenario.launch(NavGraphRouteActivity::class.java)) {
+            val navController = withActivity { findNavController(R.id.nav_host) }
+            val firstFragment: TestRouteVMFragment = withActivity {
+                val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host)!!
+                navHostFragment.childFragmentManager.primaryNavigationFragment
+                    as TestRouteVMFragment
+            }
+            val viewModel = withActivity { firstFragment.viewModel }
+            val savedStateViewModel = withActivity { firstFragment.savedStateViewModel }
+            assertThat(viewModel).isNotNull()
+            assertThat(savedStateViewModel).isNotNull()
+
+            // First assert that we don't have any default value since the
+            // navigation graph wasn't sent any arguments
+            val initialState: String? = savedStateViewModel.savedStateHandle["test"]
+            assertThat(initialState).isNull()
+
+            // Now set arguments
+            savedStateViewModel.savedStateHandle.set("test", "test")
+
+            // Navigate to the second destination and ensure it
+            // gets the same ViewModels and data
+            withActivity {
+                navController.navigate("second_destination")
+            }
+            val secondFragment: TestRouteVMFragment = withActivity {
+                val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host)!!
+                navHostFragment.childFragmentManager.primaryNavigationFragment
+                    as TestRouteVMFragment
+            }
+            assertThat(secondFragment.viewModel)
+                .isSameInstanceAs(viewModel)
+            assertThat(secondFragment.savedStateViewModel)
+                .isSameInstanceAs(savedStateViewModel)
+            val savedValue: String? = secondFragment.savedStateViewModel
+                .savedStateHandle["test"]
+            assertThat(savedValue).isEqualTo("test")
+
+            // Now recreate the Activity and ensure that when we
+            // first request the nav graph ViewModel on the second destination
+            // that we get the same ViewModel and data back
+            recreate()
+            val recreatedFragment: TestRouteVMFragment = withActivity {
+                val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host)!!
+                navHostFragment.childFragmentManager.primaryNavigationFragment
+                    as TestRouteVMFragment
+            }
+            assertThat(recreatedFragment.viewModel)
+                .isSameInstanceAs(viewModel)
+            assertThat(recreatedFragment.savedStateViewModel)
+                .isSameInstanceAs(savedStateViewModel)
+            val recreatedValue: String? = recreatedFragment.savedStateViewModel
+                .savedStateHandle["test"]
+            assertThat(recreatedValue).isEqualTo("test")
+        }
+    }
 }
 
 class NavGraphActivity : FragmentActivity(R.layout.activity_nav_graph)
 
+class NavGraphRouteActivity : FragmentActivity(R.layout.navigation_activity_no_graph) {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment
+        navHostFragment.navController.apply {
+            graph = createGraph(
+                "start_destination",
+                "vm_graph"
+            ) {
+                fragment<TestRouteVMFragment>("start_destination") {
+                    argument("test") { defaultValue = "first" }
+                }
+                fragment<TestRouteVMFragment>("second_destination") {
+                    argument("test") { defaultValue = "second" }
+                }
+            }
+        }
+    }
+}
+
 class TestVMFragment : Fragment() {
     val viewModel: TestViewModel by navGraphViewModels(R.id.vm_graph)
     val savedStateViewModel: TestSavedStateViewModel by navGraphViewModels(R.id.vm_graph)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return View(activity)
+    }
+}
+
+class TestRouteVMFragment : Fragment() {
+    val viewModel: TestViewModel by navGraphViewModels("vm_graph")
+    val savedStateViewModel: TestSavedStateViewModel by navGraphViewModels("vm_graph")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

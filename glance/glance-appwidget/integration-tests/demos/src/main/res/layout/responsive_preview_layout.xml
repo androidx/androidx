@@ -20,6 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="8dp"
+    android:background="@color/light_gray"
     android:gravity="center_vertical">
     <TextView
         android:layout_width="wrap_content"
@@ -30,4 +31,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Current layout: 100dp x 100dp" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text = "Button" />
 </LinearLayout>

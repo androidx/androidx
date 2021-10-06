@@ -207,6 +207,7 @@ public class NavBackStackEntry private constructor(
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is NavBackStackEntry) return false
         return id == other.id && destination == other.destination &&
+            lifecycle == other.lifecycle && savedStateRegistry == other.savedStateRegistry &&
             (
                 arguments == other.arguments ||
                     arguments?.keySet()
@@ -220,6 +221,8 @@ public class NavBackStackEntry private constructor(
         arguments?.keySet()?.forEach {
             result = 31 * result + arguments.get(it).hashCode()
         }
+        result = 31 * result + lifecycle.hashCode()
+        result = 31 * result + savedStateRegistry.hashCode()
         return result
     }
 

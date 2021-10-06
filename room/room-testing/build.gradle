@@ -25,8 +25,8 @@ plugins {
 dependencies {
     api(project(":room:room-common"))
     api(project(":room:room-runtime"))
-    api("androidx.sqlite:sqlite:2.2.0-alpha02")
-    api("androidx.sqlite:sqlite-framework:2.2.0-alpha02")
+    api(project(":sqlite:sqlite"))
+    api(project(":sqlite:sqlite-framework"))
     api(project(":room:room-migration"))
     implementation("androidx.arch.core:core-runtime:2.0.1")
     api(libs.junit)

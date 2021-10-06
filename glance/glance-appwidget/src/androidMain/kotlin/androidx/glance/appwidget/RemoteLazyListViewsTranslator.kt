@@ -23,6 +23,7 @@ import androidx.glance.appwidget.layout.EmittableLazyList
 import androidx.glance.appwidget.layout.EmittableLazyListItem
 import androidx.glance.appwidget.layout.ReservedItemIdRangeEnd
 import androidx.glance.layout.EmittableBox
+import androidx.glance.layout.fillMaxWidth
 
 internal fun translateEmittableLazyColumn(
     translationContext: TranslationContext,
@@ -35,8 +36,7 @@ internal fun translateEmittableLazyColumn(
             lists provide a non-composable [RemoteViews].
             """.trimIndent()
         }
-    val listLayout =
-        selectLayout(listLayoutType, element.modifier)
+    val listLayout = selectLayout(translationContext, listLayoutType, element.modifier)
     return translateEmittableLazyList(
         translationContext,
         element,
@@ -82,14 +82,14 @@ internal fun translateEmittableLazyListItem(
     translationContext: TranslationContext,
     element: EmittableLazyListItem
 ): RemoteViews =
-    if (element.children.size == 1) {
-        translateChild(translationContext, element.children.single())
-    } else {
-        translateChild(
-            translationContext,
-            EmittableBox().also { it.children.addAll(element.children) }
-        )
-    }
+    translateChild(
+        translationContext,
+        EmittableBox().apply {
+            modifier = modifier.fillMaxWidth()
+            contentAlignment = element.alignment
+            children.addAll(element.children)
+        }
+    )
 
 private val listLayouts: List<LayoutSelector.Type> = listOf(
     LayoutSelector.Type.List1,

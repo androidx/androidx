@@ -36,6 +36,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.media.MediaCodecInfo;
 import android.media.MediaMuxer;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
@@ -95,6 +96,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * An implementation of {@link VideoOutput} for starting video recordings that are saved
@@ -1820,10 +1822,7 @@ public final class Recorder implements VideoOutput {
         OutputOptions outputOptions = mInProgressRecording.getOutputOptions();
         RecordingStats stats = getInProgressRecordingStats();
 
-        if (outputOptions instanceof MediaStoreOutputOptions) {
-            // Toggle off pending status for the video file.
-            finalizeMediaStoreFile((MediaStoreOutputOptions) outputOptions);
-        }
+        mInProgressRecording.finalizeOutputFile(mOutputUri);
 
         OutputResults outputResults = OutputResults.of(mOutputUri);
         mInProgressRecording.updateVideoRecordEvent(errorToSend == ERROR_NONE
@@ -2060,20 +2059,6 @@ public final class Recorder implements VideoOutput {
         }
     }
 
-    @ExecutedBy("mSequentialExecutor")
-    private void finalizeMediaStoreFile(@NonNull MediaStoreOutputOptions mediaStoreOutputOptions) {
-        if (mOutputUri.equals(Uri.EMPTY)) {
-            return;
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(MediaStore.Video.Media.IS_PENDING, NOT_PENDING);
-            mediaStoreOutputOptions.getContentResolver().update(mOutputUri, contentValues, null,
-                    null);
-        }
-        // TODO (b/198551531): Trigger MediaScannerConnection.scanFile to rescan.
-    }
-
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mSequentialExecutor")
     @NonNull
@@ -2186,14 +2171,73 @@ public final class Recorder implements VideoOutput {
     @AutoValue
     abstract static class RecordingRecord {
 
+        private final AtomicReference<Consumer<Uri>> mOutputFileFinalizer =
+                new AtomicReference<>(ignored -> {
+                    /* no-op by default */
+                });
+
         static RecordingRecord from(@NonNull PendingRecording pendingRecording, long recordingId) {
-            return new AutoValue_Recorder_RecordingRecord(
-                    pendingRecording.getOutputOptions(),
+            OutputOptions outputOptions = pendingRecording.getOutputOptions();
+            RecordingRecord recordingRecord = new AutoValue_Recorder_RecordingRecord(
+                    outputOptions,
                     pendingRecording.getCallbackExecutor(),
                     pendingRecording.getEventListener(),
                     pendingRecording.isAudioEnabled(),
                     recordingId
             );
+
+            if (outputOptions instanceof MediaStoreOutputOptions) {
+                MediaStoreOutputOptions mediaStoreOutputOptions =
+                        (MediaStoreOutputOptions) outputOptions;
+                // TODO(b/201946954): Investigate whether we should add a setting to disable
+                //  scan/update to allow users to perform it themselves.
+                Consumer<Uri> outputFileFinalizer;
+                if (Build.VERSION.SDK_INT >= 29) {
+                    outputFileFinalizer = outputUri -> {
+                        if (outputUri.equals(Uri.EMPTY)) {
+                            return;
+                        }
+                        ContentValues contentValues = new ContentValues();
+                        contentValues.put(MediaStore.Video.Media.IS_PENDING, NOT_PENDING);
+                        mediaStoreOutputOptions.getContentResolver().update(outputUri,
+                                contentValues, null, null);
+                    };
+                } else {
+                    // Context will only be held in local scope of the consumer so it will not be
+                    // retained after finalizeOutputFile() is called.
+                    Context finalContext = pendingRecording.getApplicationContext();
+                    outputFileFinalizer = outputUri -> {
+                        if (outputUri.equals(Uri.EMPTY)) {
+                            return;
+                        }
+                        String filePath = OutputUtil.getAbsolutePathFromUri(
+                                mediaStoreOutputOptions.getContentResolver(), outputUri,
+                                MEDIA_COLUMN);
+                        if (filePath != null) {
+                            // Use null mime type list to have MediaScanner derive mime type from
+                            // extension
+                            MediaScannerConnection.scanFile(finalContext,
+                                    new String[]{filePath}, /*mimeTypes=*/null, (path, uri) -> {
+                                        if (uri == null) {
+                                            Logger.e(TAG, String.format("File scanning operation "
+                                                    + "failed [path: %s]", path));
+                                        } else {
+                                            Logger.d(TAG, String.format("File scan completed "
+                                                    + "successfully [path: %s, URI: %s]", path,
+                                                    uri));
+                                        }
+                                    });
+                        } else {
+                            Logger.d(TAG,
+                                    "Skipping media scanner scan. Unable to retrieve file path "
+                                            + "from URI: " + outputUri);
+                        }
+                    };
+                }
+                recordingRecord.mOutputFileFinalizer.set(outputFileFinalizer);
+            }
+
+            return recordingRecord;
         }
 
         @NonNull
@@ -2224,6 +2268,24 @@ public final class Recorder implements VideoOutput {
                     Logger.e(TAG, "The callback executor is invalid.", e);
                 }
             }
+        }
+
+        /**
+         * Performs final operations required to prepare completed output file.
+         *
+         * <p>Output file finalization can only occur once. Any subsequent calls to this method
+         * will throw an {@link AssertionError}.
+         *
+         * @param uri The uri of the output file.
+         */
+        void finalizeOutputFile(@NonNull Uri uri) {
+            Consumer<Uri> outputFileFinalizer = mOutputFileFinalizer.getAndSet(null);
+            if (outputFileFinalizer == null) {
+                throw new AssertionError(
+                        "Output file has already been finalized for recording " + this);
+            }
+
+            outputFileFinalizer.accept(uri);
         }
     }
 

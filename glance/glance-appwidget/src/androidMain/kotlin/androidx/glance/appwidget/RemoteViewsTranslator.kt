@@ -32,10 +32,14 @@ import androidx.glance.appwidget.layout.EmittableAndroidRemoteViews
 import androidx.glance.appwidget.layout.EmittableCheckBox
 import androidx.glance.appwidget.layout.EmittableLazyColumn
 import androidx.glance.appwidget.layout.EmittableLazyListItem
+import androidx.glance.appwidget.layout.EmittableSwitch
 import androidx.glance.appwidget.translators.translateEmittableCheckBox
+import androidx.glance.appwidget.translators.translateEmittableSwitch
 import androidx.glance.appwidget.translators.translateEmittableText
+import androidx.glance.appwidget.translators.setText
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
+import androidx.glance.layout.EmittableButton
 import androidx.glance.layout.EmittableColumn
 import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableText
@@ -81,6 +85,7 @@ internal fun translateChild(
 ): RemoteViews {
     return when (element) {
         is EmittableBox -> translateEmittableBox(translationContext, element)
+        is EmittableButton -> translateEmittableButton(translationContext, element)
         is EmittableRow -> translateEmittableRow(translationContext, element)
         is EmittableColumn -> translateEmittableColumn(translationContext, element)
         is EmittableText -> translateEmittableText(translationContext, element)
@@ -90,6 +95,7 @@ internal fun translateChild(
             translateEmittableAndroidRemoteViews(translationContext, element)
         }
         is EmittableCheckBox -> translateEmittableCheckBox(translationContext, element)
+        is EmittableSwitch -> translateEmittableSwitch(translationContext, element)
         else -> throw IllegalArgumentException("Unknown element type ${element::javaClass}")
     }
 }
@@ -113,14 +119,13 @@ private fun Alignment.Vertical.toGravity(): Int =
         else -> throw IllegalArgumentException("Unknown vertical alignment: $this")
     }
 
-private fun Alignment.toGravity() = horizontal.toGravity() or vertical.toGravity()
+internal fun Alignment.toGravity() = horizontal.toGravity() or vertical.toGravity()
 
 private fun translateEmittableBox(
     translationContext: TranslationContext,
     element: EmittableBox
 ): RemoteViews {
-    val layoutDef =
-        selectLayout(LayoutSelector.Type.Box, element.modifier)
+    val layoutDef = selectLayout(translationContext, LayoutSelector.Type.Box, element.modifier)
     return remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->
             rv.setRelativeLayoutGravity(layoutDef.mainViewId, element.contentAlignment.toGravity())
@@ -142,8 +147,7 @@ private fun translateEmittableRow(
     translationContext: TranslationContext,
     element: EmittableRow
 ): RemoteViews {
-    val layoutDef =
-        selectLayout(LayoutSelector.Type.Row, element.modifier)
+    val layoutDef = selectLayout(translationContext, LayoutSelector.Type.Row, element.modifier)
     return remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->
             rv.setLinearLayoutGravity(
@@ -168,8 +172,7 @@ private fun translateEmittableColumn(
     translationContext: TranslationContext,
     element: EmittableColumn
 ): RemoteViews {
-    val layoutDef =
-        selectLayout(LayoutSelector.Type.Column, element.modifier)
+    val layoutDef = selectLayout(translationContext, LayoutSelector.Type.Column, element.modifier)
     return remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->
             rv.setLinearLayoutGravity(
@@ -207,6 +210,25 @@ private fun translateEmittableAndroidRemoteViews(
         }
     }
     return element.remoteViews
+}
+
+private fun translateEmittableButton(
+    translationContext: TranslationContext,
+    element: EmittableButton
+): RemoteViews {
+    val layoutDef =
+        selectLayout(translationContext, LayoutSelector.Type.Button, element.modifier)
+    return remoteViews(translationContext, layoutDef.layoutId)
+        .also { rv ->
+            rv.setText(
+                translationContext,
+                layoutDef.mainViewId,
+                element.text,
+                element.style
+            )
+            rv.setBoolean(layoutDef.mainViewId, "setEnabled", element.enabled)
+            applyModifiers(translationContext, rv, element.modifier, layoutDef)
+        }
 }
 
 // Sets the emittables as children to the view. This first remove any previously added view, the

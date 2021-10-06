@@ -19,11 +19,9 @@ package androidx.navigation.compose
 import android.content.Context
 import android.os.Bundle
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
@@ -42,20 +40,7 @@ import androidx.navigation.Navigator
  */
 @Composable
 public fun NavController.currentBackStackEntryAsState(): State<NavBackStackEntry?> {
-    val currentNavBackStackEntry = remember { mutableStateOf(currentBackStackEntry) }
-    // setup the onDestinationChangedListener responsible for detecting when the
-    // current back stack entry changes
-    DisposableEffect(this) {
-        val callback = NavController.OnDestinationChangedListener { controller, _, _ ->
-            currentNavBackStackEntry.value = controller.currentBackStackEntry
-        }
-        addOnDestinationChangedListener(callback)
-        // remove the navController on dispose (i.e. when the composable is destroyed)
-        onDispose {
-            removeOnDestinationChangedListener(callback)
-        }
-    }
-    return currentNavBackStackEntry
+    return currentBackStackEntryFlow.collectAsState(null)
 }
 
 /**

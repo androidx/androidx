@@ -30,5 +30,6 @@
         <activity android:name="androidx.navigation.fragment.EmptyActivity" />
         <activity android:name="androidx.navigation.fragment.TestActivity" />
         <activity android:name="androidx.navigation.fragment.NavGraphActivity" />
+        <activity android:name="androidx.navigation.fragment.NavGraphRouteActivity" />
     </application>
 </manifest>

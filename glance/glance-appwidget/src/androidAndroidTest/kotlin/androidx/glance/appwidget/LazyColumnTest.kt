@@ -17,7 +17,7 @@
 package androidx.glance.appwidget
 
 import android.os.Build
-import android.view.View
+import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.ListView
 import android.widget.RelativeLayout
@@ -25,11 +25,11 @@ import android.widget.TextView
 import androidx.glance.Modifier
 import androidx.glance.appwidget.layout.LazyColumn
 import androidx.glance.appwidget.layout.ReservedItemIdRangeEnd
+import androidx.glance.layout.Alignment
 import androidx.glance.layout.Text
 import androidx.glance.layout.padding
 import androidx.glance.unit.Dp
 import androidx.glance.unit.dp
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -83,7 +83,6 @@ class LazyColumnTest {
         }
     }
 
-    @FlakyTest
     @Test
     fun item_withItemIds_createsStableList() {
         TestGlanceAppWidget.uiDefinition = {
@@ -104,7 +103,6 @@ class LazyColumnTest {
         }
     }
 
-    @FlakyTest
     @Test
     fun items_withoutItemIds_createsNonStableList() {
         TestGlanceAppWidget.uiDefinition = {
@@ -125,7 +123,6 @@ class LazyColumnTest {
         }
     }
 
-    @FlakyTest
     @Test
     fun items_withItemIds_createsStableList() {
         TestGlanceAppWidget.uiDefinition = {
@@ -161,10 +158,10 @@ class LazyColumnTest {
         mHostRule.startHost()
 
         waitForListViewChildren { list ->
-            val textView1 = list.getListChildAt<TextView>(0)
-            val textView2 = list.getListChildAt<TextView>(1)
-            val textView3 = list.getListChildAt<TextView>(2)
-            val textView4 = list.getListChildAt<TextView>(3)
+            val textView1 = assertIs<TextView>(list.getListItemAt(0).getChildAt(0))
+            val textView2 = assertIs<TextView>(list.getListItemAt(1).getChildAt(0))
+            val textView3 = assertIs<TextView>(list.getListItemAt(2).getChildAt(0))
+            val textView4 = assertIs<TextView>(list.getListItemAt(3).getChildAt(0))
             assertThat(textView1.text.toString()).isEqualTo("Row 0")
             assertThat(textView2.text.toString()).isEqualTo("Row 1")
             assertThat(textView3.text.toString()).isEqualTo("Row 2")
@@ -185,10 +182,10 @@ class LazyColumnTest {
         mHostRule.startHost()
 
         waitForListViewChildren { list ->
-            val textView1 = list.getListChildAt<TextView>(0)
-            val textView2 = list.getListChildAt<TextView>(1)
-            val textView3 = list.getListChildAt<TextView>(2)
-            val textView4 = list.getListChildAt<TextView>(3)
+            val textView1 = assertIs<TextView>(list.getListItemAt(0).getChildAt(0))
+            val textView2 = assertIs<TextView>(list.getListItemAt(1).getChildAt(0))
+            val textView3 = assertIs<TextView>(list.getListItemAt(2).getChildAt(0))
+            val textView4 = assertIs<TextView>(list.getListItemAt(3).getChildAt(0))
             assertThat(textView1.text.toString()).isEqualTo("Row 0")
             assertThat(textView2.text.toString()).isEqualTo("Row 1")
             assertThat(textView3.text.toString()).isEqualTo("Row 2")
@@ -196,20 +193,57 @@ class LazyColumnTest {
         }
     }
 
-    @FlakyTest
     @Test
-    fun itemContent_emptyItem() {
+    fun itemContent_defaultAlignment_setsGravityStart() {
         TestGlanceAppWidget.uiDefinition = {
             LazyColumn {
-                item { }
+                item {
+                    Text("Row item 0")
+                }
             }
         }
 
         mHostRule.startHost()
 
         waitForListViewChildren { list ->
-            val row = list.getListChildAt<RelativeLayout>(0)
-            assertThat(row.childCount).isEqualTo(0)
+            val listItem = list.getListItemAt(0)
+            assertThat(listItem.gravity).isEqualTo(Gravity.START or Gravity.CENTER_VERTICAL)
+        }
+    }
+
+    @Test
+    fun itemContent_centerAlignment_setsGravityCenter() {
+        TestGlanceAppWidget.uiDefinition = {
+            LazyColumn(horizontalAlignment = Alignment.Horizontal.CenterHorizontally) {
+                item {
+                    Text("Row item 0")
+                }
+            }
+        }
+
+        mHostRule.startHost()
+
+        waitForListViewChildren { list ->
+            val listItem = list.getListItemAt(0)
+            assertThat(listItem.gravity).isEqualTo(Gravity.CENTER)
+        }
+    }
+
+    @Test
+    fun itemContent_endAlignment_setsGravityEnd() {
+        TestGlanceAppWidget.uiDefinition = {
+            LazyColumn(horizontalAlignment = Alignment.Horizontal.End) {
+                item {
+                    Text("Row item 0")
+                }
+            }
+        }
+
+        mHostRule.startHost()
+
+        waitForListViewChildren { list ->
+            val listItem = list.getListItemAt(0)
+            assertThat(listItem.gravity).isEqualTo(Gravity.END + Gravity.CENTER_VERTICAL)
         }
     }
 
@@ -227,7 +261,7 @@ class LazyColumnTest {
         mHostRule.startHost()
 
         waitForListViewChildren { list ->
-            val row = list.getListChildAt<RelativeLayout>(0)
+            val row = list.getListItemAt(0)
             val rowItem0 = assertIs<TextView>(row.getChildAt(0))
             val rowItem1 = assertIs<TextView>(row.getChildAt(1))
             assertThat(rowItem0.text.toString()).isEqualTo("Row item 0")
@@ -251,8 +285,8 @@ class LazyColumnTest {
         }
     }
 
-    private inline fun <reified V : View> ListView.getListChildAt(position: Int): V {
-        return assertIs<V>(
+    private fun ListView.getListItemAt(position: Int): RelativeLayout {
+        return assertIs<RelativeLayout>(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 this.getChildAt(position)
             } else {

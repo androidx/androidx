@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -83,7 +82,6 @@ internal class SkiaLayer(
 
     override val layerId = lastId++
 
-    @ExperimentalComposeUiApi
     override val ownerViewId: Long
         get() = 0
 
@@ -277,7 +275,6 @@ internal class SkiaLayer(
 
     override fun updateDisplayList() = Unit
 
-    @OptIn(ExperimentalUnsignedTypes::class)
     fun drawShadow(canvas: Canvas) = with(density) {
         val path = when (val outline = outlineCache.outline) {
             is Outline.Rectangle -> Path().apply { addRect(outline.rect) }

@@ -20,10 +20,12 @@ import android.app.Activity
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.glance.Modifier
+import androidx.glance.background
 import androidx.glance.action.clickable
 import androidx.glance.action.launchActivityAction
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
+import androidx.glance.layout.Button
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Text
@@ -45,7 +47,7 @@ import androidx.glance.wear.layout.AndroidLayoutElement
 import androidx.glance.wear.layout.CurvedRow
 import androidx.glance.wear.layout.CurvedTextStyle
 import androidx.glance.wear.layout.RadialAlignment
-import androidx.glance.wear.layout.background
+import androidx.glance.wear.test.R
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.wear.tiles.ActionBuilders
 import androidx.wear.tiles.DimensionBuilders
@@ -436,6 +438,60 @@ class WearCompositionTranslatorTest {
         assertThat(launchAction.androidActivity!!.packageName).isEqualTo(packageName)
         assertThat(launchAction.androidActivity!!.className)
             .isEqualTo(TestActivity::class.qualifiedName)
+    }
+
+    @Test
+    fun canTranslateButton() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            val style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Italic,
+                textDecoration = TextDecoration.Underline
+            )
+            Button(
+                "Hello World",
+                onClick = launchActivityAction(TestActivity::class.java),
+                modifier = Modifier.padding(1.dp),
+                style = style
+            )
+        }
+
+        val box = assertIs<LayoutElementBuilders.Box>(content)
+        val innerText = assertIs<LayoutElementBuilders.Text>(box.contents[0])
+
+        assertThat(innerText.text!!.value).isEqualTo("Hello World")
+
+        assertThat(innerText.fontStyle!!.size!!.value).isEqualTo(16f)
+        assertThat(innerText.fontStyle!!.italic!!.value).isTrue()
+        assertThat(innerText.fontStyle!!.weight!!.value).isEqualTo(FONT_WEIGHT_BOLD)
+        assertThat(innerText.fontStyle!!.underline!!.value).isTrue()
+
+        assertThat(innerText.modifiers!!.clickable).isNotNull()
+        assertThat(innerText.modifiers!!.clickable!!.onClick)
+            .isInstanceOf(ActionBuilders.LaunchAction::class.java)
+    }
+
+    @Test
+    fun setSizeFromResource() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            Column(
+                modifier = Modifier.width(R.dimen.dimension1)
+                    .height(R.dimen.dimension2)
+            ) {}
+        }
+
+        val innerColumn =
+            (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Column
+        val context = getApplicationContext<Context>()
+
+        // Row should inherit the size of the inner Row
+        assertThat((innerColumn.width as DimensionBuilders.DpProp).value).isEqualTo(
+            context.resources.getDimension(R.dimen.dimension1)
+        )
+        assertThat((innerColumn.height as DimensionBuilders.DpProp).value).isEqualTo(
+            context.resources.getDimension(R.dimen.dimension2)
+        )
     }
 
     private suspend fun runAndTranslate(

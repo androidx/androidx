@@ -190,6 +190,22 @@ class MethodSpecHelperTest(
                 }
                 fun singleArg_returnsInterface(operation: (Int) -> MyInterface) {
                 }
+
+                fun noArg_suspend_returnsUnit(operation: suspend () -> Unit) {
+                }
+
+                suspend fun suspend_noArg_suspend_returnsUnit(operation: suspend () -> Unit) {
+                }
+                suspend fun suspend_no_arg_suspend_returnsString(operation: suspend () -> String) {
+                }
+                suspend fun suspend_singleArg_suspend_returnsUnit(operation: suspend (arg: String) -> Unit) {
+                }
+                suspend fun suspend_threeArgs_suspend_returnsUnit(operation: suspend (one: String, two: Int, three: Boolean) -> Unit) {
+                }
+                suspend fun suspend_singleArg_suspend_returnsString(operation: suspend (arg: String) -> String) {
+                }
+                suspend fun suspend_threeArgs_suspend_returnsString(operation: suspend (one: String, two: Int, three: Boolean) -> String) {
+                }
             }
             """.trimIndent()
         )

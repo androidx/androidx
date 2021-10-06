@@ -37,7 +37,7 @@ dependencies {
         api(project(":compose:runtime:runtime"))
 
         implementation(libs.kotlinStdlib)
-        implementation("androidx.compose.foundation:foundation-layout:1.0.0-rc02")
+        implementation(project(":compose:foundation:foundation-layout"))
 
         testImplementation(libs.testRules)
         testImplementation(libs.testRunner)
@@ -91,6 +91,9 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.truth)
             }
         }
+    }
+    dependencies {
+        samples(project(":wear:compose:compose-foundation-samples"))
     }
 }
 

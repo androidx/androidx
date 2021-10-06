@@ -21,7 +21,7 @@
     package="androidx.wear.benchmark.integration.macrobenchmark.target">
 
     <application
-        android:label="wear Macrobenchmark Target"
+        android:label="Wear Macrobenchmark Target"
         android:allowBackup="false"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault"
@@ -49,6 +49,10 @@
             android:name=".SwipeActivity"
             android:exported="true">
             <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name=
                     "androidx.wear.benchmark.integration.macrobenchmark.target.SWIPE_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -58,10 +62,6 @@
         <activity
             android:name=".ScrollActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
             <intent-filter>
                 <action android:name=
                     "androidx.wear.benchmark.integration.macrobenchmark.target.SCROLL_ACTIVITY" />

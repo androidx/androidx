@@ -173,7 +173,7 @@ class AppWidgetHostRule(
     ) {
         val latch = CountDownLatch(1)
         val onDrawListener = ViewTreeObserver.OnDrawListener {
-            if (mHostView.childCount > 0) latch.countDown()
+            if (mHostView.childCount > 0 && test()) latch.countDown()
         }
         mActivityRule.scenario.onActivity {
             mHostView.viewTreeObserver.addOnDrawListener(onDrawListener)
@@ -181,11 +181,20 @@ class AppWidgetHostRule(
 
         run()
 
-        val countedDown = latch.await(5, TimeUnit.SECONDS)
-        mActivityRule.scenario.onActivity {
-            mHostView.viewTreeObserver.removeOnDrawListener(onDrawListener)
+        try {
+            if (test()) return
+            val interval = 200L
+            for (timeout in 0..5000L step interval) {
+                val countedDown = latch.await(interval, TimeUnit.MILLISECONDS)
+                if (countedDown || test()) return
+            }
+            fail(condition)
+        } finally {
+            latch.countDown() // make sure it's released in all conditions
+            mActivityRule.scenario.onActivity {
+                mHostView.viewTreeObserver.removeOnDrawListener(onDrawListener)
+            }
         }
-        if (!countedDown && !test()) fail(condition)
     }
 
     private fun runAndWaitForChildren(action: () -> Unit) {

@@ -16,13 +16,18 @@
 
 package androidx.compose.ui.test.inputdispatcher
 
+import android.view.View
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.platform.ViewRootForTest
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.test.AndroidInputDispatcher
 import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.MainTestClock
 import androidx.compose.ui.test.TestOwner
 import androidx.compose.ui.test.createTestContext
-import androidx.compose.ui.test.util.InputDispatcherTestRule
 import androidx.compose.ui.test.util.MotionEventRecorder
 import androidx.compose.ui.test.util.assertNoTouchGestureInProgress
 import com.google.common.truth.Truth.assertThat
@@ -30,16 +35,9 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.After
-import org.junit.Rule
-import org.junit.rules.TestRule
 
 @OptIn(InternalTestApi::class)
-open class InputDispatcherTest(eventPeriodOverride: Long? = null) {
-
-    @get:Rule
-    val inputDispatcherRule: TestRule = InputDispatcherTestRule(
-        eventPeriodOverride = eventPeriodOverride
-    )
+open class InputDispatcherTest {
 
     internal val recorder = MotionEventRecorder()
 
@@ -53,7 +51,30 @@ open class InputDispatcherTest(eventPeriodOverride: Long? = null) {
 
     private val testContext = createTestContext(testOwner)
 
-    internal val subject = AndroidInputDispatcher(testContext, null, recorder::recordEvent)
+    private val viewRootForTest: ViewRootForTest = mock {
+        val mockView: View = mock {
+            on { getLocationOnScreen(any()) }.then {
+                it.getArgument<IntArray>(0).fill(0)
+                null
+            }
+        }
+        on { view } doReturn mockView
+
+        val mockSemanticsOwner: SemanticsOwner = mock {
+            val mockSemanticsNode: SemanticsNode = mock {
+                val rootBounds = Rect(Offset.Zero, Size(1000f, 1000f))
+                on { boundsInRoot } doReturn rootBounds
+            }
+            on { rootSemanticsNode } doReturn mockSemanticsNode
+        }
+        on { semanticsOwner } doReturn mockSemanticsOwner
+    }
+
+    internal val subject = AndroidInputDispatcher(
+        testContext,
+        viewRootForTest,
+        recorder::recordEvent
+    )
 
     @After
     fun tearDown() {

@@ -47,7 +47,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
     implementation(project(":benchmark:benchmark-common"))
-    implementation(project(":profileinstaller:profileinstaller"))
+    implementation("androidx.profileinstaller:profileinstaller:1.0.3")
     implementation("androidx.tracing:tracing-ktx:1.0.0")
     implementation(libs.testCore)
     implementation(libs.testUiautomator)

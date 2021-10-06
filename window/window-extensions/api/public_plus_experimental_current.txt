@@ -5,11 +5,9 @@ package androidx.window.extensions {
   }
 
   public interface WindowExtensions {
-    method @androidx.window.extensions.ExperimentalWindowExtensionsApi public androidx.window.extensions.embedding.ActivityEmbeddingComponent getActivityEmbeddingComponent();
+    method @androidx.window.extensions.ExperimentalWindowExtensionsApi public androidx.window.extensions.embedding.ActivityEmbeddingComponent? getActivityEmbeddingComponent();
     method public default int getVendorApiLevel();
-    method public androidx.window.extensions.layout.WindowLayoutComponent getWindowLayoutComponent();
-    method @androidx.window.extensions.ExperimentalWindowExtensionsApi public boolean isEmbeddingComponentAvailable();
-    method public boolean isWindowLayoutComponentAvailable();
+    method public androidx.window.extensions.layout.WindowLayoutComponent? getWindowLayoutComponent();
   }
 
   public class WindowExtensionsProvider {

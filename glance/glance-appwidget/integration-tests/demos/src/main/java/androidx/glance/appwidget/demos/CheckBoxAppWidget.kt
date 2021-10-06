@@ -17,19 +17,22 @@
 package androidx.glance.appwidget.demos
 
 import androidx.compose.runtime.Composable
+import androidx.glance.Modifier
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.layout.CheckBox
+import androidx.glance.background
 import androidx.glance.layout.Column
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.Color
 import androidx.glance.unit.sp
 
 class CheckBoxAppWidget : GlanceAppWidget() {
     @Composable
     override fun Content() {
-        Column {
+        Column(modifier = Modifier.background(Color.LightGray)) {
             CheckBox(checked = true, text = "Checkbox 1")
 
             CheckBox(

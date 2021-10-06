@@ -829,15 +829,12 @@ class XTypeElementTest {
                 )
             }
 
-            // TODO(b/201438939): The "child():ChildInterface" method should not appear in the list
-            //  since it is overridden by the "child():Child" method.
             invocation.processingEnv.requireTypeElement(
                 "ParentWithoutExplicitOverride"
             ).let { parent ->
                 assertWithMessage(parent.qualifiedName).that(
                     parent.allMethodSignatures()
                 ).containsExactly(
-                    "child():ChildInterface",
                     "child():Child"
                 )
             }

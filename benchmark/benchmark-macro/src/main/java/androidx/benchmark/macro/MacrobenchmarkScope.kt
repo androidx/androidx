@@ -17,7 +17,10 @@
 package androidx.benchmark.macro
 
 import android.content.Intent
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
@@ -126,18 +129,56 @@ public class MacrobenchmarkScope(
     }
 
     /**
+     * Drop caches via setprop added in API 31
+     *
+     * Feature for dropping caches without root added in 31: https://r.android.com/1584525
+     * Passing 3 will cause caches to be dropped, and prop will go back to 0 when it's done
+     */
+    @RequiresApi(31)
+    private fun dropKernelPageCacheSetProp() {
+        val result = Shell.executeScriptWithStderr("setprop perf.drop_caches 3")
+        check(result.stdout.isEmpty() && result.stderr.isEmpty()) {
+            "Failed to trigger drop cache via setprop: $result"
+        }
+        // Polling duration is very conservative, on Pixel 4L finishes in ~150ms
+        repeat(50) {
+            Thread.sleep(50)
+            when (val getPropResult = Shell.executeCommand("getprop perf.drop_caches").trim()) {
+                "0" -> return // completed!
+                "3" -> {} // not completed, continue
+                else -> throw IllegalStateException(
+                    "Unable to drop caches: Failed to read drop cache via getprop: $getPropResult"
+                )
+            }
+        }
+        throw IllegalStateException(
+            "Unable to drop caches: Did not observe perf.drop_caches reset automatically"
+        )
+    }
+
+    /**
      * Drop Kernel's in-memory cache of disk pages.
      *
      * Enables measuring disk-based startup cost, without simply accessing cache of disk data
      * held in memory, such as during [cold startup](androidx.benchmark.macro.StartupMode.COLD).
+     *
+     * @Throws IllegalStateException if dropping the cache fails on a API 31+ or rooted device,
+     * where it is expecte to work.
      */
     public fun dropKernelPageCache() {
-        val result = Shell.executeScript(
-            "echo 3 > /proc/sys/vm/drop_caches && echo Success || echo Failure"
-        ).trim()
-        // User builds don't allow drop caches yet.
-        if (result != "Success") {
-            Log.w(TAG, "Failed to drop kernel page cache, result: '$result'")
+        if (Build.VERSION.SDK_INT >= 31) {
+            dropKernelPageCacheSetProp()
+        } else {
+            val result = Shell.executeScript(
+                "echo 3 > /proc/sys/vm/drop_caches && echo Success || echo Failure"
+            ).trim()
+            // Older user builds don't allow drop caches, should investigate workaround
+            if (result != "Success") {
+                if (DeviceInfo.isRooted && !Shell.isSessionRooted()) {
+                    throw IllegalStateException("Failed to drop caches - run `adb root`")
+                }
+                Log.w(TAG, "Failed to drop kernel page cache, result: '$result'")
+            }
         }
     }
 }

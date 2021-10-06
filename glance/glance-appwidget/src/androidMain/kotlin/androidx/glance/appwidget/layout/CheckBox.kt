@@ -25,6 +25,11 @@ import androidx.glance.text.TextStyle
 
 /**
  * Adds a check box view to the glance view.
+ *
+ * @param checked whether the check box is checked.
+ * @param modifier the modifier to apply to the check box.
+ * @param text the text to display to the end of the check box.
+ * @param textStyle the style to apply to [text].
  */
 @Composable
 public fun CheckBox(

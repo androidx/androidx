@@ -3,6 +3,7 @@ package androidx.navigation {
 
   public final class NavGraphViewModelLazyKt {
     method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<? extends VM>! navGraphViewModels(androidx.fragment.app.Fragment, @IdRes int navGraphId, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<? extends VM>! navGraphViewModels(androidx.fragment.app.Fragment, String navGraphRoute, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
   }
 
 }

@@ -33,6 +33,7 @@ dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
     api("androidx.compose.runtime:runtime:1.0.1")
+    api("androidx.annotation:annotation:1.2.0")
 
     implementation("androidx.annotation:annotation:1.1.0")
     implementation(libs.kotlinStdlib)
