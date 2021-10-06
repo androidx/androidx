@@ -17,48 +17,47 @@
 package androidx.glance.appwidget.demos
 
 import androidx.compose.runtime.Composable
+import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.Modifier
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.appwidget.layout.LazyColumn
-import androidx.glance.appwidget.layout.Switch
 import androidx.glance.background
-import androidx.glance.text.FontStyle
+import androidx.glance.layout.Column
+import androidx.glance.layout.Text
+import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
+import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.Color
 import androidx.glance.unit.dp
-import androidx.glance.unit.sp
+import java.text.DecimalFormat
 
-class SwitchAppWidget : GlanceAppWidget() {
-
+class ExactAppWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
     @Composable
     override fun Content() {
-        val size = LocalSize.current
-        LazyColumn(modifier = Modifier.background(Color.LightGray)) {
-            item {
-                Switch(checked = size.width >= 100.dp, text = "Switch 1")
-            }
-
-            item {
-                Switch(
-                    checked = size.width < 100.dp,
-                    text = "Switch 2",
-                    textStyle = TextStyle(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontStyle = FontStyle.Italic
-                    )
+        val context = LocalContext.current
+        Column(modifier = Modifier.fillMaxSize().background(Color.LightGray).padding(8.dp)) {
+            Text(
+                context.getString(R.string.exact_widget_title),
+                style = TextStyle(
+                    fontWeight = FontWeight.Bold,
+                    textDecoration = TextDecoration.Underline
                 )
-            }
+            )
+            val size = LocalSize.current
+            val dec = DecimalFormat("#.##")
+            val width = dec.format(size.width.value)
+            val height = dec.format(size.height.value)
+            Text("Current layout: ${width}dp x ${height}dp")
         }
     }
 }
 
-class SwitchAppWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget = SwitchAppWidget()
+class ExactAppWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget = ExactAppWidget()
 }
