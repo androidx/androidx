@@ -25,9 +25,8 @@ import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.isActive
 import org.junit.Test
 import java.io.FileInputStream
 import java.nio.charset.StandardCharsets
@@ -42,19 +41,12 @@ class CoroutineBroadcastReceiverTest {
     private class TestBroadcast : BroadcastReceiver() {
         val extraValue = AtomicReference("")
         val broadcastExecuted = CountDownLatch(1)
-        val scopeCancelled = CountDownLatch(1)
+        val coroutineScopeUsed = AtomicReference<CoroutineScope>(null)
 
         override fun onReceive(context: Context, intent: Intent) {
             goAsync {
+                coroutineScopeUsed.set(this)
                 extraValue.set(intent.getStringExtra(EXTRA_STRING))
-                launch {
-                    try {
-                        awaitCancellation()
-                    } catch (ex: CancellationException) {
-                        scopeCancelled.countDown()
-                        throw ex
-                    }
-                }
                 broadcastExecuted.countDown()
             }
         }
@@ -81,8 +73,8 @@ class CoroutineBroadcastReceiverTest {
             .that(broadcastReceiver.broadcastExecuted.await(5, TimeUnit.SECONDS))
             .isTrue()
         assertWithMessage("Coroutine scope did not get cancelled")
-            .that(broadcastReceiver.scopeCancelled.await(5, TimeUnit.SECONDS))
-            .isTrue()
+            .that(broadcastReceiver.coroutineScopeUsed.get().isActive)
+            .isFalse()
         assertThat(broadcastReceiver.extraValue.get()).isEqualTo(value)
     }
 
