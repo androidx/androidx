@@ -31,14 +31,14 @@ dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
     if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-        api("androidx.compose.foundation:foundation:1.0.0-rc02")
-        api("androidx.compose.ui:ui:1.0.0-rc02")
-        api("androidx.compose.ui:ui-text:1.0.0-rc02")
+        api(project(":compose:foundation:foundation"))
+        api(project(":compose:ui:ui"))
+        api(project(":compose:ui:ui-text"))
         api(project(":compose:runtime:runtime"))
 
         implementation(libs.kotlinStdlib)
-        implementation("androidx.compose.material:material:1.0.0-rc02")
-        implementation("androidx.compose.material:material-ripple:1.0.0-rc02")
+        implementation(project(":compose:material:material"))
+        implementation(project(":compose:material:material-ripple"))
         implementation(project(":compose:ui:ui-util"))
         implementation(project(":wear:compose:compose-foundation"))
 
