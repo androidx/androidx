@@ -38,6 +38,10 @@ dependencies {
     testImplementation(libs.mockitoCore)
     testImplementation(libs.truth)
 
+    constraints {
+        implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+    }
+
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.junit)
