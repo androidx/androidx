@@ -91,6 +91,20 @@ class DimensionTest {
     }
 
     @Test
+    fun sizeModifierWithResources() {
+        val modifier = Modifier.size(123, 234)
+
+        val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
+        val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
+
+        val width = assertIs<Dimension.Resource>(widthModifier.width)
+        val height = assertIs<Dimension.Resource>(heightModifier.height)
+
+        assertThat(width.res).isEqualTo(123)
+        assertThat(height.res).isEqualTo(234)
+    }
+
+    @Test
     fun combinedSizeModifier() {
         val modifier = Modifier.size(10.dp)
 
@@ -102,6 +116,20 @@ class DimensionTest {
 
         assertThat(width.dp).isEqualTo(10.dp)
         assertThat(height.dp).isEqualTo(10.dp)
+    }
+
+    @Test
+    fun combinedSizeModifierWithResources() {
+        val modifier = Modifier.size(123)
+
+        val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
+        val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
+
+        val width = assertIs<Dimension.Resource>(widthModifier.width)
+        val height = assertIs<Dimension.Resource>(heightModifier.height)
+
+        assertThat(width.res).isEqualTo(123)
+        assertThat(height.res).isEqualTo(123)
     }
 
     @Test

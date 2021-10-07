@@ -91,8 +91,15 @@ public fun Modifier.fillMaxHeight(): Modifier = this.then(HeightModifier(Dimensi
 /** Sets both the width and height of an element, in [Dp]. */
 public fun Modifier.size(size: Dp): Modifier = this.width(size).height(size)
 
+/** Sets both width and height of an element from a resource. */
+public fun Modifier.size(@DimenRes size: Int): Modifier = this.width(size).height(size)
+
 /** Sets both the width and height of an element, in [Dp]. */
 public fun Modifier.size(width: Dp, height: Dp): Modifier = this.width(width).height(height)
+
+/** Sets both the width and height of an element from resources. */
+public fun Modifier.size(@DimenRes width: Int, @DimenRes height: Int): Modifier =
+    this.width(width).height(height)
 
 /** Wrap both the width and height's content. */
 public fun Modifier.wrapContentSize(): Modifier = this.wrapContentHeight().wrapContentWidth()
