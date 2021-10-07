@@ -39,6 +39,7 @@ import androidx.glance.action.LaunchActivityAction
 import androidx.glance.action.LaunchActivityClassAction
 import androidx.glance.action.LaunchActivityComponentAction
 import androidx.glance.action.UpdateAction
+import androidx.glance.appwidget.action.LaunchActivityIntentAction
 import androidx.glance.layout.Dimension
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
@@ -107,6 +108,7 @@ private fun applyAction(
             val intent = when (action) {
                 is LaunchActivityComponentAction -> Intent().setComponent(action.componentName)
                 is LaunchActivityClassAction -> Intent(context, action.activityClass)
+                is LaunchActivityIntentAction -> action.intent
                 else -> error("Action type not defined in app widget package: $action")
             }
 
