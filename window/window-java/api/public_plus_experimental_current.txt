@@ -3,9 +3,7 @@ package androidx.window.java.layout {
 
   public final class WindowInfoRepositoryCallbackAdapter implements androidx.window.layout.WindowInfoRepository {
     ctor public WindowInfoRepositoryCallbackAdapter(androidx.window.layout.WindowInfoRepository repository);
-    method public void addCurrentWindowMetricsListener(java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.layout.WindowMetrics> consumer);
     method public void addWindowLayoutInfoListener(java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.layout.WindowLayoutInfo> consumer);
-    method public void removeCurrentWindowMetricsListener(androidx.core.util.Consumer<androidx.window.layout.WindowMetrics> consumer);
     method public void removeWindowLayoutInfoListener(androidx.core.util.Consumer<androidx.window.layout.WindowLayoutInfo> consumer);
   }
 

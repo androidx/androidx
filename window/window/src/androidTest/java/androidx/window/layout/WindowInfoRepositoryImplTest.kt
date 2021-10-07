@@ -17,14 +17,10 @@
 package androidx.window.layout
 
 import android.app.Activity
-import android.content.pm.ActivityInfo
 import androidx.core.util.Consumer
-import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.window.TestActivity
-import androidx.window.TestConfigChangeHandlingActivity
 import androidx.window.TestConsumer
-import androidx.window.layout.WindowMetricsCalculatorCompat.computeCurrentWindowMetrics
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -42,75 +38,6 @@ public class WindowInfoRepositoryImplTest {
         ActivityScenarioRule(TestActivity::class.java)
 
     private val testScope = TestCoroutineScope()
-
-    @Test
-    public fun testGetCurrentWindowMetrics(): Unit = testScope.runBlockingTest {
-        activityScenario.scenario.onActivity { testActivity ->
-            val repo = WindowInfoRepositoryImpl(
-                testActivity,
-                WindowMetricsCalculatorCompat,
-                FakeWindowBackend()
-            )
-            val expected = computeCurrentWindowMetrics(testActivity)
-            val consumer = TestConsumer<WindowMetrics>()
-            testScope.launch {
-                repo.currentWindowMetrics.collect { consumer.accept(it) }
-            }
-            consumer.assertValue(expected)
-        }
-    }
-
-    @Test
-    public fun testGetCurrentWindowMetrics_multicasting(): Unit = testScope.runBlockingTest {
-        activityScenario.scenario.onActivity { testActivity ->
-            val repo = WindowInfoRepositoryImpl(
-                testActivity,
-                WindowMetricsCalculatorCompat,
-                FakeWindowBackend()
-            )
-            val expected = computeCurrentWindowMetrics(testActivity)
-            val consumer = TestConsumer<WindowMetrics>()
-            testScope.launch {
-                repo.currentWindowMetrics.collect { consumer.accept(it) }
-            }
-            testScope.launch {
-                repo.currentWindowMetrics.collect { consumer.accept(it) }
-            }
-            consumer.assertValues(expected, expected)
-        }
-    }
-
-    @Test
-    public fun testGetCurrentWindowMetrics_configChangesEmitNewMetrics(): Unit =
-        testScope.runBlockingTest {
-            val scenario = ActivityScenario.launch(TestConfigChangeHandlingActivity::class.java)
-            val collector = TestConsumer<WindowMetrics>()
-            val expected = mutableListOf<WindowMetrics>()
-            scenario.onActivity { activity ->
-                val repo = WindowInfoRepositoryImpl(
-                    activity,
-                    WindowMetricsCalculatorCompat,
-                    FakeWindowBackend()
-                )
-                activity.resetLayoutCounter()
-                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                activity.waitForLayout()
-                testScope.launch {
-                    repo.currentWindowMetrics.collect { collector.accept(it) }
-                }
-            }
-            scenario.onActivity { activity ->
-                expected.add(computeCurrentWindowMetrics(activity))
-                activity.resetLayoutCounter()
-                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                activity.waitForLayout()
-            }
-            scenario.onActivity { activity ->
-                expected.add(computeCurrentWindowMetrics(activity))
-                collector.assertValueCount(2)
-                collector.assertValues(*expected.toTypedArray())
-            }
-        }
 
     @Test
     public fun testWindowLayoutFeatures(): Unit = testScope.runBlockingTest {
