@@ -17,12 +17,14 @@
 package androidx.lifecycle;
 
 import static androidx.lifecycle.SavedStateHandleController.attachHandleIfNeeded;
+import static androidx.lifecycle.ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY;
 
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.lifecycle.viewmodel.CreationExtras;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryOwner;
 
@@ -32,7 +34,8 @@ import androidx.savedstate.SavedStateRegistryOwner;
  * The subclasses implement {@link #create(String, Class, SavedStateHandle)} to actually instantiate
  * {@code androidx.lifecycle.ViewModel}s.
  */
-public abstract class AbstractSavedStateViewModelFactory extends ViewModelProvider.KeyedFactory {
+public abstract class AbstractSavedStateViewModelFactory extends ViewModelProvider.OnRequeryFactory
+        implements ViewModelProvider.Factory {
     static final String TAG_SAVED_STATE_HANDLE_CONTROLLER = "androidx.lifecycle.savedstate.vm.tag";
 
     private final SavedStateRegistry mSavedStateRegistry;
@@ -56,14 +59,20 @@ public abstract class AbstractSavedStateViewModelFactory extends ViewModelProvid
         mDefaultArgs = defaultArgs;
     }
 
-    // TODO: make KeyedFactory#create(String, Class) package private
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     @Override
-    public final <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass) {
+    public final <T extends ViewModel> T create(@NonNull Class<T> modelClass,
+            @NonNull CreationExtras creationExtras) {
+        String key = creationExtras.get(VIEW_MODEL_KEY);
+        if (key == null) {
+            throw new IllegalStateException(
+                    "VIEW_MODEL_KEY must always be provided by ViewModelProvider");
+        }
+        return create(key, modelClass);
+    }
+
+    @NonNull
+    private <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass) {
         SavedStateHandleController controller = SavedStateHandleController.create(
                 mSavedStateRegistry, mLifecycle, key, mDefaultArgs);
         T viewmodel = create(key, modelClass, controller.getHandle());

@@ -18,6 +18,7 @@ package androidx.lifecycle;
 
 import static androidx.lifecycle.AbstractSavedStateViewModelFactory.TAG_SAVED_STATE_HANDLE_CONTROLLER;
 import static androidx.lifecycle.SavedStateHandleController.attachHandleIfNeeded;
+import static androidx.lifecycle.ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
@@ -26,13 +27,13 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.lifecycle.viewmodel.CreationExtras;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryOwner;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-
 /**
  * {@link androidx.lifecycle.ViewModelProvider.Factory} that can create ViewModels accessing and
  * contributing to a saved state via {@link SavedStateHandle} received in a constructor.
@@ -45,7 +46,8 @@ import java.util.Arrays;
  * {@link androidx.lifecycle.AndroidViewModel} is only supported if you pass a non-null
  * {@link Application} instance.
  */
-public final class SavedStateViewModelFactory extends ViewModelProvider.KeyedFactory {
+public final class SavedStateViewModelFactory extends ViewModelProvider.OnRequeryFactory
+        implements ViewModelProvider.Factory {
     private final Application mApplication;
     private final ViewModelProvider.Factory mFactory;
     private final Bundle mDefaultArgs;
@@ -100,6 +102,24 @@ public final class SavedStateViewModelFactory extends ViewModelProvider.KeyedFac
 
     @NonNull
     @Override
+    public <T extends ViewModel> T create(@NonNull Class<T> modelClass,
+            @NonNull CreationExtras creationExtras) {
+        String key = creationExtras.get(VIEW_MODEL_KEY);
+        if (key == null) {
+            throw new IllegalStateException(
+                    "VIEW_MODEL_KEY must always be provided by ViewModelProvider");
+        }
+        return create(key, modelClass);
+    }
+
+    /**
+     * Creates a new instance of the given `Class`.
+     *
+     * @param key a key associated with the requested ViewModel
+     * @param modelClass a `Class` whose instance is requested
+     * @return a newly created ViewModel
+     */
+    @NonNull
     public <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass) {
         boolean isAndroidViewModel = AndroidViewModel.class.isAssignableFrom(modelClass);
         Constructor<T> constructor;
