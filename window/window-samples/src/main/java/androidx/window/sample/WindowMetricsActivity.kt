@@ -16,16 +16,12 @@
 
 package androidx.window.sample
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
-import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
+import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.sample.infolog.InfoLogAdapter
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
 class WindowMetricsActivity : AppCompatActivity() {
 
@@ -37,15 +33,19 @@ class WindowMetricsActivity : AppCompatActivity() {
         findViewById<RecyclerView>(R.id.recycler_view).adapter = adapter
         adapter.append("onCreate", "triggered")
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
-                windowInfoRepository().currentWindowMetrics.collect { windowMetrics ->
-                    val width = windowMetrics.bounds.width()
-                    val height = windowMetrics.bounds.height()
-                    adapter.append("WindowMetrics update", "width: $width, height: $height")
-                    adapter.notifyDataSetChanged()
-                }
-            }
-        }
+        updateMetrics()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        updateMetrics()
+    }
+
+    private fun updateMetrics() {
+        val windowMetrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this)
+        val width = windowMetrics.bounds.width()
+        val height = windowMetrics.bounds.height()
+        adapter.append("WindowMetrics update", "width: $width, height: $height")
+        adapter.notifyDataSetChanged()
     }
 }

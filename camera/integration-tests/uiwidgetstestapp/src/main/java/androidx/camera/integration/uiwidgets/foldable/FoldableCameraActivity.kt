@@ -20,6 +20,7 @@ import android.Manifest
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
@@ -69,6 +70,7 @@ import androidx.window.layout.WindowInfoRepository
 import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
+import androidx.window.layout.WindowMetricsCalculator
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -93,7 +95,8 @@ class FoldableCameraActivity : AppCompatActivity() {
     private var currentCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
     private var isPreviewInLeftTop = true
     private var activeWindowLayoutInfo: WindowLayoutInfo? = null
-    private var lastWindowMetrics: WindowMetrics? = null
+    private val lastWindowMetrics: WindowMetrics
+        get() = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -112,6 +115,11 @@ class FoldableCameraActivity : AppCompatActivity() {
         } else {
             startCamera()
         }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        showCamerasAndDisplayInfo()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -160,14 +168,7 @@ class FoldableCameraActivity : AppCompatActivity() {
             setupUI()
         }
 
-        // Runs Flow.collect in separate coroutine because it will block the coroutine.
-        lifecycleScope.launch {
-            windowInfoRepository.currentWindowMetrics.collect {
-                Log.d(TAG, "currentWindowMetrics: ${it.bounds}")
-                lastWindowMetrics = it
-                showCamerasAndDisplayInfo()
-            }
-        }
+        showCamerasAndDisplayInfo()
 
         // Runs Flow.collect in separate coroutine because it will block the coroutine.
         lifecycleScope.launch {
@@ -398,7 +399,7 @@ class FoldableCameraActivity : AppCompatActivity() {
                 "rot=${display.rotationString}\n"
         }
 
-        totalMsg += "WindowMetrics=${lastWindowMetrics?.bounds}\n"
+        totalMsg += "WindowMetrics=${lastWindowMetrics.bounds}\n"
 
         for (id in cameraManager.cameraIdList) {
             val characteristics = cameraManager.getCameraCharacteristics(id)

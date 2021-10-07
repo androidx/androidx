@@ -18,12 +18,10 @@ package androidx.window.layout
 
 import android.app.Activity
 import android.content.Context
-import android.view.View
 import androidx.core.util.Consumer
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 
 /**
@@ -39,53 +37,6 @@ internal class WindowInfoRepositoryImpl(
     private val windowMetricsCalculator: WindowMetricsCalculator,
     private val windowBackend: WindowBackend
 ) : WindowInfoRepository {
-
-    /**
-     * Returns the [WindowMetrics] according to the current system state.
-     *
-     *
-     * The metrics describe the size of the area the window would occupy with
-     * [MATCH_PARENT][android.view.WindowManager.LayoutParams.MATCH_PARENT] width and height
-     * and any combination of flags that would allow the window to extend behind display cutouts.
-     *
-     *
-     * The value of this is based on the **current** windowing state of the system. For
-     * example, for activities in multi-window mode, the metrics returned are based on the
-     * current bounds that the user has selected for the [Activity][android.app.Activity]'s
-     * window.
-     *
-     * @see android.view.WindowManager.getCurrentWindowMetrics
-     */
-    override val currentWindowMetrics: Flow<WindowMetrics>
-        get() {
-            return configurationChanged {
-                windowMetricsCalculator.computeCurrentWindowMetrics(activity)
-            }.distinctUntilChanged()
-        }
-
-    private fun <T> configurationChanged(producer: () -> T): Flow<T> {
-        return flow {
-            val channel = Channel<T>(
-                capacity = BUFFER_CAPACITY,
-                onBufferOverflow = DROP_OLDEST
-            )
-            val publish: () -> Unit = { channel.trySend(producer()) }
-            // TODO(b/199442549) switch back to ComponentCallbacks when possible
-            val configChangeObserver =
-                View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> publish() }
-            publish()
-            activity.window?.decorView
-                ?.addOnLayoutChangeListener(configChangeObserver)
-            try {
-                for (item in channel) {
-                    emit(item)
-                }
-            } finally {
-                activity.window?.decorView
-                    ?.removeOnLayoutChangeListener(configChangeObserver)
-            }
-        }
-    }
 
     /**
      * A [Flow] of window layout changes in the current visual [Context].

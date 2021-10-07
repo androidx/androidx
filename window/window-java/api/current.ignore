@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.window.java.layout.WindowInfoRepositoryCallbackAdapter#addCurrentWindowMetricsListener(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.layout.WindowMetrics>):
+    Removed method androidx.window.java.layout.WindowInfoRepositoryCallbackAdapter.addCurrentWindowMetricsListener(java.util.concurrent.Executor,androidx.core.util.Consumer<androidx.window.layout.WindowMetrics>)
+RemovedMethod: androidx.window.java.layout.WindowInfoRepositoryCallbackAdapter#removeCurrentWindowMetricsListener(androidx.core.util.Consumer<androidx.window.layout.WindowMetrics>):
+    Removed method androidx.window.java.layout.WindowInfoRepositoryCallbackAdapter.removeCurrentWindowMetricsListener(androidx.core.util.Consumer<androidx.window.layout.WindowMetrics>)
