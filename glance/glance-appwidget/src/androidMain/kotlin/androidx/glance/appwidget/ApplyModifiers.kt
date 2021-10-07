@@ -20,6 +20,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import android.util.TypedValue
 import android.view.ViewGroup
 import android.widget.RemoteViews
@@ -40,6 +41,7 @@ import androidx.glance.layout.Dimension
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier
+import androidx.glance.layout.collectPaddingInDp
 import androidx.glance.unit.Color
 import androidx.glance.unit.dp
 import kotlin.math.roundToInt
@@ -51,15 +53,9 @@ internal fun applyModifiers(
     layoutDef: LayoutIds
 ) {
     val context = translationContext.context
-    modifiers.foldOut(Unit) { modifier, _ ->
+    modifiers.foldIn(Unit) { _, modifier ->
         when (modifier) {
             is ActionModifier -> applyAction(rv, modifier.action, context, layoutDef.mainViewId)
-            is PaddingModifier -> applyPadding(
-                rv,
-                modifier,
-                translationContext,
-                layoutDef.mainViewId
-            )
             is WidthModifier -> applyWidthModifier(
                 rv,
                 modifier,
@@ -77,8 +73,25 @@ internal fun applyModifiers(
                 modifier,
                 layoutDef
             )
+            is PaddingModifier -> {
+            } // Nothing to do for those
+            else -> {
+                Log.w(GlanceAppWidgetTag, "Unknown modifier '$modifier', nothing done.")
+            }
         }
     }
+    modifiers.collectPaddingInDp(context.resources)
+        ?.toAbsolute(translationContext.isRtl)
+        ?.let {
+            val displayMetrics = context.resources.displayMetrics
+            rv.setViewPadding(
+                layoutDef.mainViewId,
+                it.left.toPixels(displayMetrics),
+                it.top.toPixels(displayMetrics),
+                it.right.toPixels(displayMetrics),
+                it.bottom.toPixels(displayMetrics)
+            )
+        }
 }
 
 private fun applyAction(
@@ -106,25 +119,6 @@ private fun applyAction(
         }
         else -> throw IllegalArgumentException("Unrecognized action type.")
     }
-}
-
-private fun applyPadding(
-    rv: RemoteViews,
-    modifier: PaddingModifier,
-    translationContext: TranslationContext,
-    @IdRes viewId: Int
-) {
-    val displayMetrics = translationContext.context.resources.displayMetrics
-    val isRtl = modifier.rtlAware && translationContext.isRtl
-    val start = modifier.start.toPixels(displayMetrics)
-    val end = modifier.end.toPixels(displayMetrics)
-    rv.setViewPadding(
-        viewId,
-        if (isRtl) end else start,
-        modifier.top.toPixels(displayMetrics),
-        if (isRtl) start else end,
-        modifier.bottom.toPixels(displayMetrics),
-    )
 }
 
 private fun applyWidthModifier(

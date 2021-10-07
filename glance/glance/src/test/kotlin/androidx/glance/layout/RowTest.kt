@@ -59,7 +59,7 @@ class RowTest {
 
         val innerRow = root.children[0] as EmittableRow
         val paddingModifier = requireNotNull(innerRow.modifier.findModifier<PaddingModifier>())
-        assertThat(paddingModifier.top).isEqualTo(2.dp)
+        assertThat(paddingModifier.top).isEqualTo(PaddingDimension(2.dp))
         assertThat(innerRow.verticalAlignment).isEqualTo(Alignment.Bottom)
         assertThat(innerRow.horizontalAlignment).isEqualTo(Alignment.End)
     }
