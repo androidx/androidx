@@ -51,15 +51,18 @@ import androidx.wear.compose.material.TimeTextDefaults.timeFormat
  * For proper support of Square and Round screens both Linear and Curved methods should
  * be implemented.
  *
- * The full customization for square and round devices can be checked here:
+ * The [TimeText] with full customization for square and round devices:
  * @sample androidx.wear.compose.material.samples.TimeTextWithCustomSeparator
+ *
+ * An example of a [TimeText] with a different date and time format:
+ * @sample androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
  *
  * For more information, see the
  * [Curved Text](https://developer.android.com/training/wearables/components/curved-text)
  * guide.
  *
  * @param modifier Current modifier.
- * @param timeSource [TimeSource] which retrieves the current time.
+ * @param timeSource [TimeSource] which retrieves the current time and formats it.
  * @param timeTextStyle Optional textStyle for the time text itself
  * @param contentPadding The spacing values between the container and the content
  * @param leadingLinearContent a slot before the time which is used only on Square screens
@@ -238,6 +241,8 @@ public object TimeTextDefaults {
 
     /**
      * A default implementation of [TimeSource].
+     * Once the system time changes, it triggers an update of the [TimeSource.currentTime]
+     * which is formatted before that using [timeFormat] param.
      * @param timeFormat Param for formatting time
      */
     fun timeSource(timeFormat: String): TimeSource = DefaultTimeSource(timeFormat)
@@ -247,7 +252,7 @@ public object TimeTextDefaults {
 internal expect class DefaultTimeSource(timeFormat: String) : TimeSource
 
 /**
- *  An interface which is responsible for retrieving time and formatting it.
+ *  An interface which is responsible for retrieving a formatted time.
  */
 @ExperimentalWearMaterialApi
 public interface TimeSource {

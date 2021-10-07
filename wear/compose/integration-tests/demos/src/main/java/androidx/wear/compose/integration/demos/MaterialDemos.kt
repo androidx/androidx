@@ -64,27 +64,37 @@ val WearMaterialDemos = DemoCategory(
         DemoCategory(
             "TimeText",
             listOf(
-                ComposableDemo("Clock only") {
-                    TimeTextClockOnly()
-                },
-                ComposableDemo("Clock with leading text") {
-                    TimeTextWithLeadingText()
-                },
-                ComposableDemo("Clock with trailing text") {
-                    TimeTextWithTrailingText()
-                },
-                ComposableDemo("Clock with leading and trailing text") {
-                    TimeTextWithLeadingAndTrailingText()
-                },
-                ComposableDemo("Clock with custom separator") {
-                    TimeTextWithCustomSeparator()
-                },
-                ComposableDemo("Clock with full date and time format") {
-                    TimeTextWithFullDateAndTimeFormat()
-                },
-                ComposableDemo("Clock with padding") {
-                    TimeTextWithPadding()
-                },
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Clock with custom separator") {
+                            TimeTextWithCustomSeparator()
+                        },
+                        ComposableDemo("Clock with full date and time format") {
+                            TimeTextWithFullDateAndTimeFormat()
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Clock only") {
+                            TimeTextClockOnly()
+                        },
+                        ComposableDemo("Clock with leading text") {
+                            TimeTextWithLeadingText()
+                        },
+                        ComposableDemo("Clock with trailing text") {
+                            TimeTextWithTrailingText()
+                        },
+                        ComposableDemo("Clock with leading and trailing text") {
+                            TimeTextWithLeadingAndTrailingText()
+                        },
+                        ComposableDemo("Clock with padding") {
+                            TimeTextWithPadding()
+                        },
+                    )
+                ),
             )
         ),
         DemoCategory(
@@ -109,7 +119,8 @@ val WearMaterialDemos = DemoCategory(
                 )
             )
         ),
-        DemoCategory("ToggleButton",
+        DemoCategory(
+            "ToggleButton",
             listOf(
                 ComposableDemo("Sample") { Centralize({ ToggleButtonWithIcon() }) },
                 ComposableDemo("Demos") { ToggleButtons() },
@@ -155,7 +166,8 @@ val WearMaterialDemos = DemoCategory(
                         }
                     )
                 ),
-                DemoCategory("Demos",
+                DemoCategory(
+                    "Demos",
                     listOf(
                         ComposableDemo("Toggle chip") { ToggleChips() },
                         ComposableDemo("RTL Toggle chip") { RtlToggleChips() },
@@ -163,7 +175,8 @@ val WearMaterialDemos = DemoCategory(
                 )
             )
         ),
-        DemoCategory("Card",
+        DemoCategory(
+            "Card",
             listOf(
                 DemoCategory(
                     "Samples",
