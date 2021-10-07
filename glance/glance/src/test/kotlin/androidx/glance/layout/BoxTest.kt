@@ -60,7 +60,7 @@ class BoxTest {
         val paddingModifier = requireNotNull(innerBox.modifier.findModifier<PaddingModifier>())
 
         // Don't need to test all elements, that's covered in PaddingTest
-        assertThat(paddingModifier.top).isEqualTo(1.dp)
+        assertThat(paddingModifier.top).isEqualTo(PaddingDimension(1.dp))
     }
 
     @Test

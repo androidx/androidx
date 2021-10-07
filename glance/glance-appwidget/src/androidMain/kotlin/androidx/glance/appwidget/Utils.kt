@@ -35,3 +35,5 @@ internal fun Int.pixelsToDp(displayMetrics: DisplayMetrics) =
 internal fun RemoteViews.setViewEnabled(viewId: Int, enabled: Boolean) {
     setBoolean(viewId, "setEnabled", enabled)
 }
+
+internal const val GlanceAppWidgetTag = "GlanceAppWidget"

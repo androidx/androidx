@@ -17,6 +17,7 @@
 package androidx.glance.wear
 
 import android.content.Context
+import android.view.View
 import android.view.ViewGroup
 import androidx.glance.BackgroundModifier
 import androidx.glance.Emittable
@@ -32,9 +33,11 @@ import androidx.glance.layout.EmittableColumn
 import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableText
 import androidx.glance.layout.HeightModifier
+import androidx.glance.layout.PaddingInDp
 import androidx.glance.layout.PaddingModifier
-import androidx.glance.layout.toEmittableText
 import androidx.glance.layout.WidthModifier
+import androidx.glance.layout.collectPaddingInDp
+import androidx.glance.layout.toEmittableText
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextDecoration
@@ -90,13 +93,13 @@ private fun Alignment.Horizontal.toProto(): Int =
         else -> throw IllegalArgumentException("Unknown horizontal alignment type $this")
     }
 
-private fun PaddingModifier.toProto(): ModifiersBuilders.Padding =
+private fun PaddingInDp.toProto(): ModifiersBuilders.Padding =
     ModifiersBuilders.Padding.Builder()
-        .setStart(dp(this.start.value))
-        .setTop(dp(this.top.value))
-        .setEnd(dp(this.end.value))
-        .setBottom(dp(this.bottom.value))
-        .setRtlAware(this.rtlAware)
+        .setStart(dp(start.value))
+        .setTop(dp(top.value))
+        .setEnd(dp(end.value))
+        .setBottom((dp(bottom.value)))
+        .setRtlAware(true)
         .build()
 
 private fun BackgroundModifier.toProto(): ModifiersBuilders.Background =
@@ -374,16 +377,25 @@ private fun translateModifiers(
     context: Context,
     modifier: Modifier
 ): ModifiersBuilders.Modifiers =
-    modifier.foldOut(ModifiersBuilders.Modifiers.Builder()) { element, builder ->
+    modifier.foldIn(ModifiersBuilders.Modifiers.Builder()) { builder, element ->
         when (element) {
-            is PaddingModifier -> builder.setPadding(element.toProto())
             is BackgroundModifier -> builder.setBackground(element.toProto())
             is WidthModifier -> builder /* Skip for now, handled elsewhere. */
             is HeightModifier -> builder /* Skip for now, handled elsewhere. */
             is ActionModifier -> builder.setClickable(element.toProto(context))
+            is PaddingModifier -> builder // Processing that after
             else -> throw IllegalArgumentException("Unknown modifier type")
         }
-    }.build()
+    }
+        .also { builder ->
+            val isRtl = context.resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
+            modifier.collectPaddingInDp(context.resources)
+                ?.toRelative(isRtl)
+                ?.let {
+                    builder.setPadding(it.toProto())
+                }
+        }
+        .build()
 
 private fun translateCompositionInArc(
     context: Context,
