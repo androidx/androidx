@@ -55,6 +55,7 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.kotlinReflect)
 
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":core:core-ktx"))
     androidTestImplementation(libs.espressoCore)
