@@ -1761,4 +1761,26 @@
             column="65"/>
     </issue>
 
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.room.ExperimentalRoomApi&apos; or &apos;@OptIn(markerClass = androidx.room.ExperimentalRoomApi.class)&apos;"
+        errorLine1="                MultiInstanceInvalidationService.class) : null,"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/DatabaseConfiguration.java"
+            line="513"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.room.ExperimentalRoomApi&apos; or &apos;@OptIn(markerClass = androidx.room.ExperimentalRoomApi.class)&apos;"
+        errorLine1="                    MultiInstanceInvalidationService.class) : null;"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomDatabase.java"
+            line="1172"
+            column="21"/>
+    </issue>
+
 </issues>

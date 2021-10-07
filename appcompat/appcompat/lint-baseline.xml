@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="NewApi"
@@ -30,7 +30,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/appcompat/widget/AppCompatEditTextReceiveContentTest.java"
-            line="535"
+            line="537"
             column="46"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/appcompat/widget/AppCompatEditTextReceiveContentTest.java"
-            line="543"
+            line="545"
             column="19"/>
     </issue>
 
@@ -1031,7 +1031,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ListPopupWindow.java"
-            line="752"
+            line="753"
             column="24"/>
     </issue>
 
@@ -1042,7 +1042,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ListPopupWindow.java"
-            line="1440"
+            line="1441"
             column="20"/>
     </issue>
 
@@ -1053,7 +1053,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ListPopupWindow.java"
-            line="1457"
+            line="1458"
             column="27"/>
     </issue>
 
@@ -1408,7 +1408,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="513"
+            line="516"
             column="13"/>
     </issue>
 
@@ -2266,7 +2266,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContextView.java"
-            line="102"
+            line="101"
             column="31"/>
     </issue>
 
@@ -2277,7 +2277,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContextView.java"
-            line="117"
+            line="116"
             column="26"/>
     </issue>
 
@@ -2356,17 +2356,6 @@
             file="src/main/java/androidx/appcompat/widget/ActionBarContextView.java"
             line="243"
             column="56"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ActionBarContextView.java"
-            line="364"
-            column="48"/>
     </issue>
 
     <issue
@@ -3355,7 +3344,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="123"
+            line="124"
             column="30"/>
     </issue>
 
@@ -3366,7 +3355,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="129"
+            line="130"
             column="40"/>
     </issue>
 
@@ -3377,7 +3366,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="142"
+            line="143"
             column="44"/>
     </issue>
 
@@ -3388,7 +3377,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="581"
+            line="582"
             column="15"/>
     </issue>
 
@@ -3399,7 +3388,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="589"
+            line="590"
             column="12"/>
     </issue>
 
@@ -3410,7 +3399,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="589"
+            line="590"
             column="46"/>
     </issue>
 
@@ -3421,7 +3410,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="594"
+            line="595"
             column="15"/>
     </issue>
 
@@ -3432,7 +3421,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="594"
+            line="595"
             column="49"/>
     </issue>
 
@@ -3443,7 +3432,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="608"
+            line="609"
             column="41"/>
     </issue>
 
@@ -3454,7 +3443,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="614"
+            line="615"
             column="12"/>
     </issue>
 
@@ -3465,7 +3454,7 @@
         errorLine2="                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="623"
+            line="624"
             column="31"/>
     </issue>
 
@@ -3476,7 +3465,7 @@
         errorLine2="                           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="637"
+            line="638"
             column="28"/>
     </issue>
 
@@ -3487,7 +3476,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="649"
+            line="650"
             column="12"/>
     </issue>
 
@@ -3498,7 +3487,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="670"
+            line="671"
             column="34"/>
     </issue>
 
@@ -3509,7 +3498,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="670"
+            line="671"
             column="62"/>
     </issue>
 
@@ -3520,7 +3509,7 @@
         errorLine2="           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="680"
+            line="681"
             column="12"/>
     </issue>
 
@@ -3531,7 +3520,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="748"
+            line="749"
             column="55"/>
     </issue>
 
@@ -3542,7 +3531,7 @@
         errorLine2="                                       ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="770"
+            line="771"
             column="40"/>
     </issue>
 
@@ -3553,7 +3542,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="831"
+            line="832"
             column="29"/>
     </issue>
 
@@ -3564,7 +3553,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="831"
+            line="832"
             column="40"/>
     </issue>
 
@@ -3575,7 +3564,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="835"
+            line="836"
             column="29"/>
     </issue>
 
@@ -3586,7 +3575,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionMenuView.java"
-            line="839"
+            line="840"
             column="29"/>
     </issue>
 
@@ -5632,7 +5621,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatAutoCompleteTextView.java"
-            line="186"
+            line="193"
             column="35"/>
     </issue>
 
@@ -5643,7 +5632,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatAutoCompleteTextView.java"
-            line="194"
+            line="201"
             column="12"/>
     </issue>
 
@@ -5654,7 +5643,7 @@
         errorLine2="                                                   ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatAutoCompleteTextView.java"
-            line="194"
+            line="201"
             column="52"/>
     </issue>
 
@@ -5753,7 +5742,7 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatCheckBox.java"
-            line="88"
+            line="104"
             column="35"/>
     </issue>
 
@@ -6138,7 +6127,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="215"
+            line="213"
             column="35"/>
     </issue>
 
@@ -6149,7 +6138,7 @@
         errorLine2="                                                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="293"
+            line="295"
             column="72"/>
     </issue>
 
@@ -6193,7 +6182,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatMultiAutoCompleteTextView.java"
-            line="184"
+            line="191"
             column="35"/>
     </issue>
 
@@ -6204,7 +6193,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatMultiAutoCompleteTextView.java"
-            line="192"
+            line="199"
             column="12"/>
     </issue>
 
@@ -6215,7 +6204,7 @@
         errorLine2="                                                   ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatMultiAutoCompleteTextView.java"
-            line="192"
+            line="199"
             column="52"/>
     </issue>
 
@@ -6226,7 +6215,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatRadioButton.java"
-            line="62"
+            line="65"
             column="33"/>
     </issue>
 
@@ -6237,7 +6226,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatRadioButton.java"
-            line="66"
+            line="69"
             column="33"/>
     </issue>
 
@@ -6248,7 +6237,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatRadioButton.java"
-            line="70"
+            line="73"
             column="33"/>
     </issue>
 
@@ -6259,7 +6248,7 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatRadioButton.java"
-            line="86"
+            line="102"
             column="35"/>
     </issue>
 
@@ -8459,7 +8448,7 @@
         errorLine2="                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ListPopupWindow.java"
-            line="415"
+            line="416"
             column="33"/>
     </issue>
 
@@ -8470,7 +8459,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ListPopupWindow.java"
-            line="1139"
+            line="1140"
             column="12"/>
     </issue>
 
@@ -8481,7 +8470,7 @@
         errorLine2="                                                    ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ListPopupWindow.java"
-            line="1139"
+            line="1140"
             column="53"/>
     </issue>
 
@@ -11385,7 +11374,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="50"
+            line="49"
             column="33"/>
     </issue>
 
@@ -11396,7 +11385,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="50"
+            line="49"
             column="50"/>
     </issue>
 
@@ -11407,7 +11396,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="51"
+            line="50"
             column="13"/>
     </issue>
 
@@ -11418,7 +11407,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="63"
+            line="62"
             column="26"/>
     </issue>
 
@@ -11429,7 +11418,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="68"
+            line="67"
             column="29"/>
     </issue>
 
@@ -11440,7 +11429,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="94"
+            line="93"
             column="31"/>
     </issue>
 
@@ -11451,7 +11440,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="116"
+            line="114"
             column="12"/>
     </issue>
 
@@ -11462,7 +11451,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="121"
+            line="119"
             column="12"/>
     </issue>
 
@@ -11473,7 +11462,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="126"
+            line="124"
             column="12"/>
     </issue>
 
@@ -11484,7 +11473,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="131"
+            line="129"
             column="12"/>
     </issue>
 
@@ -11495,7 +11484,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="136"
+            line="134"
             column="12"/>
     </issue>
 
@@ -11506,7 +11495,7 @@
         errorLine2="                            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="145"
+            line="143"
             column="29"/>
     </issue>
 
@@ -11517,7 +11506,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="148"
+            line="146"
             column="38"/>
     </issue>
 
@@ -11528,7 +11517,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/view/StandaloneActionMode.java"
-            line="157"
+            line="155"
             column="32"/>
     </issue>
 
@@ -12518,7 +12507,7 @@
         errorLine2="                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="564"
+            line="576"
             column="25"/>
     </issue>
 
@@ -12529,7 +12518,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="564"
+            line="576"
             column="43"/>
     </issue>
 
@@ -12540,7 +12529,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="638"
+            line="650"
             column="25"/>
     </issue>
 
@@ -12551,7 +12540,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="661"
+            line="673"
             column="12"/>
     </issue>
 
@@ -12562,7 +12551,7 @@
         errorLine2="                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="685"
+            line="697"
             column="36"/>
     </issue>
 
@@ -12573,7 +12562,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="700"
+            line="712"
             column="12"/>
     </issue>
 
@@ -12584,7 +12573,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="748"
+            line="760"
             column="12"/>
     </issue>
 
@@ -12595,7 +12584,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="772"
+            line="784"
             column="26"/>
     </issue>
 
@@ -12606,7 +12595,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="805"
+            line="817"
             column="12"/>
     </issue>
 
@@ -12617,7 +12606,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="827"
+            line="839"
             column="29"/>
     </issue>
 
@@ -12628,7 +12617,7 @@
         errorLine2="                                       ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="858"
+            line="870"
             column="40"/>
     </issue>
 
@@ -12639,7 +12628,7 @@
         errorLine2="                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="869"
+            line="881"
             column="43"/>
     </issue>
 
@@ -12650,7 +12639,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1035"
+            line="1048"
             column="46"/>
     </issue>
 
@@ -12661,7 +12650,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1144"
+            line="1157"
             column="12"/>
     </issue>
 
@@ -12672,7 +12661,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1221"
+            line="1234"
             column="44"/>
     </issue>
 
@@ -12683,7 +12672,7 @@
         errorLine2="              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1555"
+            line="1579"
             column="15"/>
     </issue>
 
@@ -12694,7 +12683,7 @@
         errorLine2="                                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1567"
+            line="1591"
             column="43"/>
     </issue>
 
@@ -12705,7 +12694,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1601"
+            line="1625"
             column="33"/>
     </issue>
 
@@ -12716,7 +12705,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="1627"
+            line="1651"
             column="33"/>
     </issue>
 
@@ -12727,7 +12716,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2222"
+            line="2246"
             column="12"/>
     </issue>
 
@@ -12738,7 +12727,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2222"
+            line="2246"
             column="46"/>
     </issue>
 
@@ -12749,7 +12738,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2227"
+            line="2251"
             column="15"/>
     </issue>
 
@@ -12760,7 +12749,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2227"
+            line="2251"
             column="49"/>
     </issue>
 
@@ -12771,7 +12760,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2240"
+            line="2264"
             column="15"/>
     </issue>
 
@@ -12782,7 +12771,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2245"
+            line="2269"
             column="41"/>
     </issue>
 
@@ -12793,7 +12782,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2251"
+            line="2275"
             column="12"/>
     </issue>
 
@@ -12804,7 +12793,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2300"
+            line="2324"
             column="34"/>
     </issue>
 
@@ -12815,7 +12804,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2300"
+            line="2324"
             column="62"/>
     </issue>
 
@@ -12826,7 +12815,7 @@
         errorLine2="                                       ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2355"
+            line="2441"
             column="40"/>
     </issue>
 
@@ -12837,7 +12826,7 @@
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2374"
+            line="2460"
             column="49"/>
     </issue>
 
@@ -12848,7 +12837,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2392"
+            line="2478"
             column="29"/>
     </issue>
 
@@ -12859,7 +12848,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2398"
+            line="2484"
             column="29"/>
     </issue>
 
@@ -12870,7 +12859,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2402"
+            line="2488"
             column="29"/>
     </issue>
 
@@ -12881,7 +12870,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2409"
+            line="2495"
             column="29"/>
     </issue>
 
@@ -12892,7 +12881,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2425"
+            line="2511"
             column="27"/>
     </issue>
 
@@ -12903,7 +12892,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2429"
+            line="2515"
             column="27"/>
     </issue>
 
@@ -12914,7 +12903,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2429"
+            line="2515"
             column="42"/>
     </issue>
 
@@ -12925,7 +12914,7 @@
         errorLine2="                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2435"
+            line="2521"
             column="27"/>
     </issue>
 
@@ -12936,7 +12925,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/Toolbar.java"
-            line="2440"
+            line="2526"
             column="35"/>
     </issue>
 
@@ -13035,7 +13024,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="267"
+            line="270"
             column="12"/>
     </issue>
 
@@ -13046,7 +13035,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="272"
+            line="275"
             column="29"/>
     </issue>
 
@@ -13057,7 +13046,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="305"
+            line="308"
             column="25"/>
     </issue>
 
@@ -13068,7 +13057,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="316"
+            line="319"
             column="25"/>
     </issue>
 
@@ -13079,7 +13068,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="364"
+            line="367"
             column="25"/>
     </issue>
 
@@ -13090,7 +13079,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="364"
+            line="367"
             column="36"/>
     </issue>
 
@@ -13101,7 +13090,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="421"
+            line="424"
             column="36"/>
     </issue>
 
@@ -13112,7 +13101,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="512"
+            line="515"
             column="35"/>
     </issue>
 
@@ -13123,7 +13112,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="513"
+            line="516"
             column="13"/>
     </issue>
 
@@ -13134,7 +13123,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="539"
+            line="542"
             column="31"/>
     </issue>
 
@@ -13145,7 +13134,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="550"
+            line="553"
             column="12"/>
     </issue>
 
@@ -13156,7 +13145,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="564"
+            line="567"
             column="12"/>
     </issue>
 
@@ -13167,7 +13156,7 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="592"
+            line="595"
             column="35"/>
     </issue>
 
@@ -13178,7 +13167,7 @@
         errorLine2="                                         ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="603"
+            line="606"
             column="42"/>
     </issue>
 
@@ -13189,7 +13178,7 @@
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="619"
+            line="622"
             column="49"/>
     </issue>
 
@@ -13200,7 +13189,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="640"
+            line="643"
             column="36"/>
     </issue>
 
@@ -13211,7 +13200,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="645"
+            line="648"
             column="39"/>
     </issue>
 
@@ -13222,7 +13211,7 @@
         errorLine2="                                      ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="650"
+            line="653"
             column="39"/>
     </issue>
 
@@ -13233,7 +13222,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="670"
+            line="673"
             column="34"/>
     </issue>
 
@@ -13244,7 +13233,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="671"
+            line="674"
             column="13"/>
     </issue>
 
@@ -13255,7 +13244,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
-            line="676"
+            line="679"
             column="12"/>
     </issue>
 
@@ -13794,7 +13783,7 @@
         errorLine2="                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="169"
+            line="168"
             column="33"/>
     </issue>
 
@@ -13805,7 +13794,7 @@
         errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="179"
+            line="178"
             column="33"/>
     </issue>
 
@@ -13816,7 +13805,7 @@
         errorLine2="                                ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="188"
+            line="187"
             column="33"/>
     </issue>
 
@@ -13827,7 +13816,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="256"
+            line="255"
             column="40"/>
     </issue>
 
@@ -13838,7 +13827,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="338"
+            line="337"
             column="45"/>
     </issue>
 
@@ -13849,7 +13838,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="343"
+            line="342"
             column="48"/>
     </issue>
 
@@ -13860,7 +13849,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="438"
+            line="437"
             column="26"/>
     </issue>
 
@@ -13871,7 +13860,7 @@
         errorLine2="                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="443"
+            line="442"
             column="32"/>
     </issue>
 
@@ -13882,7 +13871,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="458"
+            line="457"
             column="29"/>
     </issue>
 
@@ -13893,7 +13882,7 @@
         errorLine2="                                      ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="480"
+            line="479"
             column="39"/>
     </issue>
 
@@ -13904,7 +13893,7 @@
         errorLine2="                                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="485"
+            line="484"
             column="46"/>
     </issue>
 
@@ -13915,7 +13904,7 @@
         errorLine2="                                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="490"
+            line="489"
             column="44"/>
     </issue>
 
@@ -13926,7 +13915,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="495"
+            line="494"
             column="12"/>
     </issue>
 
@@ -13937,7 +13926,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="500"
+            line="499"
             column="12"/>
     </issue>
 
@@ -13948,7 +13937,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="505"
+            line="504"
             column="12"/>
     </issue>
 
@@ -13959,7 +13948,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="520"
+            line="519"
             column="12"/>
     </issue>
 
@@ -13970,7 +13959,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="520"
+            line="519"
             column="39"/>
     </issue>
 
@@ -13981,7 +13970,7 @@
         errorLine2="                       ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="559"
+            line="557"
             column="24"/>
     </issue>
 
@@ -13992,7 +13981,7 @@
         errorLine2="                       ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="564"
+            line="562"
             column="24"/>
     </issue>
 
@@ -14003,7 +13992,7 @@
         errorLine2="                       ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="569"
+            line="567"
             column="24"/>
     </issue>
 
@@ -14014,7 +14003,7 @@
         errorLine2="                       ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="579"
+            line="577"
             column="24"/>
     </issue>
 
@@ -14025,7 +14014,7 @@
         errorLine2="           ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="589"
+            line="587"
             column="12"/>
     </issue>
 
@@ -14036,7 +14025,7 @@
         errorLine2="                          ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="594"
+            line="592"
             column="27"/>
     </issue>
 
@@ -14047,7 +14036,7 @@
         errorLine2="                          ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="624"
+            line="622"
             column="27"/>
     </issue>
 
@@ -14058,7 +14047,7 @@
         errorLine2="           ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="661"
+            line="659"
             column="12"/>
     </issue>
 
@@ -14069,7 +14058,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="918"
+            line="916"
             column="12"/>
     </issue>
 
@@ -14080,7 +14069,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="940"
+            line="938"
             column="38"/>
     </issue>
 
@@ -14091,7 +14080,7 @@
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="950"
+            line="948"
             column="49"/>
     </issue>
 
@@ -14102,7 +14091,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="991"
+            line="989"
             column="31"/>
     </issue>
 
@@ -14113,7 +14102,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="991"
+            line="989"
             column="48"/>
     </issue>
 
@@ -14124,7 +14113,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1000"
+            line="998"
             column="16"/>
     </issue>
 
@@ -14135,7 +14124,7 @@
         errorLine2="               ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1005"
+            line="1003"
             column="16"/>
     </issue>
 
@@ -14146,7 +14135,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1067"
+            line="1063"
             column="35"/>
     </issue>
 
@@ -14157,7 +14146,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1073"
+            line="1069"
             column="33"/>
     </issue>
 
@@ -14168,7 +14157,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1078"
+            line="1074"
             column="30"/>
     </issue>
 
@@ -14179,7 +14168,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1093"
+            line="1089"
             column="16"/>
     </issue>
 
@@ -14190,7 +14179,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1098"
+            line="1094"
             column="16"/>
     </issue>
 
@@ -14201,7 +14190,7 @@
         errorLine2="               ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1114"
+            line="1110"
             column="16"/>
     </issue>
 
@@ -14212,7 +14201,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1127"
+            line="1123"
             column="33"/>
     </issue>
 
@@ -14223,7 +14212,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1130"
+            line="1126"
             column="42"/>
     </issue>
 
@@ -14234,7 +14223,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1143"
+            line="1139"
             column="36"/>
     </issue>
 
@@ -14245,7 +14234,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1170"
+            line="1166"
             column="16"/>
     </issue>
 
@@ -14256,7 +14245,7 @@
         errorLine2="               ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1175"
+            line="1171"
             column="16"/>
     </issue>
 
@@ -14267,7 +14256,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1175"
+            line="1171"
             column="27"/>
     </issue>
 
@@ -14278,7 +14267,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1180"
+            line="1176"
             column="16"/>
     </issue>
 
@@ -14289,7 +14278,7 @@
         errorLine2="               ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1185"
+            line="1181"
             column="16"/>
     </issue>
 
@@ -14300,7 +14289,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1185"
+            line="1181"
             column="35"/>
     </issue>
 
@@ -14311,7 +14300,7 @@
         errorLine2="               ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1191"
+            line="1187"
             column="16"/>
     </issue>
 
@@ -14322,7 +14311,7 @@
         errorLine2="               ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1196"
+            line="1192"
             column="16"/>
     </issue>
 
@@ -14333,7 +14322,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1196"
+            line="1192"
             column="34"/>
     </issue>
 
@@ -14344,7 +14333,7 @@
         errorLine2="               ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1205"
+            line="1201"
             column="16"/>
     </issue>
 
@@ -14355,7 +14344,7 @@
         errorLine2="               ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1211"
+            line="1207"
             column="16"/>
     </issue>
 
@@ -14366,7 +14355,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1225"
+            line="1221"
             column="16"/>
     </issue>
 
@@ -14377,7 +14366,7 @@
         errorLine2="               ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1230"
+            line="1226"
             column="16"/>
     </issue>
 
@@ -14388,7 +14377,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1230"
+            line="1226"
             column="28"/>
     </issue>
 
@@ -14399,7 +14388,7 @@
         errorLine2="               ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1239"
+            line="1235"
             column="16"/>
     </issue>
 
@@ -14410,7 +14399,7 @@
         errorLine2="               ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1244"
+            line="1240"
             column="16"/>
     </issue>
 
@@ -14421,7 +14410,7 @@
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1244"
+            line="1240"
             column="28"/>
     </issue>
 
@@ -14432,7 +14421,7 @@
         errorLine2="               ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1253"
+            line="1249"
             column="16"/>
     </issue>
 
@@ -14443,7 +14432,7 @@
         errorLine2="               ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1263"
+            line="1259"
             column="16"/>
     </issue>
 
@@ -14454,7 +14443,7 @@
         errorLine2="               ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1268"
+            line="1264"
             column="16"/>
     </issue>
 
@@ -14465,7 +14454,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1268"
+            line="1264"
             column="42"/>
     </issue>
 
@@ -14476,7 +14465,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1277"
+            line="1273"
             column="16"/>
     </issue>
 
@@ -14487,7 +14476,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1283"
+            line="1279"
             column="31"/>
     </issue>
 
@@ -14498,7 +14487,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1288"
+            line="1284"
             column="31"/>
     </issue>
 
@@ -14509,7 +14498,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1288"
+            line="1284"
             column="42"/>
     </issue>
 
@@ -14520,7 +14509,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1294"
+            line="1290"
             column="44"/>
     </issue>
 
@@ -14531,7 +14520,7 @@
         errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1294"
+            line="1290"
             column="68"/>
     </issue>
 
@@ -14542,7 +14531,7 @@
         errorLine2="           ~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1358"
+            line="1354"
             column="12"/>
     </issue>
 
@@ -14553,7 +14542,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1369"
+            line="1365"
             column="25"/>
     </issue>
 
@@ -14564,7 +14553,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1383"
+            line="1379"
             column="25"/>
     </issue>
 
@@ -14575,7 +14564,7 @@
         errorLine2="                                              ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/WindowDecorActionBar.java"
-            line="1399"
+            line="1395"
             column="47"/>
     </issue>
 

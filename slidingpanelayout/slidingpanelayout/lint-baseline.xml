@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="UnknownNullness"
@@ -8,7 +8,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="910"
+            line="911"
             column="35"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="910"
+            line="911"
             column="47"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="918"
+            line="919"
             column="42"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="978"
+            line="979"
             column="33"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="1149"
+            line="1153"
             column="33"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="1149"
+            line="1153"
             column="48"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="1307"
+            line="1311"
             column="35"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="1366"
+            line="1370"
             column="22"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                                ~~~~">
         <location
             file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="1427"
+            line="1431"
             column="33"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="1459"
+            line="1463"
             column="15"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="1464"
+            line="1468"
             column="15"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="1464"
+            line="1468"
             column="59"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="1471"
+            line="1475"
             column="41"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="1476"
+            line="1480"
             column="12"/>
     </issue>
 
@@ -162,7 +162,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="1476"
+            line="1480"
             column="56"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="1481"
+            line="1485"
             column="15"/>
     </issue>
 
@@ -184,7 +184,7 @@
         errorLine2="                                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="1492"
+            line="1496"
             column="43"/>
     </issue>
 

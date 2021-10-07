@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="BanUncheckedReflection"
@@ -8,7 +8,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/ClassesInfoCache.java"
-            line="216"
+            line="222"
             column="25"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/ClassesInfoCache.java"
-            line="219"
+            line="225"
             column="25"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/ClassesInfoCache.java"
-            line="222"
+            line="228"
             column="25"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/Lifecycling.java"
-            line="206"
+            line="208"
             column="19"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/Lifecycling.java"
-            line="206"
+            line="208"
             column="41"/>
     </issue>
 

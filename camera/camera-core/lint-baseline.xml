@@ -1,82 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `java.time.Duration#ofMillis`"
-        errorLine1="        ShadowSystemClock.advanceBy(Duration.ofMillis(100));"
-        errorLine2="                                             ~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/core/impl/utils/ExifTest.java"
-            line="160"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `java.time.Duration#ofMillis`"
-        errorLine1="        ShadowSystemClock.advanceBy(Duration.ofMillis(100));"
-        errorLine2="                                             ~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/core/impl/utils/ExifTest.java"
-            line="163"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `new android.graphics.SurfaceTexture`"
-        errorLine1="        mTestSurfaceTexture = new SurfaceTexture(/* singleBufferMode= */ false);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/core/internal/compat/ImageWriterCompatTest.java"
-            line="47"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `newInstance`"
-        errorLine1="        ImageWriter imageWriter = ImageWriterCompat.newInstance(mTestSurface,"
-        errorLine2="                                                    ~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/core/internal/compat/ImageWriterCompatTest.java"
-            line="59"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `newInstance`"
-        errorLine1="                TEST_MAX_IMAGES, TEST_IMAGE_FORMAT);"
-        errorLine2="                ~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/core/internal/compat/ImageWriterCompatTest.java"
-            line="60"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 22 (current min is 21): `android.os.Message#isAsynchronous`"
-        errorLine1="        boolean isAsyncBeforeSending = message.isAsynchronous();"
-        errorLine2="                                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/core/impl/utils/MainThreadAsyncHandlerTest.java"
-            line="64"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 22 (current min is 21): `android.os.Message#isAsynchronous`"
-        errorLine1="        boolean isAsyncAfterSending = message.isAsynchronous();"
-        errorLine2="                                              ~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/core/impl/utils/MainThreadAsyncHandlerTest.java"
-            line="68"
-            column="47"/>
-    </issue>
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="NewApi"
@@ -96,237 +19,6 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="61"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="66"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="72"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="77"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="82"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="87"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="92"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="        @Override"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="107"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="        @Override"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="112"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="        @Override"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="117"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="130"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
-            line="51"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
-            line="74"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
-            line="101"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
-            line="106"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
-            line="111"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
-            line="116"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
-            line="121"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Nullable"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
-            line="126"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
-            line="132"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
-            line="144"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
             line="63"
             column="5"/>
     </issue>
@@ -337,8 +29,8 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
-            line="69"
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="68"
             column="5"/>
     </issue>
 
@@ -348,7 +40,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
             line="74"
             column="5"/>
     </issue>
@@ -359,7 +51,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
             line="79"
             column="5"/>
     </issue>
@@ -370,7 +62,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
             line="84"
             column="5"/>
     </issue>
@@ -381,7 +73,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
             line="89"
             column="5"/>
     </issue>
@@ -392,8 +84,52 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
-            line="95"
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="94"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        @Override"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="110"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        @Override"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="115"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        @Override"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="120"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="133"
             column="5"/>
     </issue>
 
@@ -403,63 +139,8 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
-            line="101"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
-            line="107"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="        @Override"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/androidx/camera/core/ImageProxyDownsampler.java"
-            line="237"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="        @Override"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/androidx/camera/core/ImageProxyDownsampler.java"
-            line="242"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="        @Override"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/androidx/camera/core/ImageProxyDownsampler.java"
-            line="247"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @NonNull"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/SettableImageProxy.java"
-            line="66"
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="53"
             column="5"/>
     </issue>
 
@@ -469,7 +150,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/SettableImageProxy.java"
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
             line="76"
             column="5"/>
     </issue>
@@ -480,8 +161,228 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="103"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="108"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="113"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="118"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="123"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Nullable"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="128"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="134"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="146"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="65"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="71"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="76"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="81"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="86"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="91"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="97"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="103"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="109"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        @Override"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/camera/core/ImageProxyDownsampler.java"
+            line="239"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        @Override"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/camera/core/ImageProxyDownsampler.java"
+            line="244"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        @Override"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/camera/core/ImageProxyDownsampler.java"
+            line="249"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @NonNull"
+        errorLine2="    ^">
+        <location
             file="src/main/java/androidx/camera/core/SettableImageProxy.java"
-            line="87"
+            line="68"
             column="5"/>
     </issue>
 
@@ -492,7 +393,29 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/camera/core/SettableImageProxy.java"
-            line="92"
+            line="78"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/SettableImageProxy.java"
+            line="89"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/SettableImageProxy.java"
+            line="94"
             column="5"/>
     </issue>
 
@@ -503,7 +426,337 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/camera/core/SingleCloseImageProxy.java"
-            line="36"
+            line="38"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="101"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/CameraControl.java"
+            line="192"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/CameraSelector.java"
+            line="194"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/CameraState.java"
+            line="261"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/CameraState.java"
+            line="283"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/CameraState.java"
+            line="445"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/CameraXConfig.java"
+            line="74"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/CameraXConfig.java"
+            line="208"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/FocusMeteringAction.java"
+            line="159"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/ImageAnalysis.java"
+            line="677"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/ImageAnalysis.java"
+            line="725"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/ImageAnalysis.java"
+            line="752"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/ImageCapture.java"
+            line="1793"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/ImageCapture.java"
+            line="1810"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/ImageCapture.java"
+            line="1892"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="        @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/ImageCapture.java"
+            line="1963"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/ImageCapture.java"
+            line="2054"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/ImageCapture.java"
+            line="2077"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/ImageCapture.java"
+            line="2319"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/ImageCapture.java"
+            line="2508"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/ImageProxy.java"
+            line="89"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/Preview.java"
+            line="564"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/Preview.java"
+            line="654"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/impl/StateObservable.java"
+            line="185"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/SurfaceRequest.java"
+            line="479"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/SurfaceRequest.java"
+            line="504"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/SurfaceRequest.java"
+            line="658"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/UseCaseGroup.java"
+            line="69"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/VideoCapture.java"
+            line="1315"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/ViewPort.java"
+            line="204"
             column="5"/>
     </issue>
 
@@ -514,7 +767,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CaptureConfig.java"
-            line="310"
+            line="312"
             column="17"/>
     </issue>
 
@@ -525,7 +778,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/utils/futures/AsyncFunction.java"
-            line="48"
+            line="50"
             column="5"/>
     </issue>
 
@@ -536,7 +789,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="63"
+            line="65"
             column="28"/>
     </issue>
 
@@ -547,7 +800,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="63"
+            line="65"
             column="45"/>
     </issue>
 
@@ -558,7 +811,7 @@
         errorLine2="    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="73"
+            line="75"
             column="5"/>
     </issue>
 
@@ -569,7 +822,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="73"
+            line="75"
             column="42"/>
     </issue>
 
@@ -580,7 +833,7 @@
         errorLine2="                                                                           ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="73"
+            line="75"
             column="76"/>
     </issue>
 
@@ -591,7 +844,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CameraInfoUnavailableException.java"
-            line="26"
+            line="28"
             column="43"/>
     </issue>
 
@@ -602,7 +855,7 @@
         errorLine2="                                                    ~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CameraInfoUnavailableException.java"
-            line="26"
+            line="28"
             column="53"/>
     </issue>
 
@@ -613,7 +866,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/CameraInfoUnavailableException.java"
-            line="32"
+            line="34"
             column="43"/>
     </issue>
 
@@ -624,7 +877,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"
-            line="37"
+            line="39"
             column="26"/>
     </issue>
 
@@ -635,7 +888,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"
-            line="50"
+            line="52"
             column="18"/>
     </issue>
 
@@ -646,7 +899,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"
-            line="57"
+            line="59"
             column="29"/>
     </issue>
 
@@ -657,7 +910,7 @@
         errorLine2="    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CaptureStage.java"
-            line="30"
+            line="33"
             column="5"/>
     </issue>
 
@@ -668,7 +921,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CaptureStage.java"
-            line="49"
+            line="52"
             column="16"/>
     </issue>
 
@@ -679,7 +932,7 @@
         errorLine2="                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/utils/futures/FutureCallback.java"
-            line="49"
+            line="51"
             column="20"/>
     </issue>
 
@@ -690,7 +943,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/utils/MainThreadAsyncHandler.java"
-            line="35"
+            line="37"
             column="19"/>
     </issue>
 
@@ -701,7 +954,7 @@
         errorLine2="                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="78"
+            line="80"
             column="23"/>
     </issue>
 
@@ -712,7 +965,7 @@
         errorLine2="                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="90"
+            line="92"
             column="23"/>
     </issue>
 
@@ -723,7 +976,7 @@
         errorLine2="                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="102"
+            line="104"
             column="23"/>
     </issue>
 
@@ -734,7 +987,7 @@
         errorLine2="                    ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="177"
+            line="179"
             column="21"/>
     </issue>
 
@@ -745,7 +998,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="177"
+            line="179"
             column="36"/>
     </issue>
 
@@ -756,7 +1009,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="189"
+            line="191"
             column="26"/>
     </issue>
 
@@ -767,7 +1020,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="48"
+            line="51"
             column="19"/>
     </issue>
 
@@ -778,7 +1031,7 @@
         errorLine2="            ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="49"
+            line="52"
             column="13"/>
     </issue>
 
@@ -789,7 +1042,7 @@
         errorLine2="            ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="50"
+            line="53"
             column="13"/>
     </issue>
 
@@ -800,7 +1053,7 @@
         errorLine2="            ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="51"
+            line="54"
             column="13"/>
     </issue>
 
@@ -811,7 +1064,7 @@
         errorLine2="                    ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="56"
+            line="59"
             column="21"/>
     </issue>
 
@@ -822,7 +1075,7 @@
         errorLine2="                    ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="59"
+            line="62"
             column="21"/>
     </issue>
 
@@ -833,7 +1086,7 @@
         errorLine2="                    ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="62"
+            line="65"
             column="21"/>
     </issue>
 

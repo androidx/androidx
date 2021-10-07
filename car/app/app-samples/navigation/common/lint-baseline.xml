@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="ClassVerificationFailure"
@@ -8,7 +8,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/sample/navigation/common/car/NavigationCarAppService.java"
-            line="104"
+            line="102"
             column="21"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/sample/navigation/common/car/NavigationCarAppService.java"
-            line="105"
+            line="103"
             column="33"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
-            line="503"
+            line="502"
             column="21"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/sample/navigation/common/nav/NavigationService.java"
-            line="504"
+            line="503"
             column="34"/>
     </issue>
 

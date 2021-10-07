@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="UnsafeOptInUsageError"
@@ -8,7 +8,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/internal/AdaptingCaptureStage.java"
-            line="38"
+            line="40"
             column="65"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/internal/AdaptingCaptureStage.java"
-            line="41"
+            line="43"
             column="41"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                                                                                  ~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/internal/AdaptingCaptureStage.java"
-            line="46"
+            line="48"
             column="83"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"
-            line="118"
+            line="120"
             column="47"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                                               ~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"
-            line="118"
+            line="120"
             column="64"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"
-            line="261"
+            line="263"
             column="62"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"
-            line="265"
+            line="267"
             column="38"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                                               ~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"
-            line="268"
+            line="270"
             column="48"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/internal/ImageCaptureConfigProvider.java"
-            line="110"
+            line="112"
             column="13"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/internal/ImageCaptureConfigProvider.java"
-            line="110"
+            line="112"
             column="55"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/internal/PreviewConfigProvider.java"
-            line="110"
+            line="112"
             column="13"/>
     </issue>
 
@@ -129,8 +129,19 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/internal/PreviewConfigProvider.java"
-            line="110"
+            line="112"
             column="55"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/SessionProcessorBase.java"
+            line="195"
+            column="5"/>
     </issue>
 
 </issues>
