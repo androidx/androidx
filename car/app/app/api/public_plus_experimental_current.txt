@@ -765,6 +765,7 @@ package androidx.car.app.model {
 
   @androidx.car.app.annotations.CarProtocol public final class Pane {
     method public java.util.List<androidx.car.app.model.Action!> getActions();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.CarIcon? getImage();
     method public java.util.List<androidx.car.app.model.Row!> getRows();
     method public boolean isLoading();
   }
@@ -774,6 +775,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Pane.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.Pane.Builder addRow(androidx.car.app.model.Row);
     method public androidx.car.app.model.Pane build();
+    method @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.Pane.Builder setImage(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Pane.Builder setLoading(boolean);
   }
 
