@@ -62,8 +62,8 @@ public abstract class AbstractSavedStateViewModelFactory extends ViewModelProvid
     @NonNull
     @Override
     public final <T extends ViewModel> T create(@NonNull Class<T> modelClass,
-            @NonNull CreationExtras creationExtras) {
-        String key = creationExtras.get(VIEW_MODEL_KEY);
+            @NonNull CreationExtras extras) {
+        String key = extras.get(VIEW_MODEL_KEY);
         if (key == null) {
             throw new IllegalStateException(
                     "VIEW_MODEL_KEY must always be provided by ViewModelProvider");
