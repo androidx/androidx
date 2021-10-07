@@ -101,7 +101,6 @@ class AppWidgetHostTestActivity : Activity() {
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
-        Log.i("YOLO", "Changing configuration, orientation = ${newConfig.orientation}")
         super.onConfigurationChanged(newConfig)
         updateAllSizes(newConfig.orientation)
         reapplyRemoteViews()
