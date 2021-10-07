@@ -47,7 +47,7 @@ import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
-import androidx.camera.video.VideoOutput.StreamState
+import androidx.camera.video.StreamInfo.StreamState
 import androidx.camera.video.impl.VideoCaptureConfig
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
@@ -424,8 +424,13 @@ class VideoCaptureTest {
         val surfaceRequestCallback: Consumer<SurfaceRequest>
     ) : VideoOutput {
 
-        private val streamStateObservable: MutableStateObservable<StreamState> =
-            MutableStateObservable.withInitialState(streamState)
+        private val streamInfoObservable: MutableStateObservable<StreamInfo> =
+            MutableStateObservable.withInitialState(
+                StreamInfo.of(
+                    StreamInfo.STREAM_ID_ANY,
+                    streamState
+                )
+            )
 
         private val mediaSpecObservable: MutableStateObservable<MediaSpec> =
             MutableStateObservable.withInitialState(mediaSpec)
@@ -434,11 +439,12 @@ class VideoCaptureTest {
             surfaceRequestCallback.accept(surfaceRequest)
         }
 
-        override fun getStreamState(): Observable<StreamState> = streamStateObservable
+        override fun getStreamInfo(): Observable<StreamInfo> = streamInfoObservable
 
         override fun getMediaSpec(): Observable<MediaSpec> = mediaSpecObservable
 
-        fun setStreamState(streamState: StreamState) = streamStateObservable.setState(streamState)
+        fun setStreamState(streamState: StreamState) =
+            streamInfoObservable.setState(StreamInfo.of(StreamInfo.STREAM_ID_ANY, streamState))
 
         fun setMediaSpec(mediaSpec: MediaSpec) = mediaSpecObservable.setState(mediaSpec)
     }
