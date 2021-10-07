@@ -54,6 +54,10 @@ import androidx.wear.compose.material.TimeTextDefaults.timeFormat
  * The full customization for square and round devices can be checked here:
  * @sample androidx.wear.compose.material.samples.TimeTextWithCustomSeparator
  *
+ * For more information, see the
+ * [Curved Text](https://developer.android.com/training/wearables/components/curved-text)
+ * guide.
+ *
  * @param modifier Current modifier.
  * @param timeSource [TimeSource] which retrieves the current time.
  * @param timeTextStyle Optional textStyle for the time text itself
