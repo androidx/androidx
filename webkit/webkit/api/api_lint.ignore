@@ -21,10 +21,6 @@ GetterSetterNames: androidx.webkit.ServiceWorkerWebSettingsCompat#getBlockNetwor
     Symmetric method for `setBlockNetworkLoads` must be named `isBlockNetworkLoads`; was `getBlockNetworkLoads`
 
 
-IntentName: androidx.webkit.WebViewFeature#DISABLED_ACTION_MODE_MENU_ITEMS:
-    Intent action constant name must be ACTION_FOO: DISABLED_ACTION_MODE_MENU_ITEMS
-
-
 MissingGetterMatchingBuilder: androidx.webkit.ProxyConfig.Builder#addDirect():
     androidx.webkit.ProxyConfig does not declare a `getDirects()` method matching method androidx.webkit.ProxyConfig.Builder.addDirect()
 MissingGetterMatchingBuilder: androidx.webkit.ProxyConfig.Builder#addDirect(String):
