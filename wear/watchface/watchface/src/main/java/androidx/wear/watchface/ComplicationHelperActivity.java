@@ -325,7 +325,8 @@ public final class ComplicationHelperActivity extends Activity
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
                 ComplicationDataSourceUpdateRequesterConstants.EXTRA_PENDING_INTENT,
-                PendingIntent.getActivity(this, 0, new Intent(""), 0));
+                PendingIntent.getActivity(
+                        this, 0, new Intent(""), PendingIntent.FLAG_IMMUTABLE));
         sendBroadcast(intent);
     }
 

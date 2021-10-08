@@ -139,7 +139,12 @@ private class ComplicationDataSourceUpdateRequesterImpl(
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
             ComplicationDataSourceUpdateRequesterConstants.EXTRA_PENDING_INTENT,
-            PendingIntent.getActivity(context, 0, Intent(""), 0)
+            PendingIntent.getActivity(
+                context,
+                0,
+                Intent(""),
+                PendingIntent.FLAG_IMMUTABLE
+            )
         )
         context.sendBroadcast(intent)
     }
