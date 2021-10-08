@@ -37,6 +37,8 @@ import androidx.glance.appwidget.translators.translateEmittableCheckBox
 import androidx.glance.appwidget.translators.translateEmittableSwitch
 import androidx.glance.appwidget.translators.translateEmittableText
 import androidx.glance.appwidget.translators.setText
+import androidx.glance.appwidget.translators.translateEmittableLazyColumn
+import androidx.glance.appwidget.translators.translateEmittableLazyListItem
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.EmittableButton

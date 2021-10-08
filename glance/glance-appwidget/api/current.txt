@@ -38,9 +38,6 @@ package androidx.glance.appwidget {
   public final class LayoutIdsKt {
   }
 
-  public final class RemoteLazyListViewsTranslatorKt {
-  }
-
   public final class RemoteViewsTranslatorKt {
   }
 
@@ -112,6 +109,9 @@ package androidx.glance.appwidget.layout {
 package androidx.glance.appwidget.translators {
 
   public final class CheckBoxTranslatorKt {
+  }
+
+  public final class LazyListTranslatorKt {
   }
 
   public final class SwitchTranslatorKt {

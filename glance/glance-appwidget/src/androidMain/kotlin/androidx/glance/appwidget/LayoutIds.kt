@@ -39,6 +39,11 @@ internal data class LayoutIds(
 )
 
 /**
+ * The total number of generated layouts.
+ */
+internal val GeneratedLayoutCount = generatedLayouts.size
+
+/**
  * Layout selector.
  *
  * This class is used to select a particular layout in [generatedLayouts].
