@@ -45,7 +45,7 @@ private val errors: List<ConfigurationError> = listOfNotNull(
  *
  * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun collectBaselineProfile(
     uniqueName: String,
     packageName: String,
