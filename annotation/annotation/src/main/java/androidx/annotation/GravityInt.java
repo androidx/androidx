@@ -31,9 +31,9 @@ import java.lang.annotation.Target;
  * array, every element in the array represents a gravity int.
  * <p>
  * Example:
- * <pre>{@code
+ * <pre>
  *  public abstract void setInnerGravity(@GravityInt int gravity);
- * }</pre>
+ * </pre>
  *
  * @see android.view.Gravity
  */
