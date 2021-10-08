@@ -37,7 +37,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.File
 import java.io.IOException
-import java.lang.IllegalStateException
 
 @RunWith(JUnit4::class)
 class XExecutableElementTest {
@@ -913,30 +912,31 @@ class XExecutableElementTest {
                     }
                 }
             }
-            // TODO
-            // add lib here once https://github.com/google/ksp/issues/507 is fixed
-            // also need https://github.com/google/ksp/issues/505 to be fixed for accessors.
-            listOf("app").forEach { pkg ->
+            listOf("app", "lib").forEach { pkg ->
+                val expectedConstructor =
+                    "<init>" to setOf(ClassName.get(IllegalArgumentException::class.java))
+                val expectedMethod = "multipleThrows" to setOf(
+                    ClassName.get(IOException::class.java),
+                    ClassName.get(IllegalStateException::class.java)
+                )
                 invocation.processingEnv.requireTypeElement("$pkg.KotlinSubject").let { subject ->
                     assertWithMessage(subject.qualifiedName).that(
                         collectExceptions(subject)
                     ).containsExactly(
-                        "<init>" to setOf(ClassName.get(IllegalArgumentException::class.java)),
-                        "multipleThrows" to setOf(
-                            ClassName.get(IOException::class.java),
-                            ClassName.get(IllegalStateException::class.java)
-                        )
+                        expectedConstructor, expectedMethod
                     )
                 }
                 invocation.processingEnv.requireTypeElement("$pkg.JavaSubject").let { subject ->
                     assertWithMessage(subject.qualifiedName).that(
                         collectExceptions(subject)
-                    ).containsExactly(
-                        "<init>" to setOf(ClassName.get(IllegalArgumentException::class.java)),
-                        "multipleThrows" to setOf(
-                            ClassName.get(IOException::class.java),
-                            ClassName.get(IllegalStateException::class.java)
-                        )
+                    ).containsExactlyElementsIn(
+                        listOfNotNull(
+                            expectedConstructor.takeIf {
+                                // TODO https://github.com/google/ksp/issues/507
+                                !invocation.isKsp || pkg != "lib"
+                            },
+                            expectedMethod
+                        ),
                     )
                 }
                 invocation.processingEnv.requireTypeElement("$pkg.KotlinAccessors").let { subject ->
