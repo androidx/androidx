@@ -66,8 +66,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.window.layout.DisplayFeature
 import androidx.window.layout.FoldingFeature
-import androidx.window.layout.WindowInfoRepository
-import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
+import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
 import androidx.window.layout.WindowMetricsCalculator
@@ -87,7 +86,7 @@ class FoldableCameraActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityFoldableCameraBinding
-    private lateinit var windowInfoRepository: WindowInfoRepository
+    private lateinit var windowInfoTracker: WindowInfoTracker
     private lateinit var imageCapture: ImageCapture
     private lateinit var camera: Camera
     private lateinit var cameraProvider: ProcessCameraProvider
@@ -108,7 +107,7 @@ class FoldableCameraActivity : AppCompatActivity() {
             binding.previewView.scaleType =
                 PreviewView.ScaleType.valueOf(it.getString(KEY_SCALETYPE)!!)
         }
-        windowInfoRepository = windowInfoRepository()
+        windowInfoTracker = WindowInfoTracker.getOrCreate(this)
 
         if (shouldRequestPermissionsAtRuntime() && !hasPermissions()) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_CODE_PERMISSIONS)
@@ -172,11 +171,12 @@ class FoldableCameraActivity : AppCompatActivity() {
 
         // Runs Flow.collect in separate coroutine because it will block the coroutine.
         lifecycleScope.launch {
-            windowInfoRepository.windowLayoutInfo.collect { newLayoutInfo ->
-                Log.d(TAG, "newLayoutInfo: $newLayoutInfo")
-                activeWindowLayoutInfo = newLayoutInfo
-                adjustPreviewByFoldingState()
-            }
+            windowInfoTracker.windowLayoutInfo(this@FoldableCameraActivity)
+                .collect { newLayoutInfo ->
+                    Log.d(TAG, "newLayoutInfo: $newLayoutInfo")
+                    activeWindowLayoutInfo = newLayoutInfo
+                    adjustPreviewByFoldingState()
+                }
         }
     }
 
