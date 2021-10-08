@@ -2474,9 +2474,13 @@ public fun RemoteViews.setViewBackgroundColor(
  * @param viewId The id of the target view
  * @param resId A color resource for the background.
  */
-@RequiresApi(31)
 public fun RemoteViews.setViewBackgroundColorResource(@IdRes viewId: Int, @ColorRes resId: Int) {
-    Api31Impl.setColor(this, viewId, "setBackgroundColor", resId)
+    if (Build.VERSION.SDK_INT >= 31) {
+        Api31Impl.setColor(this, viewId, "setBackgroundColor", resId)
+    } else {
+        // It's valid to pass @ColorRes to Context.getDrawable, it will return a ColorDrawable.
+        setInt(viewId, "setBackgroundResource", resId)
+    }
 }
 
 /**
