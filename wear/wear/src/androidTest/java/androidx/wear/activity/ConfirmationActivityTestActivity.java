@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 
+import androidx.annotation.Nullable;
 import androidx.wear.test.R;
 
 public class ConfirmationActivityTestActivity extends Activity {
@@ -32,7 +33,17 @@ public class ConfirmationActivityTestActivity extends Activity {
         mDuration = duration;
     }
 
+    /**
+     * Message to display on the confirmation dialog.
+     *
+     * Pass null here to not set a message in the intent extras.
+     */
+    public void setMessage(@Nullable String message) {
+        mMessage = message;
+    }
+
     private int mDuration = ConfirmationActivity.DEFAULT_ANIMATION_DURATION_MILLIS;
+    @Nullable private String mMessage = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +59,10 @@ public class ConfirmationActivityTestActivity extends Activity {
                             ConfirmationActivity.SUCCESS_ANIMATION);
                     intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_DURATION_MILLIS,
                             mDuration);
-                    intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, "A message");
+
+                    if (mMessage != null) {
+                        intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, mMessage);
+                    }
 
                     startActivity(intent);
                 }

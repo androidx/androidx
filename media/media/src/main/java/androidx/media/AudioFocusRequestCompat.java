@@ -28,6 +28,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -80,13 +81,8 @@ public class AudioFocusRequestCompat {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mFrameworkAudioFocusRequest =
-                    new AudioFocusRequest.Builder(mFocusGain)
-                            .setAudioAttributes(getAudioAttributes())
-                            .setWillPauseWhenDucked(mPauseOnDuck)
-                            .setOnAudioFocusChangeListener(
-                                    mOnAudioFocusChangeListener, mFocusChangeHandler)
-                            .build();
+            mFrameworkAudioFocusRequest = Api26Impl.createInstance(mFocusGain, getAudioAttributes(),
+                    mPauseOnDuck, mOnAudioFocusChangeListener, mFocusChangeHandler);
         } else {
             mFrameworkAudioFocusRequest = null;
         }
@@ -431,6 +427,25 @@ public class AudioFocusRequestCompat {
                 return true;
             }
             return false;
+        }
+    }
+
+    @RequiresApi(26)
+    private static class Api26Impl {
+        private Api26Impl() {}
+
+        @DoNotInline
+        static AudioFocusRequest createInstance(
+                int focusGain,
+                AudioAttributes audioAttributes,
+                boolean pauseOnDuck,
+                OnAudioFocusChangeListener onAudioFocusChangeListener,
+                Handler focusChangeHandler) {
+            return new AudioFocusRequest.Builder(focusGain)
+                    .setAudioAttributes(audioAttributes)
+                    .setWillPauseWhenDucked(pauseOnDuck)
+                    .setOnAudioFocusChangeListener(onAudioFocusChangeListener, focusChangeHandler)
+                    .build();
         }
     }
 }

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -23,7 +21,13 @@ plugins {
 }
 
 dependencies {
-    api(MOCKITO_CORE, libs.exclude_bytebuddy)
+    api(libs.mockitoCore, excludes.bytebuddy)
 
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.kotlinStdlib)
+}
+
+android {
+    lintOptions {
+        disable "InvalidPackage" // Lint is unhappy about java.lang.instrument package
+    }
 }

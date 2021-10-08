@@ -161,7 +161,7 @@ public class ProxyControllerTest {
         setProxyOverrideSync(new ProxyConfig.Builder()
                 .addProxyRule(mProxyServer.getHostName() + ":" + mProxyServer.getPort())
                 .addBypassRule(bypassUrl)
-                .setReverseBypass(true)
+                .setReverseBypassEnabled(true)
                 .build());
         mWebViewOnUiThread.loadUrl(contentUrl);
 
@@ -292,9 +292,8 @@ public class ProxyControllerTest {
 
     private void clearProxyOverrideSync() {
         final ResolvableFuture<Void> future = ResolvableFuture.create();
-        ProxyController.getInstance().clearProxyOverride(new SynchronousExecutor(), () -> {
-            future.set(null);
-        });
+        ProxyController.getInstance().clearProxyOverride(
+                new SynchronousExecutor(), () -> future.set(null));
         // This future is used to ensure that clearProxyOverride's callback was called
         WebkitUtils.waitForFuture(future);
     }

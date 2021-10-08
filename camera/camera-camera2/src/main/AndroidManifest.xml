@@ -13,4 +13,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<manifest package="androidx.camera.camera2" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="androidx.camera.camera2">
+
+    <application>
+        <service
+            android:name="androidx.camera.core.impl.MetadataHolderService"
+            android:exported="false"
+            android:enabled="false"
+            tools:ignore="Instantiatable"
+            tools:node="merge">
+            <meta-data
+                android:name=
+                    "androidx.camera.core.impl.MetadataHolderService.DEFAULT_CONFIG_PROVIDER"
+                android:value="androidx.camera.camera2.Camera2Config$DefaultProvider" />
+        </service>
+    </application>
+</manifest>

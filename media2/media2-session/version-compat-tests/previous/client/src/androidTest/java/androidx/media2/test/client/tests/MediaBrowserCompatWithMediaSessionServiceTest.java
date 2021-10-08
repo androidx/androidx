@@ -80,7 +80,6 @@ public class MediaBrowserCompatWithMediaSessionServiceTest extends MediaSessionT
 
     @Test
     public void connect() throws InterruptedException {
-        prepareLooper();
         connectAndWait();
         assertNotEquals(0, mConnectionCallback.mFailedLatch.getCount());
     }
@@ -88,7 +87,6 @@ public class MediaBrowserCompatWithMediaSessionServiceTest extends MediaSessionT
     @Ignore
     @Test
     public void connect_rejected() throws InterruptedException {
-        prepareLooper();
         // TODO: Connect the browser to the session service whose onConnect() returns null.
         assertTrue(mConnectionCallback.mFailedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertNotEquals(0, mConnectionCallback.mConnectedLatch.getCount());
@@ -96,7 +94,6 @@ public class MediaBrowserCompatWithMediaSessionServiceTest extends MediaSessionT
 
     @Test
     public void getSessionToken() throws Exception {
-        prepareLooper();
         connectAndWait();
         MediaControllerCompat controller = new MediaControllerCompat(mContext,
                 mBrowserCompat.getSessionToken());

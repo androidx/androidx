@@ -16,6 +16,7 @@
 
 package androidx.navigation.compose.demos
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -24,12 +25,13 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.compose.KEY_ROUTE
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.samples.Dashboard
 import androidx.navigation.compose.samples.Profile
@@ -50,24 +52,27 @@ fun BottomBarNavDemo() {
         bottomBar = {
             BottomNavigation {
                 val navBackStackEntry = navController.currentBackStackEntryAsState().value
-                val entryRoute = navBackStackEntry?.arguments?.getString(KEY_ROUTE)
+                val currentDestination = navBackStackEntry?.destination
                 items.forEach { (name, route) ->
                     BottomNavigationItem(
                         icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
                         label = { Text(name) },
-                        selected = entryRoute == route,
+                        selected = currentDestination?.hierarchy?.any { it.route == route } == true,
                         onClick = {
                             navController.navigate(route) {
                                 launchSingleTop = true
-                                popUpTo = navController.graph.startDestination
+                                restoreState = true
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
                             }
                         }
                     )
                 }
             }
         }
-    ) {
-        NavHost(navController, startDestination = Screen.Profile.route) {
+    ) { innerPadding ->
+        NavHost(navController, Screen.Profile.route, Modifier.padding(innerPadding)) {
             composable(Screen.Profile.route) { Profile(navController) }
             composable(Screen.Dashboard.route) { Dashboard(navController) }
             composable(Screen.Scrollable.route) { Scrollable(navController) }

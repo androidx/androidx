@@ -1,0 +1,84 @@
+box {
+  width {
+    linear_dimension {
+      value: 100
+    }
+  }
+  height {
+    wrapped_dimension {}
+  }
+
+  # Add a background color so it's obvious what the bounds of the text is.
+  modifiers {
+    background {
+      color {
+        argb: 0xFFFFFFFF
+      }
+    }
+  }
+
+  contents {
+    column {
+      contents {
+        text {
+          text {
+            value: "This is a really long string which really should be truncated when it's rendered in a really little container."
+          }
+          font_style {
+            color {
+              argb: 0xFF00FF00
+            }
+          }
+        }
+      }
+      contents {
+        text {
+          text {
+            value: "This is a really long string which really should be truncated when it's rendered in a really little container."
+          }
+          overflow {
+            value: TEXT_OVERFLOW_TRUNCATE
+          }
+          font_style {
+            color {
+              argb: 0xFF000000
+            }
+          }
+        }
+      }
+      contents {
+        text {
+          text {
+            value: "This is a really long string which really should be ellipsized when it's rendered in a really little container."
+          }
+          overflow {
+            value: TEXT_OVERFLOW_ELLIPSIZE_END
+          }
+          font_style {
+            color {
+              argb: 0xFFFF0000
+            }
+          }
+        }
+      }
+      contents {
+        text {
+          text {
+            value: "This is a really long string which really should be truncated when it's rendered in a really little container."
+          }
+          max_lines: {
+            value: 2
+          }
+          overflow {
+            value: TEXT_OVERFLOW_ELLIPSIZE_END
+          }
+          font_style {
+            color {
+              argb: 0xFF0000FF
+            }
+          }
+        }
+      }
+    }
+  }
+}

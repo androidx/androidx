@@ -1,0 +1,30 @@
+box {
+  # Add a green background, so we can tell whether the image "box" is resizing
+  # properly.
+  modifiers {
+    background {
+      color {
+        argb: 0xFF00FF00
+      }
+    }
+  }
+  width {
+    expanded_dimension {}
+  }
+  contents {
+    image {
+      width {
+        expanded_dimension {}
+      }
+      height {
+        proportional_dimension {
+          aspect_ratio_width: 2
+          aspect_ratio_height: 1
+        }
+      }
+      resource_id {
+        value: "android"
+      }
+    }
+  }
+}

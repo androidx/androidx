@@ -137,7 +137,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         settingsIntent.setClass(getContext(), SampleMediaRouteSettingsActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         IntentSender is = PendingIntent.getActivity(getContext(), 99, settingsIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT).getIntentSender();
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE).getIntentSender();
 
         mVolumes.put(VARIABLE_VOLUME_BASIC_ROUTE_ID + "1", VOLUME_DEFAULT);
         mVolumes.put(VARIABLE_VOLUME_BASIC_ROUTE_ID + "2", VOLUME_DEFAULT);

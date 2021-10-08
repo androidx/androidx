@@ -24,6 +24,7 @@ import static org.junit.Assert.fail;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.BaseInstrumentationTestCase;
 
@@ -45,6 +46,60 @@ public class RemoteInputTest extends BaseInstrumentationTestCase<TestActivity> {
 
     public RemoteInputTest() {
         super(TestActivity.class);
+    }
+
+    @SdkSuppress(minSdkVersion = 20)
+    @Test
+    public void testRemoteInputBuilder_toAndFromPlatform() throws Throwable {
+        RemoteInput originalInput = new RemoteInput.Builder(RESULT_KEY)
+                .setAllowFreeFormInput(false)
+                .setAllowDataType(MIME_TYPE, true)
+                .setEditChoicesBeforeSending(RemoteInput.EDIT_CHOICES_BEFORE_SENDING_DISABLED)
+                .setChoices(new CharSequence[]{"first", "second"})
+                .build();
+
+        assertFalse(originalInput.isDataOnly());
+        assertFalse(originalInput.getAllowFreeFormInput());
+        assertEquals(2, originalInput.getChoices().length);
+        assertEquals("first", originalInput.getChoices()[0]);
+        assertEquals("second", originalInput.getChoices()[1]);
+        assertEquals(RemoteInput.EDIT_CHOICES_BEFORE_SENDING_DISABLED,
+                originalInput.getEditChoicesBeforeSending());
+        assertEquals(1, originalInput.getAllowedDataTypes().size());
+        assertTrue(originalInput.getAllowedDataTypes().contains(MIME_TYPE));
+
+        android.app.RemoteInput platformInput =
+                RemoteInput.fromCompat(originalInput);
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertFalse(platformInput.isDataOnly());
+        }
+        assertFalse(platformInput.getAllowFreeFormInput());
+        assertEquals(2, platformInput.getChoices().length);
+        assertEquals("first", platformInput.getChoices()[0]);
+        assertEquals("second", platformInput.getChoices()[1]);
+        if (Build.VERSION.SDK_INT >= 29) {
+            assertEquals(RemoteInput.EDIT_CHOICES_BEFORE_SENDING_DISABLED,
+                    platformInput.getEditChoicesBeforeSending());
+        }
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertEquals(1, platformInput.getAllowedDataTypes().size());
+            assertTrue(platformInput.getAllowedDataTypes().contains(MIME_TYPE));
+        }
+
+        RemoteInput compatInput = RemoteInput.fromPlatform(platformInput);
+        assertFalse(compatInput.isDataOnly());
+        assertFalse(compatInput.getAllowFreeFormInput());
+        assertEquals(2, compatInput.getChoices().length);
+        assertEquals("first", compatInput.getChoices()[0]);
+        assertEquals("second", compatInput.getChoices()[1]);
+        if (Build.VERSION.SDK_INT >= 29) {
+            assertEquals(RemoteInput.EDIT_CHOICES_BEFORE_SENDING_DISABLED,
+                    compatInput.getEditChoicesBeforeSending());
+        }
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertEquals(1, compatInput.getAllowedDataTypes().size());
+            assertTrue(compatInput.getAllowedDataTypes().contains(MIME_TYPE));
+        }
     }
 
     @Test

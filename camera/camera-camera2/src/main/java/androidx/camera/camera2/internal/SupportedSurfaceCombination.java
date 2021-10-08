@@ -22,6 +22,7 @@ import android.graphics.Point;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.hardware.display.DisplayManager;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Build;
@@ -29,15 +30,16 @@ import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
-import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.workaround.ExcludedSupportedSizesContainer;
+import androidx.camera.camera2.internal.compat.workaround.ExtraSupportedSurfaceCombinationsContainer;
 import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraUnavailableException;
@@ -70,6 +72,7 @@ import java.util.Map;
  * devices. This structure is used to store a list of surface combinations that are guaranteed to
  * support for this camera device.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class SupportedSurfaceCombination {
     private static final String TAG = "SupportedSurfaceCombination";
     private static final Size MAX_PREVIEW_SIZE = new Size(1920, 1080);
@@ -88,6 +91,8 @@ final class SupportedSurfaceCombination {
     private final CamcorderProfileHelper mCamcorderProfileHelper;
     private final CameraCharacteristicsCompat mCharacteristics;
     private final ExcludedSupportedSizesContainer mExcludedSupportedSizesContainer;
+    private final ExtraSupportedSurfaceCombinationsContainer
+            mExtraSupportedSurfaceCombinationsContainer;
     private final int mHardwareLevel;
     private final boolean mIsSensorLandscapeResolution;
     private final Map<Integer, List<Size>> mExcludedSizeListCache = new HashMap<>();
@@ -102,9 +107,9 @@ final class SupportedSurfaceCombination {
             throws CameraUnavailableException {
         mCameraId = Preconditions.checkNotNull(cameraId);
         mCamcorderProfileHelper = Preconditions.checkNotNull(camcorderProfileHelper);
-        WindowManager windowManager =
-                (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         mExcludedSupportedSizesContainer = new ExcludedSupportedSizesContainer(cameraId);
+        mExtraSupportedSurfaceCombinationsContainer =
+                new ExtraSupportedSurfaceCombinationsContainer();
 
         try {
             mCharacteristics = cameraManagerCompat.getCameraCharacteristicsCompat(mCameraId);
@@ -117,7 +122,7 @@ final class SupportedSurfaceCombination {
             throw CameraUnavailableExceptionHelper.createFrom(e);
         }
         generateSupportedCombinationList();
-        generateSurfaceSizeDefinition(windowManager);
+        generateSurfaceSizeDefinition(DisplayUtil.getDisplayManager(context));
         checkCustomization();
     }
 
@@ -203,9 +208,20 @@ final class SupportedSurfaceCombination {
         return SurfaceConfig.create(configType, configSize);
     }
 
+    /**
+     * Finds the suggested resolutions of the newly added UseCaseConfig.
+     *
+     * @param existingSurfaces the existing surfaces.
+     * @param newUseCaseConfigs newly added UseCaseConfig.
+     * @return the suggested resolutions, which is a mapping from UseCaseConfig to the suggested
+     * resolution.
+     * @throws IllegalArgumentException if the suggested solution for newUseCaseConfigs cannot be
+     * found. This may be due to no available output size or no available surface combination.
+     */
+    @NonNull
     Map<UseCaseConfig<?>, Size> getSuggestedResolutions(
-            List<SurfaceConfig> existingSurfaces, List<UseCaseConfig<?>> newUseCaseConfigs) {
-        Map<UseCaseConfig<?>, Size> suggestedResolutionsMap = new HashMap<>();
+            @NonNull List<SurfaceConfig> existingSurfaces,
+            @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
 
         // Get the index order list by the use case priority for finding stream configuration
         List<Integer> useCasesPriorityOrder = getUseCasesPriorityOrder(newUseCaseConfigs);
@@ -222,6 +238,7 @@ final class SupportedSurfaceCombination {
         List<List<Size>> allPossibleSizeArrangements =
                 getAllPossibleSizeArrangements(supportedOutputSizesList);
 
+        Map<UseCaseConfig<?>, Size> suggestedResolutionsMap = null;
         // Transform use cases to SurfaceConfig list and find the first (best) workable combination
         for (List<Size> possibleSizeList : allPossibleSizeArrangements) {
             // Attach SurfaceConfig of original use cases since it will impact the new use cases
@@ -237,6 +254,7 @@ final class SupportedSurfaceCombination {
 
             // Check whether the SurfaceConfig combination can be supported
             if (checkSupported(surfaceConfigList)) {
+                suggestedResolutionsMap = new HashMap<>();
                 for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
                     suggestedResolutionsMap.put(
                             useCaseConfig,
@@ -247,7 +265,14 @@ final class SupportedSurfaceCombination {
                 break;
             }
         }
-
+        if (suggestedResolutionsMap == null) {
+            throw new IllegalArgumentException(
+                    "No supported surface combination is found for camera device - Id : "
+                            + mCameraId + " and Hardware level: " + mHardwareLevel
+                            + ". May be the specified resolution is too large and not supported."
+                            + " Existing surfaces: " + existingSurfaces
+                            + " New configs: " + newUseCaseConfigs);
+        }
         return suggestedResolutionsMap;
     }
 
@@ -1153,6 +1178,9 @@ final class SupportedSurfaceCombination {
         if (mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3) {
             mSurfaceCombinations.addAll(getLevel3SupportedCombinationList());
         }
+
+        mSurfaceCombinations.addAll(
+                mExtraSupportedSurfaceCombinationsContainer.get(mCameraId, mHardwareLevel));
     }
 
     private void checkCustomization() {
@@ -1162,9 +1190,9 @@ final class SupportedSurfaceCombination {
     // Utility classes and methods:
     // *********************************************************************************************
 
-    private void generateSurfaceSizeDefinition(WindowManager windowManager) {
+    private void generateSurfaceSizeDefinition(@NonNull DisplayManager displayManager) {
         Size analysisSize = new Size(640, 480);
-        Size previewSize = getPreviewSize(windowManager);
+        Size previewSize = getPreviewSize(displayManager);
         Size recordSize = getRecordSize();
         mSurfaceSizeDefinition =
                 SurfaceSizeDefinition.create(analysisSize, previewSize, recordSize);
@@ -1174,11 +1202,11 @@ final class SupportedSurfaceCombination {
      * PREVIEW refers to the best size match to the device's screen resolution, or to 1080p
      * (1920x1080), whichever is smaller.
      */
-    @SuppressWarnings("deprecation") /* defaultDisplay */
+    @SuppressWarnings("deprecation") /* getRealSize */
     @NonNull
-    public static Size getPreviewSize(@NonNull WindowManager windowManager) {
+    static Size getPreviewSize(@NonNull DisplayManager displayManager) {
         Point displaySize = new Point();
-        windowManager.getDefaultDisplay().getRealSize(displaySize);
+        DisplayUtil.getMaxSizeDisplay(displayManager).getRealSize(displaySize);
 
         Size displayViewSize;
         if (displaySize.x > displaySize.y) {
@@ -1308,6 +1336,7 @@ final class SupportedSurfaceCombination {
     }
 
     /** Comparator based on area of the given {@link Size} objects. */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     static final class CompareSizesByArea implements Comparator<Size> {
         private boolean mReverse = false;
 
@@ -1335,6 +1364,7 @@ final class SupportedSurfaceCombination {
     }
 
     /** Comparator based on how close they are to the target aspect ratio. */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     static final class CompareAspectRatiosByDistanceToTargetRatio implements Comparator<Rational> {
         private Rational mTargetRatio;
 

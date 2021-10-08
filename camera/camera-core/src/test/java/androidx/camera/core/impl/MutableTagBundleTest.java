@@ -53,6 +53,14 @@ public class MutableTagBundleTest {
     }
 
     @Test
+    public void canPutString() {
+        MutableTagBundle mutableTagBundle = MutableTagBundle.create();
+        mutableTagBundle.putTag(TAG_0, "String");
+
+        assertThat(mutableTagBundle.getTag(TAG_0)).isEqualTo("String");
+    }
+
+    @Test
     public void canAddTagBundle() {
         MutableTagBundle mutableTagBundle = MutableTagBundle.create();
         mutableTagBundle.putTag(TAG_0, TAG_VALUE_0);

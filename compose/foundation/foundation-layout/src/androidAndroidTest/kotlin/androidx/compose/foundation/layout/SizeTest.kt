@@ -18,11 +18,20 @@ package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
@@ -33,6 +42,7 @@ import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -46,7 +56,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
+import org.junit.Assert.assertNotEquals
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
@@ -1052,6 +1064,33 @@ class SizeTest : LayoutTest() {
     }
 
     @Test
+    fun testFillModifier_correctDpSize() = with(density) {
+        val parentWidth = 100
+        val parentHeight = 80
+        val parentModifier = Modifier.requiredSize(DpSize(parentWidth.toDp(), parentHeight.toDp()))
+        val childWidth = 40
+        val childHeight = 30
+        val childModifier = Modifier.size(DpSize(childWidth.toDp(), childHeight.toDp()))
+
+        assertEquals(
+            IntSize(childWidth, childHeight),
+            calculateSizeFor(parentModifier, childModifier)
+        )
+        assertEquals(
+            IntSize(parentWidth, childHeight),
+            calculateSizeFor(parentModifier, Modifier.fillMaxWidth().then(childModifier))
+        )
+        assertEquals(
+            IntSize(childWidth, parentHeight),
+            calculateSizeFor(parentModifier, Modifier.fillMaxHeight().then(childModifier))
+        )
+        assertEquals(
+            IntSize(parentWidth, parentHeight),
+            calculateSizeFor(parentModifier, Modifier.fillMaxSize().then(childModifier))
+        )
+    }
+
+    @Test
     fun testFractionalFillModifier_correctSize_whenSmallerChild() = with(density) {
         val parentWidth = 100
         val parentHeight = 80
@@ -1794,5 +1833,173 @@ class SizeTest : LayoutTest() {
             ),
             childPosition.value
         )
+    }
+
+    @Test
+    @FlakyTest(bugId = 183713100)
+    fun testModifiers_doNotCauseUnnecessaryRemeasure() {
+        var first by mutableStateOf(true)
+        var totalMeasures = 0
+        @Composable fun CountMeasures(modifier: Modifier) {
+            Layout(
+                content = {},
+                modifier = modifier,
+                measurePolicy = { _, _ ->
+                    ++totalMeasures
+                    layout(0, 0) {}
+                }
+            )
+        }
+        show {
+            Box {
+                if (first) Box {} else Row {}
+                CountMeasures(Modifier.size(10.dp))
+                CountMeasures(Modifier.requiredSize(10.dp))
+                CountMeasures(Modifier.wrapContentSize(Alignment.BottomEnd))
+                CountMeasures(Modifier.fillMaxSize(0.8f))
+                CountMeasures(Modifier.defaultMinSize(10.dp, 20.dp))
+            }
+        }
+
+        val root = findComposeView()
+        waitForDraw(root)
+
+        activityTestRule.runOnUiThread {
+            assertEquals(5, totalMeasures)
+            first = false
+        }
+
+        activityTestRule.runOnUiThread {
+            assertEquals(5, totalMeasures)
+        }
+    }
+
+    @Test
+    fun testModifiers_equals() {
+        assertEquals(Modifier.size(10.dp, 20.dp), Modifier.size(10.dp, 20.dp))
+        assertEquals(Modifier.requiredSize(10.dp, 20.dp), Modifier.requiredSize(10.dp, 20.dp))
+        assertEquals(
+            Modifier.wrapContentSize(Alignment.BottomEnd),
+            Modifier.wrapContentSize(Alignment.BottomEnd)
+        )
+        assertEquals(Modifier.fillMaxSize(0.8f), Modifier.fillMaxSize(0.8f))
+        assertEquals(Modifier.defaultMinSize(10.dp, 20.dp), Modifier.defaultMinSize(10.dp, 20.dp))
+
+        assertNotEquals(Modifier.size(10.dp, 20.dp), Modifier.size(20.dp, 10.dp))
+        assertNotEquals(Modifier.requiredSize(10.dp, 20.dp), Modifier.requiredSize(20.dp, 10.dp))
+        assertNotEquals(
+            Modifier.wrapContentSize(Alignment.BottomEnd),
+            Modifier.wrapContentSize(Alignment.BottomCenter)
+        )
+        assertNotEquals(Modifier.fillMaxSize(0.8f), Modifier.fillMaxSize())
+        assertNotEquals(
+            Modifier.defaultMinSize(10.dp, 20.dp),
+            Modifier.defaultMinSize(20.dp, 10.dp)
+        )
+    }
+
+    @Test
+    fun testIntrinsicMeasurements_notQueriedWhenConstraintsAreFixed() {
+        @Composable fun ErrorIntrinsicsLayout(modifier: Modifier) {
+            Layout(
+                {},
+                modifier,
+                object : MeasurePolicy {
+                    override fun MeasureScope.measure(
+                        measurables: List<Measurable>,
+                        constraints: Constraints
+                    ): MeasureResult {
+                        return layout(0, 0) {}
+                    }
+
+                    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                        measurables: List<IntrinsicMeasurable>,
+                        height: Int
+                    ) = error("Error intrinsic")
+
+                    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                        measurables: List<IntrinsicMeasurable>,
+                        width: Int
+                    ) = error("Error intrinsic")
+
+                    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                        measurables: List<IntrinsicMeasurable>,
+                        height: Int
+                    ) = error("Error intrinsic")
+
+                    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                        measurables: List<IntrinsicMeasurable>,
+                        width: Int
+                    ) = error("Error intrinsic")
+                }
+            )
+        }
+
+        show {
+            Box(Modifier.width(IntrinsicSize.Min)) { ErrorIntrinsicsLayout(Modifier.width(1.dp)) }
+            Box(Modifier.width(IntrinsicSize.Min)) {
+                ErrorIntrinsicsLayout(Modifier.width(1.dp))
+            }
+            Box(Modifier.width(IntrinsicSize.Max)) { ErrorIntrinsicsLayout(Modifier.width(1.dp)) }
+            Box(Modifier.width(IntrinsicSize.Max)) {
+                ErrorIntrinsicsLayout(Modifier.width(1.dp))
+            }
+            Box(Modifier.requiredWidth(IntrinsicSize.Min)) {
+                ErrorIntrinsicsLayout(Modifier.width(1.dp))
+            }
+            Box(Modifier.requiredWidth(IntrinsicSize.Min)) {
+                ErrorIntrinsicsLayout(Modifier.width(1.dp))
+            }
+            Box(Modifier.requiredWidth(IntrinsicSize.Max)) {
+                ErrorIntrinsicsLayout(Modifier.width(1.dp))
+            }
+            Box(Modifier.requiredWidth(IntrinsicSize.Max)) {
+                ErrorIntrinsicsLayout(Modifier.width(1.dp))
+            }
+            Box(Modifier.height(IntrinsicSize.Min)) { ErrorIntrinsicsLayout(Modifier.height(1.dp)) }
+            Box(Modifier.height(IntrinsicSize.Min)) {
+                ErrorIntrinsicsLayout(Modifier.height(1.dp))
+            }
+            Box(Modifier.height(IntrinsicSize.Max)) { ErrorIntrinsicsLayout(Modifier.height(1.dp)) }
+            Box(Modifier.height(IntrinsicSize.Max)) {
+                ErrorIntrinsicsLayout(Modifier.height(1.dp))
+            }
+            Box(Modifier.requiredHeight(IntrinsicSize.Min)) {
+                ErrorIntrinsicsLayout(Modifier.height(1.dp))
+            }
+            Box(Modifier.requiredHeight(IntrinsicSize.Min)) {
+                ErrorIntrinsicsLayout(Modifier.height(1.dp))
+            }
+            Box(Modifier.requiredHeight(IntrinsicSize.Max)) {
+                ErrorIntrinsicsLayout(Modifier.height(1.dp))
+            }
+            Box(Modifier.requiredHeight(IntrinsicSize.Max)) {
+                ErrorIntrinsicsLayout(Modifier.height(1.dp))
+            }
+        }
+        // The test tests that the measure pass should not crash.
+        val root = findComposeView()
+        waitForDraw(root)
+    }
+
+    @Test
+    fun sizeModifiers_doNotCauseCrashesWhenCreatingConstraints() {
+        show {
+            Box(Modifier.sizeIn(minWidth = -1.dp))
+            Box(Modifier.sizeIn(minWidth = 10.dp, maxWidth = 5.dp))
+            Box(Modifier.sizeIn(minHeight = -1.dp))
+            Box(Modifier.sizeIn(minHeight = 10.dp, maxHeight = 5.dp))
+            Box(
+                Modifier.sizeIn(
+                    minWidth = Dp.Infinity,
+                    maxWidth = Dp.Infinity,
+                    minHeight = Dp.Infinity,
+                    maxHeight = Dp.Infinity
+                )
+            )
+            Box(Modifier.defaultMinSize(minWidth = -1.dp, minHeight = -1.dp))
+        }
+        val root = findComposeView()
+        waitForDraw(root)
     }
 }

@@ -17,13 +17,14 @@
 package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.DesktopPlatform
+import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import org.junit.Assert.assertEquals
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 
+@OptIn(InternalTestApi::class)
 class DesktopPaintTest : DesktopGraphicsTest() {
     private val canvas: Canvas = initCanvas(widthPx = 16, heightPx = 16)
 
@@ -78,7 +79,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
         canvas.drawRect(left = 0f, top = 0f, right = 16f, bottom = 16f, paint = redPaint)
 
         canvas.drawImage(
-            image = imageFromResource("androidx/compose/desktop/test.png"),
+            image = loadResourceBitmap("androidx/compose/desktop/test.png"),
             topLeftOffset = Offset(2f, 4f),
             paint = Paint().apply {
                 colorFilter = ColorFilter.tint(Color.Blue, BlendMode.Plus)
@@ -90,10 +91,10 @@ class DesktopPaintTest : DesktopGraphicsTest() {
 
     @Test
     fun filterQuality() {
-        assumeTrue(DesktopPlatform.Current == DesktopPlatform.MacOS)
+        assumeTrue(isWindows || isLinux)
 
         canvas.drawImageRect(
-            image = imageFromResource("androidx/compose/desktop/test.png"),
+            image = loadResourceBitmap("androidx/compose/desktop/test.png"),
             srcOffset = IntOffset(0, 2),
             srcSize = IntSize(2, 4),
             dstOffset = IntOffset(0, 4),
@@ -103,7 +104,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
             }
         )
         canvas.drawImageRect(
-            image = imageFromResource("androidx/compose/desktop/test.png"),
+            image = loadResourceBitmap("androidx/compose/desktop/test.png"),
             srcOffset = IntOffset(0, 2),
             srcSize = IntSize(2, 4),
             dstOffset = IntOffset(4, 4),
@@ -113,11 +114,51 @@ class DesktopPaintTest : DesktopGraphicsTest() {
             }
         )
         canvas.drawImageRect(
-            image = imageFromResource("androidx/compose/desktop/test.png"),
+            image = loadResourceBitmap("androidx/compose/desktop/test.png"),
             srcOffset = IntOffset(0, 2),
             srcSize = IntSize(2, 4),
             dstOffset = IntOffset(8, 4),
             dstSize = IntSize(4, 12),
+            paint = redPaint.apply {
+                filterQuality = FilterQuality.High
+            }
+        )
+
+        screenshotRule.snap(surface)
+    }
+
+    @Test
+    fun `filterQuality with scaled Canvas`() {
+        assumeTrue(isWindows || isLinux)
+
+        canvas.scale(2f, 2f)
+
+        canvas.drawImageRect(
+            image = loadResourceBitmap("androidx/compose/desktop/test.png"),
+            srcOffset = IntOffset(0, 2),
+            srcSize = IntSize(2, 4),
+            dstOffset = IntOffset(0, 2),
+            dstSize = IntSize(2, 6),
+            paint = redPaint.apply {
+                filterQuality = FilterQuality.None
+            }
+        )
+        canvas.drawImageRect(
+            image = loadResourceBitmap("androidx/compose/desktop/test.png"),
+            srcOffset = IntOffset(0, 2),
+            srcSize = IntSize(2, 4),
+            dstOffset = IntOffset(2, 2),
+            dstSize = IntSize(2, 6),
+            paint = redPaint.apply {
+                filterQuality = FilterQuality.Low
+            }
+        )
+        canvas.drawImageRect(
+            image = loadResourceBitmap("androidx/compose/desktop/test.png"),
+            srcOffset = IntOffset(0, 2),
+            srcSize = IntSize(2, 4),
+            dstOffset = IntOffset(4, 2),
+            dstSize = IntSize(2, 6),
             paint = redPaint.apply {
                 filterQuality = FilterQuality.High
             }
@@ -209,7 +250,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
             left = 2f, top = 2f, right = 14f, bottom = 14f,
             paint = Paint().apply {
                 shader = ImageShader(
-                    imageFromResource("androidx/compose/desktop/test.png"),
+                    loadResourceBitmap("androidx/compose/desktop/test.png"),
                     tileModeX = TileMode.Clamp,
                     tileModeY = TileMode.Repeated
                 )

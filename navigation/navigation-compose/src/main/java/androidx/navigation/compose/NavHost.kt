@@ -17,22 +17,29 @@
 package androidx.navigation.compose
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.animation.Crossfade
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import java.util.UUID
+import androidx.navigation.Navigator
+import androidx.navigation.createGraph
+import androidx.navigation.get
 
 /**
  * Provides in place in the Compose hierarchy for self contained navigation to occur.
@@ -43,10 +50,11 @@ import java.util.UUID
  * The builder passed into this method is [remember]ed. This means that for this NavHost, the
  * contents of the builder cannot be changed.
  *
- * @sample androidx.navigation.compose.samples.BasicNav
+ * @sample androidx.navigation.compose.samples.NavScaffold
  *
  * @param navController the navController for this host
  * @param startDestination the route for the start destination
+ * @param modifier The modifier to be applied to the layout.
  * @param route the route for the graph
  * @param builder the builder used to construct the graph
  */
@@ -54,6 +62,7 @@ import java.util.UUID
 public fun NavHost(
     navController: NavHostController,
     startDestination: String,
+    modifier: Modifier = Modifier,
     route: String? = null,
     builder: NavGraphBuilder.() -> Unit
 ) {
@@ -61,7 +70,8 @@ public fun NavHost(
         navController,
         remember(route, startDestination, builder) {
             navController.createGraph(startDestination, route, builder)
-        }
+        },
+        modifier
     )
 }
 
@@ -76,78 +86,126 @@ public fun NavHost(
  *
  * @param navController the navController for this host
  * @param graph the graph for this host
+ * @param modifier The modifier to be applied to the layout.
  */
 @Composable
-public fun NavHost(navController: NavHostController, graph: NavGraph) {
+public fun NavHost(
+    navController: NavHostController,
+    graph: NavGraph,
+    modifier: Modifier = Modifier
+) {
     val lifecycleOwner = LocalLifecycleOwner.current
-    val viewModelStore = LocalViewModelStoreOwner.current.viewModelStore
-    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current.onBackPressedDispatcher
-    val rememberedGraph = remember { graph }
+    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "NavHost requires a ViewModelStoreOwner to be provided via LocalViewModelStoreOwner"
+    }
+    val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+    val onBackPressedDispatcher = onBackPressedDispatcherOwner?.onBackPressedDispatcher
 
-    // on successful recompose we setup the navController with proper inputs
-    // after the first time, this will only happen again if one of the inputs changes
-    DisposableEffect(navController, lifecycleOwner, viewModelStore, onBackPressedDispatcher) {
-        navController.setLifecycleOwner(lifecycleOwner)
-        navController.setViewModelStore(viewModelStore)
+    // Setup the navController with proper owners
+    navController.setLifecycleOwner(lifecycleOwner)
+    navController.setViewModelStore(viewModelStoreOwner.viewModelStore)
+    if (onBackPressedDispatcher != null) {
         navController.setOnBackPressedDispatcher(onBackPressedDispatcher)
-
-        onDispose { }
+    }
+    // Ensure that the NavController only receives back events while
+    // the NavHost is in composition
+    DisposableEffect(navController) {
+        navController.enableOnBackPressed(true)
+        onDispose {
+            navController.enableOnBackPressed(false)
+        }
     }
 
-    DisposableEffect(rememberedGraph) {
-        navController.graph = rememberedGraph
-        onDispose { }
-    }
+    // Then set the graph
+    navController.graph = graph
 
     val saveableStateHolder = rememberSaveableStateHolder()
 
-    // state from the navController back stack
-    val currentNavBackStackEntry = navController.currentBackStackEntryAsState().value
+    // Find the ComposeNavigator, returning early if it isn't found
+    // (such as is the case when using TestNavHostController)
+    val composeNavigator = navController.navigatorProvider.get<Navigator<out NavDestination>>(
+        ComposeNavigator.NAME
+    ) as? ComposeNavigator ?: return
+    val backStack by composeNavigator.backStack.collectAsState()
+    val transitionsInProgress by composeNavigator.transitionsInProgress.collectAsState()
+    val visibleTransitionsInProgress = rememberVisibleList(transitionsInProgress)
+    val visibleBackStack = rememberVisibleList(backStack)
+    visibleTransitionsInProgress.PopulateVisibleList(transitionsInProgress)
+    visibleBackStack.PopulateVisibleList(backStack)
 
-    // If the currentNavBackStackEntry is null, we have popped all of the destinations
-    // off of the navController back stack and have nothing to show.
-    if (currentNavBackStackEntry != null) {
-        val destination = currentNavBackStackEntry.destination
-        // If the destination is not a compose destination, (e.i. activity, dialog, view, etc)
-        // then we do nothing and rely on Navigation to show the proper destination
-        if (destination is ComposeNavigator.Destination) {
-            // while in the scope of the composable, we provide the navBackStackEntry as the
-            // ViewModelStoreOwner and LifecycleOwner
-            CompositionLocalProvider(
-                LocalViewModelStoreOwner provides currentNavBackStackEntry,
-                LocalLifecycleOwner provides currentNavBackStackEntry,
-                LocalSavedStateRegistryOwner provides currentNavBackStackEntry
-            ) {
-                saveableStateHolder.SaveableStateProvider {
-                    destination.content(currentNavBackStackEntry)
+    val backStackEntry = visibleTransitionsInProgress.lastOrNull() ?: visibleBackStack.lastOrNull()
+
+    var initialCrossfade by remember { mutableStateOf(true) }
+    if (backStackEntry != null) {
+        // while in the scope of the composable, we provide the navBackStackEntry as the
+        // ViewModelStoreOwner and LifecycleOwner
+        Crossfade(backStackEntry.id, modifier) {
+            val lastEntry = transitionsInProgress.lastOrNull { entry ->
+                it == entry.id
+            } ?: backStack.lastOrNull { entry ->
+                it == entry.id
+            }
+
+            lastEntry?.LocalOwnersProvider(saveableStateHolder) {
+                (lastEntry.destination as ComposeNavigator.Destination).content(lastEntry)
+            }
+            DisposableEffect(lastEntry) {
+                if (initialCrossfade) {
+                    // There's no animation for the initial crossfade,
+                    // so we can instantly mark the transition as complete
+                    transitionsInProgress.forEach { entry ->
+                        composeNavigator.onTransitionComplete(entry)
+                    }
+                    initialCrossfade = false
                 }
+                onDispose {
+                    transitionsInProgress.forEach { entry ->
+                        composeNavigator.onTransitionComplete(entry)
+                    }
+                }
+            }
+        }
+    }
+
+    val dialogNavigator = navController.navigatorProvider.get<Navigator<out NavDestination>>(
+        DialogNavigator.NAME
+    ) as? DialogNavigator ?: return
+
+    // Show any dialog destinations
+    DialogHost(dialogNavigator)
+}
+
+@Composable
+private fun MutableList<NavBackStackEntry>.PopulateVisibleList(
+    transitionsInProgress: Collection<NavBackStackEntry>
+) {
+    transitionsInProgress.forEach { entry ->
+        DisposableEffect(entry.lifecycle) {
+            val observer = LifecycleEventObserver { _, event ->
+                // ON_START -> add to visibleBackStack, ON_STOP -> remove from visibleBackStack
+                if (event == Lifecycle.Event.ON_START) {
+                    add(entry)
+                }
+                if (event == Lifecycle.Event.ON_STOP) {
+                    remove(entry)
+                }
+            }
+            entry.lifecycle.addObserver(observer)
+            onDispose {
+                entry.lifecycle.removeObserver(observer)
             }
         }
     }
 }
 
 @Composable
-private fun SaveableStateHolder.SaveableStateProvider(content: @Composable () -> Unit) {
-    val viewModel = viewModel<BackStackEntryIdViewModel>()
-    viewModel.saveableStateHolder = this
-    SaveableStateProvider(viewModel.id, content)
-}
-
-internal class BackStackEntryIdViewModel(handle: SavedStateHandle) : ViewModel() {
-
-    private val IdKey = "SaveableStateHolder_BackStackEntryKey"
-
-    // we create our own id for each back stack entry to support multiple entries of the same
-    // destination. this id will be restored by SavedStateHandle
-    val id: UUID = handle.get<UUID>(IdKey) ?: UUID.randomUUID().also { handle.set(IdKey, it) }
-
-    var saveableStateHolder: SaveableStateHolder? = null
-
-    // onCleared will be called on the entries removed from the back stack. here we notify
-    // RestorableStateHolder that we shouldn't save the state for this id, so when we open this
-    // destination again the state will not be restored.
-    override fun onCleared() {
-        super.onCleared()
-        saveableStateHolder?.removeState(id)
+private fun rememberVisibleList(transitionsInProgress: Collection<NavBackStackEntry>) =
+    remember(transitionsInProgress) {
+        mutableStateListOf<NavBackStackEntry>().also {
+            it.addAll(
+                transitionsInProgress.filter { entry ->
+                    entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                }
+            )
+        }
     }
-}

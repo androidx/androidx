@@ -15,10 +15,10 @@
  */
 package androidx.fragment.testapp.kittenfragmenttransitions
 
-import android.annotation.TargetApi
 import android.content.Context
 import android.os.Build
 import android.util.AttributeSet
+import androidx.annotation.RequiresApi
 import androidx.transition.ChangeBounds
 import androidx.transition.ChangeImageTransform
 import androidx.transition.ChangeTransform
@@ -28,7 +28,7 @@ import androidx.transition.TransitionSet
  * Transition that performs almost exactly like [android.transition.AutoTransition], but has
  * an added [ChangeImageTransform] to support properly scaling up our gorgeous kittens.
  */
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class DetailsTransition : TransitionSet {
     constructor() {
         init()

@@ -18,7 +18,6 @@ package androidx.core.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.annotation.SuppressLint;
 import android.os.Build;
 import android.text.Layout;
 import android.text.PrecomputedText;
@@ -192,7 +191,6 @@ public class PrecomputedTextCompat implements Spannable {
             }
         }
 
-        @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
         Params(@NonNull TextPaint paint, @NonNull TextDirectionHeuristic textDir,
                 int strategy, int frequency) {
             if (Build.VERSION.SDK_INT >= 29) {
@@ -427,7 +425,6 @@ public class PrecomputedTextCompat implements Spannable {
      * @param params parameters that define how text will be precomputed
      * @return A {@link PrecomputedText}
      */
-    @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
     public static PrecomputedTextCompat create(@NonNull CharSequence text, @NonNull Params params) {
         Preconditions.checkNotNull(text);
         Preconditions.checkNotNull(params);
@@ -526,7 +523,6 @@ public class PrecomputedTextCompat implements Spannable {
     /**
      * Returns the count of paragraphs.
      */
-    @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
     public @IntRange(from = 0) int getParagraphCount() {
         if (Build.VERSION.SDK_INT >= 29) {
             return mWrapped.getParagraphCount();
@@ -538,7 +534,6 @@ public class PrecomputedTextCompat implements Spannable {
     /**
      * Returns the paragraph start offset of the text.
      */
-    @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
     public @IntRange(from = 0) int getParagraphStart(@IntRange(from = 0) int paraIndex) {
         Preconditions.checkArgumentInRange(paraIndex, 0, getParagraphCount(), "paraIndex");
         if (Build.VERSION.SDK_INT >= 29) {
@@ -551,7 +546,6 @@ public class PrecomputedTextCompat implements Spannable {
     /**
      * Returns the paragraph end offset of the text.
      */
-    @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
     public @IntRange(from = 0) int getParagraphEnd(@IntRange(from = 0) int paraIndex) {
         Preconditions.checkArgumentInRange(paraIndex, 0, getParagraphCount(), "paraIndex");
         if (Build.VERSION.SDK_INT >= 29) {
@@ -672,7 +666,6 @@ public class PrecomputedTextCompat implements Spannable {
     /**
      * @throws IllegalArgumentException if {@link MetricAffectingSpan} is specified.
      */
-    @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
     @Override
     public void setSpan(Object what, int start, int end, int flags) {
         if (what instanceof MetricAffectingSpan) {
@@ -689,7 +682,6 @@ public class PrecomputedTextCompat implements Spannable {
     /**
      * @throws IllegalArgumentException if {@link MetricAffectingSpan} is specified.
      */
-    @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
     @Override
     public void removeSpan(Object what) {
         if (what instanceof MetricAffectingSpan) {
@@ -708,7 +700,6 @@ public class PrecomputedTextCompat implements Spannable {
     //
     // Just proxy for underlying mText if appropriate.
 
-    @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
     @Override
     public <T> T[] getSpans(int start, int end, Class<T> type) {
         if (Build.VERSION.SDK_INT >= 29) {

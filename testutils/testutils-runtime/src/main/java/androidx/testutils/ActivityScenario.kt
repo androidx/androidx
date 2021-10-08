@@ -18,6 +18,14 @@ package androidx.testutils
 
 import android.app.Activity
 import androidx.test.core.app.ActivityScenario
+import androidx.test.ext.junit.rules.ActivityScenarioRule
+
+/**
+ * Run [block] using [ActivityScenario.onActivity], returning the result of the block.
+ */
+inline fun <reified A : Activity, T : Any> ActivityScenarioRule<A>.withActivity(
+    crossinline block: A.() -> T
+): T = scenario.withActivity(block)
 
 /**
  * Run [block] using [ActivityScenario.onActivity], returning the result of the block.

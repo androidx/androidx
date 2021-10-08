@@ -18,14 +18,18 @@ package androidx.car.app.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import static java.util.Objects.requireNonNull;
+
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.Toggle.OnCheckedChangeListener;
 import androidx.car.app.utils.RemoteUtils;
 
@@ -35,15 +39,17 @@ import androidx.car.app.utils.RemoteUtils;
  * @hide
  */
 @RestrictTo(LIBRARY)
+@CarProtocol
 public class OnCheckedChangeDelegateImpl implements OnCheckedChangeDelegate {
 
     @Keep
+    @Nullable
     private final IOnCheckedChangeListener mStub;
 
     @Override
     public void sendCheckedChange(boolean isChecked, @NonNull OnDoneCallback callback) {
         try {
-            mStub.onCheckedChange(isChecked,
+            requireNonNull(mStub).onCheckedChange(isChecked,
                     RemoteUtils.createOnDoneCallbackStub(callback));
         } catch (RemoteException e) {
             throw new RuntimeException(e);
@@ -76,9 +82,11 @@ public class OnCheckedChangeDelegateImpl implements OnCheckedChangeDelegate {
 
         @Override
         public void onCheckedChange(boolean isChecked, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mListener.onCheckedChange(isChecked), callback,
-                    "onCheckedChange");
+            RemoteUtils.dispatchCallFromHost(callback, "onCheckedChange", () -> {
+                        mListener.onCheckedChange(isChecked);
+                        return null;
+                    }
+            );
         }
     }
 }

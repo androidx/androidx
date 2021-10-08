@@ -18,12 +18,14 @@ package androidx.camera.core.impl.utils;
 
 import android.view.Surface;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 
 /**
  * Contains utility methods related to camera orientation.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraOrientationUtil {
     private static final String TAG = "CameraOrientationUtil";
 

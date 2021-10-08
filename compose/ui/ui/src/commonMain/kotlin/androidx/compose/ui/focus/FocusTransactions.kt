@@ -16,11 +16,11 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.focus.FocusState.Active
-import androidx.compose.ui.focus.FocusState.ActiveParent
-import androidx.compose.ui.focus.FocusState.Captured
-import androidx.compose.ui.focus.FocusState.Disabled
-import androidx.compose.ui.focus.FocusState.Inactive
+import androidx.compose.ui.focus.FocusStateImpl.Active
+import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
+import androidx.compose.ui.focus.FocusStateImpl.Captured
+import androidx.compose.ui.focus.FocusStateImpl.Disabled
+import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.node.ModifiedFocusNode
 
 /**
@@ -40,8 +40,8 @@ internal fun ModifiedFocusNode.requestFocus(propagateFocus: Boolean = true) {
             sendOnFocusEvent(focusState)
         }
         ActiveParent -> {
-            val currentfocusedChild = focusedChild
-            requireNotNull(currentfocusedChild)
+            val currentFocusedChild = focusedChild
+            requireNotNull(currentFocusedChild)
 
             // We don't need to do anything if [propagateFocus] is true,
             // since this subtree already has focus.
@@ -50,7 +50,7 @@ internal fun ModifiedFocusNode.requestFocus(propagateFocus: Boolean = true) {
                 return
             }
 
-            if (currentfocusedChild.clearFocus()) {
+            if (currentFocusedChild.clearFocus()) {
                 grantFocus(propagateFocus)
                 focusedChild = null
             }
@@ -119,9 +119,9 @@ internal fun ModifiedFocusNode.clearFocus(forcedClear: Boolean = false): Boolean
          * first, before clearing focus of this node.
          */
         ActiveParent -> {
-            val currentfocusedChild = focusedChild
-            requireNotNull(currentfocusedChild)
-            currentfocusedChild.clearFocus(forcedClear).also { success ->
+            val currentFocusedChild = focusedChild
+            requireNotNull(currentFocusedChild)
+            currentFocusedChild.clearFocus(forcedClear).also { success ->
                 if (success) {
                     focusState = Inactive
                     focusedChild = null
@@ -154,7 +154,7 @@ internal fun ModifiedFocusNode.clearFocus(forcedClear: Boolean = false): Boolean
  */
 private fun ModifiedFocusNode.grantFocus(propagateFocus: Boolean) {
 
-    // TODO (b/144126570) use ChildFocusablility.
+    // TODO (b/144126570) use ChildFocusability.
     //  For now we assume children get focus before parent).
 
     // TODO (b/144126759): Design a system to decide which child gets focus.

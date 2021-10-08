@@ -28,7 +28,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
 /**
- * Alert dialog is a [Dialog] which interrupts the user with urgent information, details or actions.
+ * <a href="https://material.io/components/dialogs#alert-dialog" class="external" target="_blank">Material Design alert dialog</a>.
+ *
+ * Alert dialogs interrupt users with urgent information, details, or actions.
+ *
+ * ![Dialogs image](https://developer.android.com/images/reference/androidx/compose/material/dialogs.png)
  *
  * The dialog will position its buttons based on the available space. By default it will try to
  * place them horizontally next to each other and fallback to horizontal placement if not enough
@@ -48,9 +52,9 @@ import androidx.compose.ui.window.DialogProperties
  * any events for this button so they need to be set up by the caller.
  * @param title The title of the Dialog which should specify the purpose of the Dialog. The title
  * is not mandatory, because there may be sufficient information inside the [text]. Provided text
- * style will be [Typography.h6].
+ * style will be [Typography.subtitle1].
  * @param text The text which presents the details regarding the Dialog's purpose. Provided text
- * style will be [Typography.body1].
+ * style will be [Typography.body2].
  * @param shape Defines the Dialog's shape
  * @param backgroundColor The background color of the dialog.
  * @param contentColor The preferred content color provided by this dialog to its children.
@@ -73,7 +77,7 @@ fun AlertDialog(
         onDismissRequest = onDismissRequest,
         buttons = {
             // TODO: move the modifiers to FlowRow when it supports a modifier parameter
-            Box(Modifier.fillMaxWidth().padding(all = 8.dp)) {
+            Box(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 2.dp)) {
                 AlertDialogFlowRow(
                     mainAxisSpacing = 8.dp,
                     crossAxisSpacing = 12.dp
@@ -94,7 +98,11 @@ fun AlertDialog(
 }
 
 /**
- * Alert dialog is a [Dialog] which interrupts the user with urgent information, details or actions.
+ * <a href="https://material.io/components/dialogs#alert-dialog" class="external" target="_blank">Material Design alert dialog</a>.
+ *
+ * Alert dialogs interrupt users with urgent information, details, or actions.
+ *
+ * ![Dialogs image](https://developer.android.com/images/reference/androidx/compose/material/dialogs.png)
  *
  * This function can be used to fully customize the button area, e.g. with:
  *
@@ -106,9 +114,9 @@ fun AlertDialog(
  * @param modifier Modifier to be applied to the layout of the dialog.
  * @param title The title of the Dialog which should specify the purpose of the Dialog. The title
  * is not mandatory, because there may be sufficient information inside the [text]. Provided text
- * style will be [Typography.h6].
+ * style will be [Typography.subtitle1].
  * @param text The text which presents the details regarding the Dialog's purpose. Provided text
- * style will be [Typography.body1].
+ * style will be [Typography.body2].
  * @param shape Defines the Dialog's shape.
  * @param backgroundColor The background color of the dialog.
  * @param contentColor The preferred content color provided by this dialog to its children.

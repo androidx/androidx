@@ -30,6 +30,7 @@ import androidx.camera.core.impl.Config.Option;
 import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.collect.Lists;
 
@@ -42,6 +43,7 @@ import java.util.List;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class CaptureConfigTest {
     private static final Option<Integer> OPTION = Config.Option.create(
             "camerax.test.option_0", Integer.class);
@@ -63,6 +65,15 @@ public class CaptureConfigTest {
         CaptureConfig captureConfig = builder.build();
 
         assertThat(captureConfig.getTemplateType()).isEqualTo(CameraDevice.TEMPLATE_PREVIEW);
+    }
+
+    @Test
+    public void builderNotSetTemplate() {
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
+
+        CaptureConfig captureConfig = builder.build();
+
+        assertThat(captureConfig.getTemplateType()).isEqualTo(CaptureConfig.TEMPLATE_TYPE_NONE);
     }
 
     @Test
@@ -208,15 +219,6 @@ public class CaptureConfigTest {
 
         assertThat(captureConfig.getImplementationOptions().retrieveOption(
                 CaptureConfig.OPTION_ROTATION)).isEqualTo(90);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void builderAddDuplicateCameraCaptureCallback_throwsException() {
-        CaptureConfig.Builder builder = new CaptureConfig.Builder();
-        CameraCaptureCallback callback0 = mock(CameraCaptureCallback.class);
-
-        builder.addCameraCaptureCallback(callback0);
-        builder.addCameraCaptureCallback(callback0);
     }
 
     @Test

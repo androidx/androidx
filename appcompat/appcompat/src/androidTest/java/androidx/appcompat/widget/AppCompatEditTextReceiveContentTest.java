@@ -40,6 +40,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.SpannableStringBuilder;
 import android.view.DragEvent;
 import android.view.inputmethod.EditorInfo;
@@ -468,8 +469,10 @@ public class AppCompatEditTextReceiveContentTest {
             // after the inserted content (if no space was already present). See
             // https://cs.android.com/android/platform/superproject/+/android-4.4.4_r2:frameworks/base/core/java/android/widget/TextView.java;l=8526,8527,8528,8545,8546
             assertTextAndCursorPosition("ab xz", 2);
-        } else {
+        } else if (Build.VERSION.SDK_INT <= 30) {
             assertTextAndCursorPosition("abxz", 2);
+        } else {
+            assertTextAndCursorPosition("a\nbxz", 3);
         }
     }
 
@@ -525,7 +528,9 @@ public class AppCompatEditTextReceiveContentTest {
         }
         EditorInfo editorInfo = new EditorInfo();
         InputConnection ic = mEditText.onCreateInputConnection(editorInfo);
-        return InputConnectionCompat.commitContent(ic, editorInfo, contentInfo, 0, opts);
+        int flags = (Build.VERSION.SDK_INT >= 25)
+                ? InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION : 0;
+        return InputConnectionCompat.commitContent(ic, editorInfo, contentInfo, flags, opts);
     }
 
     private boolean triggerImeCommitContentDirect(String mimeType) {
@@ -535,7 +540,9 @@ public class AppCompatEditTextReceiveContentTest {
                 null);
         EditorInfo editorInfo = new EditorInfo();
         InputConnection ic = mEditText.onCreateInputConnection(editorInfo);
-        return ic.commitContent(contentInfo, 0, null);
+        int flags = (Build.VERSION.SDK_INT >= 25)
+                ? InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION : 0;
+        return ic.commitContent(contentInfo, flags, null);
     }
 
     private boolean triggerDropEvent(ClipData clip) {
@@ -594,15 +601,22 @@ public class AppCompatEditTextReceiveContentTest {
         @Nullable
         private final Uri mLinkUri;
         @Nullable
-        private final String mExtra;
+        private final String mExtraValue;
 
         private PayloadArgumentMatcher(@NonNull ClipData clip, int source, int flags,
-                @Nullable Uri linkUri, @Nullable String extra) {
+                @Nullable Uri linkUri, @Nullable String extraValue) {
             mClip = clip;
             mSource = source;
             mFlags = flags;
             mLinkUri = linkUri;
-            mExtra = extra;
+            mExtraValue = extraValue;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "[" + "clip=" + mClip + ", source=" + mSource + ", flags=" + mFlags
+                    + ", linkUri=" + mLinkUri + ", extraValue=" + mExtraValue + "]";
         }
 
         @Override
@@ -618,11 +632,27 @@ public class AppCompatEditTextReceiveContentTest {
         }
 
         private boolean extrasMatch(Bundle actualExtras) {
-            if (mExtra == null) {
+            if (mSource == SOURCE_INPUT_METHOD && Build.VERSION.SDK_INT >= 25
+                    && Build.VERSION.SDK_INT <= 30) {
+                // On SDK >= 25 and <= 30, when inserting from the keyboard, the InputContentInfo
+                // object passed from the IME should be set in the extras. This is needed in order
+                // to prevent premature release of URI permissions. Passing this object via the
+                // extras is not needed on other SDKs: on  SDK < 25, the IME code handles URI
+                // permissions differently (expects the IME to grant URI permissions), and on
+                // SDK > 30, this is handled by the platform implementation of the API.
+                if (actualExtras == null) {
+                    return false;
+                }
+                Parcelable actualInputContentInfoExtra = actualExtras.getParcelable(
+                        "androidx.core.view.extra.INPUT_CONTENT_INFO");
+                if (!(actualInputContentInfoExtra instanceof InputContentInfo)) {
+                    return false;
+                }
+            } else if (mExtraValue == null) {
                 return actualExtras == null;
             }
             String actualExtraValue = actualExtras.getString(EXTRA_KEY);
-            return ObjectsCompat.equals(mExtra, actualExtraValue);
+            return ObjectsCompat.equals(mExtraValue, actualExtraValue);
         }
     }
 }

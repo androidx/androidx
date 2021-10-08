@@ -114,14 +114,14 @@ public class WebViewDocumentStartJavaScriptTest {
     @Test
     public void testAddDocumentStartJavaScriptRemoveScript() throws Exception {
         mWebViewOnUiThread.addWebMessageListener(JS_OBJECT_NAME, MATCH_EXAMPLE_COM, mListener);
-        ScriptReferenceCompat scriptReference =
+        ScriptHandler scriptHandler =
                 mWebViewOnUiThread.addDocumentStartJavaScript(BASIC_SCRIPT, MATCH_EXAMPLE_COM);
 
         loadHtmlSync(BASIC_USAGE);
         TestWebMessageListener.Data data = mListener.waitForOnPostMessage();
         Assert.assertEquals("hello", data.mMessage.getData());
 
-        WebkitUtils.onMainThread(() -> scriptReference.remove());
+        WebkitUtils.onMainThread(scriptHandler::remove);
         loadHtmlSync(BASIC_USAGE);
 
         Assert.assertTrue("No more message at this point.", mListener.hasNoMoreOnPostMessage());

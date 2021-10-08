@@ -86,7 +86,7 @@ class PreferencesSerializerTest {
         val longKey = longPreferencesKey("long_key")
 
         val prefs = preferencesOf(
-            longKey to (1 shr 50)
+            longKey to (1L shr 50)
         )
 
         testFile.outputStream().use {

@@ -1,37 +1,38 @@
 package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
-import androidx.appsearch.app.DataClassFactory;
+import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Override;
 import java.lang.String;
+import javax.annotation.processing.Generated;
 
-public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
-  private static final String SCHEMA_TYPE = "Gift";
+@Generated("androidx.appsearch.compiler.AppSearchCompiler")
+public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
+  public static final String SCHEMA_NAME = "Gift";
 
   @Override
-  public String getSchemaType() {
-    return SCHEMA_TYPE;
+  public String getSchemaName() {
+    return SCHEMA_NAME;
   }
 
   @Override
   public AppSearchSchema getSchema() throws AppSearchException {
-    return new AppSearchSchema.Builder(SCHEMA_TYPE)
-          .addProperty(new AppSearchSchema.PropertyConfig.Builder("newName")
-            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
+    return new AppSearchSchema.Builder(SCHEMA_NAME)
+          .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("newName")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
-            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
+            .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .build();
   }
 
   @Override
-  public GenericDocument toGenericDocument(Gift dataClass) throws AppSearchException {
+  public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
-    String oldNameCopy = dataClass.oldName;
+        new GenericDocument.Builder<>(document.namespace, document.id, SCHEMA_NAME);
+    String oldNameCopy = document.oldName;
     if (oldNameCopy != null) {
       builder.setPropertyString("newName", oldNameCopy);
     }
@@ -40,15 +41,17 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
 
   @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String uriConv = genericDoc.getUri();
+    String idConv = genericDoc.getId();
+    String namespaceConv = genericDoc.getNamespace();
     String[] oldNameCopy = genericDoc.getPropertyStringArray("newName");
     String oldNameConv = null;
     if (oldNameCopy != null && oldNameCopy.length != 0) {
       oldNameConv = oldNameCopy[0];
     }
-    Gift dataClass = new Gift();
-    dataClass.uri = uriConv;
-    dataClass.oldName = oldNameConv;
-    return dataClass;
+    Gift document = new Gift();
+    document.namespace = namespaceConv;
+    document.id = idConv;
+    document.oldName = oldNameConv;
+    return document;
   }
 }

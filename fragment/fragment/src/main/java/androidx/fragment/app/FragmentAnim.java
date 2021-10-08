@@ -18,9 +18,9 @@ package androidx.fragment.app;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
-import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -30,7 +30,6 @@ import android.view.animation.Transformation;
 
 import androidx.annotation.AnimRes;
 import androidx.annotation.NonNull;
-import androidx.core.os.CancellationSignal;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.fragment.R;
 
@@ -42,11 +41,11 @@ class FragmentAnim {
     }
 
     static AnimationOrAnimator loadAnimation(@NonNull Context context,
-            @NonNull Fragment fragment, boolean enter) {
+            @NonNull Fragment fragment, boolean enter, boolean isPop) {
         int transit = fragment.getNextTransition();
-        int nextAnim = fragment.getNextAnim();
-        // Clear the Fragment animation
-        fragment.setNextAnim(0);
+        int nextAnim = getNextAnim(fragment, enter, isPop);
+        // Clear the Fragment animations
+        fragment.setAnimations(0, 0, 0, 0);
         // We do not need to keep up with the removing Fragment after we get its next animation.
         // If transactions do not allow reordering, this will always be true and the visible
         // removing fragment will be cleared. If reordering is allowed, this will only be true
@@ -60,6 +59,7 @@ class FragmentAnim {
         if (fragment.mContainer != null && fragment.mContainer.getLayoutTransition() != null) {
             return null;
         }
+
         Animation animation = fragment.onCreateAnimation(transit, enter, nextAnim);
         if (animation != null) {
             return new AnimationOrAnimator(animation);
@@ -71,9 +71,8 @@ class FragmentAnim {
         }
 
         if (nextAnim == 0 && transit != 0) {
-            nextAnim = transitToAnimResourceId(transit, enter);
+            nextAnim = transitToAnimResourceId(context, transit, enter);
         }
-
 
         if (nextAnim != 0) {
             String dir = context.getResources().getResourceTypeName(nextAnim);
@@ -117,85 +116,26 @@ class FragmentAnim {
         return null;
     }
 
-    /**
-     * Animates the removal of a fragment with the given animator or animation. After animating,
-     * the fragment's view will be removed from the hierarchy.
-     *
-     * @param fragment The fragment to animate out
-     * @param anim The animator or animation to run on the fragment's view
-     */
-    static void animateRemoveFragment(@NonNull final Fragment fragment,
-            @NonNull AnimationOrAnimator anim,
-            @NonNull final FragmentTransition.Callback callback) {
-        final View viewToAnimate = fragment.mView;
-        final ViewGroup container = fragment.mContainer;
-        container.startViewTransition(viewToAnimate);
-        final CancellationSignal signal = new CancellationSignal();
-        signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
-            @Override
-            public void onCancel() {
-                if (fragment.getAnimatingAway() != null) {
-                    View v = fragment.getAnimatingAway();
-                    fragment.setAnimatingAway(null);
-                    v.clearAnimation();
-                }
-                fragment.setAnimator(null);
+    @AnimRes
+    private static int getNextAnim(Fragment fragment, boolean enter, boolean isPop) {
+        if (isPop) {
+            if (enter) {
+                return fragment.getPopEnterAnim();
+            } else {
+                return fragment.getPopExitAnim();
             }
-        });
-        callback.onStart(fragment, signal);
-        if (anim.animation != null) {
-            Animation animation =
-                    new EndViewTransitionAnimation(anim.animation, container, viewToAnimate);
-            fragment.setAnimatingAway(fragment.mView);
-            animation.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    // onAnimationEnd() comes during draw(), so there can still be some
-                    // draw events happening after this call. We don't want to detach
-                    // the view until after the onAnimationEnd()
-                    container.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (fragment.getAnimatingAway() != null) {
-                                fragment.setAnimatingAway(null);
-                                callback.onComplete(fragment, signal);
-                            }
-                        }
-                    });
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-                }
-            });
-            fragment.mView.startAnimation(animation);
         } else {
-            Animator animator = anim.animator;
-            fragment.setAnimator(anim.animator);
-            animator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator anim) {
-                    container.endViewTransition(viewToAnimate);
-                    // If an animator ends immediately, we can just pretend there is no animation.
-                    // When that happens the the fragment's view won't have been removed yet.
-                    Animator animator = fragment.getAnimator();
-                    fragment.setAnimator(null);
-                    if (animator != null && container.indexOfChild(viewToAnimate) < 0) {
-                        callback.onComplete(fragment, signal);
-                    }
-                }
-            });
-            animator.setTarget(fragment.mView);
-            animator.start();
+            if (enter) {
+                return fragment.getEnterAnim();
+            } else {
+                return fragment.getExitAnim();
+            }
         }
     }
 
     @AnimRes
-    private static int transitToAnimResourceId(int transit, boolean enter) {
+    private static int transitToAnimResourceId(@NonNull Context context, int transit,
+            boolean enter) {
         int animAttr = -1;
         switch (transit) {
             case FragmentTransaction.TRANSIT_FRAGMENT_OPEN:
@@ -207,8 +147,30 @@ class FragmentAnim {
             case FragmentTransaction.TRANSIT_FRAGMENT_FADE:
                 animAttr = enter ? R.animator.fragment_fade_enter : R.animator.fragment_fade_exit;
                 break;
+            case FragmentTransaction.TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN:
+                animAttr = enter
+                        ? toActivityTransitResId(context, android.R.attr.activityOpenEnterAnimation)
+                        : toActivityTransitResId(context, android.R.attr.activityOpenExitAnimation);
+                break;
+            case FragmentTransaction.TRANSIT_FRAGMENT_MATCH_ACTIVITY_CLOSE:
+                animAttr = enter
+                        ? toActivityTransitResId(context,
+                        android.R.attr.activityCloseEnterAnimation)
+                        : toActivityTransitResId(context,
+                                android.R.attr.activityCloseExitAnimation);
+                break;
         }
         return animAttr;
+    }
+
+    @AnimRes
+    private static int toActivityTransitResId(@NonNull Context context, int attrInt) {
+        int resId;
+        TypedArray typedArray = context.obtainStyledAttributes(
+                android.R.style.Animation_Activity, new int[]{attrInt});
+        resId = typedArray.getResourceId(0, View.NO_ID);
+        typedArray.recycle();
+        return resId;
     }
 
     /**

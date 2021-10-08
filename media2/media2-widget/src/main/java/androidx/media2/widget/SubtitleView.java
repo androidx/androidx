@@ -34,6 +34,9 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.accessibility.CaptioningManager.CaptionStyle;
 
+import androidx.annotation.DoNotInline;
+import androidx.annotation.RequiresApi;
+
 /** Copied from frameworks/base/core/java/com/android/internal/widget/SubtitleView.java */
 class SubtitleView extends View {
     // Ratio of inner padding to font size.
@@ -223,14 +226,14 @@ class SubtitleView extends View {
         mHasMeasurements = true;
         mLastMeasuredWidth = maxWidth;
         if (Build.VERSION.SDK_INT >= 23) {
-            StaticLayout.Builder builder =
-                    StaticLayout.Builder.obtain(mText, 0, mText.length(), mTextPaint, maxWidth)
-                            .setAlignment(mAlignment)
-                            .setLineSpacing(mSpacingAdd, mSpacingMult);
+            StaticLayout.Builder builder = Api23Impl.obtainStaticLayoutBuilder(mText, 0,
+                    mText.length(), mTextPaint, maxWidth);
+            Api23Impl.setAlignment(builder, mAlignment);
+            Api23Impl.setLineSpacing(builder, mSpacingAdd, mSpacingMult);
             if (Build.VERSION.SDK_INT >= 28) {
-                builder.setUseLineSpacingFromFallbacks(true);
+                Api28Impl.setUseLineSpacingFromFallbacks(builder, true);
             }
-            mLayout = builder.build();
+            mLayout = Api23Impl.build(builder);
         } else {
             mLayout = new StaticLayout(mText, 0, mText.length(), mTextPaint, maxWidth, mAlignment,
                     mSpacingMult, mSpacingAdd, true);
@@ -306,5 +309,46 @@ class SubtitleView extends View {
 
         textPaint.setShadowLayer(0, 0, 0, 0);
         c.restoreToCount(saveCount);
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+
+        @DoNotInline
+        static StaticLayout build(StaticLayout.Builder builder) {
+            return builder.build();
+        }
+
+        @DoNotInline
+        static StaticLayout.Builder obtainStaticLayoutBuilder(CharSequence source, int start,
+                int end, TextPaint paint, int width) {
+            return StaticLayout.Builder.obtain(source, start, end, paint, width);
+        }
+
+        @DoNotInline
+        static void setAlignment(StaticLayout.Builder builder,
+                Alignment alignment) {
+            builder.setAlignment(alignment);
+        }
+
+        @DoNotInline
+        static void setLineSpacing(StaticLayout.Builder builder, float spacingAdd,
+                float spacingMult) {
+            builder.setLineSpacing(spacingAdd, spacingMult);
+        }
+
+        private Api23Impl() {}
+    }
+
+    @RequiresApi(28)
+    static class Api28Impl {
+
+        @DoNotInline
+        static void setUseLineSpacingFromFallbacks(StaticLayout.Builder builder,
+                boolean useLineSpacingFromFallbacks) {
+            builder.setUseLineSpacingFromFallbacks(useLineSpacingFromFallbacks);
+        }
+
+        private Api28Impl() {}
     }
 }

@@ -1527,6 +1527,7 @@ public abstract class SessionPlayer implements Closeable {
      * <li>Custom Info code: Positive integers equal to or greater than 1000. (i.e. code > +1000)
      * </ul>
      */
+    @SuppressWarnings("HiddenSuperclass")
     public static class PlayerResult implements BaseResult {
         /**
          * @hide

@@ -16,118 +16,74 @@
 
 package androidx.compose.foundation.lazy
 
-import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.util.fastForEach
 
 /**
+ * This method finds the sticky header in composedItems list or composes the header item if needed.
+ *
+ * @param composedVisibleItems list of items already composed and expected to be visible. if the
+ * header wasn't in this list but is needed the header will be added as the first item in this list.
  * @param itemProvider the provider so we can compose a header if it wasn't composed already
  * @param headerIndexes list of indexes of headers. Must be sorted.
- * @param measureResult the result of the measuring.
+ * @param startContentPadding the padding before the first item in the list
  */
-internal class LazyListHeaders(
-    private val itemProvider: LazyMeasuredItemProvider,
+internal fun findOrComposeLazyListHeader(
+    composedVisibleItems: MutableList<LazyMeasuredItem>,
+    itemProvider: LazyMeasuredItemProvider,
     headerIndexes: List<Int>,
-    measureResult: LazyListMeasureResult,
-    private val startContentPadding: Int
-) {
-    private val currentHeaderListPosition: Int
-    private val nextHeaderListPosition: Int
+    startContentPadding: Int
+): LazyMeasuredItem? {
+    var alreadyVisibleHeaderItem: LazyMeasuredItem? = null
+    var currentHeaderOffset: Int = Int.MIN_VALUE
+    var nextHeaderOffset: Int = Int.MIN_VALUE
 
-    private val notUsedButComposedItems: MutableList<LazyMeasuredItem>?
-
-    private var currentHeaderItem: LazyMeasuredItem? = null
-    private var currentHeaderOffset: Int = Int.MIN_VALUE
-    private var nextHeaderOffset: Int = Int.MIN_VALUE
-    private var nextHeaderSize: Int = Int.MIN_VALUE
-
-    init {
-        var currentHeaderListPosition = -1
-        var nextHeaderListPosition = -1
-        // we use visibleItemsInfo and not firstVisibleItemIndex as visibleItemsInfo list also
-        // contains all the items which are visible in the start content padding area
-        val firstVisible = measureResult.visibleItemsInfo.first().index
-        // find the header which can be displayed
-        for (index in headerIndexes.indices) {
-            if (headerIndexes[index] <= firstVisible) {
-                currentHeaderListPosition = headerIndexes[index]
-                nextHeaderListPosition = headerIndexes.getOrElse(index + 1) { -1 }
-            } else {
-                break
-            }
+    var currentHeaderListPosition = -1
+    var nextHeaderListPosition = -1
+    // we use visibleItemsInfo and not firstVisibleItemIndex as visibleItemsInfo list also
+    // contains all the items which are visible in the start content padding area
+    val firstVisible = composedVisibleItems.first().index
+    // find the header which can be displayed
+    for (index in headerIndexes.indices) {
+        if (headerIndexes[index] <= firstVisible) {
+            currentHeaderListPosition = headerIndexes[index]
+            nextHeaderListPosition = headerIndexes.getOrElse(index + 1) { -1 }
+        } else {
+            break
         }
-        this.currentHeaderListPosition = currentHeaderListPosition
-        this.nextHeaderListPosition = nextHeaderListPosition
-
-        notUsedButComposedItems = measureResult.notUsedButComposedItems
     }
 
-    fun onBeforeItemsPlacing() {
-        currentHeaderItem = null
-        currentHeaderOffset = Int.MIN_VALUE
-        nextHeaderOffset = Int.MIN_VALUE
-    }
-
-    fun place(
-        item: LazyMeasuredItem,
-        scope: Placeable.PlacementScope,
-        layoutWidth: Int,
-        layoutHeight: Int,
-        offset: Int,
-        reverseOrder: Boolean
-    ) {
+    composedVisibleItems.fastForEach { item ->
         if (item.index == currentHeaderListPosition) {
-            currentHeaderItem = item
-            currentHeaderOffset = offset
+            alreadyVisibleHeaderItem = item
+            currentHeaderOffset = item.offset
         } else {
-            item.place(scope, layoutWidth, layoutHeight, offset, reverseOrder)
             if (item.index == nextHeaderListPosition) {
-                nextHeaderOffset = offset
-                nextHeaderSize = item.size
+                nextHeaderOffset = item.offset
             }
         }
     }
 
-    fun onAfterItemsPlacing(
-        scope: Placeable.PlacementScope,
-        mainAxisLayoutSize: Int,
-        layoutWidth: Int,
-        layoutHeight: Int,
-        reverseOrder: Boolean
-    ) {
-        if (currentHeaderListPosition == -1) {
-            // we have no headers needing special handling
-            return
-        }
-
-        val headerItem = currentHeaderItem
-            ?: notUsedButComposedItems?.find { it.index == currentHeaderListPosition }
-            ?: itemProvider.getAndMeasure(DataIndex(currentHeaderListPosition))
-
-        var headerOffset = if (!reverseOrder) {
-            if (currentHeaderOffset != Int.MIN_VALUE) {
-                maxOf(-startContentPadding, currentHeaderOffset)
-            } else {
-                -startContentPadding
-            }
-        } else {
-            if (currentHeaderOffset != Int.MIN_VALUE) {
-                minOf(
-                    mainAxisLayoutSize + startContentPadding - headerItem.size,
-                    currentHeaderOffset
-                )
-            } else {
-                mainAxisLayoutSize + startContentPadding - headerItem.size
-            }
-        }
-        // if we have a next header overlapping with the current header, the next one will be
-        // pushing the current one away from the viewport.
-        if (nextHeaderOffset != Int.MIN_VALUE) {
-            if (!reverseOrder) {
-                headerOffset = minOf(headerOffset, nextHeaderOffset - headerItem.size)
-            } else {
-                headerOffset = maxOf(headerOffset, nextHeaderOffset + headerItem.size)
-            }
-        }
-
-        headerItem.place(scope, layoutWidth, layoutHeight, headerOffset, reverseOrder)
+    if (currentHeaderListPosition == -1) {
+        // we have no headers needing special handling
+        return null
     }
+
+    val headerItem = alreadyVisibleHeaderItem
+        ?: itemProvider.getAndMeasure(DataIndex(currentHeaderListPosition)).also {
+            composedVisibleItems.add(0, it)
+        }
+
+    var headerOffset = if (currentHeaderOffset != Int.MIN_VALUE) {
+        maxOf(-startContentPadding, currentHeaderOffset)
+    } else {
+        -startContentPadding
+    }
+    // if we have a next header overlapping with the current header, the next one will be
+    // pushing the current one away from the viewport.
+    if (nextHeaderOffset != Int.MIN_VALUE) {
+        headerOffset = minOf(headerOffset, nextHeaderOffset - headerItem.size)
+    }
+
+    headerItem.offset = headerOffset
+    return headerItem
 }

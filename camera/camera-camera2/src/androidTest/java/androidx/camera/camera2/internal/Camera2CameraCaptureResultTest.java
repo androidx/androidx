@@ -36,6 +36,7 @@ import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.ExifData;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -47,6 +48,7 @@ import java.util.concurrent.TimeUnit;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public final class Camera2CameraCaptureResultTest {
 
     private CaptureResult mCaptureResult;
@@ -138,14 +140,14 @@ public final class Camera2CameraCaptureResultTest {
     public void getAfState_withAfStatePassiveUnfocused() {
         when(mCaptureResult.get(CaptureResult.CONTROL_AF_STATE))
                 .thenReturn(CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED);
-        assertThat(mCamera2CameraCaptureResult.getAfState()).isEqualTo(AfState.SCANNING);
+        assertThat(mCamera2CameraCaptureResult.getAfState()).isEqualTo(AfState.PASSIVE_NOT_FOCUSED);
     }
 
     @Test
     public void getAfState_withAfStatePassiveFocused() {
         when(mCaptureResult.get(CaptureResult.CONTROL_AF_STATE))
                 .thenReturn(CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED);
-        assertThat(mCamera2CameraCaptureResult.getAfState()).isEqualTo(AfState.FOCUSED);
+        assertThat(mCamera2CameraCaptureResult.getAfState()).isEqualTo(AfState.PASSIVE_FOCUSED);
     }
 
     @Test

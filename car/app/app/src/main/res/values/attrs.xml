@@ -25,4 +25,6 @@
     <attr name="carColorSecondary" format="color" />
     <!-- The dark-variant secondary custom color corresponding to CarColor#SECONDARY -->
     <attr name="carColorSecondaryDark" format="color" />
+    <!-- The layout for usage in background of requesting permissions on the phone -->
+    <attr name="carPermissionActivityLayout" format="reference" />
 </resources>

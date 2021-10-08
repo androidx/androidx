@@ -25,6 +25,7 @@ import android.view.accessibility.CaptioningManager;
 import android.view.accessibility.CaptioningManager.CaptioningChangeListener;
 
 import androidx.annotation.RequiresApi;
+import androidx.core.view.ViewCompat;
 
 /**
  * Abstract widget class to render a closed caption track.
@@ -83,8 +84,9 @@ abstract class ClosedCaptionWidget extends ViewGroup implements SubtitleTrack.Re
                 }
             };
             mManager = (CaptioningManager) context.getSystemService(Context.CAPTIONING_SERVICE);
-            mCaptionStyle = new CaptionStyle(mManager.getUserStyle());
-            fontScale = mManager.getFontScale();
+            mCaptionStyle = new CaptionStyle(
+                    CaptioningManagerHelper.Api19Impl.getUserStyle(mManager));
+            fontScale = CaptioningManagerHelper.Api19Impl.getFontScale(mManager);
         } else {
             mCaptionStyle = CaptionStyle.DEFAULT;
         }
@@ -157,14 +159,17 @@ abstract class ClosedCaptionWidget extends ViewGroup implements SubtitleTrack.Re
         if (VERSION.SDK_INT < 19) {
             return;
         }
-        final boolean needsListener = isAttachedToWindow() && getVisibility() == View.VISIBLE;
+        final boolean needsListener =
+                ViewCompat.isAttachedToWindow(this) && getVisibility() == View.VISIBLE;
         if (mHasChangeListener != needsListener) {
             mHasChangeListener = needsListener;
 
             if (needsListener) {
-                mManager.addCaptioningChangeListener(mCaptioningListener);
+                CaptioningManagerHelper.Api19Impl.addCaptioningChangeListener(mManager,
+                        mCaptioningListener);
             } else {
-                mManager.removeCaptioningChangeListener(mCaptioningListener);
+                CaptioningManagerHelper.Api19Impl.removeCaptioningChangeListener(mManager,
+                        mCaptioningListener);
             }
         }
     }

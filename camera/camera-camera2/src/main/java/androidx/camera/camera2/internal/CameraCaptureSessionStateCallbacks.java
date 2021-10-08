@@ -22,6 +22,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.camera2.internal.compat.ApiCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +31,7 @@ import java.util.List;
 /**
  * Different implementations of {@link CameraCaptureSession.StateCallback}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraCaptureSessionStateCallbacks {
     private CameraCaptureSessionStateCallbacks() {
     }
@@ -96,6 +98,7 @@ public final class CameraCaptureSessionStateCallbacks {
         }
     }
 
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     static final class ComboSessionStateCallback
             extends CameraCaptureSession.StateCallback {
         private final List<CameraCaptureSession.StateCallback> mCallbacks = new ArrayList<>();
@@ -141,7 +144,7 @@ public final class CameraCaptureSessionStateCallbacks {
         @Override
         public void onCaptureQueueEmpty(@NonNull CameraCaptureSession session) {
             for (CameraCaptureSession.StateCallback callback : mCallbacks) {
-                callback.onCaptureQueueEmpty(session);
+                ApiCompat.Api26Impl.onCaptureQueueEmpty(callback, session);
             }
         }
 
@@ -150,7 +153,7 @@ public final class CameraCaptureSessionStateCallbacks {
         public void onSurfacePrepared(@NonNull CameraCaptureSession session,
                 @NonNull Surface surface) {
             for (CameraCaptureSession.StateCallback callback : mCallbacks) {
-                callback.onSurfacePrepared(session, surface);
+                ApiCompat.Api23Impl.onSurfacePrepared(callback, session, surface);
             }
         }
 

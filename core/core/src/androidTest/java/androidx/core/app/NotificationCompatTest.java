@@ -65,6 +65,7 @@ import androidx.core.content.LocusIdCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
@@ -227,6 +228,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals("testSubText", NotificationCompat.getSubText(n));
     }
 
+    @FlakyTest(bugId = 190533219)
     @Test
     public void testActions() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
@@ -553,6 +555,19 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .build();
         Notification recovered = new NotificationCompat.Builder(mContext, original).build();
         assertNotificationEquals(original, recovered);
+    }
+
+    @FlakyTest(bugId = 190533219)
+    @Test
+    public void testNotificationBuilder_foregroundServiceBehavior() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, "channelId");
+        assertEquals(NotificationCompat.FOREGROUND_SERVICE_DEFAULT,
+                builder.getForegroundServiceBehavior());
+        builder.setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE);
+        assertEquals(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE,
+                builder.getForegroundServiceBehavior());
+
+        // TODO: validate the built Notifications once there's testing API there
     }
 
     @Test
@@ -1361,6 +1376,25 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
             assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON_BIG));
             assertNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON_BIG));
         }
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    public void testBigPictureStyle_encodesAndRecoversShowBigPictureWhenCollapsed() {
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_bg_low_pressed);
+        Notification n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setStyle(new NotificationCompat.BigPictureStyle()
+                        .bigPicture(bitmap)
+                        .bigLargeIcon(bitmap)
+                        .showBigPictureWhenCollapsed(true)
+                        .setBigContentTitle("Big Content Title")
+                        .setSummaryText("Summary Text"))
+                .build();
+        assertTrue(n.extras.getBoolean(Notification.EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED));
+        Notification recovered = Notification.Builder.recoverBuilder(mContext, n).build();
+        assertTrue(recovered.extras.getBoolean(Notification.EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED));
     }
 
     @SdkSuppress(minSdkVersion = 24)

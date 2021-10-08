@@ -1,0 +1,537 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package androidx.health.services.client.proto;
+
+option java_package = "androidx.health.services.client.proto";
+option java_outer_classname = "DataProto";
+
+message AchievedExerciseGoal {
+  optional ExerciseGoal exercise_goal = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message AggregateDataPoint {
+  message CumulativeDataPoint {
+    optional int64 start_time_epoch_ms = 1;
+    optional int64 end_time_epoch_ms = 2;
+    optional DataType data_type = 3;
+    optional Value total = 4;
+    reserved 5 to max;  // Next ID
+  }
+
+  message StatisticalDataPoint {
+    optional int64 start_time_epoch_ms = 1;
+    optional int64 end_time_epoch_ms = 2;
+    optional DataType data_type = 4;
+    optional Value min_value = 5;
+    optional Value max_value = 6;
+    optional Value avg_value = 7;
+    reserved 8 to max;  // Next ID
+  }
+
+  oneof aggregate {
+    CumulativeDataPoint cumulative_data_point = 1;
+    StatisticalDataPoint statistical_data_point = 2;
+  }
+}
+
+message AutoExerciseCapabilities {
+  message SupportedExercisesEntry {
+    optional ExerciseType exercise_type = 1;
+    repeated DataType data_types = 2;
+    reserved 3 to max;  // Next ID
+  }
+  repeated SupportedExercisesEntry supported_exercises = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message AutoExerciseConfig {
+  repeated ExerciseType exercises_to_detect = 1;
+  optional Bundle exercise_params = 2;
+  reserved 3 to max;  // Next ID
+}
+
+enum AutoExerciseDetectionDisabledReason {
+  AUTO_EXERCISE_DETECTION_DISABLED_REASON_UNKNOWN = 0;
+  AUTO_EXERCISE_DETECTION_DISABLED_REASON_NOT_APPLICABLE = 1;
+  AUTO_EXERCISE_DETECTION_DISABLED_REASON_NOT_REGISTERED = 2;
+  AUTO_EXERCISE_DETECTION_DISABLED_REASON_IN_ACTIVE_EXERCISE = 3;
+  reserved 4 to max;  // Next ID
+}
+
+message AutoExerciseDetectionState {
+  optional AutoExerciseStatus status = 1;
+  optional AutoExerciseDetectionDisabledReason disabled_reason = 2;
+  optional ExerciseUpdate exercise_update = 3;
+  reserved 4 to max;  // Next ID
+}
+
+enum AutoExerciseStatus {
+  AUTO_EXERCISE_STATUS_UNKNOWN = 0;
+  AUTO_EXERCISE_STATUS_DETECTION_DISABLED = 1;
+  AUTO_EXERCISE_STATUS_DETECTION_ENABLED = 2;
+  AUTO_EXERCISE_STATUS_ONGOING_AUTO_EXERCISE = 3;
+  reserved 4 to max;  // Next ID
+}
+
+message Availability {
+  enum DataTypeAvailability {
+    DATA_TYPE_AVAILABILITY_UNKNOWN = 0;
+    DATA_TYPE_AVAILABILITY_AVAILABLE = 1;
+    DATA_TYPE_AVAILABILITY_ACQUIRING = 2;
+    DATA_TYPE_AVAILABILITY_UNAVAILABLE = 3;
+    reserved 4 to max;  // Next ID
+  }
+
+  enum LocationAvailability {
+    LOCATION_AVAILABILITY_UNKNOWN = 0;
+    LOCATION_AVAILABILITY_UNAVAILABLE = 1;
+    LOCATION_AVAILABILITY_NO_GPS = 2;
+    LOCATION_AVAILABILITY_ACQUIRING = 3;
+    LOCATION_AVAILABILITY_ACQUIRED_TETHERED = 4;
+    LOCATION_AVAILABILITY_ACQUIRED_UNTETHERED = 5;
+    reserved 6 to max;  // Next ID
+  }
+
+  oneof availability {
+    DataTypeAvailability data_type_availability = 1;
+    LocationAvailability location_availability = 2;
+  }
+
+  reserved 3 to max;  // Next ID
+}
+
+// Represents an Android Bundle.
+message Bundle {
+  map<string, bool> bools = 1;
+  map<string, string> strings = 2;
+  map<string, int32> ints = 3;
+  map<string, int64> longs = 4;
+  map<string, float> floats = 5;
+  map<string, double> doubles = 6;
+  map<string, int32> bytes = 7;
+  map<string, bytes> byte_arrays = 8;
+  map<string, Bundle> bundles = 9;
+  reserved 10 to max;  // Next ID
+}
+
+enum ComparisonType {
+  COMPARISON_TYPE_UNKNOWN = 0;
+  COMPARISON_TYPE_GREATER_THAN = 1;
+  COMPARISON_TYPE_GREATER_THAN_OR_EQUAL = 2;
+  COMPARISON_TYPE_LESS_THAN = 3;
+  COMPARISON_TYPE_LESS_THAN_OR_EQUAL = 4;
+  reserved 5 to max;  // Next ID
+}
+
+message DataPoint {
+  optional DataType data_type = 1;
+  optional Value value = 2;
+  optional int64 start_duration_from_boot_ms = 3;
+  optional int64 end_duration_from_boot_ms = 4;
+  optional Bundle meta_data = 5;
+  optional DataPointAccuracy accuracy = 6;
+  reserved 7 to max;  // Next ID
+}
+
+message DataPointAccuracy {
+  message HrAccuracy {
+    enum SensorStatus {
+      HR_ACCURACY_SENSOR_STATUS_UNKNOWN = 0;
+      HR_ACCURACY_SENSOR_STATUS_NO_CONTACT = 1;
+      HR_ACCURACY_SENSOR_STATUS_UNRELIABLE = 2;
+      HR_ACCURACY_SENSOR_STATUS_ACCURACY_LOW = 3;
+      HR_ACCURACY_SENSOR_STATUS_ACCURACY_MEDIUM = 4;
+      HR_ACCURACY_SENSOR_STATUS_ACCURACY_HIGH = 5;
+      reserved 6 to max;  // Next ID
+    }
+
+    optional SensorStatus sensor_status = 1;
+    reserved 2 to max;  // Next ID
+  }
+
+  message LocationAccuracy {
+    optional double horizontal_position_error = 1;
+    reserved 2 to max;  // Next ID
+  }
+
+  oneof accuracy {
+    HrAccuracy hr_accuracy = 1;
+    LocationAccuracy location_accuracy = 2;
+  }
+}
+
+message DataType {
+  enum TimeType {
+    TIME_TYPE_UNKNOWN = 0;
+    TIME_TYPE_INTERVAL = 1;
+    TIME_TYPE_SAMPLE = 2;
+    reserved 3 to max;  // Next ID
+  }
+
+  optional string name = 1;
+  optional TimeType time_type = 2;
+  optional int32 format = 3;
+  reserved 4 to max;  // Next ID
+}
+
+message DataTypeCondition {
+  optional DataType data_type = 1;
+  optional Value threshold = 2;
+  optional ComparisonType comparison_type = 3;
+  reserved 4 to max;  // Next ID
+}
+
+message ExerciseCapabilities {
+  message TypeToCapabilitiesEntry {
+    optional ExerciseType type = 1;
+    optional ExerciseTypeCapabilities capabilities = 2;
+    reserved 3 to max;  // Next ID
+  }
+  repeated TypeToCapabilitiesEntry type_to_capabilities = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message ExerciseConfig {
+  optional ExerciseType exercise_type = 1;
+  repeated DataType data_types = 2;
+  repeated DataType aggregate_data_types = 3;
+  optional bool is_auto_pause_and_resume_enabled = 4;
+  optional bool is_gps_usage_enabled = 5;
+  repeated ExerciseGoal exercise_goals = 6;
+  optional Bundle exercise_params = 7;
+  reserved 8 to max;  // Next ID
+}
+
+message ExerciseInfo {
+  optional ExerciseTrackedStatus exercise_tracked_status = 1;
+  optional ExerciseType exercise_type = 2;
+  reserved 3 to max;  // Next ID
+}
+
+message ExerciseGoal {
+  optional ExerciseGoalType exercise_goal_type = 1;
+  optional DataTypeCondition data_type_condition = 2;
+  optional Value period = 3;
+  reserved 4 to max;  // Next ID
+}
+
+enum ExerciseGoalType {
+  EXERCISE_GOAL_TYPE_UNKNOWN = 0;
+  EXERCISE_GOAL_TYPE_ONE_TIME = 1;
+  EXERCISE_GOAL_TYPE_MILESTONE = 2;
+  reserved 3 to max;  // Next ID
+}
+
+message ExerciseLapSummary {
+  message LapMetricsEntry {
+    optional DataType data_type = 1;
+    optional AggregateDataPoint aggregate_data_point = 2;
+    reserved 3 to max;  // Next ID
+  }
+
+  optional int32 lap_count = 1;
+  optional int64 start_time_epoch_ms = 2;
+  optional int64 end_time_epoch_ms = 3;
+  optional int64 active_duration_ms = 4;
+  repeated LapMetricsEntry lap_metrics = 5;
+  reserved 6 to max;  // Next ID
+}
+
+enum ExerciseState {
+  EXERCISE_STATE_UNKNOWN = 0;
+  EXERCISE_STATE_PREPARING = 15;
+  EXERCISE_STATE_USER_STARTING = 1;
+  EXERCISE_STATE_ACTIVE = 2;
+  EXERCISE_STATE_USER_PAUSING = 3;
+  EXERCISE_STATE_USER_PAUSED = 4;
+  EXERCISE_STATE_AUTO_PAUSING = 5;
+  EXERCISE_STATE_AUTO_PAUSED = 6;
+  EXERCISE_STATE_USER_RESUMING = 7;
+  EXERCISE_STATE_AUTO_RESUMING = 8;
+  EXERCISE_STATE_USER_ENDING = 9;
+  EXERCISE_STATE_USER_ENDED = 10;
+  EXERCISE_STATE_AUTO_ENDING = 11;
+  EXERCISE_STATE_AUTO_ENDED = 12;
+  EXERCISE_STATE_AUTO_ENDING_PERMISSION_LOST = 16;
+  EXERCISE_STATE_AUTO_ENDED_PERMISSION_LOST = 17;
+  EXERCISE_STATE_TERMINATING = 13;
+  EXERCISE_STATE_TERMINATED = 14;
+  reserved 18 to max;  // Next ID
+}
+
+enum ExerciseTrackedStatus {
+  EXERCISE_TRACKED_STATUS_UNKNOWN = 0;
+  EXERCISE_TRACKED_STATUS_OTHER_APP_IN_PROGRESS = 1;
+  EXERCISE_TRACKED_STATUS_OWNED_EXERCISE_IN_PROGRESS = 2;
+  EXERCISE_TRACKED_STATUS_NO_EXERCISE_IN_PROGRESS = 3;
+  reserved 4 to max;  // Next ID
+}
+
+enum ExerciseType {
+  EXERCISE_TYPE_UNKNOWN = 0;
+  EXERCISE_TYPE_BACK_EXTENSION = 1;
+  EXERCISE_TYPE_BADMINTON = 2;
+  EXERCISE_TYPE_BARBELL_SHOULDER_PRESS = 3;
+  EXERCISE_TYPE_BASEBALL = 4;
+  EXERCISE_TYPE_BASKETBALL = 5;
+  EXERCISE_TYPE_BENCH_PRESS = 6;
+  EXERCISE_TYPE_BENCH_SIT_UP = 7;
+  EXERCISE_TYPE_BIKING = 8;
+  EXERCISE_TYPE_BIKING_STATIONARY = 9;
+  EXERCISE_TYPE_BOOT_CAMP = 10;
+  EXERCISE_TYPE_BOXING = 11;
+  EXERCISE_TYPE_BURPEE = 12;
+  EXERCISE_TYPE_CALISTHENICS = 13;
+  EXERCISE_TYPE_CRICKET = 14;
+  EXERCISE_TYPE_CRUNCH = 15;
+  EXERCISE_TYPE_DANCING = 16;
+  EXERCISE_TYPE_DEADLIFT = 17;
+  EXERCISE_TYPE_DUMBBELL_CURL_RIGHT_ARM = 18;
+  EXERCISE_TYPE_DUMBBELL_CURL_LEFT_ARM = 19;
+  EXERCISE_TYPE_DUMBBELL_FRONT_RAISE = 20;
+  EXERCISE_TYPE_DUMBBELL_LATERAL_RAISE = 21;
+  EXERCISE_TYPE_DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM = 22;
+  EXERCISE_TYPE_DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM = 23;
+  EXERCISE_TYPE_DUMBBELL_TRICEPS_EXTENSION_TWO_ARM = 24;
+  EXERCISE_TYPE_ELLIPTICAL = 25;
+  EXERCISE_TYPE_EXERCISE_CLASS = 26;
+  EXERCISE_TYPE_FENCING = 27;
+  EXERCISE_TYPE_FRISBEE_DISC = 28;
+  EXERCISE_TYPE_FOOTBALL_AMERICAN = 29;
+  EXERCISE_TYPE_FOOTBALL_AUSTRALIAN = 30;
+  EXERCISE_TYPE_FORWARD_TWIST = 31;
+  EXERCISE_TYPE_GOLF = 32;
+  EXERCISE_TYPE_GUIDED_BREATHING = 33;
+  EXERCISE_TYPE_GYMNASTICS = 34;
+  EXERCISE_TYPE_HANDBALL = 35;
+  EXERCISE_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING = 36;
+  EXERCISE_TYPE_HIKING = 37;
+  EXERCISE_TYPE_ICE_HOCKEY = 38;
+  EXERCISE_TYPE_ICE_SKATING = 39;
+  EXERCISE_TYPE_JUMP_ROPE = 40;
+  EXERCISE_TYPE_JUMPING_JACK = 41;
+  EXERCISE_TYPE_LAT_PULL_DOWN = 42;
+  EXERCISE_TYPE_LUNGE = 43;
+  EXERCISE_TYPE_MARTIAL_ARTS = 44;
+  EXERCISE_TYPE_MEDITATION = 45;
+  EXERCISE_TYPE_PADDLING = 46;
+  EXERCISE_TYPE_PARA_GLIDING = 47;
+  EXERCISE_TYPE_PILATES = 48;
+  EXERCISE_TYPE_PLANK = 49;
+  EXERCISE_TYPE_RACQUETBALL = 50;
+  EXERCISE_TYPE_ROCK_CLIMBING = 51;
+  EXERCISE_TYPE_ROLLER_HOCKEY = 52;
+  EXERCISE_TYPE_ROWING = 53;
+  EXERCISE_TYPE_ROWING_MACHINE = 54;
+  EXERCISE_TYPE_RUNNING = 55;
+  EXERCISE_TYPE_RUNNING_TREADMILL = 56;
+  EXERCISE_TYPE_RUGBY = 57;
+  EXERCISE_TYPE_SAILING = 58;
+  EXERCISE_TYPE_SCUBA_DIVING = 59;
+  EXERCISE_TYPE_SKATING = 60;
+  EXERCISE_TYPE_SKIING = 61;
+  EXERCISE_TYPE_SNOWBOARDING = 62;
+  EXERCISE_TYPE_SNOWSHOEING = 63;
+  EXERCISE_TYPE_SOCCER = 64;
+  EXERCISE_TYPE_SOFTBALL = 65;
+  EXERCISE_TYPE_SQUASH = 66;
+  EXERCISE_TYPE_SQUAT = 67;
+  EXERCISE_TYPE_STAIR_CLIMBING = 68;
+  EXERCISE_TYPE_STAIR_CLIMBING_MACHINE = 69;
+  EXERCISE_TYPE_STRENGTH_TRAINING = 70;
+  EXERCISE_TYPE_STRETCHING = 71;
+  EXERCISE_TYPE_SURFING = 72;
+  EXERCISE_TYPE_SWIMMING_OPEN_WATER = 73;
+  EXERCISE_TYPE_SWIMMING_POOL = 74;
+  EXERCISE_TYPE_TABLE_TENNIS = 75;
+  EXERCISE_TYPE_TENNIS = 76;
+  EXERCISE_TYPE_UPPER_TWIST = 77;
+  EXERCISE_TYPE_VOLLEYBALL = 78;
+  EXERCISE_TYPE_WALKING = 79;
+  EXERCISE_TYPE_WATER_POLO = 80;
+  EXERCISE_TYPE_WEIGHTLIFTING = 81;
+  EXERCISE_TYPE_WORKOUT = 82;
+  EXERCISE_TYPE_YOGA = 83;
+  reserved 84 to max;  // Next ID
+}
+
+message ExerciseTypeCapabilities {
+  message SupportedGoalEntry {
+    optional DataType data_type = 1;
+    repeated ComparisonType comparison_types = 2;
+    reserved 3 to max;  // Next ID
+  }
+  message SupportedMilestoneEntry {
+    optional DataType data_type = 1;
+    repeated ComparisonType comparison_types = 2;
+    reserved 3 to max;  // Next ID
+  }
+
+  repeated DataType supported_data_types = 1;
+  repeated SupportedGoalEntry supported_goals = 2;
+  repeated SupportedMilestoneEntry supported_milestones = 3;
+  optional bool is_auto_pause_and_resume_supported = 4;
+  optional bool is_laps_supported = 5;
+  reserved 6 to max;  // Next ID
+}
+
+message ExerciseUpdate {
+  message LatestMetricsEntry {
+    optional DataType data_type = 1;
+    repeated DataPoint data_points = 2;
+    reserved 3 to max;  // Next ID
+  }
+
+  optional ExerciseState state = 1;
+  optional int64 start_time_epoch_ms = 2;
+  optional int64 active_duration_ms = 3;
+  repeated LatestMetricsEntry latest_metrics = 4;
+  repeated AggregateDataPoint latest_aggregate_metrics = 8;
+  repeated AchievedExerciseGoal latest_achieved_goals = 5;
+  repeated MilestoneMarkerSummary mile_stone_marker_summaries = 6;
+  optional ExerciseConfig exercise_config = 7;
+
+  reserved 9 to max;  // Next ID
+}
+
+message HealthEvent {
+  enum HealthEventType {
+    HEALTH_EVENT_TYPE_UNKNOWN = 0;
+    HEALTH_EVENT_TYPE_LOW_HR_DETECTED = 1;
+    HEALTH_EVENT_TYPE_ELEVATED_HR_DETECTED = 2;
+    HEALTH_EVENT_TYPE_FALL_DETECTED = 3;
+    reserved 4 to max;  // Next ID
+  }
+
+  message MetricsEntry {
+    optional DataType data_type = 1;
+    repeated DataPoint data_points = 2;
+    reserved 3 to max;  // Next ID
+  }
+
+  optional HealthEventType type = 1;
+  optional int64 event_time_epoch_ms = 2;
+  repeated MetricsEntry metrics = 3;
+  reserved 4 to max;  // Next ID
+}
+
+message HeartRateAlertParams {
+  enum HeartRateAlertType {
+    HEART_RATE_ALERT_TYPE_UNKNOWN = 0;
+    HEART_RATE_ALERT_TYPE_LOW = 1;
+    HEART_RATE_ALERT_TYPE_ELEVATED = 2;
+    reserved 3 to max;  // Next ID
+  }
+  optional HeartRateAlertType type = 1;
+  optional int64 duration_ms = 2;
+  optional int32 threshold_bpm = 3;
+  reserved 4 to max;  // Next ID
+}
+
+message MeasureCapabilities {
+  repeated DataType supported_data_types = 1;
+  reserved 2 to max;  // Next ID
+}
+
+message MilestoneMarkerSummary {
+  message SummaryMetricsEntry {
+    optional DataType data_type = 1;
+    optional AggregateDataPoint aggregate_data_point = 2;
+    reserved 3 to max;  // Next ID
+  }
+
+  optional int64 start_time_epoch_ms = 1;
+  optional int64 end_time_epoch_ms = 2;
+  optional int64 active_duration_ms = 3;
+  optional AchievedExerciseGoal achieved_goal = 4;
+  repeated SummaryMetricsEntry summary_metrics = 5;
+  reserved 6 to max;  // Next ID
+}
+
+message WarmUpConfig {
+  optional ExerciseType exercise_type = 1;
+  repeated DataType data_types = 2;
+  reserved 3 to max;  // Next ID
+}
+
+message PassiveGoal {
+  enum TriggerType {
+    TRIGGER_TYPE_UNKNOWN = 0;
+    TRIGGER_TYPE_ONCE = 1;
+    TRIGGER_TYPE_REPEATED = 2;
+    reserved 3 to max;  // Next ID
+  }
+
+  optional DataTypeCondition condition = 1;
+  optional TriggerType trigger_type = 2;
+  reserved 3 to max;  // Next ID
+}
+
+message PassiveMonitoringCapabilities {
+  repeated DataType supported_data_types_passive_monitoring = 1;
+  repeated DataType supported_data_types_events = 2;
+  reserved 3 to max;  // Next ID
+}
+
+message PassiveMonitoringConfig {
+  repeated DataType data_types = 1;
+  optional string package_name = 2;
+  optional string receiver_class_name = 3;
+  optional bool include_user_activity_state = 4;
+  reserved 5 to max;  // Next ID
+}
+
+message PassiveMonitoringUpdate {
+  repeated DataPoint data_points = 1;
+  repeated UserActivityInfo user_activity_info_updates = 2;
+  reserved 3 to max;  // Next ID
+}
+
+message UserActivityInfo {
+  optional UserActivityState state = 1;
+  optional ExerciseInfo exercise_info = 2;
+  optional int64 state_change_time_epoch_ms = 3;
+  reserved 4 to max;  // Next ID
+}
+
+enum UserActivityState {
+  USER_ACTIVITY_STATE_UNKNOWN = 0;
+  USER_ACTIVITY_STATE_EXERCISE = 1;
+  USER_ACTIVITY_STATE_PASSIVE = 2;
+  USER_ACTIVITY_STATE_ASLEEP = 3;
+  reserved 4 to max;  // Next ID
+}
+
+// Holds a single value of a particular type.
+message Value {
+  // Contains an array of doubles. This is needed because we cannot have
+  // repeated fields in a oneof.
+  message DoubleArray {
+    repeated double double_array = 1;
+    reserved 2 to max;  // Should never need another field.
+  }
+  oneof value {
+    bool bool_val = 1;
+    int64 long_val = 2;
+    double double_val = 3;
+    DoubleArray double_array_val = 4;
+  }
+  reserved 5 to max;  // Next ID
+}

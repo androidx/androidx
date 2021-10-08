@@ -22,10 +22,11 @@ import android.os.Bundle
 import android.util.AttributeSet
 import androidx.annotation.RestrictTo
 import androidx.core.content.withStyledAttributes
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
 import androidx.navigation.NavInflater
-import androidx.navigation.NavInflater.APPLICATION_ID_PLACEHOLDER
+import androidx.navigation.NavInflater.Companion.APPLICATION_ID_PLACEHOLDER
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider
@@ -59,26 +60,50 @@ public class DynamicIncludeGraphNavigator(
     }
 
     /**
-     * @throws Resources.NotFoundException if the [destination] does not have a valid
+     * Navigates to a dynamically included graph from a `com.android.dynamic-feature` module.
+     *
+     * @param entries destination(s) to navigate to
+     * @param navOptions additional options for navigation
+     * @param navigatorExtras extras unique to your Navigator.
+     *
+     * @throws Resources.NotFoundException if one of the [entries] does not have a valid
      * `graphResourceName` and `graphPackage`.
-     * @throws IllegalStateException if the [destination] does not have a parent.
+     * @throws IllegalStateException if one of the [entries] does not have a parent.
+
+     * @see Navigator.navigate
      */
     override fun navigate(
-        destination: DynamicIncludeNavGraph,
-        args: Bundle?,
+        entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
         navigatorExtras: Extras?
-    ): NavDestination? {
+    ) {
+        for (entry in entries) {
+            navigate(entry, navOptions, navigatorExtras)
+        }
+    }
+
+    /**
+     * @throws Resources.NotFoundException if the [entry] does not have a valid
+     * `graphResourceName` and `graphPackage`.
+     * @throws IllegalStateException if the [entry] does not have a parent.
+     */
+    private fun navigate(
+        entry: NavBackStackEntry,
+        navOptions: NavOptions?,
+        navigatorExtras: Extras?
+    ) {
+        val destination = entry.destination as DynamicIncludeNavGraph
         val extras = navigatorExtras as? DynamicExtras
 
         val moduleName = destination.moduleName
 
-        return if (moduleName != null && installManager.needsInstall(moduleName)) {
-            installManager.performInstall(destination, args, extras, moduleName)
+        if (moduleName != null && installManager.needsInstall(moduleName)) {
+            installManager.performInstall(entry, extras, moduleName)
         } else {
             val includedNav = replaceWithIncludedNav(destination)
             val navigator: Navigator<NavDestination> = navigatorProvider[includedNav.navigatorName]
-            navigator.navigate(includedNav, args, navOptions, navigatorExtras)
+            val newGraphEntry = state.createBackStackEntry(includedNav, entry.arguments)
+            navigator.navigate(listOf(newGraphEntry), navOptions, navigatorExtras)
         }
     }
 
@@ -114,8 +139,6 @@ public class DynamicIncludeGraphNavigator(
         createdDestinations.remove(destination)
         return includedNav
     }
-
-    override fun popBackStack(): Boolean = true
 
     override fun onSaveState(): Bundle? {
         // Return a non-null Bundle to get a callback to onRestoreState
@@ -205,6 +228,22 @@ public class DynamicIncludeGraphNavigator(
                 APPLICATION_ID_PLACEHOLDER,
                 context.packageName
             ) ?: "${context.packageName}.$moduleName"
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is DynamicIncludeNavGraph) return false
+            return super.equals(other) &&
+                graphResourceName == other.graphResourceName &&
+                graphPackage == other.graphPackage &&
+                moduleName == other.moduleName
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + graphResourceName.hashCode()
+            result = 31 * result + graphPackage.hashCode()
+            result = 31 * result + moduleName.hashCode()
+            return result
         }
     }
 }

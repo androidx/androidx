@@ -18,6 +18,7 @@ package androidx.compose.ui.node
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.input.pointer.PointerInputFilter
@@ -26,6 +27,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.nativeClass
+import androidx.compose.ui.semantics.SemanticsWrapper
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 
@@ -36,9 +38,6 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
     override var wrapped: LayoutNodeWrapper,
     open var modifier: T
 ) : LayoutNodeWrapper(wrapped.layoutNode) {
-    override val providedAlignmentLines: Set<AlignmentLine>
-        get() = wrapped.providedAlignmentLines
-
     override val measureScope: MeasureScope get() = wrapped.measureScope
 
     /**
@@ -72,15 +71,26 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
 
     override fun hitTest(
         pointerPosition: Offset,
-        hitPointerInputFilters: MutableList<PointerInputFilter>
+        hitTestResult: HitTestResult<PointerInputFilter>,
+        isTouchEvent: Boolean
     ) {
-        if (withinLayerBounds(pointerPosition)) {
+        if (withinLayerBounds(pointerPosition, isTouchEvent)) {
             val positionInWrapped = wrapped.fromParentPosition(pointerPosition)
-            wrapped.hitTest(positionInWrapped, hitPointerInputFilters)
+            wrapped.hitTest(positionInWrapped, hitTestResult, isTouchEvent)
         }
     }
 
-    override fun get(alignmentLine: AlignmentLine): Int = wrapped[alignmentLine]
+    override fun hitTestSemantics(
+        pointerPosition: Offset,
+        hitSemanticsWrappers: HitTestResult<SemanticsWrapper>
+    ) {
+        if (withinLayerBounds(pointerPosition, true)) {
+            val positionInWrapped = wrapped.fromParentPosition(pointerPosition)
+            wrapped.hitTestSemantics(positionInWrapped, hitSemanticsWrappers)
+        }
+    }
+
+    override fun calculateAlignmentLine(alignmentLine: AlignmentLine) = wrapped[alignmentLine]
 
     override fun placeAt(
         position: IntOffset,
@@ -104,7 +114,7 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
         }
     }
 
-    override fun performMeasure(constraints: Constraints): Placeable {
+    override fun measure(constraints: Constraints): Placeable = performingMeasure(constraints) {
         val placeable = wrapped.measure(constraints)
         measureResult = object : MeasureResult {
             override val width: Int = wrapped.measureResult.width
@@ -157,4 +167,64 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
     override fun maxIntrinsicHeight(width: Int) = wrapped.maxIntrinsicHeight(width)
 
     override val parentData: Any? get() = wrapped.parentData
+
+    /**
+     * Returns the additional amount on the horizontal and vertical dimensions that
+     * this extends beyond [width] and [height] on all sides. This takes into account
+     * [minimumTouchTargetSize] and [measuredSize] vs. [width] and [height].
+     */
+    protected fun calculateMinimumTouchTargetPadding(minimumTouchTargetSize: Size): Size {
+        val widthDiff = minimumTouchTargetSize.width - measuredWidth.toFloat()
+        val heightDiff = minimumTouchTargetSize.height - measuredHeight.toFloat()
+        return Size(maxOf(0f, widthDiff / 2f), maxOf(0f, heightDiff / 2f))
+    }
+
+    /**
+     * Does a hit test, adding [content] as a [HitTestResult.hit] or
+     * [HitTestResult.hitInMinimumTouchTarget] depending on whether or not it hit
+     * or hit in the minimum touch target size area. The newly-created [HitTestResult] is returned
+     * if there was a hit or `null` is returned if it missed.
+     */
+    protected fun <T> hitTestInMinimumTouchTarget(
+        pointerPosition: Offset,
+        hitTestResult: HitTestResult<T>,
+        forceParentIntercept: Boolean,
+        useTouchSize: Boolean,
+        content: T,
+        block: () -> Unit
+    ) {
+        if (!withinLayerBounds(pointerPosition, useTouchSize)) {
+            return
+        }
+        if (isPointerInBounds(pointerPosition)) {
+            hitTestResult.hit(content, block)
+        } else {
+            val offsetFromEdge = offsetFromEdge(pointerPosition)
+            val distanceFromEdge = maxOf(offsetFromEdge.x, offsetFromEdge.y)
+
+            if (useTouchSize && isHitInMinimumTouchTarget(offsetFromEdge, minimumTouchTargetSize) &&
+                hitTestResult.isHitInMinimumTouchTargetBetter(distanceFromEdge)
+            ) {
+                // Hit closer than existing handlers, so just record it
+                hitTestResult.hitInMinimumTouchTarget(content, distanceFromEdge, block)
+            }
+            if (forceParentIntercept) {
+                // We only want to replace the existing touch target if there are better
+                // hits in the children
+                hitTestResult.speculativeHit(content, distanceFromEdge, block)
+            } else {
+                // The parent wasn't hit, but the child may be.
+                block()
+            }
+        }
+    }
+
+    private fun isHitInMinimumTouchTarget(
+        offsetFromEdge: Offset,
+        minimumTouchTargetSize: Size
+    ): Boolean {
+        val (width, height) = calculateMinimumTouchTargetPadding(minimumTouchTargetSize)
+        return (width > 0f || height > 0f) &&
+            offsetFromEdge.x <= width && offsetFromEdge.y <= height
+    }
 }

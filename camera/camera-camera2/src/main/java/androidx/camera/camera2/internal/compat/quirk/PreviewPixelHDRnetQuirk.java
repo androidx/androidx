@@ -18,9 +18,9 @@ package androidx.camera.camera2.internal.compat.quirk;
 
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -36,11 +36,12 @@ import java.util.Locale;
  * viewfinder stream to enable the wysiwyg preview, and developers can achieve WYSIWYG in their
  * apps.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class PreviewPixelHDRnetQuirk implements Quirk {
 
     /** The devices that support wysiwyg preview in 3rd party apps (go/p20-wysiwyg-hdr) */
     private static final List<String> SUPPORTED_DEVICES =
-            new ArrayList<>(Arrays.asList("sunfish", "bramble", "redfin"));
+            Arrays.asList("sunfish", "bramble", "redfin");
 
     static boolean load() {
         return "Google".equals(Build.MANUFACTURER) && SUPPORTED_DEVICES.contains(

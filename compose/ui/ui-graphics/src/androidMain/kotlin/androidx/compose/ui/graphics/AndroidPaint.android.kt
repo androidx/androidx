@@ -18,6 +18,7 @@ package androidx.compose.ui.graphics
 
 import android.graphics.PorterDuffXfermode
 import android.os.Build
+import androidx.annotation.RequiresApi
 
 actual typealias NativePaint = android.graphics.Paint
 
@@ -116,12 +117,16 @@ class AndroidPaint : Paint {
 }
 
 internal fun makeNativePaint() =
-    android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+    android.graphics.Paint(
+        android.graphics.Paint.ANTI_ALIAS_FLAG or
+            android.graphics.Paint.DITHER_FLAG or
+            android.graphics.Paint.FILTER_BITMAP_FLAG
+    )
 
 internal fun NativePaint.setNativeBlendMode(mode: BlendMode) {
     if (Build.VERSION.SDK_INT >= 29) {
         // All blend modes supported in Q
-        this.blendMode = mode.toAndroidBlendMode()
+        WrapperVerificationHelperMethods.setBlendMode(this, mode)
     } else {
         // Else fall back on platform alternatives
         this.xfermode = PorterDuffXfermode(mode.toPorterDuffMode())
@@ -182,6 +187,7 @@ internal fun NativePaint.setNativeStrokeCap(value: StrokeCap) {
         StrokeCap.Square -> android.graphics.Paint.Cap.SQUARE
         StrokeCap.Round -> android.graphics.Paint.Cap.ROUND
         StrokeCap.Butt -> android.graphics.Paint.Cap.BUTT
+        else -> android.graphics.Paint.Cap.BUTT
     }
 }
 
@@ -198,6 +204,7 @@ internal fun NativePaint.setNativeStrokeJoin(value: StrokeJoin) {
         StrokeJoin.Miter -> android.graphics.Paint.Join.MITER
         StrokeJoin.Bevel -> android.graphics.Paint.Join.BEVEL
         StrokeJoin.Round -> android.graphics.Paint.Join.ROUND
+        else -> android.graphics.Paint.Join.MITER
     }
 }
 
@@ -230,4 +237,17 @@ internal fun NativePaint.setNativeShader(value: Shader?) {
 
 internal fun NativePaint.setNativePathEffect(value: PathEffect?) {
     this.pathEffect = (value as AndroidPathEffect?)?.nativePathEffect
+}
+
+/**
+ * This class is here to ensure that the classes that use this API will get verified and can be
+ * AOT compiled. It is expected that this class will soft-fail verification, but the classes
+ * which use this method will pass.
+ */
+@RequiresApi(Build.VERSION_CODES.Q)
+internal object WrapperVerificationHelperMethods {
+    @androidx.annotation.DoNotInline
+    fun setBlendMode(paint: NativePaint, mode: BlendMode) {
+        paint.blendMode = mode.toAndroidBlendMode()
+    }
 }

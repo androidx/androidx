@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="complication_config" msgid="3090406830927670356">"Configurar complicaciones de cara de reloj"</string>
+    <string name="watchface_settings" msgid="9086980313887663299">"Configurar cara de reloj"</string>
+    <string name="style_config" msgid="7270818527618953542">"Configurar estilos de caras de reloj"</string>
+    <string name="none_background_image_provider" msgid="2763799590544856080">"Ninguno"</string>
+    <string name="settings_complications" msgid="1425815384891476600">"Datos"</string>
+    <string name="settings_background_image" msgid="496585675676995765">"Imagen de fondo"</string>
+    <string name="settings_styles" msgid="3243144642316786428">"Estilos"</string>
+</resources>

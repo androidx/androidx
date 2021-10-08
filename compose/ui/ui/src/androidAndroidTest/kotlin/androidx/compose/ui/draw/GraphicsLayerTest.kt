@@ -17,9 +17,13 @@
 package androidx.compose.ui.draw
 
 import android.os.Build
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -32,13 +36,22 @@ import androidx.compose.ui.background
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.graphics.OffsetEffect
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.boundsInWindow
@@ -50,16 +63,23 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -313,10 +333,10 @@ class GraphicsLayerTest {
                             clip = true
                         )
                             .requiredSize(20.toDp(), 10.toDp())
+                            .align(AbsoluteAlignment.TopLeft)
                             .onGloballyPositioned {
                                 coords1 = it
                             }
-                            .align(AbsoluteAlignment.TopLeft)
                     )
                     Box(
                         Modifier
@@ -326,10 +346,10 @@ class GraphicsLayerTest {
                                 clip = true
                             )
                             .requiredSize(10.toDp())
+                            .align(AbsoluteAlignment.BottomRight)
                             .onGloballyPositioned {
                                 coords2 = it
                             }
-                            .align(AbsoluteAlignment.BottomRight)
                     )
                 }
             }
@@ -432,6 +452,120 @@ class GraphicsLayerTest {
         }
     }
 
+    @Composable
+    fun BoxBlur(tag: String, size: Float, blurRadius: Float) {
+        BoxRenderEffect(
+            tag,
+            (size / LocalDensity.current.density).dp,
+            ({ BlurEffect(blurRadius, blurRadius, TileMode.Decal) })
+        ) {
+            inset(blurRadius, blurRadius) {
+                drawRect(androidx.compose.ui.graphics.Color.Blue)
+            }
+        }
+    }
+
+    @Composable
+    fun BoxRenderEffect(
+        tag: String,
+        size: Dp,
+        renderEffectCreator: () -> RenderEffect,
+        drawBlock: DrawScope.() -> Unit
+    ) {
+        Box(
+            Modifier.testTag(tag)
+                .size(size)
+                .background(Color.Black)
+                .graphicsLayer {
+                    renderEffect = renderEffectCreator()
+                }
+                .drawBehind(drawBlock)
+        )
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    fun testBlurEffect() {
+        val tag = "blurTag"
+        val size = 100f
+        val blurRadius = 10f
+        rule.setContent {
+            BoxBlur(tag, size, blurRadius)
+        }
+        rule.onNodeWithTag(tag).captureToImage().apply {
+            val pixelMap = toPixelMap()
+            var nonPureBlueCount = 0
+            for (x in (blurRadius).toInt() until (width - (blurRadius)).toInt()) {
+                for (y in (blurRadius).toInt() until (height - (blurRadius)).toInt()) {
+                    val pixelColor = pixelMap[x, y]
+                    if (pixelColor.red > 0 || pixelColor.green > 0) {
+                        fail("Only blue colors are expected. Pixel at [$x, $y] $pixelColor")
+                    }
+                    if (pixelColor.blue > 0 && pixelColor.blue < 1f) {
+                        nonPureBlueCount++
+                    }
+                }
+            }
+            assertTrue(nonPureBlueCount > 0)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O, maxSdkVersion = Build.VERSION_CODES.R)
+    fun testBlurNoopOnUnsupportedPlatforms() {
+        val tag = "blurTag"
+        val size = 100f
+        val blurRadius = 10f
+        rule.setContent {
+            BoxBlur(tag, size, blurRadius)
+        }
+        rule.onNodeWithTag(tag).captureToImage().apply {
+            val pixelMap = toPixelMap()
+            for (x in 0 until width) {
+                for (y in 0 until height) {
+                    if (x >= blurRadius && x < width - blurRadius &&
+                        y >= blurRadius && y < height - blurRadius
+                    ) {
+                        assertEquals("Index $x, $y should be blue", Color.Blue, pixelMap[x, y])
+                    } else {
+                        assertEquals("Index $x, $y should be black", Color.Black, pixelMap[x, y])
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    fun testOffsetEffect() {
+        val tag = "blurTag"
+        val size = 100f
+        rule.setContent {
+            BoxRenderEffect(
+                tag,
+                (size / LocalDensity.current.density).dp,
+                { OffsetEffect(20f, 20f) }
+            ) {
+                drawRect(
+                    Color.Blue,
+                    size = Size(this.size.width - 20, this.size.height - 20)
+                )
+            }
+        }
+        rule.onNodeWithTag(tag).captureToImage().apply {
+            val pixelMap = toPixelMap()
+            for (x in 0 until width) {
+                for (y in 0 until height) {
+                    if (x >= 20f && y >= 20f) {
+                        assertEquals("Index $x, $y should be blue", Color.Blue, pixelMap[x, y])
+                    } else {
+                        assertEquals("Index $x, $y should be black", Color.Black, pixelMap[x, y])
+                    }
+                }
+            }
+        }
+    }
+
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun invalidateWhenWeHaveSemanticModifierAfterLayer() {
@@ -476,6 +610,51 @@ class GraphicsLayerTest {
                 assertEquals(2.dp.toPx(), testDpConversion)
                 assertEquals(3.dp.toSp().toPx(), testFontScaleConversion)
             }
+        }
+    }
+
+    @Test
+    fun testClickOnScaledElement() {
+        var firstClicked = false
+        var secondClicked = false
+        rule.setContent {
+            Layout(
+                content = {
+                    Box(
+                        Modifier.fillMaxSize().clickable {
+                            firstClicked = true
+                        }
+                    )
+                    Box(
+                        Modifier.fillMaxSize().clickable {
+                            secondClicked = true
+                        }
+                    )
+                },
+                modifier = Modifier.testTag("layout")
+            ) { measurables, _ ->
+                val itemConstraints = Constraints.fixed(100, 100)
+                val first = measurables[0].measure(itemConstraints)
+                val second = measurables[1].measure(itemConstraints)
+                layout(100, 200) {
+                    val layer: GraphicsLayerScope.() -> Unit = {
+                        scaleX = 0.5f
+                        scaleY = 0.5f
+                    }
+                    first.placeWithLayer(0, 0, layerBlock = layer)
+                    second.placeWithLayer(0, 100, layerBlock = layer)
+                }
+            }
+        }
+
+        rule.onNodeWithTag("layout")
+            .performTouchInput {
+                click(position = Offset(50f, 170f))
+            }
+
+        rule.runOnIdle {
+            assertFalse("First element is clicked", firstClicked)
+            assertTrue("Second element is not clicked", secondClicked)
         }
     }
 }

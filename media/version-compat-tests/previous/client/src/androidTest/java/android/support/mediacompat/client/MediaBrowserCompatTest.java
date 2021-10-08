@@ -25,9 +25,11 @@ import static android.support.mediacompat.testlib.MediaBrowserConstants.EXTRAS_K
 import static android.support.mediacompat.testlib.MediaBrowserConstants.EXTRAS_VALUE;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_ID_CHILDREN;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_ID_CHILDREN_DELAYED;
+import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_ID_INCLUDE_METADATA;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_ID_INVALID;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_ID_ON_LOAD_ITEM_NOT_IMPLEMENTED;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_ID_ROOT;
+import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_METADATA;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.NOTIFY_CHILDREN_CHANGED;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.SEARCH_QUERY;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.SEARCH_QUERY_FOR_ERROR;
@@ -55,6 +57,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -62,14 +65,16 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.mediacompat.testlib.util.PollingCheck;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
-import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.RatingCompat;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.media.MediaBrowserServiceCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
@@ -86,7 +91,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Test {@link android.support.v4.media.MediaBrowserCompat}.
+ * Test {@link MediaBrowserCompat}.
  */
 @RunWith(AndroidJUnit4.class)
 public class MediaBrowserCompatTest {
@@ -444,6 +449,43 @@ public class MediaBrowserCompatTest {
         }
         // onChildrenLoaded should not be called.
         assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount);
+    }
+
+    @Test
+    @SmallTest
+    public void testSubscribeWithOptionsIncludingCompatParcelables() throws Exception {
+        connectMediaBrowserService();
+
+        final String mediaId = "1000";
+        final RatingCompat percentageRating = RatingCompat.newPercentageRating(0.5f);
+        final RatingCompat starRating =
+                RatingCompat.newStarRating(RatingCompat.RATING_5_STARS, 4.0f);
+        MediaMetadataCompat mediaMetadataCompat = new MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaId)
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, "title")
+                .putRating(MediaMetadataCompat.METADATA_KEY_RATING, percentageRating)
+                .putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING, starRating)
+                .build();
+        Bundle options = new Bundle();
+        options.putParcelable(MEDIA_METADATA, mediaMetadataCompat);
+
+        // Remote MediaBrowserService will create a media item with the given MediaMetadataCompat.
+        mSubscriptionCallback.reset(1);
+        mMediaBrowser.subscribe(MEDIA_ID_INCLUDE_METADATA, options, mSubscriptionCallback);
+        mSubscriptionCallback.await(TIME_OUT_MS);
+
+        assertEquals(1, mSubscriptionCallback.mChildrenLoadedWithOptionCount);
+        assertEquals(1, mSubscriptionCallback.mLastChildMediaItems.size());
+        assertEquals(mediaId, mSubscriptionCallback.mLastChildMediaItems.get(0).getMediaId());
+
+        MediaMetadataCompat metadataOut = mSubscriptionCallback.mLastOptions
+                .getParcelable(MEDIA_METADATA);
+        assertEquals(mediaId, metadataOut.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID));
+        assertEquals("title", metadataOut.getString(MediaMetadataCompat.METADATA_KEY_TITLE));
+        assertRatingEquals(percentageRating,
+                metadataOut.getRating(MediaMetadataCompat.METADATA_KEY_RATING));
+        assertRatingEquals(starRating,
+                metadataOut.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING));
     }
 
     @Test
@@ -875,6 +917,22 @@ public class MediaBrowserCompatTest {
             if (!mMediaBrowser.isConnected()) {
                 fail("Browser failed to connect!");
             }
+        }
+    }
+
+    private void assertRatingEquals(RatingCompat expected, RatingCompat observed) {
+        if (expected == null || observed == null) {
+            assertSame(expected, observed);
+        }
+        assertEquals(expected.getRatingStyle(), observed.getRatingStyle());
+
+        if (expected.getRatingStyle() == RatingCompat.RATING_PERCENTAGE) {
+            assertEquals(expected.getPercentRating(), observed.getPercentRating(), 0.01f);
+        } else if (expected.getRatingStyle() == RatingCompat.RATING_5_STARS) {
+            assertEquals(expected.getStarRating(), observed.getStarRating(), 0.01f);
+        } else {
+            // Currently, we use only star and percentage rating.
+            fail("Rating style should be either percentage rating or star rating.");
         }
     }
 

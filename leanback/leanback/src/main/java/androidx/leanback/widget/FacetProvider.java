@@ -21,6 +21,7 @@ package androidx.leanback.widget;
  * VerticalGridView or HorizontalGridView.
  * A FacetProvider could be retrieved from two sources by VerticalGridView/HorizontalGridView in
  * the following order.
+ * <ul>
  * <li>
  *     <p>
  *     ViewHolder based facet:
@@ -53,6 +54,7 @@ package androidx.leanback.widget;
  *     set alignment of all ViewHolders created by this Presenter.
  *     </p>
  * </li>
+ * </ul>
  */
 public interface FacetProvider {
 

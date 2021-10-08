@@ -16,21 +16,26 @@
 
 package androidx.compose.ui.platform
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.view.View
 import android.view.ViewOutlineProvider
+import androidx.annotation.RequiresApi
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.geometry.MutableRect
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.RenderEffect
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.node.OwnedLayer
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.Matrix
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.setFrom
-import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.unit.LayoutDirection
 import java.lang.reflect.Field
 import java.lang.reflect.Method
@@ -40,7 +45,7 @@ import java.lang.reflect.Method
  */
 internal class ViewLayer(
     val ownerView: AndroidComposeView,
-    val container: ViewLayerContainer,
+    val container: DrawChildContainer,
     val drawBlock: (Canvas) -> Unit,
     val invalidateParentLayer: () -> Unit
 ) : View(ownerView.context), OwnedLayer {
@@ -50,9 +55,17 @@ internal class ViewLayer(
     private var clipBoundsCache: android.graphics.Rect? = null
     private val manualClipPath: Path? get() =
         if (!clipToOutline) null else outlineResolver.clipPath
-    private var isInvalidated = false
+    var isInvalidated = false
+        private set(value) {
+            if (value != field) {
+                field = value
+                ownerView.notifyLayerIsDirty(this, value)
+            }
+        }
     private var drawnWithZ = false
     private val canvasHolder = CanvasHolder()
+
+    private val matrixCache = LayerMatrixCache(getMatrix)
 
     /**
      * Local copy of the transform origin as GraphicsLayerModifier can be implemented
@@ -69,6 +82,23 @@ internal class ViewLayer(
 
     override val layerId: Long
         get() = id.toLong()
+
+    @ExperimentalComposeUiApi
+    override val ownerViewId: Long
+        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            UniqueDrawingIdApi29.getUniqueDrawingId(ownerView)
+        } else {
+            -1
+        }
+
+    @RequiresApi(29)
+    private class UniqueDrawingIdApi29 {
+        @RequiresApi(29)
+        companion object {
+            @JvmStatic
+            fun getUniqueDrawingId(view: View) = view.uniqueDrawingId
+        }
+    }
 
     /**
      * Configure the camera distance on the View in pixels. View already has a get/setCameraDistance
@@ -100,7 +130,9 @@ internal class ViewLayer(
         transformOrigin: TransformOrigin,
         shape: Shape,
         clip: Boolean,
-        layoutDirection: LayoutDirection
+        renderEffect: RenderEffect?,
+        layoutDirection: LayoutDirection,
+        density: Density
     ) {
         this.mTransformOrigin = transformOrigin
         this.scaleX = scaleX
@@ -124,7 +156,8 @@ internal class ViewLayer(
             this.alpha,
             this.clipToOutline,
             this.elevation,
-            layoutDirection
+            layoutDirection,
+            density
         )
         updateOutlineResolver()
         val isClippingManually = manualClipPath != null
@@ -134,6 +167,24 @@ internal class ViewLayer(
         if (!drawnWithZ && elevation > 0) {
             invalidateParentLayer()
         }
+        matrixCache.invalidate()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            ViewLayerVerificationHelper.setRenderEffect(this, renderEffect)
+        }
+    }
+
+    override fun isInLayer(position: Offset): Boolean {
+        val x = position.x
+        val y = position.y
+        if (clipToBounds) {
+            return 0f <= x && x < width && 0f <= y && y < height
+        }
+
+        if (clipToOutline) {
+            return outlineResolver.isInOutline(position)
+        }
+
+        return true
     }
 
     private fun updateOutlineResolver() {
@@ -167,6 +218,7 @@ internal class ViewLayer(
             updateOutlineResolver()
             layout(left, top, left + width, top + height)
             resetClipBounds()
+            matrixCache.invalidate()
         }
     }
 
@@ -175,10 +227,12 @@ internal class ViewLayer(
 
         if (left != this.left) {
             offsetLeftAndRight(left - this.left)
+            matrixCache.invalidate()
         }
         val top = position.y
         if (top != this.top) {
             offsetTopAndBottom(top - this.top)
+            matrixCache.invalidate()
         }
     }
 
@@ -194,6 +248,7 @@ internal class ViewLayer(
     }
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
+        isInvalidated = false
         canvasHolder.drawInto(canvas) {
             val clipPath = manualClipPath
             if (clipPath != null) {
@@ -204,7 +259,6 @@ internal class ViewLayer(
             if (clipPath != null) {
                 restore()
             }
-            isInvalidated = false
         }
     }
 
@@ -212,7 +266,6 @@ internal class ViewLayer(
         if (!isInvalidated) {
             isInvalidated = true
             super.invalidate()
-            ownerView.dirtyLayers += this
             ownerView.invalidate()
         }
     }
@@ -221,15 +274,17 @@ internal class ViewLayer(
     }
 
     override fun destroy() {
-        container.removeView(this)
-        ownerView.dirtyLayers -= this
+        container.postOnAnimation {
+            container.removeView(this)
+        }
+        isInvalidated = false
         ownerView.requestClearInvalidObservations()
     }
 
     override fun updateDisplayList() {
-        if (isInvalidated) {
-            updateDisplayList(this)
+        if (isInvalidated && !shouldUseDispatchDraw) {
             isInvalidated = false
+            updateDisplayList(this)
         }
     }
 
@@ -238,12 +293,33 @@ internal class ViewLayer(
         // should not do anything. If we keep this, we get more redrawing than is necessary.
     }
 
-    override fun getMatrix(matrix: Matrix) {
-        val androidMatrix = super.getMatrix()
-        matrix.setFrom(androidMatrix)
+    override fun mapOffset(point: Offset, inverse: Boolean): Offset {
+        return if (inverse) {
+            matrixCache.calculateInverseMatrix(this)?.map(point) ?: Offset.Infinite
+        } else {
+            matrixCache.calculateMatrix(this).map(point)
+        }
+    }
+
+    override fun mapBounds(rect: MutableRect, inverse: Boolean) {
+        if (inverse) {
+            val matrix = matrixCache.calculateInverseMatrix(this)
+            if (matrix != null) {
+                matrix.map(rect)
+            } else {
+                rect.set(0f, 0f, 0f, 0f)
+            }
+        } else {
+            matrixCache.calculateMatrix(this).map(rect)
+        }
     }
 
     companion object {
+        private val getMatrix: (View, android.graphics.Matrix) -> Unit = { view, matrix ->
+            val newMatrix = view.matrix
+            matrix.set(newMatrix)
+        }
+
         val OutlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: android.graphics.Outline) {
                 view as ViewLayer
@@ -252,40 +328,58 @@ internal class ViewLayer(
         }
         private var updateDisplayListIfDirtyMethod: Method? = null
         private var recreateDisplayList: Field? = null
-        private var hasRetrievedMethod = false
+        var hasRetrievedMethod = false
+            private set
 
+        var shouldUseDispatchDraw = false
+            internal set // internal so that tests can use it.
+
+        @SuppressLint("BanUncheckedReflection")
         fun updateDisplayList(view: View) {
-            if (!hasRetrievedMethod) {
-                hasRetrievedMethod = true
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-                    updateDisplayListIfDirtyMethod =
-                        View::class.java.getDeclaredMethod("updateDisplayListIfDirty")
-                    recreateDisplayList =
-                        View::class.java.getDeclaredField("mRecreateDisplayList")
-                } else {
-                    val getDeclaredMethod = Class::class.java.getDeclaredMethod(
-                        "getDeclaredMethod",
-                        String::class.java,
-                        arrayOf<Class<*>>()::class.java
-                    )
-                    updateDisplayListIfDirtyMethod = getDeclaredMethod.invoke(
-                        View::class.java,
-                        "updateDisplayListIfDirty", emptyArray<Class<*>>()
-                    ) as Method?
-                    val getDeclaredField = Class::class.java.getDeclaredMethod(
-                        "getDeclaredField",
-                        String::class.java
-                    )
-                    recreateDisplayList = getDeclaredField.invoke(
-                        View::class.java,
-                        "mRecreateDisplayList"
-                    ) as Field?
+            try {
+                if (!hasRetrievedMethod) {
+                    hasRetrievedMethod = true
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                        updateDisplayListIfDirtyMethod =
+                            View::class.java.getDeclaredMethod("updateDisplayListIfDirty")
+                        recreateDisplayList =
+                            View::class.java.getDeclaredField("mRecreateDisplayList")
+                    } else {
+                        val getDeclaredMethod = Class::class.java.getDeclaredMethod(
+                            "getDeclaredMethod",
+                            String::class.java,
+                            arrayOf<Class<*>>()::class.java
+                        )
+                        updateDisplayListIfDirtyMethod = getDeclaredMethod.invoke(
+                            View::class.java,
+                            "updateDisplayListIfDirty", emptyArray<Class<*>>()
+                        ) as Method?
+                        val getDeclaredField = Class::class.java.getDeclaredMethod(
+                            "getDeclaredField",
+                            String::class.java
+                        )
+                        recreateDisplayList = getDeclaredField.invoke(
+                            View::class.java,
+                            "mRecreateDisplayList"
+                        ) as Field?
+                    }
+                    updateDisplayListIfDirtyMethod?.isAccessible = true
+                    recreateDisplayList?.isAccessible = true
                 }
-                updateDisplayListIfDirtyMethod?.isAccessible = true
-                recreateDisplayList?.isAccessible = true
+                recreateDisplayList?.setBoolean(view, true)
+                updateDisplayListIfDirtyMethod?.invoke(view)
+            } catch (_: Throwable) {
+                shouldUseDispatchDraw = true
             }
-            recreateDisplayList?.setBoolean(view, true)
-            updateDisplayListIfDirtyMethod?.invoke(view)
         }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+private object ViewLayerVerificationHelper {
+
+    @androidx.annotation.DoNotInline
+    fun setRenderEffect(view: View, target: RenderEffect?) {
+        view.setRenderEffect(target?.asAndroidRenderEffect())
     }
 }

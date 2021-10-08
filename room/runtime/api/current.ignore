@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedDeprecatedField: androidx.room.RoomDatabase#mCallbacks:
-    Removed deprecated field androidx.room.RoomDatabase.mCallbacks

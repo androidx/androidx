@@ -17,12 +17,14 @@
 package androidx.camera.camera2.internal;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
 
 /**
  * Camera device id that is composed by Brand, Device, Model and CameraId.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 abstract class CameraDeviceId {
     CameraDeviceId() {

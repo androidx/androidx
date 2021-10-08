@@ -19,12 +19,12 @@
     <string name="mr_system_route_name" msgid="7449553026175453403">"Систем"</string>
     <string name="mr_user_route_category_name" msgid="4088331695424166162">"Уреди"</string>
     <string name="mr_button_content_description" msgid="2939063992730535343">"Емитувајте"</string>
-    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"Емитувајте. Прекината врска"</string>
+    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"Емитувајте. Не е поврзано"</string>
     <string name="mr_cast_button_connecting" msgid="6629927151350192407">"Емитувајте. Се поврзува"</string>
     <string name="mr_cast_button_connected" msgid="6073720094880410356">"Емитувајте. Поврзано"</string>
     <string name="mr_chooser_title" msgid="1419936397646839840">"Емитување на"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"Се бараат уреди"</string>
-    <string name="mr_controller_disconnect" msgid="7812275474138309497">"Исклучи"</string>
+    <string name="mr_controller_disconnect" msgid="7812275474138309497">"Прекини врска"</string>
     <string name="mr_controller_stop_casting" msgid="804210341192624074">"Сопри со емитување"</string>
     <string name="mr_controller_close_description" msgid="5684434439232634509">"Затвори"</string>
     <string name="mr_controller_play" msgid="1253345086594430054">"Пушти"</string>

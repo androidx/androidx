@@ -16,13 +16,12 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.text.input.BackspaceCommand
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.DeleteSurroundingTextInCodePointsCommand
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.MoveCursorCommand
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.SetComposingTextCommand
 import androidx.compose.ui.text.input.TextFieldValue
@@ -31,7 +30,6 @@ import androidx.compose.ui.unit.Density
 import java.awt.Point
 import java.awt.Rectangle
 import java.awt.event.InputMethodEvent
-import java.awt.event.KeyEvent
 import java.awt.font.TextHitInfo
 import java.awt.im.InputMethodRequests
 import java.text.AttributedCharacterIterator
@@ -61,6 +59,10 @@ internal class DesktopPlatformInput(val component: DesktopComponent) :
 
     var currentInput: CurrentInput? = null
 
+    // This is required to support input of accented characters using press-and-hold method (http://support.apple.com/kb/PH11264).
+    // JDK currently properly supports this functionality only for TextComponent/JTextComponent descendants.
+    // For our editor component we need this workaround.
+    // After https://bugs.openjdk.java.net/browse/JDK-8074882 is fixed, this workaround should be replaced with a proper solution.
     var charKeyPressed: Boolean = false
     var needToDeletePreviousChar: Boolean = false
 
@@ -84,11 +86,9 @@ internal class DesktopPlatformInput(val component: DesktopComponent) :
     }
 
     override fun showSoftwareKeyboard() {
-        println("DesktopPlatformInput.showSoftwareKeyboard")
     }
 
     override fun hideSoftwareKeyboard() {
-        println("DesktopPlatformInput.hideSoftwareKeyboard")
     }
 
     override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) {
@@ -103,63 +103,11 @@ internal class DesktopPlatformInput(val component: DesktopComponent) :
         }
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    fun onKeyPressed(keyCode: Int, char: Char) {
-        if (keyCode >= KeyEvent.VK_A && keyCode <= KeyEvent.VK_Z) {
-            charKeyPressed = true
-        }
-        currentInput?.let { input ->
-            val command = input.onEditCommand
-            when (keyCode) {
-                KeyEvent.VK_LEFT -> {
-                    command.invoke(listOf(MoveCursorCommand(-1)))
-                }
-                KeyEvent.VK_RIGHT -> {
-                    command.invoke(listOf(MoveCursorCommand(1)))
-                }
-                KeyEvent.VK_BACK_SPACE -> {
-                    command.invoke(listOf(BackspaceCommand()))
-                }
-                KeyEvent.VK_ENTER -> {
-                    if (input.imeAction == ImeAction.Default) {
-                        command.invoke(listOf(CommitTextCommand("\n", 1)))
-                    } else {
-                        input.onImeActionPerformed.invoke(input.imeAction)
-                    }
-                }
-                else -> Unit
-            }
-        }
-    }
-
-    @Suppress("UNUSED_PARAMETER")
-    fun onKeyReleased(keyCode: Int, char: Char) {
-        charKeyPressed = false
-    }
-
-    private fun Char.isPrintable(): Boolean {
-        val block = Character.UnicodeBlock.of(this)
-        return (!Character.isISOControl(this)) &&
-            this != KeyEvent.CHAR_UNDEFINED &&
-            block != null &&
-            block != Character.UnicodeBlock.SPECIALS
-    }
-
-    fun onKeyTyped(char: Char) {
-        needToDeletePreviousChar = false
-        currentInput?.onEditCommand?.let {
-            if (char.isPrintable()) {
-                it.invoke(listOf(CommitTextCommand(char.toString(), 1)))
-            }
-        }
-    }
-
     internal fun inputMethodCaretPositionChanged(
         @Suppress("UNUSED_PARAMETER") event: InputMethodEvent
     ) {
         // Which OSes and which input method could produce such events? We need to have some
         // specific cases in mind before implementing this
-        println("DesktopInputComponent.inputMethodCaretPositionChanged")
     }
 
     internal fun replaceInputMethodText(event: InputMethodEvent) {
@@ -171,11 +119,7 @@ internal class DesktopPlatformInput(val component: DesktopComponent) :
             val composing = event.text.toStringFrom(event.committedCharacterCount)
             val ops = mutableListOf<EditCommand>()
 
-            if (needToDeletePreviousChar && isMac) {
-                // This is required to support input of accented characters using press-and-hold method (http://support.apple.com/kb/PH11264).
-                // JDK currently properly supports this functionality only for TextComponent/JTextComponent descendants.
-                // For our editor component we need this workaround.
-                // After https://bugs.openjdk.java.net/browse/JDK-8074882 is fixed, this workaround should be replaced with a proper solution.
+            if (needToDeletePreviousChar && isMac && input.value.selection.min > 0) {
                 needToDeletePreviousChar = false
                 ops.add(DeleteSurroundingTextInCodePointsCommand(1, 0))
             }
@@ -255,24 +199,17 @@ internal class DesktopPlatformInput(val component: DesktopComponent) :
 
                 val comp = input.value.composition
                 val text = input.value.text
+                val range = TextRange(beginIndex, endIndex)
                 if (comp == null) {
-                    val res = text.substring(beginIndex, endIndex)
+                    val res = text.substring(range)
                     return AttributedString(res).iterator
                 }
-
-                val composedStartIndex = comp.start
-                val composedEndIndex = comp.end
-
-                val committed: String
-                if (beginIndex < composedStartIndex) {
-                    val end = min(endIndex, composedStartIndex)
-                    committed = text.substring(beginIndex, end)
-                } else if (composedEndIndex <= endIndex) {
-                    val begin = max(composedEndIndex, beginIndex)
-                    committed = text.substring(begin, endIndex)
-                } else {
-                    committed = ""
-                }
+                val committed = text.substring(
+                    TextRange(
+                        min(range.min, comp.min),
+                        max(range.max, comp.max).coerceAtMost(text.length)
+                    )
+                )
                 return AttributedString(committed).iterator
             }
         }
@@ -303,4 +240,4 @@ private fun AttributedCharacterIterator.toStringFrom(index: Int): String {
 }
 
 private val isMac =
-    System.getProperty("os.name").toLowerCase(Locale.ENGLISH).startsWith("mac")
+    System.getProperty("os.name").lowercase(Locale.ENGLISH).startsWith("mac")

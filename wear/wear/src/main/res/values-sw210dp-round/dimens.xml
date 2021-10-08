@@ -24,6 +24,6 @@
     <!-- Most dimens which have corresponding entries in:
         values, values-round, values-sw180dp-notround. -->
     <dimen name="confirmation_overlay_image_size">80dp</dimen>
-    <item name="confirmation_overlay_margin_side" type="fraction">16.901%</item>
+    <item name="confirmation_overlay_text_inset_margin" type="fraction">16.901%</item>
     <item name="confirmation_overlay_margin_above_text" type="fraction">3.756%</item>
 </resources>

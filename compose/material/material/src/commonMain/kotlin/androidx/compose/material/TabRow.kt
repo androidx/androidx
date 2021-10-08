@@ -56,6 +56,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
+ * <a href="https://material.io/components/tabs#fixed-tabs" class="external" target="_blank">Material Design fixed tabs</a>.
+ *
+ * Fixed tabs display all tabs in a set simultaneously. They are best for switching between related
+ * content quickly, such as between transportation methods in a map. To navigate between fixed tabs,
+ * tap an individual tab, or swipe left or right in the content area.
+ *
+ * ![Fixed tabs image](https://developer.android.com/images/reference/androidx/compose/material/fixed-tabs.png)
+ *
  * A TabRow contains a row of [Tab]s, and displays an indicator underneath the currently
  * selected tab. A TabRow places its tabs evenly spaced along the entire row, with each tab
  * taking up an equal amount of space. See [ScrollableTabRow] for a tab row that does not enforce
@@ -161,7 +169,7 @@ fun TabRow(
                 }
 
                 subcompose(TabSlots.Divider, divider).fastForEach {
-                    val placeable = it.measure(constraints)
+                    val placeable = it.measure(constraints.copy(minHeight = 0))
                     placeable.placeRelative(0, tabRowHeight - placeable.height)
                 }
 
@@ -176,6 +184,13 @@ fun TabRow(
 }
 
 /**
+ * <a href="https://material.io/components/tabs#scrollable-tabs" class="external" target="_blank">Material Design scrollable tabs</a>.
+ *
+ * When a set of tabs cannot fit on screen, use scrollable tabs. Scrollable tabs can use longer text
+ * labels and a larger number of tabs. They are best used for browsing on touch interfaces.
+ *
+ * ![Scrollable tabs image](https://developer.android.com/images/reference/androidx/compose/material/scrollable-tabs.png)
+ *
  * A ScrollableTabRow contains a row of [Tab]s, and displays an indicator underneath the currently
  * selected tab. A ScrollableTabRow places its tabs offset from the starting edge, and allows
  * scrolling to tabs that are placed off screen. For a fixed tab row that does not allow
@@ -221,16 +236,15 @@ fun ScrollableTabRow(
     tabs: @Composable () -> Unit
 ) {
     Surface(
-        modifier = modifier.selectableGroup(),
+        modifier = modifier,
         color = backgroundColor,
         contentColor = contentColor
     ) {
         val scrollState = rememberScrollState()
         val coroutineScope = rememberCoroutineScope()
-        val scrollableTabData = remember(scrollState) {
+        val scrollableTabData = remember(scrollState, coroutineScope) {
             ScrollableTabData(
                 scrollState = scrollState,
-                selectedTab = selectedTabIndex,
                 coroutineScope = coroutineScope
             )
         }
@@ -238,6 +252,7 @@ fun ScrollableTabRow(
             Modifier.fillMaxWidth()
                 .wrapContentSize(align = Alignment.CenterStart)
                 .horizontalScroll(scrollState)
+                .selectableGroup()
                 .clipToBounds()
         ) { constraints ->
             val minTabWidth = ScrollableTabRowMinimumTabWidth.roundToPx()
@@ -269,7 +284,11 @@ fun ScrollableTabRow(
                 // of the tab row, and then placed on top of the tabs.
                 subcompose(TabSlots.Divider, divider).fastForEach {
                     val placeable = it.measure(
-                        constraints.copy(minWidth = layoutWidth, maxWidth = layoutWidth)
+                        constraints.copy(
+                            minHeight = 0,
+                            minWidth = layoutWidth,
+                            maxWidth = layoutWidth
+                        )
                     )
                     placeable.placeRelative(0, layoutHeight - placeable.height)
                 }
@@ -384,9 +403,10 @@ object TabRowDefaults {
             value = currentTabPosition
         }
     ) {
-        // TODO: should we animate the width of the indicator as it moves between tabs of different
-        // sizes inside a scrollable tab row?
-        val currentTabWidth = currentTabPosition.width
+        val currentTabWidth by animateDpAsState(
+            targetValue = currentTabPosition.width,
+            animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
+        )
         val indicatorOffset by animateDpAsState(
             targetValue = currentTabPosition.left,
             animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
@@ -429,15 +449,18 @@ private enum class TabSlots {
  */
 private class ScrollableTabData(
     private val scrollState: ScrollState,
-    private var selectedTab: Int,
     private val coroutineScope: CoroutineScope
 ) {
+    private var selectedTab: Int? = null
+
     fun onLaidOut(
         density: Density,
         edgeOffset: Int,
         tabPositions: List<TabPosition>,
         selectedTab: Int
     ) {
+        // Animate if the new tab is different from the old tab, or this is called for the first
+        // time (i.e selectedTab is `null`).
         if (this.selectedTab != selectedTab) {
             this.selectedTab = selectedTab
             tabPositions.getOrNull(selectedTab)?.let {
@@ -465,7 +488,7 @@ private class ScrollableTabData(
         tabPositions: List<TabPosition>
     ): Int = with(density) {
         val totalTabRowWidth = tabPositions.last().right.roundToPx() + edgeOffset
-        val visibleWidth = totalTabRowWidth - scrollState.maxValue.toInt()
+        val visibleWidth = totalTabRowWidth - scrollState.maxValue
         val tabOffset = left.roundToPx()
         val scrollerCenter = visibleWidth / 2
         val tabWidth = width.roundToPx()

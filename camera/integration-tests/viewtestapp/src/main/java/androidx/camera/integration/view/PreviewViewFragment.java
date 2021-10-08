@@ -38,11 +38,9 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.MeteringPoint;
@@ -93,6 +91,10 @@ public class PreviewViewFragment extends Fragment {
     @SuppressWarnings("WeakerAccess")
     Preview mPreview;
 
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    ProcessCameraProvider mCameraProvider;
+
     public PreviewViewFragment() {
         super(R.layout.fragment_preview_view);
     }
@@ -108,12 +110,19 @@ public class PreviewViewFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mPreviewView = view.findViewById(R.id.preview_view);
         mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
-
+        mPreviewView.addOnLayoutChangeListener(
+                (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom)
+                        -> {
+                    if (mCameraProvider != null) {
+                        bindPreview(mCameraProvider);
+                    }
+                });
         mBlurBitmap = new BlurBitmap(requireContext());
         Futures.addCallback(mCameraProviderFuture, new FutureCallback<ProcessCameraProvider>() {
             @Override
             public void onSuccess(@Nullable ProcessCameraProvider cameraProvider) {
                 Preconditions.checkNotNull(cameraProvider);
+                mCameraProvider = cameraProvider;
                 mPreview = new Preview.Builder()
                         .setTargetRotation(view.getDisplay().getRotation())
                         .setTargetName("Preview")
@@ -155,7 +164,8 @@ public class PreviewViewFragment extends Fragment {
         }
     }
 
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
+    @SuppressLint("UnsafeOptInUsageError")
     void setUpTargetRotationButton(@NonNull final ProcessCameraProvider cameraProvider,
             @NonNull final View rootView) {
         Button button = rootView.findViewById(R.id.target_rotation);
@@ -317,8 +327,8 @@ public class PreviewViewFragment extends Fragment {
     }
 
     @SuppressWarnings("WeakerAccess")
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
-    @SuppressLint("UnsafeExperimentalUsageError")
+    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
+    @SuppressLint("UnsafeOptInUsageError")
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
         if (mPreview == null) {
             return;

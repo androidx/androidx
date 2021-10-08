@@ -77,15 +77,13 @@ class TimeOutTest {
     fun InfiniteCase() {
         Box {
             val infiniteCounter = remember { mutableStateOf(0) }
-            Box(
+
+            Text(
+                "Hello ${infiniteCounter.value}",
                 Modifier.onGloballyPositioned {
                     infiniteCounter.value += 1
                 }
-            ) {
-                Text("Hello")
-            }
-
-            Text("Hello ${infiniteCounter.value}")
+            )
         }
     }
 
@@ -143,6 +141,25 @@ class TimeOutTest {
 
         expectError<AppNotIdleException> {
             rule.setContent { }
+        }
+    }
+
+    @Test(timeout = 10_000)
+    fun checkIdlingResource_causesTimeout() {
+        // Block idleness with an IdlingResource
+        rule.registerIdlingResource(
+            object : androidx.compose.ui.test.IdlingResource {
+                override val isIdleNow: Boolean = false
+                override fun getDiagnosticMessageIfBusy(): String {
+                    return "Never IDLE"
+                }
+            }
+        )
+        IdlingPolicies.setIdlingResourceTimeout(300, TimeUnit.MILLISECONDS)
+        expectError<ComposeNotIdleException>(
+            expectedMessage = ".*\\[busy\\] Never IDLE.*\\[idle\\] .*ComposeIdlingResource.*"
+        ) {
+            rule.waitForIdle()
         }
     }
 

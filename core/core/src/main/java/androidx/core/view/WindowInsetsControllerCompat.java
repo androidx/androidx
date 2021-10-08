@@ -468,7 +468,6 @@ public final class WindowInsetsControllerCompat {
             switch (type) {
                 case WindowInsetsCompat.Type.STATUS_BARS:
                     setSystemUiFlag(View.SYSTEM_UI_FLAG_FULLSCREEN);
-                    setWindowFlag(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                     return;
                 case WindowInsetsCompat.Type.NAVIGATION_BARS:
                     setSystemUiFlag(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
@@ -511,6 +510,20 @@ public final class WindowInsetsControllerCompat {
 
         @Override
         void setSystemBarsBehavior(int behavior) {
+            switch (behavior) {
+                case BEHAVIOR_SHOW_BARS_BY_SWIPE:
+                    unsetSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                    setSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE);
+                    break;
+                case BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE:
+                    unsetSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE);
+                    setSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                    break;
+                case BEHAVIOR_SHOW_BARS_BY_TOUCH:
+                    unsetSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                    break;
+            }
         }
 
         @Override
@@ -590,8 +603,11 @@ public final class WindowInsetsControllerCompat {
                 WindowInsetsController.OnControllableInsetsChangedListener>
                 mListeners = new SimpleArrayMap<>();
 
+        protected Window mWindow;
+
         Impl30(@NonNull Window window, @NonNull WindowInsetsControllerCompat compatController) {
             this(window.getInsetsController(), compatController);
+            mWindow = window;
         }
 
         Impl30(@NonNull WindowInsetsController insetsController,
@@ -619,6 +635,10 @@ public final class WindowInsetsControllerCompat {
         @Override
         public void setAppearanceLightStatusBars(boolean isLight) {
             if (isLight) {
+                if (mWindow != null) {
+                    unsetSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                }
+
                 mInsetsController.setSystemBarsAppearance(
                         WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
                         WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
@@ -746,6 +766,13 @@ public final class WindowInsetsControllerCompat {
             if (fwListener != null) {
                 mInsetsController.removeOnControllableInsetsChangedListener(fwListener);
             }
+        }
+
+        protected void unsetSystemUiFlag(int systemUiFlag) {
+            View decorView = mWindow.getDecorView();
+            decorView.setSystemUiVisibility(
+                    decorView.getSystemUiVisibility()
+                            & ~systemUiFlag);
         }
     }
 }

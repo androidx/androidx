@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2019 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2019 The Android Open Source Project
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,8 +16,4 @@ limitations under the License.
 <resources>
     <public name="scaleType" type="attr" />
     <public name="implementationMode" type="attr" />
-    <!-- TODO(b/148791439): remove below when CameraView is deleted. -->
-    <public name="direction" type="attr" />
-    <public name="captureMode" type="attr" />
-    <public name="flash" type="attr" />
 </resources>

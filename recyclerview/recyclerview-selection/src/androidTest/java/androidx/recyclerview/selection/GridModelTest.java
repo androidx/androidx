@@ -32,10 +32,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -66,11 +68,28 @@ public class GridModelTest {
     private Point mSelectionOrigin;
     private Point mSelectionPoint;
 
+    @Before
+    public void setUp() {
+        mModel = null;
+        mHost = null;
+        mLastSelection = new HashSet<>();
+    }
+
     @After
     public void tearDown() {
         mModel = null;
         mHost = null;
         mLastSelection = null;
+    }
+
+    @Test
+    public void testEmptyGridHost() {
+        initData(0, 5);
+        startSelection(new Point(0, 10));
+        // we mostly don't want a crash here.
+        resizeSelection(new Point(1, 11));
+        assertNoSelection();
+        assertEquals(NOT_SET, mModel.getPositionNearestOrigin());
     }
 
     @Test

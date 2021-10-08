@@ -21,9 +21,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.os.Build;
+import android.view.Surface;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,11 +41,11 @@ import java.util.List;
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public final class CameraBurstCaptureCallbackTest {
-
     private CameraCaptureSession mSession;
     private CaptureRequest mRequest0;
     private CaptureRequest mRequest1;
     private TotalCaptureResult mResult;
+    private CaptureFailure mFailure;
 
     @Before
     public void setUp() {
@@ -51,6 +53,7 @@ public final class CameraBurstCaptureCallbackTest {
         mRequest0 = mock(CaptureRequest.class);
         mRequest1 = mock(CaptureRequest.class);
         mResult = mock(TotalCaptureResult.class);
+        mFailure = mock(CaptureFailure.class);
     }
 
     @Test
@@ -109,6 +112,136 @@ public final class CameraBurstCaptureCallbackTest {
 
         verify(captureCallback0, never()).onCaptureCompleted(mSession, mRequest0, mResult);
         verify(captureCallback1, never()).onCaptureCompleted(mSession, mRequest0, mResult);
+    }
+
+    @Test
+    public void addCamera2Callbacks_onCaptureFailedIsCalled() {
+        CameraCaptureSession.CaptureCallback captureCallback0 =
+                mock(CameraCaptureSession.CaptureCallback.class);
+        List<CameraCaptureSession.CaptureCallback> captureCallbacks0 = new ArrayList<>();
+        captureCallbacks0.add(captureCallback0);
+        CameraCaptureSession.CaptureCallback captureCallback1 =
+                mock(CameraCaptureSession.CaptureCallback.class);
+        List<CameraCaptureSession.CaptureCallback> captureCallbacks1 = new ArrayList<>();
+        captureCallbacks1.add(captureCallback1);
+        CameraBurstCaptureCallback burstCaptureCallback = new CameraBurstCaptureCallback();
+        burstCaptureCallback.addCamera2Callbacks(mRequest0, captureCallbacks0);
+        burstCaptureCallback.addCamera2Callbacks(mRequest1, captureCallbacks1);
+
+        burstCaptureCallback.onCaptureFailed(mSession, mRequest0, mFailure);
+
+        verify(captureCallback0).onCaptureFailed(mSession, mRequest0, mFailure);
+        verify(captureCallback1, never()).onCaptureFailed(mSession, mRequest0, mFailure);
+    }
+
+    @Test
+    public void addCamera2Callbacks_onCaptureProgressedIsCalled() {
+        CameraCaptureSession.CaptureCallback captureCallback0 =
+                mock(CameraCaptureSession.CaptureCallback.class);
+        List<CameraCaptureSession.CaptureCallback> captureCallbacks0 = new ArrayList<>();
+        captureCallbacks0.add(captureCallback0);
+        CameraCaptureSession.CaptureCallback captureCallback1 =
+                mock(CameraCaptureSession.CaptureCallback.class);
+        List<CameraCaptureSession.CaptureCallback> captureCallbacks1 = new ArrayList<>();
+        captureCallbacks1.add(captureCallback1);
+        CameraBurstCaptureCallback burstCaptureCallback = new CameraBurstCaptureCallback();
+        burstCaptureCallback.addCamera2Callbacks(mRequest0, captureCallbacks0);
+        burstCaptureCallback.addCamera2Callbacks(mRequest1, captureCallbacks1);
+
+        burstCaptureCallback.onCaptureProgressed(mSession, mRequest0, mResult);
+
+        verify(captureCallback0).onCaptureProgressed(mSession, mRequest0, mResult);
+        verify(captureCallback1, never()).onCaptureProgressed(mSession, mRequest0, mResult);
+    }
+
+    @Test
+    public void addCamera2Callbacks_onCaptureStartedIsCalled() {
+        CameraCaptureSession.CaptureCallback captureCallback0 =
+                mock(CameraCaptureSession.CaptureCallback.class);
+        List<CameraCaptureSession.CaptureCallback> captureCallbacks0 = new ArrayList<>();
+        captureCallbacks0.add(captureCallback0);
+        CameraCaptureSession.CaptureCallback captureCallback1 =
+                mock(CameraCaptureSession.CaptureCallback.class);
+        List<CameraCaptureSession.CaptureCallback> captureCallbacks1 = new ArrayList<>();
+        captureCallbacks1.add(captureCallback1);
+        CameraBurstCaptureCallback burstCaptureCallback = new CameraBurstCaptureCallback();
+        burstCaptureCallback.addCamera2Callbacks(mRequest0, captureCallbacks0);
+        burstCaptureCallback.addCamera2Callbacks(mRequest1, captureCallbacks1);
+
+        long timestamp = 0;
+        long frame = 1;
+        burstCaptureCallback.onCaptureStarted(mSession, mRequest0, timestamp, frame);
+        verify(captureCallback0).onCaptureStarted(mSession, mRequest0, timestamp, frame);
+        verify(captureCallback1, never()).onCaptureStarted(mSession, mRequest0, timestamp, frame);
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.N)
+    @Test
+    public void addCamera2Callbacks_onCaptureBufferLostIsCalled() {
+        CameraCaptureSession.CaptureCallback captureCallback0 =
+                mock(CameraCaptureSession.CaptureCallback.class);
+        List<CameraCaptureSession.CaptureCallback> captureCallbacks0 = new ArrayList<>();
+        captureCallbacks0.add(captureCallback0);
+        CameraCaptureSession.CaptureCallback captureCallback1 =
+                mock(CameraCaptureSession.CaptureCallback.class);
+        List<CameraCaptureSession.CaptureCallback> captureCallbacks1 = new ArrayList<>();
+        captureCallbacks1.add(captureCallback1);
+        CameraBurstCaptureCallback burstCaptureCallback = new CameraBurstCaptureCallback();
+        burstCaptureCallback.addCamera2Callbacks(mRequest0, captureCallbacks0);
+        burstCaptureCallback.addCamera2Callbacks(mRequest1, captureCallbacks1);
+
+        Surface surface = mock(Surface.class);
+        long frame = 1;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            burstCaptureCallback.onCaptureBufferLost(mSession, mRequest0, surface, frame);
+
+            verify(captureCallback0).onCaptureBufferLost(mSession, mRequest0, surface, frame);
+            verify(captureCallback1, never()).onCaptureBufferLost(mSession, mRequest0, surface,
+                    frame);
+        }
+    }
+
+    @Test
+    public void addCamera2Callbacks_onCaptureSequenceCompletedIsCalled() {
+        CameraCaptureSession.CaptureCallback captureCallback0 =
+                mock(CameraCaptureSession.CaptureCallback.class);
+        List<CameraCaptureSession.CaptureCallback> captureCallbacks0 = new ArrayList<>();
+        captureCallbacks0.add(captureCallback0);
+        CameraCaptureSession.CaptureCallback captureCallback1 =
+                mock(CameraCaptureSession.CaptureCallback.class);
+        List<CameraCaptureSession.CaptureCallback> captureCallbacks1 = new ArrayList<>();
+        captureCallbacks1.add(captureCallback1);
+        CameraBurstCaptureCallback burstCaptureCallback = new CameraBurstCaptureCallback();
+        burstCaptureCallback.addCamera2Callbacks(mRequest0, captureCallbacks0);
+        burstCaptureCallback.addCamera2Callbacks(mRequest1, captureCallbacks1);
+
+        int sequenceId = 1;
+        long frame = 1;
+        burstCaptureCallback.onCaptureSequenceCompleted(mSession, sequenceId, frame);
+        verify(captureCallback0).onCaptureSequenceCompleted(mSession, sequenceId, frame);
+        // onCaptureSequenceCompleted is called regardless of request.
+        verify(captureCallback1).onCaptureSequenceCompleted(mSession, sequenceId, frame);
+    }
+
+    @Test
+    public void addCamera2Callbacks_onCaptureSequenceAbortIsCalled() {
+        CameraCaptureSession.CaptureCallback captureCallback0 =
+                mock(CameraCaptureSession.CaptureCallback.class);
+        List<CameraCaptureSession.CaptureCallback> captureCallbacks0 = new ArrayList<>();
+        captureCallbacks0.add(captureCallback0);
+        CameraCaptureSession.CaptureCallback captureCallback1 =
+                mock(CameraCaptureSession.CaptureCallback.class);
+        List<CameraCaptureSession.CaptureCallback> captureCallbacks1 = new ArrayList<>();
+        captureCallbacks1.add(captureCallback1);
+        CameraBurstCaptureCallback burstCaptureCallback = new CameraBurstCaptureCallback();
+        burstCaptureCallback.addCamera2Callbacks(mRequest0, captureCallbacks0);
+        burstCaptureCallback.addCamera2Callbacks(mRequest1, captureCallbacks1);
+
+        int sequenceId = 1;
+        burstCaptureCallback.onCaptureSequenceAborted(mSession, sequenceId);
+        verify(captureCallback0).onCaptureSequenceAborted(mSession, sequenceId);
+        // onCaptureSequenceCompleted is called regardless of request.
+        verify(captureCallback1).onCaptureSequenceAborted(mSession, sequenceId);
     }
 
     @Test

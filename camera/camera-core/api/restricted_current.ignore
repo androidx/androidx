@@ -1,3 +1,9 @@
 // Baseline format: 1.0
-RemovedMethod: androidx.camera.core.DisplayOrientedMeteringPointFactory#DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraSelector, float, float):
-    Removed constructor androidx.camera.core.DisplayOrientedMeteringPointFactory(android.view.Display,androidx.camera.core.CameraSelector,float,float)
+AddedAbstractMethod: androidx.camera.core.CameraControl#setExposureCompensationIndex(int):
+    Added method androidx.camera.core.CameraControl.setExposureCompensationIndex(int)
+AddedAbstractMethod: androidx.camera.core.CameraInfo#getCameraSelector():
+    Added method androidx.camera.core.CameraInfo.getCameraSelector()
+AddedAbstractMethod: androidx.camera.core.CameraInfo#getCameraState():
+    Added method androidx.camera.core.CameraInfo.getCameraState()
+AddedAbstractMethod: androidx.camera.core.CameraInfo#getExposureState():
+    Added method androidx.camera.core.CameraInfo.getExposureState()

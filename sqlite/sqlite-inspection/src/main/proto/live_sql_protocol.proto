@@ -58,6 +58,12 @@ message QueryCommand {
   // query_parameters, in the order that they appear in the query. Values will
   // be bound as Strings.
   repeated QueryParameterValue query_parameter_values = 3;
+  // Approximate response size limit in bytes.
+  // Best effort:
+  // - can deviate from the value up to 40% due to encoding overheads
+  // - in some cases can deviate by an extra ~2MB (max size of one row in Android SQLite)
+  // When unset, or set to <= `0`, it is considered unbounded.
+  int64 response_size_limit_hint = 4;
 }
 
 // Value of a parameter in QueryCommand. Currently only string and null values

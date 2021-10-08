@@ -19,7 +19,7 @@
 
     <application>
         <!-- Dummy main activity to provide a "android.app.shortcuts" meta-data entry -->
-        <activity android:name="android.app.Activity">
+        <activity android:name="android.app.Activity" android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

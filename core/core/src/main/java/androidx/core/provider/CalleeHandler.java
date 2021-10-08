@@ -20,9 +20,17 @@ package androidx.core.provider;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
+
 class CalleeHandler {
     private CalleeHandler() { }
 
+    /**
+     * Utility function to create a handler for a callee, when no Handler is provided.
+     * If the current Thread has a Looper defined uses the current Thread
+     * looper. Otherwise uses main Looper for the as the Handler.
+     */
+    @NonNull
     static Handler create() {
         final Handler handler;
         if (Looper.myLooper() == null) {

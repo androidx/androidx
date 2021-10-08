@@ -19,18 +19,21 @@
 package androidx.hilt.integration.viewmodelapp
 
 import android.app.Application
-import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 class MyAndroidViewModel(app: Application) : AndroidViewModel(app)
 
 class MyViewModel() : ViewModel()
 
 @Suppress("UNUSED_PARAMETER")
-class MyInjectedViewModel @ViewModelInject constructor(foo: Foo) : ViewModel()
+@HiltViewModel
+class MyInjectedViewModel @Inject constructor(foo: Foo) : ViewModel()
 
 object TopClass {
     @Suppress("UNUSED_PARAMETER")
-    class MyNestedInjectedViewModel @ViewModelInject constructor(foo: Foo) : ViewModel()
+    @HiltViewModel
+    class MyNestedInjectedViewModel @Inject constructor(foo: Foo) : ViewModel()
 }

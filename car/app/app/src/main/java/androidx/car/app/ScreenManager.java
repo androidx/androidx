@@ -28,6 +28,7 @@ import android.util.Log;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.managers.Manager;
 import androidx.car.app.model.TemplateInfo;
 import androidx.car.app.model.TemplateWrapper;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -46,7 +47,7 @@ import java.util.List;
  * Manages the stack of {@link Screen}s and their respective {@link Lifecycle}s.
  */
 @MainThread
-public class ScreenManager {
+public class ScreenManager implements Manager {
     private final Deque<Screen> mScreenStack = new ArrayDeque<>();
     private final CarContext mCarContext;
     private final Lifecycle mAppLifecycle;
@@ -196,6 +197,13 @@ public class ScreenManager {
         // Not in stack;
     }
 
+    /**
+     * Returns the current stack size.
+     */
+    public int getStackSize() {
+        return mScreenStack.size();
+    }
+
     /** Creates an instance of {@link ScreenManager}. */
     static ScreenManager create(CarContext carContext, Lifecycle lifecycle) {
         return new ScreenManager(carContext, lifecycle);
@@ -207,7 +215,9 @@ public class ScreenManager {
         checkMainThread();
 
         Screen screen = getTop();
-        Log.d(TAG, "Requesting template from Screen " + screen);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Requesting template from Screen " + screen);
+        }
 
         TemplateWrapper templateWrapper = screen.getTemplateWrapper();
 
@@ -239,16 +249,23 @@ public class ScreenManager {
     }
 
     private void pushInternal(Screen screen) {
-        Log.d(TAG, "Pushing screen " + screen + " to the top of the screen stack");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Pushing screen " + screen + " to the top of the screen stack");
+        }
 
         if (mScreenStack.contains(screen)) {
-            moveToTop(screen, false);
+            moveToTop(screen);
             return;
         }
 
         Screen top = mScreenStack.peek();
 
         pushAndStart(screen, true);
+
+        if (!mScreenStack.contains(screen)) {
+            // The screen being pushed was finished during it's set up
+            return;
+        }
 
         if (top != null) {
             stop(top, false);
@@ -277,11 +294,15 @@ public class ScreenManager {
 
         // Stop and destroy all screens popped.
         for (Screen screen : poppedScreens) {
-            Log.d(TAG, "Popping screen " + screen + " off the screen stack");
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Popping screen " + screen + " off the screen stack");
+            }
             stop(screen, true);
         }
 
-        Log.d(TAG, "Screen " + newTop + " is at the top of the screen stack");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Screen " + newTop + " is at the top of the screen stack");
+        }
         if (mAppLifecycle.getCurrentState().isAtLeast(State.RESUMED)) {
             if (mScreenStack.contains(newTop)) {
                 // During the Screen teardown it can send the result to any screen that called
@@ -296,6 +317,11 @@ public class ScreenManager {
         mScreenStack.push(screen);
         if (shouldCreate && mAppLifecycle.getCurrentState().isAtLeast(State.CREATED)) {
             screen.dispatchLifecycleEvent(Event.ON_CREATE);
+        }
+
+        if (!screen.getLifecycle().getCurrentState().isAtLeast(State.CREATED)) {
+            // The screen was finished in it's onCreate
+            return;
         }
 
         if (mAppLifecycle.getCurrentState().isAtLeast(State.STARTED)) {
@@ -320,21 +346,17 @@ public class ScreenManager {
         }
     }
 
-    private void moveToTop(Screen screen, boolean removeCurrentTop) {
+    private void moveToTop(Screen screen) {
         Screen top = mScreenStack.peek();
         if (top == null || top == screen) {
             return;
-        }
-
-        if (removeCurrentTop) {
-            mScreenStack.pop();
         }
 
         // Moving screen to top of stack, remove from where it's currently at.
         mScreenStack.remove(screen);
 
         pushAndStart(screen, false);
-        stop(top, removeCurrentTop);
+        stop(top, false);
 
         if (mAppLifecycle.getCurrentState().isAtLeast(State.RESUMED)) {
             screen.dispatchLifecycleEvent(Event.ON_RESUME);
@@ -398,6 +420,7 @@ public class ScreenManager {
         @Override
         public void onDestroy(@NonNull LifecycleOwner lifecycleOwner) {
             destroyAndClearScreenStack();
+            lifecycleOwner.getLifecycle().removeObserver(this);
         }
     }
 }

@@ -26,7 +26,7 @@ import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 
 /**
  * Monitor installation progress of dynamic feature modules.
- * This class enables you to subscribe to the current installation state via [.getStatus].
+ * This class enables you to subscribe to the current installation state via [getStatus].
  * You also can perform various checks on installation state directly through this monitor.
  *
  * In order to enable installation and monitoring of progress you'll have to provide an instance

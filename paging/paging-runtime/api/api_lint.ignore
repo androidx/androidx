@@ -1,0 +1,23 @@
+// Baseline format: 1.0
+ExecutorRegistration: androidx.paging.AsyncPagingDataDiffer#AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>, androidx.recyclerview.widget.ListUpdateCallback):
+    Registration methods should have overload that accepts delivery Executor: `AsyncPagingDataDiffer`
+
+
+MissingGetterMatchingBuilder: androidx.paging.LivePagedListBuilder#setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>):
+    androidx.lifecycle.LiveData does not declare a `getBoundaryCallback()` method matching method androidx.paging.LivePagedListBuilder.setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>)
+MissingGetterMatchingBuilder: androidx.paging.LivePagedListBuilder#setCoroutineScope(kotlinx.coroutines.CoroutineScope):
+    androidx.lifecycle.LiveData does not declare a `getCoroutineScope()` method matching method androidx.paging.LivePagedListBuilder.setCoroutineScope(kotlinx.coroutines.CoroutineScope)
+MissingGetterMatchingBuilder: androidx.paging.LivePagedListBuilder#setFetchExecutor(java.util.concurrent.Executor):
+    androidx.lifecycle.LiveData does not declare a `getFetchExecutor()` method matching method androidx.paging.LivePagedListBuilder.setFetchExecutor(java.util.concurrent.Executor)
+MissingGetterMatchingBuilder: androidx.paging.LivePagedListBuilder#setInitialLoadKey(Key):
+    androidx.lifecycle.LiveData does not declare a `getInitialLoadKey()` method matching method androidx.paging.LivePagedListBuilder.setInitialLoadKey(Key)
+
+
+NullableCollection: androidx.paging.AsyncPagedListDiffer#getCurrentList():
+    Return type of method androidx.paging.AsyncPagedListDiffer.getCurrentList() is a nullable collection (`androidx.paging.PagedList`); must be non-null
+NullableCollection: androidx.paging.AsyncPagedListDiffer.PagedListListener#onCurrentListChanged(androidx.paging.PagedList<T>, androidx.paging.PagedList<T>) parameter #0:
+    Type of parameter previousList in androidx.paging.AsyncPagedListDiffer.PagedListListener.onCurrentListChanged(androidx.paging.PagedList<T> previousList, androidx.paging.PagedList<T> currentList) is a nullable collection (`androidx.paging.PagedList`); must be non-null
+NullableCollection: androidx.paging.AsyncPagedListDiffer.PagedListListener#onCurrentListChanged(androidx.paging.PagedList<T>, androidx.paging.PagedList<T>) parameter #1:
+    Type of parameter currentList in androidx.paging.AsyncPagedListDiffer.PagedListListener.onCurrentListChanged(androidx.paging.PagedList<T> previousList, androidx.paging.PagedList<T> currentList) is a nullable collection (`androidx.paging.PagedList`); must be non-null
+NullableCollection: androidx.paging.PagedListAdapter#getCurrentList():
+    Return type of method androidx.paging.PagedListAdapter.getCurrentList() is a nullable collection (`androidx.paging.PagedList`); must be non-null

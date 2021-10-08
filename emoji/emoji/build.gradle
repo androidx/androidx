@@ -1,0 +1,76 @@
+import androidx.build.BundleInsideHelper
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("com.github.johnrengelman.shadow")
+}
+
+ext {
+    fontDir = project(":noto-emoji-compat-font").projectDir
+}
+
+BundleInsideHelper.forInsideAar(
+    project,
+    /* from = */ "com.google.flatbuffers",
+    /* to =   */ "androidx.text.emoji.flatbuffer"
+)
+
+dependencies {
+    bundleInside(project(":noto-emoji-compat-flatbuffers"))
+
+    api("androidx.core:core:1.3.0-rc01")
+    implementation("androidx.collection:collection:1.1.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(project(":internal-testutils-runtime"))
+}
+
+android {
+    sourceSets {
+        main {
+            // We use a non-standard manifest path.
+            manifest.srcFile "AndroidManifest.xml"
+            res.srcDirs += "src/main/res-public"
+            resources {
+                srcDirs += [fontDir.getAbsolutePath()]
+                includes += ["LICENSE_UNICODE", "LICENSE_OFL"]
+            }
+        }
+
+        androidTest {
+            assets {
+                srcDirs = [new File(fontDir, "font").getAbsolutePath(),
+                           new File(fontDir, "supported-emojis").getAbsolutePath()]
+            }
+        }
+    }
+}
+
+androidx {
+    name = "Android Emoji Compat"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenVersion = LibraryVersions.EMOJI
+    mavenGroup = LibraryGroups.EMOJI
+    inceptionYear = "2017"
+    description = "Core library to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."
+
+    license {
+        name = "SIL Open Font License, Version 1.1"
+        url = "https://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web"
+    }
+
+    license {
+        name = "Unicode, Inc. License"
+        url = "https://www.unicode.org/license.html"
+    }
+}

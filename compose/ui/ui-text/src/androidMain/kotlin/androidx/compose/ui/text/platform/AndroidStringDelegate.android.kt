@@ -25,16 +25,20 @@ import androidx.compose.ui.text.intl.PlatformLocale
  */
 internal class AndroidStringDelegate : PlatformStringDelegate {
     override fun toUpperCase(string: String, locale: PlatformLocale): String =
-        string.toUpperCase((locale as AndroidLocale).javaLocale)
+        string.uppercase((locale as AndroidLocale).javaLocale)
 
     override fun toLowerCase(string: String, locale: PlatformLocale): String =
-        string.toLowerCase((locale as AndroidLocale).javaLocale)
+        string.lowercase((locale as AndroidLocale).javaLocale)
 
     override fun capitalize(string: String, locale: PlatformLocale): String =
-        string.capitalize((locale as AndroidLocale).javaLocale)
+        string.replaceFirstChar {
+            if (it.isLowerCase())
+                it.titlecase((locale as AndroidLocale).javaLocale)
+            else it.toString()
+        }
 
     override fun decapitalize(string: String, locale: PlatformLocale): String =
-        string.decapitalize((locale as AndroidLocale).javaLocale)
+        string.replaceFirstChar { it.lowercase((locale as AndroidLocale).javaLocale) }
 }
 
 internal actual fun ActualStringDelegate(): PlatformStringDelegate =

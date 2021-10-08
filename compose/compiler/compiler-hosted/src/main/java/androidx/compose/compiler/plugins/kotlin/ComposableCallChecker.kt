@@ -31,7 +31,6 @@ import org.jetbrains.kotlin.descriptors.impl.LocalVariableDescriptor
 import org.jetbrains.kotlin.extensions.StorageComponentContainerContributor
 import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.platform.TargetPlatform
-import org.jetbrains.kotlin.platform.jvm.isJvm
 import org.jetbrains.kotlin.psi.KtAnnotatedExpression
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtCallableReferenceExpression
@@ -65,6 +64,7 @@ import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.lowerIfFlexible
 import org.jetbrains.kotlin.types.typeUtil.builtIns
+import org.jetbrains.kotlin.types.typeUtil.isAnyOrNullableAny
 import org.jetbrains.kotlin.types.upperIfFlexible
 import org.jetbrains.kotlin.util.OperatorNameConventions
 
@@ -77,7 +77,6 @@ open class ComposableCallChecker :
         platform: TargetPlatform,
         moduleDescriptor: ModuleDescriptor
     ) {
-        if (!platform.isJvm()) return
         container.useInstance(this)
     }
 
@@ -332,6 +331,7 @@ open class ComposableCallChecker :
         val expectedType = c.expectedType
         if (expectedType === TypeUtils.NO_EXPECTED_TYPE) return
         if (expectedType === TypeUtils.UNIT_EXPECTED_TYPE) return
+        if (expectedType.isAnyOrNullableAny()) return
         val expectedComposable = expectedType.hasComposableAnnotation()
         if (expression is KtLambdaExpression) {
             val descriptor = bindingContext[BindingContext.FUNCTION, expression.functionLiteral]

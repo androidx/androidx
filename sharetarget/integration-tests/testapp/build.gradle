@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
 }
 
 dependencies {
-    api("androidx.core:core:1.3.2")
+    api("androidx.core:core:1.6.0")
     api(project(":sharetarget:sharetarget"))
-    api("androidx.appcompat:appcompat:1.2.0")
-    api(CONSTRAINT_LAYOUT, { transitive = true })
+    api("androidx.appcompat:appcompat:1.3.1")
+    api(libs.constraintLayout)
 }

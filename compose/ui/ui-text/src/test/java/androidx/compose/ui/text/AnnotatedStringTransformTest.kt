@@ -18,7 +18,7 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.sp
-import org.junit.Assert.assertEquals
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -68,7 +68,7 @@ class AnnotatedStringTransformTest {
 
         val uppercase = input.toUpperCase()
 
-        assertEquals(input.text.toUpperCase(), uppercase.text)
+        assertThat(uppercase.text).isEqualTo(input.text.uppercase())
     }
 
     @Test
@@ -80,7 +80,7 @@ class AnnotatedStringTransformTest {
 
         val uppercase = input.toUpperCase()
 
-        assertEquals(input.text.toUpperCase(), uppercase.text)
+        assertThat(uppercase.text).isEqualTo(input.text.uppercase())
     }
 
     @Test
@@ -100,9 +100,9 @@ class AnnotatedStringTransformTest {
 
         val uppercase = input.toUpperCase()
 
-        assertEquals(input.text.toUpperCase(), uppercase.text)
-        assertEquals(input.spanStyles, uppercase.spanStyles)
-        assertEquals(input.paragraphStyles, uppercase.paragraphStyles)
+        assertThat(uppercase.text).isEqualTo(input.text.uppercase())
+        assertThat(uppercase.spanStyles).isEqualTo(input.spanStyles)
+        assertThat(uppercase.paragraphStyles).isEqualTo(input.paragraphStyles)
     }
 
     @Test
@@ -122,9 +122,9 @@ class AnnotatedStringTransformTest {
 
         val lowercase = input.toLowerCase()
 
-        assertEquals(input.text.toLowerCase(), lowercase.text)
-        assertEquals(input.spanStyles, lowercase.spanStyles)
-        assertEquals(input.paragraphStyles, lowercase.paragraphStyles)
+        assertThat(lowercase.text).isEqualTo(input.text.lowercase())
+        assertThat(lowercase.spanStyles).isEqualTo(input.spanStyles)
+        assertThat(lowercase.paragraphStyles).isEqualTo(input.paragraphStyles)
     }
 
     @Test
@@ -144,9 +144,15 @@ class AnnotatedStringTransformTest {
 
         val capitalized = input.capitalize()
 
-        assertEquals(input.text.capitalize(), capitalized.text)
-        assertEquals(input.spanStyles, capitalized.spanStyles)
-        assertEquals(input.paragraphStyles, capitalized.paragraphStyles)
+        assertThat(capitalized.text).isEqualTo(
+            input.text.replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(
+                    Locale.getDefault()
+                ) else it.toString()
+            }
+        )
+        assertThat(capitalized.spanStyles).isEqualTo(input.spanStyles)
+        assertThat(capitalized.paragraphStyles).isEqualTo(input.paragraphStyles)
     }
 
     @Test
@@ -166,9 +172,11 @@ class AnnotatedStringTransformTest {
 
         val decapitalized = input.decapitalize()
 
-        assertEquals(input.text.decapitalize(), decapitalized.text)
-        assertEquals(input.spanStyles, decapitalized.spanStyles)
-        assertEquals(input.paragraphStyles, decapitalized.paragraphStyles)
+        assertThat(decapitalized.text).isEqualTo(
+            input.text.replaceFirstChar { it.lowercase(Locale.getDefault()) }
+        )
+        assertThat(decapitalized.spanStyles).isEqualTo(input.spanStyles)
+        assertThat(decapitalized.paragraphStyles).isEqualTo(input.paragraphStyles)
     }
 
     @Test
@@ -185,12 +193,17 @@ class AnnotatedStringTransformTest {
                 makeRange(paraStyle2, "iii hhh (jjj)")
             )
         )
-
         val capitalized = input.capitalize(LocaleList("tr"))
 
-        assertEquals(input.text.capitalize(Locale.forLanguageTag("tr")), capitalized.text)
-        assertEquals(input.spanStyles, capitalized.spanStyles)
-        assertEquals(input.paragraphStyles, capitalized.paragraphStyles)
+        assertThat(capitalized.text).isEqualTo(
+            input.text.replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(
+                    Locale.forLanguageTag("tr")
+                ) else it.toString()
+            }
+        )
+        assertThat(capitalized.spanStyles).isEqualTo(input.spanStyles)
+        assertThat(capitalized.paragraphStyles).isEqualTo(input.paragraphStyles)
     }
 
     @Test
@@ -210,9 +223,11 @@ class AnnotatedStringTransformTest {
 
         val decapitalized = input.decapitalize(LocaleList("tr"))
 
-        assertEquals(input.text.decapitalize(Locale.forLanguageTag("tr")), decapitalized.text)
-        assertEquals(input.spanStyles, decapitalized.spanStyles)
-        assertEquals(input.paragraphStyles, decapitalized.paragraphStyles)
+        assertThat(decapitalized.text).isEqualTo(
+            input.text.replaceFirstChar { it.lowercase(Locale.forLanguageTag("tr")) }
+        )
+        assertThat(decapitalized.spanStyles).isEqualTo(input.spanStyles)
+        assertThat(decapitalized.paragraphStyles).isEqualTo(input.paragraphStyles)
     }
 
     @Test
@@ -232,24 +247,22 @@ class AnnotatedStringTransformTest {
 
         val uppercase = input.toUpperCase(LocaleList("tr"))
 
-        assertEquals(input.text.toUpperCase(Locale.forLanguageTag("tr")), uppercase.text)
+        assertThat(uppercase.text).isEqualTo(input.text.uppercase(Locale.forLanguageTag("tr")))
 
-        val upperI = "i".toUpperCase(Locale.forLanguageTag("tr"))
+        val upperI = "i".uppercase(Locale.forLanguageTag("tr"))
 
-        assertEquals(
+        assertThat(uppercase.spanStyles).isEqualTo(
             listOf(
                 makeRange(spanStyle1, "(HHH $upperI$upperI$upperI JJJ)"),
                 makeRange(spanStyle2, "(HHH )$upperI$upperI$upperI JJJ"),
                 makeRange(spanStyle3, "HHH ($upperI$upperI$upperI JJJ)")
-            ),
-            uppercase.spanStyles
+            )
         )
-        assertEquals(
+        assertThat(uppercase.paragraphStyles).isEqualTo(
             listOf(
                 makeRange(paraStyle1, "(HHH $upperI$upperI$upperI )JJJ"),
                 makeRange(paraStyle2, "HHH $upperI$upperI$upperI (JJJ)")
-            ),
-            uppercase.paragraphStyles
+            )
         )
     }
 
@@ -270,24 +283,24 @@ class AnnotatedStringTransformTest {
 
         val lowercase = input.toLowerCase(LocaleList("lt"))
 
-        assertEquals(input.text.toLowerCase(Locale.forLanguageTag("lt")), lowercase.text)
+        assertThat(lowercase.text).isEqualTo(
+            input.text.lowercase(Locale.forLanguageTag("lt"))
+        )
 
         // Usually generate U+0069 U+0307 U+0300
-        val lowerIDot = "Ì".toLowerCase(Locale.forLanguageTag("lt"))
-        assertEquals(
+        val lowerIDot = "Ì".lowercase(Locale.forLanguageTag("lt"))
+        assertThat(lowercase.spanStyles).isEqualTo(
             listOf(
                 makeRange(spanStyle1, "(hhh $lowerIDot$lowerIDot$lowerIDot yyy)"),
                 makeRange(spanStyle2, "(hhh )$lowerIDot$lowerIDot$lowerIDot yyy"),
                 makeRange(spanStyle3, "hhh ($lowerIDot$lowerIDot$lowerIDot yyy)")
-            ),
-            lowercase.spanStyles
+            )
         )
-        assertEquals(
+        assertThat(lowercase.paragraphStyles).isEqualTo(
             listOf(
                 makeRange(paraStyle1, "(hhh $lowerIDot$lowerIDot$lowerIDot )yyy"),
                 makeRange(paraStyle2, "hhh $lowerIDot$lowerIDot$lowerIDot (yyy)")
-            ),
-            lowercase.paragraphStyles
+            )
         )
     }
 
@@ -309,8 +322,8 @@ class AnnotatedStringTransformTest {
         val uppercase = input.toUpperCase()
 
         // No upper case concept in Japanese, so should be the same
-        assertEquals(input.text, uppercase.text)
-        assertEquals(input.spanStyles, uppercase.spanStyles)
-        assertEquals(input.paragraphStyles, uppercase.paragraphStyles)
+        assertThat(uppercase.text).isEqualTo(input.text)
+        assertThat(uppercase.spanStyles).isEqualTo(input.spanStyles)
+        assertThat(uppercase.paragraphStyles).isEqualTo(input.paragraphStyles)
     }
 }

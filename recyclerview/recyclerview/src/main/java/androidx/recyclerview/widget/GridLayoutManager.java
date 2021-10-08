@@ -1073,7 +1073,7 @@ public class GridLayoutManager extends LinearLayoutManager {
     }
 
     @Override
-    public View onFocusSearchFailed(View focused, int focusDirection,
+    public View onFocusSearchFailed(View focused, int direction,
             RecyclerView.Recycler recycler, RecyclerView.State state) {
         View prevFocusedChild = findContainingItemView(focused);
         if (prevFocusedChild == null) {
@@ -1082,13 +1082,13 @@ public class GridLayoutManager extends LinearLayoutManager {
         LayoutParams lp = (LayoutParams) prevFocusedChild.getLayoutParams();
         final int prevSpanStart = lp.mSpanIndex;
         final int prevSpanEnd = lp.mSpanIndex + lp.mSpanSize;
-        View view = super.onFocusSearchFailed(focused, focusDirection, recycler, state);
+        View view = super.onFocusSearchFailed(focused, direction, recycler, state);
         if (view == null) {
             return null;
         }
         // LinearLayoutManager finds the last child. What we want is the child which has the same
         // spanIndex.
-        final int layoutDir = convertFocusDirectionToLayoutDirection(focusDirection);
+        final int layoutDir = convertFocusDirectionToLayoutDirection(direction);
         final boolean ascend = (layoutDir == LayoutState.LAYOUT_END) != mShouldReverseLayout;
         final int start, inc, limit;
         if (ascend) {

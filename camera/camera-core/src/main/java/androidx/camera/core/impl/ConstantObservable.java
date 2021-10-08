@@ -18,6 +18,7 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -29,6 +30,7 @@ import java.util.concurrent.Executor;
  * An {@link Observable} whose value is set at construction time and never changes.
  * @param <T> The observed type.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ConstantObservable<T> implements Observable<T> {
     private static final ConstantObservable<Object> NULL_OBSERVABLE =
             new ConstantObservable<>(null);
@@ -62,7 +64,7 @@ public final class ConstantObservable<T> implements Observable<T> {
     }
 
     @Override
-    public void addObserver(@NonNull Executor executor, @NonNull Observable.Observer<T> observer) {
+    public void addObserver(@NonNull Executor executor, @NonNull Observer<? super T> observer) {
         // Since the Observable has a constant value, we only will have a one-shot call to the
         // observer, so we don't need to store the observer.
         // ImmediateFuture does not actually store listeners since it is already complete, so it
@@ -79,7 +81,7 @@ public final class ConstantObservable<T> implements Observable<T> {
     }
 
     @Override
-    public void removeObserver(@NonNull Observable.Observer<T> observer) {
+    public void removeObserver(@NonNull Observer<? super T> observer) {
         // no-op. addObserver() does not need to store observers.
     }
 }

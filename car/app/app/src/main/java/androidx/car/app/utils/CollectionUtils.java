@@ -42,21 +42,23 @@ public final class CollectionUtils {
     }
 
     /**
-     * Returns a copy of the input {@link Map} if it is not {@code null}, or {@code null} if the
-     * input {@link Map} is {@code null}.
+     * Returns a copy of the input {@link Map} if it is not {@code null}, or a
+     * {@link Collections#emptyMap} otherwise.
      */
-    @Nullable
+    @NonNull
     public static <K, V> Map<K, V> unmodifiableCopy(@Nullable Map<K, V> map) {
-        return map == null ? null : Collections.unmodifiableMap(new HashMap<>(map));
+        return map == null ? Collections.emptyMap() : Collections.unmodifiableMap(
+                new HashMap<>(map));
     }
 
     /**
-     * Returns a copy of the input {@link List} if it is not {@code null}, or {@code null} if the
-     * input {@link List} is {@code null}.
+     * Returns a copy of the input {@link List} if it is not {@code null}, or a
+     * {@link Collections#emptyList()} otherwise.
      */
-    @Nullable
+    @NonNull
     public static <T> List<T> unmodifiableCopy(@Nullable List<T> list) {
-        return list == null ? null : Collections.unmodifiableList(new ArrayList<>(list));
+        return list == null ? Collections.emptyList() : Collections.unmodifiableList(
+                new ArrayList<>(list));
     }
 
     private CollectionUtils() {

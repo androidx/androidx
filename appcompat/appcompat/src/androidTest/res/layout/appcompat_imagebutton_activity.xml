@@ -96,6 +96,11 @@
             android:layout_height="wrap_content"
             android:focusable="false"/>
 
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/view_without_level"
+            android:layout_width="30dp"
+            android:layout_height="30dp" />
+
     </LinearLayout>
 
 </ScrollView>

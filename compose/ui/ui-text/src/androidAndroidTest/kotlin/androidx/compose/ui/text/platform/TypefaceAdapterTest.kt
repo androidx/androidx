@@ -35,6 +35,7 @@ import androidx.compose.ui.text.FontTestData.Companion.FONT_800_ITALIC
 import androidx.compose.ui.text.FontTestData.Companion.FONT_800_REGULAR
 import androidx.compose.ui.text.FontTestData.Companion.FONT_900_ITALIC
 import androidx.compose.ui.text.FontTestData.Companion.FONT_900_REGULAR
+import androidx.compose.ui.text.FontTestData.Companion.FONT_INVALID
 import androidx.compose.ui.text.TestFontResourceLoader
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -45,7 +46,6 @@ import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.matchers.assertThat
-import androidx.compose.ui.text.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -318,7 +318,7 @@ class TypefaceAdapterTest {
         val fontFamily = FontFamily(FONT_200_ITALIC) as FontListFontFamily
 
         val fontMatcher = mock<FontMatcher>()
-        whenever(fontMatcher.matchFont(any(), any(), any()))
+        whenever(fontMatcher.matchFont(any(), any(), anyFontStyle()))
             .thenReturn(FONT_200_ITALIC)
 
         TypefaceAdapter(fontMatcher = fontMatcher, resourceLoader = resourceLoader).create(
@@ -330,7 +330,7 @@ class TypefaceAdapterTest {
         verify(fontMatcher, times(1)).matchFont(
             eq(fontFamily),
             eq(fontWeight),
-            eq(fontStyle)
+            eqFontStyle(fontStyle)
         )
     }
 
@@ -403,7 +403,7 @@ class TypefaceAdapterTest {
 
     @Test(expected = IllegalStateException::class)
     fun throwsExceptionIfFontIsNotReadable() {
-        val fontFamily = FontFamily(Font(R.font.invalid_font))
+        val fontFamily = FontFamily(FONT_INVALID)
         TypefaceAdapter().create(fontFamily)
     }
 

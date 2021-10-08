@@ -23,6 +23,8 @@
 
 package androidx.compose.integration.docs.resources
 
+import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
+import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -35,10 +37,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.animatedVectorResource
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -129,7 +129,7 @@ private fun ResourcesSnippet6() {
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalAnimationGraphicsApi::class)
 @Composable
 private fun ResourcesSnippet7() {
     // Files in res/drawable folders. For example:
@@ -149,6 +149,7 @@ private fun ResourcesSnippet8() {
     Icon(Icons.Rounded.Menu, contentDescription = "Localized description")
 }
 
+@Suppress("UnnecessaryLambdaCreation")
 private object ResourcesSnippet9 {
     // Define and load the fonts of the app
     private val light = Font(R.font.raleway_light, FontWeight.W300)

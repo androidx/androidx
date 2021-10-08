@@ -19,14 +19,12 @@ package androidx.compose.ui.input
 import android.view.KeyEvent
 import android.view.inputmethod.CorrectionInfo
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.BackspaceCommand
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
 import androidx.compose.ui.text.input.DeleteSurroundingTextInCodePointsCommand
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.FinishComposingTextCommand
-import androidx.compose.ui.text.input.InputEventCallback
-import androidx.compose.ui.text.input.MoveCursorCommand
+import androidx.compose.ui.text.input.InputEventCallback2
 import androidx.compose.ui.text.input.RecordingInputConnection
 import androidx.compose.ui.text.input.SetComposingRegionCommand
 import androidx.compose.ui.text.input.SetComposingTextCommand
@@ -34,14 +32,13 @@ import androidx.compose.ui.text.input.SetSelectionCommand
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -52,7 +49,7 @@ import org.junit.runner.RunWith
 class RecordingInputConnectionTest {
 
     private lateinit var ic: RecordingInputConnection
-    private lateinit var mCallback: InputEventCallback
+    private lateinit var mCallback: InputEventCallback2
 
     @Before
     fun setup() {
@@ -66,8 +63,8 @@ class RecordingInputConnectionTest {
 
     @Test
     fun getTextBeforeAndAfterCursorTest() {
-        assertEquals("", ic.getTextBeforeCursor(100, 0))
-        assertEquals("", ic.getTextAfterCursor(100, 0))
+        assertThat(ic.getTextBeforeCursor(100, 0)).isEqualTo("")
+        assertThat(ic.getTextAfterCursor(100, 0)).isEqualTo("")
 
         // Set "Hello, World", and place the cursor at the beginning of the text.
         ic.mTextFieldValue = TextFieldValue(
@@ -75,8 +72,8 @@ class RecordingInputConnectionTest {
             selection = TextRange.Zero
         )
 
-        assertEquals("", ic.getTextBeforeCursor(100, 0))
-        assertEquals("Hello, World", ic.getTextAfterCursor(100, 0))
+        assertThat(ic.getTextBeforeCursor(100, 0)).isEqualTo("")
+        assertThat(ic.getTextAfterCursor(100, 0)).isEqualTo("Hello, World")
 
         // Set "Hello, World", and place the cursor between "H" and "e".
         ic.mTextFieldValue = TextFieldValue(
@@ -84,8 +81,8 @@ class RecordingInputConnectionTest {
             selection = TextRange(1)
         )
 
-        assertEquals("H", ic.getTextBeforeCursor(100, 0))
-        assertEquals("ello, World", ic.getTextAfterCursor(100, 0))
+        assertThat(ic.getTextBeforeCursor(100, 0)).isEqualTo("H")
+        assertThat(ic.getTextAfterCursor(100, 0)).isEqualTo("ello, World")
 
         // Set "Hello, World", and place the cursor at the end of the text.
         ic.mTextFieldValue = TextFieldValue(
@@ -93,8 +90,8 @@ class RecordingInputConnectionTest {
             selection = TextRange(12)
         )
 
-        assertEquals("Hello, World", ic.getTextBeforeCursor(100, 0))
-        assertEquals("", ic.getTextAfterCursor(100, 0))
+        assertThat(ic.getTextBeforeCursor(100, 0)).isEqualTo("Hello, World")
+        assertThat(ic.getTextAfterCursor(100, 0)).isEqualTo("")
     }
 
     @Test
@@ -105,8 +102,8 @@ class RecordingInputConnectionTest {
             selection = TextRange.Zero
         )
 
-        assertEquals("", ic.getTextBeforeCursor(5, 0))
-        assertEquals("Hello", ic.getTextAfterCursor(5, 0))
+        assertThat(ic.getTextBeforeCursor(5, 0)).isEqualTo("")
+        assertThat(ic.getTextAfterCursor(5, 0)).isEqualTo("Hello")
 
         // Set "Hello, World", and place the cursor between "H" and "e".
         ic.mTextFieldValue = TextFieldValue(
@@ -114,8 +111,8 @@ class RecordingInputConnectionTest {
             selection = TextRange(1)
         )
 
-        assertEquals("H", ic.getTextBeforeCursor(5, 0))
-        assertEquals("ello,", ic.getTextAfterCursor(5, 0))
+        assertThat(ic.getTextBeforeCursor(5, 0)).isEqualTo("H")
+        assertThat(ic.getTextAfterCursor(5, 0)).isEqualTo("ello,")
 
         // Set "Hello, World", and place the cursor at the end of the text.
         ic.mTextFieldValue = TextFieldValue(
@@ -123,8 +120,8 @@ class RecordingInputConnectionTest {
             selection = TextRange(12)
         )
 
-        assertEquals("World", ic.getTextBeforeCursor(5, 0))
-        assertEquals("", ic.getTextAfterCursor(5, 0))
+        assertThat(ic.getTextBeforeCursor(5, 0)).isEqualTo("World")
+        assertThat(ic.getTextAfterCursor(5, 0)).isEqualTo("")
     }
 
     @Test
@@ -135,7 +132,7 @@ class RecordingInputConnectionTest {
             selection = TextRange.Zero
         )
 
-        assertEquals("", ic.getSelectedText(0))
+        assertThat(ic.getSelectedText(0)).isNull()
 
         // Set "Hello, World", and place the cursor between "H" and "e".
         ic.mTextFieldValue = TextFieldValue(
@@ -143,7 +140,7 @@ class RecordingInputConnectionTest {
             selection = TextRange(0, 1)
         )
 
-        assertEquals("H", ic.getSelectedText(0))
+        assertThat(ic.getSelectedText(0)).isEqualTo("H")
 
         // Set "Hello, World", and place the cursor at the end of the text.
         ic.mTextFieldValue = TextFieldValue(
@@ -151,7 +148,7 @@ class RecordingInputConnectionTest {
             selection = TextRange(0, 12)
         )
 
-        assertEquals("Hello, World", ic.getSelectedText(0))
+        assertThat(ic.getSelectedText(0)).isEqualTo("Hello, World")
     }
 
     @Test
@@ -161,12 +158,12 @@ class RecordingInputConnectionTest {
         ic.mTextFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
 
         // Inserting "Hello, " into the empty text field.
-        assertTrue(ic.commitText("Hello, ", 1))
+        assertThat(ic.commitText("Hello, ", 1)).isTrue()
 
         verify(mCallback, times(1)).onEditCommands(captor.capture())
         val editCommands = captor.lastValue
-        assertEquals(1, editCommands.size)
-        assertEquals(CommitTextCommand("Hello, ", 1), editCommands[0])
+        assertThat(editCommands.size).isEqualTo(1)
+        assertThat(editCommands[0]).isEqualTo(CommitTextCommand("Hello, ", 1))
     }
 
     @Test
@@ -179,19 +176,19 @@ class RecordingInputConnectionTest {
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
 
-        assertTrue(ic.commitText("Hello, ", 1))
+        assertThat(ic.commitText("Hello, ", 1)).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
-        assertTrue(ic.commitText("World.", 1))
+        assertThat(ic.commitText("World.", 1)).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
         ic.endBatchEdit()
 
         verify(mCallback, times(1)).onEditCommands(captor.capture())
         val editCommands = captor.lastValue
-        assertEquals(2, editCommands.size)
-        assertEquals(CommitTextCommand("Hello, ", 1), editCommands[0])
-        assertEquals(CommitTextCommand("World.", 1), editCommands[1])
+        assertThat(editCommands.size).isEqualTo(2)
+        assertThat(editCommands[0]).isEqualTo(CommitTextCommand("Hello, ", 1))
+        assertThat(editCommands[1]).isEqualTo(CommitTextCommand("World.", 1))
     }
 
     @Test
@@ -201,12 +198,12 @@ class RecordingInputConnectionTest {
         ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
 
         // Mark first "H" as composition.
-        assertTrue(ic.setComposingRegion(0, 1))
+        assertThat(ic.setComposingRegion(0, 1)).isTrue()
 
         verify(mCallback, times(1)).onEditCommands(captor.capture())
         val editCommands = captor.lastValue
-        assertEquals(1, editCommands.size)
-        assertEquals(SetComposingRegionCommand(0, 1), editCommands[0])
+        assertThat(editCommands.size).isEqualTo(1)
+        assertThat(editCommands[0]).isEqualTo(SetComposingRegionCommand(0, 1))
     }
 
     @Test
@@ -218,19 +215,19 @@ class RecordingInputConnectionTest {
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
 
-        assertTrue(ic.setComposingRegion(0, 1))
+        assertThat(ic.setComposingRegion(0, 1)).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
-        assertTrue(ic.setComposingRegion(1, 2))
+        assertThat(ic.setComposingRegion(1, 2)).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
         ic.endBatchEdit()
 
         verify(mCallback, times(1)).onEditCommands(captor.capture())
         val editCommands = captor.lastValue
-        assertEquals(2, editCommands.size)
-        assertEquals(SetComposingRegionCommand(0, 1), editCommands[0])
-        assertEquals(SetComposingRegionCommand(1, 2), editCommands[1])
+        assertThat(editCommands.size).isEqualTo(2)
+        assertThat(editCommands[0]).isEqualTo(SetComposingRegionCommand(0, 1))
+        assertThat(editCommands[1]).isEqualTo(SetComposingRegionCommand(1, 2))
     }
 
     @Test
@@ -240,12 +237,12 @@ class RecordingInputConnectionTest {
         ic.mTextFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
 
         // Inserting "Hello, " into the empty text field.
-        assertTrue(ic.setComposingText("Hello, ", 1))
+        assertThat(ic.setComposingText("Hello, ", 1)).isTrue()
 
         verify(mCallback, times(1)).onEditCommands(captor.capture())
         val editCommands = captor.lastValue
-        assertEquals(1, editCommands.size)
-        assertEquals(SetComposingTextCommand("Hello, ", 1), editCommands[0])
+        assertThat(editCommands.size).isEqualTo(1)
+        assertThat(editCommands[0]).isEqualTo(SetComposingTextCommand("Hello, ", 1))
     }
 
     @Test
@@ -258,19 +255,19 @@ class RecordingInputConnectionTest {
         // session. Do not callback to listener during batch session.
         ic.beginBatchEdit()
 
-        assertTrue(ic.setComposingText("Hello, ", 1))
+        assertThat(ic.setComposingText("Hello, ", 1)).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
-        assertTrue(ic.setComposingText("World.", 1))
+        assertThat(ic.setComposingText("World.", 1)).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
         ic.endBatchEdit()
 
         verify(mCallback, times(1)).onEditCommands(captor.capture())
         val editCommands = captor.lastValue
-        assertEquals(2, editCommands.size)
-        assertEquals(SetComposingTextCommand("Hello, ", 1), editCommands[0])
-        assertEquals(SetComposingTextCommand("World.", 1), editCommands[1])
+        assertThat(editCommands.size).isEqualTo(2)
+        assertThat(editCommands[0]).isEqualTo(SetComposingTextCommand("Hello, ", 1))
+        assertThat(editCommands[1]).isEqualTo(SetComposingTextCommand("World.", 1))
     }
 
     @Test
@@ -284,8 +281,8 @@ class RecordingInputConnectionTest {
 
         verify(mCallback, times(1)).onEditCommands(captor.capture())
         val editCommands = captor.lastValue
-        assertEquals(1, editCommands.size)
-        assertEquals(DeleteSurroundingTextCommand(0, 6), editCommands[0])
+        assertThat(editCommands.size).isEqualTo(1)
+        assertThat(editCommands[0]).isEqualTo(DeleteSurroundingTextCommand(0, 6))
     }
 
     @Test
@@ -297,19 +294,19 @@ class RecordingInputConnectionTest {
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
 
-        assertTrue(ic.deleteSurroundingText(0, 6))
+        assertThat(ic.deleteSurroundingText(0, 6)).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
-        assertTrue(ic.deleteSurroundingText(0, 5))
+        assertThat(ic.deleteSurroundingText(0, 5)).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
         ic.endBatchEdit()
 
         verify(mCallback, times(1)).onEditCommands(captor.capture())
         val editCommands = captor.lastValue
-        assertEquals(2, editCommands.size)
-        assertEquals(DeleteSurroundingTextCommand(0, 6), editCommands[0])
-        assertEquals(DeleteSurroundingTextCommand(0, 5), editCommands[1])
+        assertThat(editCommands.size).isEqualTo(2)
+        assertThat(editCommands[0]).isEqualTo(DeleteSurroundingTextCommand(0, 6))
+        assertThat(editCommands[1]).isEqualTo(DeleteSurroundingTextCommand(0, 5))
     }
 
     @Test
@@ -319,12 +316,12 @@ class RecordingInputConnectionTest {
         ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
 
         // Delete first "Hello, " characters
-        assertTrue(ic.deleteSurroundingTextInCodePoints(0, 6))
+        assertThat(ic.deleteSurroundingTextInCodePoints(0, 6)).isTrue()
 
         verify(mCallback, times(1)).onEditCommands(captor.capture())
         val editCommands = captor.lastValue
-        assertEquals(1, editCommands.size)
-        assertEquals(DeleteSurroundingTextInCodePointsCommand(0, 6), editCommands[0])
+        assertThat(editCommands.size).isEqualTo(1)
+        assertThat(editCommands[0]).isEqualTo(DeleteSurroundingTextInCodePointsCommand(0, 6))
     }
 
     @Test
@@ -336,19 +333,19 @@ class RecordingInputConnectionTest {
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
 
-        assertTrue(ic.deleteSurroundingTextInCodePoints(0, 6))
+        assertThat(ic.deleteSurroundingTextInCodePoints(0, 6)).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
-        assertTrue(ic.deleteSurroundingTextInCodePoints(0, 5))
+        assertThat(ic.deleteSurroundingTextInCodePoints(0, 5)).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
         ic.endBatchEdit()
 
         verify(mCallback, times(1)).onEditCommands(captor.capture())
         val editCommands = captor.lastValue
-        assertEquals(2, editCommands.size)
-        assertEquals(DeleteSurroundingTextInCodePointsCommand(0, 6), editCommands[0])
-        assertEquals(DeleteSurroundingTextInCodePointsCommand(0, 5), editCommands[1])
+        assertThat(editCommands.size).isEqualTo(2)
+        assertThat(editCommands[0]).isEqualTo(DeleteSurroundingTextInCodePointsCommand(0, 6))
+        assertThat(editCommands[1]).isEqualTo(DeleteSurroundingTextInCodePointsCommand(0, 5))
     }
 
     @Test
@@ -358,12 +355,12 @@ class RecordingInputConnectionTest {
         ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
 
         // Select "Hello, "
-        assertTrue(ic.setSelection(0, 6))
+        assertThat(ic.setSelection(0, 6)).isTrue()
 
         verify(mCallback, times(1)).onEditCommands(captor.capture())
         val editCommands = captor.lastValue
-        assertEquals(1, editCommands.size)
-        assertEquals(SetSelectionCommand(0, 6), editCommands[0])
+        assertThat(editCommands.size).isEqualTo(1)
+        assertThat(editCommands[0]).isEqualTo(SetSelectionCommand(0, 6))
     }
 
     @Test
@@ -375,19 +372,19 @@ class RecordingInputConnectionTest {
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
 
-        assertTrue(ic.setSelection(0, 6))
+        assertThat(ic.setSelection(0, 6)).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
-        assertTrue(ic.setSelection(6, 11))
+        assertThat(ic.setSelection(6, 11)).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
         ic.endBatchEdit()
 
         verify(mCallback, times(1)).onEditCommands(captor.capture())
         val editCommands = captor.lastValue
-        assertEquals(2, editCommands.size)
-        assertEquals(SetSelectionCommand(0, 6), editCommands[0])
-        assertEquals(SetSelectionCommand(6, 11), editCommands[1])
+        assertThat(editCommands.size).isEqualTo(2)
+        assertThat(editCommands[0]).isEqualTo(SetSelectionCommand(0, 6))
+        assertThat(editCommands[1]).isEqualTo(SetSelectionCommand(6, 11))
     }
 
     @Test
@@ -402,8 +399,8 @@ class RecordingInputConnectionTest {
 
         verify(mCallback, times(1)).onEditCommands(captor.capture())
         val editCommands = captor.lastValue
-        assertEquals(1, editCommands.size)
-        assertEquals(FinishComposingTextCommand(), editCommands[0])
+        assertThat(editCommands.size).isEqualTo(1)
+        assertThat(editCommands[0]).isEqualTo(FinishComposingTextCommand())
     }
 
     @Test
@@ -415,19 +412,19 @@ class RecordingInputConnectionTest {
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
 
-        assertTrue(ic.finishComposingText())
+        assertThat(ic.finishComposingText()).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
-        assertTrue(ic.finishComposingText())
+        assertThat(ic.finishComposingText()).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
         ic.endBatchEdit()
 
         verify(mCallback, times(1)).onEditCommands(captor.capture())
         val editCommands = captor.lastValue
-        assertEquals(2, editCommands.size)
-        assertEquals(FinishComposingTextCommand(), editCommands[0])
-        assertEquals(FinishComposingTextCommand(), editCommands[1])
+        assertThat(editCommands.size).isEqualTo(2)
+        assertThat(editCommands[0]).isEqualTo(FinishComposingTextCommand())
+        assertThat(editCommands[1]).isEqualTo(FinishComposingTextCommand())
     }
 
     @Test
@@ -439,31 +436,31 @@ class RecordingInputConnectionTest {
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
 
-        assertTrue(ic.setComposingText("Hello, ", 1))
+        assertThat(ic.setComposingText("Hello, ", 1)).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
-        assertTrue(ic.finishComposingText())
+        assertThat(ic.finishComposingText()).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
-        assertTrue(ic.commitText("World.", 1))
+        assertThat(ic.commitText("World.", 1)).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
-        assertTrue(ic.setSelection(0, 12))
+        assertThat(ic.setSelection(0, 12)).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
-        assertTrue(ic.commitText("", 1))
+        assertThat(ic.commitText("", 1)).isTrue()
         verify(mCallback, never()).onEditCommands(any())
 
         ic.endBatchEdit()
 
         verify(mCallback, times(1)).onEditCommands(captor.capture())
         val editCommands = captor.lastValue
-        assertEquals(5, editCommands.size)
-        assertEquals(SetComposingTextCommand("Hello, ", 1), editCommands[0])
-        assertEquals(FinishComposingTextCommand(), editCommands[1])
-        assertEquals(CommitTextCommand("World.", 1), editCommands[2])
-        assertEquals(SetSelectionCommand(0, 12), editCommands[3])
-        assertEquals(CommitTextCommand("", 1), editCommands[4])
+        assertThat(editCommands.size).isEqualTo(5)
+        assertThat(editCommands[0]).isEqualTo(SetComposingTextCommand("Hello, ", 1))
+        assertThat(editCommands[1]).isEqualTo(FinishComposingTextCommand())
+        assertThat(editCommands[2]).isEqualTo(CommitTextCommand("World.", 1))
+        assertThat(editCommands[3]).isEqualTo(SetSelectionCommand(0, 12))
+        assertThat(editCommands[4]).isEqualTo(CommitTextCommand("", 1))
     }
 
     @Test
@@ -475,64 +472,21 @@ class RecordingInputConnectionTest {
 
     @Test
     fun key_event_del_down() {
-        val captor = argumentCaptor<List<EditCommand>>()
-        ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
-        verify(mCallback, times(1)).onEditCommands(captor.capture())
+        val keyEvent = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL)
+        val captor = argumentCaptor<KeyEvent>()
 
-        val editCommands = captor.lastValue
-        assertEquals(1, editCommands.size)
-        assertEquals(BackspaceCommand(), editCommands[0])
-    }
-
-    @Test
-    fun key_event_del_up() {
-        ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
+        ic.sendKeyEvent(keyEvent)
+        verify(mCallback, times(1)).onKeyEvent(captor.capture())
         verify(mCallback, never()).onEditCommands(any())
-    }
 
-    @Test
-    fun key_event_left_down() {
-        val captor = argumentCaptor<List<EditCommand>>()
-        ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_LEFT))
-        verify(mCallback, times(1)).onEditCommands(captor.capture())
-
-        val editCommands = captor.lastValue
-        assertEquals(1, editCommands.size)
-        assertEquals(MoveCursorCommand(-1), editCommands[0])
+        val capturedKeyEvent = captor.lastValue
+        assertThat(capturedKeyEvent).isEqualTo(keyEvent)
     }
 
     @Test
     fun key_event_left_up() {
         ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DPAD_LEFT))
         verify(mCallback, never()).onEditCommands(any())
-    }
-
-    @Test
-    fun key_event_right_down() {
-        val captor = argumentCaptor<List<EditCommand>>()
-        ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_RIGHT))
-        verify(mCallback, times(1)).onEditCommands(captor.capture())
-
-        val editCommands = captor.lastValue
-        assertEquals(1, editCommands.size)
-        assertEquals(MoveCursorCommand(1), editCommands[0])
-    }
-
-    @Test
-    fun key_event_right_up() {
-        ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DPAD_RIGHT))
-        verify(mCallback, never()).onEditCommands(any())
-    }
-
-    @Test
-    fun key_event_printablekey_down() {
-        val captor = argumentCaptor<List<EditCommand>>()
-        ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_1))
-        verify(mCallback, times(1)).onEditCommands(captor.capture())
-
-        val editCommands = captor.lastValue
-        assertEquals(1, editCommands.size)
-        assertEquals(CommitTextCommand("1", 1), editCommands[0])
     }
 
     @Test
@@ -558,7 +512,7 @@ class RecordingInputConnectionTest {
         )
         val anyCorrectionInfo = CorrectionInfo(0, "", "")
 
-        assertTrue(inputConnection.commitCorrection(anyCorrectionInfo))
+        assertThat(inputConnection.commitCorrection(anyCorrectionInfo)).isTrue()
     }
 
     @Test
@@ -570,7 +524,7 @@ class RecordingInputConnectionTest {
         )
         val anyCorrectionInfo = CorrectionInfo(0, "", "")
 
-        assertFalse(inputConnection.commitCorrection(anyCorrectionInfo))
+        assertThat(inputConnection.commitCorrection(anyCorrectionInfo)).isFalse()
     }
 
     @Test

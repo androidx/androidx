@@ -84,6 +84,7 @@ public class CustomEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         assertNull(factory.mBottom);
         assertNotNull(factory.mTop);
         assertTrue(factory.mTop.mPullDistance > 0);
+        scrollViewBy(-3);
 
         scrollToPosition(NUM_ITEMS - 1);
         waitForIdleScroll(mRecyclerView);
@@ -144,6 +145,7 @@ public class CustomEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
     private class TestEdgeEffect extends EdgeEffect {
 
         private float mPullDistance;
+        private float mDistance;
 
         TestEdgeEffect(Context context) {
             super(context);
@@ -157,6 +159,19 @@ public class CustomEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         @Override
         public void onPull(float deltaDistance) {
             mPullDistance = deltaDistance;
+            mDistance += deltaDistance;
+        }
+
+        @Override
+        public float onPullDistance(float deltaDistance, float displacement) {
+            float maxDelta = Math.max(-mDistance, deltaDistance);
+            onPull(maxDelta);
+            return maxDelta;
+        }
+
+        @Override
+        public float getDistance() {
+            return mDistance;
         }
     }
 }

@@ -14,24 +14,13 @@
  * limitations under the License.
  */
 
-
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
-
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
-}
-
-android {
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
-    }
 }
 
 dependencies {
@@ -42,14 +31,14 @@ dependencies {
     api("androidx.fragment:fragment-ktx:1.2.4") {
         because "Mirror preference dependency graph for -ktx artifacts"
     }
-    api(KOTLIN_STDLIB)
+    api(libs.kotlinStdlib)
 
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(TRUTH)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
     androidTestImplementation(project(":internal-testutils-truth"))
 }
 

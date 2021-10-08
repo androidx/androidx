@@ -65,6 +65,7 @@ import java.lang.reflect.Method;
  *
  * @see android.widget.ListPopupWindow
  */
+@SuppressWarnings("HiddenSuperclass")
 public class ListPopupWindow implements ShowableListMenu {
     private static final String TAG = "ListPopupWindow";
     private static final boolean DEBUG = false;

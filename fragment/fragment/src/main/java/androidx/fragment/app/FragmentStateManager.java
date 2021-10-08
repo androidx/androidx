@@ -31,6 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.R;
+import androidx.fragment.app.strictmode.FragmentStrictMode;
 import androidx.lifecycle.ViewModelStoreOwner;
 
 class FragmentStateManager {
@@ -198,7 +199,7 @@ class FragmentStateManager {
             maxState = Math.min(maxState, Fragment.CREATED);
         }
         SpecialEffectsController.Operation.LifecycleImpact awaitingEffect = null;
-        if (FragmentManager.USE_STATE_MANAGER && mFragment.mContainer != null) {
+        if (mFragment.mContainer != null) {
             SpecialEffectsController controller = SpecialEffectsController.getOrCreateController(
                     mFragment.mContainer, mFragment.getParentFragmentManager());
             awaitingEffect = controller.getAwaitingCompletionLifecycleImpact(this);
@@ -241,8 +242,10 @@ class FragmentStateManager {
         try {
             mMovingToState = true;
 
+            boolean stateWasChanged = false;
             int newState;
             while ((newState = computeExpectedState()) != mFragment.mState) {
+                stateWasChanged = true;
                 if (newState > mFragment.mState) {
                     // Moving upward
                     int nextStep = mFragment.mState + 1;
@@ -299,7 +302,9 @@ class FragmentStateManager {
                             if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
                                 Log.d(TAG, "movefrom ACTIVITY_CREATED: " + mFragment);
                             }
-                            if (mFragment.mView != null) {
+                            if (mFragment.mBeingSaved) {
+                                saveState();
+                            } else if (mFragment.mView != null) {
                                 // Need to save the current view state if not done already
                                 // by saveInstanceState()
                                 if (mFragment.mSavedViewState == null) {
@@ -323,6 +328,10 @@ class FragmentStateManager {
                             mFragment.mState = Fragment.CREATED;
                             break;
                         case Fragment.ATTACHED:
+                            if (mFragment.mBeingSaved
+                                    && mFragmentStore.getSavedState(mFragment.mWho) == null) {
+                                saveState();
+                            }
                             destroy();
                             break;
                         case Fragment.INITIALIZING:
@@ -331,7 +340,23 @@ class FragmentStateManager {
                     }
                 }
             }
-            if (FragmentManager.USE_STATE_MANAGER && mFragment.mHiddenChanged) {
+            if (!stateWasChanged && mFragment.mState == Fragment.INITIALIZING) {
+                // If the state wasn't changed and the Fragment should be removed
+                // then we need to do the work of destroy()+detach() here
+                // to ensure the FragmentManager is in a cleaned up state
+                if (mFragment.mRemoving && !mFragment.isInBackStack() && !mFragment.mBeingSaved) {
+                    if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                        Log.d(TAG, "Cleaning up state of never attached fragment: " + mFragment);
+                    }
+                    mFragmentStore.getNonConfig().clearNonConfigState(mFragment);
+                    mFragmentStore.makeInactive(this);
+                    if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                        Log.d(TAG, "initState called for fragment: " + mFragment);
+                    }
+                    mFragment.initState();
+                }
+            }
+            if (mFragment.mHiddenChanged) {
                 if (mFragment.mView != null && mFragment.mContainer != null) {
                     // Get the controller and enqueue the show/hide
                     SpecialEffectsController controller = SpecialEffectsController
@@ -342,6 +367,9 @@ class FragmentStateManager {
                     } else {
                         controller.enqueueShow(this);
                     }
+                }
+                if (mFragment.mFragmentManager != null) {
+                    mFragment.mFragmentManager.invalidateMenuForFragment(mFragment);
                 }
                 mFragment.mHiddenChanged = false;
                 mFragment.onHiddenChanged(mFragment.mHidden);
@@ -426,10 +454,7 @@ class FragmentStateManager {
             targetFragmentStateManager = null;
         }
         if (targetFragmentStateManager != null) {
-            if (FragmentManager.USE_STATE_MANAGER
-                    || targetFragmentStateManager.getFragment().mState < Fragment.CREATED) {
-                targetFragmentStateManager.moveToExpectedState();
-            }
+            targetFragmentStateManager.moveToExpectedState();
         }
         mFragment.mHost = mFragment.mFragmentManager.getHost();
         mFragment.mParentFragment = mFragment.mFragmentManager.getParent();
@@ -475,16 +500,22 @@ class FragmentStateManager {
             }
             FragmentContainer fragmentContainer = mFragment.mFragmentManager.getContainer();
             container = (ViewGroup) fragmentContainer.onFindViewById(mFragment.mContainerId);
-            if (container == null && !mFragment.mRestored) {
-                String resName;
-                try {
-                    resName = mFragment.getResources().getResourceName(mFragment.mContainerId);
-                } catch (Resources.NotFoundException e) {
-                    resName = "unknown";
+            if (container == null) {
+                if (!mFragment.mRestored) {
+                    String resName;
+                    try {
+                        resName = mFragment.getResources().getResourceName(mFragment.mContainerId);
+                    } catch (Resources.NotFoundException e) {
+                        resName = "unknown";
+                    }
+                    throw new IllegalArgumentException("No view found for id 0x"
+                            + Integer.toHexString(mFragment.mContainerId) + " ("
+                            + resName + ") for fragment " + mFragment);
                 }
-                throw new IllegalArgumentException("No view found for id 0x"
-                        + Integer.toHexString(mFragment.mContainerId) + " ("
-                        + resName + ") for fragment " + mFragment);
+            } else {
+                if (!(container instanceof FragmentContainerView)) {
+                    FragmentStrictMode.onWrongFragmentContainer(mFragment, container);
+                }
             }
         }
         mFragment.mContainer = container;
@@ -521,26 +552,19 @@ class FragmentStateManager {
                     mFragment, mFragment.mView, mFragment.mSavedFragmentState, false);
             int postOnViewCreatedVisibility = mFragment.mView.getVisibility();
             float postOnViewCreatedAlpha = mFragment.mView.getAlpha();
-            if (FragmentManager.USE_STATE_MANAGER) {
-                mFragment.setPostOnViewCreatedAlpha(postOnViewCreatedAlpha);
-                if (mFragment.mContainer != null && postOnViewCreatedVisibility == View.VISIBLE) {
-                    // Save the focused view if one was set via requestFocus()
-                    View focusedView = mFragment.mView.findFocus();
-                    if (focusedView != null) {
-                        mFragment.setFocusedView(focusedView);
-                        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                            Log.v(TAG, "requestFocus: Saved focused view " + focusedView
-                                    + " for Fragment " + mFragment);
-                        }
+            mFragment.setPostOnViewCreatedAlpha(postOnViewCreatedAlpha);
+            if (mFragment.mContainer != null && postOnViewCreatedVisibility == View.VISIBLE) {
+                // Save the focused view if one was set via requestFocus()
+                View focusedView = mFragment.mView.findFocus();
+                if (focusedView != null) {
+                    mFragment.setFocusedView(focusedView);
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(TAG, "requestFocus: Saved focused view " + focusedView
+                                + " for Fragment " + mFragment);
                     }
-                    // Set the view alpha to 0
-                    mFragment.mView.setAlpha(0f);
                 }
-            } else {
-                // Only animate the view if it is visible. This is done after
-                // dispatchOnFragmentViewCreated in case visibility is changed
-                mFragment.mIsNewlyAdded = (postOnViewCreatedVisibility == View.VISIBLE)
-                        && mFragment.mContainer != null;
+                // Set the view alpha to 0
+                mFragment.mView.setAlpha(0f);
             }
         }
         mFragment.mState = Fragment.VIEW_CREATED;
@@ -614,8 +638,7 @@ class FragmentStateManager {
         mDispatcher.dispatchOnFragmentStopped(mFragment, false);
     }
 
-    @NonNull
-    FragmentState saveState() {
+    void saveState() {
         FragmentState fs = new FragmentState(mFragment);
 
         if (mFragment.mState > Fragment.INITIALIZING && fs.mSavedFragmentState == null) {
@@ -638,7 +661,7 @@ class FragmentStateManager {
         } else {
             fs.mSavedFragmentState = mFragment.mSavedFragmentState;
         }
-        return fs;
+        mFragmentStore.setSavedState(mFragment.mWho, fs);
     }
 
     @Nullable
@@ -690,6 +713,11 @@ class FragmentStateManager {
         if (mFragment.mView == null) {
             return;
         }
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(TAG,
+                    "Saving view state for fragment " + mFragment + " with view " + mFragment.mView
+            );
+        }
         SparseArray<Parcelable> mStateArray = new SparseArray<>();
         mFragment.mView.saveHierarchyState(mStateArray);
         if (mStateArray.size() > 0) {
@@ -728,6 +756,10 @@ class FragmentStateManager {
             Log.d(TAG, "movefrom CREATED: " + mFragment);
         }
         boolean beingRemoved = mFragment.mRemoving && !mFragment.isInBackStack();
+        // Clear any previous saved state
+        if (beingRemoved && !mFragment.mBeingSaved) {
+            mFragmentStore.setSavedState(mFragment.mWho, null);
+        }
         boolean shouldDestroy = beingRemoved
                 || mFragmentStore.getNonConfig().shouldDestroy(mFragment);
         if (shouldDestroy) {
@@ -741,7 +773,7 @@ class FragmentStateManager {
             } else {
                 shouldClear = true;
             }
-            if (beingRemoved || shouldClear) {
+            if ((beingRemoved && !mFragment.mBeingSaved) || shouldClear) {
                 mFragmentStore.getNonConfig().clearNonConfigState(mFragment);
             }
             mFragment.performDestroy();

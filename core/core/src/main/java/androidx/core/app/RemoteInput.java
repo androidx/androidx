@@ -564,6 +564,14 @@ public final class RemoteInput {
                         .setChoices(src.getChoices())
                         .setAllowFreeFormInput(src.getAllowFreeFormInput())
                         .addExtras(src.getExtras());
+        if (Build.VERSION.SDK_INT >= 26) {
+            Set<String> allowedDataTypes = src.getAllowedDataTypes();
+            if (allowedDataTypes != null) {
+                for (String allowedDataType : allowedDataTypes) {
+                    builder.setAllowDataType(allowedDataType, true);
+                }
+            }
+        }
         if (Build.VERSION.SDK_INT >= 29) {
             builder.setEditChoicesBeforeSending(src.getEditChoicesBeforeSending());
         }
@@ -578,6 +586,14 @@ public final class RemoteInput {
                         .setChoices(src.getChoices())
                         .setAllowFreeFormInput(src.getAllowFreeFormInput())
                         .addExtras(src.getExtras());
+        if (Build.VERSION.SDK_INT >= 26) {
+            Set<String> allowedDataTypes = src.getAllowedDataTypes();
+            if (allowedDataTypes != null) {
+                for (String allowedDataType : allowedDataTypes) {
+                    builder.setAllowDataType(allowedDataType, true);
+                }
+            }
+        }
         if (Build.VERSION.SDK_INT >= 29) {
             builder.setEditChoicesBeforeSending(src.getEditChoicesBeforeSending());
         }

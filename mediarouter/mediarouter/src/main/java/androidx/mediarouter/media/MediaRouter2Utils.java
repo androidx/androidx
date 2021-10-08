@@ -26,7 +26,6 @@ import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_SPEAK
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_TV;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN;
 
-import android.annotation.SuppressLint;
 import android.content.IntentFilter;
 import android.media.MediaRoute2Info;
 import android.media.RouteDiscoveryPreference;
@@ -45,8 +44,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-//TODO: Remove SuppressLInt
-@SuppressLint("NewApi")
 @RequiresApi(api = Build.VERSION_CODES.R)
 class MediaRouter2Utils {
     static final String FEATURE_EMPTY = "android.media.route.feature.EMPTY";

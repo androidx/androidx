@@ -18,43 +18,59 @@ package sample.optin;
 
 import androidx.annotation.OptIn;
 
-import sample.optin.foo.Bar;
-import sample.optin.foo.ExperimentalPackage;
+import sample.optin.foo.AnnotatedJavaPackage;
 
+/**
+ * Tests for calls made on classes within an experimental package.
+ */
 @SuppressWarnings("unused")
 class UseJavaPackageFromJava {
+
     /**
-     * Unsafe call into a class within an experimental package.
+     * Unsafe call into a method on a class within an experimental package.
      */
-    void callPackageUnsafe() {
-        Bar bar = new Bar();
-        bar.baz();
+    void unsafeMethodInExperimentalPackage() {
+        AnnotatedJavaPackage experimentalObject = new AnnotatedJavaPackage();
+        experimentalObject.method();
     }
 
-    @ExperimentalPackage
-    void callPackageExperimental() {
-        Bar bar = new Bar();
-        bar.baz();
+    /**
+     * Safe call due to propagation of experimental marker.
+     */
+    @ExperimentalJavaAnnotation
+    void safePropagateMarker() {
+        AnnotatedJavaPackage experimentalObject = new AnnotatedJavaPackage();
+        experimentalObject.method();
     }
 
-    @OptIn(markerClass = ExperimentalPackage.class)
-    void callPackageUseExperimental() {
-        Bar bar = new Bar();
-        bar.baz();
+    /**
+     * Safe call due to opt-in to experimental marker.
+     */
+    @OptIn(markerClass = ExperimentalJavaAnnotation.class)
+    void safeOptInMarker() {
+        AnnotatedJavaPackage experimentalObject = new AnnotatedJavaPackage();
+        experimentalObject.method();
     }
 
-    void callSelfUnsafe() {
-        callPackageUnsafe();
+    /**
+     * Unsafe call into a method with an unsafe call. This should not be flagged, as the
+     * called method itself is not experimental.
+     */
+    void unsafeSelfExperimental() {
+        unsafeMethodInExperimentalPackage();
     }
 
     /**
      * Unsafe call into an experimental method within this class.
      */
-    void callSelfExperimental() {
-        callPackageExperimental();
+    void unsafeSelfPropagateMarker() {
+        safePropagateMarker();
     }
 
-    void callSelfUseExperimental() {
-        callPackageUseExperimental();
+    /**
+     * Safe call into an opted-in method within this class.
+     */
+    void safeSelfOptInMarker() {
+        safeOptInMarker();
     }
 }

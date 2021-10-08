@@ -569,6 +569,8 @@ public final class Camera2DeviceSurfaceManagerTest {
         ((ShadowCameraManager) Shadow.extract(cameraManager))
                 .addCamera(cameraId, characteristics);
 
+        CameraManagerCompat cameraManagerCompat =
+                CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
         StreamConfigurationMap mockMap = mock(StreamConfigurationMap.class);
         when(mockMap.getOutputSizes(anyInt())).thenReturn(mSupportedSizes);
         // ImageFormat.PRIVATE was supported since API level 23. Before that, the supported
@@ -579,7 +581,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         @CameraSelector.LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
                 lensFacing);
         mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId, null,
-                new Camera2CameraInfoImpl(cameraId, getCameraCharacteristicsCompat(cameraId))));
+                new Camera2CameraInfoImpl(cameraId, cameraManagerCompat)));
     }
 
     private void initCameraX() {

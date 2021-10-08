@@ -34,8 +34,10 @@
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
+    <!-- The attribute, requestLegacyExternalStorage, is ignored if app is targeted Android 11
+     (API level 30),. -->
     <application
+        android:requestLegacyExternalStorage="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -43,7 +45,7 @@
         android:supportsRtl="true"
         android:name=".TimingApplication"
         android:theme="@style/AppTheme">
-        <activity android:name="androidx.camera.integration.antelope.MainActivity">
+        <activity android:name="androidx.camera.integration.antelope.MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -16,7 +16,6 @@
 
 package androidx.inspection.gradle
 
-import com.android.build.gradle.api.BaseVariant
 import com.github.jengelman.gradle.plugins.shadow.relocation.RelocateClassContext
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.github.jengelman.gradle.plugins.shadow.transformers.Transformer
@@ -25,7 +24,6 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.FileTreeElement
-import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import shadow.org.apache.tools.zip.ZipEntry
@@ -35,19 +33,24 @@ import java.util.jar.JarFile
 
 // variant.taskName relies on @ExperimentalStdlibApi api
 @ExperimentalStdlibApi
+@Suppress("DEPRECATION") // BaseVariant
 fun Project.registerShadowDependenciesTask(
-    variant: BaseVariant,
-    zipTask: TaskProvider<Copy>
+    variant: com.android.build.gradle.api.BaseVariant,
+    jarName: String?,
+    zipTask: TaskProvider<CopyFixed>
 ): TaskProvider<ShadowJar> {
     val uberJar = registerUberJarTask(variant)
+    val versionTask = project.registerGenerateInspectionPlatformVersionTask(variant)
     return tasks.register(
         variant.taskName("shadowDependencies"),
         ShadowJar::class.java
     ) {
         it.dependsOn(uberJar)
-        val fileTree = project.fileTree(zipTask.get().destinationDir)
+        it.dependsOn(versionTask)
+        val fileTree = project.fileTree(zipTask.get().outputDir)
         fileTree.include("**/*.jar", "**/*.so")
         it.from(fileTree)
+        it.from(versionTask.get().outputDir)
         it.includeEmptyDirs = false
         it.filesMatching("**/*.so") {
             if (it.path.startsWith("jni")) {
@@ -55,15 +58,17 @@ fun Project.registerShadowDependenciesTask(
             }
         }
         it.transform(RenameServicesTransformer::class.java)
+        it.from(versionTask.get().outputDir)
         it.destinationDirectory.set(taskWorkingDir(variant, "shadowedJar"))
-        it.archiveBaseName.set("${project.name}-shadowed")
+        it.archiveBaseName.set("${jarName ?: project.name}-nondexed")
+        it.archiveVersion.set("")
         it.dependsOn(zipTask)
         val prefix = "deps.${project.name.replace('-', '.')}"
+        val inputProvider = uberJar.get().archiveFile
+        it.from(inputProvider)
         it.doFirst {
             val task = it as ShadowJar
-            val input = uberJar.get().outputs.files
-            task.from(input)
-            input.extractPackageNames().forEach { packageName ->
+            inputProvider.get().asFile.extractPackageNames().forEach { packageName ->
                 task.relocate(packageName, "$prefix.$packageName")
             }
         }
@@ -74,11 +79,15 @@ fun Project.registerShadowDependenciesTask(
  * Merges all runtime dependencies in one jar and removes module-info.class,
  * because jarjar and dx fail to process these classes.
  */
-private fun Project.registerUberJarTask(variant: BaseVariant): TaskProvider<Jar> {
+@Suppress("DEPRECATION") // BaseVariant
+private fun Project.registerUberJarTask(
+    variant: com.android.build.gradle.api.BaseVariant
+): TaskProvider<Jar> {
     return tasks.register("uberRuntimeDepsJar", Jar::class.java) {
         it.dependsOn(variant.assembleProvider)
         it.archiveClassifier.set("uberRuntimeDepsJar")
         it.exclude("**/module-info.class")
+        it.exclude("**/*.proto")
         it.exclude("META-INF/versions/9/**/*.class")
         it.from({
             variant.runtimeConfiguration.incoming.artifactView {
@@ -91,8 +100,8 @@ private fun Project.registerUberJarTask(variant: BaseVariant): TaskProvider<Jar>
     }
 }
 
-private fun Iterable<File>.extractPackageNames(): Set<String> = map(::JarFile)
-    .map { jar -> jar.use { it.entries().toList() } }.flatten()
+private fun File.extractPackageNames(): Set<String> = JarFile(this)
+    .use { it.entries().toList() }
     .filter { jarEntry -> jarEntry.name.endsWith(".class") }
     .map { jarEntry -> jarEntry.name.substringBeforeLast("/").replace('/', '.') }
     .toSet()
@@ -105,7 +114,7 @@ private fun Iterable<File>.extractPackageNames(): Set<String> = map(::JarFile)
  * live in meta-inf directory and their contents respecting the rules supplied into shadowJar.
  */
 class RenameServicesTransformer : Transformer {
-    val renamed = mutableMapOf<String, String>()
+    private val renamed = mutableMapOf<String, String>()
 
     override fun canTransformResource(element: FileTreeElement?): Boolean {
         return element?.relativePath?.startsWith("META-INF/services") ?: false
@@ -136,6 +145,8 @@ class RenameServicesTransformer : Transformer {
 
 private fun TransformerContext.relocateOrSelf(className: String): String {
     val relocateContext = RelocateClassContext(className, stats)
-    val relocator = relocators.find { it.canRelocateClass(relocateContext) }
+    val relocator = relocators.find {
+        it.canRelocateClass(className)
+    }
     return relocator?.relocateClass(relocateContext) ?: className
 }

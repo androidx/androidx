@@ -37,6 +37,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
@@ -424,9 +425,9 @@ public class LiveDataTest {
     @Test
     public void testDataChangeDuringStateChange() {
         mOwner.handleLifecycleEvent(ON_START);
-        mOwner.getLifecycle().addObserver(new LifecycleObserver() {
-            @OnLifecycleEvent(ON_STOP)
-            public void onStop() {
+        mOwner.getLifecycle().addObserver(new DefaultLifecycleObserver() {
+            @Override
+            public void onStop(@NonNull LifecycleOwner owner) {
                 // change data in onStop, observer should not be called!
                 mLiveData.setValue("b");
             }

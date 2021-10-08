@@ -30,6 +30,8 @@ import static androidx.media2.test.common.CommonConstants.KEY_PLAYBACK_SPEED;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST_METADATA;
+import static androidx.media2.test.common.CommonConstants.KEY_REPEAT_MODE;
+import static androidx.media2.test.common.CommonConstants.KEY_SHUFFLE_MODE;
 import static androidx.media2.test.common.CommonConstants.KEY_TRACK_INFO;
 import static androidx.media2.test.common.CommonConstants.KEY_VIDEO_SIZE;
 import static androidx.media2.test.common.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
@@ -41,6 +43,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
@@ -134,7 +137,8 @@ public class MediaSessionProviderService extends Service {
                     PendingIntent pendingIntent = PendingIntent.getActivity(
                             MediaSessionProviderService.this,
                             0 /* requestCode */,
-                            sessionActivity, 0 /* flags */);
+                            sessionActivity,
+                            Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
                     builder.setSessionActivity(pendingIntent);
                     break;
                 }
@@ -221,6 +225,8 @@ public class MediaSessionProviderService extends Service {
                 localPlayer.mCurrentPosition = config.getLong(KEY_CURRENT_POSITION);
                 localPlayer.mBufferedPosition = config.getLong(KEY_BUFFERED_POSITION);
                 localPlayer.mPlaybackSpeed = config.getFloat(KEY_PLAYBACK_SPEED);
+                localPlayer.mShuffleMode = config.getInt(KEY_SHUFFLE_MODE);
+                localPlayer.mRepeatMode = config.getInt(KEY_REPEAT_MODE);
 
                 ParcelImplListSlice listSlice = config.getParcelable(KEY_PLAYLIST);
                 if (listSlice != null) {

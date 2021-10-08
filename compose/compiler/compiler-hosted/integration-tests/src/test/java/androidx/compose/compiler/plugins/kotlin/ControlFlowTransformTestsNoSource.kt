@@ -33,7 +33,8 @@ class ControlFlowTransformTestsNoSource : AbstractControlFlowTransformTests() {
         """
             @Composable
             fun Test(%composer: Composer?, %changed: Int) {
-              %composer = %composer.startRestartGroup(<>, "C(Test)")
+              %composer = %composer.startRestartGroup(<>)
+              sourceInformation(%composer, "C(Test)")
               if (%changed !== 0 || !%composer.skipping) {
                 A(a, %composer, 0)
                 A(b, %composer, 0)
@@ -86,9 +87,10 @@ class ControlFlowTransformTestsNoSource : AbstractControlFlowTransformTests() {
         """
             @Composable
             fun Test(%composer: Composer?, %changed: Int) {
-              %composer = %composer.startRestartGroup(<>, "C(Test)")
+              %composer = %composer.startRestartGroup(<>)
+              sourceInformation(%composer, "C(Test)")
               if (%changed !== 0 || !%composer.skipping) {
-                W(ComposableSingletons%TestKt.lambda-1, %composer, 0)
+                W(ComposableSingletons%TestKt.lambda-1, %composer, 0b0110)
               } else {
                 %composer.skipToGroupEnd()
               }
@@ -97,7 +99,7 @@ class ControlFlowTransformTestsNoSource : AbstractControlFlowTransformTests() {
               }
             }
             internal object ComposableSingletons%TestKt {
-              val lambda-1: Function2<Composer, Int, Unit> = composableLambdaInstance(<>, false, "") { %composer: Composer?, %changed: Int ->
+              val lambda-1: Function2<Composer, Int, Unit> = composableLambdaInstance(<>, false) { %composer: Composer?, %changed: Int ->
                 if (%changed and 0b1011 xor 0b0010 !== 0 || !%composer.skipping) {
                   A(%composer, 0)
                 } else {
@@ -121,7 +123,8 @@ class ControlFlowTransformTestsNoSource : AbstractControlFlowTransformTests() {
         """
             @Composable
             fun Test(%composer: Composer?, %changed: Int) {
-              %composer = %composer.startRestartGroup(<>, "C(Test)")
+              %composer = %composer.startRestartGroup(<>)
+              sourceInformation(%composer, "C(Test)")
               if (%changed !== 0 || !%composer.skipping) {
                 IW({ %composer: Composer?, %changed: Int ->
                   if (%changed and 0b1011 xor 0b0010 !== 0 || !%composer.skipping) {

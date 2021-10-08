@@ -19,18 +19,21 @@ package androidx.wear.ongoing;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.Objects;
 
 /**
- * An Ongoing activity status (or part of it) representing a plain, static text.
- *
+ * Implementation and internal representation of {@link Status.TextPart}.
+ * <p>
  * Available since wear-ongoing:1.0.0
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @VersionedParcelize
-public class TextStatusPart extends StatusPart {
+class TextStatusPart extends StatusPart {
     @NonNull
     @ParcelField(value = 1, defaultValue = "")
     String mStr = "";
@@ -39,7 +42,7 @@ public class TextStatusPart extends StatusPart {
     TextStatusPart() {
     }
 
-    public TextStatusPart(@NonNull String str) {
+    TextStatusPart(@NonNull String str) {
         this.mStr = str;
     }
 

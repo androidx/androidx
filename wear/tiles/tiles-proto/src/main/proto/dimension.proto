@@ -1,0 +1,84 @@
+// Dimensions for layout elements.
+syntax = "proto3";
+
+package androidx.wear.tiles.proto;
+
+option java_package = "androidx.wear.tiles.proto";
+option java_outer_classname = "DimensionProto";
+
+// A type for linear dimensions, measured in dp.
+message DpProp {
+  // The value, in dp.
+  float value = 1;
+}
+
+// A type for font sizes, measured in sp.
+message SpProp {
+  // The value, in sp.
+  float value = 2;
+
+  reserved 1;
+}
+
+// A type for font spacing, measured in em.
+message EmProp {
+  // The value, in em.
+  float value = 1;
+}
+
+// A type for angular dimensions, measured in degrees.
+message DegreesProp {
+  // The value, in degrees.
+  float value = 1;
+}
+
+// A type for a dimension that fills all the space it can (i.e. MATCH_PARENT in
+// Android parlance)
+message ExpandedDimensionProp {}
+
+// A type for a dimension that sizes itself to the size of its children (i.e.
+// WRAP_CONTENT in Android parlance)
+message WrappedDimensionProp {}
+
+// A type for a dimension that scales itself proportionally to another dimension
+// such that the aspect ratio defined by the given width and height values is
+// preserved.
+//
+// Note that the width and height are unitless; only their ratio is relevant.
+// This allows for specifying an element's size using common ratios (e.g.
+// width=4, height=3), or to allow an element to be resized proportionally based
+// on the size of an underlying asset (e.g. an 800x600 image being added to a
+// smaller container and resized accordingly).
+message ProportionalDimensionProp {
+  // The width to be used when calculating the aspect ratio to preserve.
+  uint32 aspect_ratio_width = 1;
+
+  // The height to be used when calculating the aspect ratio ratio to preserve.
+  uint32 aspect_ratio_height = 2;
+}
+
+// A dimension that can be applied to a container.
+message ContainerDimension {
+  oneof inner {
+    DpProp linear_dimension = 1;
+    ExpandedDimensionProp expanded_dimension = 2;
+    WrappedDimensionProp wrapped_dimension = 3;
+  }
+}
+
+// A dimension that can be applied to an image.
+message ImageDimension {
+  oneof inner {
+    DpProp linear_dimension = 1;
+    ExpandedDimensionProp expanded_dimension = 2;
+    ProportionalDimensionProp proportional_dimension = 3;
+  }
+}
+
+// A dimension that can be applied to a spacer.
+message SpacerDimension {
+  oneof inner {
+    DpProp linear_dimension = 1;
+    // TODO(b/169137847): Add ExpandedDimensionProp
+  }
+}

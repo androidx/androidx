@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.compose.foundation.text.detectDragGesturesWithObserver
 import androidx.compose.foundation.text.isInTouchMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -24,12 +25,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.legacygestures.dragGestureFilter
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Enables text selection for it's direct or indirection children.
@@ -69,8 +70,7 @@ fun DisableSelection(content: @Composable () -> Unit) {
  * The selection composable wraps composables and let them to be selectable. It paints the selection
  * area with start and end handles.
  */
-@OptIn(ExperimentalComposeUiApi::class)
-@Suppress("ComposableLambdaParameterNaming", "DEPRECATION")
+@Suppress("ComposableLambdaParameterNaming")
 @Composable
 internal fun SelectionContainer(
     /** A [Modifier] for SelectionContainer. */
@@ -98,20 +98,34 @@ internal fun SelectionContainer(
             children()
             if (isInTouchMode && manager.hasFocus) {
                 manager.selection?.let {
-                    for (isStartHandle in listOf(true, false)) {
-                        SelectionHandle(
-                            startHandlePosition = manager.startHandlePosition,
-                            endHandlePosition = manager.endHandlePosition,
-                            isStartHandle = isStartHandle,
-                            directions = Pair(it.start.direction, it.end.direction),
-                            handlesCrossed = it.handlesCrossed,
-                            modifier = Modifier.dragGestureFilter(
-                                manager.handleDragObserver(
-                                    isStartHandle
-                                )
-                            ),
-                            handle = null
-                        )
+                    listOf(true, false).fastForEach { isStartHandle ->
+                        val observer = remember(isStartHandle) {
+                            manager.handleDragObserver(isStartHandle)
+                        }
+                        val position = if (isStartHandle) {
+                            manager.startHandlePosition
+                        } else {
+                            manager.endHandlePosition
+                        }
+
+                        val direction = if (isStartHandle) {
+                            it.start.direction
+                        } else {
+                            it.end.direction
+                        }
+
+                        if (position != null) {
+                            SelectionHandle(
+                                position = position,
+                                isStartHandle = isStartHandle,
+                                direction = direction,
+                                handlesCrossed = it.handlesCrossed,
+                                modifier = Modifier.pointerInput(observer) {
+                                    detectDragGesturesWithObserver(observer)
+                                },
+                                content = null
+                            )
+                        }
                     }
                 }
             }

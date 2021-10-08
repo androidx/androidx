@@ -65,10 +65,10 @@ public class OvershootInterpolator implements Interpolator {
 
     @Override
     @FloatRange(from = 0)
-    public float getInterpolation(@FloatRange(from = 0, to = 1) float t) {
+    public float getInterpolation(@FloatRange(from = 0, to = 1) float input) {
         // _o(t) = t * t * ((tension + 1) * t + tension)
         // o(t) = _o(t - 1) + 1
-        t -= 1.0f;
-        return t * t * ((mTension + 1) * t + mTension) + 1.0f;
+        input -= 1.0f;
+        return input * input * ((mTension + 1) * input + mTension) + 1.0f;
     }
 }

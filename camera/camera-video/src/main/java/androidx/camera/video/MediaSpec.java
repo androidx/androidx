@@ -17,10 +17,14 @@
 package androidx.camera.video;
 
 import android.annotation.SuppressLint;
+import android.media.MediaFormat;
+import android.media.MediaMuxer;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.core.util.Consumer;
 
 import com.google.auto.value.AutoValue;
@@ -31,11 +35,19 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * MediaSpec communicates the encoding type and encoder-specific options for both the
  * video and audio inputs to the VideoOutput.
+ * @hide
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+@RestrictTo(Scope.LIBRARY)
 @AutoValue
 public abstract class MediaSpec {
 
-    /** An output format that will be determined by the implementation of {@link VideoOutput}. */
+    private static final String AUDIO_FORMAT_MPEG4 = MediaFormat.MIMETYPE_AUDIO_AAC;
+    private static final String AUDIO_FORMAT_WEBM = MediaFormat.MIMETYPE_AUDIO_VORBIS;
+    private static final String VIDEO_FORMAT_MPEG4 = MediaFormat.MIMETYPE_VIDEO_AVC;
+    private static final String VIDEO_FORMAT_WEBM = MediaFormat.MIMETYPE_VIDEO_VP8;
+
+    /** The output format representing no preference for output format. */
     public static final int OUTPUT_FORMAT_AUTO = -1;
     /** MPEG4 media file format. */
     public static final int OUTPUT_FORMAT_MPEG_4 = 0;
@@ -47,6 +59,47 @@ public abstract class MediaSpec {
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public @interface OutputFormat {
+    }
+
+    @NonNull
+    static String outputFormatToAudioMime(@OutputFormat int outputFormat) {
+        switch (outputFormat) {
+            case MediaSpec.OUTPUT_FORMAT_WEBM:
+                return AUDIO_FORMAT_WEBM;
+            case MediaSpec.OUTPUT_FORMAT_MPEG_4:
+                // Fall-through
+            case MediaSpec.OUTPUT_FORMAT_AUTO:
+                // Fall-through
+            default:
+                return AUDIO_FORMAT_MPEG4;
+        }
+    }
+
+    @NonNull
+    static String outputFormatToVideoMime(@OutputFormat int outputFormat) {
+        switch (outputFormat) {
+            case MediaSpec.OUTPUT_FORMAT_WEBM:
+                return VIDEO_FORMAT_WEBM;
+            case MediaSpec.OUTPUT_FORMAT_MPEG_4:
+                // Fall-through
+            case MediaSpec.OUTPUT_FORMAT_AUTO:
+                // Fall-through
+            default:
+                return VIDEO_FORMAT_MPEG4;
+        }
+    }
+
+    static int outputFormatToMuxerFormat(@OutputFormat int outputFormat) {
+        switch (outputFormat) {
+            case MediaSpec.OUTPUT_FORMAT_WEBM:
+                return MediaMuxer.OutputFormat.MUXER_OUTPUT_WEBM;
+            case MediaSpec.OUTPUT_FORMAT_MPEG_4:
+                // Fall-through
+            case MediaSpec.OUTPUT_FORMAT_AUTO:
+                // Fall-through
+            default:
+                return MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4;
+        }
     }
 
     // Doesn't allow inheritance outside of package
@@ -64,7 +117,6 @@ public abstract class MediaSpec {
      */
     @NonNull
     public abstract AudioSpec getAudioSpec();
-
 
     /**
      * Returns the output file format.
@@ -84,8 +136,17 @@ public abstract class MediaSpec {
     }
 
     /**
-     * The builder for {@link MediaSpec}.
+     * Returns a {@link Builder} instance with the same property values as this instance.
      */
+    @NonNull
+    public abstract Builder toBuilder();
+
+    /**
+     * The builder for {@link MediaSpec}.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    @SuppressWarnings("StaticFinalBuilder")
     @AutoValue.Builder
     public abstract static class Builder {
         Builder() {
@@ -109,11 +170,28 @@ public abstract class MediaSpec {
         /**
          * Configures the {@link AudioSpec} of this media specification with the given block.
          *
-         * <p>The provided {@link AudioSpec.Builder} is pre-populated with the current state of the
+         * <p>This is a convenience method for in-line configuration of the {@link AudioSpec}
+         * contained in this media spec. The {@link AudioSpec.Builder} provided to {@code
+         * configBlock} is pre-populated with the current state of the internal audio spec.
+         *
+         * <p>Usage:
+         * {@code
+         * MediaSpec.Builder mediaSpecBuilder = ...;
+         * MediaSpec mediaSpec = mediaSpecBuilder
+         *     .configureAudio(audioSpecBuilder -> {
+         *         audioSpecBuilder
+         *             .setSource(...)
+         *             .setSampleRate(...)
+         *     })
+         *     .setOutputFormat(...)
+         *     .build();
+         * }
+         *
          * @param configBlock A consumer which provides the {@link AudioSpec.Builder} which will
          *                    configure the {@link AudioSpec} of this media specification.
          */
         @NonNull
+        @SuppressWarnings("BuilderSetStyle")
         public Builder configureAudio(@NonNull Consumer<AudioSpec.Builder> configBlock) {
             AudioSpec.Builder audioSpecBuilder = getAudioSpec().toBuilder();
             configBlock.accept(audioSpecBuilder);
@@ -142,11 +220,30 @@ public abstract class MediaSpec {
         public abstract Builder setVideoSpec(@NonNull VideoSpec videoSpec);
 
         /**
-         * Configures the {@link AudioSpec} of this media specification with the given block.
-         * @param configBlock A consumer which provides the {@link AudioSpec.Builder} which will
-         *                    configure the {@link AudioSpec} of this media specification.
+         * Configures the {@link VideoSpec} of this media specification with the given block.
+         *
+         * <p>This is a convenience method for in-line configuration of the {@link VideoSpec}
+         * contained in this media spec. The {@link VideoSpec.Builder} provided to {@code
+         * configBlock} is pre-populated with the current state of the internal video spec.
+         *
+         * <p>Usage:
+         * {@code
+         * MediaSpec.Builder mediaSpecBuilder = ...;
+         * MediaSpec mediaSpec = mediaSpecBuilder
+         *     .configureVideo(videoSpecBuilder -> {
+         *         videoSpecBuilder
+         *             .setQualitySelector(...)
+         *             .setBitrate(...)
+         *     })
+         *     .setOutputFormat(...)
+         *     .build();
+         * }
+         *
+         * @param configBlock A consumer which provides the {@link VideoSpec.Builder} which will
+         *                    configure the {@link VideoSpec} of this media specification.
          */
         @NonNull
+        @SuppressWarnings("BuilderSetStyle")
         public Builder configureVideo(@NonNull Consumer<VideoSpec.Builder> configBlock) {
             VideoSpec.Builder videoSpecBuilder = getVideoSpec().toBuilder();
             configBlock.accept(videoSpecBuilder);
@@ -166,12 +263,12 @@ public abstract class MediaSpec {
          *
          * <p>If not set, the default is {@link #OUTPUT_FORMAT_AUTO}.
          *
-         * @param videoFormat The requested video format. Possible values are
+         * @param format The requested video format. Possible values are
          * {@link MediaSpec#OUTPUT_FORMAT_AUTO}, {@link MediaSpec#OUTPUT_FORMAT_MPEG_4} or
          * {@link MediaSpec#OUTPUT_FORMAT_WEBM}.
          */
         @NonNull
-        public abstract Builder setOutputFormat(@OutputFormat int videoFormat);
+        public abstract Builder setOutputFormat(@OutputFormat int format);
 
         /** Build the {@link MediaSpec} from this builder. */
         @NonNull

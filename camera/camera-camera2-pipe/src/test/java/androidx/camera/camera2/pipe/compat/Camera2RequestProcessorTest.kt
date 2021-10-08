@@ -43,7 +43,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.P)
+@Config(minSdk = Build.VERSION_CODES.P, maxSdk = 29)
 internal class Camera2RequestProcessorTest {
     // TODO: This fails with "Failed to allocate native CameraMetadata" on robolectric prior
     //  to Android P. Update the test class to include support for older versions when a new

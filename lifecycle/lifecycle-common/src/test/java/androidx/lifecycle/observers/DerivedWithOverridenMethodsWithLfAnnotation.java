@@ -17,11 +17,11 @@
 package androidx.lifecycle.observers;
 
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.OnLifecycleEvent;
 
+@SuppressWarnings("deprecation")
 public class DerivedWithOverridenMethodsWithLfAnnotation extends Base {
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     @Override
     public void onCreate() {
         super.onCreate();

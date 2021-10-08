@@ -1,0 +1,21 @@
+// Baseline format: 1.0
+ExecutorRegistration: androidx.security.crypto.EncryptedSharedPreferences#registerOnSharedPreferenceChangeListener(android.content.SharedPreferences.OnSharedPreferenceChangeListener):
+    Registration methods should have overload that accepts delivery Executor: `registerOnSharedPreferenceChangeListener`
+
+
+MissingGetterMatchingBuilder: androidx.security.crypto.EncryptedFile.Builder#setKeysetAlias(String):
+    androidx.security.crypto.EncryptedFile does not declare a `getKeysetAlias()` method matching method androidx.security.crypto.EncryptedFile.Builder.setKeysetAlias(String)
+MissingGetterMatchingBuilder: androidx.security.crypto.EncryptedFile.Builder#setKeysetPrefName(String):
+    androidx.security.crypto.EncryptedFile does not declare a `getKeysetPrefName()` method matching method androidx.security.crypto.EncryptedFile.Builder.setKeysetPrefName(String)
+MissingGetterMatchingBuilder: androidx.security.crypto.MasterKey.Builder#setKeyGenParameterSpec(android.security.keystore.KeyGenParameterSpec):
+    androidx.security.crypto.MasterKey does not declare a `getKeyGenParameterSpec()` method matching method androidx.security.crypto.MasterKey.Builder.setKeyGenParameterSpec(android.security.keystore.KeyGenParameterSpec)
+MissingGetterMatchingBuilder: androidx.security.crypto.MasterKey.Builder#setKeyScheme(androidx.security.crypto.MasterKey.KeyScheme):
+    androidx.security.crypto.MasterKey does not declare a `getKeyScheme()` method matching method androidx.security.crypto.MasterKey.Builder.setKeyScheme(androidx.security.crypto.MasterKey.KeyScheme)
+MissingGetterMatchingBuilder: androidx.security.crypto.MasterKey.Builder#setRequestStrongBoxBacked(boolean):
+    androidx.security.crypto.MasterKey does not declare a `isRequestStrongBoxBacked()` method matching method androidx.security.crypto.MasterKey.Builder.setRequestStrongBoxBacked(boolean)
+
+
+RegistrationName: androidx.security.crypto.EncryptedSharedPreferences#registerOnSharedPreferenceChangeListener(android.content.SharedPreferences.OnSharedPreferenceChangeListener):
+    Listener methods should be named add/remove; was registerOnSharedPreferenceChangeListener
+RegistrationName: androidx.security.crypto.EncryptedSharedPreferences#unregisterOnSharedPreferenceChangeListener(android.content.SharedPreferences.OnSharedPreferenceChangeListener):
+    Listener methods should be named add/remove; was unregisterOnSharedPreferenceChangeListener

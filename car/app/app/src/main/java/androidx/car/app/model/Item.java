@@ -16,6 +16,9 @@
 
 package androidx.car.app.model;
 
+import androidx.car.app.annotations.CarProtocol;
+
 /** Interface implemented by models that can be added to an {@link ItemList}. */
+@CarProtocol
 public interface Item {
 }

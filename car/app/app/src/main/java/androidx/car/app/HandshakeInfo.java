@@ -21,11 +21,13 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 
 /**
  * A container for the information conveyed by the host after the handshake with the app is
  * completed.
  */
+@CarProtocol
 public final class HandshakeInfo {
     @Keep
     @Nullable

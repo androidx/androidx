@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.compat
 
 import android.annotation.SuppressLint
@@ -49,6 +51,7 @@ internal interface CaptureSessionFactory {
 
 @Module
 internal object SessionFactoryModule {
+    @SuppressLint("ObsoleteSdkInt")
     @CameraGraphScope
     @Provides
     fun provideSessionFactory(
@@ -118,7 +121,6 @@ internal class AndroidMSessionFactory @Inject constructor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config
 ) : CaptureSessionFactory {
-    @SuppressLint("NewApi")
     override fun create(
         cameraDevice: CameraDeviceWrapper,
         surfaces: Map<StreamId, Surface>,

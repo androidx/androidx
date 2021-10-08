@@ -161,9 +161,9 @@ public final class Pools {
         }
 
         @Override
-        public boolean release(@NonNull T element) {
+        public boolean release(@NonNull T instance) {
             synchronized (mLock) {
-                return super.release(element);
+                return super.release(instance);
             }
         }
     }

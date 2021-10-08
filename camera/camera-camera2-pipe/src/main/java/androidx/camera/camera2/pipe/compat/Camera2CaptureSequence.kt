@@ -22,6 +22,7 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameNumber
@@ -35,6 +36,7 @@ import androidx.camera.camera2.pipe.StreamId
  * a [CaptureRequest] object to lookup and invoke per-request listeners so that a listener can be
  * defined on a specific request within a burst.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class Camera2CaptureSequence(
     private val internalListeners: List<Request.Listener>,
     private val requests: Map<RequestNumber, RequestInfo>,
@@ -140,6 +142,16 @@ internal class Camera2CaptureSequence(
 
         invokeOnRequest(request) {
             it.onTotalCaptureResult(
+                request,
+                frameNumber,
+                frameInfo
+            )
+        }
+
+        // TODO: Implement a proper mechanism to delay the firing of onComplete(). See
+        // androidx.camera.camera2.pipe.Request.Listener for context.
+        invokeOnRequest(request) {
+            it.onComplete(
                 request,
                 frameNumber,
                 frameInfo
@@ -294,7 +306,7 @@ internal class Camera2CaptureSequence(
         request: RequestInfo,
         crossinline fn: (Request.Listener) -> Any
     ) {
-        // Always invoke the internal listener first so that internal sate can be updated before
+        // Always invoke the internal listener first so that internal state can be updated before
         // other listeners ask for it.
         for (i in internalListeners.indices) {
             fn(internalListeners[i])

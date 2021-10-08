@@ -21,7 +21,7 @@ import android.text.TextPaint;
 
 import androidx.annotation.NonNull;
 import androidx.core.graphics.PaintCompat;
-import androidx.emoji.text.EmojiCompat;
+import androidx.emoji2.text.EmojiCompat;
 
 class GlyphCheckerSample {
 

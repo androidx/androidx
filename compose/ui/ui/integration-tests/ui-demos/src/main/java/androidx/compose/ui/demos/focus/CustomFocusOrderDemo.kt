@@ -34,10 +34,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.focus.focusOrder
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.isFocused
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Green
@@ -57,7 +56,7 @@ fun CustomFocusOrderDemo() {
             )
         }
         Column(Modifier.fillMaxSize(), SpaceEvenly) {
-            val (item1, item2, item3, item4) = FocusRequester.createRefs()
+            val (item1, item2, item3, item4) = remember { FocusRequester.createRefs() }
             Row(Modifier.fillMaxWidth(), SpaceEvenly) {
                 FocusableText(
                     text = "1",
@@ -109,14 +108,14 @@ fun CustomFocusOrderDemo() {
 @Composable
 private fun FocusableText(text: String, modifier: Modifier = Modifier) {
     var color by remember { mutableStateOf(Black) }
-    val focusRequester = FocusRequester()
+    val focusRequester = remember { FocusRequester() }
     Text(
         modifier = modifier
             .border(width = 1.dp, color = Black)
             .requiredWidth(50.dp)
             .focusRequester(focusRequester)
             .onFocusChanged { color = if (it.isFocused) Green else Black }
-            .focusModifier()
+            .focusTarget()
             .pointerInput(Unit) { detectTapGestures { focusRequester.requestFocus() } },
         text = text,
         fontSize = 40.sp,

@@ -36,6 +36,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -78,6 +79,7 @@ public class TrustedWebActivityServiceConnectionPoolTest {
         mManager.unbindAllConnections();
     }
 
+    @Ignore("Test disabled due to flakiness, see b/182415874")
     @Test
     public void testConnection() {
         final AtomicBoolean connected = new AtomicBoolean();

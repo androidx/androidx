@@ -29,12 +29,15 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -42,6 +45,7 @@ import java.util.Objects;
  * Represents a row with a title, several lines of text, an optional image, and an optional action
  * or switch.
  */
+@CarProtocol
 public final class Row implements Item {
     /** A boat that belongs to you. */
     private static final String YOUR_BOAT = "\uD83D\uDEA3"; // 🚣
@@ -60,24 +64,27 @@ public final class Row implements Item {
     /**
      * Represents a small image to be displayed in the row.
      *
-     * <p>If necessary, small images will be scaled down to fit within a 36 x 36 dp bounding box,
-     * preserving their aspect ratio.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 88 x 88 dp bounding box. If necessary, the image will be scaled down while
+     * preserving its aspect ratio.
      */
     public static final int IMAGE_TYPE_SMALL = (1 << 0);
 
     /**
      * Represents a large image to be displayed in the row.
      *
-     * <p>If necessary, large images will be scaled down to fit within a 64 x 64 dp bounding box,
-     * preserving their aspect ratio.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 224 x 224 dp bounding box. If necessary, the image will be scaled down
+     * while preserving its aspect ratio.
      */
     public static final int IMAGE_TYPE_LARGE = (1 << 1);
 
     /**
      * Represents a small image to be displayed in the row.
      *
-     * <p>If necessary, icons will be scaled down to fit within a 44 x 44 dp bounding box,
-     * preserving their aspect ratios.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 88 x 88 dp bounding box. If necessary, the icon will be scaled down while
+     * preserving its aspect ratio.
      *
      * <p>A tint color is expected to be provided via {@link CarIcon.Builder#setTint}. Otherwise, a
      * default tint color as determined by the host will be applied.
@@ -88,7 +95,6 @@ public final class Row implements Item {
     @Nullable
     private final CarText mTitle;
     @Keep
-    @Nullable
     private final List<CarText> mTexts;
     @Keep
     @Nullable
@@ -267,7 +273,7 @@ public final class Row implements Item {
     /** Constructs an empty instance, used by serialization code. */
     private Row() {
         mTitle = null;
-        mTexts = null;
+        mTexts = Collections.emptyList();
         mImage = null;
         mToggle = null;
         mOnClickDelegate = null;
@@ -295,8 +301,12 @@ public final class Row implements Item {
         /**
          * Sets the title of the row.
          *
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
+         *
          * @throws NullPointerException     if {@code title} is {@code null}
-         * @throws IllegalArgumentException if {@code title} is empty
+         * @throws IllegalArgumentException if {@code title} is empty, of if it contains
+     *                                      unsupported spans
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -304,15 +314,38 @@ public final class Row implements Item {
             if (titleText.isEmpty()) {
                 throw new IllegalArgumentException("The title cannot be null or empty");
             }
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(titleText);
             mTitle = titleText;
+            return this;
+        }
+
+        /**
+         * Sets the title of the row, with support for multiple length variants.
+         *
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
+         *
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} is empty, of if it contains
+     *                                      unsupported spans
+         */
+        @NonNull
+        public Builder setTitle(@NonNull CarText title) {
+            if (requireNonNull(title).isEmpty()) {
+                throw new IllegalArgumentException("The title cannot be null or empty");
+            }
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(title);
+            mTitle = title;
             return this;
         }
 
         /**
          * Adds a text string to the row below the title.
          *
-         * <p>The text's color can be customized with {@link ForegroundCarColorSpan} instances, any
-         * other spans will be ignored by the host.
+         * <p>The text can be customized with {@link ForegroundCarColorSpan},
+         * {@link androidx.car.app.model.DistanceSpan}, and
+         * {@link androidx.car.app.model.DurationSpan} instances, any other spans will be ignored
+         * by the host.
          *
          * <p>Most templates allow up to 2 text strings, but this may vary. This limit is
          * documented in each individual template.
@@ -370,12 +403,29 @@ public final class Row implements Item {
          * of text
          * </pre>
          *
-         * @throws NullPointerException if {@code text} is {@code null}
+         * @throws NullPointerException     if {@code text} is {@code null}
+         * @throws IllegalArgumentException if {@code text} contains unsupported spans
          * @see ForegroundCarColorSpan
          */
         @NonNull
         public Builder addText(@NonNull CharSequence text) {
+            CarText carText = CarText.create(requireNonNull(text));
+            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(carText);
             mTexts.add(CarText.create(requireNonNull(text)));
+            return this;
+        }
+
+        /**
+         * Adds a text string to the row below the title, with support for multiple length variants.
+         *
+         * @throws NullPointerException     if {@code text} is {@code null}
+         * @throws IllegalArgumentException if {@code text} contains unsupported spans
+         * @see Builder#addText(CharSequence)
+         */
+        @NonNull
+        public Builder addText(@NonNull CarText text) {
+            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(requireNonNull(text));
+            mTexts.add(text);
             return this;
         }
 
@@ -402,7 +452,7 @@ public final class Row implements Item {
          *
          * <p>If the input image's size exceeds the sizing requirements for the given image type in
          * either one of the dimensions, it will be scaled down to be centered inside the
-         * bounding box while preserving the aspect ratio.
+         * bounding box while preserving its aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.

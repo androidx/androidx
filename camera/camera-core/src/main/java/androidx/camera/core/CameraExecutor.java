@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.core.util.Preconditions;
 
@@ -32,7 +33,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * A camera executor class that executes camera operations.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraExecutor implements Executor {
+    private static final String TAG = "CameraExecutor";
     private static final int DEFAULT_CORE_THREADS = 1;
     private static final int DEFAULT_MAX_THREADS = DEFAULT_CORE_THREADS;
 
@@ -111,7 +114,13 @@ class CameraExecutor implements Executor {
     }
 
     private static ThreadPoolExecutor createExecutor() {
-        return new ThreadPoolExecutor(DEFAULT_CORE_THREADS, DEFAULT_MAX_THREADS,
-                0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), THREAD_FACTORY);
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(DEFAULT_CORE_THREADS,
+                DEFAULT_MAX_THREADS, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(),
+                THREAD_FACTORY);
+
+        threadPoolExecutor.setRejectedExecutionHandler((runnable, executor) -> Logger.e(TAG,
+                "A rejected execution occurred in CameraExecutor!"));
+
+        return threadPoolExecutor;
     }
 }

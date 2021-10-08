@@ -19,7 +19,6 @@ import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,14 +26,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.center
-import androidx.compose.ui.test.down
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.move
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performGesture
-import androidx.compose.ui.test.up
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -88,9 +83,18 @@ class CheckboxScreenshotTest {
                 Checkbox(modifier = wrap, checked = false, onCheckedChange = { })
             }
         }
-        rule.onNodeWithTag(wrapperTestTag).performGesture {
+
+        rule.onNode(isToggleable()).performTouchInput {
             down(center)
         }
+
+        // Advance past the tap timeout
+        rule.mainClock.advanceTimeBy(100)
+
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
+
         assertToggeableAgainstGolden("checkbox_pressed")
     }
 
@@ -145,8 +149,8 @@ class CheckboxScreenshotTest {
 
     @Test
     fun checkBoxTest_unchecked_animateToChecked() {
+        val isChecked = mutableStateOf(false)
         rule.setMaterialContent {
-            val isChecked = remember { mutableStateOf(false) }
             Box(wrap.testTag(wrapperTestTag)) {
                 Checkbox(
                     modifier = wrap,
@@ -158,10 +162,12 @@ class CheckboxScreenshotTest {
 
         rule.mainClock.autoAdvance = false
 
-        rule.onNode(isToggleable())
-            // split click into (down) and (move, up) to enforce a composition in between
-            .performGesture { down(center) }
-            .performGesture { move(); up() }
+        // Because Ripples are drawn on the RenderThread, it is hard to synchronize them with
+        // Compose animations, so instead just manually change the value instead of triggering
+        // and trying to screenshot a ripple
+        rule.runOnIdle {
+            isChecked.value = true
+        }
 
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle() // Wait for measure
@@ -172,8 +178,8 @@ class CheckboxScreenshotTest {
 
     @Test
     fun checkBoxTest_checked_animateToUnchecked() {
+        val isChecked = mutableStateOf(true)
         rule.setMaterialContent {
-            val isChecked = remember { mutableStateOf(true) }
             Box(wrap.testTag(wrapperTestTag)) {
                 Checkbox(
                     modifier = wrap,
@@ -185,10 +191,12 @@ class CheckboxScreenshotTest {
 
         rule.mainClock.autoAdvance = false
 
-        rule.onNode(isToggleable())
-            // split click into (down) and (move, up) to enforce a composition in between
-            .performGesture { down(center) }
-            .performGesture { move(); up() }
+        // Because Ripples are drawn on the RenderThread, it is hard to synchronize them with
+        // Compose animations, so instead just manually change the value instead of triggering
+        // and trying to screenshot a ripple
+        rule.runOnIdle {
+            isChecked.value = false
+        }
 
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle() // Wait for measure

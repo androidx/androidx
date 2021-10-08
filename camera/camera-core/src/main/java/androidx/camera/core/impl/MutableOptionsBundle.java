@@ -20,6 +20,7 @@ import android.util.ArrayMap;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.Collections;
 import java.util.Map;
@@ -29,6 +30,7 @@ import java.util.TreeMap;
 /**
  * A MutableOptionsBundle is an {@link OptionsBundle} which allows for insertion/removal.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class MutableOptionsBundle extends OptionsBundle implements MutableConfig {
     @NonNull
     private static final OptionPriority DEFAULT_PRIORITY = OptionPriority.OPTIONAL;

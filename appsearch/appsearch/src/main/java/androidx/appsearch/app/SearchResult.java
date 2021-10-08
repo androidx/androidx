@@ -21,6 +21,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
@@ -32,9 +33,9 @@ import java.util.List;
  *
  * <p>This allows clients to obtain:
  * <ul>
- *   <li>The document which matched, using {@link #getDocument}
+ *   <li>The document which matched, using {@link #getGenericDocument}
  *   <li>Information about which properties in the document matched, and "snippet" information
- *       containing textual summaries of the document's matches, using {@link #getMatches}
+ *       containing textual summaries of the document's matches, using {@link #getMatchInfos}
  *  </ul>
  *
  * <p>"Snippet" refers to a substring of text from the content of document that is returned as a
@@ -43,17 +44,11 @@ import java.util.List;
  * @see SearchResults
  */
 public final class SearchResult {
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String DOCUMENT_FIELD = "document";
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String MATCHES_FIELD = "matches";
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String PACKAGE_NAME_FIELD = "packageName";
+    static final String DOCUMENT_FIELD = "document";
+    static final String MATCH_INFOS_FIELD = "matchInfos";
+    static final String PACKAGE_NAME_FIELD = "packageName";
+    static final String DATABASE_NAME_FIELD = "databaseName";
+    static final String RANKING_SIGNAL_FIELD = "rankingSignal";
 
     @NonNull
     private final Bundle mBundle;
@@ -64,7 +59,7 @@ public final class SearchResult {
 
     /** Cache of the inflated matches. Comes from inflating mMatchBundles at first use. */
     @Nullable
-    private List<MatchInfo> mMatches;
+    private List<MatchInfo> mMatchInfos;
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -79,13 +74,30 @@ public final class SearchResult {
         return mBundle;
     }
 
+// @exportToFramework:startStrip()
+    /**
+     * Contains the matching document, converted to the given document class.
+     *
+     * <p>This is equivalent to calling {@code getGenericDocument().toDocumentClass(T.class)}.
+     *
+     * @return Document object which matched the query.
+     * @throws AppSearchException if no factory for this document class could be found on the
+     *       classpath.
+     */
+    @NonNull
+    public <T> T getDocument(@NonNull Class<T> documentClass) throws AppSearchException {
+        Preconditions.checkNotNull(documentClass);
+        return getGenericDocument().toDocumentClass(documentClass);
+    }
+// @exportToFramework:endStrip()
+
     /**
      * Contains the matching {@link GenericDocument}.
      *
      * @return Document object which matched the query.
      */
     @NonNull
-    public GenericDocument getDocument() {
+    public GenericDocument getGenericDocument() {
         if (mDocument == null) {
             mDocument = new GenericDocument(
                     Preconditions.checkNotNull(mBundle.getBundle(DOCUMENT_FIELD)));
@@ -94,7 +106,8 @@ public final class SearchResult {
     }
 
     /**
-     * Contains a list of Snippets that matched the request.
+     * Returns a list of {@link MatchInfo}s providing information about how the document in
+     * {@link #getGenericDocument} matched the query.
      *
      * @return List of matches based on {@link SearchSpec}. If snippeting is disabled using
      * {@link SearchSpec.Builder#setSnippetCount} or
@@ -102,17 +115,17 @@ public final class SearchResult {
      * value, this method returns an empty list.
      */
     @NonNull
-    public List<MatchInfo> getMatches() {
-        if (mMatches == null) {
+    public List<MatchInfo> getMatchInfos() {
+        if (mMatchInfos == null) {
             List<Bundle> matchBundles =
-                    Preconditions.checkNotNull(mBundle.getParcelableArrayList(MATCHES_FIELD));
-            mMatches = new ArrayList<>(matchBundles.size());
+                    Preconditions.checkNotNull(mBundle.getParcelableArrayList(MATCH_INFOS_FIELD));
+            mMatchInfos = new ArrayList<>(matchBundles.size());
             for (int i = 0; i < matchBundles.size(); i++) {
-                MatchInfo matchInfo = new MatchInfo(getDocument(), matchBundles.get(i));
-                mMatches.add(matchInfo);
+                MatchInfo matchInfo = new MatchInfo(matchBundles.get(i), getGenericDocument());
+                mMatchInfos.add(matchInfo);
             }
         }
-        return mMatches;
+        return mMatchInfos;
     }
 
     /**
@@ -123,6 +136,133 @@ public final class SearchResult {
     @NonNull
     public String getPackageName() {
         return Preconditions.checkNotNull(mBundle.getString(PACKAGE_NAME_FIELD));
+    }
+
+    /**
+     * Contains the database name that stored the {@link GenericDocument}.
+     *
+     * @return Name of the database within which the document is stored
+     */
+    @NonNull
+    public String getDatabaseName() {
+        return Preconditions.checkNotNull(mBundle.getString(DATABASE_NAME_FIELD));
+    }
+
+    /**
+     * Returns the ranking signal of the {@link GenericDocument}, according to the
+     * ranking strategy set in {@link SearchSpec.Builder#setRankingStrategy(int)}.
+     *
+     * The meaning of the ranking signal and its value is determined by the selected ranking
+     * strategy:
+     * <ul>
+     * <li>{@link SearchSpec#RANKING_STRATEGY_NONE} - this value will be 0</li>
+     * <li>{@link SearchSpec#RANKING_STRATEGY_DOCUMENT_SCORE} - the value returned by calling
+     * {@link GenericDocument#getScore()} on the document returned by
+     * {@link #getGenericDocument()}</li>
+     * <li>{@link SearchSpec#RANKING_STRATEGY_CREATION_TIMESTAMP} - the value returned by calling
+     * {@link GenericDocument#getCreationTimestampMillis()} on the document returned by
+     * {@link #getGenericDocument()}</li>
+     * <li>{@link SearchSpec#RANKING_STRATEGY_RELEVANCE_SCORE} - an arbitrary double value where
+     * a higher value means more relevant</li>
+     * <li>{@link SearchSpec#RANKING_STRATEGY_USAGE_COUNT} - the number of times usage has been
+     * reported for the document returned by {@link #getGenericDocument()}</li>
+     * <li>{@link SearchSpec#RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP} - the timestamp of the
+     * most recent usage that has been reported for the document returned by
+     * {@link #getGenericDocument()}</li>
+     * </ul>
+     *
+     * @return Ranking signal of the document
+     */
+    public double getRankingSignal() {
+        return mBundle.getDouble(RANKING_SIGNAL_FIELD);
+    }
+
+    /** Builder for {@link SearchResult} objects. */
+    public static final class Builder {
+        private final String mPackageName;
+        private final String mDatabaseName;
+        private ArrayList<Bundle> mMatchInfoBundles = new ArrayList<>();
+        private GenericDocument mGenericDocument;
+        private double mRankingSignal;
+        private boolean mBuilt = false;
+
+        /**
+         * Constructs a new builder for {@link SearchResult} objects.
+         *
+         * @param packageName the package name the matched document belongs to
+         * @param databaseName the database name the matched document belongs to.
+         */
+        public Builder(@NonNull String packageName, @NonNull String databaseName) {
+            mPackageName = Preconditions.checkNotNull(packageName);
+            mDatabaseName = Preconditions.checkNotNull(databaseName);
+        }
+
+// @exportToFramework:startStrip()
+        /**
+         * Sets the document which matched.
+         *
+         * @param document An instance of a class annotated with
+         * {@link androidx.appsearch.annotation.Document}.
+         *
+         * @throws AppSearchException if an error occurs converting a document class into a
+         *                            {@link GenericDocument}.
+         */
+        @NonNull
+        public Builder setDocument(@NonNull Object document) throws AppSearchException {
+            Preconditions.checkNotNull(document);
+            resetIfBuilt();
+            return setGenericDocument(GenericDocument.fromDocumentClass(document));
+        }
+// @exportToFramework:endStrip()
+
+        /** Sets the document which matched. */
+        @NonNull
+        public Builder setGenericDocument(@NonNull GenericDocument document) {
+            Preconditions.checkNotNull(document);
+            resetIfBuilt();
+            mGenericDocument = document;
+            return this;
+        }
+
+        /** Adds another match to this SearchResult. */
+        @NonNull
+        public Builder addMatchInfo(@NonNull MatchInfo matchInfo) {
+            Preconditions.checkState(
+                    matchInfo.mDocument == null,
+                    "This MatchInfo is already associated with a SearchResult and can't be "
+                            + "reassigned");
+            resetIfBuilt();
+            mMatchInfoBundles.add(matchInfo.mBundle);
+            return this;
+        }
+
+        /** Sets the ranking signal of the matched document in this SearchResult. */
+        @NonNull
+        public Builder setRankingSignal(double rankingSignal) {
+            resetIfBuilt();
+            mRankingSignal = rankingSignal;
+            return this;
+        }
+
+        /** Constructs a new {@link SearchResult}. */
+        @NonNull
+        public SearchResult build() {
+            Bundle bundle = new Bundle();
+            bundle.putString(PACKAGE_NAME_FIELD, mPackageName);
+            bundle.putString(DATABASE_NAME_FIELD, mDatabaseName);
+            bundle.putBundle(DOCUMENT_FIELD, mGenericDocument.getBundle());
+            bundle.putDouble(RANKING_SIGNAL_FIELD, mRankingSignal);
+            bundle.putParcelableArrayList(MATCH_INFOS_FIELD, mMatchInfoBundles);
+            mBuilt = true;
+            return new SearchResult(bundle);
+        }
+
+        private void resetIfBuilt() {
+            if (mBuilt) {
+                mMatchInfoBundles = new ArrayList<>(mMatchInfoBundles);
+                mBuilt = false;
+            }
+        }
     }
 
     /**
@@ -139,9 +279,11 @@ public final class SearchResult {
      * <p>{@link MatchInfo#getPropertyPath()} returns "subject"
      * <p>{@link MatchInfo#getFullText()} returns "A commonly used fake word is foo. Another
      * nonsense word that’s used a lot is bar."
-     * <p>{@link MatchInfo#getExactMatchPosition()} returns [29, 32]
+     * <p>{@link MatchInfo#getExactMatchRange()} returns [29, 32]
      * <p>{@link MatchInfo#getExactMatch()} returns "foo"
-     * <p>{@link MatchInfo#getSnippetPosition()} returns [26, 33]
+     * <p>{@link MatchInfo#getSubmatchRange()} returns [29, 32]
+     * <p>{@link MatchInfo#getSubmatch()} returns "foo"
+     * <p>{@link MatchInfo#getSnippetRange()} returns [26, 33]
      * <p>{@link MatchInfo#getSnippet()} returns "is foo."
      * <p>
      * <p>Class Example 2:
@@ -155,70 +297,75 @@ public final class SearchResult {
      * <p> Match-1
      * <p>{@link MatchInfo#getPropertyPath()} returns "sender.name"
      * <p>{@link MatchInfo#getFullText()} returns "Test Name Jr."
-     * <p>{@link MatchInfo#getExactMatchPosition()} returns [0, 4]
+     * <p>{@link MatchInfo#getExactMatchRange()} returns [0, 4]
      * <p>{@link MatchInfo#getExactMatch()} returns "Test"
-     * <p>{@link MatchInfo#getSnippetPosition()} returns [0, 9]
+     * <p>{@link MatchInfo#getSubmatchRange()} returns [0, 4]
+     * <p>{@link MatchInfo#getSubmatch()} returns "Test"
+     * <p>{@link MatchInfo#getSnippetRange()} returns [0, 9]
      * <p>{@link MatchInfo#getSnippet()} returns "Test Name"
      * <p> Match-2
      * <p>{@link MatchInfo#getPropertyPath()} returns "sender.email"
      * <p>{@link MatchInfo#getFullText()} returns "TestNameJr@gmail.com"
-     * <p>{@link MatchInfo#getExactMatchPosition()} returns [0, 20]
+     * <p>{@link MatchInfo#getExactMatchRange()} returns [0, 20]
      * <p>{@link MatchInfo#getExactMatch()} returns "TestNameJr@gmail.com"
-     * <p>{@link MatchInfo#getSnippetPosition()} returns [0, 20]
+     * <p>{@link MatchInfo#getSubmatchRange()} returns [0, 4]
+     * <p>{@link MatchInfo#getSubmatch()} returns "Test"
+     * <p>{@link MatchInfo#getSnippetRange()} returns [0, 20]
      * <p>{@link MatchInfo#getSnippet()} returns "TestNameJr@gmail.com"
      */
     public static final class MatchInfo {
-        /**
-         * The path of the matching snippet property.
-         *
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public static final String PROPERTY_PATH_FIELD = "propertyPath";
+        /** The path of the matching snippet property. */
+        private static final String PROPERTY_PATH_FIELD = "propertyPath";
+        private static final String EXACT_MATCH_RANGE_LOWER_FIELD = "exactMatchRangeLower";
+        private static final String EXACT_MATCH_RANGE_UPPER_FIELD = "exactMatchRangeUpper";
+        private static final String SUBMATCH_RANGE_LOWER_FIELD = "submatchRangeLower";
+        private static final String SUBMATCH_RANGE_UPPER_FIELD = "submatchRangeUpper";
+        private static final String SNIPPET_RANGE_LOWER_FIELD = "snippetRangeLower";
+        private static final String SNIPPET_RANGE_UPPER_FIELD = "snippetRangeUpper";
 
-        /**
-         * The index of matching value in its property. A property may have multiple values. This
-         * index indicates which value is the match.
-         *
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public static final String VALUES_INDEX_FIELD = "valuesIndex";
-
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public static final String EXACT_MATCH_POSITION_LOWER_FIELD = "exactMatchPositionLower";
-
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public static final String EXACT_MATCH_POSITION_UPPER_FIELD = "exactMatchPositionUpper";
-
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public static final String WINDOW_POSITION_LOWER_FIELD = "windowPositionLower";
-
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public static final String WINDOW_POSITION_UPPER_FIELD = "windowPositionUpper";
-
-        private final String mFullText;
         private final String mPropertyPath;
-        private final Bundle mBundle;
+        final Bundle mBundle;
+
+        /**
+         * Document which the match comes from.
+         *
+         * <p>If this is {@code null}, methods which require access to the document, like
+         * {@link #getExactMatch}, will throw {@link NullPointerException}.
+         */
+        @Nullable
+        final GenericDocument mDocument;
+
+        /** Full text of the matched property. Populated on first use. */
+        @Nullable
+        private String mFullText;
+
+        /** Range of property that exactly matched the query. Populated on first use. */
+        @Nullable
         private MatchRange mExactMatchRange;
+
+        /**
+         * Range of property that corresponds to the subsequence of the exact match that directly
+         * matches a query term. Populated on first use.
+         */
+        @Nullable
+        private MatchRange mSubmatchRange;
+
+        /** Range of some reasonable amount of context around the query. Populated on first use. */
+        @Nullable
         private MatchRange mWindowRange;
 
-        MatchInfo(@NonNull GenericDocument document, @NonNull Bundle bundle) {
+        MatchInfo(@NonNull Bundle bundle, @Nullable GenericDocument document) {
             mBundle = Preconditions.checkNotNull(bundle);
-            Preconditions.checkNotNull(document);
+            mDocument = document;
             mPropertyPath = Preconditions.checkNotNull(bundle.getString(PROPERTY_PATH_FIELD));
-            mFullText = getPropertyValues(
-                    document, mPropertyPath, mBundle.getInt(VALUES_INDEX_FIELD));
         }
 
         /**
          * Gets the property path corresponding to the given entry.
-         * <p>Property Path: '.' - delimited sequence of property names indicating which property in
-         * the Document these snippets correspond to.
+         *
+         * <p>A property path is a '.' - delimited sequence of property names indicating which
+         * property in the document these snippets correspond to.
+         *
          * <p>Example properties: 'body', 'sender.name', 'sender.emailaddress', etc.
          * For class example 1 this returns "subject"
          */
@@ -234,44 +381,84 @@ public final class SearchResult {
          */
         @NonNull
         public String getFullText() {
+            if (mFullText == null) {
+                Preconditions.checkState(
+                        mDocument != null,
+                        "Document has not been populated; this MatchInfo cannot be used yet");
+                mFullText = getPropertyValues(mDocument, mPropertyPath);
+            }
             return mFullText;
         }
 
         /**
-         * Gets the exact {@link MatchRange} corresponding to the given entry.
-         * <p>For class example 1 this returns [29, 32]
+         * Gets the {@link MatchRange} of the exact term of the given entry that matched the query.
+         * <p>Class example 1: this returns [29, 32].
+         * <p>Class example 2: for the first {@link MatchInfo}, this returns [0, 4] and, for the
+         * second {@link MatchInfo}, this returns [0, 20].
          */
         @NonNull
-        public MatchRange getExactMatchPosition() {
+        public MatchRange getExactMatchRange() {
             if (mExactMatchRange == null) {
                 mExactMatchRange = new MatchRange(
-                        mBundle.getInt(EXACT_MATCH_POSITION_LOWER_FIELD),
-                        mBundle.getInt(EXACT_MATCH_POSITION_UPPER_FIELD));
+                        mBundle.getInt(EXACT_MATCH_RANGE_LOWER_FIELD),
+                        mBundle.getInt(EXACT_MATCH_RANGE_UPPER_FIELD));
             }
             return mExactMatchRange;
         }
 
         /**
-         * Gets the  {@link MatchRange} corresponding to the given entry.
-         * <p>For class example 1 this returns "foo"
+         * Gets the exact term of the given entry that matched the query.
+         * <p>Class example 1: this returns "foo".
+         * <p>Class example 2: for the first {@link MatchInfo}, this returns "Test" and, for the
+         * second {@link MatchInfo}, this returns "TestNameJr@gmail.com".
          */
         @NonNull
         public CharSequence getExactMatch() {
-            return getSubstring(getExactMatchPosition());
+            return getSubstring(getExactMatchRange());
+        }
+
+        /**
+         * Gets the {@link MatchRange} of the exact term subsequence of the given entry that matched
+         * the query.
+         * <p>Class example 1: this returns [29, 32].
+         * <p>Class example 2: for the first {@link MatchInfo}, this returns [0, 4] and, for the
+         * second {@link MatchInfo}, this returns [0, 4].
+         */
+        @NonNull
+        public MatchRange getSubmatchRange() {
+            if (mSubmatchRange == null) {
+                mSubmatchRange = new MatchRange(
+                        mBundle.getInt(SUBMATCH_RANGE_LOWER_FIELD),
+                        mBundle.getInt(SUBMATCH_RANGE_UPPER_FIELD));
+            }
+            return mSubmatchRange;
+        }
+
+        /**
+         * Gets the exact term subsequence of the given entry that matched the query.
+         * <p>Class example 1: this returns "foo".
+         * <p>Class example 2: for the first {@link MatchInfo}, this returns "Test" and, for the
+         * second {@link MatchInfo}, this returns "Test".
+         */
+        @NonNull
+        public CharSequence getSubmatch() {
+            return getSubstring(getSubmatchRange());
         }
 
         /**
          * Gets the snippet {@link MatchRange} corresponding to the given entry.
          * <p>Only populated when set maxSnippetSize > 0 in
          * {@link SearchSpec.Builder#setMaxSnippetSize}.
-         * <p>For class example 1 this returns [29, 41].
+         * <p>Class example 1: this returns [29, 41].
+         * <p>Class example 2: for the first {@link MatchInfo}, this returns [0, 9] and, for the
+         * second {@link MatchInfo}, this returns [0, 20].
          */
         @NonNull
-        public MatchRange getSnippetPosition() {
+        public MatchRange getSnippetRange() {
             if (mWindowRange == null) {
                 mWindowRange = new MatchRange(
-                        mBundle.getInt(WINDOW_POSITION_LOWER_FIELD),
-                        mBundle.getInt(WINDOW_POSITION_UPPER_FIELD));
+                        mBundle.getInt(SNIPPET_RANGE_LOWER_FIELD),
+                        mBundle.getInt(SNIPPET_RANGE_UPPER_FIELD));
             }
             return mWindowRange;
         }
@@ -282,11 +469,13 @@ public final class SearchResult {
          * maxSnippetSize > 0. The size of this content can be changed by
          * {@link SearchSpec.Builder#setMaxSnippetSize}. Windowing is centered around the middle of
          * the matched token with content on either side clipped to token boundaries.
-         * <p>For class example 1 this returns "foo. Another"
+         * <p>Class example 1: this returns "foo. Another".
+         * <p>Class example 2: for the first {@link MatchInfo}, this returns "Test Name" and, for
+         * the second {@link MatchInfo}, this returns "TestNameJr@gmail.com".
          */
         @NonNull
         public CharSequence getSnippet() {
-            return getSubstring(getSnippetPosition());
+            return getSubstring(getSnippetRange());
         }
 
         private CharSequence getSubstring(MatchRange range) {
@@ -294,18 +483,77 @@ public final class SearchResult {
         }
 
         /** Extracts the matching string from the document. */
-        private static String getPropertyValues(
-                GenericDocument document, String propertyName, int valueIndex) {
+        private static String getPropertyValues(GenericDocument document, String propertyName) {
             // In IcingLib snippeting is available for only 3 data types i.e String, double and
             // long, so we need to check which of these three are requested.
-            // TODO (tytytyww): getPropertyStringArray takes property name, handle for property
-            //  path.
             // TODO (tytytyww): support double[] and long[].
-            String[] values = document.getPropertyStringArray(propertyName);
-            if (values == null) {
-                throw new IllegalStateException("No content found for requested property path!");
+            String result = document.getPropertyString(propertyName);
+            if (result == null) {
+                throw new IllegalStateException(
+                        "No content found for requested property path: " + propertyName);
             }
-            return values[valueIndex];
+            return result;
+        }
+
+        /** Builder for {@link MatchInfo} objects. */
+        public static final class Builder {
+            private final String mPropertyPath;
+            private MatchRange mExactMatchRange = new MatchRange(0, 0);
+            private MatchRange mSubmatchRange = new MatchRange(0, 0);
+            private MatchRange mSnippetRange = new MatchRange(0, 0);
+
+            /**
+             * Creates a new {@link MatchInfo.Builder} reporting a match with the given property
+             * path.
+             *
+             * <p>A property path is a dot-delimited sequence of property names indicating which
+             * property in the document these snippets correspond to.
+             *
+             * <p>Example properties: 'body', 'sender.name', 'sender.emailaddress', etc.
+             * For class example 1 this returns "subject".
+             *
+             * @param propertyPath A {@code dot-delimited sequence of property names indicating
+             *                     which property in the document these snippets correspond to.
+             */
+            public Builder(@NonNull String propertyPath) {
+                mPropertyPath = Preconditions.checkNotNull(propertyPath);
+            }
+
+            /** Sets the exact {@link MatchRange} corresponding to the given entry. */
+            @NonNull
+            public Builder setExactMatchRange(@NonNull MatchRange matchRange) {
+                mExactMatchRange = Preconditions.checkNotNull(matchRange);
+                return this;
+            }
+
+
+            /** Sets the submatch {@link MatchRange} corresponding to the given entry. */
+            @NonNull
+            public Builder setSubmatchRange(@NonNull MatchRange matchRange) {
+                mSubmatchRange = Preconditions.checkNotNull(matchRange);
+                return this;
+            }
+
+            /** Sets the snippet {@link MatchRange} corresponding to the given entry. */
+            @NonNull
+            public Builder setSnippetRange(@NonNull MatchRange matchRange) {
+                mSnippetRange = Preconditions.checkNotNull(matchRange);
+                return this;
+            }
+
+            /** Constructs a new {@link MatchInfo}. */
+            @NonNull
+            public MatchInfo build() {
+                Bundle bundle = new Bundle();
+                bundle.putString(SearchResult.MatchInfo.PROPERTY_PATH_FIELD, mPropertyPath);
+                bundle.putInt(MatchInfo.EXACT_MATCH_RANGE_LOWER_FIELD, mExactMatchRange.getStart());
+                bundle.putInt(MatchInfo.EXACT_MATCH_RANGE_UPPER_FIELD, mExactMatchRange.getEnd());
+                bundle.putInt(MatchInfo.SUBMATCH_RANGE_LOWER_FIELD, mSubmatchRange.getStart());
+                bundle.putInt(MatchInfo.SUBMATCH_RANGE_UPPER_FIELD, mSubmatchRange.getEnd());
+                bundle.putInt(MatchInfo.SNIPPET_RANGE_LOWER_FIELD, mSnippetRange.getStart());
+                bundle.putInt(MatchInfo.SNIPPET_RANGE_UPPER_FIELD, mSnippetRange.getEnd());
+                return new MatchInfo(bundle, /*document=*/ null);
+            }
         }
     }
 
@@ -328,9 +576,7 @@ public final class SearchResult {
          *
          * @param start The start point (inclusive)
          * @param end   The end point (exclusive)
-         * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public MatchRange(int start, int end) {
             if (start > end) {
                 throw new IllegalArgumentException("Start point must be less than or equal to "

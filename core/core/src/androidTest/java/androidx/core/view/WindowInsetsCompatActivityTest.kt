@@ -37,6 +37,7 @@ import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.espresso.matcher.ViewMatchers.hasFocus
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
@@ -289,6 +290,46 @@ public class WindowInsetsCompatActivityTest(
             // (unlike the old system window insets)
             assertEquals(initialSystemBars, insets.getInsets(Type.systemBars()))
         }
+    }
+
+    @Test
+    @FlakyTest
+    @SdkSuppress(minSdkVersion = 21)
+    public fun rootInsets_no_ime() {
+        scenario.onActivity { activity ->
+            WindowCompat.setDecorFitsSystemWindows(activity.window, false)
+        }
+        val container: View = scenario.withActivity { findViewById(R.id.container) }
+        scenario.onActivity { activity ->
+            WindowCompat.getInsetsController(activity.window, container)!!.show(
+                Type.systemBars()
+            )
+        }
+
+        // Get the current insets and check that the system bars insets are not empty
+        val navigationBar = ViewCompat.getRootWindowInsets(container)
+            ?.getInsets(Type.navigationBars())!!
+        assertNotEquals(
+            "The root window insets for NavigationBars not be empty",
+            Insets.NONE, navigationBar
+        )
+
+        val statusBar = ViewCompat.getRootWindowInsets(container)
+            ?.getInsets(Type.statusBars())!!
+        assertNotEquals(
+            "The root window insets for StatusBar not be empty", Insets.NONE, statusBar
+        )
+
+        // Check the same thing but for when insets are dispatched
+        val insets = container.requestAndAwaitInsets()
+        assertNotEquals(
+            "The dispatched insets for NavigationBars insets should not be empty",
+            Insets.NONE, insets.getInsets(Type.navigationBars())
+        )
+        assertNotEquals(
+            "The dispatched insets for StatusBar insets should not be empty",
+            Insets.NONE, insets.getInsets(Type.statusBars())
+        )
     }
 
     private fun assumeNotCuttlefish() {

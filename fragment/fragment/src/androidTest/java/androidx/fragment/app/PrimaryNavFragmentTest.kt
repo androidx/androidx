@@ -300,29 +300,11 @@ class PrimaryNavFragmentTest {
         activityRule.waitForExecution()
 
         assertThat(navigations.drain()).isEqualTo(
-            if (FragmentManager.USE_STATE_MANAGER) {
-                listOf(
-                    trackingFragment to false,
-                    postponedFragment to true
-                )
-            } else {
-                listOf(
-                    trackingFragment to false,
-                    postponedFragment to true,
-                    postponedFragment to false,
-                    trackingFragment to true
-                )
-            }
+            listOf(trackingFragment to false, postponedFragment to true)
         )
         assertWithMessage("primary nav fragment not set correctly after replace")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(
-                if (FragmentManager.USE_STATE_MANAGER) {
-                    postponedFragment
-                } else {
-                    trackingFragment
-                }
-            )
+            .isSameInstanceAs(postponedFragment)
 
         // Now pop the back stack and also add a replacement Fragment
         fm.popBackStack()
@@ -335,23 +317,12 @@ class PrimaryNavFragmentTest {
         activityRule.waitForExecution()
 
         assertThat(navigations.drain()).isEqualTo(
-            if (FragmentManager.USE_STATE_MANAGER) {
-                listOf(
-                    postponedFragment to false,
-                    trackingFragment to true,
-                    trackingFragment to false,
-                    replacementFragment to true
-                )
-            } else {
-                listOf(
-                    trackingFragment to false,
-                    postponedFragment to true,
-                    postponedFragment to false,
-                    trackingFragment to true,
-                    trackingFragment to false,
-                    replacementFragment to true
-                )
-            }
+            listOf(
+                postponedFragment to false,
+                trackingFragment to true,
+                trackingFragment to false,
+                replacementFragment to true
+            )
         )
 
         assertWithMessage("primary nav fragment not set correctly after replace")

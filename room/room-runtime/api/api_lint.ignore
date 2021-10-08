@@ -1,0 +1,75 @@
+// Baseline format: 1.0
+ArrayReturn: androidx.room.RoomDatabase#query(String, Object[]) parameter #1:
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
+
+
+BuilderSetStyle: androidx.room.RoomDatabase.Builder#allowMainThreadQueries():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.allowMainThreadQueries()
+BuilderSetStyle: androidx.room.RoomDatabase.Builder#createFromAsset(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.createFromAsset(String)
+BuilderSetStyle: androidx.room.RoomDatabase.Builder#createFromFile(java.io.File):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.createFromFile(java.io.File)
+BuilderSetStyle: androidx.room.RoomDatabase.Builder#enableMultiInstanceInvalidation():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.enableMultiInstanceInvalidation()
+BuilderSetStyle: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigration():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.fallbackToDestructiveMigration()
+BuilderSetStyle: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigrationFrom(int...):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.fallbackToDestructiveMigrationFrom(int...)
+BuilderSetStyle: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigrationOnDowngrade():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.fallbackToDestructiveMigrationOnDowngrade()
+BuilderSetStyle: androidx.room.RoomDatabase.Builder#openHelperFactory(androidx.sqlite.db.SupportSQLiteOpenHelper.Factory):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.openHelperFactory(androidx.sqlite.db.SupportSQLiteOpenHelper.Factory)
+
+
+CallbackName: androidx.room.InvalidationTracker.Observer:
+    Class should be named Callback
+
+
+ExecutorRegistration: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.RoomDatabase.Callback):
+    Registration methods should have overload that accepts delivery Executor: `addCallback`
+ExecutorRegistration: androidx.room.RoomDatabase.Builder#createFromAsset(String, androidx.room.RoomDatabase.PrepackagedDatabaseCallback):
+    Registration methods should have overload that accepts delivery Executor: `createFromAsset`
+ExecutorRegistration: androidx.room.RoomDatabase.Builder#createFromFile(java.io.File, androidx.room.RoomDatabase.PrepackagedDatabaseCallback):
+    Registration methods should have overload that accepts delivery Executor: `createFromFile`
+ExecutorRegistration: androidx.room.RoomDatabase.Builder#createFromInputStream(java.util.concurrent.Callable<java.io.InputStream>, androidx.room.RoomDatabase.PrepackagedDatabaseCallback):
+    Registration methods should have overload that accepts delivery Executor: `createFromInputStream`
+
+
+MissingGetterMatchingBuilder: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.RoomDatabase.Callback):
+    T does not declare a `getCallbacks()` method matching method androidx.room.RoomDatabase.Builder.addCallback(androidx.room.RoomDatabase.Callback)
+MissingGetterMatchingBuilder: androidx.room.RoomDatabase.Builder#addMigrations(androidx.room.migration.Migration...):
+    T does not declare a getter method matching method androidx.room.RoomDatabase.Builder.addMigrations(androidx.room.migration.Migration...) (expected one of: [getMigrations(), getMigrationses()])
+MissingGetterMatchingBuilder: androidx.room.RoomDatabase.Builder#addTypeConverter(Object):
+    T does not declare a `getTypeConverters()` method matching method androidx.room.RoomDatabase.Builder.addTypeConverter(Object)
+MissingGetterMatchingBuilder: androidx.room.RoomDatabase.Builder#setJournalMode(androidx.room.RoomDatabase.JournalMode):
+    T does not declare a `getJournalMode()` method matching method androidx.room.RoomDatabase.Builder.setJournalMode(androidx.room.RoomDatabase.JournalMode)
+
+
+MissingNullability: androidx.room.DatabaseConfiguration#journalMode:
+    Missing nullability on field `journalMode` in class `class androidx.room.DatabaseConfiguration`
+MissingNullability: androidx.room.InvalidationTracker.Observer#Observer(String, java.lang.String...) parameter #1:
+    Missing nullability on parameter `rest` in method `Observer`
+MissingNullability: androidx.room.RoomDatabase#compileStatement(String):
+    Missing nullability on method `compileStatement` return
+MissingNullability: androidx.room.RoomDatabase#createOpenHelper(androidx.room.DatabaseConfiguration) parameter #0:
+    Missing nullability on parameter `config` in method `createOpenHelper`
+MissingNullability: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigrationFrom(int...) parameter #0:
+    Missing nullability on parameter `startVersions` in method `fallbackToDestructiveMigrationFrom`
+
+
+NullableCollection: androidx.room.DatabaseConfiguration#callbacks:
+    Type of field androidx.room.DatabaseConfiguration.callbacks is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.room.RoomDatabase.MigrationContainer#findMigrationPath(int, int):
+    Return type of method androidx.room.RoomDatabase.MigrationContainer.findMigrationPath(int,int) is a nullable collection (`java.util.List`); must be non-null
+
+
+RegistrationName: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.RoomDatabase.Callback):
+    Callback methods should be named register/unregister; was addCallback
+
+
+StaticFinalBuilder: androidx.room.RoomDatabase.Builder:
+    Builder must be final: androidx.room.RoomDatabase.Builder
+
+
+StreamFiles: androidx.room.RoomDatabase.Builder#createFromFile(java.io.File):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.room.RoomDatabase.Builder.createFromFile(java.io.File)

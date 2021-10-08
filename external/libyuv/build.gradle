@@ -1,0 +1,55 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+apply plugin: 'AndroidXPlugin'
+apply plugin: 'com.android.library'
+
+ext {
+    yuvSourceDir = "${project.rootDir.absolutePath}/../../external/libyuv"
+}
+
+android {
+    defaultConfig {
+        externalNativeBuild {
+            cmake {
+                arguments "-DCMAKE_POLICY_DEFAULT_CMP0064=NEW", "-DCMAKE_VERBOSE_MAKEFILE=ON"
+                // Build only the static library target
+                targets "yuv"
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            version "3.10.2"
+            path "${yuvSourceDir}/files/CMakeLists.txt"
+        }
+    }
+
+    // Enable generation of Prefab packages and include them in the library's AAR.
+    buildFeatures {
+        prefabPublishing true
+    }
+
+    // Include the "libyuv" module from the native build system in the AAR,
+    // and export the headers in files/include to its consumers
+    prefab {
+        libyuv {
+            headers "${yuvSourceDir}/files/include"
+            name "yuv"
+        }
+    }
+}

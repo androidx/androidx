@@ -20,7 +20,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.text.CoreText
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
@@ -51,14 +52,9 @@ import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.performGesture
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.test.R
-import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -104,12 +100,7 @@ class SelectionContainerTest {
     private lateinit var view: View
 
     private val textContent = "Text Demo Text"
-    private val fontFamily = Font(
-        resId = R.font.sample_font,
-        weight = FontWeight.Normal,
-        style = FontStyle.Normal
-    ).toFontFamily()
-
+    private val fontFamily = TEST_FONT_FAMILY
     private val selection = mutableStateOf<Selection?>(null)
     private val fontSize = 20.sp
     private val log = PointerInputChangeLog()
@@ -124,14 +115,14 @@ class SelectionContainerTest {
         createSelectionContainer()
         val position = 50f
         rule.onSelectionContainer()
-            .performGesture { longClick(Offset(x = position, y = position)) }
+            .performTouchInput { longClick(Offset(x = position, y = position)) }
         rule.runOnIdle {
             assertThat(selection.value).isNotNull()
         }
 
         // Act.
         rule.onSelectionContainer()
-            .performGesture { click(Offset(x = position, y = position)) }
+            .performTouchInput { click(Offset(x = position, y = position)) }
 
         // Assert.
         rule.runOnIdle {
@@ -151,13 +142,13 @@ class SelectionContainerTest {
         createSelectionContainer()
         val position = 50f
         rule.onSelectionContainer()
-            .performGesture { longClick(Offset(x = position, y = position)) }
+            .performTouchInput { longClick(Offset(x = position, y = position)) }
 
         log.entries.clear()
 
         // Act.
         rule.onSelectionContainer()
-            .performGesture { click(Offset(x = position, y = position)) }
+            .performTouchInput { click(Offset(x = position, y = position)) }
 
         // Assert.
         rule.runOnIdle {
@@ -182,7 +173,7 @@ class SelectionContainerTest {
 
             // Act.
             rule.onSelectionContainer()
-                .performGesture {
+                .performTouchInput {
                     longClick(
                         Offset(textContent.indexOf('m') * characterSize, 0.5f * characterSize)
                     )
@@ -229,7 +220,7 @@ class SelectionContainerTest {
 
             // Act.
             rule.onSelectionContainer()
-                .performGesture {
+                .performTouchInput {
                     longClick(
                         Offset(
                             rule.rootWidth().toSp().toPx() - ("xt Demo Text").length *
@@ -284,7 +275,7 @@ class SelectionContainerTest {
                             selection.value = it
                         }
                     ) {
-                        CoreText(
+                        BasicText(
                             AnnotatedString(textContent),
                             Modifier.fillMaxSize(),
                             style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),

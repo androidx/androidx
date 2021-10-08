@@ -16,9 +16,9 @@
 
 package androidx.core.graphics;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Typeface;
@@ -42,7 +42,6 @@ import androidx.core.provider.FontsContractCompat.FontInfo;
 /**
  * Helper for accessing features in {@link Typeface}.
  */
-@SuppressLint("NewApi")  // TODO: Remove this suppression once Q SDK is released.
 public class TypefaceCompat {
     private static final TypefaceCompatBaseImpl sTypefaceCompatImpl;
     static {
@@ -139,8 +138,11 @@ public class TypefaceCompat {
                     : fontCallback == null;
             final int timeout = isRequestFromLayoutInflator ? providerEntry.getTimeout()
                     : FontResourcesParserCompat.INFINITE_TIMEOUT_VALUE;
-            typeface = FontsContractCompat.getFont(context, providerEntry.getRequest(),
-                    fontCallback, handler, isBlocking, timeout, style);
+
+            Handler newHandler = ResourcesCompat.FontCallback.getHandler(handler);
+            ResourcesCallbackAdapter newCallback = new ResourcesCallbackAdapter(fontCallback);
+            typeface = FontsContractCompat.requestFont(context, providerEntry.getRequest(),
+                    style, isBlocking, timeout, newHandler, newCallback);
         } else {
             typeface = sTypefaceCompatImpl.createFromFontFamilyFilesResourceEntry(
                     context, (FontFamilyFilesResourceEntry) entry, resources, style);
@@ -238,5 +240,38 @@ public class TypefaceCompat {
     @VisibleForTesting
     public static void clearCache() {
         sTypefaceCache.evictAll();
+    }
+
+    /**
+     * Converts {@link androidx.core.provider.FontsContractCompat.FontRequestCallback} callback
+     * functions into {@link androidx.core.content.res.ResourcesCompat.FontCallback} equivalents.
+     *
+     * RestrictTo(LIBRARY) since it is used by the deprecated
+     * {@link FontsContractCompat#getFontSync} function.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public static class ResourcesCallbackAdapter extends FontsContractCompat.FontRequestCallback {
+        @Nullable
+        private ResourcesCompat.FontCallback mFontCallback;
+
+        public ResourcesCallbackAdapter(@Nullable ResourcesCompat.FontCallback fontCallback) {
+            mFontCallback = fontCallback;
+        }
+
+        @Override
+        public void onTypefaceRetrieved(@NonNull Typeface typeface) {
+            if (mFontCallback != null) {
+                mFontCallback.onFontRetrieved(typeface);
+            }
+        }
+
+        @Override
+        public void onTypefaceRequestFailed(int reason) {
+            if (mFontCallback != null) {
+                mFontCallback.onFontRetrievalFailed(reason);
+            }
+        }
     }
 }

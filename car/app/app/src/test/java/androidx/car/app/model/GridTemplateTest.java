@@ -72,6 +72,19 @@ public class GridTemplateTest {
     }
 
     @Test
+    public void createInstance_header_unsupportedSpans_throws() {
+        CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new GridTemplate.Builder().setTitle(title));
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence title2 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
+        new GridTemplate.Builder().setTitle(title2).setSingleList(
+                TestUtils.getGridItemList(2)).build();
+    }
+
+    @Test
     public void createInstance_setSingleList() {
         ItemList list = TestUtils.getGridItemList(2);
         GridTemplate template = new GridTemplate.Builder().setTitle("Title").setSingleList(

@@ -17,6 +17,7 @@
 package androidx.camera.video
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -24,14 +25,16 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 class VideoSpecTest {
 
     @Test
     fun newBuilder_containsCorrectDefaults() {
         val videoSpec = VideoSpec.builder().build()
 
-        assertThat(videoSpec.videoQuality).isEqualTo(VideoSpec.VIDEO_QUALITY_AUTO)
+        assertThat(videoSpec.qualitySelector).isEqualTo(VideoSpec.QUALITY_SELECTOR_AUTO)
         assertThat(videoSpec.bitrate).isEqualTo(VideoSpec.BITRATE_RANGE_AUTO)
         assertThat(videoSpec.frameRate).isEqualTo(VideoSpec.FRAME_RATE_RANGE_AUTO)
+        assertThat(videoSpec.aspectRatio).isEqualTo(VideoSpec.ASPECT_RATIO_AUTO)
     }
 }

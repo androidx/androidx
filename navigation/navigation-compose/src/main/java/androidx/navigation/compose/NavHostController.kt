@@ -19,30 +19,17 @@ package androidx.navigation.compose
 import android.content.Context
 import android.os.Bundle
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.net.toUri
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import androidx.navigation.NavDeepLinkRequest
-import androidx.navigation.NavGraph
-import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.NavOptions
-import androidx.navigation.NavOptionsBuilder
-import androidx.navigation.navOptions
-import androidx.navigation.navigation
-
-/**
- * The route linked to the current destination.
- */
-const val KEY_ROUTE = "android-support-nav:controller:route"
+import androidx.navigation.Navigator
 
 /**
  * Gets the current navigation back stack entry as a [MutableState]. When the given navController
@@ -53,38 +40,36 @@ const val KEY_ROUTE = "android-support-nav:controller:route"
  */
 @Composable
 public fun NavController.currentBackStackEntryAsState(): State<NavBackStackEntry?> {
-    val currentNavBackStackEntry = remember { mutableStateOf(currentBackStackEntry) }
-    // setup the onDestinationChangedListener responsible for detecting when the
-    // current back stack entry changes
-    DisposableEffect(this) {
-        val callback = NavController.OnDestinationChangedListener { controller, _, _ ->
-            currentNavBackStackEntry.value = controller.currentBackStackEntry
-        }
-        addOnDestinationChangedListener(callback)
-        // remove the navController on dispose (i.e. when the composable is destroyed)
-        onDispose {
-            removeOnDestinationChangedListener(callback)
-        }
-    }
-    return currentNavBackStackEntry
+    return currentBackStackEntryFlow.collectAsState(null)
 }
 
 /**
- * Creates a NavHostController that handles the adding of the [ComposeNavigator].
+ * Creates a NavHostController that handles the adding of the [ComposeNavigator] and
+ * [DialogNavigator]. Additional [Navigator] instances can be passed through [navigators] to
+ * be applied to the returned NavController. Note that each [Navigator] must be separately
+ * remembered before being passed in here: any changes to those inputs will cause the
+ * NavController to be recreated.
  *
  * @see NavHost
  */
 @Composable
-public fun rememberNavController(): NavHostController {
+public fun rememberNavController(
+    vararg navigators: Navigator<out NavDestination>
+): NavHostController {
     val context = LocalContext.current
-    return rememberSaveable(saver = NavControllerSaver(context)) {
+    return rememberSaveable(inputs = navigators, saver = NavControllerSaver(context)) {
         createNavController(context)
+    }.apply {
+        for (navigator in navigators) {
+            navigatorProvider.addNavigator(navigator)
+        }
     }
 }
 
 private fun createNavController(context: Context) =
     NavHostController(context).apply {
         navigatorProvider.addNavigator(ComposeNavigator())
+        navigatorProvider.addNavigator(DialogNavigator())
     }
 
 /**
@@ -96,56 +81,3 @@ private fun NavControllerSaver(
     save = { it.saveState() },
     restore = { createNavController(context).apply { restoreState(it) } }
 )
-
-/**
- * Navigate to a route in the current NavGraph.
- *
- * @param route route for the destination
- * @param builder DSL for constructing a new [NavOptions]
- */
-public fun NavController.navigate(route: String, builder: NavOptionsBuilder.() -> Unit = {}) {
-    navigate(
-        NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build(),
-        navOptions(builder)
-    )
-}
-
-/**
- * Construct a new [NavGraph]
- *
- * @param route the route for the graph
- * @param startDestination the route for the start destination
- * @param builder the builder used to construct the graph
- */
-fun NavController.createGraph(
-    startDestination: String,
-    route: String? = null,
-    builder: NavGraphBuilder.() -> Unit
-): NavGraph = navigatorProvider.navigation(
-    if (route != null) createRoute(route).hashCode() else 0,
-    createRoute(startDestination).hashCode(),
-    builder
-)
-
-/**
- * Gets the topmost {@link NavBackStackEntry} for a route.
- * <p>
- * This is always safe to use with {@link #getCurrentDestination() the current destination} or
- * {@link NavDestination#getParent() its parent} or grandparent navigation graphs as these
- * destinations are guaranteed to be on the back stack.
- *
- * @param route route of a destination that exists on the back stack
- * @throws IllegalArgumentException if the destination is not on the back stack
- */
-public fun NavController.getBackStackEntry(route: String): NavBackStackEntry {
-    try {
-        return getBackStackEntry(createRoute(route).hashCode())
-    } catch (e: IllegalArgumentException) {
-        throw IllegalArgumentException(
-            "No destination with route $route is on the NavController's back stack. The current " +
-                "destination is $currentDestination"
-        )
-    }
-}
-
-internal fun createRoute(route: String) = "android-app://androidx.navigation.compose/$route"

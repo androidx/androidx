@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime
 
+import androidx.compose.runtime.snapshots.fastForEach
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.Continuation
@@ -47,8 +48,16 @@ class BroadcastFrameClock(
     private var awaiters = mutableListOf<FrameAwaiter<*>>()
     private var spareList = mutableListOf<FrameAwaiter<*>>()
 
+    /**
+     * `true` if there are any callers of [withFrameNanos] awaiting to run for a pending frame.
+     */
     val hasAwaiters: Boolean get() = synchronized(lock) { awaiters.isNotEmpty() }
 
+    /**
+     * Send a frame for time [timeNanos] to all current callers of [withFrameNanos].
+     * The `onFrame` callback for each caller is invoked synchronously during the call to
+     * [sendFrame].
+     */
     fun sendFrame(timeNanos: Long) {
         synchronized(lock) {
             // Rotate the lists so that if a resumed continuation on an immediate dispatcher
@@ -103,7 +112,7 @@ class BroadcastFrameClock(
         synchronized(lock) {
             if (failureCause != null) return
             failureCause = cause
-            for (awaiter in awaiters) {
+            awaiters.fastForEach { awaiter ->
                 awaiter.continuation.resumeWithException(cause)
             }
             awaiters.clear()

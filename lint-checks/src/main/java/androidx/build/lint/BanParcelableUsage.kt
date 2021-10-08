@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.build.lint
 
 import com.android.tools.lint.detector.api.Category
@@ -28,12 +30,12 @@ import org.jetbrains.uast.UAnonymousClass
 import org.jetbrains.uast.UClass
 import java.util.Collections
 
-const val PARCELABLE_INTERFACE_CANNONICAL_NAME = "android.os.Parcelable"
+const val PARCELABLE_INTERFACE_CANONICAL_NAME = "android.os.Parcelable"
 
 class BanParcelableUsage : Detector(), Detector.UastScanner {
 
     override fun applicableSuperClasses(): List<String>? {
-        return Collections.singletonList(PARCELABLE_INTERFACE_CANNONICAL_NAME)
+        return Collections.singletonList(PARCELABLE_INTERFACE_CANONICAL_NAME)
     }
 
     override fun visitClass(context: JavaContext, declaration: UClass) {
@@ -46,7 +48,7 @@ class BanParcelableUsage : Detector(), Detector.UastScanner {
         // For now only find classes that directly implement Parcelable, because
         // lint will also examine the entire inheritance and implementation chain.
         for (superclass in declaration.uastSuperTypes) {
-            if (superclass.type.canonicalText == PARCELABLE_INTERFACE_CANNONICAL_NAME) {
+            if (superclass.type.canonicalText == PARCELABLE_INTERFACE_CANONICAL_NAME) {
                 context.report(
                     ISSUE, declaration, context.getNameLocation(declaration),
                     "Class implements android.os.Parcelable"

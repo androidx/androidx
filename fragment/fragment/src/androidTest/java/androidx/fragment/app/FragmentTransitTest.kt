@@ -18,6 +18,9 @@ package androidx.fragment.app
 
 import android.animation.Animator
 import android.view.animation.Animation
+import androidx.annotation.LayoutRes
+import androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_MATCH_ACTIVITY_CLOSE
+import androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -35,7 +38,6 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class FragmentTransitTest {
-
     @Suppress("DEPRECATION")
     @get:Rule
     var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
@@ -62,11 +64,57 @@ class FragmentTransitTest {
             .containsExactly(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
     }
 
-    class TransitFragment : StrictViewFragment() {
+    @Test
+    fun testFragmentAnimationWithActivityTransition() {
+        val fragmentA = FragmentA()
+        val fragmentB = FragmentB()
+        val fm = activityRule.activity.supportFragmentManager
+
+        // set TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN to navigate forward when fragmentA entering.
+        fm.beginTransaction()
+            .add(R.id.fragmentContainer, fragmentA)
+            .setTransition(TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN)
+            .commit()
+        activityRule.executePendingTransactions(fm)
+
+        assertThat(fragmentA.transitValues).containsExactly(TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN)
+        assertThat(fragmentA.isEnterTransit).isTrue()
+
+        // set TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN to navigate forward when fragmentB entering
+        // and fragmentA exiting.
+        fm.beginTransaction()
+            .replace(R.id.fragmentContainer, fragmentB)
+            .setTransition(TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN)
+            .addToBackStack(null)
+            .commit()
+        activityRule.executePendingTransactions(fm)
+
+        assertThat(fragmentA.transitValues).containsExactly(TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN)
+        assertThat(fragmentA.isEnterTransit).isFalse()
+        assertThat(fragmentB.transitValues).containsExactly(TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN)
+        assertThat(fragmentB.isEnterTransit).isTrue()
+
+        // Simulating back key with popBackStack, system will set
+        // TRANSIT_FRAGMENT_MATCH_ACTIVITY_CLOSE to navigate backward when fragmentB exiting
+        // and fragmentA entering.
+        fm.popBackStack()
+        activityRule.executePendingTransactions(fm)
+
+        assertThat(fragmentB.transitValues).contains(TRANSIT_FRAGMENT_MATCH_ACTIVITY_CLOSE)
+        assertThat(fragmentB.isEnterTransit).isFalse()
+        assertThat(fragmentA.transitValues).contains(TRANSIT_FRAGMENT_MATCH_ACTIVITY_CLOSE)
+        assertThat(fragmentA.isEnterTransit).isTrue()
+    }
+
+    public open class TransitFragment(
+        @LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment
+    ) : StrictFragment(contentLayoutId) {
         val transitValues = mutableSetOf<Int>()
+        var isEnterTransit: Boolean = false
 
         override fun onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation? {
             transitValues += transit
+            isEnterTransit = enter
             return super.onCreateAnimation(transit, enter, nextAnim)
         }
 
@@ -75,4 +123,8 @@ class FragmentTransitTest {
             return super.onCreateAnimator(transit, enter, nextAnim)
         }
     }
+
+    class FragmentA : TransitFragment(R.layout.fragment_a)
+
+    class FragmentB : TransitFragment(R.layout.fragment_b)
 }

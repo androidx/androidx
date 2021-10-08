@@ -65,7 +65,7 @@ public class DismissibleFrameLayout extends FrameLayout {
          *
          * @param layout The layout associated with this callback.
          */
-        public void onDismissed(@NonNull DismissibleFrameLayout layout) {
+        public void onDismissFinished(@NonNull DismissibleFrameLayout layout) {
         }
     }
 
@@ -147,13 +147,13 @@ public class DismissibleFrameLayout extends FrameLayout {
 
     /** Registers a callback for dismissal. */
     @UiThread
-    public void registerCallback(@NonNull Callback callback) {
+    public final void registerCallback(@NonNull Callback callback) {
         mCallbacks.add(callback);
     }
 
     /** Removes a callback that was added with {@link #registerCallback(Callback)}. */
     @UiThread
-    public void unregisterCallback(@NonNull Callback callback) {
+    public final void unregisterCallback(@NonNull Callback callback) {
         if (!mCallbacks.remove(callback)) {
             throw new IllegalStateException("removeCallback called with nonexistent callback");
         }
@@ -164,7 +164,7 @@ public class DismissibleFrameLayout extends FrameLayout {
      *
      * @param swipeDismissible whether the layout should react to the swipe gesture
      */
-    public void setSwipeDismissible(boolean swipeDismissible) {
+    public final void setSwipeDismissible(boolean swipeDismissible) {
         if (swipeDismissible) {
             if (mSwipeDismissController == null) {
                 mSwipeDismissController = new SwipeDismissController(mContext, this);
@@ -177,7 +177,7 @@ public class DismissibleFrameLayout extends FrameLayout {
     }
 
     /** Returns true if the frame layout can be dismissed by swipe gestures. */
-    public boolean isSwipeDismissible() {
+    public boolean isDismissableBySwipe() {
         return mSwipeDismissController != null;
     }
 
@@ -185,7 +185,7 @@ public class DismissibleFrameLayout extends FrameLayout {
      * Sets the frame layout to be back button dismissible or not.
      * @param backButtonDismissible boolean value to enable/disable the back button dismiss
      */
-    public void setBackButtonDismissible(boolean backButtonDismissible) {
+    public final void setBackButtonDismissible(boolean backButtonDismissible) {
         if (backButtonDismissible) {
             if (mBackButtonDismissController == null) {
                 mBackButtonDismissController = new BackButtonDismissController(mContext, this);
@@ -198,7 +198,7 @@ public class DismissibleFrameLayout extends FrameLayout {
     }
 
     /** Returns true if the frame layout would be dismissed with back button click */
-    public boolean isBackButtonDismissible()  {
+    public boolean isDismissableByBackButton()  {
         return mBackButtonDismissController != null;
     }
 
@@ -207,19 +207,19 @@ public class DismissibleFrameLayout extends FrameLayout {
         return mSwipeDismissController;
     }
 
-    protected void executeDismissedCallbacks() {
+    protected void performDismissFinishedCallbacks() {
         for (int i = mCallbacks.size() - 1; i >= 0; i--) {
-            mCallbacks.get(i).onDismissed(this);
+            mCallbacks.get(i).onDismissFinished(this);
         }
     }
 
-    protected void executeDismissStartedCallbacks() {
+    protected void performDismissStartedCallbacks() {
         for (int i = mCallbacks.size() - 1; i >= 0; i--) {
             mCallbacks.get(i).onDismissStarted(this);
         }
     }
 
-    protected void executeDismissCanceledCallbacks() {
+    protected void performDismissCanceledCallbacks() {
         for (int i = mCallbacks.size() - 1; i >= 0; i--) {
             mCallbacks.get(i).onDismissCanceled(this);
         }
@@ -231,17 +231,17 @@ public class DismissibleFrameLayout extends FrameLayout {
 
         @Override
         public void onDismissStarted() {
-            executeDismissStartedCallbacks();
+            performDismissStartedCallbacks();
         }
 
         @Override
         public void onDismissCanceled() {
-            executeDismissCanceledCallbacks();
+            performDismissCanceledCallbacks();
         }
 
         @Override
         public void onDismissed() {
-            executeDismissedCallbacks();
+            performDismissFinishedCallbacks();
         }
     }
 

@@ -50,7 +50,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, instrumentedPackages = { "androidx.camera.core" })
 public class ImageAnalysisNonBlockingAnalyzerTest {
     private ImageAnalysisNonBlockingAnalyzer mImageAnalysisNonBlockingAnalyzer;
     private static final AtomicInteger ROTATION = new AtomicInteger(0);

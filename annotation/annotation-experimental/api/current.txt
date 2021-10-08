@@ -2,8 +2,8 @@
 package androidx.annotation {
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public @interface OptIn {
-    method public abstract Class<? extends java.lang.annotation.Annotation>[] markerClass();
-    property public abstract Class<? extends java.lang.annotation.Annotation>![] markerClass;
+    method public abstract kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>[] markerClass();
+    property public abstract kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>![] markerClass;
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget) public @interface RequiresOptIn {
@@ -31,8 +31,8 @@ package androidx.annotation.experimental {
   }
 
   @Deprecated @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public @interface UseExperimental {
-    method @Deprecated public abstract Class<? extends java.lang.annotation.Annotation>[] markerClass();
-    property public abstract Class<? extends java.lang.annotation.Annotation>![] markerClass;
+    method @Deprecated public abstract kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>[] markerClass();
+    property public abstract kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>![] markerClass;
   }
 
 }

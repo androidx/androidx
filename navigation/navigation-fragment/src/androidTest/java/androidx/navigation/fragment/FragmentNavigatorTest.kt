@@ -22,22 +22,21 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentFactory
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.test.EmptyFragment
 import androidx.navigation.fragment.test.R
+import androidx.navigation.testing.TestNavigatorState
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.reflect.KClass
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -57,49 +56,48 @@ class FragmentNavigatorTest {
 
     private lateinit var emptyActivity: EmptyActivity
     private lateinit var fragmentManager: FragmentManager
+    private lateinit var navigatorState: TestNavigatorState
+    private lateinit var fragmentNavigator: FragmentNavigator
 
     @Before
     fun setup() {
         emptyActivity = activityRule.activity
         fragmentManager = emptyActivity.supportFragmentManager
+        navigatorState = TestNavigatorState()
+        fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
+        fragmentNavigator.onAttach(navigatorState)
     }
 
     @UiThreadTest
     @Test
     fun testNavigate() {
-        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
-        val destination = fragmentNavigator.createDestination().apply {
-            id = INITIAL_FRAGMENT
-            setClassName(EmptyFragment::class.java.name)
-        }
+        val entry = createBackStackEntry()
 
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        fragmentNavigator.navigate(listOf(entry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
         fragmentManager.executePendingTransactions()
         val fragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Fragment should be added", fragment)
-        assertEquals(
-            "Fragment should be the correct type",
-            EmptyFragment::class.java, fragment!!::class.java
-        )
-        assertEquals(
-            "Fragment should be the primary navigation Fragment",
-            fragment, fragmentManager.primaryNavigationFragment
-        )
+        assertWithMessage("Fragment should be added")
+            .that(fragment)
+            .isNotNull()
+        assertWithMessage("Fragment should be the correct type")
+            .that(fragment)
+            .isInstanceOf(EmptyFragment::class.java)
+        assertWithMessage("Fragment should be the primary navigation Fragment")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(fragment)
     }
 
     @UiThreadTest
     @Test
     fun testNavigateWithFragmentFactory() {
         fragmentManager.fragmentFactory = NonEmptyFragmentFactory()
-        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
-        val destination = fragmentNavigator.createDestination().apply {
-            id = INITIAL_FRAGMENT
-            setClassName(NonEmptyConstructorFragment::class.java.name)
-        }
+        val entry = createBackStackEntry(clazz = NonEmptyConstructorFragment::class)
 
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        fragmentNavigator.navigate(listOf(entry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
         fragmentManager.executePendingTransactions()
         val fragment = fragmentManager.findFragmentById(R.id.container)
         assertWithMessage("Fragment should be added")
@@ -116,141 +114,81 @@ class FragmentNavigatorTest {
     @UiThreadTest
     @Test
     fun testNavigateTwice() {
-        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
-        val destination = fragmentNavigator.createDestination().apply {
-            id = INITIAL_FRAGMENT
-            setClassName(EmptyFragment::class.java.name)
-        }
+        val entry = createBackStackEntry()
 
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        fragmentNavigator.navigate(listOf(entry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
         fragmentManager.executePendingTransactions()
         val fragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Fragment should be added", fragment)
-        assertEquals(
-            "Fragment should be the correct type",
-            EmptyFragment::class.java, fragment!!::class.java
-        )
-        assertEquals(
-            "Fragment should be the primary navigation Fragment",
-            fragment, fragmentManager.primaryNavigationFragment
-        )
+        assertWithMessage("Fragment should be added")
+            .that(fragment)
+            .isNotNull()
+        assertWithMessage("Fragment should be the correct type")
+            .that(fragment)
+            .isInstanceOf(EmptyFragment::class.java)
+        assertWithMessage("Fragment should be the primary navigation Fragment")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(fragment)
 
         // Now push a second fragment
-        destination.id = SECOND_FRAGMENT
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        val replacementEntry = createBackStackEntry(SECOND_FRAGMENT)
+        fragmentNavigator.navigate(listOf(replacementEntry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, replacementEntry).inOrder()
         fragmentManager.executePendingTransactions()
         val replacementFragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Replacement Fragment should be added", replacementFragment)
-        assertEquals(
-            "Replacement Fragment should be the correct type",
-            EmptyFragment::class.java, replacementFragment!!::class.java
-        )
-        assertEquals(
-            "Replacement Fragment should be the primary navigation Fragment",
-            replacementFragment, fragmentManager.primaryNavigationFragment
-        )
+        assertWithMessage("Replacement Fragment should be added")
+            .that(replacementFragment)
+            .isNotNull()
+        assertWithMessage("Replacement Fragment should be the correct type")
+            .that(replacementFragment)
+            .isInstanceOf(EmptyFragment::class.java)
+        assertWithMessage("Replacement Fragment should be the primary navigation Fragment")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(replacementFragment)
     }
 
     @UiThreadTest
     @Test
     fun testNavigateWithPopUpToThenPop() {
-        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
-        val destination = fragmentNavigator.createDestination()
-        destination.id = INITIAL_FRAGMENT
-        destination.setClassName(EmptyFragment::class.java.name)
+        val entry = createBackStackEntry()
 
         // Push initial fragment
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        fragmentNavigator.navigate(listOf(entry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
         fragmentManager.executePendingTransactions()
 
         // Push a second fragment
-        destination.id = SECOND_FRAGMENT
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        val secondEntry = createBackStackEntry(SECOND_FRAGMENT)
+        fragmentNavigator.navigate(listOf(secondEntry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, secondEntry).inOrder()
         fragmentManager.executePendingTransactions()
 
         // Pop and then push third fragment, simulating popUpTo to initial.
-        val success = fragmentNavigator.popBackStack()
-        assertTrue("FragmentNavigator should return true when popping the third fragment", success)
-        destination.id = THIRD_FRAGMENT
-        assertThat(
-            fragmentNavigator.navigate(
-                destination, null,
-                NavOptions.Builder().setPopUpTo(INITIAL_FRAGMENT, false).build(), null
-            )
-        )
-            .isEqualTo(destination)
+        fragmentNavigator.popBackStack(secondEntry, false)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
+        val thirdEntry = createBackStackEntry(THIRD_FRAGMENT)
+        fragmentNavigator.navigate(listOf(thirdEntry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, thirdEntry).inOrder()
         fragmentManager.executePendingTransactions()
 
         // Now pop the Fragment
-        val popped = fragmentNavigator.popBackStack()
-        assertTrue("FragmentNavigator should return true when popping the third fragment", popped)
+        fragmentNavigator.popBackStack(thirdEntry, false)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
     }
 
     @UiThreadTest
     @Test
     fun testSingleTopInitial() {
-        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
-        val destination = fragmentNavigator.createDestination()
-        destination.setClassName(EmptyFragment::class.java.name)
+        val entry = createBackStackEntry()
 
-        fragmentNavigator.navigate(destination, null, null, null)
-        fragmentManager.executePendingTransactions()
-        val fragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Fragment should be added", fragment)
-        val lifecycle = fragment!!.lifecycle
-
-        assertThat(
-            fragmentNavigator.navigate(
-                destination, null,
-                NavOptions.Builder().setLaunchSingleTop(true).build(), null
-            )
-        )
-            .isNull()
-        fragmentManager.executePendingTransactions()
-        val replacementFragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Replacement Fragment should be added", replacementFragment)
-        assertTrue(
-            "Replacement Fragment should be the correct type",
-            replacementFragment is EmptyFragment
-        )
-        assertEquals(
-            "Replacement Fragment should be the primary navigation Fragment",
-            replacementFragment, fragmentManager.primaryNavigationFragment
-        )
-        assertNotEquals(
-            "Replacement should be a new instance", fragment,
-            replacementFragment
-        )
-        assertEquals(
-            "Old instance should be destroyed", Lifecycle.State.DESTROYED,
-            lifecycle.currentState
-        )
-    }
-
-    @UiThreadTest
-    @Test
-    fun testSingleTop() {
-        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
-        val destination = fragmentNavigator.createDestination()
-        destination.setClassName(EmptyFragment::class.java.name)
-
-        // First push an initial Fragment
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
-        fragmentManager.executePendingTransactions()
-        val initialFragment = fragmentManager.findFragmentById(R.id.container)
-        assertWithMessage("Initial Fragment should be added")
-            .that(initialFragment)
-            .isNotNull()
-
-        // Now push the Fragment that we want to replace with a singleTop operation
-        destination.id = 1
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        fragmentNavigator.navigate(listOf(entry), null, null)
         fragmentManager.executePendingTransactions()
         val fragment = fragmentManager.findFragmentById(R.id.container)
         assertWithMessage("Fragment should be added")
@@ -258,13 +196,66 @@ class FragmentNavigatorTest {
             .isNotNull()
         val lifecycle = fragment!!.lifecycle
 
-        assertThat(
-            fragmentNavigator.navigate(
-                destination, null,
-                NavOptions.Builder().setLaunchSingleTop(true).build(), null
-            )
+        fragmentNavigator.navigate(
+            listOf(entry),
+            NavOptions.Builder().setLaunchSingleTop(true).build(),
+            null
         )
-            .isNull()
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
+        fragmentManager.executePendingTransactions()
+        val replacementFragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Replacement Fragment should be added")
+            .that(replacementFragment)
+            .isNotNull()
+        assertWithMessage("Replacement Fragment should be the correct type")
+            .that(replacementFragment)
+            .isInstanceOf(EmptyFragment::class.java)
+        assertWithMessage("Replacement Fragment should be the primary navigation Fragment")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(replacementFragment)
+        assertWithMessage("Replacement should be a new instance")
+            .that(replacementFragment)
+            .isNotSameInstanceAs(fragment)
+        assertWithMessage("Old instance should be destroyed")
+            .that(lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testSingleTop() {
+        val entry = createBackStackEntry()
+
+        // First push an initial Fragment
+        fragmentNavigator.navigate(listOf(entry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
+        fragmentManager.executePendingTransactions()
+        val initialFragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Initial Fragment should be added")
+            .that(initialFragment)
+            .isNotNull()
+
+        // Now push the Fragment that we want to replace with a singleTop operation
+        val replacementEntry = createBackStackEntry(SECOND_FRAGMENT)
+        fragmentNavigator.navigate(listOf(replacementEntry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, replacementEntry).inOrder()
+        fragmentManager.executePendingTransactions()
+        val fragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Fragment should be added")
+            .that(fragment)
+            .isNotNull()
+        val lifecycle = fragment!!.lifecycle
+
+        fragmentNavigator.navigate(
+            listOf(replacementEntry),
+            NavOptions.Builder().setLaunchSingleTop(true).build(),
+            null
+        )
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, replacementEntry).inOrder()
         fragmentManager.executePendingTransactions()
         val replacementFragment = fragmentManager.findFragmentById(R.id.container)
         assertWithMessage("Replacement Fragment should be added")
@@ -283,8 +274,10 @@ class FragmentNavigatorTest {
             .that(lifecycle.currentState)
             .isEqualTo(Lifecycle.State.DESTROYED)
 
-        assertThat(fragmentNavigator.popBackStack())
-            .isTrue()
+        fragmentNavigator.popBackStack(replacementEntry, false)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
+
         fragmentManager.executePendingTransactions()
         assertWithMessage("Initial Fragment should be on top of back stack after pop")
             .that(fragmentManager.findFragmentById(R.id.container))
@@ -297,80 +290,70 @@ class FragmentNavigatorTest {
     @UiThreadTest
     @Test
     fun testPopInitial() {
-        val fragmentNavigator = FragmentNavigator(
-            emptyActivity,
-            fragmentManager, R.id.container
-        )
-        val destination = fragmentNavigator.createDestination()
-        destination.id = INITIAL_FRAGMENT
-        destination.setClassName(EmptyFragment::class.java.name)
+        val entry = createBackStackEntry()
 
         // First push an initial Fragment
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        fragmentNavigator.navigate(listOf(entry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
 
         // Now pop the initial Fragment
-        val popped = fragmentNavigator.popBackStack()
-        assertWithMessage(
-            "FragmentNavigator should return false when popping " +
-                "the initial Fragment"
-        )
-            .that(popped)
-            .isTrue()
+        fragmentNavigator.popBackStack(entry, false)
+        assertThat(navigatorState.backStack.value)
+            .isEmpty()
     }
 
     @UiThreadTest
     @Test
     fun testPop() {
-        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
-        val destination = fragmentNavigator.createDestination()
-        destination.id = INITIAL_FRAGMENT
-        destination.setClassName(EmptyFragment::class.java.name)
+        val entry = createBackStackEntry()
 
         // First push an initial Fragment
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        fragmentNavigator.navigate(listOf(entry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
         fragmentManager.executePendingTransactions()
         val fragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Fragment should be added", fragment)
+        assertWithMessage("Fragment should be added")
+            .that(fragment)
+            .isNotNull()
 
         // Now push the Fragment that we want to pop
-        destination.id = SECOND_FRAGMENT
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        val replacementEntry = createBackStackEntry(SECOND_FRAGMENT)
+        fragmentNavigator.navigate(listOf(replacementEntry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, replacementEntry).inOrder()
         fragmentManager.executePendingTransactions()
         val replacementFragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Replacement Fragment should be added", replacementFragment)
-        assertTrue(
-            "Replacement Fragment should be the correct type",
-            replacementFragment is EmptyFragment
-        )
-        assertEquals(
-            "Replacement Fragment should be the primary navigation Fragment",
-            replacementFragment, fragmentManager.primaryNavigationFragment
-        )
+        assertWithMessage("Replacement Fragment should be added")
+            .that(replacementFragment)
+            .isNotNull()
+        assertWithMessage("Replacement Fragment should be the correct type")
+            .that(replacementFragment)
+            .isInstanceOf(EmptyFragment::class.java)
+        assertWithMessage("Replacement Fragment should be the primary navigation Fragment")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(replacementFragment)
 
         // Now pop the Fragment
-        val popped = fragmentNavigator.popBackStack()
+        fragmentNavigator.popBackStack(replacementEntry, false)
         fragmentManager.executePendingTransactions()
-        assertTrue("FragmentNavigator should return true when popping a Fragment", popped)
-        assertEquals(
-            "Fragment should be the primary navigation Fragment after pop",
-            fragment, fragmentManager.primaryNavigationFragment
-        )
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
+        assertWithMessage("Fragment should be the primary navigation Fragment after pop")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(fragment)
     }
 
     @UiThreadTest
     @Test
     fun testPopWithSameDestinationTwice() {
-        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
-        val destination = fragmentNavigator.createDestination()
-        destination.id = INITIAL_FRAGMENT
-        destination.setClassName(EmptyFragment::class.java.name)
+        val entry = createBackStackEntry()
 
         // First push an initial Fragment
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        fragmentNavigator.navigate(listOf(entry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
         fragmentManager.executePendingTransactions()
         val fragment = fragmentManager.findFragmentById(R.id.container)
         assertWithMessage("Fragment should be added")
@@ -378,9 +361,10 @@ class FragmentNavigatorTest {
             .isNotNull()
 
         // Now push a second Fragment
-        destination.id = SECOND_FRAGMENT
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        val secondEntry = createBackStackEntry(SECOND_FRAGMENT)
+        fragmentNavigator.navigate(listOf(secondEntry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, secondEntry).inOrder()
         fragmentManager.executePendingTransactions()
         val replacementFragment = fragmentManager.findFragmentById(R.id.container)
         assertWithMessage("Replacement Fragment should be added")
@@ -392,8 +376,10 @@ class FragmentNavigatorTest {
 
         // Push the same Fragment a second time, creating a stack of two
         // identical Fragments
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        val replacementEntry = createBackStackEntry(SECOND_FRAGMENT)
+        fragmentNavigator.navigate(listOf(replacementEntry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, secondEntry, replacementEntry).inOrder()
         fragmentManager.executePendingTransactions()
         val fragmentToPop = fragmentManager.findFragmentById(R.id.container)
         assertWithMessage("Fragment to pop should be added")
@@ -404,11 +390,10 @@ class FragmentNavigatorTest {
             .isSameInstanceAs(fragmentToPop)
 
         // Now pop the Fragment
-        val popped = fragmentNavigator.popBackStack()
+        fragmentNavigator.popBackStack(replacementEntry, false)
         fragmentManager.executePendingTransactions()
-        assertWithMessage("FragmentNavigator should return true when popping a Fragment")
-            .that(popped)
-            .isTrue()
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, secondEntry).inOrder()
         assertWithMessage(
             "Replacement Fragment should be the primary navigation Fragment " +
                 "after pop"
@@ -420,33 +405,34 @@ class FragmentNavigatorTest {
     @UiThreadTest
     @Test
     fun testPopWithChildFragmentBackStack() {
-        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
-        val destination = fragmentNavigator.createDestination()
-        destination.id = INITIAL_FRAGMENT
-        destination.setClassName(EmptyFragment::class.java.name)
+        val entry = createBackStackEntry()
 
         // First push an initial Fragment
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        fragmentNavigator.navigate(listOf(entry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
         fragmentManager.executePendingTransactions()
         val fragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Fragment should be added", fragment)
+        assertWithMessage("Fragment should be added")
+            .that(fragment)
+            .isNotNull()
 
         // Now push the Fragment that we want to pop
-        destination.id = SECOND_FRAGMENT
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        val replacementEntry = createBackStackEntry(SECOND_FRAGMENT)
+        fragmentNavigator.navigate(listOf(replacementEntry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, replacementEntry).inOrder()
         fragmentManager.executePendingTransactions()
         val replacementFragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Replacement Fragment should be added", replacementFragment)
-        assertTrue(
-            "Replacement Fragment should be the correct type",
-            replacementFragment is EmptyFragment
-        )
-        assertEquals(
-            "Replacement Fragment should be the primary navigation Fragment",
-            replacementFragment, fragmentManager.primaryNavigationFragment
-        )
+        assertWithMessage("Replacement Fragment should be added")
+            .that(replacementFragment)
+            .isNotNull()
+        assertWithMessage("Replacement Fragment should be the correct type")
+            .that(replacementFragment)
+            .isInstanceOf(EmptyFragment::class.java)
+        assertWithMessage("Replacement Fragment should be the primary navigation Fragment")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(replacementFragment)
 
         // Add a Fragment to the replacementFragment's childFragmentManager back stack
         replacementFragment?.childFragmentManager?.run {
@@ -458,208 +444,67 @@ class FragmentNavigatorTest {
         }
 
         // Now pop the Fragment
-        val popped = fragmentNavigator.popBackStack()
+        fragmentNavigator.popBackStack(replacementEntry, false)
         fragmentManager.executePendingTransactions()
-        assertTrue("FragmentNavigator should return true when popping a Fragment", popped)
-        assertEquals(
-            "Fragment should be the primary navigation Fragment after pop",
-            fragment, fragmentManager.primaryNavigationFragment
-        )
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
+        assertWithMessage("Fragment should be the primary navigation Fragment after pop")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(fragment)
     }
 
     @UiThreadTest
     @Test
     fun testDeepLinkPop() {
-        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
-        val destination = fragmentNavigator.createDestination()
-        destination.id = INITIAL_FRAGMENT
-        destination.setClassName(EmptyFragment::class.java.name)
+        val entry = createBackStackEntry()
+        val secondEntry = createBackStackEntry(SECOND_FRAGMENT)
 
         // First push two Fragments as our 'deep link'
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
-        destination.id = SECOND_FRAGMENT
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        fragmentNavigator.navigate(listOf(entry, secondEntry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, secondEntry)
 
         // Now push the Fragment that we want to pop
-        destination.id = THIRD_FRAGMENT
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
+        val thirdEntry = createBackStackEntry(THIRD_FRAGMENT)
+        fragmentNavigator.navigate(listOf(thirdEntry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, secondEntry, thirdEntry)
         fragmentManager.executePendingTransactions()
         val replacementFragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Replacement Fragment should be added", replacementFragment)
-        assertTrue(
-            "Replacement Fragment should be the correct type",
-            replacementFragment is EmptyFragment
-        )
-        assertEquals(
-            "Replacement Fragment should be the primary navigation Fragment",
-            replacementFragment, fragmentManager.primaryNavigationFragment
-        )
+        assertWithMessage("Replacement Fragment should be added")
+            .that(replacementFragment)
+            .isNotNull()
+        assertWithMessage("Replacement Fragment should be the correct type")
+            .that(replacementFragment)
+            .isInstanceOf(EmptyFragment::class.java)
+        assertWithMessage("Replacement Fragment should be the primary navigation Fragment")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(replacementFragment)
 
         // Now pop the Fragment
-        fragmentNavigator.popBackStack()
+        fragmentNavigator.popBackStack(thirdEntry, false)
         fragmentManager.executePendingTransactions()
         val fragment = fragmentManager.findFragmentById(R.id.container)
-        assertEquals(
-            "Fragment should be the primary navigation Fragment after pop",
-            fragment, fragmentManager.primaryNavigationFragment
-        )
-    }
-
-    @UiThreadTest
-    @Test
-    fun testDeepLinkPopWithSaveState() {
-        var fragmentNavigator = FragmentNavigator(
-            emptyActivity,
-            fragmentManager, R.id.container
-        )
-        val destination = fragmentNavigator.createDestination()
-        destination.id = INITIAL_FRAGMENT
-        destination.setClassName(EmptyFragment::class.java.name)
-
-        // First push two Fragments as our 'deep link'
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
-        destination.id = SECOND_FRAGMENT
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
-
-        // Now push the Fragment that we want to pop
-        destination.id = THIRD_FRAGMENT
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
-        fragmentManager.executePendingTransactions()
-        val replacementFragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Replacement Fragment should be added", replacementFragment)
-        assertTrue(
-            "Replacement Fragment should be the correct type",
-            replacementFragment is EmptyFragment
-        )
-        assertEquals(
-            "Replacement Fragment should be the primary navigation Fragment",
-            replacementFragment, fragmentManager.primaryNavigationFragment
-        )
-
-        // Create a new FragmentNavigator, replacing the previous one
-        val savedState = fragmentNavigator.onSaveState() as Bundle
-        fragmentNavigator = FragmentNavigator(
-            emptyActivity,
-            fragmentManager, R.id.container
-        )
-        fragmentNavigator.onRestoreState(savedState)
-
-        // Now pop the Fragment
-        fragmentNavigator.popBackStack()
-        fragmentManager.executePendingTransactions()
-        val fragment = fragmentManager.findFragmentById(R.id.container)
-        assertEquals(
-            "Fragment should be the primary navigation Fragment after pop",
-            fragment, fragmentManager.primaryNavigationFragment
-        )
-    }
-
-    @UiThreadTest
-    @Test
-    fun testNavigateThenPopAfterSaveState() {
-        var fragmentNavigator = FragmentNavigator(
-            emptyActivity,
-            fragmentManager, R.id.container
-        )
-        val destination = fragmentNavigator.createDestination()
-        destination.id = INITIAL_FRAGMENT
-        destination.setClassName(EmptyFragment::class.java.name)
-
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
-        fragmentManager.executePendingTransactions()
-        var fragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Fragment should be added", fragment)
-        assertEquals(
-            "Fragment should be the correct type",
-            EmptyFragment::class.java, fragment!!::class.java
-        )
-        assertEquals(
-            "Fragment should be the primary navigation Fragment",
-            fragment, fragmentManager.primaryNavigationFragment
-        )
-
-        // Now push a second fragment
-        destination.id = SECOND_FRAGMENT
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
-        fragmentManager.executePendingTransactions()
-        var replacementFragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Replacement Fragment should be added", replacementFragment)
-        assertEquals(
-            "Replacement Fragment should be the correct type",
-            EmptyFragment::class.java, replacementFragment!!::class.java
-        )
-        assertEquals(
-            "Replacement Fragment should be the primary navigation Fragment",
-            replacementFragment, fragmentManager.primaryNavigationFragment
-        )
-
-        // Create a new FragmentNavigator, replacing the previous one
-        val savedState = fragmentNavigator.onSaveState() as Bundle
-        fragmentNavigator = FragmentNavigator(
-            emptyActivity,
-            fragmentManager, R.id.container
-        )
-        fragmentNavigator.onRestoreState(savedState)
-
-        // Now push a third fragment after the state save
-        destination.id = THIRD_FRAGMENT
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
-        fragmentManager.executePendingTransactions()
-        replacementFragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Replacement Fragment should be added", replacementFragment)
-        assertTrue(
-            "Replacement Fragment should be the correct type",
-            replacementFragment is EmptyFragment
-        )
-        assertEquals(
-            "Replacement Fragment should be the primary navigation Fragment",
-            replacementFragment, fragmentManager.primaryNavigationFragment
-        )
-
-        // Now pop the Fragment
-        fragmentNavigator.popBackStack()
-        fragmentManager.executePendingTransactions()
-        fragment = fragmentManager.findFragmentById(R.id.container)
-        assertEquals(
-            "Fragment should be the primary navigation Fragment after pop",
-            fragment, fragmentManager.primaryNavigationFragment
-        )
+        assertWithMessage("Fragment should be the primary navigation Fragment after pop")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(fragment)
     }
 
     @UiThreadTest
     @Test
     fun testMultipleNavigateFragmentTransactionsThenPop() {
-        val fragmentNavigator = FragmentNavigator(
-            emptyActivity,
-            fragmentManager, R.id.container
-        )
-        val destination = fragmentNavigator.createDestination()
-        destination.setClassName(EmptyFragment::class.java.name)
-        val destination2 = fragmentNavigator.createDestination()
-        destination2.setClassName(Fragment::class.java.name)
+        val entry = createBackStackEntry()
+        val secondEntry = createBackStackEntry(SECOND_FRAGMENT, clazz = Fragment::class)
+        val thirdEntry = createBackStackEntry(THIRD_FRAGMENT)
 
         // Push 3 fragments without executing pending transactions.
-        destination.id = INITIAL_FRAGMENT
-        fragmentNavigator.navigate(destination, null, null, null)
-        destination2.id = SECOND_FRAGMENT
-        fragmentNavigator.navigate(destination2, null, null, null)
-        destination.id = THIRD_FRAGMENT
-        fragmentNavigator.navigate(destination, null, null, null)
+        fragmentNavigator.navigate(listOf(entry, secondEntry, thirdEntry), null, null)
 
         // Now pop the Fragment
-        val popped = fragmentNavigator.popBackStack()
+        fragmentNavigator.popBackStack(thirdEntry, false)
         fragmentManager.executePendingTransactions()
-        assertWithMessage("FragmentNavigator should return true when popping the third fragment")
-            .that(popped).isTrue()
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, secondEntry)
         // We should ensure the fragment manager is on the proper fragment at the end
         assertWithMessage("FragmentManager back stack should have only SECOND_FRAGMENT")
             .that(fragmentManager.backStackEntryCount)
@@ -672,36 +517,176 @@ class FragmentNavigatorTest {
     @UiThreadTest
     @Test
     fun testMultiplePopFragmentTransactionsThenPop() {
-        val fragmentNavigator = FragmentNavigator(
-            emptyActivity,
-            fragmentManager, R.id.container
-        )
-        val destination = fragmentNavigator.createDestination()
-        destination.setClassName(EmptyFragment::class.java.name)
+        val entry = createBackStackEntry()
+        val secondEntry = createBackStackEntry(SECOND_FRAGMENT)
+        val thirdEntry = createBackStackEntry(THIRD_FRAGMENT)
+        val fourthEntry = createBackStackEntry(FOURTH_FRAGMENT)
 
         // Push 4 fragments
-        destination.id = INITIAL_FRAGMENT
-        fragmentNavigator.navigate(destination, null, null, null)
-        destination.id = SECOND_FRAGMENT
-        fragmentNavigator.navigate(destination, null, null, null)
-        destination.id = THIRD_FRAGMENT
-        fragmentNavigator.navigate(destination, null, null, null)
-        destination.id = FOURTH_FRAGMENT
-        fragmentNavigator.navigate(destination, null, null, null)
+        fragmentNavigator.navigate(
+            listOf(entry, secondEntry, thirdEntry, fourthEntry),
+            null, null
+        )
         fragmentManager.executePendingTransactions()
 
         // Pop 2 fragments without executing pending transactions.
-        fragmentNavigator.popBackStack()
-        fragmentNavigator.popBackStack()
+        fragmentNavigator.popBackStack(thirdEntry, false)
 
-        val popped = fragmentNavigator.popBackStack()
+        fragmentNavigator.popBackStack(secondEntry, false)
         fragmentManager.executePendingTransactions()
-        assertTrue("FragmentNavigator should return true when popping the third fragment", popped)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testSaveRestoreState() {
+        val entry = createBackStackEntry()
+
+        // First push an initial Fragment
+        fragmentNavigator.navigate(listOf(entry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
+        fragmentManager.executePendingTransactions()
+        val fragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Fragment should be added")
+            .that(fragment)
+            .isNotNull()
+
+        // Now push the Fragment that we want to save
+        val replacementEntry = createBackStackEntry(SECOND_FRAGMENT, SavedStateFragment::class)
+        fragmentNavigator.navigate(listOf(replacementEntry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, replacementEntry).inOrder()
+        fragmentManager.executePendingTransactions()
+        val replacementFragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Replacement Fragment should be added")
+            .that(replacementFragment)
+            .isNotNull()
+        assertWithMessage("Replacement Fragment should be the correct type")
+            .that(replacementFragment)
+            .isInstanceOf(SavedStateFragment::class.java)
+        assertWithMessage("Replacement Fragment should be the primary navigation Fragment")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(replacementFragment)
+
+        // Save some state into the replacement fragment
+        (replacementFragment as SavedStateFragment).savedState = "test"
+
+        // Now save the Fragment
+        fragmentNavigator.popBackStack(replacementEntry, true)
+        fragmentManager.executePendingTransactions()
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
+        assertWithMessage("Fragment should be the primary navigation Fragment after pop")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(fragment)
+
+        // And now restore the fragment
+        val restoredEntry = navigatorState.restoreBackStackEntry(replacementEntry)
+        fragmentNavigator.navigate(
+            listOf(restoredEntry),
+            NavOptions.Builder().setRestoreState(true).build(), null
+        )
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, restoredEntry).inOrder()
+        fragmentManager.executePendingTransactions()
+        val restoredFragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Restored Fragment should be added")
+            .that(restoredFragment)
+            .isNotNull()
+        assertWithMessage("Restored Fragment should be the correct type")
+            .that(restoredFragment)
+            .isInstanceOf(SavedStateFragment::class.java)
+        assertWithMessage("Restored Fragment should be the primary navigation Fragment")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(restoredFragment)
+
+        assertWithMessage("Restored Fragment should have its state restored")
+            .that((restoredFragment as SavedStateFragment).savedState)
+            .isEqualTo("test")
+    }
+
+    @UiThreadTest
+    @Test
+    fun testSaveRestoreStateAfterSaveState() {
+        val entry = createBackStackEntry()
+
+        // First push an initial Fragment
+        fragmentNavigator.navigate(listOf(entry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
+        fragmentManager.executePendingTransactions()
+        val fragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Fragment should be added")
+            .that(fragment)
+            .isNotNull()
+
+        // Now push the Fragment that we want to save
+        val replacementEntry = createBackStackEntry(SECOND_FRAGMENT, SavedStateFragment::class)
+        fragmentNavigator.navigate(listOf(replacementEntry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, replacementEntry).inOrder()
+        fragmentManager.executePendingTransactions()
+        val replacementFragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Replacement Fragment should be added")
+            .that(replacementFragment)
+            .isNotNull()
+        assertWithMessage("Replacement Fragment should be the correct type")
+            .that(replacementFragment)
+            .isInstanceOf(SavedStateFragment::class.java)
+        assertWithMessage("Replacement Fragment should be the primary navigation Fragment")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(replacementFragment)
+
+        // Save some state into the replacement fragment
+        (replacementFragment as SavedStateFragment).savedState = "test"
+
+        // Now save the Fragment
+        fragmentNavigator.popBackStack(replacementEntry, true)
+        fragmentManager.executePendingTransactions()
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
+        assertWithMessage("Fragment should be the primary navigation Fragment after pop")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(fragment)
+
+        // Create a new FragmentNavigator, replacing the previous one
+        val savedState = fragmentNavigator.onSaveState() as Bundle
+        fragmentNavigator = FragmentNavigator(
+            emptyActivity,
+            fragmentManager, R.id.container
+        )
+        fragmentNavigator.onAttach(navigatorState)
+        fragmentNavigator.onRestoreState(savedState)
+
+        // And now restore the fragment
+        val restoredEntry = navigatorState.restoreBackStackEntry(replacementEntry)
+        fragmentNavigator.navigate(
+            listOf(restoredEntry),
+            NavOptions.Builder().setRestoreState(true).build(), null
+        )
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry, restoredEntry).inOrder()
+        fragmentManager.executePendingTransactions()
+        val restoredFragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Restored Fragment should be added")
+            .that(restoredFragment)
+            .isNotNull()
+        assertWithMessage("Restored Fragment should be the correct type")
+            .that(restoredFragment)
+            .isInstanceOf(SavedStateFragment::class.java)
+        assertWithMessage("Restored Fragment should be the primary navigation Fragment")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(restoredFragment)
+
+        assertWithMessage("Restored Fragment should have its state restored")
+            .that((restoredFragment as SavedStateFragment).savedState)
+            .isEqualTo("test")
     }
 
     @Test
     fun testToString() {
-        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination().apply {
             id = INITIAL_FRAGMENT
             setClassName(EmptyFragment::class.java.name)
@@ -714,7 +699,6 @@ class FragmentNavigatorTest {
 
     @Test
     fun testToStringNoClassName() {
-        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination().apply {
             id = INITIAL_FRAGMENT
             label = TEST_LABEL
@@ -723,12 +707,37 @@ class FragmentNavigatorTest {
             "class=null"
         assertThat(destination.toString()).isEqualTo(expected)
     }
+
+    private fun createBackStackEntry(
+        destId: Int = INITIAL_FRAGMENT,
+        clazz: KClass<out Fragment> = EmptyFragment::class
+    ): NavBackStackEntry {
+        val destination = fragmentNavigator.createDestination().apply {
+            id = destId
+            setClassName(clazz.java.name)
+        }
+        return navigatorState.createBackStackEntry(destination, null)
+    }
 }
 
 class EmptyActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.empty_activity)
+    }
+}
+
+class SavedStateFragment : Fragment() {
+    var savedState: String? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        savedState = savedInstanceState?.getString("savedState")
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("savedState", savedState)
     }
 }
 

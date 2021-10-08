@@ -28,7 +28,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 
 /**
- * A MaterialTheme defines the styling principles from the Material design specification.
+ * <a href="https://material.io/design/material-theming/overview.html" class="external" target="_blank">Material Theming</a>.
+ *
+ * Material Theming refers to the customization of your Material Design app to better reflect your
+ * product’s brand.
  *
  * Material components such as [Button] and [Checkbox] use values provided here when retrieving
  * default values.
@@ -60,8 +63,8 @@ fun MaterialTheme(
     content: @Composable () -> Unit
 ) {
     val rememberedColors = remember {
-        // TODO: b/162450508 remove the unnecessary .copy() here when it isn't needed to ensure that
-        // we don't skip the updateColorsFrom call
+        // Explicitly creating a new object here so we don't mutate the initial [colors]
+        // provided, and overwrite the values set in it.
         colors.copy()
     }.apply { updateColorsFrom(colors) }
     val rippleIndication = rememberRipple()
@@ -75,9 +78,14 @@ fun MaterialTheme(
         LocalTextSelectionColors provides selectionColors,
         LocalTypography provides typography
     ) {
-        ProvideTextStyle(value = typography.body1, content = content)
+        ProvideTextStyle(value = typography.body1) {
+            PlatformMaterialTheme(content)
+        }
     }
 }
+
+@Composable
+internal expect fun PlatformMaterialTheme(content: @Composable () -> Unit)
 
 /**
  * Contains functions to access the current theme values provided at the call site's position in

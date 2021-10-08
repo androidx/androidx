@@ -72,6 +72,12 @@ object ComposeErrors {
         )
 
     @JvmField
+    val ABSTRACT_COMPOSABLE_DEFAULT_PARAMETER_VALUE =
+        DiagnosticFactory0.create<PsiElement>(
+            Severity.ERROR
+        )
+
+    @JvmField
     val COMPOSABLE_FUN_MAIN =
         DiagnosticFactory0.create<PsiElement>(
             Severity.ERROR
@@ -107,12 +113,6 @@ object ComposeErrors {
         DiagnosticFactory1.create(
             Severity.ERROR,
             DECLARATION_SIGNATURE_OR_DEFAULT
-        )
-
-    @JvmField
-    val ILLEGAL_ASSIGN_TO_UNIONTYPE =
-        DiagnosticFactory2.create<KtExpression, Collection<KotlinType>, Collection<KotlinType>>(
-            Severity.ERROR
         )
 
     @JvmField

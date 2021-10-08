@@ -18,92 +18,97 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
-import org.jetbrains.skija.Matrix44
-import org.jetbrains.skija.impl.Native
-import org.jetbrains.skija.ClipMode as SkijaClipMode
-import org.jetbrains.skija.RRect as SkijaRRect
-import org.jetbrains.skija.Rect as SkijaRect
+import org.jetbrains.skia.CubicResampler
+import org.jetbrains.skia.FilterMipmap
+import org.jetbrains.skia.FilterMode
+import org.jetbrains.skia.Image
+import org.jetbrains.skia.Matrix44
+import org.jetbrains.skia.MipmapMode
+import org.jetbrains.skia.SamplingMode
+import org.jetbrains.skia.ClipMode as SkiaClipMode
+import org.jetbrains.skia.RRect as SkiaRRect
+import org.jetbrains.skia.Rect as SkiaRect
 
-actual typealias NativeCanvas = org.jetbrains.skija.Canvas
+actual typealias NativeCanvas = org.jetbrains.skia.Canvas
 
 internal actual fun ActualCanvas(image: ImageBitmap): Canvas {
-    val skijaBitmap = image.asDesktopBitmap()
-    require(!skijaBitmap.isImmutable) {
+    val skiaBitmap = image.asSkiaBitmap()
+    require(!skiaBitmap.isImmutable) {
         "Cannot draw on immutable ImageBitmap"
     }
-    return DesktopCanvas(org.jetbrains.skija.Canvas(skijaBitmap))
+    return DesktopCanvas(org.jetbrains.skia.Canvas(skiaBitmap))
 }
 
-actual val Canvas.nativeCanvas: NativeCanvas get() = (this as DesktopCanvas).skija
+/**
+ * Convert the [org.jetbrains.skia.Canvas] instance into a Compose-compatible Canvas
+ */
+fun org.jetbrains.skia.Canvas.asComposeCanvas(): Canvas = DesktopCanvas(this)
 
-class DesktopCanvas(val skija: org.jetbrains.skija.Canvas) : Canvas {
-    private val Paint.skija get() = (this as DesktopPaint).skija
+actual val Canvas.nativeCanvas: NativeCanvas get() = (this as DesktopCanvas).skia
+
+internal class DesktopCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
+    private val Paint.skia get() = (this as DesktopPaint).skia
 
     override fun save() {
-        skija.save()
+        skia.save()
     }
 
     override fun restore() {
-        skija.restore()
+        skia.restore()
     }
 
     override fun saveLayer(bounds: Rect, paint: Paint) {
-        skija.saveLayer(
+        skia.saveLayer(
             bounds.left,
             bounds.top,
             bounds.right,
             bounds.bottom,
-            paint.skija
+            paint.skia
         )
     }
 
     override fun translate(dx: Float, dy: Float) {
-        skija.translate(dx, dy)
+        skia.translate(dx, dy)
     }
 
     override fun scale(sx: Float, sy: Float) {
-        skija.scale(sx, sy)
+        skia.scale(sx, sy)
     }
 
     override fun rotate(degrees: Float) {
-        skija.rotate(degrees)
+        skia.rotate(degrees)
     }
 
     override fun skew(sx: Float, sy: Float) {
-        skija.skew(sx, sy)
+        skia.skew(sx, sy)
     }
 
     override fun concat(matrix: Matrix) {
         if (!matrix.isIdentity()) {
-            skija.concat(matrix.toSkija())
+            skia.concat(matrix.toSkia())
         }
     }
 
     override fun clipRect(left: Float, top: Float, right: Float, bottom: Float, clipOp: ClipOp) {
         val antiAlias = true
-        skija.clipRect(SkijaRect.makeLTRB(left, top, right, bottom), clipOp.toSkija(), antiAlias)
-    }
-
-    fun clipRoundRect(rect: RoundRect, clipOp: ClipOp = ClipOp.Intersect) {
-        val antiAlias = true
-        skija.clipRRect(rect.toSkijaRRect(), clipOp.toSkija(), antiAlias)
+        skia.clipRect(SkiaRect.makeLTRB(left, top, right, bottom), clipOp.toSkia(), antiAlias)
     }
 
     override fun clipPath(path: Path, clipOp: ClipOp) {
         val antiAlias = true
-        skija.clipPath(path.asDesktopPath(), clipOp.toSkija(), antiAlias)
+        skia.clipPath(path.asSkiaPath(), clipOp.toSkia(), antiAlias)
     }
 
     override fun drawLine(p1: Offset, p2: Offset, paint: Paint) {
-        skija.drawLine(p1.x, p1.y, p2.x, p2.y, paint.skija)
+        skia.drawLine(p1.x, p1.y, p2.x, p2.y, paint.skia)
     }
 
     override fun drawRect(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
-        skija.drawRect(SkijaRect.makeLTRB(left, top, right, bottom), paint.skija)
+        skia.drawRect(SkiaRect.makeLTRB(left, top, right, bottom), paint.skia)
     }
 
     override fun drawRoundRect(
@@ -115,8 +120,8 @@ class DesktopCanvas(val skija: org.jetbrains.skija.Canvas) : Canvas {
         radiusY: Float,
         paint: Paint
     ) {
-        skija.drawRRect(
-            SkijaRRect.makeLTRB(
+        skia.drawRRect(
+            SkiaRRect.makeLTRB(
                 left,
                 top,
                 right,
@@ -124,16 +129,16 @@ class DesktopCanvas(val skija: org.jetbrains.skija.Canvas) : Canvas {
                 radiusX,
                 radiusY
             ),
-            paint.skija
+            paint.skia
         )
     }
 
     override fun drawOval(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
-        skija.drawOval(SkijaRect.makeLTRB(left, top, right, bottom), paint.skija)
+        skia.drawOval(SkiaRect.makeLTRB(left, top, right, bottom), paint.skia)
     }
 
     override fun drawCircle(center: Offset, radius: Float, paint: Paint) {
-        skija.drawCircle(center.x, center.y, radius, paint.skija)
+        skia.drawCircle(center.x, center.y, radius, paint.skia)
     }
 
     override fun drawArc(
@@ -146,7 +151,7 @@ class DesktopCanvas(val skija: org.jetbrains.skija.Canvas) : Canvas {
         useCenter: Boolean,
         paint: Paint
     ) {
-        skija.drawArc(
+        skia.drawArc(
             left,
             top,
             right,
@@ -154,31 +159,17 @@ class DesktopCanvas(val skija: org.jetbrains.skija.Canvas) : Canvas {
             startAngle,
             sweepAngle,
             useCenter,
-            paint.skija
+            paint.skia
         )
     }
 
     override fun drawPath(path: Path, paint: Paint) {
-        skija.drawPath(path.asDesktopPath(), paint.skija)
+        skia.drawPath(path.asSkiaPath(), paint.skia)
     }
 
     override fun drawImage(image: ImageBitmap, topLeftOffset: Offset, paint: Paint) {
-        skija.drawBitmapRect(
-            image.asDesktopBitmap(),
-            SkijaRect.makeXYWH(
-                0f,
-                0f,
-                image.width.toFloat(),
-                image.height.toFloat()
-            ),
-            SkijaRect.makeXYWH(
-                topLeftOffset.x,
-                topLeftOffset.y,
-                image.width.toFloat(),
-                image.height.toFloat()
-            ),
-            paint.skija
-        )
+        val size = Size(image.width.toFloat(), image.height.toFloat())
+        drawImageRect(image, Offset.Zero, size, topLeftOffset, size, paint)
     }
 
     override fun drawImageRect(
@@ -189,22 +180,46 @@ class DesktopCanvas(val skija: org.jetbrains.skija.Canvas) : Canvas {
         dstSize: IntSize,
         paint: Paint
     ) {
-        skija.drawBitmapRect(
-            image.asDesktopBitmap(),
-            SkijaRect.makeXYWH(
-                srcOffset.x.toFloat(),
-                srcOffset.y.toFloat(),
-                srcSize.width.toFloat(),
-                srcSize.height.toFloat()
-            ),
-            SkijaRect.makeXYWH(
-                dstOffset.x.toFloat(),
-                dstOffset.y.toFloat(),
-                dstSize.width.toFloat(),
-                dstSize.height.toFloat()
-            ),
-            paint.skija
+        drawImageRect(
+            image,
+            Offset(srcOffset.x.toFloat(), srcOffset.y.toFloat()),
+            Size(srcSize.width.toFloat(), srcSize.height.toFloat()),
+            Offset(dstOffset.x.toFloat(), dstOffset.y.toFloat()),
+            Size(dstSize.width.toFloat(), dstSize.height.toFloat()),
+            paint
         )
+    }
+
+    // TODO(demin): probably this method should be in the common Canvas
+    private fun drawImageRect(
+        image: ImageBitmap,
+        srcOffset: Offset,
+        srcSize: Size,
+        dstOffset: Offset,
+        dstSize: Size,
+        paint: Paint
+    ) {
+        val bitmap = image.asSkiaBitmap()
+        Image.makeFromBitmap(bitmap).use { skiaImage ->
+            skia.drawImageRect(
+                skiaImage,
+                SkiaRect.makeXYWH(
+                    srcOffset.x,
+                    srcOffset.y,
+                    srcSize.width,
+                    srcSize.height
+                ),
+                SkiaRect.makeXYWH(
+                    dstOffset.x,
+                    dstOffset.y,
+                    dstSize.width,
+                    dstSize.height
+                ),
+                paint.filterQuality.toSkia(),
+                paint.skia,
+                true
+            )
+        }
     }
 
     override fun drawPoints(pointMode: PointMode, points: List<Offset>, paint: Paint) {
@@ -227,10 +242,10 @@ class DesktopCanvas(val skija: org.jetbrains.skija.Canvas) : Canvas {
 
     private fun drawPoints(points: List<Offset>, paint: Paint) {
         points.fastForEach { point ->
-            skija.drawPoint(
+            skia.drawPoint(
                 point.x,
                 point.y,
-                paint.skija
+                paint.skia
             )
         }
     }
@@ -252,12 +267,12 @@ class DesktopCanvas(val skija: org.jetbrains.skija.Canvas) : Canvas {
             for (i in 0 until points.size - 1 step stepBy) {
                 val p1 = points[i]
                 val p2 = points[i + 1]
-                skija.drawLine(
+                skia.drawLine(
                     p1.x,
                     p1.y,
                     p2.x,
                     p2.y,
-                    paint.skija
+                    paint.skia
                 )
             }
         }
@@ -282,7 +297,7 @@ class DesktopCanvas(val skija: org.jetbrains.skija.Canvas) : Canvas {
             for (i in 0 until points.size - 1 step stepBy) {
                 val x = points[i]
                 val y = points[i + 1]
-                skija.drawPoint(x, y, paint.skija)
+                skia.drawPoint(x, y, paint.skia)
             }
         }
     }
@@ -309,42 +324,36 @@ class DesktopCanvas(val skija: org.jetbrains.skija.Canvas) : Canvas {
                 val y1 = points[i + 1]
                 val x2 = points[i + 2]
                 val y2 = points[i + 3]
-                skija.drawLine(
+                skia.drawLine(
                     x1,
                     y1,
                     x2,
                     y2,
-                    paint.skija
+                    paint.skia
                 )
             }
         }
     }
 
     override fun drawVertices(vertices: Vertices, blendMode: BlendMode, paint: Paint) {
-        org.jetbrains.skija.Canvas._nDrawVertices(
-            skija._ptr,
-            vertices.vertexMode.toSkijaMode(),
+        skia.drawVertices(
+            vertices.vertexMode.toSkiaVertexMode(),
             vertices.positions,
             vertices.colors,
             vertices.textureCoordinates,
             vertices.indices,
-            blendMode.toSkija().ordinal,
-            Native.getPtr(paint.asFrameworkPaint())
+            blendMode.toSkia(),
+            paint.asFrameworkPaint()
         )
     }
 
-    private fun VertexMode.toSkijaMode() = when (this) {
-        VertexMode.Triangles -> 0
-        VertexMode.TriangleStrip -> 1
-        VertexMode.TriangleFan -> 2
+    private fun ClipOp.toSkia() = when (this) {
+        ClipOp.Difference -> SkiaClipMode.DIFFERENCE
+        ClipOp.Intersect -> SkiaClipMode.INTERSECT
+        else -> SkiaClipMode.INTERSECT
     }
 
-    private fun ClipOp.toSkija() = when (this) {
-        ClipOp.Difference -> SkijaClipMode.DIFFERENCE
-        ClipOp.Intersect -> SkijaClipMode.INTERSECT
-    }
-
-    private fun Matrix.toSkija() = Matrix44(
+    private fun Matrix.toSkia() = Matrix44(
         this[0, 0],
         this[1, 0],
         this[2, 0],
@@ -365,4 +374,14 @@ class DesktopCanvas(val skija: org.jetbrains.skija.Canvas) : Canvas {
         this[2, 3],
         this[3, 3]
     )
+
+    // These constants are chosen to correspond the old implementation of SkFilterQuality:
+    // https://github.com/google/skia/blob/1f193df9b393d50da39570dab77a0bb5d28ec8ef/src/image/SkImage.cpp#L809
+    // https://github.com/google/skia/blob/1f193df9b393d50da39570dab77a0bb5d28ec8ef/include/core/SkSamplingOptions.h#L86
+    private fun FilterQuality.toSkia(): SamplingMode = when (this) {
+        FilterQuality.Low -> FilterMipmap(FilterMode.LINEAR, MipmapMode.NONE)
+        FilterQuality.Medium -> FilterMipmap(FilterMode.LINEAR, MipmapMode.NEAREST)
+        FilterQuality.High -> CubicResampler(1 / 3.0f, 1 / 3.0f)
+        else -> FilterMipmap(FilterMode.NEAREST, MipmapMode.NONE)
+    }
 }

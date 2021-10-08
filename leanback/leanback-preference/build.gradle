@@ -13,7 +13,7 @@ dependencies {
     api("androidx.appcompat:appcompat:1.0.0")
     api("androidx.recyclerview:recyclerview:1.0.0")
     api("androidx.preference:preference:1.1.0")
-    api("androidx.leanback:leanback:1.1.0-beta01")
+    api(project(":leanback:leanback"))
 }
 
 android {

@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.media.AudioTrack;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -112,7 +113,7 @@ public final class PlaybackParams {
     public @AudioFallbackMode @Nullable Integer getAudioFallbackMode() {
         if (Build.VERSION.SDK_INT >= 23) {
             try {
-                return mPlaybackParams.getAudioFallbackMode();
+                return Api23Impl.getAudioFallbackMode(mPlaybackParams);
             } catch (IllegalStateException e) {
                 return null;
             }
@@ -127,7 +128,7 @@ public final class PlaybackParams {
     public @Nullable Float getPitch() {
         if (Build.VERSION.SDK_INT >= 23) {
             try {
-                return mPlaybackParams.getPitch();
+                return Api23Impl.getPitch(mPlaybackParams);
             } catch (IllegalStateException e) {
                 return null;
             }
@@ -142,7 +143,7 @@ public final class PlaybackParams {
     public @Nullable Float getSpeed() {
         if (Build.VERSION.SDK_INT >= 23) {
             try {
-                return mPlaybackParams.getSpeed();
+                return Api23Impl.getSpeed(mPlaybackParams);
             } catch (IllegalStateException e) {
                 return null;
             }
@@ -185,7 +186,7 @@ public final class PlaybackParams {
          */
         public Builder() {
             if (Build.VERSION.SDK_INT >= 23) {
-                mPlaybackParams = new android.media.PlaybackParams();
+                mPlaybackParams = Api23Impl.createPlaybackParams();
             }
         }
 
@@ -221,7 +222,7 @@ public final class PlaybackParams {
          */
         public @NonNull Builder setAudioFallbackMode(@AudioFallbackMode int audioFallbackMode) {
             if (Build.VERSION.SDK_INT >= 23) {
-                mPlaybackParams.setAudioFallbackMode(audioFallbackMode);
+                Api23Impl.setAudioFallbackMode(mPlaybackParams, audioFallbackMode);
             } else {
                 mAudioFallbackMode = audioFallbackMode;
             }
@@ -243,7 +244,7 @@ public final class PlaybackParams {
                 throw new IllegalArgumentException("pitch must not be negative");
             }
             if (Build.VERSION.SDK_INT >= 23) {
-                mPlaybackParams.setPitch(pitch);
+                Api23Impl.setPitch(mPlaybackParams, pitch);
             } else {
                 mPitch = pitch;
             }
@@ -265,7 +266,7 @@ public final class PlaybackParams {
                 throw new IllegalArgumentException("negative speed is not supported");
             }
             if (Build.VERSION.SDK_INT >= 23) {
-                mPlaybackParams.setSpeed(speed);
+                Api23Impl.setSpeed(mPlaybackParams, speed);
             } else {
                 mSpeed = speed;
             }
@@ -284,5 +285,50 @@ public final class PlaybackParams {
                 return new PlaybackParams(mAudioFallbackMode, mPitch, mSpeed);
             }
         }
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+
+        @DoNotInline
+        static android.media.PlaybackParams createPlaybackParams() {
+            return new android.media.PlaybackParams();
+        }
+
+        @DoNotInline
+        static int getAudioFallbackMode(android.media.PlaybackParams playbackParams) {
+            return playbackParams.getAudioFallbackMode();
+        }
+
+        @DoNotInline
+        static float getPitch(android.media.PlaybackParams playbackParams) {
+            return playbackParams.getPitch();
+        }
+
+        @DoNotInline
+        static float getSpeed(android.media.PlaybackParams playbackParams) {
+            return playbackParams.getSpeed();
+        }
+
+        @DoNotInline
+        static android.media.PlaybackParams setAudioFallbackMode(
+                android.media.PlaybackParams playbackParams, int audioFallbackMode) {
+            return playbackParams.setAudioFallbackMode(audioFallbackMode);
+        }
+
+
+        @DoNotInline
+        static android.media.PlaybackParams setPitch(android.media.PlaybackParams playbackParams,
+                float pitch) {
+            return playbackParams.setPitch(pitch);
+        }
+
+        @DoNotInline
+        static android.media.PlaybackParams setSpeed(android.media.PlaybackParams playbackParams,
+                float speed) {
+            return playbackParams.setSpeed(speed);
+        }
+
+        private Api23Impl() {}
     }
 }

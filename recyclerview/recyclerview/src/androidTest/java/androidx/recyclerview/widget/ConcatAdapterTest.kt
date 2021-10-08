@@ -44,6 +44,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -146,9 +147,9 @@ class ConcatAdapterTest {
         adapter1.removeItems(3, 2)
         assertThat(recyclerView.isLayoutRequested).isTrue()
         measureAndLayout(100, 100)
-        assertThat(adapter1.recycledViewHolders()).hasSize(2)
+        assertThat(adapter1.recycleEvents()).hasSize(2)
         assertThat(adapter1.attachedViewHolders()).hasSize(8)
-        assertThat(adapter1.attachedViewHolders()).containsNoneIn(adapter1.recycledViewHolders())
+        assertThat(adapter1.attachedViewHolders()).containsNoneIn(adapter1.recycleEvents())
     }
 
     @UiThreadTest
@@ -163,7 +164,7 @@ class ConcatAdapterTest {
         assertThat(recyclerView.isLayoutRequested).isTrue()
         measureAndLayout(100, 100)
         assertThat(adapter1.attachedViewHolders()).hasSize(3)
-        assertThat(adapter1.recycledViewHolders()).hasSize(0)
+        assertThat(adapter1.recycleEvents()).hasSize(0)
     }
 
     @UiThreadTest
@@ -187,8 +188,14 @@ class ConcatAdapterTest {
         assertThat(recyclerView.isLayoutRequested).isTrue()
         measureAndLayout(100, 200)
         assertThat(adapter2.attachedViewHolders()).hasSize(3)
-        assertThat(adapter2.failedToRecycleViewHolders()).contains(viewHolder)
-        assertThat(adapter2.failedToRecycleViewHolders()).hasSize(1)
+        assertThat(adapter2.failedToRecycleEvents()).contains(
+            RecycledViewHolderEvent(
+                itemId = 12,
+                absoluteAdapterPosition = NO_POSITION,
+                bindingAdapterPosition = NO_POSITION
+            )
+        )
+        assertThat(adapter2.failedToRecycleEvents()).hasSize(1)
         assertThat(adapter2.attachedViewHolders()).doesNotContain(viewHolder)
     }
 
@@ -320,6 +327,252 @@ class ConcatAdapterTest {
         recyclerView.adapter = null
         assertThat(adapter1.attachedRecyclerViews()).isEmpty()
         assertThat(adapter2.attachedRecyclerViews()).isEmpty()
+    }
+
+    @UiThreadTest
+    @Test
+    public fun scrollView() {
+        val adapter1 = NestedTestAdapter(
+            count = 10,
+            getLayoutParams = {
+                LayoutParams(MATCH_PARENT, 40)
+            }
+        )
+        val adapter2 = NestedTestAdapter(
+            count = 5,
+            getLayoutParams = {
+                LayoutParams(MATCH_PARENT, 10)
+            }
+        )
+        val concatenated =
+            ConcatAdapter(adapter1, adapter2)
+        recyclerView.adapter = concatenated
+        measureAndLayout(100, 100)
+        recyclerView.scrollBy(0, 90)
+        assertThat(adapter1.attachedViewHolders()).hasSize(3)
+        assertThat(
+            adapter1.attachedViewHolders().map { it.bindingAdapterPosition }
+        ).containsExactly(2, 3, 4)
+    }
+
+    @UiThreadTest
+    @Test
+    public fun recycledViewPositions() {
+        val adapter1 = NestedTestAdapter(
+            count = 5,
+            getLayoutParams = {
+                LayoutParams(MATCH_PARENT, 40)
+            }
+        )
+        val adapter2 = NestedTestAdapter(
+            count = 10,
+            getLayoutParams = {
+                LayoutParams(MATCH_PARENT, 10)
+            }
+        )
+        val concatenated = ConcatAdapter(adapter1, adapter2)
+        recyclerView.setItemViewCacheSize(0)
+        recyclerView.adapter = concatenated
+        measureAndLayout(100, 100)
+        // trigger recycle
+        recyclerView.scrollBy(0, 90)
+        // two views are recycled
+        assertThat(adapter1.recycleEvents()).containsExactly(
+            RecycledViewHolderEvent(
+                itemId = 0,
+                absoluteAdapterPosition = 0,
+                bindingAdapterPosition = 0
+            ),
+            RecycledViewHolderEvent(
+                itemId = 1,
+                absoluteAdapterPosition = 1,
+                bindingAdapterPosition = 1
+            )
+        ).inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    @SdkSuppress(minSdkVersion = 16)
+    public fun recycledViewPositions_failedRecycle() {
+        val adapter1 = NestedTestAdapter(
+            count = 5,
+            getLayoutParams = {
+                LayoutParams(MATCH_PARENT, 40)
+            }
+        )
+        val adapter2 = NestedTestAdapter(
+            count = 10,
+            getLayoutParams = {
+                LayoutParams(MATCH_PARENT, 10)
+            }
+        )
+        val concatenated = ConcatAdapter(adapter1, adapter2)
+        recyclerView.setItemViewCacheSize(0)
+        recyclerView.adapter = concatenated
+        measureAndLayout(100, 100)
+        // give second view transient state
+        val viewHolder = recyclerView.findViewHolderForAdapterPosition(1)
+        check(viewHolder != null) {
+            "should have that view holder for position 1"
+        }
+        // give it transient state so that it won't be recycled
+        viewHolder.itemView.setHasTransientState(true)
+        // trigger recycle
+        recyclerView.scrollBy(0, 90)
+        // two views are recycled but one of them fails to recycle
+        assertThat(adapter1.failedToRecycleEvents()).containsExactly(
+            RecycledViewHolderEvent(
+                itemId = 1,
+                absoluteAdapterPosition = 1,
+                bindingAdapterPosition = 1
+            )
+        )
+        assertThat(adapter1.recycleEvents()).containsExactly(
+            RecycledViewHolderEvent(
+                itemId = 0,
+                absoluteAdapterPosition = 0,
+                bindingAdapterPosition = 0
+            )
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    public fun recycledViewPositions_withAdapterChanges() {
+        val adapter1 = NestedTestAdapter(
+            count = 5,
+            getLayoutParams = {
+                LayoutParams(MATCH_PARENT, 20)
+            }
+        )
+        val adapter2 = NestedTestAdapter(
+            count = 10,
+            getLayoutParams = {
+                LayoutParams(MATCH_PARENT, 10)
+            }
+        )
+        val concatenated =
+            ConcatAdapter(adapter1, adapter2)
+        recyclerView.setItemViewCacheSize(0)
+        recyclerView.adapter = concatenated
+        val layoutManager = (recyclerView.layoutManager!! as LinearLayoutManager)
+        measureAndLayout(100, 100)
+        // remove items 3 and 1
+        adapter1.removeItems(3, 1)
+        adapter1.removeItems(1, 1)
+
+        // scroll to the beginning of the second adapter to trigger recycle of all items in adapter
+        // 1
+        layoutManager.scrollToPositionWithOffset(3, 0)
+        measureAndLayout(100, 100)
+        assertThat(adapter1.recycleEvents()).containsExactly(
+            RecycledViewHolderEvent(
+                itemId = 0,
+                bindingAdapterPosition = 0,
+                absoluteAdapterPosition = 0
+            ),
+            RecycledViewHolderEvent(
+                itemId = 1,
+                bindingAdapterPosition = NO_POSITION,
+                absoluteAdapterPosition = NO_POSITION
+            ),
+            RecycledViewHolderEvent(
+                itemId = 2,
+                bindingAdapterPosition = 1,
+                absoluteAdapterPosition = 1
+            ),
+            RecycledViewHolderEvent(
+                itemId = 3,
+                bindingAdapterPosition = NO_POSITION,
+                absoluteAdapterPosition = NO_POSITION
+            ),
+            RecycledViewHolderEvent(
+                itemId = 4,
+                bindingAdapterPosition = 2,
+                absoluteAdapterPosition = 2
+            )
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    public fun recycledViewPositions_withAdapterChanges_secondAdapter() {
+        val adapter1 = NestedTestAdapter(
+            count = 5,
+            getLayoutParams = {
+                LayoutParams(MATCH_PARENT, 20)
+            }
+        )
+        val adapter2 = NestedTestAdapter(
+            count = 10,
+            getLayoutParams = {
+                LayoutParams(MATCH_PARENT, 10)
+            }
+        )
+        val concatenated =
+            ConcatAdapter(adapter1, adapter2)
+        recyclerView.setItemViewCacheSize(0)
+        val layoutManager = (recyclerView.layoutManager!! as LinearLayoutManager)
+
+        recyclerView.adapter = concatenated
+        // start from the second adapter
+        layoutManager.scrollToPositionWithOffset(adapter1.itemCount, 0)
+        measureAndLayout(100, 100)
+        assertThat(adapter1.attachedViewHolders()).isEmpty()
+        assertThat(adapter2.attachedViewHolders()).hasSize(10)
+        // remove items 3 and 1 from first adapter
+        adapter1.removeItems(3, 1)
+        adapter1.removeItems(1, 1)
+        // remove items 2, 4 from the second adapter
+        adapter2.removeItems(4, 1)
+        adapter2.removeItems(2, 1)
+        // scroll to the top of the list
+        layoutManager.scrollToPositionWithOffset(0, 0)
+        measureAndLayout(100, 100)
+        assertThat(adapter1.attachedViewHolders()).hasSize(3)
+        assertThat(adapter2.attachedViewHolders()).hasSize(4)
+        // the UI will have (item ids)
+        // 0, 2, 4, 5, 6
+        // nothing is recycled in adapter 1
+        assertThat(adapter1.recycleEvents()).isEmpty()
+        // all items but first two are recycled in adapter2
+        assertThat(adapter2.recycleEvents()).containsExactly(
+            // first two items, 5 and 6, are not recycled as they are still visible
+            // items 7 and 9 are recycled (removed)
+            // items 8, 10 are still visible
+            RecycledViewHolderEvent(
+                itemId = 7,
+                bindingAdapterPosition = NO_POSITION,
+                absoluteAdapterPosition = NO_POSITION
+            ),
+            // pos 4 (item id 9) is removed from adapter 2
+            RecycledViewHolderEvent(
+                itemId = 9,
+                bindingAdapterPosition = NO_POSITION,
+                absoluteAdapterPosition = NO_POSITION
+            ),
+            RecycledViewHolderEvent(
+                itemId = 11,
+                bindingAdapterPosition = 4,
+                absoluteAdapterPosition = 7
+            ),
+            RecycledViewHolderEvent(
+                itemId = 12,
+                bindingAdapterPosition = 5,
+                absoluteAdapterPosition = 8
+            ),
+            RecycledViewHolderEvent(
+                itemId = 13,
+                bindingAdapterPosition = 6,
+                absoluteAdapterPosition = 9
+            ),
+            RecycledViewHolderEvent(
+                itemId = 14,
+                bindingAdapterPosition = 7,
+                absoluteAdapterPosition = 10
+            ),
+        )
     }
 
     @UiThreadTest
@@ -1153,6 +1406,42 @@ class ConcatAdapterTest {
         )
     }
 
+    @Test
+    fun builderDefaults() {
+        val defaultBuilder = Builder().build()
+        assertThat(defaultBuilder.isolateViewTypes).isEqualTo(
+            ConcatAdapter.Config.DEFAULT.isolateViewTypes
+        )
+        assertThat(defaultBuilder.stableIdMode).isEqualTo(
+            ConcatAdapter.Config.DEFAULT.stableIdMode
+        )
+    }
+
+    @Test
+    fun getWrappedAdapterAndPositionTest() {
+        val adapter1 = NestedTestAdapter(10)
+        val adapter2 = NestedTestAdapter(10)
+        val concatAdapter = ConcatAdapter(adapter1, adapter2)
+        val result0 = concatAdapter.getWrappedAdapterAndPosition(0)
+        assertThat(result0.first).isEqualTo(adapter1)
+        assertThat(result0.second).isEqualTo(0)
+        val result5 = concatAdapter.getWrappedAdapterAndPosition(5)
+        assertThat(result5.first).isEqualTo(adapter1)
+        assertThat(result5.second).isEqualTo(5)
+        val result10 = concatAdapter.getWrappedAdapterAndPosition(10)
+        assertThat(result10.first).isEqualTo(adapter2)
+        assertThat(result10.second).isEqualTo(0)
+        val result15 = concatAdapter.getWrappedAdapterAndPosition(15)
+        assertThat(result15.first).isEqualTo(adapter2)
+        assertThat(result15.second).isEqualTo(5)
+        try {
+            val result20 = concatAdapter.getWrappedAdapterAndPosition(20)
+            fail("Should throw exception on invalid position, instead got $result20")
+        } catch (e: IllegalArgumentException) {
+            // Expected, pass
+        }
+    }
+
     private var itemCounter = 0
     private fun produceItem(): TestItem = (itemCounter++).let {
         TestItem(id = it, value = it)
@@ -1188,8 +1477,8 @@ class ConcatAdapterTest {
         val itemTypeLookup: ((TestItem, position: Int) -> Int)? = null
     ) : RecyclerView.Adapter<ConcatAdapterViewHolder>() {
         private val attachedViewHolders = mutableListOf<ConcatAdapterViewHolder>()
-        private val recycledViewHolders = mutableListOf<ConcatAdapterViewHolder>()
-        private val failedToRecycleViewHolders = mutableListOf<ConcatAdapterViewHolder>()
+        private val recycledViewHolderEvents = mutableListOf<RecycledViewHolderEvent>()
+        private val failedToRecycleEvents = mutableListOf<RecycledViewHolderEvent>()
         private var attachedRecyclerViews = mutableListOf<RecyclerView>()
         private var observers = mutableListOf<RecyclerView.AdapterDataObserver>()
 
@@ -1208,6 +1497,7 @@ class ConcatAdapterTest {
 
         override fun onViewDetachedFromWindow(holder: ConcatAdapterViewHolder) {
             assertThat(attachedViewHolders).contains(holder)
+            holder.onDetached()
             attachedViewHolders.remove(holder)
         }
 
@@ -1310,30 +1600,30 @@ class ConcatAdapterTest {
         }
 
         override fun onViewRecycled(holder: ConcatAdapterViewHolder) {
-            recycledViewHolders.add(holder)
+            recycledViewHolderEvents.add(RecycledViewHolderEvent(holder))
             holder.onRecycled()
         }
 
         override fun getItemCount() = items.size
 
         override fun onFailedToRecycleView(holder: ConcatAdapterViewHolder): Boolean {
-            failedToRecycleViewHolders.add(holder)
+            failedToRecycleEvents.add(RecycledViewHolderEvent(holder))
             return super.onFailedToRecycleView(holder)
         }
 
         fun getItemAt(localPosition: Int) = items[localPosition]
-        fun recycledViewHolders(): List<ConcatAdapterViewHolder> = recycledViewHolders
-        fun failedToRecycleViewHolders(): List<ConcatAdapterViewHolder> = failedToRecycleViewHolders
+        fun recycleEvents(): List<RecycledViewHolderEvent> = recycledViewHolderEvents
+        fun failedToRecycleEvents(): List<RecycledViewHolderEvent> = failedToRecycleEvents
     }
 
-    class ConcatAdapterViewHolder(
+    internal class ConcatAdapterViewHolder(
         context: Context,
         val localViewType: Int
     ) : RecyclerView.ViewHolder(View(context)) {
-        private var boundItem: Any? = null
+        private var boundItem: TestItem? = null
         private var boundAdapter: RecyclerView.Adapter<*>? = null
         private var boundPosition: Int? = null
-        fun bindTo(adapter: RecyclerView.Adapter<*>, item: Any, position: Int) {
+        fun bindTo(adapter: RecyclerView.Adapter<*>, item: TestItem, position: Int) {
             boundAdapter = adapter
             boundPosition = position
             boundItem = item
@@ -1342,10 +1632,29 @@ class ConcatAdapterTest {
         fun boundItem() = boundItem
         fun boundLocalPosition() = boundPosition
         fun boundAdapter() = boundAdapter
+        fun onDetached() {
+            assertPosition()
+        }
         fun onRecycled() {
+            assertPosition()
             boundItem = null
             boundPosition = -1
             boundAdapter = null
+        }
+
+        private fun assertPosition() {
+            val shouldHavePosition = !isRemoved() && isBound() &&
+                !isAdapterPositionUnknown() && !isInvalid()
+            assertWithMessage(
+                "binding adapter position $this"
+            ).that(shouldHavePosition).isEqualTo(
+                bindingAdapterPosition != NO_POSITION
+            )
+            assertWithMessage(
+                "binding adapter position $this"
+            ).that(shouldHavePosition).isEqualTo(
+                absoluteAdapterPosition != NO_POSITION
+            )
         }
     }
 
@@ -1461,4 +1770,16 @@ class ConcatAdapterTest {
         val value: Int,
         val viewType: Int = 0
     )
+
+    internal data class RecycledViewHolderEvent(
+        val itemId: Int?,
+        val absoluteAdapterPosition: Int,
+        val bindingAdapterPosition: Int,
+    ) {
+        constructor(viewHolder: ConcatAdapterViewHolder) : this(
+            itemId = viewHolder.boundItem()?.id,
+            absoluteAdapterPosition = viewHolder.absoluteAdapterPosition,
+            bindingAdapterPosition = viewHolder.bindingAdapterPosition
+        )
+    }
 }

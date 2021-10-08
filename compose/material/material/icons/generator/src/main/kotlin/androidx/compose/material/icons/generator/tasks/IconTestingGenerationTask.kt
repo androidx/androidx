@@ -17,7 +17,6 @@
 package androidx.compose.material.icons.generator.tasks
 
 import androidx.compose.material.icons.generator.IconTestingManifestGenerator
-import com.android.build.gradle.api.BaseVariant
 import org.gradle.api.Project
 import org.gradle.api.tasks.OutputDirectory
 import java.io.File
@@ -55,16 +54,22 @@ open class IconTestingGenerationTask : IconGenerationTask() {
         /**
          * Registers [IconTestingGenerationTask] in [project] for [variant].
          */
-        fun register(project: Project, variant: BaseVariant) {
-            val task = project.createGenerationTask(
+        @Suppress("DEPRECATION") // BaseVariant
+        fun register(project: Project, variant: com.android.build.gradle.api.BaseVariant) {
+            val (task, buildDirectory) = project.registerGenerationTask(
                 "generateTestFiles",
                 IconTestingGenerationTask::class.java,
                 variant
             )
+
+            val generatedResourceDirectory = buildDirectory.resolve(GeneratedResource)
+
             variant.registerGeneratedResFolders(
-                project.files(task.generatedResourceDirectory).builtBy(task)
+                project.files(generatedResourceDirectory).builtBy(task)
             )
-            variant.registerJavaGeneratingTask(task, task.generatedSrcAndroidTestDirectory)
+
+            val generatedSrcAndroidTestDirectory = buildDirectory.resolve(GeneratedSrcAndroidTest)
+            variant.registerJavaGeneratingTask(task, generatedSrcAndroidTestDirectory)
         }
     }
 }

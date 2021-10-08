@@ -121,7 +121,7 @@ public class BridgingManager private constructor(private val context: Context) {
     }
 
     public companion object {
-        private const val ACTION_BIND_BRIDGING_MANAGER =
+        internal const val ACTION_BIND_BRIDGING_MANAGER =
             "android.support.wearable.notifications.action.BIND_BRIDGING_MANAGER"
 
         private const val BRIDGING_CONFIG_SERVICE_PACKAGE = "com.google.android.wearable.app"

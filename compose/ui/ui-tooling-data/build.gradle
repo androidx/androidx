@@ -15,21 +15,19 @@
  */
 
 import androidx.build.LibraryGroups
-import androidx.build.Publish
-
-import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("AndroidXUiPlugin")
+    id("AndroidXComposePlugin")
     id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     kotlinPlugin project(":compose:compiler:compiler")
 
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.kotlinStdlib)
 
     api "androidx.annotation:annotation:1.1.0"
 
@@ -38,20 +36,21 @@ dependencies {
 
     androidTestImplementation project(":compose:ui:ui-test-junit4")
 
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
 
-    androidTestImplementation(TRUTH)
+    androidTestImplementation(libs.truth)
     androidTestImplementation(project(":compose:foundation:foundation-layout"))
     androidTestImplementation(project(":compose:foundation:foundation"))
     androidTestImplementation(project(":compose:material:material"))
-    androidTestImplementation(project(":activity:activity-compose"))
+    androidTestImplementation("androidx.activity:activity-compose:1.3.1")
 }
 
 androidx {
     name = "Compose Tooling Data"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.Compose.UI
     inceptionYear = "2021"
     description = "Compose tooling library data. This library provides data about compose" +

@@ -18,7 +18,6 @@ package androidx.compose.foundation.text
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Canvas
-import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.MultiParagraph
 import androidx.compose.ui.text.MultiParagraphIntrinsics
@@ -28,7 +27,6 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextPainter
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.canReuse
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.resolveDefaults
 import androidx.compose.ui.text.style.TextAlign
@@ -90,9 +88,12 @@ class TextDelegate(
     val overflow: TextOverflow = TextOverflow.Clip,
     val density: Density,
     val resourceLoader: Font.ResourceLoader,
-    val placeholders: List<AnnotatedString.Range<Placeholder>> = listOf()
+    val placeholders: List<AnnotatedString.Range<Placeholder>> = emptyList()
 ) {
     /*@VisibleForTesting*/
+    // NOTE(text-perf-review): it seems like TextDelegate essentially guarantees that we use
+    // MultiParagraph. Can we have a fast-path that uses just Paragraph in simpler cases (ie,
+    // String)?
     internal var paragraphIntrinsics: MultiParagraphIntrinsics? = null
     internal var intrinsicsLayoutDirection: LayoutDirection? = null
 
@@ -204,10 +205,12 @@ class TextDelegate(
         prevResult: TextLayoutResult? = null
     ): TextLayoutResult {
         if (prevResult != null && prevResult.canReuse(
-                text, style, maxLines, softWrap, overflow, density, layoutDirection,
+                text, style, placeholders, maxLines, softWrap, overflow, density, layoutDirection,
                 resourceLoader, constraints
             )
         ) {
+            // NOTE(text-perf-review): seems like there's a nontrivial chance for us to be able
+            // to just return prevResult here directly?
             return with(prevResult) {
                 copy(
                     layoutInput = layoutInput.copy(
@@ -236,6 +239,10 @@ class TextDelegate(
             )
         )
 
+        // NOTE(text-perf-review): it feels odd to create the input + result at the same time. if
+        // the allocation of these objects is 1:1 then it might make sense to just merge them?
+        // Alternatively, we might be able to save some effort here by having a common object for
+        // the types that go into the result here that are less likely to change
         return TextLayoutResult(
             TextLayoutInput(
                 text,
@@ -270,28 +277,6 @@ class TextDelegate(
          */
         fun paint(canvas: Canvas, textLayoutResult: TextLayoutResult) {
             TextPainter.paint(canvas, textLayoutResult)
-        }
-
-        /**
-         * Draws text background of the given range.
-         *
-         * If the given range is empty, do nothing.
-         *
-         * @param start inclusive start character offset of the drawing range.
-         * @param end exclusive end character offset of the drawing range.
-         * @param paint used to draw background.
-         * @param canvas the target canvas.
-         */
-        fun paintBackground(
-            start: Int,
-            end: Int,
-            paint: Paint,
-            canvas: Canvas,
-            textLayoutResult: TextLayoutResult
-        ) {
-            if (start == end) return
-            val selectionPath = textLayoutResult.multiParagraph.getPathForRange(start, end)
-            canvas.drawPath(selectionPath, paint)
         }
     }
 }

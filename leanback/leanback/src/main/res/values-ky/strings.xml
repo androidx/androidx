@@ -50,7 +50,7 @@ limitations under the License.
     <string name="lb_playback_controls_picture_in_picture" msgid="5770668162543767702">"Сүрөт режиминде сүрөт киргизүү"</string>
     <string name="lb_playback_time_separator" msgid="1471121602610716654">"/"</string>
     <string name="lb_playback_controls_shown" msgid="8690223891515602822">"Медиа файлды башкаруу көрсөтүлдү"</string>
-    <string name="lb_playback_controls_hidden" msgid="5859666950961624736">"Медиа файлды башкаруу жашырылган, көрүү үчүн d-pad көзөмөлдөө каражатын басыңыз"</string>
+    <string name="lb_playback_controls_hidden" msgid="5859666950961624736">"Медиа файлды башкаруу жашырылган, көрүү үчүн d-pad башкаруу элементин басыңыз"</string>
     <string name="lb_guidedaction_finish_title" msgid="3330958750346333890">"Бүттү"</string>
     <string name="lb_guidedaction_continue_title" msgid="893619591225519922">"Улантуу"</string>
     <string name="lb_media_player_error" msgid="3228326776757666747">"MediaPlayer\'деги катанын коду: %1$d, кошумча: %2$d"</string>

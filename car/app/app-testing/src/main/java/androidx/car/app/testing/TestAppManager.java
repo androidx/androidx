@@ -49,6 +49,7 @@ import java.util.List;
 public class TestAppManager extends AppManager {
     private final List<CharSequence> mToastsShown = new ArrayList<>();
     private final List<Pair<Screen, Template>> mTemplatesReturned = new ArrayList<>();
+    @Nullable
     private SurfaceCallback mSurfaceCallback;
 
     /**
@@ -65,7 +66,7 @@ public class TestAppManager extends AppManager {
      * set.
      */
     @Nullable
-    public SurfaceCallback getSurfaceListener() {
+    public SurfaceCallback getSurfaceCallback() {
         return mSurfaceCallback;
     }
 
@@ -128,6 +129,6 @@ public class TestAppManager extends AppManager {
     }
 
     TestAppManager(TestCarContext testCarContext, HostDispatcher hostDispatcher) {
-        super(testCarContext, hostDispatcher);
+        super(testCarContext, hostDispatcher, testCarContext.getLifecycleOwner().mRegistry);
     }
 }

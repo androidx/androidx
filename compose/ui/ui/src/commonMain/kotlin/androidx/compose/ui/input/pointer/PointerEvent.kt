@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-@file:Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@file:Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 
 package androidx.compose.ui.input.pointer
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerEventPass.Final
 import androidx.compose.ui.input.pointer.PointerEventPass.Initial
 import androidx.compose.ui.input.pointer.PointerEventPass.Main
@@ -78,6 +80,16 @@ abstract class PointerInputFilter {
         get() = layoutCoordinates?.size ?: IntSize.Zero
     internal val isAttached: Boolean
         get() = layoutCoordinates?.isAttached == true
+
+    /**
+     * Intercept pointer input that children receive even if the pointer is out of bounds.
+     *
+     * If `true`, and a child has been moved out of this layout and receives an event, this
+     * will receive that event. If `false`, a child receiving pointer input outside of the
+     * bounds of this layout will not trigger any events in this.
+     */
+    open val interceptOutOfBoundsChildEvents: Boolean
+        get() = false
 }
 
 /**
@@ -96,36 +108,239 @@ expect class PointerEvent @OptIn(InternalCoreApi::class) internal constructor(
      * The changes.
      */
     val changes: List<PointerInputChange>
+
+    /**
+     * The state of buttons (e.g. mouse or stylus buttons) during this event.
+     */
+    val buttons: PointerButtons
+
+    /**
+     * The state of modifier keys during this event.
+     */
+    val keyboardModifiers: PointerKeyboardModifiers
+
+    /**
+     * The primary reason the [PointerEvent] was sent.
+     */
+    var type: PointerEventType
+        internal set
 }
+
+// TODO mark internal once https://youtrack.jetbrains.com/issue/KT-36695 is fixed
+/* internal */ expect class NativePointerButtons
+
+/**
+ * Contains the state of pointer buttons (e.g. mouse and stylus buttons).
+ */
+inline class PointerButtons(internal val packedValue: NativePointerButtons)
+
+/**
+ * `true` when the primary button (left mouse button) is pressed or `false` when
+ * it isn't pressed.
+ */
+expect val PointerButtons.isPrimaryPressed: Boolean
+
+/**
+ * `true` when the secondary button (right mouse button) is pressed or `false` when
+ * it isn't pressed.
+ */
+expect val PointerButtons.isSecondaryPressed: Boolean
+
+/**
+ * `true` when the tertiary button (middle mouse button) is pressed or `false` when
+ * it isn't pressed.
+ */
+expect val PointerButtons.isTertiaryPressed: Boolean
+
+/**
+ * `true` when the back button (mouse back button) is pressed or `false` when it isn't pressed or
+ * there is no mouse button assigned to "back."
+ */
+expect val PointerButtons.isBackPressed: Boolean
+
+/**
+ * `true` when the forward button (mouse forward button) is pressed or `false` when it isn't pressed
+ * or there is no button assigned to "forward."
+ */
+expect val PointerButtons.isForwardPressed: Boolean
+
+/**
+ * Returns `true` when the button at [buttonIndex] is pressed and `false` when it isn't pressed.
+ * This method can handle buttons that haven't been assigned a designated purpose like
+ * [isPrimaryPressed] and [isSecondaryPressed].
+ */
+expect fun PointerButtons.isPressed(buttonIndex: Int): Boolean
+
+/**
+ * Returns `true` if any button is pressed or `false` if all buttons are released.
+ */
+expect val PointerButtons.areAnyPressed: Boolean
+
+/**
+ * Returns the index of first button pressed as used in [isPressed] or `-1` if no button is pressed.
+ */
+expect fun PointerButtons.indexOfFirstPressed(): Int
+
+/**
+ * Returns the index of last button pressed as used in [isPressed] or `-1` if no button is pressed.
+ */
+expect fun PointerButtons.indexOfLastPressed(): Int
+
+// TODO mark internal once https://youtrack.jetbrains.com/issue/KT-36695 is fixed
+/* internal */ expect class NativePointerKeyboardModifiers
+
+/**
+ * Contains the state of modifier keys, such as Shift, Control, and Alt, as well as the state
+ * of the lock keys, such as Caps Lock and Num Lock.
+ */
+inline class PointerKeyboardModifiers(internal val packedValue: NativePointerKeyboardModifiers)
+
+/**
+ * `true` when the Control key is pressed.
+ */
+expect val PointerKeyboardModifiers.isCtrlPressed: Boolean
+
+/**
+ * `true` when the Meta key is pressed. This is commonly associated with the Windows or Command
+ * key on some keyboards.
+ */
+expect val PointerKeyboardModifiers.isMetaPressed: Boolean
+
+/**
+ * `true` when the Alt key is pressed. This is commonly associated with the Option key on some
+ * keyboards.
+ */
+expect val PointerKeyboardModifiers.isAltPressed: Boolean
+
+/**
+ * `true` when the AltGraph key is pressed.
+ */
+expect val PointerKeyboardModifiers.isAltGraphPressed: Boolean
+
+/**
+ * `true` when the Sym key is pressed.
+ */
+expect val PointerKeyboardModifiers.isSymPressed: Boolean
+
+/**
+ * `true` when the Shift key is pressed.
+ */
+expect val PointerKeyboardModifiers.isShiftPressed: Boolean
+
+/**
+ * `true` when the Function key is pressed.
+ */
+expect val PointerKeyboardModifiers.isFunctionPressed: Boolean
+
+/**
+ * `true` when the keyboard's Caps Lock is on.
+ */
+expect val PointerKeyboardModifiers.isCapsLockOn: Boolean
+
+/**
+ * `true` when the keyboard's Scroll Lock is on.
+ */
+expect val PointerKeyboardModifiers.isScrollLockOn: Boolean
+
+/**
+ * `true` when the keyboard's Num Lock is on.
+ */
+expect val PointerKeyboardModifiers.isNumLockOn: Boolean
 
 /**
  * The device type that produces a [PointerInputChange], such as a mouse or stylus.
  */
-enum class PointerType {
-    /**
-     * An unknown device type or the device type isn't relevant.
-     */
-    Unknown,
+inline class PointerType internal constructor(private val value: Int) {
 
-    /**
-     * Touch (finger) input.
-     */
-    Touch,
+    override fun toString(): String = when (value) {
+        1 -> "Touch"
+        2 -> "Mouse"
+        3 -> "Stylus"
+        4 -> "Eraser"
+        else -> "Unknown"
+    }
 
-    /**
-     * A mouse pointer.
-     */
-    Mouse,
+    companion object {
+        /**
+         * An unknown device type or the device type isn't relevant.
+         */
+        val Unknown = PointerType(0)
 
-    /**
-     * A stylus.
-     */
-    Stylus,
+        /**
+         * Touch (finger) input.
+         */
+        val Touch = PointerType(1)
 
-    /**
-     * An eraser or an inverted stylus.
-     */
-    Eraser
+        /**
+         * A mouse pointer.
+         */
+        val Mouse = PointerType(2)
+
+        /**
+         * A stylus.
+         */
+        val Stylus = PointerType(3)
+
+        /**
+         * An eraser or an inverted stylus.
+         */
+        val Eraser = PointerType(4)
+    }
+}
+
+/**
+ * Indicates the primary reason that the [PointerEvent] was sent.
+ */
+inline class PointerEventType(internal val value: Int) {
+    companion object {
+        /**
+         * An unknown reason for the event.
+         */
+        val Unknown = PointerEventType(0)
+
+        /**
+         * A button on the device was pressed or a new pointer was detected.
+         */
+        val Press = PointerEventType(1)
+
+        /**
+         * A button on the device was released or a pointer was raised.
+         */
+        val Release = PointerEventType(2)
+
+        /**
+         * The cursor or one or more touch pointers was moved.
+         */
+        val Move = PointerEventType(3)
+
+        /**
+         * The cursor has entered the input region. This will only be sent after the cursor is
+         * hovering when in the input region.
+         *
+         * For example, the user's cursor is outside the input region and presses the button
+         * prior to entering the input region. The [Enter] event will be sent when the button
+         * is released inside the input region.
+         */
+        val Enter = PointerEventType(4)
+
+        /**
+         * A cursor device or elevated stylus exited the input region. This will only follow
+         * an [Enter] event, so if a cursor with the button pressed enters and exits region,
+         * neither [Enter] nor [Exit] will be sent for the input region. However, if a cursor
+         * enters the input region, then a button is pressed, then the cursor exits and reenters,
+         * [Enter], [Exit], and [Enter] will be received.
+         */
+        val Exit = PointerEventType(5)
+    }
+
+    override fun toString(): String = when (this) {
+        Press -> "Press"
+        Release -> "Release"
+        Move -> "Move"
+        Enter -> "Enter"
+        Exit -> "Exit"
+        else -> "Unknown"
+    }
 }
 
 /**
@@ -165,6 +380,7 @@ enum class PointerType {
  * or [touch][PointerType.Touch].git
  */
 @Immutable
+@OptIn(ExperimentalComposeUiApi::class)
 class PointerInputChange(
     val id: PointerId,
     val uptimeMillis: Long,
@@ -176,6 +392,46 @@ class PointerInputChange(
     val consumed: ConsumedData,
     val type: PointerType = PointerType.Touch
 ) {
+    /**
+     * Optional high-frequency pointer moves in between the last two dispatched events.
+     * Can be used for extra accuracy when touchscreen rate exceeds framerate.
+     */
+    // With these experimental annotations, the API can be either cleanly removed or
+    // stabilized. It doesn't appear in current.txt; and in experimental_current.txt,
+    // it has the same effect as a primary constructor val.
+    @Suppress("EXPERIMENTAL_ANNOTATION_ON_WRONG_TARGET")
+    @ExperimentalComposeUiApi
+    @get:ExperimentalComposeUiApi
+    val historical: List<HistoricalChange>
+        get() = _historical ?: listOf()
+    private var _historical: List<HistoricalChange>? = null
+
+    @ExperimentalComposeUiApi
+    constructor(
+        id: PointerId,
+        uptimeMillis: Long,
+        position: Offset,
+        pressed: Boolean,
+        previousUptimeMillis: Long,
+        previousPosition: Offset,
+        previousPressed: Boolean,
+        consumed: ConsumedData,
+        type: PointerType,
+        historical: List<HistoricalChange>
+    ) : this(
+        id,
+        uptimeMillis,
+        position,
+        pressed,
+        previousUptimeMillis,
+        previousPosition,
+        previousPressed,
+        consumed,
+        type
+    ) {
+        _historical = historical
+    }
+
     fun copy(
         id: PointerId = this.id,
         currentTime: Long = this.uptimeMillis,
@@ -195,8 +451,70 @@ class PointerInputChange(
         previousPosition,
         previousPressed,
         consumed,
-        type
+        type,
+        this.historical
     )
+
+    @ExperimentalComposeUiApi
+    fun copy(
+        id: PointerId = this.id,
+        currentTime: Long = this.uptimeMillis,
+        currentPosition: Offset = this.position,
+        currentPressed: Boolean = this.pressed,
+        previousTime: Long = this.previousUptimeMillis,
+        previousPosition: Offset = this.previousPosition,
+        previousPressed: Boolean = this.previousPressed,
+        consumed: ConsumedData = this.consumed,
+        type: PointerType = this.type,
+        historical: List<HistoricalChange>
+    ): PointerInputChange = PointerInputChange(
+        id,
+        currentTime,
+        currentPosition,
+        currentPressed,
+        previousTime,
+        previousPosition,
+        previousPressed,
+        consumed,
+        type,
+        historical
+    )
+
+    override fun toString(): String {
+        return "PointerInputChange(id=$id, " +
+            "uptimeMillis=$uptimeMillis, " +
+            "position=$position, " +
+            "pressed=$pressed, " +
+            "previousUptimeMillis=$previousUptimeMillis, " +
+            "previousPosition=$previousPosition, " +
+            "previousPressed=$previousPressed, " +
+            "consumed=$consumed, " +
+            "type=$type, " +
+            "historical=$historical)"
+    }
+}
+
+/**
+ * Data structure for "historical" pointer moves.
+ *
+ * Optional high-frequency pointer moves in between the last two dispatched events:
+ * can be used for extra accuracy when touchscreen rate exceeds framerate.
+ *
+ * @param uptimeMillis The time of the historical pointer event, in milliseconds. In between
+ * the current and previous pointer event times.
+ * @param position The [Offset] of the historical pointer event, relative to the containing
+ * element.
+ */
+@Immutable
+@ExperimentalComposeUiApi
+class HistoricalChange(
+    val uptimeMillis: Long,
+    val position: Offset
+) {
+    override fun toString(): String {
+        return "HistoricalChange(uptimeMillis=$uptimeMillis, " +
+            "position=$position)"
+    }
 }
 
 /**
@@ -213,7 +531,12 @@ inline class PointerId(val value: Long)
  * @param downChange True if a change to down or up has been consumed.
  */
 class ConsumedData(
+    @Suppress("GetterSetterNames")
+    @get:Suppress("GetterSetterNames")
     var positionChange: Boolean = false,
+
+    @Suppress("GetterSetterNames")
+    @get:Suppress("GetterSetterNames")
     var downChange: Boolean = false
 )
 
@@ -344,6 +667,10 @@ fun PointerInputChange.consumeAllChanges() {
  * `(0, 0, size.width, size.height)` or `false` if the current pointer is up or it is inside the
  * given bounds.
  */
+@Deprecated(
+    message = "Use isOutOfBounds() that supports minimum touch target",
+    replaceWith = ReplaceWith("this.isOutOfBounds(size, extendedTouchPadding)")
+)
 fun PointerInputChange.isOutOfBounds(size: IntSize): Boolean {
     val position = position
     val x = position.x
@@ -351,4 +678,26 @@ fun PointerInputChange.isOutOfBounds(size: IntSize): Boolean {
     val width = size.width
     val height = size.height
     return x < 0f || x > width || y < 0f || y > height
+}
+
+/**
+ * Returns `true` if the pointer has moved outside of the pointer region. For Touch
+ * events, this is (-extendedTouchPadding.width, -extendedTouchPadding.height,
+ * size.width + extendedTouchPadding.width, size.height + extendedTouchPadding.height) and
+ * for other events, this is `(0, 0, size.width, size.height)`. Returns`false` if the
+ * current pointer is up or it is inside the pointer region.
+ */
+fun PointerInputChange.isOutOfBounds(size: IntSize, extendedTouchPadding: Size): Boolean {
+    if (type != PointerType.Touch) {
+        @Suppress("DEPRECATION")
+        return isOutOfBounds(size)
+    }
+    val position = position
+    val x = position.x
+    val y = position.y
+    val minX = -extendedTouchPadding.width
+    val maxX = size.width + extendedTouchPadding.width
+    val minY = -extendedTouchPadding.height
+    val maxY = size.height + extendedTouchPadding.height
+    return x < minX || x > maxX || y < minY || y > maxY
 }

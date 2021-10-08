@@ -34,6 +34,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.concurrent.CountDownLatch;
@@ -45,6 +46,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Tests for {@link ConnectionHolder}.
  */
 @RunWith(RobolectricTestRunner.class)
+@Config(instrumentedPackages = { "androidx.browser.trusted" })
 @DoNotInstrument
 public class ConnectionHolderTest {
     private final TestWrapperFactory mWrapperFactory = new TestWrapperFactory();

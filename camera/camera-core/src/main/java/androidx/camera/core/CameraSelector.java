@@ -18,9 +18,9 @@ package androidx.camera.core;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.LensFacingCameraFilter;
 
@@ -35,6 +35,7 @@ import java.util.List;
  * A set of requirements and priorities used to select a camera or return a filtered set of
  * cameras.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraSelector {
 
     /** A camera on the device facing the same direction as the device's screen. */
@@ -94,7 +95,6 @@ public final class CameraSelector {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     @NonNull
     public List<CameraInfo> filter(@NonNull List<CameraInfo> cameraInfos) {
         List<CameraInfo> input = new ArrayList<>(cameraInfos);
@@ -168,7 +168,6 @@ public final class CameraSelector {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     @Nullable
     public Integer getLensFacing() {
         Integer currentLensFacing = null;
@@ -192,6 +191,7 @@ public final class CameraSelector {
     }
 
     /** Builder for a {@link CameraSelector}. */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder {
         private final LinkedHashSet<CameraFilter> mCameraFilterSet;
 
@@ -212,7 +212,6 @@ public final class CameraSelector {
          * <p>If lens facing is already set, this will add extra requirement for lens facing
          * instead of replacing the previous setting.
          */
-        @UseExperimental(markerClass = ExperimentalCameraFilter.class)
         @NonNull
         public Builder requireLensFacing(@LensFacing int lensFacing) {
             mCameraFilterSet.add(new LensFacingCameraFilter(lensFacing));
@@ -227,7 +226,6 @@ public final class CameraSelector {
          * added when the {@link CameraSelector} is used, and the first camera output from the
          * filters will be selected.
          */
-        @ExperimentalCameraFilter
         @NonNull
         public Builder addCameraFilter(@NonNull CameraFilter cameraFilter) {
             mCameraFilterSet.add(cameraFilter);

@@ -1,9 +1,0 @@
-// Baseline format: 1.0
-MissingNullability: androidx.legacy.content.WakefulBroadcastReceiver#completeWakefulIntent(android.content.Intent) parameter #0:
-    Missing nullability on parameter `intent` in method `completeWakefulIntent`
-MissingNullability: androidx.legacy.content.WakefulBroadcastReceiver#startWakefulService(android.content.Context, android.content.Intent):
-    Missing nullability on method `startWakefulService` return
-MissingNullability: androidx.legacy.content.WakefulBroadcastReceiver#startWakefulService(android.content.Context, android.content.Intent) parameter #0:
-    Missing nullability on parameter `context` in method `startWakefulService`
-MissingNullability: androidx.legacy.content.WakefulBroadcastReceiver#startWakefulService(android.content.Context, android.content.Intent) parameter #1:
-    Missing nullability on parameter `intent` in method `startWakefulService`

@@ -31,6 +31,7 @@ import androidx.navigation.safe.args.generator.ReferenceArrayType
 import androidx.navigation.safe.args.generator.ReferenceType
 import androidx.navigation.safe.args.generator.StringArrayType
 import androidx.navigation.safe.args.generator.StringType
+import androidx.navigation.safe.args.generator.ext.capitalize
 import androidx.navigation.safe.args.generator.ext.toCamelCase
 import androidx.navigation.safe.args.generator.ext.toCamelCaseAsVar
 import androidx.navigation.safe.args.generator.models.Action
@@ -45,6 +46,7 @@ import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import java.util.Locale
 import javax.lang.model.element.Modifier
 
 const val L = "\$L"
@@ -246,12 +248,18 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
         val constructor = MethodSpec.constructorBuilder().addModifiers(Modifier.PRIVATE).build()
 
         val copyConstructor = MethodSpec.constructorBuilder()
+            .addAnnotation(specs.suppressAnnotationSpec)
             .addModifiers(Modifier.PUBLIC)
-            .addParameter(className, "original")
+            .addParameter(
+                ParameterSpec.builder(className, "original")
+                    .addAnnotation(specs.androidAnnotations.NONNULL_CLASSNAME)
+                    .build()
+            )
             .addCode(specs.copyMapContents("this", "original"))
             .build()
 
         val fromMapConstructor = MethodSpec.constructorBuilder()
+            .addAnnotation(specs.suppressAnnotationSpec)
             .addModifiers(Modifier.PRIVATE)
             .addParameter(HASHMAP_CLASSNAME, "argumentsMap")
             .addStatement(
@@ -277,13 +285,13 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
 
         val builderClassName = ClassName.get("", "Builder")
         val builderTypeSpec = TypeSpec.classBuilder("Builder")
-            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
             .addField(specs.hashMapFieldSpec)
             .addMethod(copyConstructor)
             .addMethod(specs.constructor())
             .addMethod(buildMethod)
             .addMethods(specs.setters(builderClassName))
-            .addMethods(specs.getters())
+            .addMethods(specs.getters(true))
             .build()
 
         val typeSpec = TypeSpec.classBuilder(className)
@@ -296,6 +304,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
             .addMethod(fromSavedStateHandleMethod)
             .addMethods(specs.getters())
             .addMethod(specs.toBundleMethod("toBundle"))
+            .addMethod(specs.toSavedStateHandleMethod())
             .addMethod(specs.equalsMethod(className))
             .addMethod(specs.hashCodeMethod())
             .addMethod(specs.toStringMethod(className))
@@ -360,8 +369,10 @@ private class ClassWithArgsSpecs(
     ).initializer("new $T()", HASHMAP_CLASSNAME).build()
 
     fun setters(thisClassName: ClassName) = args.map { arg ->
-        MethodSpec.methodBuilder("set${arg.sanitizedName.capitalize()}").apply {
+        val capitalizedName = arg.sanitizedName.capitalize(Locale.US)
+        MethodSpec.methodBuilder("set$capitalizedName").apply {
             addAnnotation(androidAnnotations.NONNULL_CLASSNAME)
+            addAnnotation(suppressAnnotationSpec)
             addModifiers(Modifier.PUBLIC)
             addParameter(generateParameterSpec(arg))
             addNullCheck(arg, arg.sanitizedName)
@@ -377,6 +388,9 @@ private class ClassWithArgsSpecs(
     }
 
     fun constructor() = MethodSpec.constructorBuilder().apply {
+        if (args.filterNot(Argument::isOptional).isNotEmpty()) {
+            addAnnotation(suppressAnnotationSpec)
+        }
         addModifiers(if (privateConstructor) Modifier.PRIVATE else Modifier.PUBLIC)
         args.filterNot(Argument::isOptional).forEach { arg ->
             addParameter(generateParameterSpec(arg))
@@ -425,6 +439,44 @@ private class ClassWithArgsSpecs(
         addStatement("return $N", result)
     }.build()
 
+    fun toSavedStateHandleMethod(
+        addOverrideAnnotation: Boolean = false
+    ) = MethodSpec.methodBuilder("toSavedStateHandle").apply {
+        if (addOverrideAnnotation) {
+            addAnnotation(Override::class.java)
+        }
+        addAnnotation(suppressAnnotationSpec)
+        addAnnotation(androidAnnotations.NONNULL_CLASSNAME)
+        addModifiers(Modifier.PUBLIC)
+        returns(SAVED_STATE_HANDLE_CLASSNAME)
+        val result = "__result"
+        addStatement(
+            "$T $N = new $T()", SAVED_STATE_HANDLE_CLASSNAME, result, SAVED_STATE_HANDLE_CLASSNAME
+        )
+        args.forEach { arg ->
+            beginControlFlow("if ($N.containsKey($S))", hashMapFieldSpec.name, arg.name).apply {
+                addStatement(
+                    "$T $N = ($T) $N.get($S)",
+                    arg.type.typeName(),
+                    arg.sanitizedName,
+                    arg.type.typeName(),
+                    hashMapFieldSpec.name,
+                    arg.name
+                )
+                arg.type.addSavedStateHandleSetStatement(this, arg, result, arg.sanitizedName)
+            }
+            if (arg.defaultValue != null) {
+                nextControlFlow("else").apply {
+                    arg.type.addSavedStateHandleSetStatement(
+                        this, arg, result, arg.defaultValue.write()
+                    )
+                }
+            }
+            endControlFlow()
+        }
+        addStatement("return $N", result)
+    }.build()
+
     fun copyMapContents(to: String, from: String) = CodeBlock.builder()
         .addStatement(
             "$N.$N.putAll($N.$N)",
@@ -434,10 +486,18 @@ private class ClassWithArgsSpecs(
             hashMapFieldSpec.name
         ).build()
 
-    fun getters() = args.map { arg ->
+    fun getters(isBuilder: Boolean = false) = args.map { arg ->
         MethodSpec.methodBuilder(getterFromArgName(arg.sanitizedName)).apply {
             addModifiers(Modifier.PUBLIC)
-            addAnnotation(suppressAnnotationSpec)
+            if (!isBuilder) {
+                addAnnotation(suppressAnnotationSpec)
+            } else {
+                addAnnotation(
+                    AnnotationSpec.builder(SuppressWarnings::class.java)
+                        .addMember("value", "{$S,$S}", "unchecked", "GetterOnBuilder")
+                        .build()
+                )
+            }
             if (arg.type.allowsNullable()) {
                 if (arg.isNullable) {
                     addAnnotation(androidAnnotations.NULLABLE_CLASSNAME)
@@ -509,8 +569,10 @@ private class ClassWithArgsSpecs(
         returns(TypeName.BOOLEAN)
     }.build()
 
-    private fun getterFromArgName(sanitizedName: String, suffix: String = "") =
-        "get${sanitizedName.capitalize()}$suffix"
+    private fun getterFromArgName(sanitizedName: String, suffix: String = ""): String {
+        val capitalizedName = sanitizedName.capitalize(Locale.US)
+        return "get${capitalizedName}$suffix"
+    }
 
     fun hashCodeMethod(
         additionalCode: CodeBlock? = null

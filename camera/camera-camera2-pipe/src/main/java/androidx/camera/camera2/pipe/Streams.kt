@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.params.OutputConfiguration
 import android.util.Size
+import androidx.annotation.RequiresApi
 
 /**
  * A [CameraStream] is used on a [CameraGraph] to control what outputs that graph produces.
@@ -96,7 +99,7 @@ public class CameraStream internal constructor(
 /**
  * This identifies a single surface that is used to tell the camera to produce one or more outputs.
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 public inline class StreamId(public val value: Int) {
     override fun toString(): String = "Stream-$value"
 }
@@ -130,19 +133,28 @@ public interface OutputStream {
                 size: Size,
                 format: StreamFormat,
                 camera: CameraId? = null,
-                outputType: OutputType = OutputType.SURFACE,
-                externalOutputConfig: OutputConfiguration? = null
+                outputType: OutputType = OutputType.SURFACE
             ): Config =
-                if (externalOutputConfig != null) {
-                    ExternalOutputConfig(size, format, camera, output = externalOutputConfig)
-                } else if (
+                if (
                     outputType == OutputType.SURFACE_TEXTURE ||
                     outputType == OutputType.SURFACE_VIEW
                 ) {
                     LazyOutputConfig(size, format, camera, outputType)
                 } else {
+                    check(outputType == OutputType.SURFACE)
                     SimpleOutputConfig(size, format, camera)
                 }
+
+            /** Create a stream configuration from an externally created [OutputConfiguration] */
+            @RequiresApi(24)
+            fun external(
+                size: Size,
+                format: StreamFormat,
+                camera: CameraId? = null,
+                externalOutputConfig: OutputConfiguration
+            ): Config {
+                return ExternalOutputConfig(size, format, camera, output = externalOutputConfig)
+            }
         }
 
         /**
@@ -195,7 +207,7 @@ public interface OutputStream {
 /**
  * This identifies a single output.
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 public inline class OutputId(public val value: Int) {
     override fun toString(): String = "Output-$value"
 }
@@ -215,7 +227,7 @@ public interface InputStream {
 /**
  * This identifies a single input.
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 public inline class InputId(public val value: Int) {
     override fun toString(): String = "Input-$value"
 }

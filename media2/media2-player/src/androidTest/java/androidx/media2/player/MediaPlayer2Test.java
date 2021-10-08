@@ -50,6 +50,7 @@ import androidx.media2.common.UriMediaItem;
 import androidx.media2.player.TestUtils.Monitor;
 import androidx.media2.player.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -1089,6 +1090,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     }
     */
 
+    @FlakyTest(bugId = 187340262)
     @Test
     @LargeTest
     public void playbackRate() throws Exception {
@@ -1167,6 +1169,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mPlayer.reset();
     }
 
+    @FlakyTest(bugId = 190043361)
     @Test
     @LargeTest
     public void seekModes() throws Exception {

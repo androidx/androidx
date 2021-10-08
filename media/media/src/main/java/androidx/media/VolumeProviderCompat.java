@@ -22,8 +22,10 @@ import android.media.VolumeProvider;
 import android.os.Build;
 import android.support.v4.media.session.MediaSessionCompat;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -143,7 +145,7 @@ public abstract class VolumeProviderCompat {
         mCurrentVolume = currentVolume;
         if (Build.VERSION.SDK_INT >= 21) {
             VolumeProvider volumeProviderFwk = (VolumeProvider) getVolumeProvider();
-            volumeProviderFwk.setCurrentVolume(currentVolume);
+            Api21Impl.setCurrentVolume(volumeProviderFwk, currentVolume);
         }
         if (mCallback != null) {
             mCallback.onVolumeChanged(this);
@@ -234,5 +236,15 @@ public abstract class VolumeProviderCompat {
      */
     public static abstract class Callback {
         public abstract void onVolumeChanged(VolumeProviderCompat volumeProvider);
+    }
+
+    @RequiresApi(21)
+    private static class Api21Impl {
+        private Api21Impl() {}
+
+        @DoNotInline
+        static void setCurrentVolume(VolumeProvider volumeProvider, int currentVolume) {
+            volumeProvider.setCurrentVolume(currentVolume);
+        }
     }
 }

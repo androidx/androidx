@@ -23,6 +23,7 @@ import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Log
@@ -32,7 +33,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
-import androidx.activity.result.launch
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.integration.antelope.cameracontrollers.camera2Abort
@@ -43,6 +43,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.espresso.idling.CountingIdlingResource
+import java.io.File
 
 /**
  * Main Antelope Activity
@@ -94,6 +95,8 @@ class MainActivity : AppCompatActivity() {
         /** Idling Resource used for Espresso tests */
         public val antelopeIdlingResource = CountingIdlingResource("AntelopeIdlingResource")
 
+        val PHOTOS_PATH = Environment.DIRECTORY_DCIM + File.separatorChar + PHOTOS_DIR
+        val LOG_PATH = Environment.DIRECTORY_DOCUMENTS + File.separatorChar + LOG_DIR
         /** Convenience wrapper for Log.d that can be toggled on/off */
         fun logd(message: String) {
             if (camViewModel.getShouldOutputLog().value ?: false)

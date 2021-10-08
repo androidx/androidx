@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+AsyncSuffixFuture: androidx.wear.watchface.ListenableCanvasRenderer#initFuture():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.watchface.ListenableGlesRenderer#onBackgroundThreadGlContextCreatedFuture():
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.watchface.ListenableGlesRenderer#onUiThreadGlSurfaceCreatedFuture(int, int):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+AsyncSuffixFuture: androidx.wear.watchface.ListenableWatchFaceService#createWatchFaceFuture(android.view.SurfaceHolder, androidx.wear.watchface.WatchState, androidx.wear.watchface.ComplicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function

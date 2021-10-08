@@ -39,6 +39,7 @@ import androidx.camera.testing.CameraAvailabilityUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -66,6 +67,7 @@ import java.util.concurrent.TimeoutException;
  */
 @LargeTest
 @RunWith(Parameterized.class)
+@SdkSuppress(minSdkVersion = 21)
 public class CameraControlDeviceTest {
     @Parameterized.Parameter(0)
     public CameraSelector mCameraSelector;
@@ -237,6 +239,15 @@ public class CameraControlDeviceTest {
 
         ListenableFuture<Void> result = mCamera.getCameraControl().enableTorch(true);
 
+        assertFutureCompletes(result);
+    }
+
+    @Test
+    public void setZoomRatio_futuresCompletes() {
+        assumeTrue(mCamera.getCameraInfo().getZoomState().getValue().getMaxZoomRatio() >= 2.0f);
+
+        // use ratio with fraction because it often causes unable-to-complete issue.
+        ListenableFuture<Void> result = mCamera.getCameraControl().setZoomRatio(1.3640054f);
         assertFutureCompletes(result);
     }
 

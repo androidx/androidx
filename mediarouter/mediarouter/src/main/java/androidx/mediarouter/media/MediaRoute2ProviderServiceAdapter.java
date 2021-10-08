@@ -177,8 +177,9 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         RoutingSessionInfo sessionInfo = builder.build();
         sessionRecord.setSessionInfo(sessionInfo);
 
-        // Member route controllers for a dynamic group are created after the group route is
-        // created. (DynamicGroupRouteController#notifyDynamicRoutesChanged is called)
+        // Create member route controllers if it's a static group. Member route controllers
+        // for a dynamic group will be created after the group route is created.
+        // (DynamicGroupRouteController#notifyDynamicRoutesChanged is called)
         if ((sessionFlags & (SessionRecord.SESSION_FLAG_GROUP | SessionRecord.SESSION_FLAG_DYNAMIC))
                 == SessionRecord.SESSION_FLAG_GROUP) {
             sessionRecord.updateMemberRouteControllers(routeId, /*oldSession=*/null,
@@ -289,15 +290,15 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
 
         Map<String, MediaRouteDescriptor> descriptorMap = new ArrayMap<>();
         for (MediaRouteDescriptor desc : routeDescriptors) {
-            // Ignores duplicated route IDs.
-            if (desc == null || descriptorMap.containsKey(desc.getId())) {
+            // If duplicate ids exist, the last one survives.
+            // Aligned with MediaRouter implementation.
+            if (desc == null) {
                 continue;
             }
             descriptorMap.put(desc.getId(), desc);
         }
 
         updateStaticSessions(descriptorMap);
-        // Handle duplicated IDs
 
         List<MediaRoute2Info> routes = new ArrayList<>();
         for (MediaRouteDescriptor desc : descriptorMap.values()) {
@@ -493,11 +494,18 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
 
         RoutingSessionInfo.Builder builder =
                 new RoutingSessionInfo.Builder(sessionId, packageName)
-                        .addSelectedRoute(routeId)
                         .setName(descriptor.getName())
                         .setVolumeHandling(descriptor.getVolumeHandling())
                         .setVolume(descriptor.getVolume())
                         .setVolumeMax(descriptor.getVolumeMax());
+
+        if (descriptor.getGroupMemberIds().isEmpty()) {
+            builder.addSelectedRoute(routeId);
+        } else {
+            for (String memberId : descriptor.getGroupMemberIds()) {
+                builder.addSelectedRoute(memberId);
+            }
+        }
         sessionRecord.setSessionInfo(builder.build());
     }
 
@@ -592,7 +600,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         }
 
         @Override
-        public boolean onControlRequest(Intent intent,
+        public boolean onControlRequest(@NonNull Intent intent,
                 MediaRouter.ControlRequestCallback callback) {
             return mRouteController.onControlRequest(intent, callback);
         }
@@ -608,11 +616,12 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         }
 
         @Override
-        public void onRemoveMemberRoute(String routeId) {
+        public void onRemoveMemberRoute(@NonNull String routeId) {
             // Do nothing.
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.R)
     final class SessionRecord {
         /**
          * A flag indicating whether the session is created from
@@ -675,7 +684,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
 
         void setSessionInfo(@NonNull RoutingSessionInfo sessionInfo) {
             if (mSessionInfo != null) {
-                Log.w(TAG, "setSessionInfo: This shouldn't be called after sesionInfo is set");
+                Log.w(TAG, "setSessionInfo: This shouldn't be called after sessionInfo is set");
                 return;
             }
             Messenger messenger = new Messenger(new IncomingHandler(
@@ -712,6 +721,16 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                         .setVolume(groupRoute.getVolume())
                         .setVolumeMax(groupRoute.getVolumeMax())
                         .setVolumeHandling(groupRoute.getVolumeHandling());
+
+                builder.clearSelectedRoutes();
+
+                if (groupRoute.getGroupMemberIds().isEmpty()) {
+                    builder.addSelectedRoute(mRouteId);
+                } else {
+                    for (String memberRouteId : groupRoute.getGroupMemberIds()) {
+                        builder.addSelectedRoute(memberRouteId);
+                    }
+                }
 
                 Bundle controlHints = sessionInfo.getControlHints();
                 if (controlHints == null) {
@@ -756,6 +775,11 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                 if (hasSelectedRoute) {
                     mSessionInfo = builder.build();
                 }
+            }
+
+            if (DEBUG) {
+                Log.d(TAG, "updateSessionInfo: groupRoute=" + groupRoute
+                        + ", sessionInfo=" + mSessionInfo);
             }
 
             if ((mFlags & (SESSION_FLAG_MR2 | SESSION_FLAG_DYNAMIC))

@@ -18,11 +18,11 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.UseCase;
-import androidx.camera.core.internal.CameraUseCaseAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -35,6 +35,7 @@ import java.util.LinkedHashSet;
  *
  * <p> It is a Camera instance backed by a single physical camera.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
     /**
      * The state of a camera within the process.
@@ -184,8 +185,7 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
     }
 
     @Override
-    default void setExtendedConfig(@Nullable CameraConfig cameraConfig) throws
-            CameraUseCaseAdapter.CameraException {
+    default void setExtendedConfig(@Nullable CameraConfig cameraConfig) {
         // Ignore the config since CameraInternal won't use the config
     }
 }

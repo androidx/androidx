@@ -16,11 +16,15 @@
 
 package androidx.camera.view;
 
+import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.graphics.RectF;
+import android.media.ExifInterface;
 import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -35,42 +39,22 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TransformUtils {
 
-    // Each vertex is represented by a pair of (x, y) which is 2 slots in a float array.
-    private static final int FLOAT_NUMBER_PER_VERTEX = 2;
+    // Normalized space (-1, -1) - (1, 1).
+    public static final RectF NORMALIZED_RECT = new RectF(-1, -1, 1, 1);
 
     private TransformUtils() {
     }
 
     /**
-     * Creates a new quad by rotating {@code original}'s vertices {@code rotationDegrees} clockwise.
-     *
-     * <pre>
-     *  a----b
-     *  |    |
-     *  d----c  vertices = {a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y}
-     *
-     * After 90° rotation:
-     *
-     *  d----a
-     *  |    |
-     *  c----b  vertices = {d.x, d.y, a.x, a.y, b.x, b.y, c.x, c.y}
-     * </pre>
-     *
-     * @param rotationDegrees multiple of 90.
+     * Gets the size of the {@link Rect}.
      */
     @NonNull
-    public static float[] createRotatedVertices(@NonNull float[] original, int rotationDegrees) {
-        float[] rotated = new float[original.length];
-        int offset = -rotationDegrees / 90 * FLOAT_NUMBER_PER_VERTEX;
-        for (int originalIndex = 0; originalIndex < original.length; originalIndex++) {
-            int rotatedIndex = (originalIndex + offset) % original.length;
-            rotatedIndex = rotatedIndex < 0 ? rotatedIndex + original.length : rotatedIndex;
-            rotated[rotatedIndex] = original[originalIndex];
-        }
-        return rotated;
+    public static Size rectToSize(@NonNull Rect rect) {
+        return new Size(rect.width(), rect.height());
     }
 
     /**
@@ -167,8 +151,9 @@ public class TransformUtils {
      */
     public static boolean isAspectRatioMatchingWithRoundingError(
             @NonNull Size size1, boolean isAccurate1, @NonNull Size size2, boolean isAccurate2) {
-        // The input width/height are rounded values, so they are at most .5 away from their
-        // true values.
+        // The crop rect coordinates are rounded values. Each value is at most .5 away from their
+        // true values. So the width/height, which is the difference of 2 coordinates, are at most
+        // 1.0 away from their true value.
         // First figure out the possible range of the aspect ratio's ture value.
         float ratio1UpperBound;
         float ratio1LowerBound;
@@ -176,8 +161,8 @@ public class TransformUtils {
             ratio1UpperBound = (float) size1.getWidth() / size1.getHeight();
             ratio1LowerBound = ratio1UpperBound;
         } else {
-            ratio1UpperBound = (size1.getWidth() + .5F) / (size1.getHeight() - .5F);
-            ratio1LowerBound = (size1.getWidth() - .5F) / (size1.getHeight() + .5F);
+            ratio1UpperBound = (size1.getWidth() + 1F) / (size1.getHeight() - 1F);
+            ratio1LowerBound = (size1.getWidth() - 1F) / (size1.getHeight() + 1F);
         }
         float ratio2UpperBound;
         float ratio2LowerBound;
@@ -185,10 +170,121 @@ public class TransformUtils {
             ratio2UpperBound = (float) size2.getWidth() / size2.getHeight();
             ratio2LowerBound = ratio2UpperBound;
         } else {
-            ratio2UpperBound = (size2.getWidth() + .5F) / (size2.getHeight() - .5F);
-            ratio2LowerBound = (size2.getWidth() - .5F) / (size2.getHeight() + .5F);
+            ratio2UpperBound = (size2.getWidth() + 1F) / (size2.getHeight() - 1F);
+            ratio2LowerBound = (size2.getWidth() - 1F) / (size2.getHeight() + 1F);
         }
         // Then we check if the true value range overlaps.
         return ratio1UpperBound >= ratio2LowerBound && ratio2UpperBound >= ratio1LowerBound;
+    }
+
+    /**
+     * Gets the transform from one {@link Rect} to another with rotation degrees.
+     *
+     * <p> Following is how the source is mapped to the target with a 90° rotation. The rect
+     * <a, b, c, d> is mapped to <a', b', c', d'>.
+     *
+     * <pre>
+     *  a----------b               d'-----------a'
+     *  |  source  |    -90°->     |            |
+     *  d----------c               |   target   |
+     *                             |            |
+     *                             c'-----------b'
+     * </pre>
+     */
+    @NonNull
+    public static Matrix getRectToRect(
+            @NonNull RectF source, @NonNull RectF target, int rotationDegrees) {
+        // Map source to normalized space.
+        Matrix matrix = new Matrix();
+        matrix.setRectToRect(source, NORMALIZED_RECT, Matrix.ScaleToFit.FILL);
+        // Add rotation.
+        matrix.postRotate(rotationDegrees);
+        // Restore the normalized space to target's coordinates.
+        matrix.postConcat(getNormalizedToBuffer(target));
+        return matrix;
+    }
+
+    /**
+     * Gets the transform from a normalized space (-1, -1) - (1, 1) to the given rect.
+     */
+    @NonNull
+    public static Matrix getNormalizedToBuffer(@NonNull Rect viewPortRect) {
+        return getNormalizedToBuffer(new RectF(viewPortRect));
+    }
+
+    /**
+     * Gets the transform from a normalized space (-1, -1) - (1, 1) to the given rect.
+     */
+    @NonNull
+    private static Matrix getNormalizedToBuffer(@NonNull RectF viewPortRect) {
+        Matrix normalizedToBuffer = new Matrix();
+        normalizedToBuffer.setRectToRect(NORMALIZED_RECT, viewPortRect, Matrix.ScaleToFit.FILL);
+        return normalizedToBuffer;
+    }
+
+    /**
+     * Gets the transform matrix based on exif orientation.
+     */
+    @NonNull
+    public static Matrix getExifTransform(int exifOrientation, int width, int height) {
+        Matrix matrix = new Matrix();
+
+        // Map the bitmap to a normalized space and perform transform. It's more readable, and it
+        // can be tested with Robolectric's ShadowMatrix (Matrix#setPolyToPoly is currently not
+        // shadowed by ShadowMatrix).
+        RectF rect = new RectF(0, 0, width, height);
+        matrix.setRectToRect(rect, NORMALIZED_RECT, Matrix.ScaleToFit.FILL);
+
+        // A flag that checks if the image has been rotated 90/270.
+        boolean isWidthHeightSwapped = false;
+
+        // Transform the normalized space based on exif orientation.
+        switch (exifOrientation) {
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.postScale(-1f, 1f);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.postRotate(180);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.postScale(1f, -1f);
+                break;
+            case ExifInterface.ORIENTATION_TRANSPOSE:
+                // Flipped about top-left <--> bottom-right axis, it can also be represented by
+                // flip horizontally and then rotate 270 degree clockwise.
+                matrix.postScale(-1f, 1f);
+                matrix.postRotate(270);
+                isWidthHeightSwapped = true;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.postRotate(90);
+                isWidthHeightSwapped = true;
+                break;
+            case ExifInterface.ORIENTATION_TRANSVERSE:
+                // Flipped about top-right <--> bottom left axis, it can also be represented by
+                // flip horizontally and then rotate 90 degree clockwise.
+                matrix.postScale(-1f, 1f);
+                matrix.postRotate(90);
+                isWidthHeightSwapped = true;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.postRotate(270);
+                isWidthHeightSwapped = true;
+                break;
+            case ExifInterface.ORIENTATION_NORMAL:
+                // Fall-through
+            case ExifInterface.ORIENTATION_UNDEFINED:
+                // Fall-through
+            default:
+                break;
+        }
+
+        // Map the normalized space back to the bitmap coordinates.
+        RectF restoredRect = isWidthHeightSwapped ? new RectF(0, 0, height, width) : rect;
+        Matrix restore = new Matrix();
+        restore.setRectToRect(NORMALIZED_RECT, restoredRect, Matrix.ScaleToFit.FILL);
+        matrix.postConcat(restore);
+
+        return matrix;
     }
 }

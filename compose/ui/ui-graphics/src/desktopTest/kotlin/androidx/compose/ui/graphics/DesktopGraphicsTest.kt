@@ -16,14 +16,16 @@
 
 package androidx.compose.ui.graphics
 
+import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.junit4.DesktopScreenshotTestRule
-import org.jetbrains.skija.Surface
+import org.jetbrains.skia.Surface
 import org.junit.After
 import org.junit.Rule
 
+@OptIn(InternalTestApi::class)
 abstract class DesktopGraphicsTest {
     @get:Rule
-    val screenshotRule = DesktopScreenshotTestRule("ui/ui-desktop/graphics")
+    val screenshotRule = DesktopScreenshotTestRule("compose/ui/ui-desktop/graphics")
 
     private var _surface: Surface? = null
     protected val surface get() = _surface!!

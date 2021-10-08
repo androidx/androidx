@@ -21,14 +21,15 @@ import android.view.KeyEvent.ACTION_UP as ActionUp
 import android.view.KeyEvent.KEYCODE_A as KeyCodeA
 import android.view.View
 import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.setFocusableContent
 import androidx.compose.ui.input.key.Key.Companion.A
-import androidx.compose.ui.input.key.KeyEventType.KeyDown
-import androidx.compose.ui.input.key.KeyEventType.KeyUp
+import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
+import androidx.compose.ui.input.key.KeyEventType.Companion.KeyUp
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.filters.SmallTest
@@ -45,6 +46,7 @@ import android.view.KeyEvent as AndroidKeyEvent
  */
 @SmallTest
 @RunWith(Parameterized::class)
+@OptIn(ExperimentalComposeUiApi::class)
 class AndroidProcessKeyInputTest(private val keyEventAction: Int) {
     @get:Rule
     val rule = createComposeRule()
@@ -66,7 +68,7 @@ class AndroidProcessKeyInputTest(private val keyEventAction: Int) {
             Box(
                 modifier = Modifier
                     .focusRequester(focusRequester)
-                    .focusModifier()
+                    .focusTarget()
                     .onKeyEvent {
                         receivedKeyEvent = it
                         true

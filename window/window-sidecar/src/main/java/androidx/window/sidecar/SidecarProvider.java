@@ -48,6 +48,10 @@ public class SidecarProvider {
      * supported by the WindowManager library, then some functions may not be available or
      * replaced with stub implementations.
      *
+     * <p class="note">It is strongly recommended to report 0.1.X to remain compatible with apps
+     * using alpha versions of the WindowManager Jetpack library. For new interface
+     * implementations please use androidx.window.extensions.</p>
+     *
      * <p>WindowManager library provides the Semantic Versioning string in a form of
      * MAJOR.MINOR.PATCH-description
      * We will increment the

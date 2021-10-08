@@ -72,7 +72,7 @@ fun <T : Any> rememberSaveable(
     val finalKey = if (!key.isNullOrEmpty()) {
         key
     } else {
-        currentCompositeKeyHash.toString()
+        currentCompositeKeyHash.toString(MaxSupportedRadix)
     }
     @Suppress("UNCHECKED_CAST")
     (saver as Saver<T, Any>)
@@ -95,7 +95,7 @@ fun <T : Any> rememberSaveable(
 
     // re-register if the registry or key has been changed
     if (registry != null) {
-        DisposableEffect(registry, finalKey) {
+        DisposableEffect(registry, finalKey, value) {
             val valueProvider = {
                 with(saverHolder.value) { SaverScope { registry.canBeSaved(it) }.save(value) }
             }
@@ -137,7 +137,7 @@ fun <T> rememberSaveable(
     key: String? = null,
     init: () -> MutableState<T>
 ): MutableState<T> = rememberSaveable(
-    inputs,
+    *inputs,
     saver = mutableStateSaver(stateSaver),
     key = key,
     init = init
@@ -189,3 +189,8 @@ private fun SaveableStateRegistry.requireCanBeSaved(value: Any?) {
         )
     }
 }
+
+/**
+ * The maximum radix available for conversion to and from strings.
+ */
+private val MaxSupportedRadix = 36

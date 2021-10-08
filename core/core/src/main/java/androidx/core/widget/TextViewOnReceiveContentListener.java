@@ -18,7 +18,6 @@ package androidx.core.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.core.view.ContentInfoCompat.FLAG_CONVERT_TO_PLAIN_TEXT;
-import static androidx.core.view.ContentInfoCompat.SOURCE_DRAG_AND_DROP;
 import static androidx.core.view.ContentInfoCompat.SOURCE_INPUT_METHOD;
 
 import android.content.ClipData;
@@ -26,7 +25,6 @@ import android.content.Context;
 import android.os.Build;
 import android.text.Editable;
 import android.text.Selection;
-import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.util.Log;
 import android.view.View;
@@ -64,10 +62,6 @@ public final class TextViewOnReceiveContentListener implements OnReceiveContentL
             // supported by the default implementation.
             return payload;
         }
-        if (source == SOURCE_DRAG_AND_DROP) {
-            onReceiveForDragAndDrop((TextView) view, payload);
-            return null;
-        }
 
         // The code here follows the platform logic in TextView:
         // https://cs.android.com/android/_/android/platform/frameworks/base/+/9fefb65aa9e7beae9ca8306b925b9fbfaeffecc9:core/java/android/widget/TextView.java;l=12644
@@ -93,26 +87,6 @@ public final class TextViewOnReceiveContentListener implements OnReceiveContentL
             }
         }
         return null;
-    }
-
-    private static void onReceiveForDragAndDrop(@NonNull TextView view,
-            @NonNull ContentInfoCompat payload) {
-        final CharSequence text = coerceToText(payload.getClip(), view.getContext(),
-                payload.getFlags());
-        replaceSelection((Editable) view.getText(), text);
-    }
-
-    @NonNull
-    private static CharSequence coerceToText(@NonNull ClipData clip, @NonNull Context context,
-            @Flags int flags) {
-        SpannableStringBuilder ssb = new SpannableStringBuilder();
-        for (int i = 0; i < clip.getItemCount(); i++) {
-            CharSequence itemText = coerceToText(context, clip.getItemAt(i), flags);
-            if (itemText != null) {
-                ssb.append(itemText);
-            }
-        }
-        return ssb;
     }
 
     private static CharSequence coerceToText(@NonNull Context context, @NonNull ClipData.Item item,

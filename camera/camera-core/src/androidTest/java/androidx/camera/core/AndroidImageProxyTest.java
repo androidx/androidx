@@ -26,8 +26,9 @@ import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.media.Image;
 
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -41,6 +42,7 @@ import java.nio.ByteBuffer;
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public final class AndroidImageProxyTest {
     private static final long INITIAL_TIMESTAMP = 138990020L;
 
@@ -129,7 +131,7 @@ public final class AndroidImageProxyTest {
     }
 
     @Test
-    @UseExperimental(markerClass = ExperimentalGetImage.class)
+    @OptIn(markerClass = ExperimentalGetImage.class)
     public void getImage_returnsWrappedImage() {
         assertThat(mImageProxy.getImage()).isEqualTo(mImage);
     }

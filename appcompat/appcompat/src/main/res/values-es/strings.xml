@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="abc_action_mode_done" msgid="4692188335987374352">"Listo"</string>
+    <string name="abc_action_mode_done" msgid="4692188335987374352">"Hecho"</string>
     <string name="abc_action_bar_home_description" msgid="5976598919945601918">"Ir a inicio"</string>
     <string name="abc_action_bar_up_description" msgid="8388173803310557296">"Desplazarse hacia arriba"</string>
     <string name="abc_action_menu_overflow_description" msgid="3937310113216875497">"Más opciones"</string>

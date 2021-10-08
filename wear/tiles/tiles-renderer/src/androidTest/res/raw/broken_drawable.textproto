@@ -1,0 +1,46 @@
+# This is a bit of a weird Screenshot test; this won't have any output, but is needed
+# to ensure that the renderer doesn't crash with a broken image. Robolectric
+# does _not_ fail in the same way "real" Android does on invalid (or missing)
+# resources, so we're having to use layouts tests to test this case instead.
+#
+# Note the box is required though; the images should fail to inflate, so if this
+# layout only contained the image, then the renderer would just emit null and
+# the test harness would fail the test. Putting the box in ensures that the
+# renderer inflates _something_ to keep the rest of the harness happy.
+box {
+  contents {
+    image {
+      resource_id {
+        value: "broken_image"
+      }
+      width {
+        linear_dimension {
+          value: 16
+        }
+      }
+      height {
+        linear_dimension {
+          value: 16
+        }
+      }
+    }
+  }
+
+  contents {
+    image {
+      resource_id {
+        value: "missing_image"
+      }
+      width {
+        linear_dimension {
+          value: 16
+        }
+      }
+      height {
+        linear_dimension {
+          value: 16
+        }
+      }
+    }
+  }
+}

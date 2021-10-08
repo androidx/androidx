@@ -27,15 +27,19 @@ import android.app.Instrumentation;
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
+import android.util.Rational;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.CameraCaptureMetaData;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.fakes.FakeCamera;
+import androidx.camera.testing.fakes.FakeCameraCaptureResult;
 import androidx.camera.testing.fakes.FakeCameraControl;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeImageInfo;
@@ -44,6 +48,7 @@ import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
@@ -61,6 +66,8 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -70,6 +77,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class ImageCaptureTest {
     private CameraUseCaseAdapter mCameraUseCaseAdapter;
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
@@ -191,18 +199,56 @@ public class ImageCaptureTest {
                 ImageCapture.ERROR_CAPTURE_FAILED);
     }
 
-    // TODO(b/149336664): add a test to verify jpeg quality is 100 when CaptureMode is MAX_QUALITY.
-    @SuppressWarnings("unchecked")
     @Test
-    public void captureWithMinLatency_jpegQualityIs95() throws InterruptedException {
+    public void captureWithMinLatency_jpegQualityIs95() {
+        List<CaptureConfig> captureConfigs =
+                captureWithCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY);
+        assertThat(hasJpegQuality(captureConfigs, 95)).isTrue();
+    }
+
+    @Test
+    public void captureWithMaxQuality_jpegQualityIs100() {
+        List<CaptureConfig> captureConfigs =
+                captureWithCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY);
+        assertThat(hasJpegQuality(captureConfigs, 100)).isTrue();
+    }
+
+    @NonNull
+    private List<CaptureConfig> captureWithCaptureMode(
+            @ImageCapture.CaptureMode int captureMode) {
         // Arrange.
-        ImageCapture imageCapture = createImageCapture();
+        ImageCapture imageCapture = new ImageCapture.Builder()
+                .setCaptureMode(captureMode)
+                .build();
+
         mInstrumentation.runOnMainSync(() -> {
             try {
                 mCameraUseCaseAdapter.addUseCases(Collections.singleton(imageCapture));
             } catch (CameraUseCaseAdapter.CameraException ignore) {
             }
         });
+
+        ScheduledExecutorService repeatingScheduledExecutorService = null;
+
+        // Sets repeating capture result to the imageCapture's session config repeating capture
+        // callbacks to make ImageCapture#preTakePicture can be completed when capture mode is
+        // set as CAPTURE_MODE_MAXIMIZE_QUALITY.
+        if (captureMode == ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY) {
+            FakeCameraCaptureResult fakeCameraCaptureResult = new FakeCameraCaptureResult();
+            fakeCameraCaptureResult.setAfState(CameraCaptureMetaData.AfState.LOCKED_FOCUSED);
+            fakeCameraCaptureResult.setAeState(CameraCaptureMetaData.AeState.CONVERGED);
+            fakeCameraCaptureResult.setAwbState(CameraCaptureMetaData.AwbState.CONVERGED);
+
+            repeatingScheduledExecutorService = Executors.newScheduledThreadPool(1);
+
+            repeatingScheduledExecutorService.scheduleAtFixedRate(() -> {
+                for (CameraCaptureCallback callback :
+                        imageCapture.getSessionConfig().getRepeatingCameraCaptureCallbacks()) {
+                    callback.onCaptureCompleted(fakeCameraCaptureResult);
+                }
+            }, 0, 50, TimeUnit.MILLISECONDS);
+        }
+
         FakeCameraControl fakeCameraControl =
                 ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControl());
         FakeCameraControl.OnNewCaptureRequestListener mockCaptureRequestListener =
@@ -215,11 +261,18 @@ public class ImageCaptureTest {
                         mock(ImageCapture.OnImageCapturedCallback.class)));
 
         // Assert.
+        @SuppressWarnings("unchecked")
         ArgumentCaptor<List<CaptureConfig>> argumentCaptor =
                 ArgumentCaptor.forClass(List.class);
         verify(mockCaptureRequestListener,
                 timeout(1000).times(1)).onNewCaptureRequests(argumentCaptor.capture());
-        assertThat(hasJpegQuality(argumentCaptor.getValue(), (byte) 95)).isTrue();
+
+        List<CaptureConfig> captureConfigs = argumentCaptor.getValue();
+        if (repeatingScheduledExecutorService != null) {
+            repeatingScheduledExecutorService.shutdown();
+        }
+
+        return captureConfigs;
     }
 
     @Test
@@ -357,7 +410,28 @@ public class ImageCaptureTest {
         assertThat(fakeCameraControl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_ON);
     }
 
-    private boolean hasJpegQuality(List<CaptureConfig> captureConfigs, byte jpegQuality) {
+    @Test
+    public void correctViewPortRectInResolutionInfo_withCropAspectRatioSetting() {
+        ImageCapture imageCapture = new ImageCapture.Builder()
+                .setCaptureOptionUnpacker((config, builder) -> {
+                })
+                .setSessionOptionUnpacker((config, builder) -> {
+                }).build();
+        imageCapture.setCropAspectRatio(new Rational(16, 9));
+
+        mInstrumentation.runOnMainSync(() -> {
+                    try {
+                        mCameraUseCaseAdapter.addUseCases(Collections.singletonList(imageCapture));
+                    } catch (CameraUseCaseAdapter.CameraException e) {
+                    }
+                }
+        );
+
+        ResolutionInfo resolutionInfo = imageCapture.getResolutionInfo();
+        assertThat(resolutionInfo.getCropRect()).isEqualTo(new Rect(0, 60, 640, 420));
+    }
+
+    private boolean hasJpegQuality(List<CaptureConfig> captureConfigs, int jpegQuality) {
         for (CaptureConfig captureConfig : captureConfigs) {
             if (jpegQuality == captureConfig.getImplementationOptions().retrieveOption(
                     CaptureConfig.OPTION_JPEG_QUALITY)) {

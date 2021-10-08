@@ -79,6 +79,17 @@ public class ParcelUtilsTest {
         assertThat(result).isNull();
     }
 
+    @Test
+    public void putVersionedParcelableNullClearsKey() {
+        Bundle bundle = new Bundle();
+
+        ParcelUtils.putVersionedParcelable(bundle, "key", new ParcelUtilsParcelable());
+        assertThat(bundle.getBundle("key")).isNotNull();
+
+        ParcelUtils.putVersionedParcelable(bundle, "key", null);
+        assertThat(bundle.getBundle("key")).isNull();
+    }
+
     @VersionedParcelize
     public static class ParcelUtilsParcelable implements VersionedParcelable {
         @ParcelField(1)

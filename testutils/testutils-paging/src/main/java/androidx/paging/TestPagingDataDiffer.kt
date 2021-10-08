@@ -27,7 +27,6 @@ class TestPagingDataDiffer<T : Any>(mainDispatcher: CoroutineDispatcher = Dispat
     override suspend fun presentNewList(
         previousList: NullPaddedList<T>,
         newList: NullPaddedList<T>,
-        newCombinedLoadStates: CombinedLoadStates,
         lastAccessedIndex: Int,
         onListPresentable: () -> Unit,
     ): Int? {

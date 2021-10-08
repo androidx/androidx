@@ -16,20 +16,17 @@
 
 package androidx.compose.ui.platform.actionmodecallback
 
-import android.annotation.TargetApi
 import android.graphics.Rect
-import android.os.Build
 import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.annotation.RequiresApi
 
-@TargetApi(Build.VERSION_CODES.M)
+@RequiresApi(23)
 internal class FloatingTextActionModeCallback(
-    private val callback: ActionMode.Callback
+    private val callback: TextActionModeCallback
 ) : ActionMode.Callback2() {
-    private var rect: androidx.compose.ui.geometry.Rect = androidx.compose.ui.geometry.Rect.Zero
-
     override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
         return callback.onActionItemClicked(mode, item)
     }
@@ -39,11 +36,11 @@ internal class FloatingTextActionModeCallback(
     }
 
     override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
-        return callback.onPrepareActionMode(mode, menu)
+        return callback.onPrepareActionMode()
     }
 
     override fun onDestroyActionMode(mode: ActionMode?) {
-        callback.onDestroyActionMode(mode)
+        callback.onDestroyActionMode()
     }
 
     override fun onGetContentRect(
@@ -51,15 +48,12 @@ internal class FloatingTextActionModeCallback(
         view: View?,
         outRect: Rect?
     ) {
+        val rect = callback.rect
         outRect?.set(
             rect.left.toInt(),
             rect.top.toInt(),
             rect.right.toInt(),
             rect.bottom.toInt()
         )
-    }
-
-    internal fun setRect(regionOfInterest: androidx.compose.ui.geometry.Rect) {
-        this.rect = regionOfInterest
     }
 }

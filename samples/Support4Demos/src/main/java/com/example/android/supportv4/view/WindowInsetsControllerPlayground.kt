@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
+
 package com.example.android.supportv4.view
 
 import android.animation.Animator
@@ -36,7 +38,6 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.CheckBox
-import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.ToggleButton
@@ -49,6 +50,8 @@ import androidx.core.view.WindowInsetsAnimationControlListenerCompat
 import androidx.core.view.WindowInsetsAnimationControllerCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type.ime
+import androidx.core.view.WindowInsetsCompat.Type.navigationBars
+import androidx.core.view.WindowInsetsCompat.Type.statusBars
 import androidx.core.view.WindowInsetsCompat.Type.systemBars
 import androidx.core.view.WindowInsetsControllerCompat
 import com.example.android.supportv4.R
@@ -71,6 +74,7 @@ class WindowInsetsControllerPlayground : Activity() {
     private lateinit var editRow: ViewGroup
     private lateinit var visibility: TextView
     private lateinit var buttonsRow: ViewGroup
+    private lateinit var buttonsRow2: ViewGroup
     private lateinit var fitSystemWindow: CheckBox
     private lateinit var isDecorView: CheckBox
     internal lateinit var info: TextView
@@ -88,6 +92,7 @@ class WindowInsetsControllerPlayground : Activity() {
         editRow = findViewById(R.id.editRow)
         visibility = findViewById(R.id.visibility)
         buttonsRow = findViewById(R.id.buttonRow)
+        buttonsRow2 = findViewById(R.id.buttonRow2)
         info = findViewById(R.id.info)
         fitSystemWindow = findViewById(R.id.decorFitsSystemWindows)
         isDecorView = findViewById(R.id.isDecorView)
@@ -109,6 +114,9 @@ class WindowInsetsControllerPlayground : Activity() {
             isChecked = false
             setOnCheckedChangeListener { _, isChecked ->
                 WindowCompat.setDecorFitsSystemWindows(window, isChecked)
+                if (isChecked) {
+                    mRoot.setPadding(0, 0, 0, 0)
+                }
             }
         }
 
@@ -118,20 +126,8 @@ class WindowInsetsControllerPlayground : Activity() {
         setupTypeSpinner()
         setupHideShowButtons()
         setupAppearanceButtons()
-
-        ViewCompat.setOnApplyWindowInsetsListener(mRoot) { _: View?, insets: WindowInsetsCompat ->
-            val systemBarInsets = insets.getInsets(ime() or systemBars())
-            mRoot.setPadding(
-                systemBarInsets.left,
-                systemBarInsets.top,
-                systemBarInsets.right,
-                systemBarInsets.bottom
-            )
-            visibility.text =
-                "Inset visibility: " + currentType?.let { insets.isVisible(it) }?.toString()
-
-            WindowInsetsCompat.CONSUMED
-        }
+        setupBehaviorSpinner()
+        setupLayoutButton()
 
         setupIMEAnimation()
         setupActionButton()
@@ -167,9 +163,8 @@ class WindowInsetsControllerPlayground : Activity() {
         graph.minimumWidth = 300
         graph.minimumHeight = 100
         graph.setBackgroundColor(Color.GRAY)
-        val linearLayout = info.parent as LinearLayout
-        linearLayout.addView(
-            graph, linearLayout.indexOfChild(isDecorView),
+        findViewById<ViewGroup>(R.id.graph_container).addView(
+            graph,
             ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 200)
         )
     }
@@ -189,18 +184,9 @@ class WindowInsetsControllerPlayground : Activity() {
                     text = name
                     textOn = text
                     textOff = text
-                    setOnClickListener {
-                        isChecked = true
-                        callback(true)
-
-                        it.postDelayed(
-                            {
-                                isChecked = false
-                                callback(false)
-                            },
-                            2000
-                        )
-                    }
+                    setOnCheckedChangeListener { _, isChecked -> callback(isChecked) }
+                    isChecked = true
+                    callback(true)
                 }
             )
         }
@@ -294,7 +280,12 @@ class WindowInsetsControllerPlayground : Activity() {
                 insets: WindowInsetsCompat,
                 runningAnimations: List<WindowInsetsAnimationCompat>
             ): WindowInsetsCompat {
-                mTransitions.forEach { it.onProgress() }
+                val systemInsets = insets.getInsets(systemBars())
+                mRoot.setPadding(
+                    systemInsets.left, systemInsets.top, systemInsets.right,
+                    systemInsets.bottom
+                )
+                mTransitions.forEach { it.onProgress(insets) }
                 return insets
             }
 
@@ -327,6 +318,35 @@ class WindowInsetsControllerPlayground : Activity() {
                 }
             }
         }
+    }
+
+    private fun setupLayoutButton() {
+        arrayOf(
+            "STABLE" to View.SYSTEM_UI_FLAG_LAYOUT_STABLE,
+            "STAT" to View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN,
+            "NAV" to View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+        ).forEach { (name, flag) ->
+            buttonsRow2.addView(
+                ToggleButton(this).apply {
+                    text = name
+                    textOn = text
+                    textOff = text
+                    setOnCheckedChangeListener { _, isChecked ->
+                        val systemUiVisibility = window.decorView.systemUiVisibility
+                        window.decorView.systemUiVisibility =
+                            if (isChecked) systemUiVisibility or flag
+                            else systemUiVisibility and flag.inv()
+                    }
+                    isChecked = false
+                }
+            )
+        }
+        window.decorView.systemUiVisibility = window.decorView.systemUiVisibility and (
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            )
+            .inv()
     }
 
     private fun createOnTouchListener(): View.OnTouchListener {
@@ -433,10 +453,11 @@ class WindowInsetsControllerPlayground : Activity() {
 
     private fun setupTypeSpinner() {
         val types = mapOf(
-            "IME" to ime(),
-            "Navigation" to WindowInsetsCompat.Type.navigationBars(),
             "System" to systemBars(),
-            "Status" to WindowInsetsCompat.Type.statusBars()
+            "IME" to ime(),
+            "Navigation" to navigationBars(),
+            "Status" to statusBars(),
+            "All" to (systemBars() or ime())
         )
         findViewById<Spinner>(R.id.spn_insets_type).apply {
             adapter = ArrayAdapter(
@@ -461,6 +482,37 @@ class WindowInsetsControllerPlayground : Activity() {
         }
     }
 
+    private fun setupBehaviorSpinner() {
+        val types = mapOf(
+            "BY TOUCH" to WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_TOUCH,
+            "BY SWIPE" to WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_SWIPE,
+            "TRANSIENT" to WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE,
+        )
+        findViewById<Spinner>(R.id.spn_behavior).apply {
+            adapter = ArrayAdapter(
+                context, android.R.layout.simple_spinner_dropdown_item,
+                types.keys.toTypedArray()
+            )
+            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                }
+
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    if (parent != null && view != null) {
+                        WindowCompat.getInsetsController(window, view)!!
+                            .systemBarsBehavior = types[selectedItem]!!
+                    }
+                }
+            }
+            setSelection(0)
+        }
+    }
+
     inner class Transition(private val view: View) {
         private var mEndBottom = 0
         private var mStartBottom = 0
@@ -479,13 +531,8 @@ class WindowInsetsControllerPlayground : Activity() {
             }
         }
 
-        fun onProgress() {
-            mInsetsAnimation?.let {
-                view.y = (
-                    mStartBottom +
-                        (mEndBottom - mStartBottom) * it.interpolatedFraction - view.height
-                    )
-            }
+        fun onProgress(insets: WindowInsetsCompat) {
+            view.y = (mStartBottom + insets.getInsets(ime() or systemBars()).bottom).toFloat()
             if (debug) {
                 Log.d(TAG, view.y.toString())
                 values.add(view.y)

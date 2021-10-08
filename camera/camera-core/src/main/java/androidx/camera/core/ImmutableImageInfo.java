@@ -17,11 +17,13 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.ExifData;
 
 import com.google.auto.value.AutoValue;
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 abstract class ImmutableImageInfo implements ImageInfo {
     public static ImageInfo create(@NonNull TagBundle tag, long timestamp,

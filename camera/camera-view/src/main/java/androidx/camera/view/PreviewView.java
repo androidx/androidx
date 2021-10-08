@@ -16,11 +16,15 @@
 
 package androidx.camera.view;
 
+import static androidx.camera.view.TransformUtils.getNormalizedToBuffer;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -40,13 +44,12 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
@@ -56,11 +59,15 @@ import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
-import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.Threads;
+import androidx.camera.view.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.view.internal.compat.quirk.SurfaceViewStretchedQuirk;
+import androidx.camera.view.transform.CoordinateTransform;
+import androidx.camera.view.transform.OutputTransform;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -88,6 +95,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link View} visible, or initially hiding the {@link View} by setting its
  * {@linkplain View#setAlpha(float) opacity} to 0, then setting it to 1.0F to show it.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class PreviewView extends FrameLayout {
 
     private static final String TAG = "PreviewView";
@@ -148,7 +156,8 @@ public final class PreviewView extends FrameLayout {
     @SuppressWarnings("WeakerAccess")
     final Preview.SurfaceProvider mSurfaceProvider = new Preview.SurfaceProvider() {
 
-        @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+        // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
+        @SuppressLint("UnsafeOptInUsageError")
         @Override
         @AnyThread
         public void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest) {
@@ -180,7 +189,7 @@ public final class PreviewView extends FrameLayout {
                     : new SurfaceViewImplementation(PreviewView.this, mPreviewTransform);
 
             PreviewStreamStateObserver streamStateObserver =
-                    new PreviewStreamStateObserver((CameraInfoInternal) camera.getCameraInfo(),
+                    new PreviewStreamStateObserver(camera.getCameraInfoInternal(),
                             mPreviewStreamStateLiveData, mImplementation);
             mActiveStreamStateObserver.set(streamStateObserver);
 
@@ -222,10 +231,8 @@ public final class PreviewView extends FrameLayout {
         Threads.checkMainThread();
         final TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs,
                 R.styleable.PreviewView, defStyleAttr, defStyleRes);
-        if (Build.VERSION.SDK_INT >= 29) {
-            saveAttributeDataForStyleable(context, R.styleable.PreviewView, attrs, attributes,
-                    defStyleAttr, defStyleRes);
-        }
+        ViewCompat.saveAttributeDataForStyleable(this, context, R.styleable.PreviewView, attrs,
+                attributes, defStyleAttr, defStyleRes);
 
         try {
             final int scaleTypeId = attributes.getInteger(
@@ -356,7 +363,6 @@ public final class PreviewView extends FrameLayout {
      */
     @UiThread
     @NonNull
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     public Preview.SurfaceProvider getSurfaceProvider() {
         Threads.checkMainThread();
         return mSurfaceProvider;
@@ -491,7 +497,6 @@ public final class PreviewView extends FrameLayout {
      */
     @UiThread
     @Nullable
-    @ExperimentalUseCaseGroup
     public ViewPort getViewPort() {
         Threads.checkMainThread();
         if (getDisplay() == null) {
@@ -539,10 +544,10 @@ public final class PreviewView extends FrameLayout {
      * @return null if the view's width/height is zero.
      * @see ImplementationMode
      */
+    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
     @UiThread
-    @SuppressLint("WrongConstant")
+    @SuppressLint({"WrongConstant", "UnsafeOptInUsageError"})
     @Nullable
-    @ExperimentalUseCaseGroup
     public ViewPort getViewPort(@ImageOutputConfig.RotationValue int targetRotation) {
         Threads.checkMainThread();
         if (getWidth() == 0 || getHeight() == 0) {
@@ -588,14 +593,16 @@ public final class PreviewView extends FrameLayout {
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
-    boolean shouldUseTextureView(@NonNull SurfaceRequest surfaceRequest,
+    static boolean shouldUseTextureView(@NonNull SurfaceRequest surfaceRequest,
             @NonNull final ImplementationMode implementationMode) {
         // TODO(b/159127402): use TextureView if target rotation is not display rotation.
-        boolean isLegacyDevice = surfaceRequest.getCamera().getCameraInfo()
+        boolean isLegacyDevice = surfaceRequest.getCamera().getCameraInfoInternal()
                 .getImplementationType().equals(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
-        if (surfaceRequest.isRGBA8888Required() || Build.VERSION.SDK_INT <= 24 || isLegacyDevice) {
+        boolean hasSurfaceViewQuirk = DeviceQuirks.get(SurfaceViewStretchedQuirk.class) != null;
+        if (surfaceRequest.isRGBA8888Required() || Build.VERSION.SDK_INT <= 24 || isLegacyDevice
+                || hasSurfaceViewQuirk) {
             // Force to use TextureView when the device is running android 7.0 and below, legacy
-            // level or RGBA8888 is required.
+            // level, RGBA8888 is required or SurfaceView has quirks.
             return true;
         }
         switch (implementationMode) {
@@ -620,6 +627,7 @@ public final class PreviewView extends FrameLayout {
      * {@link PreviewView} to decide what is the best internal implementation given the device
      * capabilities and user configurations.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public enum ImplementationMode {
 
         /**
@@ -675,6 +683,7 @@ public final class PreviewView extends FrameLayout {
     }
 
     /** Options for scaling the preview vis-à-vis its container {@link PreviewView}. */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public enum ScaleType {
         /**
          * Scale the preview, maintaining the source aspect ratio, so it fills the entire
@@ -827,7 +836,54 @@ public final class PreviewView extends FrameLayout {
         return mCameraController;
     }
 
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    /**
+     * Gets the {@link OutputTransform} associated with the {@link PreviewView}.
+     *
+     * <p> Returns a {@link OutputTransform} object that represents the transform being applied to
+     * the associated {@link Preview} use case. Returns null if the transform info is not ready.
+     * For example, when the associated {@link Preview} has not been bound or the
+     * {@link PreviewView}'s layout is not ready.
+     *
+     * <p> {@link PreviewView} needs to be in {@link ImplementationMode#COMPATIBLE} mode for the
+     * transform to work correctly. For example, the returned {@link OutputTransform} may
+     * not respect the value of {@link #getMatrix()} when {@link ImplementationMode#PERFORMANCE}
+     * mode is used.
+     *
+     * @return the transform applied on the preview by this {@link PreviewView}.
+     * @see CoordinateTransform
+     */
+    @TransformExperimental
+    @Nullable
+    public OutputTransform getOutputTransform() {
+        Threads.checkMainThread();
+        Matrix matrix = null;
+        try {
+            matrix = mPreviewTransform.getSurfaceToPreviewViewMatrix(
+                    new Size(getWidth(), getHeight()), getLayoutDirection());
+        } catch (IllegalStateException ex) {
+            // Fall-through. It will be handled below.
+        }
+
+        Rect surfaceCropRect = mPreviewTransform.getSurfaceCropRect();
+        if (matrix == null || surfaceCropRect == null) {
+            Logger.d(TAG, "Transform info is not ready");
+            return null;
+        }
+        // Map it to the normalized space (-1, -1) - (1, 1).
+        matrix.preConcat(getNormalizedToBuffer(surfaceCropRect));
+
+        // Add the custom transform applied by the app. e.g. View#setScaleX.
+        if (mImplementation instanceof TextureViewImplementation) {
+            matrix.postConcat(getMatrix());
+        } else {
+            Logger.w(TAG, "PreviewView needs to be in COMPATIBLE mode for the transform"
+                    + " to work correctly.");
+        }
+
+        return new OutputTransform(matrix, new Size(surfaceCropRect.width(),
+                surfaceCropRect.height()));
+    }
+
     private void attachToControllerIfReady(boolean shouldFailSilently) {
         Display display = getDisplay();
         ViewPort viewPort = getViewPort();

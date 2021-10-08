@@ -16,41 +16,53 @@
 
 package androidx.navigation.compose.samples
 
+import android.os.Bundle
+import android.os.Parcelable
 import androidx.annotation.Sampled
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.LightGray
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigate
+import androidx.navigation.compose.dialog
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 sealed class Screen(val route: String, @StringRes val resourceId: Int) {
     object Profile : Screen("profile", R.string.profile)
     object Dashboard : Screen("dashboard", R.string.dashboard)
     object Scrollable : Screen("scrollable", R.string.scrollable)
+    object Dialog : Screen("dialog", R.string.dialog)
 }
 
-@Sampled
 @Composable
 fun BasicNav() {
     val navController = rememberNavController()
@@ -58,10 +70,10 @@ fun BasicNav() {
         composable(Screen.Profile.route) { Profile(navController) }
         composable(Screen.Dashboard.route) { Dashboard(navController) }
         composable(Screen.Scrollable.route) { Scrollable(navController) }
+        dialog(Screen.Dialog.route) { DialogContent(navController) }
     }
 }
 
-@Sampled
 @Composable
 fun NestedNavStartDestination() {
     val navController = rememberNavController()
@@ -71,10 +83,10 @@ fun NestedNavStartDestination() {
         }
         composable(Screen.Dashboard.route) { Dashboard(navController) }
         composable(Screen.Scrollable.route) { Scrollable(navController) }
+        dialog(Screen.Dialog.route) { DialogContent(navController) }
     }
 }
 
-@Sampled
 @Composable
 fun NestedNavInGraph() {
     val navController = rememberNavController()
@@ -84,6 +96,60 @@ fun NestedNavInGraph() {
             composable("nested") { Dashboard(navController) }
         }
         composable(Screen.Scrollable.route) { Scrollable(navController) }
+        dialog(Screen.Dialog.route) { DialogContent(navController) }
+    }
+}
+
+@Sampled
+@Composable
+fun NavScaffold() {
+    val navController = rememberNavController()
+    Scaffold { innerPadding ->
+        NavHost(navController, Screen.Profile.route, Modifier.padding(innerPadding)) {
+            composable(Screen.Profile.route) { Profile(navController) }
+            composable(Screen.Dashboard.route) { Dashboard(navController) }
+            composable(Screen.Scrollable.route) { Scrollable(navController) }
+            dialog(Screen.Dialog.route) { DialogContent(navController) }
+        }
+    }
+}
+
+@Composable
+fun NavWithArgs() {
+    val navController = rememberNavController()
+    NavHost(navController, startDestination = Screen.Profile.route) {
+        composable(Screen.Profile.route) { Profile(navController) }
+        composable(
+            Screen.Dashboard.route,
+            arguments = listOf(navArgument("userId") { defaultValue = "no value given" })
+        ) { backStackEntry ->
+            Dashboard(navController, backStackEntry.arguments?.getString("userId"))
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun NestedNavInGraphWithArgs() {
+    val navController = rememberNavController()
+    NavHost(navController, startDestination = Screen.Profile.route) {
+        composable(Screen.Profile.route) { Profile(navController) }
+        navigation(
+            startDestination = "nested",
+            route = Screen.Dashboard.route,
+            // This value will be sent to the start destination of the graph when you navigate to
+            // this graph
+            arguments = listOf(navArgument("userId") { defaultValue = "no value given" })
+        ) {
+            composable(
+                "nested",
+                // We don't need to set a default value here because the start destination will
+                // automatically receive the arguments of its parent graph
+                arguments = listOf(navArgument("userId") { })
+            ) {
+                Dashboard(navController)
+            }
+        }
     }
 }
 
@@ -97,6 +163,10 @@ fun Profile(navController: NavHostController) {
         Divider(color = Color.Black)
         NavigateButton(stringResource(Screen.Scrollable.resourceId)) {
             navController.navigate(Screen.Scrollable.route)
+        }
+        Divider(color = Color.Black)
+        NavigateButton(stringResource(Screen.Dialog.resourceId)) {
+            navController.navigate(Screen.Dialog.route)
         }
         Spacer(Modifier.weight(1f))
         NavigateBackButton(navController)
@@ -128,6 +198,20 @@ fun Scrollable(navController: NavController) {
 }
 
 @Composable
+fun DialogContent(navController: NavController) {
+    val dialogWidth = 300.dp
+    val dialogHeight = 300.dp
+    Column(Modifier.size(dialogWidth, dialogHeight).background(Color.White).padding(8.dp)) {
+        NavigateBackButton(navController)
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            items(phrases) { phrase ->
+                Text(phrase, fontSize = 16.sp)
+            }
+        }
+    }
+}
+
+@Composable
 fun NavigateButton(
     text: String,
     listener: () -> Unit = { }
@@ -143,7 +227,11 @@ fun NavigateButton(
 
 @Composable
 fun NavigateBackButton(navController: NavController) {
-    if (navController.previousBackStackEntry != null) {
+    // Use LocalLifecycleOwner.current as a proxy for the NavBackStackEntry
+    // associated with this Composable
+    if (navController.currentBackStackEntry == LocalLifecycleOwner.current &&
+        navController.previousBackStackEntry != null
+    ) {
         Button(
             onClick = { navController.popBackStack() },
             colors = ButtonDefaults.buttonColors(backgroundColor = LightGray),
@@ -186,3 +274,26 @@ private val phrases = listOf(
     "Fight Fire With Fire",
     "Go For Broke"
 )
+
+@Serializable
+@Parcelize
+@Suppress("BanParcelableUsage")
+data class SearchParameters(val searchQuery: String, val filters: List<String>) : Parcelable
+
+class SearchParametersType : NavType<SearchParameters>(isNullableAllowed = false) {
+    override fun put(bundle: Bundle, key: String, value: SearchParameters) {
+        bundle.putParcelable(key, value)
+    }
+
+    override fun get(bundle: Bundle, key: String): SearchParameters {
+        return bundle.getParcelable<SearchParameters>(key) as SearchParameters
+    }
+
+    override fun parseValue(value: String): SearchParameters {
+        @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+        return Json.decodeFromString(value)
+    }
+
+    // Only required when using Navigation 2.4.0-alpha07 and lower
+    override val name = "SearchParameters"
+}

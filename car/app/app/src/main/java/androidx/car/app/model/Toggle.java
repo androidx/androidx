@@ -16,14 +16,18 @@
 
 package androidx.car.app.model;
 
+import static java.util.Objects.requireNonNull;
+
 import android.annotation.SuppressLint;
 import android.os.Looper;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 
 /** Represents a toggle that can have either a checked or unchecked state. */
+@CarProtocol
 public final class Toggle {
     /** A listener for handling checked state change events. */
     public interface OnCheckedChangeListener {
@@ -46,11 +50,11 @@ public final class Toggle {
 
     /**
      * Returns the {@link OnCheckedChangeDelegate} that is called when the checked state of
-     * the {@link Toggle} is changed or {@code null} if not set.
+     * the {@link Toggle} is changed.
      */
-    @Nullable
+    @NonNull
     public OnCheckedChangeDelegate getOnCheckedChangeDelegate() {
-        return mOnCheckedChangeDelegate;
+        return requireNonNull(mOnCheckedChangeDelegate);
     }
 
     @Override

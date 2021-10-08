@@ -294,11 +294,6 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onCurrentMediaItemChanged_withDuration() throws Exception {
-        if (!MediaTestUtils.isServiceToT()) {
-            // TODO(b/143999611): Remove this once the corresponding fixes are released.
-            return;
-        }
-
         final int testListSize = 5;
         final List<MediaItem> list = MediaTestUtils.createFileMediaItems(testListSize);
         mRemoteSession2.getMockPlayer().setPlayerState(SessionPlayer.PLAYER_STATE_IDLE);
@@ -342,11 +337,6 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onCurrentMediaItemChanged_notCalledWithSameValue() throws Exception {
-        if (!MediaTestUtils.isServiceToT()) {
-            // TODO(b/143999611): Remove this once the corresponding fixes are released.
-            return;
-        }
-
         final int testListSize = 5;
         final List<MediaItem> list = MediaTestUtils.createFileMediaItems(testListSize);
         mRemoteSession2.getMockPlayer().setPlayerState(SessionPlayer.PLAYER_STATE_IDLE);
@@ -391,11 +381,6 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onCurrentMediaItemChanged_withUpdatedMetadata() throws Exception {
-        if (!MediaTestUtils.isServiceToT()) {
-            // TODO(b/143999611): Remove this once the corresponding fixes are released.
-            return;
-        }
-
         final int testListSize = 5;
         final List<MediaItem> list = MediaTestUtils.createFileMediaItems(testListSize);
         mRemoteSession2.getMockPlayer().setPlayerState(SessionPlayer.PLAYER_STATE_IDLE);
@@ -564,12 +549,6 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onPlaybackInfoChanged_isCalled_byVolumeChange() throws Exception {
-        if (!MediaTestUtils.isServiceToT()) {
-            // TODO(b/156594425): Remove this condition once the version of media2-session on which
-            //  the previous module depends supports to notify remote volume changes (b/155059866).
-            return;
-        }
-
         Bundle config = new RemoteMediaSession.MockPlayerConfigBuilder()
                 .setVolumeControlType(RemoteSessionPlayer.VOLUME_CONTROL_ABSOLUTE)
                 .setMaxVolume(10)

@@ -46,6 +46,7 @@ import java.util.concurrent.Executor;
  */
 public class TestNavigationManager extends NavigationManager {
     private final List<Trip> mTripsSent = new ArrayList<>();
+    @Nullable
     private NavigationManagerCallback mCallback;
     private int mNavigationStartedCount;
     private int mNavigationEndedCount;
@@ -131,6 +132,6 @@ public class TestNavigationManager extends NavigationManager {
 
     public TestNavigationManager(@NonNull TestCarContext testCarContext,
             @NonNull HostDispatcher hostDispatcher) {
-        super(testCarContext, hostDispatcher);
+        super(testCarContext, hostDispatcher, testCarContext.getLifecycleOwner().mRegistry);
     }
 }

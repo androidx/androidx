@@ -97,6 +97,34 @@ class FragmentFocusTest {
         }
     }
 
+    @Test
+    fun inResumefocusedViewRemoved() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            withActivity {
+                val fragment = StrictViewFragment(R.layout.simple_container)
+
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.content, fragment)
+                    .setReorderingAllowed(true)
+                    .commitNow()
+
+                val container = findViewById<ViewGroup>(R.id.fragmentContainer)
+
+                val editText = EditText(container.context)
+
+                (fragment.requireView() as ViewGroup).addView(editText)
+                editText.requestFocus()
+
+                supportFragmentManager.beginTransaction()
+                    .remove(fragment)
+                    .setReorderingAllowed(true)
+                    .commitNow()
+
+                assertThat(fragment.getFocusedView()).isNull()
+            }
+        }
+    }
+
     class RemoveEditViewFragment : StrictViewFragment(R.layout.with_edit_text) {
         val endAnimationCountDownLatch = CountDownLatch(1)
         override fun onCreateAnimator(transit: Int, enter: Boolean, nextAnim: Int): Animator? {

@@ -97,13 +97,13 @@ public class AnticipateOvershootInterpolator implements Interpolator {
 
     @Override
     @FloatRange(to = 1)
-    public float getInterpolation(@FloatRange(from = 0, to = 1) float t) {
+    public float getInterpolation(@FloatRange(from = 0, to = 1) float input) {
         // a(t, s) = t * t * ((s + 1) * t - s)
         // o(t, s) = t * t * ((s + 1) * t + s)
         // f(t) = 0.5 * a(t * 2, tension * extraTension), when t < 0.5
         // f(t) = 0.5 * (o(t * 2 - 2, tension * extraTension) + 2), when t <= 1.0
-        if (t < 0.5f) return 0.5f * a(t * 2.0f, mTension);
-        else return 0.5f * (o(t * 2.0f - 2.0f, mTension) + 2.0f);
+        if (input < 0.5f) return 0.5f * a(input * 2.0f, mTension);
+        else return 0.5f * (o(input * 2.0f - 2.0f, mTension) + 2.0f);
     }
 
 }

@@ -337,7 +337,6 @@ import androidx.media.AudioAttributesCompat;
             }
 
             // Note: This is always the main thread, except for the test.
-            // TODO(b/138091975) Do not ignore returned Futures if feasible.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -382,7 +381,6 @@ import androidx.media.AudioAttributesCompat;
 
             // This is the thread where the AudioManager was originally instantiated.
             // see: b/78617702
-            // TODO(b/138091975) Do not ignore returned Futures if feasible.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void onAudioFocusChange(int focusGain) {

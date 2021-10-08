@@ -79,8 +79,9 @@ public final class AppAuthenticatorTest {
 
     @Test
     public void createFrom_invalidDigestAlgorithm() throws Exception {
-        // Insecure digest algorithms are not supported by the AppAuthenticator; ensure if an
-        // unsupported digest algorithm is specified then an Exception is thrown.
+        // Since the platform currently requires all certificate digests use the SHA-256 digest
+        // algorithm when using the knownSigner permission flag an error should be reported if
+        // an attempt is made to specify any other digest algorithm.
         assertThrows(AppAuthenticatorXmlException.class,
                 () -> AppAuthenticator.createFromResource(mContext, R.xml.invalid_digest_algo));
         assertThrows(AppAuthenticatorXmlException.class,
@@ -319,6 +320,24 @@ public final class AppAuthenticatorTest {
                 "6a8b96e278e58f62cfe3584022cec1d0527fcb85a9e5d2e1694eb0405be5b599"));
         assertTrue(allowedPackageCerts.get("com.android.app2").contains(
                 "d78405f761ff6236cc9b570347a570aba0c62a129a3ac30c831c64d09ad95469"));
-        assertEquals("SHA-512", config.getDigestAlgorithm());
+        assertEquals("SHA-256", config.getDigestAlgorithm());
+    }
+
+    @Test
+    public void createConfigFromParser_upperCaseDigestInConfig_returnsMatch() throws Exception {
+        // The digest computed by the AppAuthenticatorUtils is in lower case, but the
+        // AppAuthenticator supports matching digests provided in upper case as well.
+        // This test does not directly verify the digest of a package's signing certificate
+        // but instead uses the bytes from the package name in the identity; this test ensures
+        // the AppAuthenticator properly normalizes the provided digest so that it matches the
+        // digest returned by AppAuthenticatorUtils.
+        final String packageName = "com.example.app";
+        AppAuthenticator.AppAuthenticatorConfig config = AppAuthenticator.createConfigFromParser(
+                mResources.getXml(R.xml.upper_case_digest));
+        Set<String> expectedPackageIdentities = config.getExpectedIdentities().get(packageName);
+
+        assertTrue(expectedPackageIdentities.contains(
+                AppAuthenticatorUtils.computeDigest(AppAuthenticator.DEFAULT_DIGEST_ALGORITHM,
+                        packageName.getBytes())));
     }
 }

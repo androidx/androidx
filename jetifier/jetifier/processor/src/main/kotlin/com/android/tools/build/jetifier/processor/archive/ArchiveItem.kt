@@ -83,6 +83,8 @@ interface ArchiveItem {
     fun isProGuardFile() = fileName.equals("proguard.txt", ignoreCase = true)
 
     fun isJavaFile() = fileName.endsWith(".java")
+
+    fun isKotlinFile() = fileName.endsWith(".kt")
 }
 
 /**

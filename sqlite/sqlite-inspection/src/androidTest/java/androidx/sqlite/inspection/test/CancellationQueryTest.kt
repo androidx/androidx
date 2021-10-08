@@ -63,7 +63,7 @@ class CancellationQueryTest {
         assertThat(countingExecutorService.events.receive()).isEqualTo(STARTED)
         assertThat(countingExecutorService.events.receive()).isEqualTo(FINISHED)
         assertThat(result.rowsCount).isEqualTo(22)
-        assertThat(countingExecutorService.events.poll()).isNull()
+        assertThat(countingExecutorService.events.tryReceive().getOrNull()).isNull()
         job.cancelAndJoin()
         // check that task finished after cancellation
         assertThat(countingExecutorService.events.receive()).isEqualTo(FINISHED)
@@ -83,11 +83,11 @@ class CountingDelegatingExecutorService(val executor: Executor) : Executor {
 
     override fun execute(command: Runnable) {
         executor.execute {
-            channel.offer(STARTED)
+            channel.trySend(STARTED)
             try {
                 command.run()
             } finally {
-                channel.offer(FINISHED)
+                channel.trySend(FINISHED)
             }
         }
     }

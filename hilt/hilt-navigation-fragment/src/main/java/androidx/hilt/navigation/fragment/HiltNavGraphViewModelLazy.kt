@@ -41,6 +41,7 @@ import androidx.navigation.fragment.findNavController
  * @param navGraphId ID of a NavGraph that exists on the [NavController] back stack
  */
 @MainThread
+@Suppress("MissingNullability") // Due to https://youtrack.jetbrains.com/issue/KT-39209
 public inline fun <reified VM : ViewModel> Fragment.hiltNavGraphViewModels(
     @IdRes navGraphId: Int
 ): Lazy<VM> {

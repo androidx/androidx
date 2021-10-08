@@ -37,6 +37,7 @@ import androidx.core.view.NestedScrollingParent3;
 import androidx.core.view.NestedScrollingParentHelper;
 import androidx.core.view.ViewCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -79,6 +80,7 @@ public class RecyclerViewNestedScrolling3RequestDisallowInterceptTouchTest {
     }
 
     @Test
+    @FlakyTest(bugId = 190192628)
     public void parentConsumes1pxRvConsumes0px() {
         mParent.consumeY = 1;
 
@@ -89,6 +91,7 @@ public class RecyclerViewNestedScrolling3RequestDisallowInterceptTouchTest {
     }
 
     @Test
+    @FlakyTest(bugId = 190192628)
     public void parentConsumes0pxRvConsumes1px() {
         // RecyclerView consumes all because we scroll down, and we're already at the top
         swipeVertically(-mTouchSlop - 1);
@@ -97,6 +100,7 @@ public class RecyclerViewNestedScrolling3RequestDisallowInterceptTouchTest {
     }
 
     @Test
+    @FlakyTest(bugId = 190192628)
     public void parentConsumes0pxRvConsumes0px() {
         // RecyclerView consumes nothing because we scroll up, and we're already at the top
         swipeVertically(mTouchSlop + 100);
@@ -105,6 +109,7 @@ public class RecyclerViewNestedScrolling3RequestDisallowInterceptTouchTest {
     }
 
     @Test
+    @FlakyTest(bugId = 190192628)
     public void parentPreConsumes1pxRvConsumes0px() {
         mParent.consumePreY = 1;
 

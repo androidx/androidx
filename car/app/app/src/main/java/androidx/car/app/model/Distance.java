@@ -23,6 +23,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -30,6 +31,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 /** Represents a distance value and how it should be displayed in the UI. */
+@CarProtocol
 public final class Distance {
     /**
      * Possible units used to display {@link Distance}

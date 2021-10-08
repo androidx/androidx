@@ -21,6 +21,7 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.Map;
 import java.util.Set;
@@ -28,11 +29,12 @@ import java.util.Set;
 /**
  * A TagBundle is an immutable tags collection which does not allow insertion/removal.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class TagBundle {
     /** It is used to store all the keys and Tags */
-    protected final Map<String, Integer> mTagMap;
+    protected final Map<String, Object> mTagMap;
 
-    protected TagBundle(@NonNull Map<String, Integer> tagMap) {
+    protected TagBundle(@NonNull Map<String, Object> tagMap) {
         mTagMap = tagMap;
     }
 
@@ -54,8 +56,8 @@ public class TagBundle {
      * @return a TagBundle containing one tag.
      */
     @NonNull
-    public static TagBundle create(@NonNull Pair<String, Integer> source) {
-        Map<String, Integer> map = new ArrayMap<>();
+    public static TagBundle create(@NonNull Pair<String, Object> source) {
+        Map<String, Object> map = new ArrayMap<>();
         map.put(source.first, source.second);
         return new TagBundle(map);
     }
@@ -70,7 +72,7 @@ public class TagBundle {
      */
     @NonNull
     public static TagBundle from(@NonNull TagBundle otherTagBundle) {
-        Map<String, Integer> tags = new ArrayMap<>();
+        Map<String, Object> tags = new ArrayMap<>();
         for (String key: otherTagBundle.listKeys()) {
             tags.put(key, otherTagBundle.getTag(key));
         }
@@ -85,7 +87,7 @@ public class TagBundle {
      * @return The tag associated with the key.
      */
     @Nullable
-    public Integer getTag(@NonNull String key) {
+    public Object getTag(@NonNull String key) {
         return mTagMap.get(key);
     }
 

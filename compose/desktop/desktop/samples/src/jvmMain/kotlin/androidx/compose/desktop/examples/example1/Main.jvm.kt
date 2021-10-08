@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.compose.desktop.examples.example1
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.TweenSpec
-import androidx.compose.desktop.AppWindow
-import androidx.compose.desktop.DesktopMaterialTheme
-import androidx.compose.desktop.Window
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.mouseClickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -70,22 +69,30 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusOrder
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.plus
-import androidx.compose.ui.input.key.shortcuts
-import androidx.compose.ui.input.pointer.PointerEvent
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerInputFilter
-import androidx.compose.ui.input.pointer.PointerInputModifier
-import androidx.compose.ui.input.pointer.pointerMoveFilter
-import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.res.svgResource
-import androidx.compose.ui.res.vectorXmlResource
+import androidx.compose.ui.input.pointer.isAltPressed
+import androidx.compose.ui.input.pointer.isCtrlPressed
+import androidx.compose.ui.input.pointer.isMetaPressed
+import androidx.compose.ui.input.pointer.isPrimaryPressed
+import androidx.compose.ui.input.pointer.isSecondaryPressed
+import androidx.compose.ui.input.pointer.isShiftPressed
+import androidx.compose.ui.input.pointer.isTertiaryPressed
+import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
@@ -93,36 +100,56 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.platform.Font
+import androidx.compose.ui.text.platform.FontLoader
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDecoration.Companion.Underline
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import java.awt.event.MouseEvent
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.FrameWindowScope
+import androidx.compose.ui.window.WindowState
+import androidx.compose.ui.window.launchApplication
+import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.window.singleWindowApplication
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlin.random.Random
 
 private const val title = "Desktop Compose Elements"
 
-val italicFont = FontFamily(Font("NotoSans-Italic.ttf"))
+val italicFont = try {
+    FontFamily(
+        Font("NotoSans-Italic.ttf").also {
+            // Check that font is loadable.
+            FontLoader().load(it)
+        }
+    )
+} catch (e: Exception) {
+    FontFamily.SansSerif
+}
 
-fun main() {
-    Window(title, IntSize(1024, 850)) {
-        App()
-    }
+fun main() = singleWindowApplication(
+    title = title,
+    state = WindowState(width = 1024.dp, height = 850.dp)
+) {
+    App()
 }
 
 @Composable
-private fun App() {
-    DesktopMaterialTheme {
+private fun FrameWindowScope.App() {
+    val uriHandler = LocalUriHandler.current
+    MaterialTheme {
         Scaffold(
             topBar = {
                 TopAppBar(
                     title = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Image(
-                                svgResource("androidx/compose/desktop/example/star.svg"),
+                                painterResource("androidx/compose/desktop/example/star.svg"),
                                 contentDescription = "Star"
                             )
                             Text(title)
@@ -132,9 +159,9 @@ private fun App() {
             },
             floatingActionButton = {
                 ExtendedFloatingActionButton(
-                    text = { Text("BUTTON") },
+                    text = { Text("Open URL") },
                     onClick = {
-                        println("Floating button clicked")
+                        uriHandler.openUri("https://google.com")
                     }
                 )
             },
@@ -159,7 +186,7 @@ private fun App() {
 }
 
 @Composable
-private fun LeftColumn(modifier: Modifier) = Box(modifier.fillMaxSize()) {
+private fun FrameWindowScope.LeftColumn(modifier: Modifier) = Box(modifier.fillMaxSize()) {
     val state = rememberScrollState()
     ScrollableContent(state)
 
@@ -169,16 +196,15 @@ private fun LeftColumn(modifier: Modifier) = Box(modifier.fillMaxSize()) {
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun ScrollableContent(scrollState: ScrollState) {
-    val amount = remember { mutableStateOf(0) }
+private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
+    val amount = remember { mutableStateOf(0f) }
     val animation = remember { mutableStateOf(true) }
-    val text = remember {
-        mutableStateOf("Hello \uD83E\uDDD1\uD83C\uDFFF\u200D\uD83E\uDDB0\nПривет")
-    }
     Column(Modifier.fillMaxSize().verticalScroll(scrollState)) {
+        val info = "${window.renderApi} (${window.windowHandle})"
         Text(
-            text = "Привет! 你好! Desktop Compose ${amount.value}",
+            text = "Привет! 你好! Desktop Compose use $info: ${amount.value}",
             color = Color.Black,
             modifier = Modifier
                 .background(Color.Blue)
@@ -316,25 +342,29 @@ private fun ScrollableContent(scrollState: ScrollState) {
                     "   }\n" +
                     "}",
                 fontFamily = italicFont,
-                modifier = Modifier.padding(10.dp).pointerMoveFilter(
-                    onMove = {
-                        overText = "Move position: $it"
-                        false
-                    },
-                    onEnter = {
-                        overText = "Over enter"
-                        false
-                    },
-                    onExit = {
-                        overText = "Over exit"
-                        false
+                modifier = Modifier.padding(10.dp).pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            val position = event.changes.first().position
+                            when (event.type) {
+                                PointerEventType.Move -> {
+                                    overText = "Move position: $position"
+                                }
+                                PointerEventType.Enter -> {
+                                    overText = "Over enter"
+                                }
+                                PointerEventType.Exit -> {
+                                    overText = "Over exit"
+                                }
+                            }
+                        }
                     }
-                )
+                }
             )
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            var lastEvent by remember { mutableStateOf<MouseEvent?>(null) }
             Button(
                 modifier = Modifier.padding(4.dp),
                 onClick = {
@@ -344,22 +374,27 @@ private fun ScrollableContent(scrollState: ScrollState) {
                 Text("Base")
             }
 
+            var clickableText by remember { mutableStateOf("Click me!") }
+            @OptIn(ExperimentalFoundationApi::class)
             Text(
-                modifier = object : PointerInputModifier {
-                    override val pointerInputFilter = object : PointerInputFilter() {
-                        override fun onPointerEvent(
-                            pointerEvent: PointerEvent,
-                            pass: PointerEventPass,
-                            bounds: IntSize
-                        ) {
-                            lastEvent = pointerEvent.mouseEvent
-                        }
+                modifier = Modifier.mouseClickable(
+                    onClick = {
+                        clickableText = buildString {
+                            append("Buttons pressed:\n")
+                            append("primary: ${buttons.isPrimaryPressed}\t")
+                            append("secondary: ${buttons.isSecondaryPressed}\t")
+                            append("tertiary: ${buttons.isTertiaryPressed}\t")
 
-                        override fun onCancel() {
+                            append("\n\nKeyboard modifiers pressed:\n")
+
+                            append("alt: ${keyboardModifiers.isAltPressed}\t")
+                            append("ctrl: ${keyboardModifiers.isCtrlPressed}\t")
+                            append("meta: ${keyboardModifiers.isMetaPressed}\t")
+                            append("shift: ${keyboardModifiers.isShiftPressed}\t")
                         }
                     }
-                },
-                text = "Custom mouse event button: ${lastEvent?.button}"
+                ),
+                text = clickableText
             )
         }
 
@@ -381,12 +416,22 @@ private fun ScrollableContent(scrollState: ScrollState) {
                 Button(
                     modifier = Modifier.padding(4.dp),
                     onClick = {
-                        AppWindow(size = IntSize(400, 200)).also {
-                            it.keyboard.setShortcut(Key.Escape) {
-                                it.close()
+                        @OptIn(DelicateCoroutinesApi::class)
+                        GlobalScope.launchApplication {
+                            Window(
+                                onCloseRequest = ::exitApplication,
+                                state = rememberWindowState(size = DpSize(400.dp, 200.dp)),
+                                onPreviewKeyEvent = {
+                                    if (it.key == Key.Escape) {
+                                        exitApplication()
+                                        true
+                                    } else {
+                                        false
+                                    }
+                                }
+                            ) {
+                                Animations(isCircularEnabled = animation.value)
                             }
-                        }.show {
-                            Animations(isCircularEnabled = animation.value)
                         }
                     }
                 ) {
@@ -398,15 +443,19 @@ private fun ScrollableContent(scrollState: ScrollState) {
         }
 
         Slider(
-            value = amount.value.toFloat() / 100f,
-            onValueChange = { amount.value = (it * 100).toInt() }
+            value = amount.value / 100f,
+            onValueChange = { amount.value = (it * 100) }
         )
         TextField(
             value = amount.value.toString(),
-            onValueChange = { amount.value = it.toIntOrNull() ?: 42 },
+            onValueChange = { amount.value = it.toFloatOrNull() ?: 42f },
             label = { Text(text = "Input1") }
         )
 
+        val (focusItem1, focusItem2) = FocusRequester.createRefs()
+        val text = remember {
+            mutableStateOf("Hello \uD83E\uDDD1\uD83C\uDFFF\u200D\uD83E\uDDB0")
+        }
         TextField(
             value = text.value,
             onValueChange = { text.value = it },
@@ -414,25 +463,49 @@ private fun ScrollableContent(scrollState: ScrollState) {
             placeholder = {
                 Text(text = "Important input")
             },
-            modifier = Modifier.shortcuts {
-                on(Key.MetaLeft + Key.ShiftLeft + Key.Enter) {
-                    text.value = "Cleared with shift!"
+            maxLines = 1,
+            modifier = Modifier.onPreviewKeyEvent {
+                when {
+                    (it.isMetaPressed && it.key == Key.Enter) -> {
+                        if (it.isShiftPressed) {
+                            text.value = "Cleared with shift!"
+                        } else {
+                            text.value = "Cleared!"
+                        }
+                        true
+                    }
+                    else -> false
                 }
-                on(Key.MetaLeft + Key.Enter) {
-                    text.value = "Cleared!"
+            }.focusOrder(focusItem1) {
+                next = focusItem2
+            }
+        )
+
+        var text2 by remember {
+            val initText = buildString {
+                (1..1000).forEach {
+                    append("$it\n")
                 }
             }
+            mutableStateOf(initText)
+        }
+        TextField(
+            text2,
+            modifier = Modifier.height(200.dp).focusOrder(focusItem2) {
+                previous = focusItem1
+            },
+            onValueChange = { text2 = it }
         )
 
         Row {
             Image(
-                imageResource("androidx/compose/desktop/example/circus.jpg"),
+                painterResource("androidx/compose/desktop/example/circus.jpg"),
                 "Localized description",
                 Modifier.size(200.dp)
             )
 
             Icon(
-                vectorXmlResource("androidx/compose/desktop/example/ic_baseline_deck_24.xml"),
+                painterResource("androidx/compose/desktop/example/ic_baseline_deck_24.xml"),
                 "Localized description",
                 Modifier.size(100.dp).align(Alignment.CenterVertically),
                 tint = Color.Blue.copy(alpha = 0.5f)
@@ -468,16 +541,20 @@ fun Animations(isCircularEnabled: Boolean) = Row {
 private fun RightColumn(modifier: Modifier) = Box {
     val state = rememberLazyListState()
     val itemCount = 100000
-    val itemHeight = 20.dp
+    val heights = remember {
+        val random = Random(24)
+        (0 until itemCount).map { random.nextFloat() }
+    }
 
     LazyColumn(modifier.graphicsLayer(alpha = 0.5f), state = state) {
-        items((1..itemCount).toList()) { x ->
-            Text(x.toString(), Modifier.graphicsLayer(alpha = 0.5f).height(itemHeight))
+        items((0 until itemCount).toList()) { i ->
+            val itemHeight = 20.dp + 20.dp * heights[i]
+            Text(i.toString(), Modifier.graphicsLayer(alpha = 0.5f).height(itemHeight))
         }
     }
 
     VerticalScrollbar(
-        rememberScrollbarAdapter(state, itemCount, itemHeight),
+        rememberScrollbarAdapter(state),
         Modifier.align(Alignment.CenterEnd)
     )
 }

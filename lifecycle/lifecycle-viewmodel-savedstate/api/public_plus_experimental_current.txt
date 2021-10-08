@@ -25,7 +25,6 @@ package androidx.lifecycle {
     ctor public SavedStateViewModelFactory(android.app.Application?, androidx.savedstate.SavedStateRegistryOwner);
     ctor public SavedStateViewModelFactory(android.app.Application?, androidx.savedstate.SavedStateRegistryOwner, android.os.Bundle?);
     method public <T extends androidx.lifecycle.ViewModel> T create(String, Class<T!>);
-    method public <T extends androidx.lifecycle.ViewModel> T create(Class<T!>);
   }
 
 }

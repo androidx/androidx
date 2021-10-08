@@ -1,0 +1,88 @@
+// Actions that can be performed when a user interacts with layout elements.
+syntax = "proto3";
+
+package androidx.wear.tiles.proto;
+
+import "state.proto";
+
+option java_package = "androidx.wear.tiles.proto";
+option java_outer_classname = "ActionProto";
+
+// A string value that can be added to an Android intent's extras.
+message AndroidStringExtra {
+  // The value.
+  string value = 1;
+}
+
+// An integer value that can be added to an Android intent's extras.
+message AndroidIntExtra {
+  // The value.
+  int32 value = 1;
+}
+
+// A long value that can be added to an Android intent's extras.
+message AndroidLongExtra {
+  // The value.
+  int64 value = 1;
+}
+
+// A double value that can be added to an Android intent's extras.
+message AndroidDoubleExtra {
+  // The value.
+  double value = 1;
+}
+
+// A boolean value that can be added to an Android intent's extras.
+message AndroidBooleanExtra {
+  // The value.
+  bool value = 1;
+}
+
+// An item that can be included in the extras of an intent that will be sent to
+// an Android activity. Supports types in android.os.PersistableBundle,
+// excluding arrays.
+message AndroidExtra {
+  oneof inner {
+    AndroidStringExtra string_val = 1;
+    AndroidIntExtra int_val = 2;
+    AndroidLongExtra long_val = 3;
+    AndroidDoubleExtra double_val = 4;
+    AndroidBooleanExtra boolean_val = 5;
+  }
+}
+
+// A launch action to send an intent to an Android activity.
+message AndroidActivity {
+  // The package name to send the intent to, for example, "com.google.weather".
+  string package_name = 1;
+
+  // The fully qualified class name (including the package) to send the intent
+  // to, for example, "com.google.weather.WeatherOverviewActivity".
+  string class_name = 2;
+
+  // The extras to be included in the intent.
+  map<string, AndroidExtra> key_to_extra = 3;
+}
+
+// An action used to launch another activity on the system. This can hold
+// multiple different underlying action types, which will be picked based on
+// what the underlying runtime believes to be suitable.
+message LaunchAction {
+  // An action to launch an Android activity.
+  AndroidActivity android_activity = 1;
+}
+
+// An action used to load (or reload) the tile contents.
+message LoadAction {
+  // The state to load the next tile with. This will be included in the
+  // TileRequest sent after this action is invoked by a Clickable.
+  State request_state = 1;
+}
+
+// An action that can be used by a layout element.
+message Action {
+  oneof value {
+    LaunchAction launch_action = 1;
+    LoadAction load_action = 2;
+  }
+}

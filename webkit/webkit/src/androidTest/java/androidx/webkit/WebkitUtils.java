@@ -87,14 +87,11 @@ public final class WebkitUtils {
     public static <T> ListenableFuture<T> onMainThreadDelayed(
             long delayMs, final Callable<T> callable)  {
         final ResolvableFuture<T> future = ResolvableFuture.create();
-        sMainHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    future.set(callable.call());
-                } catch (Throwable t) {
-                    future.setException(t);
-                }
+        sMainHandler.postDelayed(() -> {
+            try {
+                future.set(callable.call());
+            } catch (Throwable t) {
+                future.setException(t);
             }
         }, delayMs);
         return future;
@@ -143,15 +140,12 @@ public final class WebkitUtils {
             throw new IllegalStateException("This cannot be called from the UI thread.");
         }
         final ResolvableFuture<Void> exceptionPropagatingFuture = ResolvableFuture.create();
-        onMainThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    runnable.run();
-                    exceptionPropagatingFuture.set(null);
-                } catch (Throwable t) {
-                    exceptionPropagatingFuture.setException(t);
-                }
+        onMainThread(() -> {
+            try {
+                runnable.run();
+                exceptionPropagatingFuture.set(null);
+            } catch (Throwable t) {
+                exceptionPropagatingFuture.setException(t);
             }
         });
         waitForFuture(exceptionPropagatingFuture);

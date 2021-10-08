@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.graph
 
 import android.hardware.camera2.params.MeteringRectangle
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Result3A
@@ -110,6 +112,12 @@ internal class CameraGraphSessionImpl(
     }
 
     override suspend fun lock3A(
+        aeMode: AeMode?,
+        afMode: AfMode?,
+        awbMode: AwbMode?,
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?,
         aeLockBehavior: Lock3ABehavior?,
         afLockBehavior: Lock3ABehavior?,
         awbLockBehavior: Lock3ABehavior?,
@@ -121,31 +129,20 @@ internal class CameraGraphSessionImpl(
         // ae, af and awb respectively. If not supported return an exception or return early with
         // the right status code.
         return controller3A.lock3A(
-            aeLockBehavior, afLockBehavior, awbLockBehavior, frameLimit,
+            aeRegions,
+            afRegions,
+            awbRegions,
+            aeLockBehavior,
+            afLockBehavior,
+            awbLockBehavior,
+            frameLimit,
             timeLimitNs
         )
     }
 
-    override fun lock3A(
-        aeMode: AeMode?,
-        afMode: AfMode?,
-        awbMode: AwbMode?,
-        aeRegions: List<MeteringRectangle>?,
-        afRegions: List<MeteringRectangle>?,
-        awbRegions: List<MeteringRectangle>?,
-        aeLockBehavior: Lock3ABehavior?,
-        afLockBehavior: Lock3ABehavior?,
-        awbLockBehavior: Lock3ABehavior?,
-        frameLimit: Int,
-        timeLimitMs: Int
-    ): Deferred<Result3A> {
-        check(!closed.value) { "Cannot call lock3A on $this after close." }
-        TODO("Implement lock3A")
-    }
-
-    override fun unlock3A(ae: Boolean?, af: Boolean?, awb: Boolean?): Deferred<FrameNumber> {
+    override suspend fun unlock3A(ae: Boolean?, af: Boolean?, awb: Boolean?): Deferred<Result3A> {
         check(!closed.value) { "Cannot call unlock3A on $this after close." }
-        throw UnsupportedOperationException()
+        return controller3A.unlock3A(ae, af, awb)
     }
 
     override suspend fun lock3AForCapture(

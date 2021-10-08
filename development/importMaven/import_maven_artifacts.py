@@ -60,7 +60,7 @@ def main():
     if ("kotlin-native-linux" in artifact_name): artifact_name = fix_kotlin_native(artifact_name)
 
     # Add -Dorg.gradle.debug=true to debug or --stacktrace to see the stack trace
-    command = './gradlew --build-file build.gradle.kts -PartifactName=%s' % (
+    command = './gradlew --build-file build.gradle.kts --no-configuration-cache -PartifactName=%s' % (
         artifact_name)
     metalava_build_id = parse_result.metalava_build_id
     if (metalava_build_id):

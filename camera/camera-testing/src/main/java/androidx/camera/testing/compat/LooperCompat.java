@@ -20,15 +20,20 @@ import android.os.Build;
 import android.os.Looper;
 import android.os.MessageQueue;
 
+import androidx.annotation.DoNotInline;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /** Compat functions for {@link Looper} */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class LooperCompat {
     /** Returns the {@link MessageQueue} for the given {@link Looper}. */
     public static MessageQueue getQueue(Looper looper) {
         if (Build.VERSION.SDK_INT >= 23) {
-            return looper.getQueue();
+            return Api23Impl.getQueue(looper);
         } else {
             Method getQueue;
             try {
@@ -44,4 +49,20 @@ public final class LooperCompat {
     }
 
     private LooperCompat() {}
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23).
+     */
+    @RequiresApi(23)
+    private static class Api23Impl {
+
+        private Api23Impl() {
+        }
+
+        @DoNotInline
+        @NonNull
+        static MessageQueue getQueue(@NonNull Looper looper) {
+            return looper.getQueue();
+        }
+    }
 }

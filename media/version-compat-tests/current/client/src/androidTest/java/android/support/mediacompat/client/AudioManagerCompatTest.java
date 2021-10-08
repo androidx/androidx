@@ -17,6 +17,7 @@
 package android.support.mediacompat.client;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import android.content.Context;
 import android.media.AudioManager;
@@ -66,5 +67,19 @@ public class AudioManagerCompatTest {
     @Test
     public void getStreamMinVolume_underP_returnsZero() {
         assertEquals(0, AudioManagerCompat.getStreamMinVolume(mAudioManager, mStreamType));
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    public void isVolumeFixed_fromApi21_returnsIsVolumeFixed() {
+        assertEquals(
+                mAudioManager.isVolumeFixed(),
+                AudioManagerCompat.isVolumeFixed(mAudioManager));
+    }
+
+    @SdkSuppress(maxSdkVersion = 20)
+    @Test
+    public void isVolumeFixed_underApi21_returnsFalse() {
+        assertFalse(AudioManagerCompat.isVolumeFixed(mAudioManager));
     }
 }

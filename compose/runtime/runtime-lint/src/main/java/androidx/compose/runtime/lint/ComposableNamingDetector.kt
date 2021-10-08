@@ -18,6 +18,8 @@
 
 package androidx.compose.runtime.lint
 
+import androidx.compose.lint.isComposable
+import androidx.compose.lint.returnsUnit
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
@@ -28,7 +30,6 @@ import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
-import com.intellij.psi.PsiType
 import org.jetbrains.uast.UMethod
 import java.util.EnumSet
 import java.util.Locale
@@ -53,7 +54,11 @@ class ComposableNamingDetector : Detector(), SourceCodeScanner {
 
             if (node.returnsUnit) {
                 if (!capitalizedFunctionName) {
-                    val capitalizedName = name.capitalize(Locale.getDefault())
+                    val capitalizedName = name.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }
                     context.report(
                         ComposableNaming,
                         node,
@@ -71,7 +76,7 @@ class ComposableNamingDetector : Detector(), SourceCodeScanner {
                 }
             } else {
                 if (capitalizedFunctionName) {
-                    val lowercaseName = name.decapitalize(Locale.getDefault())
+                    val lowercaseName = name.replaceFirstChar { it.lowercase(Locale.getDefault()) }
                     context.report(
                         ComposableNaming,
                         node,
@@ -107,5 +112,3 @@ class ComposableNamingDetector : Detector(), SourceCodeScanner {
         )
     }
 }
-
-private val UMethod.returnsUnit get() = returnType == PsiType.VOID

@@ -27,6 +27,7 @@ import androidx.leanback.widget.Row;
  * This class represents the UI (e.g. Fragment/Activity) hosting playback controls and
  * defines the interaction between {@link PlaybackGlue} and the host.
  * PlaybackGlueHost provides the following functions:
+ * <ul>
  * <li>Render UI of PlaybackGlue: {@link #setPlaybackRow(Row)},
  * {@link #setPlaybackRowPresenter(PlaybackRowPresenter)}.
  * </li>
@@ -37,10 +38,13 @@ import androidx.leanback.widget.Row;
  * <li>Key listener and ActionListener. {@link #setOnKeyInterceptListener(View.OnKeyListener)},
  * {@link #setOnActionClickedListener(OnActionClickedListener)}.
  * </li>
+ * </ul>
  *
  * Subclass of PlaybackGlueHost may implement optional interfaces:
+ * <ul>
  * <li>{@link SurfaceHolderGlueHost} to provide SurfaceView for video playback.</li>
  * <li>{@link PlaybackSeekUi} to provide seek UI to glue</li>
+ * </ul>
  * These optional interfaces should be accessed by glue in
  * {@link PlaybackGlue#onAttachedToHost(PlaybackGlueHost)}.
  */

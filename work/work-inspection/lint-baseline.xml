@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.1.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha07)" variant="all" version="7.1.0-alpha07">
+
+    <issue
+        id="RemoveWorkManagerInitializer"
+        message="Remove androidx.work.WorkManagerInitializer from your AndroidManifest.xml when using on-demand initialization.">
+        <location
+            file="work-inspection"/>
+    </issue>
+
+</issues>

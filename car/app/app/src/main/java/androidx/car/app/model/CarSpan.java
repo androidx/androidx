@@ -21,12 +21,14 @@ import android.text.style.CharacterStyle;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import androidx.car.app.annotations.CarProtocol;
 
 /**
  * Base class for all span types allowed for a car app.
  *
  * @see CarText
  */
+@CarProtocol
 @Keep
 public class CarSpan extends CharacterStyle {
     @Override

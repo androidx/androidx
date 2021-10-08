@@ -19,7 +19,6 @@ package androidx.camera.camera2.internal;
 import android.graphics.Rect;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.util.Range;
 
@@ -93,8 +92,10 @@ final class AndroidRZoomImpl implements ZoomControl.ZoomImpl {
     @Override
     public void onCaptureResult(@NonNull TotalCaptureResult captureResult) {
         if (mPendingZoomRatioCompleter != null) {
+            CaptureRequest request = captureResult.getRequest();
+            Float zoomRatioFloat = (request == null) ? null :
+                    request.get(CaptureRequest.CONTROL_ZOOM_RATIO);
 
-            Float zoomRatioFloat = captureResult.get(CaptureResult.CONTROL_ZOOM_RATIO);
             if (zoomRatioFloat == null) {
                 return;
             }

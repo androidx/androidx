@@ -46,7 +46,7 @@
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:scrollbarStyle="outsideOverlay"
-        android:background="#ff333333">
+        android:background="#33333333">
         <TextView android:id="@+id/content_text"
                   android:layout_width="match_parent"
                   android:layout_height="match_parent"

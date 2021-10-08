@@ -20,6 +20,7 @@ import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
@@ -34,6 +35,7 @@ import androidx.camera.core.impl.ReadableConfig;
  * A bundle of Camera2 capture request options.
  */
 @ExperimentalCamera2Interop
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CaptureRequestOptions implements ReadableConfig {
 
     private final Config mConfig;
@@ -101,6 +103,7 @@ public class CaptureRequestOptions implements ReadableConfig {
     /**
      * Builder for creating {@link CaptureRequestOptions} instance.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder implements ExtendableBuilder<CaptureRequestOptions> {
 
         private final MutableOptionsBundle mMutableOptionsBundle = MutableOptionsBundle.create();

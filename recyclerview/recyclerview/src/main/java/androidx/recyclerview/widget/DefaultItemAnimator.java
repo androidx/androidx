@@ -317,18 +317,18 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
 
     @Override
     public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder,
-            int fromX, int fromY, int toX, int toY) {
+            int fromLeft, int fromTop, int toLeft, int toTop) {
         if (oldHolder == newHolder) {
             // Don't know how to run change animations when the same view holder is re-used.
             // run a move animation to handle position changes.
-            return animateMove(oldHolder, fromX, fromY, toX, toY);
+            return animateMove(oldHolder, fromLeft, fromTop, toLeft, toTop);
         }
         final float prevTranslationX = oldHolder.itemView.getTranslationX();
         final float prevTranslationY = oldHolder.itemView.getTranslationY();
         final float prevAlpha = oldHolder.itemView.getAlpha();
         resetAnimation(oldHolder);
-        int deltaX = (int) (toX - fromX - prevTranslationX);
-        int deltaY = (int) (toY - fromY - prevTranslationY);
+        int deltaX = (int) (toLeft - fromLeft - prevTranslationX);
+        int deltaY = (int) (toTop - fromTop - prevTranslationY);
         // recover prev translation state after ending animation
         oldHolder.itemView.setTranslationX(prevTranslationX);
         oldHolder.itemView.setTranslationY(prevTranslationY);
@@ -340,7 +340,7 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
             newHolder.itemView.setTranslationY(-deltaY);
             newHolder.itemView.setAlpha(0);
         }
-        mPendingChanges.add(new ChangeInfo(oldHolder, newHolder, fromX, fromY, toX, toY));
+        mPendingChanges.add(new ChangeInfo(oldHolder, newHolder, fromLeft, fromTop, toLeft, toTop));
         return true;
     }
 

@@ -78,6 +78,7 @@ class HelpActivity : AppCompatActivity() {
 }
 
 class BottomSheetNavigationView : BottomSheetDialogFragment() {
+    @Suppress("DEPRECATION")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

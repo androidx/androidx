@@ -19,10 +19,10 @@ limitations under the License.
     <string name="email" msgid="6099716515489216517">"התכתבות באימייל"</string>
     <string name="email_desc" msgid="2189760120923982860">"שליחת אימייל לכתובת שנבחרה"</string>
     <string name="dial" msgid="2101464860090311277">"ביצוע שיחה"</string>
-    <string name="dial_desc" msgid="1195407206406821463">"התקשרות למספר הטלפון שנבחר"</string>
+    <string name="dial_desc" msgid="1195407206406821463">"חיוג למספר הטלפון שנבחר"</string>
     <string name="browse" msgid="4753676368851695348">"פתיחה"</string>
-    <string name="browse_desc" msgid="728882176434276995">"פתיחה של כתובת האתר שנבחרה"</string>
-    <string name="sms" msgid="2214738262605167054">"התכתבות בהודעות"</string>
+    <string name="browse_desc" msgid="728882176434276995">"‏פתיחה של כתובת ה-URL שנבחרה"</string>
+    <string name="sms" msgid="2214738262605167054">"שליחת הודעה"</string>
     <string name="sms_desc" msgid="7733202356868441148">"שליחת הודעה למספר הטלפון שנבחר"</string>
     <string name="add_contact" msgid="386263007484061034">"הוספה"</string>
     <string name="add_contact_desc" msgid="1739272501140197425">"הוספה לאנשי הקשר"</string>

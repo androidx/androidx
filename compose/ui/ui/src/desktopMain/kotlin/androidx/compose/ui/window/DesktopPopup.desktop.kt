@@ -16,26 +16,31 @@
 package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCompositionContext
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.LocalComposeScene
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.LocalLayerContainer
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.changedToDown
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerInputScope
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.DesktopOwner
-import androidx.compose.ui.platform.DesktopOwnersAmbient
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 
 /**
@@ -50,16 +55,26 @@ import androidx.compose.ui.unit.round
  * @param offset An offset from the original aligned position of the popup. Offset respects the
  * Ltr/Rtl context, thus in Ltr it will be added to the original aligned position and in Rtl it
  * will be subtracted from it.
- * @param isFocusable Indicates if the popup can grab the focus.
+ * @param focusable Indicates if the popup can grab the focus.
  * @param onDismissRequest Executes when the user clicks outside of the popup.
+ * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
+ * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
+ * Return true to stop propagation of this event. If you return false, the key event will be
+ * sent to this [onPreviewKeyEvent]'s child. If none of the children consume the event,
+ * it will be sent back up to the root using the onKeyEvent callback.
+ * @param onKeyEvent This callback is invoked when the user interacts with the hardware
+ * keyboard. While implementing this callback, return true to stop propagation of this event.
+ * If you return false, the key event will be sent to this [onKeyEvent]'s parent.
  * @param content The content to be displayed inside the popup.
  */
 @Composable
 fun Popup(
     alignment: Alignment = Alignment.TopStart,
     offset: IntOffset = IntOffset(0, 0),
-    isFocusable: Boolean = false,
+    focusable: Boolean = false,
     onDismissRequest: (() -> Unit)? = null,
+    onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    onKeyEvent: ((KeyEvent) -> Boolean) = { false },
     content: @Composable () -> Unit
 ) {
     val popupPositioner = remember(alignment, offset) {
@@ -71,8 +86,10 @@ fun Popup(
 
     Popup(
         popupPositionProvider = popupPositioner,
-        isFocusable = isFocusable,
         onDismissRequest = onDismissRequest,
+        onKeyEvent = onKeyEvent,
+        onPreviewKeyEvent = onPreviewKeyEvent,
+        focusable = focusable,
         content = content
     )
 }
@@ -85,39 +102,59 @@ fun Popup(
  * @sample androidx.compose.ui.samples.PopupSample
  *
  * @param popupPositionProvider Provides the screen position of the popup.
- * @param isFocusable Indicates if the popup can grab the focus.
  * @param onDismissRequest Executes when the user clicks outside of the popup.
+ * @param focusable Indicates if the popup can grab the focus.
+ * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
+ * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
+ * Return true to stop propagation of this event. If you return false, the key event will be
+ * sent to this [onPreviewKeyEvent]'s child. If none of the children consume the event,
+ * it will be sent back up to the root using the onKeyEvent callback.
+ * @param onKeyEvent This callback is invoked when the user interacts with the hardware
+ * keyboard. While implementing this callback, return true to stop propagation of this event.
+ * If you return false, the key event will be sent to this [onKeyEvent]'s parent.
  * @param content The content to be displayed inside the popup.
  */
 @Composable
 fun Popup(
     popupPositionProvider: PopupPositionProvider,
-    isFocusable: Boolean = false,
     onDismissRequest: (() -> Unit)? = null,
+    onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    onKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    focusable: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    PopupLayout(popupPositionProvider, isFocusable, onDismissRequest, content)
+    PopupLayout(
+        popupPositionProvider,
+        focusable,
+        onDismissRequest,
+        onPreviewKeyEvent,
+        onKeyEvent,
+        content
+    )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun PopupLayout(
     popupPositionProvider: PopupPositionProvider,
-    isFocusable: Boolean,
+    focusable: Boolean,
     onDismissRequest: (() -> Unit)?,
+    onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    onKeyEvent: ((KeyEvent) -> Boolean) = { false },
     content: @Composable () -> Unit
 ) {
-    val owners = DesktopOwnersAmbient.current
+    val scene = LocalComposeScene.current
     val density = LocalDensity.current
 
-    val parentBounds = remember { mutableStateOf(IntRect.Zero) }
-    val popupBounds = remember { mutableStateOf(IntRect.Zero) }
+    var parentBounds by remember { mutableStateOf(IntRect.Zero) }
+    var popupBounds by remember { mutableStateOf(IntRect.Zero) }
 
     // getting parent bounds
     Layout(
         content = {},
         modifier = Modifier.onGloballyPositioned { childCoordinates ->
             val coordinates = childCoordinates.parentCoordinates!!
-            parentBounds.value = IntRect(
+            parentBounds = IntRect(
                 coordinates.localToWindow(Offset.Zero).round(),
                 coordinates.size
             )
@@ -129,19 +166,19 @@ private fun PopupLayout(
 
     val parentComposition = rememberCompositionContext()
     val (owner, composition) = remember {
-        val owner = DesktopOwner(owners, density)
+        val owner = DesktopOwner(
+            platformInputService = scene.platformInputService,
+            density = density,
+            isPopup = true,
+            isFocusable = focusable,
+            onDismissRequest = onDismissRequest,
+            onPreviewKeyEvent = onPreviewKeyEvent,
+            onKeyEvent = onKeyEvent
+        )
+        scene.attach(owner)
         val composition = owner.setContent(parent = parentComposition) {
             Layout(
                 content = content,
-                modifier = Modifier.pointerInput(isFocusable, onDismissRequest) {
-                    detectDown(
-                        onDown = { offset ->
-                            if (isFocusable && isOutsideRectTap(popupBounds.value, offset)) {
-                                onDismissRequest?.invoke()
-                            }
-                        }
-                    )
-                },
                 measurePolicy = { measurables, constraints ->
                     val width = constraints.maxWidth
                     val height = constraints.maxHeight
@@ -154,17 +191,19 @@ private fun PopupLayout(
                     layout(constraints.maxWidth, constraints.maxHeight) {
                         measurables.forEach {
                             val placeable = it.measure(constraints)
-                            val offset = popupPositionProvider.calculatePosition(
-                                anchorBounds = parentBounds.value,
+                            val position = popupPositionProvider.calculatePosition(
+                                anchorBounds = parentBounds,
                                 windowSize = windowSize,
                                 layoutDirection = layoutDirection,
                                 popupContentSize = IntSize(placeable.width, placeable.height)
                             )
-                            popupBounds.value = IntRect(
-                                offset,
+
+                            popupBounds = IntRect(
+                                position,
                                 IntSize(placeable.width, placeable.height)
                             )
-                            placeable.place(offset.x, offset.y)
+                            owner.bounds = popupBounds
+                            placeable.place(position.x, position.y)
                         }
                     }
                 }
@@ -175,24 +214,110 @@ private fun PopupLayout(
     owner.density = density
     DisposableEffect(Unit) {
         onDispose {
+            scene.detach(owner)
             composition.dispose()
             owner.dispose()
         }
     }
 }
 
-private fun isOutsideRectTap(rect: IntRect, point: Offset): Boolean {
-    return !rect.contains(IntOffset(point.x.toInt(), point.y.toInt()))
+/**
+ * Provides [PopupPositionProvider] relative to the current mouse cursor position.
+ *
+ * @param offset [DpOffset] to be added to the position of the popup.
+ * @param alignment The alignment of the popup relative to the current cursor position.
+ * @param windowMargin Defines the area within the window that limits the placement of the popup.
+ */
+@ExperimentalComposeUiApi
+@Composable
+fun rememberCursorPositionProvider(
+    offset: DpOffset = DpOffset.Zero,
+    alignment: Alignment = Alignment.BottomEnd,
+    windowMargin: Dp = 4.dp
+): PopupPositionProvider = with(LocalDensity.current) {
+    val component = LocalLayerContainer.current
+    val cursorPoint = remember {
+        val awtMousePosition = component.mousePosition
+        IntOffset(
+            (awtMousePosition.x * density).toInt(),
+            (awtMousePosition.y * density).toInt()
+        )
+    }
+    val offsetPx = IntOffset(offset.x.roundToPx(), offset.y.roundToPx())
+    val windowMarginPx = windowMargin.roundToPx()
+    object : PopupPositionProvider {
+        override fun calculatePosition(
+            anchorBounds: IntRect,
+            windowSize: IntSize,
+            layoutDirection: LayoutDirection,
+            popupContentSize: IntSize
+        ) = with(density) {
+            val anchor = IntRect(cursorPoint, IntSize.Zero)
+            val tooltipArea = IntRect(
+                IntOffset(
+                    anchor.left - popupContentSize.width,
+                    anchor.top - popupContentSize.height,
+                ),
+                IntSize(
+                    popupContentSize.width * 2,
+                    popupContentSize.height * 2
+                )
+            )
+            val position = alignment.align(popupContentSize, tooltipArea.size, layoutDirection)
+            var x = tooltipArea.left + position.x + offsetPx.x
+            var y = tooltipArea.top + position.y + offsetPx.y
+            if (x + popupContentSize.width > windowSize.width - windowMarginPx) {
+                x -= popupContentSize.width
+            }
+            if (y + popupContentSize.height > windowSize.height - windowMarginPx) {
+                y -= popupContentSize.height + anchor.height
+            }
+            if (x < windowMarginPx) {
+                x = windowMarginPx
+            }
+            if (y < windowMarginPx) {
+                y = windowMarginPx
+            }
+            IntOffset(x, y)
+        }
+    }
 }
 
-private suspend fun PointerInputScope.detectDown(onDown: (Offset) -> Unit) {
-    while (true) {
-        awaitPointerEventScope {
-            val event = awaitPointerEvent(PointerEventPass.Initial)
-            val down = event.changes.find { it.changedToDown() }
-            if (down != null) {
-                onDown(down.position)
-            }
+/**
+ * Provides [PopupPositionProvider] relative to the current component bounds.
+ *
+ * @param anchor The anchor point relative to the current component bounds.
+ * @param alignment The alignment of the popup relative to the [anchor] point.
+ * @param offset [DpOffset] to be added to the position of the popup.
+ */
+@ExperimentalComposeUiApi
+@Composable
+fun rememberComponentRectPositionProvider(
+    anchor: Alignment = Alignment.BottomCenter,
+    alignment: Alignment = Alignment.BottomCenter,
+    offset: DpOffset = DpOffset.Zero
+): PopupPositionProvider = with(LocalDensity.current) {
+    val offsetPx = IntOffset(offset.x.roundToPx(), offset.y.roundToPx())
+    return object : PopupPositionProvider {
+        override fun calculatePosition(
+            anchorBounds: IntRect,
+            windowSize: IntSize,
+            layoutDirection: LayoutDirection,
+            popupContentSize: IntSize
+        ): IntOffset {
+            val anchorPoint = anchor.align(IntSize.Zero, anchorBounds.size, layoutDirection)
+            val tooltipArea = IntRect(
+                IntOffset(
+                    anchorBounds.left + anchorPoint.x - popupContentSize.width,
+                    anchorBounds.top + anchorPoint.y - popupContentSize.height,
+                ),
+                IntSize(
+                    popupContentSize.width * 2,
+                    popupContentSize.height * 2
+                )
+            )
+            val position = alignment.align(popupContentSize, tooltipArea.size, layoutDirection)
+            return tooltipArea.topLeft + position + offsetPx
         }
     }
 }

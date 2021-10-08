@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # This script does package renamings on source code (and .xml files and build files, etc), as part of migrating code to Jetpack.
 # For example, this script may replace the text

@@ -40,7 +40,8 @@ import androidx.compose.ui.unit.offset
  * Padding is applied before content measurement and takes precedence; content may only be as large
  * as the remaining space.
  *
- * Negative padding is not permitted. See [Modifier.offset].
+ * Negative padding is not permitted — it will cause [IllegalArgumentException].
+ * See [Modifier.offset].
  *
  * Example usage:
  * @sample androidx.compose.foundation.layout.samples.PaddingModifier
@@ -74,7 +75,8 @@ fun Modifier.padding(
  * Padding is applied before content measurement and takes precedence; content may only be as large
  * as the remaining space.
  *
- * Negative padding is not permitted. See [Modifier.offset].
+ * Negative padding is not permitted — it will cause [IllegalArgumentException].
+ * See [Modifier.offset].
  *
  * Example usage:
  * @sample androidx.compose.foundation.layout.samples.SymmetricPaddingModifier
@@ -103,7 +105,8 @@ fun Modifier.padding(
  * Padding is applied before content measurement and takes precedence; content may only be as large
  * as the remaining space.
  *
- * Negative padding is not permitted. See [Modifier.offset].
+ * Negative padding is not permitted — it will cause [IllegalArgumentException].
+ * See [Modifier.offset].
  *
  * Example usage:
  * @sample androidx.compose.foundation.layout.samples.PaddingAllModifier
@@ -129,11 +132,13 @@ fun Modifier.padding(all: Dp) =
  * top, right and bottom. Padding is applied before content measurement and takes precedence;
  * content may only be as large as the remaining space.
  *
- * Negative padding is not permitted. See [Modifier.offset].
+ * Negative padding is not permitted — it will cause [IllegalArgumentException].
+ * See [Modifier.offset].
  *
  * Example usage:
  * @sample androidx.compose.foundation.layout.samples.PaddingValuesModifier
  */
+@Stable
 fun Modifier.padding(paddingValues: PaddingValues) =
     this.then(
         PaddingValuesModifier(
@@ -151,7 +156,8 @@ fun Modifier.padding(paddingValues: PaddingValues) =
  * [padding] to apply relative paddings. Padding is applied before content measurement and takes
  * precedence; content may only be as large as the remaining space.
  *
- * Negative padding is not permitted. See [Modifier.offset].
+ * Negative padding is not permitted — it will cause [IllegalArgumentException].
+ * See [Modifier.offset].
  *
  * Example usage:
  * @sample androidx.compose.foundation.layout.samples.AbsolutePaddingModifier
@@ -184,27 +190,23 @@ fun Modifier.absolutePadding(
  * See the [PaddingValues] factories and [Absolute] for convenient ways to
  * build [PaddingValues].
  */
-@Immutable
+@Stable
 interface PaddingValues {
     /**
      * The padding to be applied along the left edge inside a box.
      */
-    @Stable
     fun calculateLeftPadding(layoutDirection: LayoutDirection): Dp
     /**
      * The padding to be applied along the top edge inside a box.
      */
-    @Stable
     fun calculateTopPadding(): Dp
     /**
      * The padding to be applied along the right edge inside a box.
      */
-    @Stable
     fun calculateRightPadding(layoutDirection: LayoutDirection): Dp
     /**
      * The padding to be applied along the bottom edge inside a box.
      */
-    @Stable
     fun calculateBottomPadding(): Dp
 
     /**
@@ -242,7 +244,7 @@ interface PaddingValues {
                 31 + bottom.hashCode()
 
         override fun toString() =
-            "PaddingValues.Absolute(left=$left, top=$top, right=$right, bottom=$bottom"
+            "PaddingValues.Absolute(left=$left, top=$top, right=$right, bottom=$bottom)"
     }
 }
 
@@ -281,7 +283,7 @@ fun PaddingValues(all: Dp): PaddingValues = PaddingValuesImpl(all, all, all, all
  * dp along the top and bottom edges.
  */
 @Stable
-fun PaddingValues(horizontal: Dp, vertical: Dp): PaddingValues =
+fun PaddingValues(horizontal: Dp = 0.dp, vertical: Dp = 0.dp): PaddingValues =
     PaddingValuesImpl(horizontal, vertical, horizontal, vertical)
 
 /**
@@ -329,7 +331,7 @@ internal class PaddingValuesImpl(
     override fun hashCode() =
         ((start.hashCode() * 31 + top.hashCode()) * 31 + end.hashCode()) * 31 + bottom.hashCode()
 
-    override fun toString() = "PaddingValues(start=$start, top=$top, end=$end, bottom=$bottom"
+    override fun toString() = "PaddingValues(start=$start, top=$top, end=$end, bottom=$bottom)"
 }
 
 private class PaddingModifier(
@@ -400,14 +402,14 @@ private class PaddingValuesModifier(
         constraints: Constraints
     ): MeasureResult {
         require(
-            paddingValues.calculateLeftPadding(LayoutDirection.Ltr) >= 0.dp &&
+            paddingValues.calculateLeftPadding(layoutDirection) >= 0.dp &&
                 paddingValues.calculateTopPadding() >= 0.dp &&
-                paddingValues.calculateRightPadding(LayoutDirection.Ltr) >= 0.dp &&
+                paddingValues.calculateRightPadding(layoutDirection) >= 0.dp &&
                 paddingValues.calculateBottomPadding() >= 0.dp
         ) {
             "Padding must be non-negative"
         }
-        val horizontal = paddingValues.calculateLeftPadding(LayoutDirection.Ltr).roundToPx() +
+        val horizontal = paddingValues.calculateLeftPadding(layoutDirection).roundToPx() +
             paddingValues.calculateRightPadding(layoutDirection).roundToPx()
         val vertical = paddingValues.calculateTopPadding().roundToPx() +
             paddingValues.calculateBottomPadding().roundToPx()

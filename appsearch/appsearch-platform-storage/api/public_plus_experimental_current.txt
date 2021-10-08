@@ -1,0 +1,31 @@
+// Signature format: 4.0
+package androidx.appsearch.platformstorage {
+
+  @RequiresApi(android.os.Build.VERSION_CODES.S) public final class PlatformStorage {
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GlobalSearchSession!> createGlobalSearchSession(androidx.appsearch.platformstorage.PlatformStorage.GlobalSearchContext);
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchSession!> createSearchSession(androidx.appsearch.platformstorage.PlatformStorage.SearchContext);
+  }
+
+  public static final class PlatformStorage.GlobalSearchContext {
+    method public java.util.concurrent.Executor getWorkerExecutor();
+  }
+
+  public static final class PlatformStorage.GlobalSearchContext.Builder {
+    ctor public PlatformStorage.GlobalSearchContext.Builder(android.content.Context);
+    method public androidx.appsearch.platformstorage.PlatformStorage.GlobalSearchContext build();
+    method public androidx.appsearch.platformstorage.PlatformStorage.GlobalSearchContext.Builder setWorkerExecutor(java.util.concurrent.Executor);
+  }
+
+  public static final class PlatformStorage.SearchContext {
+    method public String getDatabaseName();
+    method public java.util.concurrent.Executor getWorkerExecutor();
+  }
+
+  public static final class PlatformStorage.SearchContext.Builder {
+    ctor public PlatformStorage.SearchContext.Builder(android.content.Context, String);
+    method public androidx.appsearch.platformstorage.PlatformStorage.SearchContext build();
+    method public androidx.appsearch.platformstorage.PlatformStorage.SearchContext.Builder setWorkerExecutor(java.util.concurrent.Executor);
+  }
+
+}
+

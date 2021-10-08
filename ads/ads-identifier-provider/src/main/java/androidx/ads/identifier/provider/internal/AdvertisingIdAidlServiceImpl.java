@@ -16,18 +16,19 @@
 
 package androidx.ads.identifier.provider.internal;
 
-import androidx.ads.identifier.provider.AdvertisingIdProvider;
 import androidx.ads.identifier.provider.IAdvertisingIdService;
 
 /**
  * The implementation of the IAdvertisingIdService.aidl which retrieves values from
- * {@link AdvertisingIdProvider} and replies to the client.
+ * {@link androidx.ads.identifier.provider.AdvertisingIdProvider} and replies to the client.
  */
+@SuppressWarnings("deprecation")
 class AdvertisingIdAidlServiceImpl extends IAdvertisingIdService.Stub {
 
-    private final AdvertisingIdProvider mProvider;
+    private final androidx.ads.identifier.provider.AdvertisingIdProvider mProvider;
 
-    AdvertisingIdAidlServiceImpl(AdvertisingIdProvider advertisingIdProvider) {
+    AdvertisingIdAidlServiceImpl(
+            androidx.ads.identifier.provider.AdvertisingIdProvider advertisingIdProvider) {
         mProvider = advertisingIdProvider;
     }
 

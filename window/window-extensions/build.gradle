@@ -19,37 +19,26 @@ import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
-import static androidx.build.dependencies.DependenciesKt.ANDROIDX_TEST_EXT_JUNIT
-import static androidx.build.dependencies.DependenciesKt.ANDROIDX_TEST_RULES
-import static androidx.build.dependencies.DependenciesKt.ANDROIDX_TEST_RUNNER
-import static androidx.build.dependencies.DependenciesKt.DEXMAKER_MOCKITO
-import static androidx.build.dependencies.DependenciesKt.MOCKITO_CORE
-import static androidx.build.dependencies.DependenciesKt.TRUTH
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
-}
-
 dependencies {
+    api(libs.kotlinStdlib)
     implementation("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.annotation:annotation-experimental:1.1.0")
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
 }
 
 androidx {
     name = "Jetpack WindowManager library Extensions"
-    publish = Publish.SNAPSHOT_ONLY
+    publish = Publish.SNAPSHOT_AND_RELEASE // Only to generate per-project-zips
     runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
     mavenGroup = LibraryGroups.WINDOW
     mavenVersion = LibraryVersions.WINDOW_EXTENSIONS

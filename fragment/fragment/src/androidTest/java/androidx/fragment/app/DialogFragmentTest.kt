@@ -25,6 +25,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
@@ -34,6 +35,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
@@ -72,6 +74,113 @@ class DialogFragmentTest {
             .isTrue()
     }
 
+    @Test
+    fun testDialogFragmentShowsInFragmentTransaction() {
+        val fragment = TestDialogFragment()
+        val ft = activityTestRule.activity.supportFragmentManager.beginTransaction()
+        fragment.show(ft, null)
+        activityTestRule.runOnUiThread {
+            activityTestRule.activity.supportFragmentManager.executePendingTransactions()
+        }
+
+        assertWithMessage("Dialog was not being shown")
+            .that(fragment.dialog?.isShowing)
+            .isTrue()
+    }
+
+    @Test
+    fun testDialogFragmentDismiss() {
+        val fragment = TestDialogFragment()
+        fragment.show(activityTestRule.activity.supportFragmentManager, null)
+        activityTestRule.runOnUiThread {
+            activityTestRule.activity.supportFragmentManager.executePendingTransactions()
+        }
+
+        val dialog = fragment.dialog
+        assertWithMessage("Dialog was not being shown")
+            .that(dialog?.isShowing)
+            .isTrue()
+
+        fragment.dismiss()
+        activityTestRule.runOnUiThread {
+            activityTestRule.activity.supportFragmentManager.executePendingTransactions()
+        }
+
+        assertWithMessage("Dialog should be removed")
+            .that(dialog?.isShowing)
+            .isFalse()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testDialogFragmentDismissAllowingStateLoss() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityTestRule.startupFragmentController(viewModelStore)
+        val fm = fc.supportFragmentManager
+        val fragment = TestDialogFragment()
+
+        fragment.showNow(fm, "dialog")
+
+        val dialog = fragment.dialog
+        assertWithMessage("Dialog was not being shown")
+            .that(dialog?.isShowing)
+            .isTrue()
+
+        fc.dispatchPause()
+        @Suppress("DEPRECATION")
+        fc.saveAllState()
+
+        assertWithMessage("Dialog was not being shown after saving state")
+            .that(dialog?.isShowing)
+            .isTrue()
+
+        fragment.dismissAllowingStateLoss()
+        fm.executePendingTransactions()
+
+        assertWithMessage("Dialog should be removed")
+            .that(dialog?.isShowing)
+            .isFalse()
+
+        fc.dispatchStop()
+        fc.dispatchDestroy()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testDialogFragmentDismissAllowingStateLossInFragmentTransaction() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityTestRule.startupFragmentController(viewModelStore)
+        val fm = fc.supportFragmentManager
+        val fragment = TestDialogFragment()
+
+        val ft = fm.beginTransaction()
+        fragment.show(ft, "dialog")
+        fm.executePendingTransactions()
+
+        val dialog = fragment.dialog
+        assertWithMessage("Dialog was not being shown")
+            .that(dialog?.isShowing)
+            .isTrue()
+
+        fc.dispatchPause()
+        @Suppress("DEPRECATION")
+        fc.saveAllState()
+
+        assertWithMessage("Dialog was not being shown after saving state")
+            .that(dialog?.isShowing)
+            .isTrue()
+
+        fragment.dismissAllowingStateLoss()
+        fm.executePendingTransactions()
+
+        assertWithMessage("Dialog should be removed")
+            .that(dialog?.isShowing)
+            .isFalse()
+
+        fc.dispatchStop()
+        fc.dispatchDestroy()
+    }
+
     @UiThreadTest
     @Test
     fun testDialogFragmentInLayout() {
@@ -83,6 +192,21 @@ class DialogFragmentTest {
         assertWithMessage("Dialog should be added to the layout")
             .that(activityTestRule.activity.findViewById<View>(R.id.textA))
             .isNotNull()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testDialogFragmentCreateFragmentContainer() {
+        val parentDialogfragment = ContainerDialogFragment()
+        parentDialogfragment.showNow(activityTestRule.activity.supportFragmentManager, null)
+
+        val fragment = StrictViewFragment(R.layout.fragment_a)
+
+        parentDialogfragment.childFragmentManager.beginTransaction()
+            .add(R.id.fragmentContainer, fragment)
+            .commitNow()
+
+        assertThat(fragment.requireView().parent).isEqualTo(parentDialogfragment.requireView())
     }
 
     @UiThreadTest
@@ -239,6 +363,7 @@ class DialogFragmentTest {
         }
 
         fc1.dispatchPause()
+        @Suppress("DEPRECATION")
         val savedState = fc1.saveAllState()
         fc1.dispatchStop()
         fc1.dispatchDestroy()
@@ -281,6 +406,7 @@ class DialogFragmentTest {
         }
 
         fc1.dispatchPause()
+        @Suppress("DEPRECATION")
         val savedState = fc1.saveAllState()
         fc1.dispatchStop()
         fc1.dispatchDestroy()
@@ -317,6 +443,7 @@ class DialogFragmentTest {
             .commitNow()
 
         fc1.dispatchPause()
+        @Suppress("DEPRECATION")
         val savedState = fc1.saveAllState()
         fc1.dispatchStop()
         fc1.dispatchDestroy()
@@ -468,6 +595,23 @@ class DialogFragmentTest {
                 .setView(view)
                 .setPositiveButton("Button", null)
                 .create()
+        }
+    }
+
+    class WrappedDialog(innerContext: Context) : Dialog(innerContext) {
+        override fun setContentView(view: View) {
+            super.setContentView(
+                FrameLayout(context).apply {
+                    id = R.id.fragmentContainer
+                    addView(view)
+                }
+            )
+        }
+    }
+
+    class ContainerDialogFragment : DialogFragment(R.layout.simple_container) {
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            return WrappedDialog(requireContext())
         }
     }
 }

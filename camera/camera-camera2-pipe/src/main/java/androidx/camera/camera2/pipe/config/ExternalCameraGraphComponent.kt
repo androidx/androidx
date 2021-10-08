@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.config
 
-import androidx.camera.camera2.pipe.CameraDevices
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.RequestProcessor
 import androidx.camera.camera2.pipe.compat.CameraController
 import androidx.camera.camera2.pipe.graph.GraphListener
@@ -46,14 +49,14 @@ internal interface ExternalCameraGraphComponent {
 @Module
 internal class ExternalCameraGraphConfigModule(
     private val config: CameraGraph.Config,
-    private val cameraDevices: CameraDevices,
+    private val cameraMetadata: CameraMetadata,
     private val requestProcessor: RequestProcessor
 ) {
     @Provides
     fun provideCameraGraphConfig(): CameraGraph.Config = config
 
     @Provides
-    fun provideCameraDevices(): CameraDevices = cameraDevices
+    fun provideCameraMetadata(): CameraMetadata = cameraMetadata
 
     @Provides
     fun provideGraphController(graphListener: GraphListener): CameraController =

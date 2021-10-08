@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.build.lint
 
 import com.android.tools.lint.client.api.UElementHandler
@@ -31,7 +33,7 @@ class BanKeepAnnotation : Detector(), Detector.UastScanner {
 
     override fun getApplicableUastTypes() = listOf(UAnnotation::class.java)
 
-    override fun createUastHandler(context: JavaContext): UElementHandler? {
+    override fun createUastHandler(context: JavaContext): UElementHandler {
         return AnnotationChecker(context)
     }
 

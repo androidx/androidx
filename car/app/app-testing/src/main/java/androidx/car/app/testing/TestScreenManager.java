@@ -128,6 +128,19 @@ public class TestScreenManager extends ScreenManager {
     }
 
     @Override
+    public void popToRoot() {
+        Set<Screen> screensBefore = getScreensInStack();
+        super.popToRoot();
+        Set<Screen> screensAfter = getScreensInStack();
+
+        for (Screen screen : screensBefore) {
+            if (!screensAfter.contains(screen)) {
+                mScreensRemoved.add(screen);
+            }
+        }
+    }
+
+    @Override
     public void remove(@NonNull Screen screen) {
         super.remove(screen);
         if (screen.getLifecycle().getCurrentState() == State.DESTROYED) {

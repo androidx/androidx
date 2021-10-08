@@ -15,8 +15,11 @@
  */
 
 @file:OptIn(ExperimentalTypeInference::class)
+
 package androidx.compose.runtime
 
+import androidx.compose.runtime.external.kotlinx.collections.immutable.PersistentList
+import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentListOf
 import androidx.compose.runtime.snapshots.MutableSnapshot
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotMutableState
@@ -24,11 +27,12 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.runtime.snapshots.StateObject
 import androidx.compose.runtime.snapshots.StateRecord
+import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.snapshots.newWritableRecord
+import androidx.compose.runtime.snapshots.overwritable
 import androidx.compose.runtime.snapshots.readable
 import androidx.compose.runtime.snapshots.sync
 import androidx.compose.runtime.snapshots.withCurrent
-import androidx.compose.runtime.snapshots.writable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -40,6 +44,7 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.experimental.ExperimentalTypeInference
+import kotlin.jvm.JvmName
 import kotlin.reflect.KProperty
 
 /**
@@ -63,7 +68,7 @@ import kotlin.reflect.KProperty
 fun <T> mutableStateOf(
     value: T,
     policy: SnapshotMutationPolicy<T> = structuralEqualityPolicy()
-): MutableState<T> = SnapshotMutableStateImpl(value, policy)
+): MutableState<T> = createSnapshotMutableState(value, policy)
 
 /**
  * A value holder where reads to the [value] property during the execution of a [Composable]
@@ -73,7 +78,7 @@ fun <T> mutableStateOf(
  * @see [mutableStateOf]
  */
 @Stable
-interface State<T> {
+interface State<out T> {
     val value: T
 }
 
@@ -113,17 +118,25 @@ inline operator fun <T> MutableState<T>.setValue(thisObj: Any?, property: KPrope
 }
 
 /**
+ * Returns platform specific implementation based on [SnapshotMutableStateImpl].
+ */
+internal expect fun <T> createSnapshotMutableState(
+    value: T,
+    policy: SnapshotMutationPolicy<T>
+): SnapshotMutableState<T>
+
+/**
  * A single value holder whose reads and writes are observed by Compose.
  *
  * Additionally, writes to it are transacted as part of the [Snapshot] system.
  *
- * @property value the wrapped value
- * @property policy a policy to control how changes are handled in a mutable snapshot.
+ * @param value the wrapped value
+ * @param policy a policy to control how changes are handled in a mutable snapshot.
  *
  * @see mutableStateOf
  * @see SnapshotMutationPolicy
  */
-private class SnapshotMutableStateImpl<T>(
+internal open class SnapshotMutableStateImpl<T>(
     value: T,
     override val policy: SnapshotMutationPolicy<T>
 ) : StateObject, SnapshotMutableState<T> {
@@ -132,7 +145,7 @@ private class SnapshotMutableStateImpl<T>(
         get() = next.readable(this).value
         set(value) = next.withCurrent {
             if (!policy.equivalent(it.value, value)) {
-                next.writable(this) { this.value = value }
+                next.overwritable(this, it) { this.value = value }
             }
         }
 
@@ -173,6 +186,10 @@ private class SnapshotMutableStateImpl<T>(
         }
     }
 
+    override fun toString(): String = next.withCurrent {
+        "MutableState(value=${it.value})@${hashCode()}"
+    }
+
     private class StateStateRecord<T>(myValue: T) : StateRecord() {
         override fun assign(value: StateRecord) {
             @Suppress("UNCHECKED_CAST")
@@ -188,13 +205,24 @@ private class SnapshotMutableStateImpl<T>(
      * The componentN() operators allow state objects to be used with the property destructuring
      * syntax
      *
+     * ```
      * var (foo, setFoo) = remember { mutableStateOf(0) }
      * setFoo(123) // set
      * foo == 123 // get
+     * ```
      */
     override operator fun component1(): T = value
 
     override operator fun component2(): (T) -> Unit = { value = it }
+
+    /**
+     * A function used by the debugger to display the value of the current value of the mutable
+     * state object without triggering read observers.
+     */
+    @Suppress("unused")
+    val debuggerDisplayValue: T
+        @JvmName("getDebuggerDisplayValue")
+        get() = next.withCurrent { it }.value
 }
 
 /**
@@ -243,6 +271,8 @@ fun <T> referentialEqualityPolicy(): SnapshotMutationPolicy<T> =
 
 private object ReferentialEqualityPolicy : SnapshotMutationPolicy<Any?> {
     override fun equivalent(a: Any?, b: Any?) = a === b
+
+    override fun toString() = "ReferentialEqualityPolicy"
 }
 
 /**
@@ -258,6 +288,8 @@ fun <T> structuralEqualityPolicy(): SnapshotMutationPolicy<T> =
 
 private object StructuralEqualityPolicy : SnapshotMutationPolicy<Any?> {
     override fun equivalent(a: Any?, b: Any?) = a == b
+
+    override fun toString() = "StructuralEqualityPolicy"
 }
 
 /**
@@ -273,6 +305,8 @@ fun <T> neverEqualPolicy(): SnapshotMutationPolicy<T> =
 
 private object NeverEqualPolicy : SnapshotMutationPolicy<Any?> {
     override fun equivalent(a: Any?, b: Any?) = false
+
+    override fun toString() = "NeverEqualPolicy"
 }
 
 /**
@@ -299,12 +333,13 @@ fun <T> mutableStateListOf(vararg elements: T) =
     SnapshotStateList<T>().also { it.addAll(elements.toList()) }
 
 /**
- * Create an instance of MutableList<T> from a collection that is observerable and can be snapshot.
+ * Create an instance of [MutableList]<T> from a collection that is observable and can be
+ * snapshot.
  */
 fun <T> Collection<T>.toMutableStateList() = SnapshotStateList<T>().also { it.addAll(this) }
 
 /**
- * Create a instance of MutableSet<K, V> that is observable and can be snapshot.
+ * Create a instance of [MutableMap]<K, V> that is observable and can be snapshot.
  *
  * @sample androidx.compose.runtime.samples.stateMapSample
  *
@@ -316,7 +351,7 @@ fun <T> Collection<T>.toMutableStateList() = SnapshotStateList<T>().also { it.ad
 fun <K, V> mutableStateMapOf() = SnapshotStateMap<K, V>()
 
 /**
- * Create a instance of MutableMap<K, V> that is observable and can be snapshot.
+ * Create a instance of [MutableMap]<K, V> that is observable and can be snapshot.
  *
  * @see mutableStateOf
  * @see mutableMapOf
@@ -327,15 +362,42 @@ fun <K, V> mutableStateMapOf(vararg pairs: Pair<K, V>) =
     SnapshotStateMap<K, V>().apply { putAll(pairs.toMap()) }
 
 /**
- * Create an instance of MutableMap<K, V> from a collection of pairs that is observable and can be
+ * Create an instance of [MutableMap]<K, V> from a collection of pairs that is observable and can be
  * snapshot.
  */
 @Suppress("unused")
 fun <K, V> Iterable<Pair<K, V>>.toMutableStateMap() =
     SnapshotStateMap<K, V>().also { it.putAll(this.toMap()) }
 
-private class DerivedSnapshotState<T>(private val calculation: () -> T) : StateObject, State<T> {
+/**
+ * A [State] that is derived from one or more other states.
+ *
+ * @see derivedStateOf
+ */
+internal interface DerivedState<T> : State<T> {
+    /**
+     * The value of the derived state retrieved without triggering a notification to read observers.
+     */
+    val currentValue: T
+
+    /**
+     * A list of the dependencies used to produce [value] or [currentValue].
+     *
+     * The [dependencies] list can be used to determine when a [StateObject] appears in the apply
+     * observer set, if the state could affect value of this derived state.
+     */
+    val dependencies: Set<StateObject>
+}
+
+private typealias DerivedStateObservers = Pair<(DerivedState<*>) -> Unit, (DerivedState<*>) -> Unit>
+
+private val derivedStateObservers = SnapshotThreadLocal<PersistentList<DerivedStateObservers>>()
+
+private class DerivedSnapshotState<T>(
+    private val calculation: () -> T
+) : StateObject, DerivedState<T> {
     private var first: ResultRecord<T> = ResultRecord()
+
     private class ResultRecord<T> : StateRecord() {
         var dependencies: HashSet<StateObject>? = null
         var result: T? = null
@@ -351,46 +413,58 @@ private class DerivedSnapshotState<T>(private val calculation: () -> T) : StateO
 
         override fun create(): StateRecord = ResultRecord<T>()
 
-        fun isValid(snapshot: Snapshot): Boolean =
-            result != null && resultHash == readableHash(snapshot)
+        fun isValid(derivedState: DerivedState<*>, snapshot: Snapshot): Boolean =
+            result != null && resultHash == readableHash(derivedState, snapshot)
 
-        fun readableHash(snapshot: Snapshot): Int {
+        fun readableHash(derivedState: DerivedState<*>, snapshot: Snapshot): Int {
             var hash = 7
             val dependencies = sync { dependencies }
-            if (dependencies != null)
-                for (stateObject in dependencies) {
-                    val record = stateObject.firstStateRecord.readable(stateObject, snapshot)
-                    hash = 31 * hash + identityHashCode(record)
-                    hash = 31 * hash + record.snapshotId
+            if (dependencies != null) {
+                notifyObservers(derivedState) {
+                    for (stateObject in dependencies) {
+                        // Find the first record without triggering an observer read.
+                        val record = stateObject.firstStateRecord.readable(stateObject, snapshot)
+                        hash = 31 * hash + identityHashCode(record)
+                        hash = 31 * hash + record.snapshotId
+                    }
                 }
+            }
             return hash
         }
     }
 
-    private fun value(snapshot: Snapshot, calculation: () -> T): T {
-        val readable = first.readable(this, snapshot)
-        if (readable.isValid(snapshot)) {
+    private fun currentRecord(
+        readable: ResultRecord<T>,
+        snapshot: Snapshot,
+        calculation: () -> T
+    ): ResultRecord<T> {
+        if (readable.isValid(this, snapshot)) {
             @Suppress("UNCHECKED_CAST")
-            return readable.result as T
+            return readable
         }
         val newDependencies = HashSet<StateObject>()
-        val result = Snapshot.observe(
-            {
-                if (it is StateObject) newDependencies.add(it)
-            },
-            null, calculation
-        )
-
-        sync {
-            val writable = first.newWritableRecord(this, snapshot)
-            writable.dependencies = newDependencies
-            writable.resultHash = writable.readableHash(snapshot)
-            writable.result = result
+        val result = notifyObservers(this) {
+            Snapshot.observe(
+                {
+                    if (it === this)
+                        error("A derived state cannot calculation cannot read itself")
+                    if (it is StateObject) newDependencies.add(it)
+                },
+                null, calculation
+            )
         }
 
-        snapshot.notifyObjectsInitialized()
+        val written = sync {
+            val writeSnapshot = Snapshot.current
+            val writable = first.newWritableRecord(this, writeSnapshot)
+            writable.dependencies = newDependencies
+            writable.resultHash = writable.readableHash(this, writeSnapshot)
+            writable.result = result
+            writable
+        }
+        Snapshot.notifyObjectsInitialized()
 
-        return result
+        return written
     }
 
     override val firstStateRecord: StateRecord get() = first
@@ -400,7 +474,63 @@ private class DerivedSnapshotState<T>(private val calculation: () -> T) : StateO
         first = value as ResultRecord<T>
     }
 
-    override val value: T get() = value(Snapshot.current, calculation)
+    override val value: T
+        get() {
+            // Unlike most state objects, the record list of a derived state can change during a read
+            // because reading updates the cache. To account for this, instead of calling readable,
+            // which sends the read notification, the read observer is notified directly and current
+            // value is used instead which doesn't notify. This allow the read observer to read the
+            // value and only update the cache once.
+            Snapshot.current.readObserver?.invoke(this)
+            return currentValue
+        }
+
+    override val currentValue: T
+        get() = first.withCurrent {
+            @Suppress("UNCHECKED_CAST")
+            currentRecord(it, Snapshot.current, calculation).result as T
+        }
+
+    override val dependencies: Set<StateObject>
+        get() = first.withCurrent {
+            currentRecord(it, Snapshot.current, calculation).dependencies ?: emptySet()
+        }
+
+    override fun toString(): String = first.withCurrent {
+        "DerivedState(value=${displayValue()})@${hashCode()}"
+    }
+
+    /**
+     * A function used by the debugger to display the value of the current value of the mutable
+     * state object without triggering read observers.
+     */
+    @Suppress("unused")
+    val debuggerDisplayValue: T?
+        @JvmName("getDebuggerDisplayValue")
+        get() = first.withCurrent {
+            if (it.isValid(this, Snapshot.current))
+                it.result
+            else null
+        }
+
+    private fun displayValue(): String {
+        first.withCurrent {
+            if (it.isValid(this, Snapshot.current)) {
+                return it.result.toString()
+            }
+            return "<Not calculated>"
+        }
+    }
+}
+
+private inline fun <R> notifyObservers(derivedState: DerivedState<*>, block: () -> R): R {
+    val observers = derivedStateObservers.get() ?: persistentListOf()
+    observers.fastForEach { (start, _) -> start(derivedState) }
+    return try {
+        block()
+    } finally {
+        observers.fastForEach { (_, done) -> done(derivedState) }
+    }
 }
 
 /**
@@ -416,6 +546,33 @@ private class DerivedSnapshotState<T>(private val calculation: () -> T) : StateO
  * @param calculation the calculation to create the value this state object represents.
  */
 fun <T> derivedStateOf(calculation: () -> T): State<T> = DerivedSnapshotState(calculation)
+
+/**
+ * Observe the recalculations performed by any derived state that is recalculated during the
+ * execution of [block]. [start] is called before a calculation starts and [done] is called
+ * after the started calculation is complete.
+ *
+ * @param start a lambda called before every calculation of a derived state is in [block].
+ * @param done a lambda that is called after the state passed to [start] is recalculated.
+ * @param block the block of code to observe.
+ */
+internal fun <R> observeDerivedStateRecalculations(
+    start: (derivedState: State<*>) -> Unit,
+    done: (derivedState: State<*>) -> Unit,
+    block: () -> R
+) {
+    val previous = derivedStateObservers.get()
+    try {
+        derivedStateObservers.set(
+            (derivedStateObservers.get() ?: persistentListOf()).add(
+                start to done
+            )
+        )
+        block()
+    } finally {
+        derivedStateObservers.set(previous)
+    }
+}
 
 /**
  * Receiver scope for use with [produceState].
@@ -650,6 +807,7 @@ fun <T> rememberUpdatedState(newValue: T): State<T> = remember {
  *
  * @param context [CoroutineContext] to use for collecting.
  */
+@Suppress("StateFlowValueCalledInComposition")
 @Composable
 fun <T> StateFlow<T>.collectAsState(
     context: CoroutineContext = EmptyCoroutineContext
@@ -722,13 +880,13 @@ fun <T> snapshotFlow(
     val readSet = mutableSetOf<Any>()
     val readObserver: (Any) -> Unit = { readSet.add(it) }
 
-    // This channel may not block or lose data on an offer call.
+    // This channel may not block or lose data on a trySend call.
     val appliedChanges = Channel<Set<Any>>(Channel.UNLIMITED)
 
     // Register the apply observer before running for the first time
     // so that we don't miss updates.
     val unregisterApplyObserver = Snapshot.registerApplyObserver { changed, _ ->
-        appliedChanges.offer(changed)
+        appliedChanges.trySend(changed)
     }
 
     try {
@@ -750,7 +908,7 @@ fun <T> snapshotFlow(
             while (true) {
                 // Assumption: readSet will typically be smaller than changed
                 found = found || readSet.intersects(changedObjects)
-                changedObjects = appliedChanges.poll() ?: break
+                changedObjects = appliedChanges.tryReceive().getOrNull() ?: break
             }
 
             if (found) {

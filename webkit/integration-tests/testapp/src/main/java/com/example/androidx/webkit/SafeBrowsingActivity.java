@@ -21,10 +21,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.webkit.ValueCallback;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.webkit.WebViewCompat;
@@ -41,19 +39,14 @@ public class SafeBrowsingActivity extends AppCompatActivity {
 
         if (WebViewFeature.isFeatureSupported(WebViewFeature.START_SAFE_BROWSING)) {
             WebViewCompat.startSafeBrowsing(this.getApplicationContext(),
-                    new ValueCallback<Boolean>() {
-                        @Override
-                        public void onReceiveValue(@NonNull Boolean value) {
-                            if (value) {
-                                setupLayout();
-                            } else {
-                                TextView t = WebkitHelpers.showMessageInActivity(
-                                        SafeBrowsingActivity.this,
-                                        R.string.cannot_start_safe_browsing);
-                                t.setOnClickListener(v -> {
-                                    showSafeBrowsingRequirementsInBrowser();
-                                });
-                            }
+                    value -> {
+                        if (value) {
+                            setupLayout();
+                        } else {
+                            TextView t = WebkitHelpers.showMessageInActivity(
+                                    SafeBrowsingActivity.this,
+                                    R.string.cannot_start_safe_browsing);
+                            t.setOnClickListener(v -> showSafeBrowsingRequirementsInBrowser());
                         }
                     });
         } else {
@@ -68,7 +61,7 @@ public class SafeBrowsingActivity extends AppCompatActivity {
         Uri safeBrowsingRequirementsUri = new Uri.Builder()
                 .scheme("https")
                 .authority("chromium.googlesource.com")
-                .path("/chromium/src/+/master/android_webview/browser/safe_browsing/README.md")
+                .path("/chromium/src/+/main/android_webview/browser/safe_browsing/README.md")
                 .encodedFragment("opt_in_consent_requirements")
                 .build();
 

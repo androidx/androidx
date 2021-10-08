@@ -69,7 +69,8 @@ public final class LegacyTextClassifierTest {
     @Before
     public void setUp() {
         mPendingIntent = PendingIntent.getActivity(
-                ApplicationProvider.getApplicationContext(), 0, new Intent(), 0);
+                ApplicationProvider.getApplicationContext(), 0, new Intent(),
+                PendingIntent.FLAG_IMMUTABLE);
 
         mMatchMaker = mock(MatchMaker.class);
         when(mMatchMaker.getActions(anyString(), any(CharSequence.class)))

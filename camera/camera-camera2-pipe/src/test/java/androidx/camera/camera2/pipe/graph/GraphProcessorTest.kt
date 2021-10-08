@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.testing.FakeRequestListener
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.testing.awaitEvent
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -134,7 +135,7 @@ internal class GraphProcessorTest {
             // processor is set after the requests are submitted.
             graphProcessor.onGraphStarted(fakeProcessor1)
 
-            val event1 = awaitEvent(fakeProcessor1, request1) { it.submit }
+            val event1 = fakeProcessor1.awaitEvent(request = request1) { it.submit }
             assertThat(event1.requestSequence!!.requests).hasSize(1)
             assertThat(event1.requestSequence!!.requests).contains(request1)
 
@@ -160,7 +161,7 @@ internal class GraphProcessorTest {
 
             graphProcessor.submit(listOf(request1, request2))
             graphProcessor.onGraphStarted(fakeProcessor1)
-            val event = awaitEvent(fakeProcessor1, request1) { it.submit }
+            val event = fakeProcessor1.awaitEvent(request = request1) { it.submit }
             assertThat(event.requestSequence!!.requests).hasSize(2)
             assertThat(event.requestSequence!!.requests).contains(request1)
             assertThat(event.requestSequence!!.requests).contains(request2)
@@ -220,14 +221,14 @@ internal class GraphProcessorTest {
 
             // Check to make sure that submit is called at least once, and that request1 is rejected
             // from the request processor.
-            awaitEvent(fakeProcessor1, request1) { it.rejected }
+            fakeProcessor1.awaitEvent(request = request1) { it.rejected }
 
             // Stop rejecting requests
             fakeProcessor1.rejectRequests = false
 
             graphProcessor.submit(request2)
             // Cycle events until we get a submitted event with request1
-            val event2 = awaitEvent(fakeProcessor1, request1) { it.submit }
+            val event2 = fakeProcessor1.awaitEvent(request = request1) { it.submit }
             assertThat(event2.rejected).isFalse()
 
             // Assert that immediately after we get a successfully submitted request, the
@@ -253,7 +254,7 @@ internal class GraphProcessorTest {
             graphProcessor.onGraphStarted(fakeProcessor1)
             graphProcessor.startRepeating(request1)
             graphProcessor.startRepeating(request2)
-            val event = awaitEvent(fakeProcessor1, request2) { it.startRepeating }
+            val event = fakeProcessor1.awaitEvent(request = request2) { it.startRepeating }
             assertThat(event.requestSequence!!.requiredParameters).containsEntry(
                 CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
             )
@@ -273,10 +274,10 @@ internal class GraphProcessorTest {
 
             graphProcessor.onGraphStarted(fakeProcessor1)
             graphProcessor.startRepeating(request1)
-            awaitEvent(fakeProcessor1, request1) { it.startRepeating }
+            fakeProcessor1.awaitEvent(request = request1) { it.startRepeating }
 
             graphProcessor.onGraphStarted(fakeProcessor2)
-            awaitEvent(fakeProcessor2, request1) { it.startRepeating }
+            fakeProcessor2.awaitEvent(request = request1) { it.startRepeating }
         }
     }
 
@@ -294,10 +295,10 @@ internal class GraphProcessorTest {
             fakeProcessor1.rejectRequests = true
             graphProcessor.onGraphStarted(fakeProcessor1)
             graphProcessor.startRepeating(request1)
-            awaitEvent(fakeProcessor1, request1) { it.rejected }
+            fakeProcessor1.awaitEvent(request = request1) { it.rejected }
 
             graphProcessor.onGraphStarted(fakeProcessor2)
-            awaitEvent(fakeProcessor2, request1) { it.startRepeating }
+            fakeProcessor2.awaitEvent(request = request1) { it.startRepeating }
         }
     }
 
@@ -392,25 +393,5 @@ internal class GraphProcessorTest {
 
             assertThat(fakeProcessor1.nextEvent().close).isTrue()
         }
-    }
-
-    private suspend fun awaitEvent(
-        requestProcessor: FakeRequestProcessor,
-        request: Request,
-        filter: (event: FakeRequestProcessor.Event) -> Boolean
-    ): FakeRequestProcessor.Event {
-
-        var event: FakeRequestProcessor.Event
-        var loopCount = 0
-        while (loopCount < 10) {
-            loopCount++
-            event = requestProcessor.nextEvent()
-            val contains = event.requestSequence?.requests?.contains(request) ?: false
-            if (filter(event) && contains) {
-                return event
-            }
-        }
-
-        throw IllegalStateException("Failed to observe a submit event containing $request")
     }
 }

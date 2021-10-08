@@ -26,14 +26,13 @@ import android.util.Log;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.impl.utils.Threads;
-import androidx.camera.lifecycle.ExperimentalUseCaseGroupLifecycle;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -60,6 +59,7 @@ import androidx.lifecycle.LifecycleOwner;
  *     controller.setZoomRatio(.5F);
  * </code></pre>
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class LifecycleCameraController extends CameraController {
 
     private static final String TAG = "CamLifecycleController";
@@ -110,7 +110,8 @@ public final class LifecycleCameraController extends CameraController {
      *
      * @return null if failed to start camera.
      */
-    @UseExperimental(markerClass = ExperimentalUseCaseGroupLifecycle.class)
+    // TODO(b/185869869) Remove the UnsafeOptInUsageError once view's version matches core's.
+    @SuppressLint("UnsafeOptInUsageError")
     @RequiresPermission(Manifest.permission.CAMERA)
     @Override
     @Nullable

@@ -28,6 +28,8 @@ import static androidx.media2.test.common.CommonConstants.KEY_PLAYBACK_SPEED;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST_METADATA;
+import static androidx.media2.test.common.CommonConstants.KEY_REPEAT_MODE;
+import static androidx.media2.test.common.CommonConstants.KEY_SHUFFLE_MODE;
 import static androidx.media2.test.common.CommonConstants.KEY_TRACK_INFO;
 import static androidx.media2.test.common.CommonConstants.KEY_VIDEO_SIZE;
 import static androidx.media2.test.common.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
@@ -644,6 +646,16 @@ public class RemoteMediaSession {
 
         public MockPlayerConfigBuilder setCurrentVolume(int currentVolume) {
             mBundle.putInt(KEY_CURRENT_VOLUME, currentVolume);
+            return this;
+        }
+
+        public MockPlayerConfigBuilder setShuffleMode(int shuffleMode) {
+            mBundle.putInt(KEY_SHUFFLE_MODE, shuffleMode);
+            return this;
+        }
+
+        public MockPlayerConfigBuilder setRepeatMode(int repeatMode) {
+            mBundle.putInt(KEY_REPEAT_MODE, repeatMode);
             return this;
         }
 
