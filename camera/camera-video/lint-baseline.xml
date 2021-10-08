@@ -1,37 +1,169 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 25): `prepareRecording`"
-        errorLine1="            recorder.prepareRecording(outputOptions)"
-        errorLine2="                     ~~~~~~~~~~~~~~~~">
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/camera/video/RecorderTest.kt"
-            line="298"
-            column="22"/>
+            file="src/main/java/androidx/camera/video/internal/encoder/EncoderImpl.java"
+            line="769"
+            column="5"/>
     </issue>
 
     <issue
-        id="WrongConstant"
-        message="Must be one of: OutputFormat.MUXER_OUTPUT_MPEG_4, OutputFormat.MUXER_OUTPUT_WEBM, OutputFormat.MUXER_OUTPUT_3GPP, OutputFormat.MUXER_OUTPUT_HEIF, OutputFormat.MUXER_OUTPUT_OGG"
-        errorLine1="                        outputFormat);"
-        errorLine2="                        ~~~~~~~~~~~~">
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/video/Recorder.java"
-            line="929"
-            column="25"/>
+            file="src/main/java/androidx/camera/video/internal/encoder/EncoderImpl.java"
+            line="1106"
+            column="5"/>
     </issue>
 
     <issue
-        id="WrongConstant"
-        message="Must be one of: OutputFormat.MUXER_OUTPUT_MPEG_4, OutputFormat.MUXER_OUTPUT_WEBM, OutputFormat.MUXER_OUTPUT_3GPP, OutputFormat.MUXER_OUTPUT_HEIF, OutputFormat.MUXER_OUTPUT_OGG"
-        errorLine1="                    mMediaMuxer = new MediaMuxer(path, outputFormat);"
-        errorLine2="                                                       ~~~~~~~~~~~~">
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/video/FileDescriptorOutputOptions.java"
+            line="95"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/video/FileOutputOptions.java"
+            line="87"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/video/MediaStoreOutputOptions.java"
+            line="144"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/video/QualitySelector.java"
+            line="531"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/video/Recorder.java"
-            line="964"
-            column="56"/>
+            line="2170"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/video/Recorder.java"
+            line="2295"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/video/VideoCapture.java"
+            line="580"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/video/VideoCaptureLegacy.java"
+            line="1121"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/video/VideoRecordEvent.java"
+            line="135"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/video/VideoRecordEvent.java"
+            line="231"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/video/VideoRecordEvent.java"
+            line="406"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/video/VideoRecordEvent.java"
+            line="426"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/video/VideoRecordEvent.java"
+            line="446"
+            column="5"/>
     </issue>
 
 </issues>

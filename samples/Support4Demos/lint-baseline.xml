@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="WifiManagerLeak"
@@ -136,22 +136,22 @@
     <issue
         id="MetadataTagInsideApplicationTag"
         message="Detected &lt;application>-level meta-data tag."
-        errorLine1="        &lt;meta-data android:name=&quot;com.google.android.gms.car.notification.SmallIcon&quot;"
+        errorLine1="        &lt;meta-data"
         errorLine2="        ^">
         <location
             file="src/main/AndroidManifest.xml"
-            line="454"
+            line="495"
             column="9"/>
     </issue>
 
     <issue
         id="MetadataTagInsideApplicationTag"
         message="Detected &lt;application>-level meta-data tag."
-        errorLine1="        &lt;meta-data android:name=&quot;com.google.android.gms.car.application.theme&quot;"
+        errorLine1="        &lt;meta-data"
         errorLine2="        ^">
         <location
             file="src/main/AndroidManifest.xml"
-            line="462"
+            line="499"
             column="9"/>
     </issue>
 
@@ -4708,7 +4708,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        @Override public void deliverResult(List&lt;AppEntry> apps) {"
+        errorLine1="        @Override public void deliverResult(List&lt;AppEntry> data) {"
         errorLine2="                                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/app/LoaderCustomSupport.java"
@@ -4719,7 +4719,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        @Override public void onCanceled(List&lt;AppEntry> apps) {"
+        errorLine1="        @Override public void onCanceled(List&lt;AppEntry> data) {"
         errorLine2="                                         ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/app/LoaderCustomSupport.java"
@@ -6397,50 +6397,6 @@
             file="src/main/java/com/example/android/supportv4/app/SimpleJobIntentController.java"
             line="31"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1=" protected void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/content/SimpleWakefulController.java"
-            line="36"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onReceive(Context context, Intent intent) {"
-        errorLine2="                          ~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/content/SimpleWakefulReceiver.java"
-            line="30"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onReceive(Context context, Intent intent) {"
-        errorLine2="                                           ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/content/SimpleWakefulReceiver.java"
-            line="30"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void onHandleIntent(Intent intent) {"
-        errorLine2="                                  ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/content/SimpleWakefulService.java"
-            line="31"
-            column="35"/>
     </issue>
 
     <issue

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="SupportAnnotationUsage"
@@ -8,8 +8,63 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/pipe/integration/interop/Camera2CameraControl.kt"
-            line="54"
+            line="56"
             column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/pipe/integration/compat/EvCompCompat.kt"
+            line="71"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/pipe/integration/impl/EvCompControl.kt"
+            line="44"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/pipe/integration/adapter/ExposureStateAdapter.kt"
+            line="34"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/pipe/integration/impl/FocusMeteringControl.kt"
+            line="92"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/pipe/integration/impl/MeteringRepeating.kt"
+            line="53"
+            column="1"/>
     </issue>
 
 </issues>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="BanConcurrentHashMap"
@@ -15,8 +15,8 @@
     <issue
         id="BanConcurrentHashMap"
         message="Detected ConcurrentHashMap usage."
-        errorLine1="import java.util.concurrent.ConcurrentHashMap;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="import java.util.concurrent.ConcurrentHashMap"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="integration-tests/src/main/java/androidx/ConcurrentHashMapUsageKotlin.kt"
             line="19"
@@ -74,7 +74,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="integration-tests/src/main/java/androidx/IdeaSuppressionKotlin.kt"
-            line="25"
+            line="27"
             column="9"/>
     </issue>
 

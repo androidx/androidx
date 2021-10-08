@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="ResourceType"
@@ -142,28 +142,6 @@
             file="src/main/java/androidx/transition/Styleable.java"
             line="165"
             column="29"/>
-    </issue>
-
-    <issue
-        id="SoonBlockedPrivateApi"
-        message="Reflective access to mDrawMatrix will throw an exception when targeting API 30 and above"
-        errorLine1="                sDrawMatrixField = ImageView.class.getDeclaredField(&quot;mDrawMatrix&quot;);"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/ImageViewUtils.java"
-            line="102"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="SoonBlockedPrivateApi"
-        message="Reflective access to mViewFlags will throw an exception when targeting API 30 and above"
-        errorLine1="                sViewFlagsField = View.class.getDeclaredField(&quot;mViewFlags&quot;);"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/transition/ViewUtilsBase.java"
-            line="157"
-            column="35"/>
     </issue>
 
     <issue
@@ -1632,7 +1610,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setPropagation(TransitionPropagation propagation) {"
+        errorLine1="    public void setPropagation(TransitionPropagation transitionPropagation) {"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/TransitionSet.java"
@@ -1841,7 +1819,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void captureValues(TransitionValues values) {"
+        errorLine1="    public void captureValues(TransitionValues transitionValues) {"
         errorLine2="                              ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/VisibilityPropagation.java"

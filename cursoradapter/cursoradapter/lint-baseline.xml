@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="cli" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="UnknownNullness"
@@ -818,7 +818,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Cursor swapCursor(Cursor c) {"
+        errorLine1="    public Cursor swapCursor(Cursor newCursor) {"
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
@@ -829,7 +829,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Cursor swapCursor(Cursor c) {"
+        errorLine1="    public Cursor swapCursor(Cursor newCursor) {"
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"

@@ -1,345 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertNull(bundle[&quot;null&quot;])"
-        errorLine2="                   ~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="82"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertEquals(true, bundle[&quot;boolean&quot;])"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="84"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertEquals(1.toByte(), bundle[&quot;byte&quot;])"
-        errorLine2="                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="85"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertEquals(&apos;a&apos;, bundle[&quot;char&quot;])"
-        errorLine2="                          ~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="86"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertEquals(1.0, bundle[&quot;double&quot;])"
-        errorLine2="                          ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="87"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertEquals(1f, bundle[&quot;float&quot;])"
-        errorLine2="                         ~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="88"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertEquals(1, bundle[&quot;int&quot;])"
-        errorLine2="                        ~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="89"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertEquals(1L, bundle[&quot;long&quot;])"
-        errorLine2="                         ~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="90"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertEquals(1.toShort(), bundle[&quot;short&quot;])"
-        errorLine2="                                  ~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="91"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertSame(bundleValue, bundle[&quot;bundle&quot;])"
-        errorLine2="                                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="93"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertSame(charSequenceValue, bundle[&quot;charSequence&quot;])"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="94"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertSame(parcelableValue, bundle[&quot;parcelable&quot;])"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="95"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertArrayEquals(booleanArrayOf(), bundle[&quot;booleanArray&quot;] as BooleanArray)"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="97"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertArrayEquals(byteArrayOf(), bundle[&quot;byteArray&quot;] as ByteArray)"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="98"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertArrayEquals(charArrayOf(), bundle[&quot;charArray&quot;] as CharArray)"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="99"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertArrayEquals(doubleArrayOf(), bundle[&quot;doubleArray&quot;] as DoubleArray, 0.0)"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="100"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertArrayEquals(floatArrayOf(), bundle[&quot;floatArray&quot;] as FloatArray, 0f)"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="101"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertArrayEquals(intArrayOf(), bundle[&quot;intArray&quot;] as IntArray)"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="102"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertArrayEquals(longArrayOf(), bundle[&quot;longArray&quot;] as LongArray)"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="103"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertArrayEquals(shortArrayOf(), bundle[&quot;shortArray&quot;] as ShortArray)"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="104"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertThat(bundle[&quot;parcelableArray&quot;] as Array&lt;*>).asList().containsExactly(parcelableValue)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="106"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertThat(bundle[&quot;stringArray&quot;] as Array&lt;*>).asList().containsExactly(&quot;hey&quot;)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="107"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertThat(bundle[&quot;charSequenceArray&quot;] as Array&lt;*>).asList().containsExactly(&quot;hey&quot;)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="108"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertThat(bundle[&quot;serializableArray&quot;] as Array&lt;*>).asList()"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="109"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 14): `android.os.BaseBundle#get`"
-        errorLine1="        assertSame(serializableValue, bundle[&quot;serializable&quot;])"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="112"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 21 (current min is 18): `android.os.BaseBundle#get`"
-        errorLine1="        assertSame(binderValue, bundle[&quot;binder&quot;])"
-        errorLine2="                                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/os/BundleTest.kt"
-            line="119"
-            column="33"/>
-    </issue>
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="NewApi"
         message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
         errorLine1="        assertFalse(1 in array)"
-        errorLine2="                    ~~~~~~~~~~">
+        errorLine2="                      ~~">
         <location
             file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
             line="42"
-            column="21"/>
+            column="23"/>
     </issue>
 
     <issue
         id="NewApi"
         message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
         errorLine1="        assertTrue(1 in array)"
-        errorLine2="                   ~~~~~~~~~~">
+        errorLine2="                     ~~">
         <location
             file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
             line="44"
-            column="20"/>
+            column="22"/>
     </issue>
 
     <issue
         id="NewApi"
         message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
         errorLine1="        assertFalse(2 in array)"
-        errorLine2="                    ~~~~~~~~~~">
+        errorLine2="                      ~~">
         <location
             file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
             line="52"
-            column="21"/>
+            column="23"/>
     </issue>
 
     <issue
         id="NewApi"
         message="Call requires API level 30 (current min is 14): `android.util.SparseArray#contains`"
         errorLine1="        assertTrue(2 in array)"
-        errorLine2="                   ~~~~~~~~~~">
+        errorLine2="                     ~~">
         <location
             file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
             line="55"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level S (current min is 14): `android.util.SparseArray#set`"
-        errorLine1="        array[1] = &quot;one&quot;"
-        errorLine2="        ~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
-            line="61"
-            column="9"/>
+            column="22"/>
     </issue>
 
     <issue

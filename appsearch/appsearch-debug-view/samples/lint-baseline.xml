@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha07" type="baseline" client="gradle" dependencies="true" name="AGP (7.1.0-alpha07)" variant="all" version="7.1.0-alpha07">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="true" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="WrongConstant"
@@ -239,7 +239,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appsearch/platformstorage/SearchResultsImpl.java"
-            line="71"
+            line="90"
             column="48"/>
     </issue>
 

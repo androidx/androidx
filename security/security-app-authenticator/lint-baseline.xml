@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE1_DIGEST), TEST_PERMISSION_NAME)"
         errorLine2="                                                        ~~">
         <location
@@ -14,7 +14,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                .setAllPackagesCertDigestsForPermission(Set.of(SIGNATURE1_DIGEST),"
         errorLine2="                                                            ~~">
         <location
@@ -25,7 +25,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE2_DIGEST), TEST_PERMISSION_NAME)"
         errorLine2="                                                        ~~">
         <location
@@ -36,7 +36,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                .setAllPackagesCertDigestsForPermission(Set.of(SIGNATURE2_DIGEST),"
         errorLine2="                                                            ~~">
         <location
@@ -47,7 +47,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE2_DIGEST, SIGNATURE1_DIGEST),"
         errorLine2="                                                        ~~">
         <location
@@ -58,7 +58,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                        Set.of(SIGNATURE2_DIGEST, SIGNATURE1_DIGEST), TEST_PERMISSION_NAME)"
         errorLine2="                            ~~">
         <location
@@ -69,7 +69,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE1_DIGEST), TEST_PERMISSION_NAME)"
         errorLine2="                                                        ~~">
         <location
@@ -80,7 +80,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                        Set.of(SIGNATURE2_DIGEST), TEST_PERMISSION_NAME)"
         errorLine2="                            ~~">
         <location
@@ -91,7 +91,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE1_DIGEST), TEST_PERMISSION_NAME)"
         errorLine2="                                                        ~~">
         <location
@@ -102,7 +102,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE1_DIGEST), TEST_PERMISSION_NAME)"
         errorLine2="                                                        ~~">
         <location
@@ -113,7 +113,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                        Set.of(SIGNATURE1_DIGEST), TEST_PERMISSION_NAME)"
         errorLine2="                            ~~">
         <location
@@ -124,7 +124,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE2_DIGEST), TEST_PERMISSION_NAME)"
         errorLine2="                                                        ~~">
         <location
@@ -135,7 +135,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                        Set.of(SIGNATURE2_DIGEST), TEST_PERMISSION_NAME)"
         errorLine2="                            ~~">
         <location
@@ -146,7 +146,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 28): `java.util.Set#of`"
         errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE2_DIGEST), TEST_PERMISSION_NAME)"
         errorLine2="                                                        ~~">
         <location
@@ -157,7 +157,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 28): `java.util.Set#of`"
         errorLine1="                        Set.of(SIGNATURE2_DIGEST), TEST_PERMISSION_NAME)"
         errorLine2="                            ~~">
         <location
@@ -168,7 +168,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                .setExpectedIdentities(Set.of(SIGNATURE2_DIGEST, SIGNATURE1_DIGEST))"
         errorLine2="                                           ~~">
         <location
@@ -179,7 +179,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                .setExpectedIdentities(Set.of(SIGNATURE2_DIGEST))"
         errorLine2="                                           ~~">
         <location
@@ -190,7 +190,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                        Set.of(SIGNATURE1_DIGEST, SIGNATURE2_DIGEST, SIGNATURE3_DIGEST))"
         errorLine2="                            ~~">
         <location
@@ -201,7 +201,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                .setExpectedIdentities(Set.of(SIGNATURE1_DIGEST, SIGNATURE3_DIGEST))"
         errorLine2="                                           ~~">
         <location
@@ -212,7 +212,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                .setExpectedIdentities(Set.of(SIGNATURE1_DIGEST))"
         errorLine2="                                           ~~">
         <location
@@ -223,7 +223,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                .setExpectedIdentities(Set.of(SIGNATURE2_DIGEST))"
         errorLine2="                                           ~~">
         <location
@@ -234,7 +234,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 28): `java.util.Set#of`"
         errorLine1="                .setExpectedIdentities(Set.of(SIGNATURE2_DIGEST))"
         errorLine2="                                           ~~">
         <location
@@ -245,7 +245,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 28): `java.util.Set#of`"
         errorLine1="                .setExpectedIdentities(Set.of(SIGNATURE2_DIGEST))"
         errorLine2="                                           ~~">
         <location
@@ -256,7 +256,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE1_DIGEST), TEST_PERMISSION_NAME)"
         errorLine2="                                                        ~~">
         <location
@@ -267,7 +267,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE2_DIGEST), TEST_PERMISSION_NAME)"
         errorLine2="                                                        ~~">
         <location
@@ -278,7 +278,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 14): `java.util.Set#of`"
+        message="Call requires API level 30 (current min is 27): `java.util.Set#of`"
         errorLine1="                .setPackageCertDigestsForPermission(Set.of(SIGNATURE2_DIGEST), TEST_PERMISSION_NAME)"
         errorLine2="                                                        ~~">
         <location
