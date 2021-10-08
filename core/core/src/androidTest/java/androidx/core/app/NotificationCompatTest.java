@@ -1380,6 +1380,28 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
     @SdkSuppress(minSdkVersion = 31)
     @Test
+    public void testBigPictureStyle_encodesAndRecoversSetContentDescription() {
+        String contentDesc = "content!";
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_bg_low_pressed);
+        Notification n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setStyle(new NotificationCompat.BigPictureStyle()
+                        .bigPicture(bitmap)
+                        .bigLargeIcon(bitmap)
+                        .setContentDescription(contentDesc)
+                        .setBigContentTitle("Big Content Title")
+                        .setSummaryText("Summary Text"))
+                .build();
+        assertEquals(contentDesc,
+                n.extras.getCharSequence(Notification.EXTRA_PICTURE_CONTENT_DESCRIPTION));
+        Notification recovered = Notification.Builder.recoverBuilder(mContext, n).build();
+        assertEquals(contentDesc,
+                recovered.extras.getCharSequence(Notification.EXTRA_PICTURE_CONTENT_DESCRIPTION));
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
     public void testBigPictureStyle_encodesAndRecoversShowBigPictureWhenCollapsed() {
         Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
                 R.drawable.notification_bg_low_pressed);
