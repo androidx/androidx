@@ -20,6 +20,7 @@ package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
@@ -27,7 +28,6 @@ import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,10 +43,11 @@ import javax.inject.Inject
  * of primitive rate limiting that ensures that updates arriving too quickly are only sent to the
  * underlying camera graph as fast as the camera is capable of consuming them.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @UseCaseCameraScope
 class UseCaseCameraState @Inject constructor(
     private val cameraGraph: CameraGraph,
-    private val coroutineScope: CoroutineScope
+    private val threads: UseCaseThreads
 ) {
     private val lock = Any()
 
@@ -66,13 +67,19 @@ class UseCaseCameraState @Inject constructor(
     private val currentStreams = mutableSetOf<StreamId>()
 
     @GuardedBy("lock")
+    private val currentListeners = mutableSetOf<Request.Listener>()
+
+    @GuardedBy("lock")
     private var currentTemplate: RequestTemplate? = null
 
     fun updateAsync(
         parameters: Map<CaptureRequest.Key<*>, Any>? = null,
+        appendParameters: Boolean = true,
         internalParameters: Map<Metadata.Key<*>, Any>? = null,
+        appendInternalParameters: Boolean = true,
         streams: Set<StreamId>? = null,
-        template: RequestTemplate? = null
+        template: RequestTemplate? = null,
+        listeners: Set<Request.Listener>? = null
     ): Deferred<Unit> {
         val result: Deferred<Unit>
         synchronized(lock) {
@@ -90,7 +97,11 @@ class UseCaseCameraState @Inject constructor(
             //    exit the locked section.
             // 5) If updating, invoke submit without holding the lock.
 
-            updateState(parameters, internalParameters, streams, template)
+            updateState(
+                parameters, appendParameters, internalParameters,
+                appendInternalParameters, streams, template,
+                listeners
+            )
 
             if (updateSignal == null) {
                 updateSignal = CompletableDeferred()
@@ -110,13 +121,20 @@ class UseCaseCameraState @Inject constructor(
 
     fun update(
         parameters: Map<CaptureRequest.Key<*>, Any>? = null,
+        appendParameters: Boolean = true,
         internalParameters: Map<Metadata.Key<*>, Any>? = null,
+        appendInternalParameters: Boolean = true,
         streams: Set<StreamId>? = null,
-        template: RequestTemplate? = null
+        template: RequestTemplate? = null,
+        listeners: Set<Request.Listener>? = null
     ) {
         synchronized(lock) {
             // See updateAsync for details.
-            updateState(parameters, internalParameters, streams, template)
+            updateState(
+                parameters, appendParameters, internalParameters,
+                appendInternalParameters, streams, template,
+                listeners
+            )
             if (updating) {
                 return
             }
@@ -125,19 +143,37 @@ class UseCaseCameraState @Inject constructor(
         submitLatest()
     }
 
+    fun capture(requests: List<Request>) {
+        threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            cameraGraph.acquireSession().use {
+                it.submit(requests)
+            }
+        }
+    }
+
     @GuardedBy("lock")
     private inline fun updateState(
         parameters: Map<CaptureRequest.Key<*>, Any>? = null,
+        appendParameters: Boolean = true,
         internalParameters: Map<Metadata.Key<*>, Any>? = null,
+        appendInternalParameters: Boolean = true,
         streams: Set<StreamId>? = null,
-        template: RequestTemplate? = null
+        template: RequestTemplate? = null,
+        listeners: Set<Request.Listener>? = null
     ) {
         // TODO: Consider if this should detect changes and only invoke an update if state has
         //  actually changed.
+
         if (parameters != null) {
+            if (!appendParameters) {
+                currentParameters.clear()
+            }
             currentParameters.putAll(parameters)
         }
         if (internalParameters != null) {
+            if (!appendInternalParameters) {
+                currentInternalParameters.clear()
+            }
             currentInternalParameters.putAll(internalParameters)
         }
         if (streams != null) {
@@ -147,6 +183,10 @@ class UseCaseCameraState @Inject constructor(
         if (template != null) {
             currentTemplate = template
         }
+        if (listeners != null) {
+            currentListeners.clear()
+            currentListeners.addAll(listeners)
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -155,25 +195,36 @@ class UseCaseCameraState @Inject constructor(
         // Since acquireSession is a suspending function, it's possible that subsequent updates
         // can occur while waiting for the acquireSession call to complete. If this happens,
         // updates to the internal state are aggregated together, and the Request is built
-        // synchronously with the latest values. The setRepeating call happens outside of the
-        // synchronized block to avoid holding a lock while updating the camera state.
+        // synchronously with the latest values. The startRepeating/stopRepeating call happens
+        // outside of the synchronized block to avoid holding a lock while updating the camera
+        // state.
 
-        coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
+        threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
             val result: CompletableDeferred<Unit>?
             cameraGraph.acquireSession().use {
-                val request: Request
+                val request: Request?
                 synchronized(lock) {
-                    request = Request(
-                        template = currentTemplate,
-                        streams = currentStreams.toList(),
-                        parameters = currentParameters.toMap(),
-                        extras = currentInternalParameters.toMap()
-                    )
+                    request = if (currentStreams.isEmpty()) {
+                        null
+                    } else {
+                        Request(
+                            template = currentTemplate,
+                            streams = currentStreams.toList(),
+                            parameters = currentParameters.toMap(),
+                            extras = currentInternalParameters.toMap(),
+                            listeners = currentListeners.toList()
+                        )
+                    }
                     result = updateSignal
                     updateSignal = null
                     updating = false
                 }
-                it.startRepeating(request)
+
+                if (request == null) {
+                    it.stopRepeating()
+                } else {
+                    it.startRepeating(request)
+                }
             }
 
             // Complete the result after the session closes to allow other threads to acquire a

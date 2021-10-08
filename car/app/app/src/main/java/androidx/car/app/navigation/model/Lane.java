@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import java.util.Objects;
  * <p>A {@link Lane} object describes all possible directions the driver could go from this lane,
  * and indicates which directions the driver could take to stay on the navigation route.
  */
+@CarProtocol
 public final class Lane {
     @Keep
     private final List<LaneDirection> mDirections;

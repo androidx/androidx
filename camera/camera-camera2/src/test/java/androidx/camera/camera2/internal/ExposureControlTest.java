@@ -30,10 +30,8 @@ import android.os.Build;
 import android.util.Range;
 import android.util.Rational;
 
-import androidx.annotation.OptIn;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.core.app.ApplicationProvider;
@@ -57,7 +55,6 @@ import java.util.concurrent.TimeoutException;
 @RunWith(RobolectricTestRunner.class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @DoNotInstrument
-@OptIn(markerClass = ExperimentalExposureCompensation.class)
 public class ExposureControlTest {
 
     private static final String CAMERA0_ID = "0";

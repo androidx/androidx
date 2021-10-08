@@ -20,7 +20,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -45,13 +44,17 @@ import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -69,7 +72,7 @@ import kotlin.math.sqrt
 class OnGloballyPositionedTest {
 
     @get:Rule
-    val rule = createAndroidComposeRule<ComponentActivity>()
+    val rule = createAndroidComposeRule<TestActivity>()
 
     @Test
     fun handlesChildrenNodeMoveCorrectly() {
@@ -309,10 +312,14 @@ class OnGloballyPositionedTest {
                 }
             }
         }
+
+        rule.waitForIdle()
+
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
         positionedLatch = CountDownLatch(1)
 
-        rule.runOnUiThread {
+        rule.runOnIdle {
+            coordinates = null
             scrollView!!.scrollBy(0, 50)
         }
 
@@ -320,10 +327,10 @@ class OnGloballyPositionedTest {
             "OnPositioned is not called when the container scrolled",
             positionedLatch.await(1, TimeUnit.SECONDS)
         )
-        val position = rule.runOnUiThread {
-            view.getYInWindow()
+
+        rule.runOnIdle {
+            assertEquals(view.getYInWindow(), coordinates!!.positionInWindow().y)
         }
-        assertEquals(position, coordinates!!.positionInWindow().y)
     }
 
     private fun View.getYInWindow(): Float {
@@ -363,11 +370,14 @@ class OnGloballyPositionedTest {
                 }
             }
         }
+
+        rule.waitForIdle()
+
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
         val startY = coordinates!!.positionInWindow().y
         positionedLatch = CountDownLatch(1)
 
-        rule.runOnUiThread {
+        rule.runOnIdle {
             topView!!.visibility = View.GONE
         }
 
@@ -375,7 +385,10 @@ class OnGloballyPositionedTest {
             "OnPositioned is not called when the container moved",
             positionedLatch.await(1, TimeUnit.SECONDS)
         )
-        assertEquals(startY - 100f, coordinates!!.positionInWindow().y)
+
+        rule.runOnIdle {
+            assertEquals(startY - 100f, coordinates!!.positionInWindow().y)
+        }
     }
 
     @Test
@@ -495,7 +508,7 @@ class OnGloballyPositionedTest {
     @Test
     fun globalCoordinatesAreInActivityCoordinates() {
         val padding = 30
-        val localPosition = androidx.compose.ui.geometry.Offset.Zero
+        val localPosition = Offset.Zero
         val framePadding = Offset(padding.toFloat(), padding.toFloat())
         var realGlobalPosition: Offset? = null
         var realLocalPosition: Offset? = null
@@ -507,26 +520,32 @@ class OnGloballyPositionedTest {
             composeView.setPadding(padding, padding, padding, padding)
             rule.activity.setContentView(composeView)
 
-            val position = IntArray(2)
-            composeView.getLocationOnScreen(position)
-            frameGlobalPosition = Offset(position[0].toFloat(), position[1].toFloat())
-
             composeView.setContent {
                 Box(
                     Modifier.fillMaxSize().onGloballyPositioned {
+                        val position = IntArray(2)
+                        composeView.getLocationInWindow(position)
+                        frameGlobalPosition = Offset(position[0].toFloat(), position[1].toFloat())
+
                         realGlobalPosition = it.localToWindow(localPosition)
                         realLocalPosition = it.windowToLocal(
                             framePadding + frameGlobalPosition!!
                         )
+
                         positionedLatch.countDown()
                     }
                 )
             }
         }
+
+        rule.waitForIdle()
+
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
-        assertThat(realGlobalPosition).isEqualTo(frameGlobalPosition!! + framePadding)
-        assertThat(realLocalPosition).isEqualTo(localPosition)
+        rule.runOnIdle {
+            assertThat(realGlobalPosition).isEqualTo(frameGlobalPosition!! + framePadding)
+            assertThat(realLocalPosition).isEqualTo(localPosition)
+        }
     }
 
     @Test
@@ -559,11 +578,12 @@ class OnGloballyPositionedTest {
             with(LocalDensity.current) {
                 Box {
                     Box(
-                        Modifier.onGloballyPositioned {
-                            realLeft = it.positionInParent().x
-                        }
+                        Modifier
                             .fillMaxSize()
-                            .padding(start = left.value.toDp()),
+                            .padding(start = left.value.toDp())
+                            .onGloballyPositioned {
+                                realLeft = it.positionInParent().x
+                            }
                     )
                 }
             }
@@ -614,16 +634,24 @@ class OnGloballyPositionedTest {
     @Test
     fun testAlignmentLinesArePresent() {
         val latch = CountDownLatch(1)
-        val line = VerticalAlignmentLine(::min)
+        val line1 = VerticalAlignmentLine(::min)
+        val line2 = HorizontalAlignmentLine(::min)
         val lineValue = 10
         rule.setContent {
             val onPositioned = Modifier.onGloballyPositioned { coordinates: LayoutCoordinates ->
-                assertEquals(1, coordinates.providedAlignmentLines.size)
-                assertEquals(lineValue, coordinates[line])
+                assertEquals(2, coordinates.providedAlignmentLines.size)
+                assertEquals(lineValue, coordinates[line1])
+                assertEquals(lineValue, coordinates[line2])
                 latch.countDown()
             }
-            Layout(modifier = onPositioned, content = { }) { _, _ ->
-                layout(0, 0, mapOf(line to lineValue)) { }
+            val lineProvider = Modifier.layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                layout(0, 0, mapOf(line2 to lineValue)) {
+                    placeable.place(0, 0)
+                }
+            }
+            Layout(modifier = onPositioned.then(lineProvider), content = { }) { _, _ ->
+                layout(0, 0, mapOf(line1 to lineValue)) { }
             }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
@@ -712,6 +740,60 @@ class OnGloballyPositionedTest {
             assertEquals(10f, inWindow.x)
             assertEquals(10f, inWindow.y)
         }
+    }
+
+    @Test
+    fun coordinatesOfTheModifierAreReported() {
+        var coords1: LayoutCoordinates? = null
+        var coords2: LayoutCoordinates? = null
+        var coords3: LayoutCoordinates? = null
+        rule.setContent {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .onGloballyPositioned {
+                        coords1 = it
+                    }
+                    .padding(2.dp)
+                    .onGloballyPositioned {
+                        coords2 = it
+                    }
+                    .padding(3.dp)
+                    .onGloballyPositioned {
+                        coords3 = it
+                    }
+            )
+        }
+
+        rule.runOnIdle {
+            assertEquals(0f, coords1!!.positionInWindow().x)
+            val padding1 = with(rule.density) { 2.dp.roundToPx() }
+            assertEquals(padding1.toFloat(), coords2!!.positionInWindow().x)
+            val padding2 = padding1 + with(rule.density) { 3.dp.roundToPx() }
+            assertEquals(padding2.toFloat(), coords3!!.positionInWindow().x)
+        }
+    }
+
+    @Test
+    @SmallTest
+    fun modifierIsReturningEqualObjectForTheSameLambda() {
+        val lambda: (LayoutCoordinates) -> Unit = { }
+        assertEquals(Modifier.onGloballyPositioned(lambda), Modifier.onGloballyPositioned(lambda))
+    }
+
+    @Test
+    @SmallTest
+    fun modifierIsReturningNotEqualObjectForDifferentLambdas() {
+        val lambda1: (LayoutCoordinates) -> Unit = {
+            it.isAttached
+        }
+        val lambda2: (LayoutCoordinates) -> Unit = {
+            !it.isAttached
+        }
+        Assert.assertNotEquals(
+            Modifier.onGloballyPositioned(lambda1),
+            Modifier.onGloballyPositioned(lambda2)
+        )
     }
 }
 

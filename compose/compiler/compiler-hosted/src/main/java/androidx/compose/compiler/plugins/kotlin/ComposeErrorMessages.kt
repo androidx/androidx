@@ -89,14 +89,12 @@ class ComposeErrorMessages : DefaultErrorMessages.Extension {
             "Composable properties are not able to have backing fields"
         )
         MAP.put(
-            ComposeErrors.COMPOSABLE_FUN_MAIN,
-            "Composable main functions are not currently supported"
+            ComposeErrors.ABSTRACT_COMPOSABLE_DEFAULT_PARAMETER_VALUE,
+            "Abstract Composable functions cannot have parameters with default values"
         )
         MAP.put(
-            ComposeErrors.ILLEGAL_ASSIGN_TO_UNIONTYPE,
-            "Value of type {0} can't be assigned to union type {1}.",
-            Renderers.RENDER_COLLECTION_OF_TYPES,
-            Renderers.RENDER_COLLECTION_OF_TYPES
+            ComposeErrors.COMPOSABLE_FUN_MAIN,
+            "Composable main functions are not currently supported"
         )
         MAP.put(
             ComposeErrors.ILLEGAL_TRY_CATCH_AROUND_COMPOSABLE,

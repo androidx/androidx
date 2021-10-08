@@ -29,9 +29,15 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Encapsulates a request to index a document into an {@link AppSearchSession} database.
+ * Encapsulates a request to index documents into an {@link AppSearchSession} database.
  *
- * <p>@see AppSearchSession#putDocuments
+ * <!--@exportToFramework:ifJetpack()-->
+ * <p>Documents added to the request can be instances of classes annotated with
+ * {@link androidx.appsearch.annotation.Document} or instances of
+ * {@link GenericDocument}.
+ * <!--@exportToFramework:else()-->
+ *
+ * @see AppSearchSession#put
  */
 public final class PutDocumentsRequest {
     private final List<GenericDocument> mDocuments;
@@ -40,95 +46,90 @@ public final class PutDocumentsRequest {
         mDocuments = documents;
     }
 
-    /** Returns the documents that are part of this request. */
+    /** Returns a list of {@link GenericDocument} objects that are part of this request. */
     @NonNull
-    public List<GenericDocument> getDocuments() {
+    public List<GenericDocument> getGenericDocuments() {
         return Collections.unmodifiableList(mDocuments);
     }
 
-    /**
-    * Builder for {@link PutDocumentsRequest} objects.
-    *
-    * <p>Once {@link #build} is called, the instance can no longer be used.
-    */
+    /** Builder for {@link PutDocumentsRequest} objects. */
     public static final class Builder {
-        private final List<GenericDocument> mDocuments = new ArrayList<>();
+        private ArrayList<GenericDocument> mDocuments = new ArrayList<>();
         private boolean mBuilt = false;
 
         /** Adds one or more {@link GenericDocument} objects to the request. */
-        @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getDocuments()
         @NonNull
-        public Builder addGenericDocument(@NonNull GenericDocument... documents) {
+        public Builder addGenericDocuments(@NonNull GenericDocument... documents) {
             Preconditions.checkNotNull(documents);
-            return addGenericDocument(Arrays.asList(documents));
+            resetIfBuilt();
+            return addGenericDocuments(Arrays.asList(documents));
         }
 
         /** Adds a collection of {@link GenericDocument} objects to the request. */
-        @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getDocuments()
         @NonNull
-        public Builder addGenericDocument(
+        public Builder addGenericDocuments(
                 @NonNull Collection<? extends GenericDocument> documents) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(documents);
+            resetIfBuilt();
             mDocuments.addAll(documents);
             return this;
         }
 
 // @exportToFramework:startStrip()
         /**
-         * Adds one or more annotated {@link androidx.appsearch.annotation.AppSearchDocument}
+         * Adds one or more annotated {@link androidx.appsearch.annotation.Document}
          * documents to the request.
          *
-         * @param dataClasses annotated
-         *                    {@link androidx.appsearch.annotation.AppSearchDocument} documents.
-         * @throws AppSearchException if an error occurs converting a data class into a
+         * @param documents annotated
+         *                    {@link androidx.appsearch.annotation.Document} documents.
+         * @throws AppSearchException if an error occurs converting a document class into a
          *                            {@link GenericDocument}.
          */
-        @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getDocuments()
+        // Merged list available from getGenericDocuments()
+        @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder addDataClass(@NonNull Object... dataClasses) throws AppSearchException {
-            Preconditions.checkNotNull(dataClasses);
-            return addDataClass(Arrays.asList(dataClasses));
+        public Builder addDocuments(@NonNull Object... documents) throws AppSearchException {
+            Preconditions.checkNotNull(documents);
+            resetIfBuilt();
+            return addDocuments(Arrays.asList(documents));
         }
 
         /**
          * Adds a collection of annotated
-         * {@link androidx.appsearch.annotation.AppSearchDocument} documents to the request.
+         * {@link androidx.appsearch.annotation.Document} documents to the request.
          *
-         * @param dataClasses annotated
-         *                    {@link androidx.appsearch.annotation.AppSearchDocument} documents.
-         * @throws AppSearchException if an error occurs converting a data class into a
+         * @param documents annotated
+         *                    {@link androidx.appsearch.annotation.Document} documents.
+         * @throws AppSearchException if an error occurs converting a document into a
          *                            {@link GenericDocument}.
          */
-        @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getDocuments()
+        // Merged list available from getGenericDocuments()
+        @SuppressLint("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder addDataClass(@NonNull Collection<?> dataClasses)
-                throws AppSearchException {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(dataClasses);
-            List<GenericDocument> genericDocuments = new ArrayList<>(dataClasses.size());
-            for (Object dataClass : dataClasses) {
-                GenericDocument genericDocument = toGenericDocument(dataClass);
+        public Builder addDocuments(@NonNull Collection<?> documents) throws AppSearchException {
+            Preconditions.checkNotNull(documents);
+            resetIfBuilt();
+            List<GenericDocument> genericDocuments = new ArrayList<>(documents.size());
+            for (Object document : documents) {
+                GenericDocument genericDocument = GenericDocument.fromDocumentClass(document);
                 genericDocuments.add(genericDocument);
             }
-            return addGenericDocument(genericDocuments);
-        }
-
-        @NonNull
-        private static <T> GenericDocument toGenericDocument(@NonNull T dataClass)
-                throws AppSearchException {
-            DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
-            DataClassFactory<T> factory = registry.getOrCreateFactory(dataClass);
-            return factory.toGenericDocument(dataClass);
+            return addGenericDocuments(genericDocuments);
         }
 // @exportToFramework:endStrip()
 
         /** Creates a new {@link PutDocumentsRequest} object. */
         @NonNull
         public PutDocumentsRequest build() {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
             mBuilt = true;
             return new PutDocumentsRequest(mDocuments);
+        }
+
+        private void resetIfBuilt() {
+            if (mBuilt) {
+                mDocuments = new ArrayList<>(mDocuments);
+                mBuilt = false;
+            }
         }
     }
 }

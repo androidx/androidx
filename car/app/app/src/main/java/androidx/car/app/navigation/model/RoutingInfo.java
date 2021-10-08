@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Distance;
 import androidx.car.app.model.constraints.CarIconConstraints;
@@ -32,6 +33,7 @@ import java.util.Objects;
  * Represents routing information that can be shown in the {@link NavigationTemplate} during
  * navigation
  */
+@CarProtocol
 public final class RoutingInfo implements NavigationInfo {
     @Keep
     @Nullable
@@ -159,8 +161,10 @@ public final class RoutingInfo implements NavigationInfo {
          * <h4>Image Sizing Guidance</h4>
          *
          * Images in the cue of the {@link Step} object, set with {@link Step.Builder#setCue}, can
-         * contain image spans. If necessary, those images in the spans will be scaled down to fit
-         * within a 108 x 36 dp bounding box, while preserving their aspect ratio.
+         * contain image spans. To minimize scaling artifacts across a wide range of car screens,
+         * apps should provide images targeting a 216 x 72 dp bounding box. If necessary, those
+         * images in the spans will be scaled down to fit the bounding box while preserving their
+         * aspect ratios.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
@@ -184,8 +188,10 @@ public final class RoutingInfo implements NavigationInfo {
          * <h4>Image Sizing Guidance</h4>
          *
          * Images in the cue of the {@link Step} object, set with {@link Step.Builder#setCue}, can
-         * contain image spans. If necessary, those images in the spans will be scaled down to fit
-         * within a 108 x 32 dp bounding box, while preserving their aspect ratio.
+         * contain image spans. To minimize scaling artifacts across a wide range of car screens,
+         * apps should provide images targeting a 216 x 72 dp bounding box. If necessary, those
+         * images in the spans will be scaled down to fit the bounding box while preserving their
+         * aspect ratios.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
@@ -206,10 +212,14 @@ public final class RoutingInfo implements NavigationInfo {
          *
          * <h4>Image Sizing Guidance</h4>
          *
-         * The image may be scaled down to fit a rectangle of 320 x 200 dp while preserving the
-         * aspect ratio. On smaller screens the junction image may result in the hiding of the
-         * {@link Lane}s, {@link TravelEstimate} or next {@link Step}. The aspect ratio should be
-         * greater than or equal to 1.6 in order to fit the horizontal space fully.
+         * To minimize scaling artifacts across a wide range of car screens, apps should provide
+         * images targeting a 500 x 312 dp bounding box. If the image exceeds this maximum size in
+         * either one of the dimensions, it will be scaled down to be centered inside the
+         * bounding box while preserving its aspect ratio. The aspect ratio should be greater than
+         * or equal to 1.6 in order to fit the horizontal space fully.
+         *
+         * <p>On smaller screens the junction image may result in the hiding of the {@link Lane}
+         * s, {@link TravelEstimate} or next {@link Step}.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.

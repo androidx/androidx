@@ -20,6 +20,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.provider.DocumentsContract;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
@@ -35,15 +36,16 @@ class SingleDocumentFile extends DocumentFile {
     }
 
     @Override
-    public DocumentFile createFile(String mimeType, String displayName) {
+    public DocumentFile createFile(@NonNull String mimeType, @NonNull String displayName) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public DocumentFile createDirectory(String displayName) {
+    public DocumentFile createDirectory(@NonNull String displayName) {
         throw new UnsupportedOperationException();
     }
 
+    @NonNull
     @Override
     public Uri getUri() {
         return mUri;
@@ -97,7 +99,6 @@ class SingleDocumentFile extends DocumentFile {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public boolean delete() {
         try {
             return DocumentsContract.deleteDocument(mContext.getContentResolver(), mUri);
@@ -111,13 +112,14 @@ class SingleDocumentFile extends DocumentFile {
         return DocumentsContractApi19.exists(mContext, mUri);
     }
 
+    @NonNull
     @Override
     public DocumentFile[] listFiles() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean renameTo(String displayName) {
+    public boolean renameTo(@NonNull String displayName) {
         throw new UnsupportedOperationException();
     }
 }

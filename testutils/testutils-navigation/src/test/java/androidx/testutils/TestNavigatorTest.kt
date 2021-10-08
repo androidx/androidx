@@ -17,7 +17,10 @@
 package androidx.testutils
 
 import android.os.Bundle
-import org.junit.Assert.assertEquals
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.navigation.testing.TestNavigatorState
+import com.google.common.truth.Truth.assertWithMessage
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -25,25 +28,26 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class TestNavigatorTest {
 
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
+
     @Test
     fun backStack() {
         val testNavigator = TestNavigator()
+        val state = TestNavigatorState()
+        testNavigator.onAttach(state)
         val destination = testNavigator.createDestination()
         val args = Bundle()
-        testNavigator.navigate(destination, args, null, null)
-        assertEquals(
-            "TestNavigator back stack size is 1 after navigate",
-            1,
-            testNavigator.backStack.size
-        )
-        val (foundDestination, foundArgs) = testNavigator.current
-        assertEquals(
-            "last() returns last destination navigated to",
-            destination, foundDestination
-        )
-        assertEquals(
-            "last() returns arguments Bundle",
-            args, foundArgs
-        )
+        testNavigator.navigate(listOf(state.createBackStackEntry(destination, args)), null, null)
+        assertWithMessage("TestNavigator back stack size is 1 after navigate")
+            .that(testNavigator.backStack.size)
+            .isEqualTo(1)
+        val current = testNavigator.current
+        assertWithMessage("last() returns last destination navigated to")
+            .that(current.destination)
+            .isEqualTo(destination)
+        assertWithMessage("last() returns arguments Bundle")
+            .that(current.arguments)
+            .isEqualTo(args)
     }
 }

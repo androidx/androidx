@@ -21,12 +21,6 @@ ForbiddenSuperClass: androidx.wear.activity.ConfirmationActivity:
     ConfirmationActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 
 
-GetterSetterNames: androidx.wear.widget.WearArcLayout#getClockwise():
-    Symmetric method for `setClockwise` must be named `isClockwise`; was `getClockwise`
-GetterSetterNames: androidx.wear.widget.WearArcLayout.LayoutParams#getRotate():
-    Symmetric method for `setRotate` must be named `isRotate`; was `getRotate`
-GetterSetterNames: androidx.wear.widget.WearCurvedTextView#getClockwise():
-    Symmetric method for `setClockwise` must be named `isClockwise`; was `getClockwise`
 GetterSetterNames: androidx.wear.widget.drawer.WearableDrawerView#setIsAutoPeekEnabled(boolean):
     Symmetric method for `isAutoPeekEnabled` must be named `setAutoPeekEnabled`; was `setIsAutoPeekEnabled`
 GetterSetterNames: androidx.wear.widget.drawer.WearableDrawerView#setIsLocked(boolean):

@@ -29,8 +29,14 @@ import com.google.auto.value.AutoValue;
  *
  * <p>Used in cases when there are multiple Advertising ID Providers on the device. See
  * {@link AdvertisingIdProviderManager#getAdvertisingIdProviders} for more details.
+ *
+ * @deprecated Use the
+ * <a href="https://developers.google.com/android/reference/com/google/android/gms/ads/identifier/AdvertisingIdClient">
+ * Advertising ID API that's available as part of Google Play Services</a> instead of this library.
  */
+@Deprecated
 @AutoValue
+@AutoValue.CopyAnnotations
 public abstract class AdvertisingIdProviderInfo {
 
     // Create a no-args constructor so it doesn't appear in current.txt

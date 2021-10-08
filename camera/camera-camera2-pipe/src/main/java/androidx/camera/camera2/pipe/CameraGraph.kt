@@ -23,17 +23,16 @@ import android.hardware.camera2.CameraConstrainedHighSpeedCaptureSession
 import android.hardware.camera2.params.SessionConfiguration
 import android.hardware.camera2.params.MeteringRectangle
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
-import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_MS
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
 import kotlinx.coroutines.Deferred
 import java.io.Closeable
 
 /**
  * A [CameraGraph] represents the combined configuration and state of a camera.
- *
- *
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraGraph : Closeable {
     public val streams: StreamGraph
 
@@ -125,6 +124,7 @@ public interface CameraGraph : Closeable {
         HIGH_SPEED,
     }
 
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public object Constants3A {
         // Constants related to controlling the time or frame budget a 3A operation should get.
         public const val DEFAULT_FRAME_LIMIT: Int = 60
@@ -237,7 +237,15 @@ public interface CameraGraph : Closeable {
 
         /**
          * Locks the auto-exposure, auto-focus and auto-whitebalance as per the given desired
-         * behaviors.
+         * behaviors. This given 3A parameters are applied before the lock is obtained. If 'null'
+         * value is passed for a parameter, that parameter is ignored, and the current value for
+         * that parameter continues to be applied.
+         *
+         * TODO(sushilnath@): Add support for specifying the AE, AF and AWB modes as well. The
+         * update of modes require special care if the desired lock behavior is immediate. In
+         * that case we have to submit a combination of repeating and single requests so that the
+         * AF skips the initial state of the new mode's state machine and stays locks in the new
+         * mode as well.
          *
          * @param frameLimit the maximum number of frames to wait before we give up waiting for
          * this operation to complete.
@@ -249,28 +257,6 @@ public interface CameraGraph : Closeable {
          * or time limit was reached.
          */
         public suspend fun lock3A(
-            aeLockBehavior: Lock3ABehavior? = null,
-            afLockBehavior: Lock3ABehavior? = null,
-            awbLockBehavior: Lock3ABehavior? = null,
-            frameLimit: Int = DEFAULT_FRAME_LIMIT,
-            timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
-        ): Deferred<Result3A>
-
-        /**
-         * Locks the auto-exposure, auto-focus and auto-whitebalance as per the given desired
-         * behaviors. This method is similar to the earlier [lock3A] method with additional
-         * capability of applying the given 3A parameters before the lock is obtained.
-         *
-         * @param frameLimit the maximum number of frames to wait before we give up waiting for
-         * this operation to complete.
-         * @param timeLimitMs the maximum time limit in ms we wait before we give up waiting for
-         * this operation to complete.
-         *
-         * @return [Result3A], which will contain the latest frame number at which the locks were
-         * applied or the frame number at which the method returned early because either frame limit
-         * or time limit was reached.
-         */
-        public fun lock3A(
             aeMode: AeMode? = null,
             afMode: AfMode? = null,
             awbMode: AwbMode? = null,
@@ -281,7 +267,7 @@ public interface CameraGraph : Closeable {
             afLockBehavior: Lock3ABehavior? = null,
             awbLockBehavior: Lock3ABehavior? = null,
             frameLimit: Int = DEFAULT_FRAME_LIMIT,
-            timeLimitMs: Int = DEFAULT_TIME_LIMIT_MS
+            timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
         ): Deferred<Result3A>
 
         /**
@@ -293,9 +279,13 @@ public interface CameraGraph : Closeable {
          * is provided or the parameter is not specified then it will have no effect on the lock of
          * that component, i.e if it was locked earlier it will stay locked and if it was already
          * unlocked, it will stay unlocked.
+         *
+         * @return [Result3A], which will contain the latest frame number at which the auto-focus,
+         * auto-exposure, auto-white balance were unlocked as per the method arguments.
+         *
          */
-        public fun unlock3A(ae: Boolean? = null, af: Boolean? = null, awb: Boolean? = null):
-            Deferred<FrameNumber>
+        public suspend fun unlock3A(ae: Boolean? = null, af: Boolean? = null, awb: Boolean? = null):
+            Deferred<Result3A>
 
         /**
          * This methods does pre-capture metering sequence and locks auto-focus. Once the

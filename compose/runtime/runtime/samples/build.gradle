@@ -14,28 +14,27 @@
  * limitations under the License.
  */
 
+
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("AndroidXUiPlugin")
+    id("AndroidXComposePlugin")
     id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
-    implementation(KOTLIN_STDLIB)
+    implementation(libs.kotlinStdlib)
 
-    compileOnly(project(":annotation:annotation-sampled"))
-    implementation(project(":compose:foundation:foundation-layout"))
-    implementation(project(":compose:material:material"))
+    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
+    implementation("androidx.compose.foundation:foundation-layout:1.0.0")
+    implementation("androidx.compose.material:material:1.0.0")
     implementation(project(":compose:runtime:runtime"))
-    implementation(project(":compose:ui:ui"))
+    implementation("androidx.compose.ui:ui:1.0.0")
 }
 
 androidx {

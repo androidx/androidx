@@ -16,26 +16,37 @@
 
 package androidx.compose.ui.graphics
 
-import org.jetbrains.skija.PathEffect as SkijaPathEffect
+import org.jetbrains.skia.PathEffect as SkiaPathEffect
 
-internal class DesktopPathEffect(val nativePathEffect: SkijaPathEffect) : PathEffect
+internal class DesktopPathEffect(val nativePathEffect: SkiaPathEffect) : PathEffect
+
+/**
+ * Convert the [org.jetbrains.skia.PathEffect] instance into a Compose-compatible PathEffect
+ */
+fun SkiaPathEffect.asComposePathEffect(): PathEffect = DesktopPathEffect(this)
 
 /**
  * Obtain a reference to the desktop PathEffect type
  */
-fun PathEffect.asDesktopPathEffect(): SkijaPathEffect =
+@Deprecated("Use asSkiaPathEffect()", replaceWith = ReplaceWith("asSkiaPathEffect()"))
+fun PathEffect.asDesktopPathEffect(): SkiaPathEffect = asSkiaPathEffect()
+
+/**
+ * Obtain a reference to the desktop PathEffect type
+ */
+fun PathEffect.asSkiaPathEffect(): SkiaPathEffect =
     (this as DesktopPathEffect).nativePathEffect
 
 internal actual fun actualCornerPathEffect(radius: Float): PathEffect =
-    DesktopPathEffect(SkijaPathEffect.makeCorner(radius))
+    DesktopPathEffect(SkiaPathEffect.makeCorner(radius))
 
 internal actual fun actualDashPathEffect(
     intervals: FloatArray,
     phase: Float
-): PathEffect = DesktopPathEffect(SkijaPathEffect.makeDash(intervals, phase))
+): PathEffect = DesktopPathEffect(SkiaPathEffect.makeDash(intervals, phase))
 
 internal actual fun actualChainPathEffect(outer: PathEffect, inner: PathEffect): PathEffect =
-    DesktopPathEffect(outer.asDesktopPathEffect().makeCompose(inner.asDesktopPathEffect()))
+    DesktopPathEffect(outer.asSkiaPathEffect().makeCompose(inner.asSkiaPathEffect()))
 
 internal actual fun actualStampedPathEffect(
     shape: Path,
@@ -44,17 +55,18 @@ internal actual fun actualStampedPathEffect(
     style: StampedPathEffectStyle
 ): PathEffect =
     DesktopPathEffect(
-        SkijaPathEffect.makePath1D(
-            shape.asDesktopPath(),
+        SkiaPathEffect.makePath1D(
+            shape.asSkiaPath(),
             advance,
             phase,
-            style.toSkijaStampedPathEffectStyle()
+            style.toSkiaStampedPathEffectStyle()
         )
     )
 
-internal fun StampedPathEffectStyle.toSkijaStampedPathEffectStyle(): SkijaPathEffect.Style =
+internal fun StampedPathEffectStyle.toSkiaStampedPathEffectStyle(): SkiaPathEffect.Style =
     when (this) {
-        StampedPathEffectStyle.Morph -> SkijaPathEffect.Style.MORPH
-        StampedPathEffectStyle.Rotate -> SkijaPathEffect.Style.ROTATE
-        StampedPathEffectStyle.Translate -> SkijaPathEffect.Style.TRANSLATE
+        StampedPathEffectStyle.Morph -> SkiaPathEffect.Style.MORPH
+        StampedPathEffectStyle.Rotate -> SkiaPathEffect.Style.ROTATE
+        StampedPathEffectStyle.Translate -> SkiaPathEffect.Style.TRANSLATE
+        else -> SkiaPathEffect.Style.TRANSLATE
     }

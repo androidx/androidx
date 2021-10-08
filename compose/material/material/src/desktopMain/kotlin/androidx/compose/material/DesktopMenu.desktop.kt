@@ -22,14 +22,15 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.rememberCursorPositionProvider
 import androidx.compose.ui.window.Popup
 
 /**
@@ -68,6 +69,7 @@ import androidx.compose.ui.window.Popup
 fun DropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
+    focusable: Boolean = true,
     modifier: Modifier = Modifier,
     offset: DpOffset = DpOffset(0.dp, 0.dp),
     content: @Composable ColumnScope.() -> Unit
@@ -86,7 +88,7 @@ fun DropdownMenu(
         }
 
         Popup(
-            isFocusable = true,
+            focusable = focusable,
             onDismissRequest = onDismissRequest,
             popupPositionProvider = popupPositionProvider
         ) {
@@ -133,4 +135,48 @@ fun DropdownMenuItem(
         interactionSource = interactionSource,
         content = content
     )
+}
+
+/**
+ *
+ * A [CursorDropdownMenu] behaves similarly to [Popup] and will use the current position of the mouse
+ * cursor to position itself on screen.
+ *
+ * The [content] of a [CursorDropdownMenu] will typically be [DropdownMenuItem]s, as well as custom
+ * content. Using [DropdownMenuItem]s will result in a menu that matches the Material
+ * specification for menus.
+ *
+ * @param expanded Whether the menu is currently open and visible to the user
+ * @param onDismissRequest Called when the user requests to dismiss the menu, such as by
+ * tapping outside the menu's bounds
+ */
+@OptIn(ExperimentalComposeUiApi::class)
+@Suppress("ModifierParameter")
+@Composable
+fun CursorDropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    focusable: Boolean = true,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    val expandedStates = remember { MutableTransitionState(false) }
+    expandedStates.targetState = expanded
+
+    if (expandedStates.currentState || expandedStates.targetState) {
+        val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
+
+        Popup(
+            focusable = focusable,
+            onDismissRequest = onDismissRequest,
+            popupPositionProvider = rememberCursorPositionProvider()
+        ) {
+            DropdownMenuContent(
+                expandedStates = expandedStates,
+                transformOriginState = transformOriginState,
+                modifier = modifier,
+                content = content
+            )
+        }
+    }
 }

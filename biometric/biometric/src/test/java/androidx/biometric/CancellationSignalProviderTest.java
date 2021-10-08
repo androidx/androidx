@@ -36,6 +36,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(instrumentedPackages = { "androidx.core.os" })
 @DoNotInstrument
 public class CancellationSignalProviderTest {
     @Mock private android.os.CancellationSignal mBiometricCancellationSignal;

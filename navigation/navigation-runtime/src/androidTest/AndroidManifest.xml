@@ -18,10 +18,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.navigation">
 
-    <application>
+    <application
+        android:name="androidx.multidex.MultiDexApplication">
         <activity android:name="androidx.navigation.ActivityNavigatorActivity"/>
         <activity android:name="androidx.navigation.TargetActivity"/>
         <activity android:name="androidx.navigation.NavControllerActivity"/>
         <activity android:name="androidx.navigation.TestActivity"/>
+        <activity android:name="androidx.navigation.TestArgsActivity"/>
     </application>
 </manifest>

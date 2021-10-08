@@ -22,6 +22,7 @@ import android.hardware.camera2.CaptureResult;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
@@ -33,6 +34,7 @@ import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.ExifData;
 
 /** The camera2 implementation for the capture result of a single image capture. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class Camera2CameraCaptureResult implements CameraCaptureResult {
     private static final String TAG = "C2CameraCaptureResult";
 
@@ -45,6 +47,10 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
             @NonNull CaptureResult captureResult) {
         mTagBundle = tagBundle;
         mCaptureResult = captureResult;
+    }
+
+    public Camera2CameraCaptureResult(@NonNull CaptureResult captureResult) {
+        this(TagBundle.emptyBundle(), captureResult);
     }
 
     /**
@@ -92,14 +98,16 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
                 return AfState.INACTIVE;
             case CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN:
             case CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN:
-            case CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED:
                 return AfState.SCANNING;
             case CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED:
                 return AfState.LOCKED_FOCUSED;
             case CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED:
                 return AfState.LOCKED_NOT_FOCUSED;
+            case CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED:
+                return AfState.PASSIVE_NOT_FOCUSED;
             case CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED:
-                return AfState.FOCUSED;
+                return AfState.PASSIVE_FOCUSED;
+
             default: // fall out
         }
         Logger.e(TAG, "Undefined af state: " + state);

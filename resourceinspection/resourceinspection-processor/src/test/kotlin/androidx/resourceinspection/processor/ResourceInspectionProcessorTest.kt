@@ -23,6 +23,7 @@ import com.google.testing.compile.Compiler.javac
 import com.google.testing.compile.JavaFileObjects
 import org.intellij.lang.annotations.Language
 import org.junit.Test
+import java.io.File
 import javax.lang.model.SourceVersion
 import javax.tools.JavaFileObject
 
@@ -66,10 +67,17 @@ class ResourceInspectionProcessorTest {
                 import android.view.inspector.PropertyReader;
                 import androidx.annotation.NonNull;
                 import androidx.annotation.RequiresApi;
+                import androidx.annotation.RestrictTo;
                 import java.lang.Override;
                 import javax.annotation.processing.Generated;
 
+                /**
+                 * Inspection companion for {@link TrivialTestView}.
+                 *
+                 * @hide
+                 */
                 @RequiresApi(29)
+                @RestrictTo(RestrictTo.Scope.LIBRARY)
                 @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
                 public final class TrivialTestView${'$'}InspectionCompanion
                         implements InspectionCompanion<TrivialTestView>
@@ -81,6 +89,7 @@ class ResourceInspectionProcessorTest {
                     public void mapProperties(@NonNull PropertyMapper propertyMapper) {
                         mTestAttributeId = propertyMapper.mapInt(
                             "testAttribute", R.attr.testAttribute);
+                        mPropertiesMapped = true;
                     }
 
                     @Override
@@ -155,10 +164,17 @@ class ResourceInspectionProcessorTest {
                         import android.view.inspector.PropertyReader;
                         import androidx.annotation.NonNull;
                         import androidx.annotation.RequiresApi;
+                        import androidx.annotation.RestrictTo;
                         import java.lang.Override;
                         import javax.annotation.processing.Generated;
 
+                        /**
+                         * Inspection companion for {@link TrivialTestView}.
+                         *
+                         * @hide
+                         */
                         @RequiresApi(29)
+                        @RestrictTo(RestrictTo.Scope.LIBRARY)
                         @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
                         public final class MixedNamespaceTestView${'$'}InspectionCompanion
                                 implements InspectionCompanion<MixedNamespaceTestView> {
@@ -170,6 +186,7 @@ class ResourceInspectionProcessorTest {
                             public void mapProperties(@NonNull PropertyMapper propertyMapper) {
                                 mColorId = propertyMapper.mapColor("color", android.R.attr.color);
                                 mColorId_ = propertyMapper.mapColor("color", R.attr.color);
+                                mPropertiesMapped = true;
                             }
 
                             @Override
@@ -200,7 +217,8 @@ class ResourceInspectionProcessorTest {
                 fakeR(
                     "androidx.pkg", "testBoolean", "testByte", "testCharacter", "testDouble",
                     "testFloat", "testInt", "testLong", "testShort", "testString",
-                    "colorInt", "colorLong", "colorObject", "layoutResourceId", "anyResourceId"
+                    "colorInt", "colorLong", "colorObject", "layoutResourceId", "anyResourceId",
+                    "gravityInt", "intArray"
                 ),
                 java(
                     "androidx.pkg.SimpleTypesTestView",
@@ -214,6 +232,7 @@ class ResourceInspectionProcessorTest {
                         import androidx.annotation.AnyRes;
                         import androidx.annotation.ColorInt;
                         import androidx.annotation.ColorLong;
+                        import androidx.annotation.GravityInt;
                         import androidx.annotation.NonNull;
                         import androidx.annotation.LayoutRes;
                         import androidx.resourceinspection.annotation.Attribute;
@@ -298,6 +317,18 @@ class ResourceInspectionProcessorTest {
                             public int getAnyResourceId() {
                                 return 13;
                             }
+
+                            @GravityInt
+                            @Attribute("androidx.pkg:gravityInt")
+                            public int getGravityInt() {
+                                return 14;
+                            }
+
+                            @NonNull
+                            @Attribute("androidx.pkg:intArray")
+                            public int[] getIntArray() {
+                                return new int[15];
+                            }
                         }
                     """
                 )
@@ -315,10 +346,17 @@ class ResourceInspectionProcessorTest {
                         import android.view.inspector.PropertyReader;
                         import androidx.annotation.NonNull;
                         import androidx.annotation.RequiresApi;
+                        import androidx.annotation.RestrictTo;
                         import java.lang.Override;
                         import javax.annotation.processing.Generated;
 
+                        /**
+                         * Inspection companion for {@link SimpleTypesTestView}.
+                         *
+                         * @hide
+                         */
                         @RequiresApi(29)
+                        @RestrictTo(RestrictTo.Scope.LIBRARY)
                         @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
                         public final class SimpleTypesTestView${'$'}InspectionCompanion
                                 implements InspectionCompanion<SimpleTypesTestView> {
@@ -327,6 +365,8 @@ class ResourceInspectionProcessorTest {
                             private int mColorIntId;
                             private int mColorLongId;
                             private int mColorObjectId;
+                            private int mGravityIntId;
+                            private int mIntArrayId;
                             private int mLayoutResourceIdId;
                             private int mTestBooleanId;
                             private int mTestByteId;
@@ -348,6 +388,10 @@ class ResourceInspectionProcessorTest {
                                     .mapColor("colorLong", R.attr.colorLong);
                                 mColorObjectId = propertyMapper
                                     .mapColor("colorObject", R.attr.colorObject);
+                                mGravityIntId = propertyMapper
+                                    .mapGravity("gravityInt", R.attr.gravityInt)
+                                mIntArrayId = propertyMapper
+                                    .mapObject("intArray", R.attr.intArray)
                                 mLayoutResourceIdId = propertyMapper
                                     .mapResourceId("layoutResourceId", R.attr.layoutResourceId);
                                 mTestBooleanId = propertyMapper
@@ -368,6 +412,7 @@ class ResourceInspectionProcessorTest {
                                     .mapShort("testShort", R.attr.testShort);
                                 mTestStringId = propertyMapper
                                     .mapObject("testString", R.attr.testString);
+                                mPropertiesMapped = true;
                             }
 
                             @Override
@@ -390,6 +435,12 @@ class ResourceInspectionProcessorTest {
                                 propertyReader.readColor(
                                     mColorObjectId,
                                     simpleTypesTestView.getColorObject());
+                                propertyReader.readGravity(
+                                    mGravityIntId,
+                                    simpleTypesTestView.getGravityInt());
+                                propertyReader.readObject(
+                                    mIntArrayId,
+                                    simpleTypesTestView.getIntArray());
                                 propertyReader.readResourceId(
                                     mLayoutResourceIdId,
                                     simpleTypesTestView.getLayoutResourceId());
@@ -473,12 +524,19 @@ class ResourceInspectionProcessorTest {
                         import android.view.inspector.PropertyReader;
                         import androidx.annotation.NonNull;
                         import androidx.annotation.RequiresApi;
+                        import androidx.annotation.RestrictTo;
                         import java.lang.Override;
                         import java.lang.String;
                         import java.util.function.IntFunction;
                         import javax.annotation.processing.Generated;
 
+                        /**
+                         * Inspection companion for {@link IntEnumTestView}.
+                         *
+                         * @hide
+                         */
                         @RequiresApi(29)
+                        @RestrictTo(RestrictTo.Scope.LIBRARY)
                         @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
                         public final class IntEnumTestView${'$'}InspectionCompanion
                                 implements InspectionCompanion<IntEnumTestView> {
@@ -507,6 +565,7 @@ class ResourceInspectionProcessorTest {
                                         }
                                     }
                                 );
+                                mPropertiesMapped = true;
                             }
 
                             @Override
@@ -549,8 +608,8 @@ class ResourceInspectionProcessorTest {
                             @Attribute(value = "androidx.pkg:intFlag", intMapping = {
                                 @Attribute.IntMap(value = 1, mask = 3, name = "ONE"),
                                 @Attribute.IntMap(value = 2, mask = 3, name = "TWO"),
-                                @Attribute.IntMap(value = 4, mask = 4, name = "FOUR"),
-                                @Attribute.IntMap(value = 5, name = "FIVE")
+                                @Attribute.IntMap(value = 3, mask = 3, name = "THREE"),
+                                @Attribute.IntMap(value = 4, name = "FOUR"),
                             })
                             public int getIntFlag() {
                                 return 0;
@@ -572,6 +631,7 @@ class ResourceInspectionProcessorTest {
                         import android.view.inspector.PropertyReader;
                         import androidx.annotation.NonNull;
                         import androidx.annotation.RequiresApi;
+                        import androidx.annotation.RestrictTo;
                         import java.lang.Override;
                         import java.lang.String;
                         import java.util.HashSet;
@@ -579,7 +639,13 @@ class ResourceInspectionProcessorTest {
                         import java.util.function.IntFunction;
                         import javax.annotation.processing.Generated;
 
+                        /**
+                         * Inspection companion for {@link IntFlagTestView}.
+                         *
+                         * @hide
+                         */
                         @RequiresApi(29)
+                        @RestrictTo(RestrictTo.Scope.LIBRARY)
                         @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
                         public final class IntFlagTestView${'$'}InspectionCompanion
                                 implements InspectionCompanion<IntFlagTestView> {
@@ -601,16 +667,17 @@ class ResourceInspectionProcessorTest {
                                             if ((value & 3) == 2) {
                                                 flags.add("TWO");
                                             }
-                                            if ((value & 4) == 4) {
-                                                flags.add("FOUR");
+                                            if (value == 3) {
+                                                flags.add("THREE");
                                             }
-                                            if (value == 5) {
-                                                flags.add("FIVE");
+                                            if (value == 4) {
+                                                flags.add("FOUR");
                                             }
                                             return flags;
                                         }
                                     }
                                 );
+                                mPropertiesMapped = true;
                             }
 
                             @Override
@@ -658,7 +725,7 @@ class ResourceInspectionProcessorTest {
                     """
                 )
             )
-        ).hadErrorContaining("@Attribute must only annotate subclasses of android.view.View")
+        ).hadErrorContaining("@Attribute must be on a subclass of android.view.View")
     }
 
     @Test
@@ -721,7 +788,7 @@ class ResourceInspectionProcessorTest {
                     """
                 )
             )
-        ).hadErrorContaining("Attribute name must include namespace")
+        ).hadErrorContaining("@Attribute must include namespace")
     }
 
     @Test
@@ -786,6 +853,914 @@ class ResourceInspectionProcessorTest {
         ).hadErrorContaining("@Attribute getter must be public")
     }
 
+    @Test
+    fun `fails when R file for namespace is not present`() {
+        assertThat(
+            compile(
+                java(
+                    "androidx.pkg.MissingRFileTestView",
+                    """
+                        package androidx.pkg;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.view.View;
+                        import androidx.resourceinspection.annotation.Attribute;
+
+                        public final class MissingRFileTestView extends View {
+                            public MissingRFileTestView(Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+
+                            @Attribute("bad.pkg:attribute")
+                            public int getAttribute() {
+                                return 1;
+                            }
+                        }
+                    """
+                )
+            )
+        ).hadErrorContaining("Attribute bad.pkg:attribute not found")
+    }
+
+    @Test
+    fun `fails when attribute is not present in R file`() {
+        assertThat(
+            compile(
+                fakeR("androidx.pkg", "good"),
+                java(
+                    "androidx.pkg.MissingAttributeTestView",
+                    """
+                        package androidx.pkg;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.view.View;
+                        import androidx.resourceinspection.annotation.Attribute;
+
+                        public final class MissingAttributeTestView extends View {
+                            public MissingAttributeTestView(Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+
+                            @Attribute("androidx.pkg:good")
+                            public int getGood() {
+                                return 1;
+                            }
+
+                            @Attribute("androidx.pkg:bad")
+                            public int getBad() {
+                                return 2;
+                            }
+                        }
+                    """
+                )
+            )
+        ).hadErrorContaining("Attribute androidx.pkg:bad not found")
+    }
+
+    @Test
+    fun `fails on duplicate attributes`() {
+        val compilation = compile(
+            fakeR("androidx.pkg", "duplicated"),
+            java(
+                "androidx.pkg.DuplicateAttributesTestView",
+                """
+                    package androidx.pkg;
+
+                    import android.content.Context;
+                    import android.util.AttributeSet;
+                    import android.view.View;
+                    import androidx.annotation.ColorInt;
+                    import androidx.resourceinspection.annotation.Attribute;
+
+                    public final class DuplicateAttributesTestView extends View {
+                        public DuplicateAttributesTestView(Context context, AttributeSet attrs) {
+                            super(context, attrs);
+                        }
+
+                        @Attribute("androidx.pkg:duplicated")
+                        public int getDuplicated1() {
+                            return 1;
+                        }
+
+                        @Attribute("androidx.pkg:duplicated")
+                        public int getDuplicated2() {
+                            return 2;
+                        }
+                    }
+                """
+            )
+        )
+
+        assertThat(compilation).hadErrorContaining(
+            "Duplicate attribute androidx.pkg:duplicated is also present on getDuplicated1()"
+        )
+
+        assertThat(compilation).hadErrorContaining(
+            "Duplicate attribute androidx.pkg:duplicated is also present on getDuplicated2()"
+        )
+    }
+
+    @Test
+    fun `shadowed background tint`() {
+        assertThat(
+            compile(
+                fakeR("androidx.appcompat", "backgroundTint", "backgroundTintMode"),
+                fakeInterface("androidx.core.view.TintableBackgroundView"),
+                java(
+                    "androidx.appcompat.test.BackgroundTintTestView",
+                    """
+                        package androidx.appcompat.test;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.view.View;
+                        import androidx.core.view.TintableBackgroundView;
+                        import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
+
+                        @AppCompatShadowedAttributes
+                        public final class BackgroundTintTestView extends View
+                                implements TintableBackgroundView {
+                            public BackgroundTintTestView(Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+                        }
+                    """
+                )
+            )
+        ).generatedSourceFile(
+            "androidx.appcompat.test.BackgroundTintTestView${'$'}InspectionCompanion",
+        ).hasSourceEquivalentTo(
+            java(
+                "androidx.appcompat.test.BackgroundTintTestView${'$'}InspectionCompanion",
+                """
+                    package androidx.appcompat.test;
+
+                    import android.view.inspector.InspectionCompanion;
+                    import android.view.inspector.PropertyMapper;
+                    import android.view.inspector.PropertyReader;
+                    import androidx.annotation.NonNull;
+                    import androidx.annotation.RequiresApi;
+                    import androidx.annotation.RestrictTo;
+                    import androidx.appcompat.R;
+                    import java.lang.Override;
+                    import javax.annotation.processing.Generated;
+
+                    /**
+                     * Inspection companion for {@link BackgroundTintTestView}.
+                     *
+                     * @hide
+                     */
+                    @RequiresApi(29)
+                    @RestrictTo(RestrictTo.Scope.LIBRARY)
+                    @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
+                    public final class BackgroundTintTestView${'$'}InspectionCompanion
+                            implements InspectionCompanion<BackgroundTintTestView> {
+                        private boolean mPropertiesMapped = false;
+                        private int mBackgroundTintId;
+                        private int mBackgroundTintModeId;
+
+                        @Override
+                        public void mapProperties(@NonNull PropertyMapper propertyMapper) {
+                            mBackgroundTintId = propertyMapper
+                                .mapObject("backgroundTint", R.attr.backgroundTint);
+                            mBackgroundTintModeId = propertyMapper
+                                .mapObject("backgroundTintMode", R.attr.backgroundTintMode);
+                            mPropertiesMapped = true;
+                        }
+
+                        @Override
+                        public void readProperties(
+                            @NonNull BackgroundTintTestView backgroundTintTestView,
+                            @NonNull PropertyReader propertyReader
+                        ) {
+                            if (!mPropertiesMapped) {
+                                throw new InspectionCompanion.UninitializedPropertyMapException();
+                            }
+                            propertyReader.readObject(
+                                mBackgroundTintId,
+                                backgroundTintTestView.getBackgroundTintList());
+                            propertyReader.readObject(
+                                mBackgroundTintModeId,
+                                backgroundTintTestView.getBackgroundTintMode());
+                        }
+                    }
+                """
+            )
+        )
+    }
+
+    @Test
+    fun `shadowed auto-size text view`() {
+        assertThat(
+            compile(
+                fakeR(
+                    "androidx.appcompat", "autoSizeMaxTextSize", "autoSizeMinTextSize",
+                    "autoSizeStepGranularity", "autoSizeTextType"
+                ),
+                fakeInterface("androidx.core.widget.AutoSizeableTextView"),
+                java(
+                    "androidx.appcompat.test.AutoSizeTestView",
+                    """
+                        package androidx.appcompat.test;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.widget.TextView;
+                        import androidx.core.widget.AutoSizeableTextView;
+                        import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
+
+                        @AppCompatShadowedAttributes
+                        public final class AutoSizeTestView extends TextView
+                                implements AutoSizeableTextView {
+                            public AutoSizeTestView(Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+                        }
+                    """
+                )
+            )
+        ).generatedSourceFile(
+            "androidx.appcompat.test.AutoSizeTestView${'$'}InspectionCompanion",
+        ).hasSourceEquivalentTo(
+            java(
+                "androidx.appcompat.test.AutoSizeTestView${'$'}InspectionCompanion",
+                """
+                    package androidx.appcompat.test;
+
+                    import android.view.inspector.InspectionCompanion;
+                    import android.view.inspector.PropertyMapper;
+                    import android.view.inspector.PropertyReader;
+                    import androidx.annotation.NonNull;
+                    import androidx.annotation.RequiresApi;
+                    import androidx.annotation.RestrictTo;
+                    import androidx.appcompat.R;
+                    import java.lang.Override;
+                    import java.lang.String;
+                    import java.util.function.IntFunction;
+                    import javax.annotation.processing.Generated;
+
+                    /**
+                     * Inspection companion for {@link AutoSizeTestView}.
+                     *
+                     * @hide
+                     */
+                    @RequiresApi(29)
+                    @RestrictTo(RestrictTo.Scope.LIBRARY)
+                    @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
+                    public final class AutoSizeTestView${'$'}InspectionCompanion
+                            implements InspectionCompanion<AutoSizeTestView> {
+                        private boolean mPropertiesMapped = false;
+                        private int mAutoSizeMaxTextSizeId;
+                        private int mAutoSizeMinTextSizeId;
+                        private int mAutoSizeStepGranularityId;
+                        private int mAutoSizeTextTypeId;
+
+                        @Override
+                        public void mapProperties(@NonNull PropertyMapper propertyMapper) {
+                            mAutoSizeMaxTextSizeId = propertyMapper
+                                .mapInt("autoSizeMaxTextSize", R.attr.autoSizeMaxTextSize);
+                            mAutoSizeMinTextSizeId = propertyMapper
+                                .mapInt("autoSizeMinTextSize", R.attr.autoSizeMinTextSize);
+                            mAutoSizeStepGranularityId = propertyMapper
+                                .mapInt("autoSizeStepGranularity", R.attr.autoSizeStepGranularity);
+                            mAutoSizeTextTypeId = propertyMapper.mapIntEnum(
+                                "autoSizeTextType",
+                                R.attr.autoSizeTextType,
+                                new IntFunction<String>() {
+                                    @Override
+                                    public String apply(int value) {
+                                        switch (value) {
+                                            case 0:
+                                                return "none";
+                                            case 1:
+                                                return "uniform";
+                                            default:
+                                                return String.valueOf(value);
+                                        }
+                                    }
+                                }
+                            );
+                            mPropertiesMapped = true;
+                        }
+
+                        @Override
+                        public void readProperties(
+                            @NonNull AutoSizeTestView autoSizeTestView,
+                            @NonNull PropertyReader propertyReader
+                        ) {
+                            if (!mPropertiesMapped) {
+                                throw new InspectionCompanion.UninitializedPropertyMapException();
+                            }
+                            propertyReader.readInt(
+                                mAutoSizeMaxTextSizeId,
+                                autoSizeTestView.getAutoSizeMaxTextSize());
+                            propertyReader.readInt(
+                                mAutoSizeMinTextSizeId,
+                                autoSizeTestView.getAutoSizeMinTextSize());
+                            propertyReader.readInt(
+                                mAutoSizeStepGranularityId,
+                                autoSizeTestView.getAutoSizeStepGranularity());
+                            propertyReader.readIntEnum(
+                                mAutoSizeTextTypeId,
+                                autoSizeTestView.getAutoSizeTextType());
+                        }
+                    }
+                """
+            )
+        )
+    }
+
+    @Test
+    fun `shadowed check mark tint`() {
+        assertThat(
+            compile(
+                fakeR("androidx.appcompat", "checkMarkTint", "checkMarkTintMode"),
+                fakeInterface("androidx.core.widget.TintableCheckedTextView"),
+                java(
+                    "androidx.appcompat.test.CheckMarkTintTestView",
+                    """
+                        package androidx.appcompat.test;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.widget.CheckedTextView;
+                        import androidx.core.widget.TintableCheckedTextView;
+                        import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
+
+                        @AppCompatShadowedAttributes
+                        public final class CheckMarkTintTestView extends CheckedTextView
+                                implements TintableCheckedTextView {
+                            public CheckMarkTintTestView(Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+                        }
+                    """
+                )
+            )
+        ).generatedSourceFile(
+            "androidx.appcompat.test.CheckMarkTintTestView${'$'}InspectionCompanion",
+        ).hasSourceEquivalentTo(
+            java(
+                "androidx.appcompat.test.CheckMarkTintTestView${'$'}InspectionCompanion",
+                """
+                    package androidx.appcompat.test;
+
+                    import android.view.inspector.InspectionCompanion;
+                    import android.view.inspector.PropertyMapper;
+                    import android.view.inspector.PropertyReader;
+                    import androidx.annotation.NonNull;
+                    import androidx.annotation.RequiresApi;
+                    import androidx.annotation.RestrictTo;
+                    import androidx.appcompat.R;
+                    import java.lang.Override;
+                    import javax.annotation.processing.Generated;
+
+                    /**
+                     * Inspection companion for {@link CheckMarkTintTestView}.
+                     *
+                     * @hide
+                     */
+                    @RequiresApi(29)
+                    @RestrictTo(RestrictTo.Scope.LIBRARY)
+                    @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
+                    public final class CheckMarkTintTestView${'$'}InspectionCompanion
+                        implements InspectionCompanion<CheckMarkTintTestView> {
+                        private boolean mPropertiesMapped = false;
+                        private int mCheckMarkTintId;
+                        private int mCheckMarkTintModeId;
+
+                        @Override
+                        public void mapProperties(@NonNull PropertyMapper propertyMapper) {
+                            mCheckMarkTintId = propertyMapper
+                                .mapObject("checkMarkTint", R.attr.checkMarkTint);
+                            mCheckMarkTintModeId = propertyMapper
+                                .mapObject("checkMarkTintMode", R.attr.checkMarkTintMode);
+                            mPropertiesMapped = true;
+                        }
+
+                        @Override
+                        public void readProperties(
+                            @NonNull CheckMarkTintTestView checkMarkTintTestView,
+                            @NonNull PropertyReader propertyReader
+                        ) {
+                            if (!mPropertiesMapped) {
+                                throw new InspectionCompanion.UninitializedPropertyMapException();
+                            }
+                            propertyReader.readObject(
+                                mCheckMarkTintId,
+                                checkMarkTintTestView.getCheckMarkTintList());
+                            propertyReader.readObject(
+                                mCheckMarkTintModeId,
+                                checkMarkTintTestView.getCheckMarkTintMode());
+                        }
+                    }
+                """
+            )
+        )
+    }
+
+    @Test
+    fun `shadowed compound button tint`() {
+        assertThat(
+            compile(
+                fakeR("androidx.appcompat", "buttonTint", "buttonTintMode"),
+                fakeInterface("androidx.core.widget.TintableCompoundButton"),
+                java(
+                    "androidx.appcompat.test.CompoundButtonTintTestView",
+                    """
+                        package androidx.appcompat.test;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.widget.RadioButton;
+                        import androidx.core.widget.TintableCompoundButton;
+                        import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
+
+                        @AppCompatShadowedAttributes
+                        public final class CompoundButtonTintTestView extends RadioButton
+                                implements TintableCompoundButton {
+                            public CompoundButtonTintTestView(Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+                        }
+                    """
+                )
+            )
+        ).generatedSourceFile(
+            "androidx.appcompat.test.CompoundButtonTintTestView${'$'}InspectionCompanion",
+        ).hasSourceEquivalentTo(
+            java(
+                "androidx.appcompat.test.CompoundButtonTintTestView${'$'}InspectionCompanion",
+                """
+                    package androidx.appcompat.test;
+
+                    import android.view.inspector.InspectionCompanion;
+                    import android.view.inspector.PropertyMapper;
+                    import android.view.inspector.PropertyReader;
+                    import androidx.annotation.NonNull;
+                    import androidx.annotation.RequiresApi;
+                    import androidx.annotation.RestrictTo;
+                    import androidx.appcompat.R;
+                    import java.lang.Override;
+                    import javax.annotation.processing.Generated;
+
+                    /**
+                     * Inspection companion for {@link CompoundButtonTintTestView}.
+                     *
+                     * @hide
+                     */
+                    @RequiresApi(29)
+                    @RestrictTo(RestrictTo.Scope.LIBRARY)
+                    @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
+                    public final class CompoundButtonTintTestView${'$'}InspectionCompanion
+                            implements InspectionCompanion<CompoundButtonTintTestView> {
+                        private boolean mPropertiesMapped = false;
+                        private int mButtonTintId;
+                        private int mButtonTintModeId;
+
+                        @Override
+                        public void mapProperties(@NonNull PropertyMapper propertyMapper) {
+                            mButtonTintId = propertyMapper
+                                .mapObject("buttonTint", R.attr.buttonTint);
+                            mButtonTintModeId = propertyMapper
+                                .mapObject("buttonTintMode", R.attr.buttonTintMode);
+                            mPropertiesMapped = true;
+                        }
+
+                        @Override
+                        public void readProperties(
+                            @NonNull CompoundButtonTintTestView compoundButtonTintTestView,
+                            @NonNull PropertyReader propertyReader
+                        ) {
+                            if (!mPropertiesMapped) {
+                                throw new InspectionCompanion.UninitializedPropertyMapException();
+                            }
+                            propertyReader.readObject(
+                                mButtonTintId,
+                                compoundButtonTintTestView.getButtonTintList());
+                            propertyReader.readObject(
+                                mButtonTintModeId,
+                                compoundButtonTintTestView.getButtonTintMode());
+                        }
+                    }
+                """
+            )
+        )
+    }
+
+    @Test
+    fun `shadowed compound drawables tint`() {
+        assertThat(
+            compile(
+                fakeR("androidx.appcompat", "drawableTint", "drawableTintMode"),
+                fakeInterface("androidx.core.widget.TintableCompoundDrawablesView"),
+                java(
+                    "androidx.appcompat.test.CompoundDrawablesTestView",
+                    """
+                        package androidx.appcompat.test;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.widget.TextView;
+                        import androidx.core.widget.TintableCompoundDrawablesView;
+                        import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
+
+                        @AppCompatShadowedAttributes
+                        public final class CompoundDrawablesTestView extends TextView
+                                implements TintableCompoundDrawablesView {
+                            public CompoundDrawablesTestView(Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+                        }
+                    """
+                )
+            )
+        ).generatedSourceFile(
+            "androidx.appcompat.test.CompoundDrawablesTestView${'$'}InspectionCompanion",
+        ).hasSourceEquivalentTo(
+            java(
+                "androidx.appcompat.test.CompoundDrawablesTestView${'$'}InspectionCompanion",
+                """
+                    package androidx.appcompat.test;
+
+                    import android.view.inspector.InspectionCompanion;
+                    import android.view.inspector.PropertyMapper;
+                    import android.view.inspector.PropertyReader;
+                    import androidx.annotation.NonNull;
+                    import androidx.annotation.RequiresApi;
+                    import androidx.annotation.RestrictTo;
+                    import androidx.appcompat.R;
+                    import java.lang.Override;
+                    import javax.annotation.processing.Generated;
+
+                    /**
+                     * Inspection companion for {@link CompoundDrawablesTestView}.
+                     *
+                     * @hide
+                     */
+                    @RequiresApi(29)
+                    @RestrictTo(RestrictTo.Scope.LIBRARY)
+                    @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
+                    public final class CompoundDrawablesTestView${'$'}InspectionCompanion
+                            implements InspectionCompanion<CompoundDrawablesTestView> {
+                        private boolean mPropertiesMapped = false;
+                        private int mDrawableTintId;
+                        private int mDrawableTintModeId;
+
+                        @Override
+                        public void mapProperties(@NonNull PropertyMapper propertyMapper) {
+                            mDrawableTintId = propertyMapper
+                                .mapObject("drawableTint", R.attr.drawableTint);
+                            mDrawableTintModeId = propertyMapper
+                                .mapObject("drawableTintMode", R.attr.drawableTintMode);
+                            mPropertiesMapped = true;
+                        }
+
+                        @Override
+                        public void readProperties(
+                            @NonNull CompoundDrawablesTestView compoundDrawablesTestView,
+                            @NonNull PropertyReader propertyReader
+                        ) {
+                            if (!mPropertiesMapped) {
+                                throw new InspectionCompanion.UninitializedPropertyMapException();
+                            }
+                            propertyReader.readObject(
+                                mDrawableTintId,
+                                compoundDrawablesTestView.getCompoundDrawableTintList());
+                            propertyReader.readObject(
+                                mDrawableTintModeId,
+                                compoundDrawablesTestView.getCompoundDrawableTintMode());
+                        }
+                    }
+                """
+            )
+        )
+    }
+
+    @Test
+    fun `shadowed image tint`() {
+        assertThat(
+            compile(
+                fakeR("androidx.appcompat", "tint", "tintMode"),
+                fakeInterface("androidx.core.widget.TintableImageSourceView"),
+                java(
+                    "androidx.appcompat.test.ImageTintTestView",
+                    """
+                        package androidx.appcompat.test;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.widget.ImageView;
+                        import androidx.core.widget.TintableImageSourceView;
+                        import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
+
+                        @AppCompatShadowedAttributes
+                        public final class ImageTintTestView extends ImageView
+                                implements TintableImageSourceView {
+                            public ImageTintTestView(Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+                        }
+                    """
+                )
+            )
+        ).generatedSourceFile(
+            "androidx.appcompat.test.ImageTintTestView${'$'}InspectionCompanion",
+        ).hasSourceEquivalentTo(
+            java(
+                "androidx.appcompat.test.ImageTintTestView${'$'}InspectionCompanion",
+                """
+                    package androidx.appcompat.test;
+
+                    import android.view.inspector.InspectionCompanion;
+                    import android.view.inspector.PropertyMapper;
+                    import android.view.inspector.PropertyReader;
+                    import androidx.annotation.NonNull;
+                    import androidx.annotation.RequiresApi;
+                    import androidx.annotation.RestrictTo;
+                    import androidx.appcompat.R;
+                    import java.lang.Override;
+                    import javax.annotation.processing.Generated;
+
+                    /**
+                     * Inspection companion for {@link ImageTintTestView}.
+                     *
+                     * @hide
+                     */
+                    @RequiresApi(29)
+                    @RestrictTo(RestrictTo.Scope.LIBRARY)
+                    @Generated("androidx.resourceinspection.processor.ResourceInspectionProcessor")
+                    public final class ImageTintTestView${'$'}InspectionCompanion
+                            implements InspectionCompanion<ImageTintTestView> {
+                        private boolean mPropertiesMapped = false;
+                        private int mTintId;
+                        private int mTintModeId;
+
+                        @Override
+                        public void mapProperties(@NonNull PropertyMapper propertyMapper) {
+                            mTintId = propertyMapper.mapObject("tint", R.attr.tint);
+                            mTintModeId = propertyMapper.mapObject("tintMode", R.attr.tintMode);
+                            mPropertiesMapped = true;
+                        }
+
+                        @Override
+                        public void readProperties(
+                            @NonNull ImageTintTestView imageTintTestView,
+                            @NonNull PropertyReader propertyReader
+                        ) {
+                            if (!mPropertiesMapped) {
+                                throw new InspectionCompanion.UninitializedPropertyMapException();
+                            }
+                            propertyReader
+                                .readObject(mTintId, imageTintTestView.getImageTintList());
+                            propertyReader
+                                .readObject(mTintModeId, imageTintTestView.getImageTintMode());
+                        }
+                    }
+                """
+            )
+        )
+    }
+
+    @Test
+    fun `shadowed attributes fails outside of appcompat`() {
+        assertThat(
+            compile(
+                fakeR("androidx.appcompat", "backgroundTint", "backgroundTintMode"),
+                fakeInterface("androidx.core.view.TintableBackgroundView"),
+                java(
+                    "androidx.pkg.BadPackageShadowedTestView",
+                    """
+                        package androidx.pkg;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.view.View;
+                        import androidx.core.view.TintableBackgroundView;
+                        import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
+
+                        @AppCompatShadowedAttributes
+                        public final class BadPackageShadowedTestView extends View implements
+                                TintableBackgroundView {
+                            public BadPackageShadowedTestView(Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+                        }
+                    """
+                )
+            )
+        ).hadErrorContaining(
+            "@AppCompatShadowedAttributes is only supported in the androidx.appcompat package"
+        )
+    }
+
+    @Test
+    fun `shadowed attributes fails with no interfaces`() {
+        assertThat(
+            compile(
+                java(
+                    "androidx.appcompat.test.NoShadowedInterfaceTestView",
+                    """
+                    package androidx.appcompat.test;
+
+                    import android.content.Context;
+                    import android.util.AttributeSet;
+                    import android.view.View;
+                    import androidx.core.view.TintableBackgroundView;
+                    import androidx.resourceinspection.annotation.AppCompatShadowedAttributes;
+
+                    @AppCompatShadowedAttributes
+                    public final class NoShadowedInterfaceTestView extends View {
+                        public NoShadowedInterfaceTestView(Context context, AttributeSet attrs) {
+                            super(context, attrs);
+                        }
+                    }
+                """
+                )
+            )
+        ).hadErrorContaining(
+            "@AppCompatShadowedAttributes is present on this view, but it does not implement any " +
+                "interfaces that indicate it has shadowed attributes."
+        )
+    }
+
+    @Test
+    fun `fails when view inspection API is missing`() {
+        val source = java(
+            "androidx.pkg.MissingViewInspectorApiTestClass",
+            """
+                package androidx.pkg;
+
+                import androidx.resourceinspection.annotation.Attribute;
+
+                public final class MissingViewInspectorApiTestClass {
+                    @Attribute("androidx.pkg:attribute")
+                    public int getAttribute() {
+                        return 1;
+                    }
+                }
+            """
+        )
+
+        val classpath = System.getProperty("java.class.path")
+            .split(File.pathSeparator)
+            .map { File(it) }
+            .filterNot { it.name == "android.jar" }
+
+        assertThat(
+            javac()
+                .withClasspath(classpath)
+                .withProcessors(ResourceInspectionProcessor())
+                .compile(source)
+        ).hadErrorContaining(
+            "View inspector (android.view.inspector) API is not present. Please ensure compile " +
+                "SDK is 29 or greater."
+        )
+    }
+
+    @Test
+    fun `fails on duplicate int map names`() {
+        assertThat(
+            compile(
+                fakeR("androidx.pkg", "attribute"),
+                java(
+                    "androidx.pkg.DuplicateIntMapNameTestView",
+                    """
+                        package androidx.pkg;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.view.View;
+                        import androidx.resourceinspection.annotation.Attribute;
+
+                        public final class DuplicateIntMapNameTestView extends View {
+                            public DuplicateIntMapNameTestView(
+                                    Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+
+                            @Attribute(value = "androidx.pkg:attribute", intMapping = {
+                                @Attribute.IntMap(name = "duplicated", value = 1),
+                                @Attribute.IntMap(name = "duplicated", value = 2)
+                            })
+                            public int getAttribute() {
+                                return 1;
+                            }
+                        }
+                    """
+                )
+            )
+        ).hadErrorContaining("Duplicate int enum entry name: \"duplicated\"")
+    }
+
+    @Test
+    fun `fails on duplicate int enum value`() {
+        assertThat(
+            compile(
+                fakeR("androidx.pkg", "attribute"),
+                java(
+                    "androidx.pkg.DuplicateIntEnumValueTestView",
+                    """
+                        package androidx.pkg;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.view.View;
+                        import androidx.resourceinspection.annotation.Attribute;
+
+                        public final class DuplicateIntEnumValueTestView extends View {
+                            public DuplicateIntEnumValueTestView(
+                                    Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+
+                            @Attribute(value = "androidx.pkg:attribute", intMapping = {
+                                @Attribute.IntMap(name = "FOO", value = 1),
+                                @Attribute.IntMap(name = "BAR", value = 1),
+                                @Attribute.IntMap(name = "BAZ", value = 1)
+                            })
+                            public int getAttribute() {
+                                return 1;
+                            }
+                        }
+                    """
+                )
+            )
+        ).hadErrorContaining("Int enum value 1 is duplicated on entries \"FOO\", \"BAR\"")
+    }
+
+    @Test
+    fun `fails on invalid int flag mask`() {
+        assertThat(
+            compile(
+                fakeR("androidx.pkg", "attribute"),
+                java(
+                    "androidx.pkg.InvalidIntFlagTestView",
+                    """
+                        package androidx.pkg;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.view.View;
+                        import androidx.resourceinspection.annotation.Attribute;
+
+                        public final class InvalidIntFlagTestView extends View {
+                            public InvalidIntFlagTestView(Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+
+                            @Attribute(value = "androidx.pkg:attribute", intMapping = {
+                                @Attribute.IntMap(name = "BAD", value = 3, mask = 1)
+                            })
+                            public int getAttribute() {
+                                return 1;
+                            }
+                        }
+                    """
+                )
+            )
+        ).hadErrorContaining("Int flag mask 0x1 does not reveal value 0x3")
+    }
+
+    @Test
+    fun `fails on duplicate int flag mask and value`() {
+        assertThat(
+            compile(
+                fakeR("androidx.pkg", "attribute"),
+                java(
+                    "androidx.pkg.DuplicateIntFlagTestView",
+                    """
+                        package androidx.pkg;
+
+                        import android.content.Context;
+                        import android.util.AttributeSet;
+                        import android.view.View;
+                        import androidx.resourceinspection.annotation.Attribute;
+
+                        public final class DuplicateIntFlagTestView extends View {
+                            public DuplicateIntFlagTestView(Context context, AttributeSet attrs) {
+                                super(context, attrs);
+                            }
+
+                            @Attribute(value = "androidx.pkg:attribute", intMapping = {
+                                @Attribute.IntMap(name = "FOO", value = 3, mask = 3),
+                                @Attribute.IntMap(name = "BAR", value = 3, mask = 3),
+                                @Attribute.IntMap(name = "BAZ", value = 3)
+                            })
+                            public int getAttribute() {
+                                return 1;
+                            }
+                        }
+                    """
+                )
+            )
+        ).hadErrorContaining(
+            "Int flag mask 0x3 and value 0x3 is duplicated on entries \"FOO\", \"BAR\""
+        )
+    }
+
     private fun compile(vararg sources: JavaFileObject): Compilation {
         return javac()
             .withProcessors(ResourceInspectionProcessor())
@@ -809,6 +1784,19 @@ class ResourceInspectionProcessorTest {
             }.joinToString(separator = "\n") }
                     }
                 }
+            """
+        )
+    }
+
+    private fun fakeInterface(name: String): JavaFileObject {
+        val packageName = name.substringBeforeLast('.')
+        val simpleName = name.substringAfterLast('.')
+        return java(
+            name,
+            """
+                package $packageName;
+
+                public interface $simpleName {}
             """
         )
     }

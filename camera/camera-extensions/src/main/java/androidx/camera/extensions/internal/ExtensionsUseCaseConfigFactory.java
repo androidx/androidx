@@ -20,25 +20,28 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraInfo;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.UseCaseConfigFactory;
-import androidx.camera.extensions.Extensions;
+import androidx.camera.extensions.ExtensionMode;
 
 /**
  * Implementation of UseCaseConfigFactory to provide the default extensions configurations for use
  * cases.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ExtensionsUseCaseConfigFactory implements UseCaseConfigFactory {
     private final ImageCaptureConfigProvider mImageCaptureConfigProvider;
     private final PreviewConfigProvider mPreviewConfigProvider;
 
-    public ExtensionsUseCaseConfigFactory(@Extensions.ExtensionMode int mode,
-            @NonNull CameraInfo cameraInfo, @NonNull Context context) {
-        mImageCaptureConfigProvider = new ImageCaptureConfigProvider(mode, cameraInfo, context);
-        mPreviewConfigProvider = new PreviewConfigProvider(mode, cameraInfo, context);
+    public ExtensionsUseCaseConfigFactory(
+            @ExtensionMode.Mode int mode,
+            @NonNull VendorExtender vendorExtender,
+            @NonNull Context context) {
+        mImageCaptureConfigProvider = new ImageCaptureConfigProvider(mode, vendorExtender, context);
+        mPreviewConfigProvider = new PreviewConfigProvider(mode, vendorExtender, context);
     }
 
     /**

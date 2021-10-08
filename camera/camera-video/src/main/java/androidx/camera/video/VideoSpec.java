@@ -16,12 +16,18 @@
 
 package androidx.camera.video;
 
-import android.media.CamcorderProfile;
+import static androidx.camera.video.QualitySelector.FALLBACK_STRATEGY_HIGHER;
+import static androidx.camera.video.QualitySelector.QUALITY_FHD;
+import static androidx.camera.video.QualitySelector.QUALITY_HD;
+import static androidx.camera.video.QualitySelector.QUALITY_SD;
+
 import android.util.Range;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 
 import com.google.auto.value.AutoValue;
 
@@ -30,7 +36,10 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Video specification that is options to config video encoding.
+ * @hide
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+@RestrictTo(Scope.LIBRARY)
 @AutoValue
 public abstract class VideoSpec {
 
@@ -40,6 +49,7 @@ public abstract class VideoSpec {
      * <p>Using this value with {@link Builder#setFrameRate(Range)} informs the video frame producer
      * it should choose any appropriate frame rate given the device and codec constraints.
      */
+    @NonNull
     public static final Range<Integer> FRAME_RATE_RANGE_AUTO = new Range<>(0,
             Integer.MAX_VALUE);
 
@@ -49,53 +59,39 @@ public abstract class VideoSpec {
      * <p>Using this value with {@link Builder#setBitrate(Range)} informs the video frame producer
      * it should choose any appropriate bitrate given the device and codec constraints.
      */
+    @NonNull
     public static final Range<Integer> BITRATE_RANGE_AUTO = new Range<>(0,
             Integer.MAX_VALUE);
 
     /**
-     * Allow the video frame producer to choose video quality based on its current state.
-     */
-    public static final int VIDEO_QUALITY_AUTO = -1;
-    /**
-     * Choose the lowest video quality supported by the video frame producer.
-     */
-    public static final int VIDEO_QUALITY_LOWEST = CamcorderProfile.QUALITY_LOW;
-    /**
-     * Choose the highest video quality supported by the video frame producer.
-     */
-    public static final int VIDEO_QUALITY_HIGHEST = CamcorderProfile.QUALITY_HIGH;
-    /**
-     * Standard Definition (SD) 480p video quality.
+     * Quality selector representing no preference for quality.
      *
-     * <p>This video quality usually corresponds to a resolution of 720 x 480 (480p) pixels.
+     * <p>Using this value with {@link Builder#setQualitySelector(QualitySelector)} allows the
+     * video frame producer to choose video quality based on its current state.
      */
-    public static final int VIDEO_QUALITY_SD = CamcorderProfile.QUALITY_480P;
-    /**
-     * High Definition (HD) video quality.
-     *
-     * <p>This video quality usually corresponds to a resolution of 1280 x 720 (720p) pixels.
-     */
-    public static final int VIDEO_QUALITY_HD = CamcorderProfile.QUALITY_720P;
-    /**
-     * Full High Definition (FHD) 1080p video quality.
-     *
-     * <p>This video quality usually corresponds to a resolution of 1920 x 1080 (1080p) pixels.
-     */
-    public static final int VIDEO_QUALITY_FHD = CamcorderProfile.QUALITY_1080P;
-    /**
-     * Ultra High Definition (UHD) 2160p video quality.
-     *
-     * <p>This video quality usually corresponds to a resolution of 3840 x 2160 (2160p) pixels.
-     */
-    public static final int VIDEO_QUALITY_UHD = CamcorderProfile.QUALITY_2160P;
+    @NonNull
+    public static final QualitySelector QUALITY_SELECTOR_AUTO =
+            QualitySelector.firstTry(QUALITY_FHD)
+                    .thenTry(QUALITY_HD)
+                    .thenTry(QUALITY_SD)
+                    .finallyTry(QUALITY_FHD, FALLBACK_STRATEGY_HIGHER);
 
+    /**
+     * The aspect ratio representing no preference for aspect ratio.
+     *
+     * <p>Using this value with {@link Builder#setAspectRatio(int)} allows the video frame
+     * producer to choose an appropriate aspect ratio based on its current state.
+     */
+    static final int ASPECT_RATIO_AUTO = -1;
+    /** The aspect ratio with width 16 by height 9. */
+    static final int ASPECT_RATIO_4_3 = androidx.camera.core.AspectRatio.RATIO_4_3;
+    /** The aspect ratio with width 4 by height 3. */
+    static final int ASPECT_RATIO_16_9 = androidx.camera.core.AspectRatio.RATIO_16_9;
 
     /** @hide */
-    @IntDef({VIDEO_QUALITY_AUTO, VIDEO_QUALITY_LOWEST, VIDEO_QUALITY_HIGHEST, VIDEO_QUALITY_SD,
-            VIDEO_QUALITY_HD, VIDEO_QUALITY_FHD, VIDEO_QUALITY_UHD})
+    @IntDef({ASPECT_RATIO_AUTO, ASPECT_RATIO_4_3, ASPECT_RATIO_16_9})
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public @interface VideoQuality {
+    @interface AspectRatio {
     }
 
     // Restrict constructor to same package
@@ -106,20 +102,15 @@ public abstract class VideoSpec {
     @NonNull
     public static Builder builder() {
         return new AutoValue_VideoSpec.Builder()
-                .setVideoQuality(VIDEO_QUALITY_AUTO)
+                .setQualitySelector(QUALITY_SELECTOR_AUTO)
                 .setFrameRate(FRAME_RATE_RANGE_AUTO)
-                .setBitrate(BITRATE_RANGE_AUTO);
+                .setBitrate(BITRATE_RANGE_AUTO)
+                .setAspectRatio(ASPECT_RATIO_AUTO);
     }
 
-    /**
-     * Gets the video quality.
-     *
-     * @return the video quality. Possible values include {@link #VIDEO_QUALITY_AUTO},
-     * {@link #VIDEO_QUALITY_LOWEST}, {@link #VIDEO_QUALITY_HIGHEST}, {@link #VIDEO_QUALITY_SD},
-     * {@link #VIDEO_QUALITY_HD}, {@link #VIDEO_QUALITY_FHD}, or {@link #VIDEO_QUALITY_UHD}.
-     */
-    @VideoQuality
-    public abstract int getVideoQuality();
+    /** Gets the {@link QualitySelector}. */
+    @NonNull
+    public abstract QualitySelector getQualitySelector();
 
     /** Gets the frame rate. */
     @NonNull
@@ -129,13 +120,22 @@ public abstract class VideoSpec {
     @NonNull
     public abstract Range<Integer> getBitrate();
 
+    /** Gets the aspect ratio. */
+    @AspectRatio
+    abstract int getAspectRatio();
+
     /**
      * Returns a {@link Builder} instance with the same property values as this instance.
      */
     @NonNull
     public abstract Builder toBuilder();
 
-    /** The builder of the {@link VideoSpec}. */
+    /**
+     * The builder of the {@link VideoSpec}.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    @SuppressWarnings("StaticFinalBuilder")
     @AutoValue.Builder
     public abstract static class Builder {
         // Restrict construction to same package
@@ -143,22 +143,17 @@ public abstract class VideoSpec {
         }
 
         /**
-         * Sets the video quality.
+         * Sets the {@link QualitySelector}.
          *
          * <p>Video encoding parameters such as frame rate and bitrate will often be automatically
          * determined according to quality. If video parameters are not set directly (such as
          * through {@link #setFrameRate(Range)}, the device will choose values calibrated for the
          * quality on that device.
          *
-         * <p>If not set, defaults to {@link #VIDEO_QUALITY_AUTO}.
-         *
-         * @param videoQuality the video quality. Possible values include
-         * {@link #VIDEO_QUALITY_AUTO}, {@link #VIDEO_QUALITY_LOWEST},
-         * {@link #VIDEO_QUALITY_HIGHEST}, {@link #VIDEO_QUALITY_SD}, {@link #VIDEO_QUALITY_HD},
-         * {@link #VIDEO_QUALITY_FHD}, or {@link #VIDEO_QUALITY_UHD}.
+         * <p>If not set, defaults to {@link #QUALITY_SELECTOR_AUTO}.
          */
         @NonNull
-        public abstract Builder setVideoQuality(@VideoQuality int videoQuality);
+        public abstract Builder setQualitySelector(@NonNull QualitySelector qualitySelector);
 
         /**
          * Sets the frame rate.
@@ -175,6 +170,17 @@ public abstract class VideoSpec {
          */
         @NonNull
         public abstract Builder setBitrate(@NonNull Range<Integer> bitrate);
+
+        /**
+         * Sets the aspect ratio.
+         *
+         * <p>Available values for aspect ratio are {@link #ASPECT_RATIO_16_9},
+         * {@link #ASPECT_RATIO_4_3} and {@link #ASPECT_RATIO_AUTO}.
+         *
+         * <p>If not set, defaults to {@link #ASPECT_RATIO_AUTO}.
+         */
+        @NonNull
+        abstract Builder setAspectRatio(@AspectRatio int aspectRatio);
 
         /** Builds the VideoSpec instance. */
         @NonNull

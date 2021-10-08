@@ -48,18 +48,21 @@ val Context.corruptedDs by dataStore(
 val Context.dsWithMigrationTo123 by dataStore(
     fileName = "file4",
     serializer = TestingSerializer(),
-    migrations = listOf(
-        object : DataMigration<Byte> {
-            override suspend fun shouldMigrate(currentData: Byte) = true
-            override suspend fun migrate(currentData: Byte): Byte = currentData.plus(123).toByte()
-            override suspend fun cleanUp() {}
-        }
+    produceMigrations = {
+        listOf(
+            object : DataMigration<Byte> {
+                override suspend fun shouldMigrate(currentData: Byte) = true
+                override suspend fun migrate(currentData: Byte): Byte =
+                    currentData.plus(123).toByte()
 
-    )
+                override suspend fun cleanUp() {}
+            }
+        )
+    }
 )
 
 @ExperimentalCoroutinesApi
-class GlobalDataStoreTest {
+class DataStoreDelegateTest {
 
     @get:Rule
     val tmp = TemporaryFolder()
@@ -88,7 +91,7 @@ class GlobalDataStoreTest {
     @Test
     fun testCorruptedDs_runsCorruptionHandler() = runBlocking<Unit> {
         // File needs to exist or we don't actually hit the serializer:
-        File(context.filesDir, "datastore/file2").let { file ->
+        context.dataStoreFile("file2").let { file ->
             file.parentFile!!.mkdirs()
             FileOutputStream(file).use {
                 it.write(0)

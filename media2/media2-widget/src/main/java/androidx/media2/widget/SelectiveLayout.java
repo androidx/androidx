@@ -24,8 +24,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.AttrRes;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 class SelectiveLayout extends MediaViewGroup {
     SelectiveLayout(@NonNull Context context) {
@@ -94,7 +96,7 @@ class SelectiveLayout extends MediaViewGroup {
 
         if (Build.VERSION.SDK_INT >= 23) {
             // Check against our foreground's minimum height and width
-            final Drawable drawable = getForeground();
+            final Drawable drawable = Api23Impl.getForeground(this);
             if (drawable != null) {
                 maxWidth = Math.max(maxWidth, drawable.getMinimumWidth());
                 maxHeight = Math.max(maxHeight, drawable.getMinimumHeight());
@@ -190,5 +192,16 @@ class SelectiveLayout extends MediaViewGroup {
         LayoutParams(ViewGroup.LayoutParams source) {
             super(source);
         }
+    }
+
+    @RequiresApi(23)
+    static final class Api23Impl {
+
+        @DoNotInline
+        static Drawable getForeground(View view) {
+            return view.getForeground();
+        }
+
+        private Api23Impl() {}
     }
 }

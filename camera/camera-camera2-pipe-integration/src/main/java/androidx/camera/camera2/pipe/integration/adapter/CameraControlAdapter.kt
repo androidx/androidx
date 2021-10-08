@@ -19,14 +19,21 @@ package androidx.camera.camera2.pipe.integration.adapter
 import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
+import android.util.Rational
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.EvCompControl
+import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseManager
+import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
+import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
+import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
+import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
 import androidx.camera.core.ImageCapture
@@ -35,13 +42,11 @@ import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
-import androidx.camera.core.impl.MutableOptionsBundle
+import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -52,39 +57,48 @@ import javax.inject.Inject
  * well as providing access to other utility methods. The primary purpose of this class it to
  * forward these interactions to the currently configured [UseCaseCamera].
  */
-@SuppressLint("UnsafeExperimentalUsageError")
+@SuppressLint("UnsafeOptInUsageError")
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalCamera2Interop::class)
 class CameraControlAdapter @Inject constructor(
     private val cameraProperties: CameraProperties,
-    private val cameraScope: CoroutineScope,
+    private val threads: UseCaseThreads,
     private val useCaseManager: UseCaseManager,
     private val cameraStateAdapter: CameraStateAdapter,
     private val zoomControl: ZoomControl,
-    private val evCompControl: EvCompControl
+    private val evCompControl: EvCompControl,
+    val camera2cameraControl: Camera2CameraControl,
 ) : CameraControlInternal {
-    private var interopConfig: Config = MutableOptionsBundle.create()
     private var imageCaptureFlashMode: Int = ImageCapture.FLASH_MODE_OFF
+
+    private val focusMeteringControl = FocusMeteringControl(
+        cameraProperties,
+        useCaseManager,
+        threads
+    )
 
     override fun getSensorRect(): Rect {
         return cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
     }
 
     override fun addInteropConfig(config: Config) {
-        interopConfig = Config.mergeConfigs(config, interopConfig)
+        camera2cameraControl.addCaptureRequestOptions(
+            CaptureRequestOptions.Builder.from(config).build()
+        )
     }
 
     override fun clearInteropConfig() {
-        interopConfig = MutableOptionsBundle.create()
+        camera2cameraControl.clearCaptureRequestOptions()
     }
 
     override fun getInteropConfig(): Config {
-        return interopConfig
+        return camera2cameraControl.getCaptureRequestOptions()
     }
 
     override fun enableTorch(torch: Boolean): ListenableFuture<Void> {
         // Launch UNDISPATCHED to preserve interaction order with the camera.
-        return cameraScope.launch(start = CoroutineStart.UNDISPATCHED) {
+        return threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
             useCaseManager.camera?.let {
                 // Tell the camera to turn the torch on / off.
                 val result = it.setTorchAsync(torch)
@@ -106,8 +120,9 @@ class CameraControlAdapter @Inject constructor(
     override fun startFocusAndMetering(
         action: FocusMeteringAction
     ): ListenableFuture<FocusMeteringResult> {
-        warn { "TODO: startFocusAndMetering is not yet supported" }
-        return Futures.immediateFuture(FocusMeteringResult.emptyInstance())
+        // TODO(sushilnath@): use preview aspect ratio instead of sensor active array aspect ratio.
+        val sensorAspectRatio = Rational(sensorRect.width(), sensorRect.height())
+        return focusMeteringControl.startFocusAndMetering(action, sensorAspectRatio)
     }
 
     override fun cancelFocusAndMetering(): ListenableFuture<Void> {
@@ -116,7 +131,7 @@ class CameraControlAdapter @Inject constructor(
     }
 
     override fun setZoomRatio(ratio: Float): ListenableFuture<Void> {
-        return cameraScope.launch(start = CoroutineStart.UNDISPATCHED) {
+        return threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
             useCaseManager.camera?.let {
                 zoomControl.zoomRatio = ratio
                 val zoomValue = ZoomValue(
@@ -148,36 +163,33 @@ class CameraControlAdapter @Inject constructor(
         return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create())
     }
 
-    override fun triggerAePrecapture(): ListenableFuture<CameraCaptureResult> {
-        warn { "TODO: triggerAePrecapture is not yet supported" }
-        return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create())
+    override fun startFlashSequence(
+        @ImageCapture.FlashType flashType: Int
+    ): ListenableFuture<Void> {
+        warn { "TODO: startFlashSequence is not yet supported" }
+        return Futures.immediateFuture(null)
     }
 
-    override fun cancelAfAeTrigger(cancelAfTrigger: Boolean, cancelAePrecaptureTrigger: Boolean) {
-        warn { "TODO: cancelAfAeTrigger is not yet supported" }
+    override fun cancelAfAndFinishFlashSequence(
+        cancelAfTrigger: Boolean,
+        finishFlashSequence: Boolean
+    ) {
+        warn { "TODO: cancelAfAndFinishFlashSequence is not yet supported" }
     }
 
-    @SuppressLint("UnsafeExperimentalUsageError")
-    override fun setExposureCompensationIndex(exposure: Int): ListenableFuture<Int> {
-        return cameraScope.async(start = CoroutineStart.UNDISPATCHED) {
-            useCaseManager.camera?.let {
-                evCompControl.evCompIndex = exposure
-                cameraStateAdapter.setExposureState(
-                    EvCompValue(
-                        evCompControl.supported,
-                        evCompControl.evCompIndex,
-                        evCompControl.range,
-                        evCompControl.step,
-                    )
-                )
-                return@async exposure
-            }
-            // TODO: Consider throwing instead? This is only reached if there's no camera.
-            evCompControl.evCompIndex
-        }.asListenableFuture()
+    override fun setExposureCompensationIndex(exposure: Int): ListenableFuture<Int> =
+        Futures.nonCancellationPropagating(
+            evCompControl.updateAsync(exposure).asListenableFuture()
+        )
+
+    override fun submitStillCaptureRequests(captureConfigs: List<CaptureConfig>) {
+        val camera = useCaseManager.camera
+        checkNotNull(camera) { "Attempted to issue capture requests while the camera isn't ready." }
+        camera.capture(captureConfigs)
     }
 
-    override fun submitCaptureRequests(captureConfigs: MutableList<CaptureConfig>) {
-        warn { "TODO: submitCaptureRequests is not yet supported" }
+    override fun getSessionConfig(): SessionConfig {
+        warn { "TODO: getSessionConfig is not yet supported" }
+        return SessionConfig.defaultEmptySessionConfig()
     }
 }

@@ -14,6 +14,7 @@
 <resources>
     <declare-styleable name="Navigator">
         <attr name="android:id"/>
+        <attr name="route" format="string"/>
         <attr name="android:label" />
     </declare-styleable>
 
@@ -39,8 +40,10 @@
         <attr name="android:id" />
         <attr name="destination" format="reference" />
         <attr name="launchSingleTop" format="boolean" />
+        <attr name="restoreState" format="boolean" />
         <attr name="popUpTo" format="reference" />
         <attr name="popUpToInclusive" format="boolean" />
+        <attr name="popUpToSaveState" format="boolean" />
         <attr name="enterAnim" format="reference" />
         <attr name="exitAnim" format="reference" />
         <attr name="popEnterAnim" format="reference" />

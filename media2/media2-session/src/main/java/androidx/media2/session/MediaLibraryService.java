@@ -16,6 +16,7 @@
 
 package androidx.media2.session;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.media2.session.LibraryResult.RESULT_ERROR_NOT_SUPPORTED;
 
 import android.app.PendingIntent;
@@ -29,6 +30,8 @@ import android.text.TextUtils;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.common.MediaMetadata;
@@ -98,6 +101,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
      * </table>
      **/
     public static final class MediaLibrarySession extends MediaSession {
+        private final boolean mThrowsWhenInvalidReturn;
+
         /**
          * Callback for the {@link MediaLibrarySession}.
          * <p>
@@ -295,6 +300,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
         // constructor.
         public static final class Builder extends MediaSession.BuilderBase<MediaLibrarySession,
                 Builder, MediaLibrarySessionCallback> {
+            private boolean mThrowsWhenInvalidReturn = true;
+
             // Builder requires MediaLibraryService instead of Context just to ensure that the
             // builder can be only instantiated within the MediaLibraryService.
             // Ideally it's better to make it inner class of service to enforce, but it violates API
@@ -325,6 +332,19 @@ public abstract class MediaLibraryService extends MediaSessionService {
                 return super.setExtras(extras);
             }
 
+            /**
+             * Prevents session to be crashed when it returns any invalid return.
+             *
+             * @hide
+             **/
+            @RestrictTo(LIBRARY)
+            @NonNull
+            @VisibleForTesting
+            public Builder setThrowsWhenInvalidReturn(boolean throwsWhenInvalidReturn) {
+                mThrowsWhenInvalidReturn = throwsWhenInvalidReturn;
+                return this;
+            }
+
             @Override
             @NonNull
             public MediaLibrarySession build() {
@@ -335,14 +355,16 @@ public abstract class MediaLibraryService extends MediaSessionService {
                     mCallback = new MediaLibrarySession.MediaLibrarySessionCallback() {};
                 }
                 return new MediaLibrarySession(mContext, mId, mPlayer, mSessionActivity,
-                        mCallbackExecutor, mCallback, mExtras);
+                        mCallbackExecutor, mCallback, mExtras, mThrowsWhenInvalidReturn);
             }
         }
 
         MediaLibrarySession(Context context, String id, SessionPlayer player,
                 PendingIntent sessionActivity, Executor callbackExecutor,
-                MediaSession.SessionCallback callback, Bundle tokenExtras) {
+                MediaSession.SessionCallback callback, Bundle tokenExtras,
+                boolean throwsWhenInvalidReturn) {
             super(context, id, player, sessionActivity, callbackExecutor, callback, tokenExtras);
+            mThrowsWhenInvalidReturn = throwsWhenInvalidReturn;
         }
 
         @Override
@@ -350,7 +372,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
                 PendingIntent sessionActivity, Executor callbackExecutor,
                 MediaSession.SessionCallback callback, Bundle tokenExtras) {
             return new MediaLibrarySessionImplBase(this, context, id, player, sessionActivity,
-                    callbackExecutor, callback, tokenExtras);
+                    callbackExecutor, callback, tokenExtras, mThrowsWhenInvalidReturn);
         }
 
         @Override

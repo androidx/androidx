@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedInterface: androidx.media2.common.SessionPlayer:
-    Class androidx.media2.common.SessionPlayer no longer implements java.lang.AutoCloseable

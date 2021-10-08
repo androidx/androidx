@@ -23,7 +23,9 @@ import static org.junit.Assert.assertThrows;
 import android.content.ContentResolver;
 import android.net.Uri;
 
+import androidx.car.app.TestUtils;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarText;
 import androidx.core.graphics.drawable.IconCompat;
 
 import org.junit.Test;
@@ -70,7 +72,50 @@ public class MessageInfoTest {
 
     @Test
     public void no_message_throws() {
-        assertThrows(NullPointerException.class, () -> new MessageInfo.Builder(null));
+        assertThrows(NullPointerException.class,
+                () -> new MessageInfo.Builder((CharSequence) null));
+    }
+
+    /** Tests construction of a template where title and text have variants. */
+    @Test
+    public void createInstanceWithTextVariants() {
+        CarText title = new CarText.Builder("Message Long").addVariant("Message").build();
+        CarText text = new CarText.Builder("Secondary Long").addVariant("Secondary").build();
+
+        MessageInfo messageInfo =
+                new MessageInfo.Builder(title).setImage(CarIcon.APP_ICON).setText(
+                        text).build();
+        assertThat(messageInfo.getTitle().toString()).isEqualTo("Message Long");
+        assertThat(messageInfo.getTitle().getVariants().get(0).toString()).isEqualTo(
+                "Message");
+        assertThat(messageInfo.getText().toString()).isEqualTo("Secondary Long");
+        assertThat(messageInfo.getText().getVariants().get(0).toString()).isEqualTo(
+                "Secondary");
+        assertThat(messageInfo.getImage()).isEqualTo(CarIcon.APP_ICON);
+    }
+
+    @Test
+    public void title_unsupportedSpans_throws() {
+        CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new MessageInfo.Builder(title));
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence title2 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
+        new MessageInfo.Builder(title2).build();
+    }
+
+    @Test
+    public void text_unsupportedSpans_throws() {
+        CharSequence text = TestUtils.getCharSequenceWithColorSpan("Text");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new MessageInfo.Builder("title").setText(text));
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence text2 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Text");
+        new MessageInfo.Builder("title").setText(text2).build();
     }
 
     @Test

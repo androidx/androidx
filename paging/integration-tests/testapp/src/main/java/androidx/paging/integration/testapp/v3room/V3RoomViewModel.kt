@@ -65,7 +65,7 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
         PagingConfig(10),
         remoteMediator = V3RemoteMediator(
             database,
-            NetworkCustomerPagingSource.FACTORY()
+            NetworkCustomerPagingSource.FACTORY
         )
     ) {
         database.customerDao.loadPagedAgeOrderPagingSource()

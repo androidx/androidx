@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.compat
 
-import android.annotation.SuppressLint
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.InputConfiguration
-import android.hardware.camera2.params.SessionConfiguration
 import android.os.Build
 import android.os.Handler
 import android.view.Surface
@@ -35,7 +35,6 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.writeParameter
-import kotlin.jvm.Throws
 
 /** Interface around a [CameraDevice] with minor modifications.
  *
@@ -123,6 +122,7 @@ internal fun CameraDevice?.closeWithTrace() {
     }
 }
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class AndroidCameraDevice(
     private val cameraMetadata: CameraMetadata,
     private val cameraDevice: CameraDevice,
@@ -146,7 +146,6 @@ internal class AndroidCameraDevice(
     }
 
     @RequiresApi(23)
-    @SuppressLint("UnsafeNewApiCall")
     override fun createReprocessableCaptureSession(
         input: InputConfiguration,
         outputs: List<Surface>,
@@ -156,8 +155,8 @@ internal class AndroidCameraDevice(
 
         // This function was deprecated in Android Q, but is required for some configurations when
         // running on older versions of the OS.
-        @Suppress("deprecation")
-        cameraDevice.createReprocessableCaptureSession(
+        Api23Compat.createReprocessableCaptureSession(
+            cameraDevice,
             input,
             outputs,
             AndroidCaptureSessionStateCallback(this, stateCallback),
@@ -166,7 +165,6 @@ internal class AndroidCameraDevice(
     }
 
     @RequiresApi(23)
-    @SuppressLint("UnsafeNewApiCall")
     override fun createConstrainedHighSpeedCaptureSession(
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
@@ -175,8 +173,8 @@ internal class AndroidCameraDevice(
 
         // This function was deprecated in Android Q, but is required for some configurations when
         // running on older versions of the OS.
-        @Suppress("deprecation")
-        cameraDevice.createConstrainedHighSpeedCaptureSession(
+        Api23Compat.createConstrainedHighSpeedCaptureSession(
+            cameraDevice,
             outputs,
             AndroidCaptureSessionStateCallback(this, stateCallback),
             handler
@@ -184,7 +182,6 @@ internal class AndroidCameraDevice(
     }
 
     @RequiresApi(24)
-    @SuppressLint("UnsafeNewApiCall")
     override fun createCaptureSessionByOutputConfigurations(
         outputConfigurations: List<OutputConfigurationWrapper>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
@@ -193,8 +190,8 @@ internal class AndroidCameraDevice(
 
         // This function was deprecated in Android Q, but is required for some configurations when
         // running on older versions of the OS.
-        @Suppress("deprecation")
-        cameraDevice.createCaptureSessionByOutputConfigurations(
+        Api24Compat.createCaptureSessionByOutputConfigurations(
+            cameraDevice,
             outputConfigurations.map { it.unwrap() },
             AndroidCaptureSessionStateCallback(this, stateCallback),
             handler
@@ -202,7 +199,6 @@ internal class AndroidCameraDevice(
     }
 
     @RequiresApi(24)
-    @SuppressLint("UnsafeNewApiCall")
     override fun createReprocessableCaptureSessionByConfigurations(
         inputConfig: InputConfigData,
         outputs: List<OutputConfigurationWrapper>,
@@ -212,9 +208,11 @@ internal class AndroidCameraDevice(
 
         // This function was deprecated in Android Q, but is required for some configurations when
         // running on older versions of the OS.
-        @Suppress("deprecation")
-        cameraDevice.createReprocessableCaptureSessionByConfigurations(
-            InputConfiguration(inputConfig.width, inputConfig.height, inputConfig.format),
+        Api24Compat.createCaptureSessionByOutputConfigurations(
+            cameraDevice,
+            Api23Compat.newInputConfiguration(
+                inputConfig.width, inputConfig.height, inputConfig.format
+            ),
             outputs.map { it.unwrap() },
             AndroidCaptureSessionStateCallback(this, stateCallback),
             handler
@@ -222,9 +220,8 @@ internal class AndroidCameraDevice(
     }
 
     @RequiresApi(28)
-    @SuppressLint("UnsafeNewApiCall")
     override fun createCaptureSession(config: SessionConfigData) = rethrowCamera2Exceptions {
-        val sessionConfig = SessionConfiguration(
+        val sessionConfig = Api28Compat.newSessionConfiguration(
             config.sessionType,
             config.outputConfigurations.map { it.unwrap() },
             config.executor,
@@ -232,10 +229,13 @@ internal class AndroidCameraDevice(
         )
 
         if (config.inputConfiguration != null) {
-            sessionConfig.inputConfiguration = InputConfiguration(
-                config.inputConfiguration.width,
-                config.inputConfiguration.height,
-                config.inputConfiguration.format
+            Api28Compat.setInputConfiguration(
+                sessionConfig,
+                Api23Compat.newInputConfiguration(
+                    config.inputConfiguration.width,
+                    config.inputConfiguration.height,
+                    config.inputConfiguration.format
+                )
             )
         }
 
@@ -252,9 +252,9 @@ internal class AndroidCameraDevice(
                 requestBuilder.writeParameter(key, value)
             }
         }
-        sessionConfig.sessionParameters = requestBuilder.build()
+        Api28Compat.setSessionParameters(sessionConfig, requestBuilder.build())
 
-        cameraDevice.createCaptureSession(sessionConfig)
+        Api28Compat.createCaptureSession(cameraDevice, sessionConfig)
     }
 
     override fun createCaptureRequest(template: RequestTemplate): CaptureRequest.Builder =
@@ -263,11 +263,10 @@ internal class AndroidCameraDevice(
         }
 
     @RequiresApi(23)
-    @SuppressLint("UnsafeNewApiCall")
     override fun createReprocessCaptureRequest(
         inputResult: TotalCaptureResult
     ): CaptureRequest.Builder = rethrowCamera2Exceptions {
-        cameraDevice.createReprocessCaptureRequest(inputResult)
+        Api23Compat.createReprocessCaptureRequest(cameraDevice, inputResult)
     }
 
     override fun unwrap(): CameraDevice? {

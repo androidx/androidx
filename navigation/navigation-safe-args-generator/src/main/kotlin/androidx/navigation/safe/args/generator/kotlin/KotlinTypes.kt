@@ -155,6 +155,50 @@ internal fun NavType.addBundlePutStatement(
     )
 }
 
+internal fun NavType.addSavedStateSetStatement(
+    builder: FunSpec.Builder,
+    arg: Argument,
+    savedStateHandle: String,
+    argValue: String
+): FunSpec.Builder = when (this) {
+    is ObjectType -> builder.apply {
+        beginControlFlow(
+            "if (%T::class.java.isAssignableFrom(%T::class.java))",
+            PARCELABLE_CLASSNAME, arg.type.typeName()
+        )
+        addStatement(
+            "%L.set(%S, %L as %T)",
+            savedStateHandle, arg.name, argValue,
+            PARCELABLE_CLASSNAME.copy(nullable = arg.isNullable)
+        )
+        nextControlFlow(
+            "else if (%T::class.java.isAssignableFrom(%T::class.java))",
+            SERIALIZABLE_CLASSNAME, arg.type.typeName()
+        )
+        addStatement(
+            "%L.set(%S, %L as %T)",
+            savedStateHandle, arg.name, argValue,
+            SERIALIZABLE_CLASSNAME.copy(nullable = arg.isNullable)
+        )
+        if (!arg.isOptional()) {
+            nextControlFlow("else")
+            addStatement(
+                "throw·%T(%T::class.java.name + %S)",
+                UnsupportedOperationException::class.asTypeName(),
+                arg.type.typeName(),
+                " must implement Parcelable or Serializable or must be an Enum."
+            )
+        }
+        endControlFlow()
+    }
+    else -> builder.addStatement(
+        "%L.set(%S, %L)",
+        savedStateHandle,
+        arg.name,
+        argValue
+    )
+}
+
 internal fun NavType.typeName(): TypeName = when (this) {
     IntType -> INT
     IntArrayType -> IntArray::class.asTypeName()

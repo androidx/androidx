@@ -1,6 +1,6 @@
 // b/155305020 , b/157663450 : temporarily increase test memory to see if it affects crash rate
 allprojects { pr ->
   pr.tasks.withType(Test) { t ->
-    t.maxHeapSize = "1024m"
+    t.maxHeapSize = "2048m"
   }
 }

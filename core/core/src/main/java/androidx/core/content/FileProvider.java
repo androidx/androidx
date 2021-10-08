@@ -76,7 +76,7 @@ import java.util.Map;
  * <ol>
  *     <li><a href="#ProviderDefinition">Defining a FileProvider</a></li>
  *     <li><a href="#SpecifyFiles">Specifying Available Files</a></li>
- *     <li><a href="#GetUri">Retrieving the Content URI for a File</li>
+ *     <li><a href="#GetUri">Retrieving the Content URI for a File</a></li>
  *     <li><a href="#Permissions">Granting Temporary Permissions to a URI</a></li>
  *     <li><a href="#ServeUri">Serving a Content URI to Another App</a></li>
  * </ol>
@@ -261,7 +261,7 @@ import java.util.Map;
  * <code>default_image.jpg</code> in the <code>images/</code> subdirectory of your internal storage
  * add the following code:
  * <pre class="prettyprint">
- *File imagePath = new File(Context.getFilesDir(), "images");
+ *File imagePath = new File(Context.getFilesDir(), "my_images");
  *File newFile = new File(imagePath, "default_image.jpg");
  *Uri contentUri = getUriForFile(getContext(), "com.mydomain.fileprovider", newFile);
  *</pre>

@@ -20,6 +20,8 @@ import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -29,19 +31,21 @@ import androidx.annotation.RestrictTo;
 @SuppressLint("BanParcelableUsage")
 public class ParcelImpl implements Parcelable {
 
+    @Nullable
     private final VersionedParcelable mParcel;
 
-    public ParcelImpl(VersionedParcelable parcel) {
+    public ParcelImpl(@Nullable VersionedParcelable parcel) {
         mParcel = parcel;
     }
 
-    protected ParcelImpl(Parcel in) {
+    protected ParcelImpl(@NonNull Parcel in) {
         mParcel = new VersionedParcelParcel(in).readVersionedParcelable();
     }
 
     /**
      */
     @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
+    @Nullable
     public <T extends VersionedParcelable> T getVersionedParcel() {
         return (T) mParcel;
     }
@@ -52,18 +56,20 @@ public class ParcelImpl implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
         VersionedParcelParcel parcel = new VersionedParcelParcel(dest);
         parcel.writeVersionedParcelable(mParcel);
     }
 
     public static final Creator<ParcelImpl> CREATOR = new Creator<ParcelImpl>() {
         @Override
-        public ParcelImpl createFromParcel(Parcel in) {
+        @NonNull
+        public ParcelImpl createFromParcel(@NonNull Parcel in) {
             return new ParcelImpl(in);
         }
 
         @Override
+        @NonNull
         public ParcelImpl[] newArray(int size) {
             return new ParcelImpl[size];
         }

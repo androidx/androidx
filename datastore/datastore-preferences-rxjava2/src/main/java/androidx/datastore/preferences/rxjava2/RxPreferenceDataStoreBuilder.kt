@@ -22,6 +22,7 @@ import androidx.datastore.core.DataMigration
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.datastore.rxjava2.RxDataMigration
 import androidx.datastore.rxjava2.RxDataStore
 import io.reactivex.Scheduler
@@ -151,7 +152,7 @@ public class RxPreferenceDataStoreBuilder {
             )
         } else if (context != null && name != null) {
             PreferenceDataStoreFactory.create(
-                produceFile = { File(context.filesDir, "datastore/$name.preferences_pb") },
+                produceFile = { context.preferencesDataStoreFile(name) },
                 scope = scope,
                 corruptionHandler = corruptionHandler,
                 migrations = dataMigrations

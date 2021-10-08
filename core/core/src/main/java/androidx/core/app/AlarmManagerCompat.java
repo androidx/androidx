@@ -16,6 +16,7 @@
 
 package androidx.core.app;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.os.Build;
@@ -54,6 +55,7 @@ public final class AlarmManagerCompat {
      * @see android.content.Context#registerReceiver
      * @see android.content.Intent#filterEquals
      */
+    @SuppressLint("MissingPermission")
     public static void setAlarmClock(@NonNull AlarmManager alarmManager, long triggerTime,
             @NonNull PendingIntent showIntent, @NonNull PendingIntent operation) {
         if (Build.VERSION.SDK_INT >= 21) {

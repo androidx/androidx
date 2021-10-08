@@ -30,6 +30,7 @@
 
         <activity android:name=".VideoSelectorActivity"
             android:theme="@style/Theme.AppCompat"
+            android:exported="true"
             android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -39,6 +40,7 @@
 
         <activity android:name=".VideoPlayerActivity"
             android:theme="@style/Theme.AppCompat"
+            android:exported="true"
             android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>

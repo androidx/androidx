@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -31,11 +30,11 @@ dependencies {
     androidTestImplementation(project(":room:room-rxjava2"))
     androidTestImplementation("androidx.arch.core:core-runtime:2.0.1")
     androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
-    androidTestImplementation(RX_JAVA)
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(libs.rxjava2)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.kotlinStdlib)
 }

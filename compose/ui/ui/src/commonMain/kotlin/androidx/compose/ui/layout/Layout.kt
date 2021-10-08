@@ -20,7 +20,7 @@ package androidx.compose.ui.layout
 
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeNode
+import androidx.compose.runtime.ReusableComposeNode
 import androidx.compose.runtime.SkippableUpdater
 import androidx.compose.runtime.currentComposer
 import androidx.compose.ui.Modifier
@@ -31,12 +31,14 @@ import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.MeasureBlocks
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.simpleIdentityToString
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastMap
 
 /**
  * [Layout] is the main core component for layout. It can be used to measure and position
@@ -70,15 +72,61 @@ import androidx.compose.ui.unit.LayoutDirection
 ) {
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
-    ComposeNode<ComposeUiNode, Applier<Any>>(
+    val viewConfiguration = LocalViewConfiguration.current
+    ReusableComposeNode<ComposeUiNode, Applier<Any>>(
         factory = ComposeUiNode.Constructor,
         update = {
             set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
             set(density, ComposeUiNode.SetDensity)
             set(layoutDirection, ComposeUiNode.SetLayoutDirection)
+            set(viewConfiguration, ComposeUiNode.SetViewConfiguration)
         },
         skippableUpdate = materializerOf(modifier),
         content = content
+    )
+}
+
+/**
+ * [Layout] is the main core component for layout for "leaf" nodes. It can be used to measure and
+ * position zero children.
+ *
+ * The measurement, layout and intrinsic measurement behaviours of this layout will be defined
+ * by the [measurePolicy] instance. See [MeasurePolicy] for more details.
+ *
+ * For a composable able to define its content according to the incoming constraints,
+ * see [androidx.compose.foundation.layout.BoxWithConstraints].
+ *
+ * Example usage:
+ * @sample androidx.compose.ui.samples.LayoutUsage
+ *
+ * Example usage with custom intrinsic measurements:
+ * @sample androidx.compose.ui.samples.LayoutWithProvidedIntrinsicsUsage
+ *
+ * @param modifier Modifiers to be applied to the layout.
+ * @param measurePolicy The policy defining the measurement and positioning of the layout.
+ *
+ * @see Layout
+ * @see MeasurePolicy
+ * @see androidx.compose.foundation.layout.BoxWithConstraints
+ */
+@Suppress("NOTHING_TO_INLINE")
+@Composable inline fun Layout(
+    modifier: Modifier = Modifier,
+    measurePolicy: MeasurePolicy
+) {
+    val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
+    val viewConfiguration = LocalViewConfiguration.current
+    val materialized = currentComposer.materialize(modifier)
+    ReusableComposeNode<ComposeUiNode, Applier<Any>>(
+        factory = ComposeUiNode.Constructor,
+        update = {
+            set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
+            set(density, ComposeUiNode.SetDensity)
+            set(layoutDirection, ComposeUiNode.SetLayoutDirection)
+            set(viewConfiguration, ComposeUiNode.SetViewConfiguration)
+            set(materialized, ComposeUiNode.SetModifier)
+        },
     )
 }
 
@@ -190,14 +238,16 @@ fun MultiMeasureLayout(
     val materialized = currentComposer.materialize(modifier)
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
+    val viewConfiguration = LocalViewConfiguration.current
 
-    ComposeNode<LayoutNode, Applier<Any>>(
+    ReusableComposeNode<LayoutNode, Applier<Any>>(
         factory = LayoutNode.Constructor,
         update = {
             set(materialized, ComposeUiNode.SetModifier)
             set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
             set(density, ComposeUiNode.SetDensity)
             set(layoutDirection, ComposeUiNode.SetLayoutDirection)
+            set(viewConfiguration, ComposeUiNode.SetViewConfiguration)
             @Suppress("DEPRECATION")
             init { this.canMultiMeasure = true }
         },
@@ -366,7 +416,7 @@ private fun Density.MeasuringMinIntrinsicWidth(
     h: Int,
     layoutDirection: LayoutDirection
 ): Int {
-    val mapped = measurables.map {
+    val mapped = measurables.fastMap {
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Width)
     }
     val constraints = Constraints(maxHeight = h)
@@ -385,7 +435,7 @@ private fun Density.MeasuringMinIntrinsicHeight(
     w: Int,
     layoutDirection: LayoutDirection
 ): Int {
-    val mapped = measurables.map {
+    val mapped = measurables.fastMap {
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Height)
     }
     val constraints = Constraints(maxWidth = w)
@@ -404,7 +454,7 @@ private fun Density.MeasuringMaxIntrinsicWidth(
     h: Int,
     layoutDirection: LayoutDirection
 ): Int {
-    val mapped = measurables.map {
+    val mapped = measurables.fastMap {
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Width)
     }
     val constraints = Constraints(maxHeight = h)
@@ -423,7 +473,7 @@ private fun Density.MeasuringMaxIntrinsicHeight(
     w: Int,
     layoutDirection: LayoutDirection
 ): Int {
-    val mapped = measurables.map {
+    val mapped = measurables.fastMap {
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Height)
     }
     val constraints = Constraints(maxWidth = w)

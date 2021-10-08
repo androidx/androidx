@@ -27,13 +27,18 @@ package androidx.compose.runtime.saveable
  *
  * @sample androidx.compose.runtime.saveable.samples.ListSaverSample
  */
-fun <Original : Any, Saveable : Any> listSaver(
+fun <Original, Saveable> listSaver(
     save: SaverScope.(value: Original) -> List<Saveable>,
     restore: (list: List<Saveable>) -> Original?
 ): Saver<Original, Any> = @Suppress("UNCHECKED_CAST") Saver(
     save = {
         val list = save(it)
-        list.forEach { item -> require(canBeSaved(item)) }
+        for (index in list.indices) {
+            val item = list[index]
+            if (item != null) {
+                require(canBeSaved(item))
+            }
+        }
         if (list.isNotEmpty()) ArrayList(list) else null
     },
     restore = restore as (Any) -> Original?

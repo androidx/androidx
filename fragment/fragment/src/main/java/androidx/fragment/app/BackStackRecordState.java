@@ -63,7 +63,7 @@ final class BackStackRecordState implements Parcelable {
             final BackStackRecord.Op op = bse.mOps.get(opNum);
             mOps[pos++] = op.mCmd;
             mFragmentWhos.add(op.mFragment != null ? op.mFragment.mWho : null);
-            mOps[pos++] = op.mTopmostFragment ? 1 : 0;
+            mOps[pos++] = op.mFromExpandedOp ? 1 : 0;
             mOps[pos++] = op.mEnterAnim;
             mOps[pos++] = op.mExitAnim;
             mOps[pos++] = op.mPopEnterAnim;
@@ -136,7 +136,14 @@ final class BackStackRecordState implements Parcelable {
         for (int num = 0; num < mFragmentWhos.size(); num++) {
             String fWho = mFragmentWhos.get(num);
             if (fWho != null) {
-                bse.mOps.get(num).mFragment = fragments.get(fWho);
+                Fragment fragment = fragments.get(fWho);
+                if (fragment != null) {
+                    bse.mOps.get(num).mFragment = fragment;
+                } else {
+                    throw new IllegalStateException("Restoring FragmentTransaction "
+                            + mName + " failed due to missing saved state for Fragment ("
+                            + fWho + ")");
+                }
             }
         }
         return bse;
@@ -154,7 +161,7 @@ final class BackStackRecordState implements Parcelable {
             }
             op.mOldMaxState = Lifecycle.State.values()[mOldMaxLifecycleStates[num]];
             op.mCurrentMaxState = Lifecycle.State.values()[mCurrentMaxLifecycleStates[num]];
-            op.mTopmostFragment = mOps[pos++] != 0;
+            op.mFromExpandedOp = mOps[pos++] != 0;
             op.mEnterAnim = mOps[pos++];
             op.mExitAnim = mOps[pos++];
             op.mPopEnterAnim = mOps[pos++];

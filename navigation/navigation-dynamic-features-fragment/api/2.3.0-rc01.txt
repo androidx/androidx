@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.navigation.dynamicfeatures.fragment {
 
   @androidx.navigation.Navigator.Name("fragment") public final class DynamicFragmentNavigator extends androidx.navigation.fragment.FragmentNavigator {
@@ -10,7 +10,7 @@ package androidx.navigation.dynamicfeatures.fragment {
     ctor public DynamicFragmentNavigator.Destination(androidx.navigation.NavigatorProvider navigatorProvider);
     ctor public DynamicFragmentNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.fragment.FragmentNavigator.Destination> fragmentNavigator);
     method public String? getModuleName();
-    method public void setModuleName(String? p);
+    method public void setModuleName(String? moduleName);
     property public final String? moduleName;
   }
 
@@ -18,7 +18,7 @@ package androidx.navigation.dynamicfeatures.fragment {
     ctor public DynamicFragmentNavigatorDestinationBuilder(androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator navigator, @IdRes int id, String fragmentClassName);
     method public androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator.Destination build();
     method public String? getModuleName();
-    method public void setModuleName(String? p);
+    method public void setModuleName(String? moduleName);
     property public final String? moduleName;
   }
 

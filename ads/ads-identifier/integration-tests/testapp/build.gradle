@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -29,7 +27,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":ads-identifier"))
-    implementation(project(":ads-identifier-common"))
-    implementation(GUAVA_ANDROID)
+    implementation(project(":ads:ads-identifier"))
+    implementation(project(":ads:ads-identifier-common"))
+    implementation(libs.guavaAndroid)
 }

@@ -80,16 +80,40 @@ public interface OnReceiveContentListener {
      * implementation and see {@link ContentInfoCompat#partition} for a convenient way to split the
      * passed-in content.
      *
-     * <p>If implementing handling for text: if the view has a selection, the selection should
-     * be overwritten by the passed-in content; if there's no selection, the passed-in content
-     * should be inserted at the current cursor position.
+     * <h3>Handling different content</h3>
+     * <ul>
+     *     <li>Text. The passed-in text should overwrite the current selection or be inserted at
+     *     the current cursor position if there is no selection.
+     *     <li>Non-text content (e.g. images). The content may be inserted inline if the widget
+     *     supports this, or it may be added as an attachment (could potentially be shown in a
+     *     completely separate view).
+     * </ul>
      *
-     * <p>If implementing handling for non-text content (e.g. images): the content may be
-     * inserted inline, or it may be added as an attachment (could potentially be shown in a
-     * completely separate view).
+     * <h3>URI permissions</h3>
+     * <p>{@link android.content.Intent#FLAG_GRANT_READ_URI_PERMISSION Read permissions} are
+     * granted automatically by the platform for any
+     * {@link android.content.ContentResolver#SCHEME_CONTENT content URIs} in the payload passed
+     * to this listener. Permissions are transient and will be released automatically by the
+     * platform.
+     * <p>Processing of content should normally be done in a service or activity.
+     * For long-running processing, using {@code androidx.work.WorkManager} is recommended.
+     * When implementing this, permissions should be extended to the target service or activity
+     * by passing the content using {@link android.content.Intent#setClipData Intent.setClipData}
+     * and {@link android.content.Intent#addFlags(int) setting} the flag
+     * {@link android.content.Intent#FLAG_GRANT_READ_URI_PERMISSION FLAG_GRANT_READ_URI_PERMISSION}.
+     * <p>Alternatively, if using a background thread within the current context to process the
+     * content, a reference to the {@code payload} object should be maintained to ensure that
+     * permissions are not revoked prematurely.
      *
      * @param view The view where the content insertion was requested.
-     * @param payload The content to insert and related metadata.
+     * @param payload The content to insert and related metadata. The payload may contain multiple
+     *                items and their MIME types may be different (e.g. an image item and a text
+     *                item). The payload may also contain items whose MIME type is not in the list
+     *                of MIME types specified when
+     *                {@link ViewCompat#setOnReceiveContentListener setting} the listener. For
+     *                those items, the listener may reject the content (defer to the default
+     *                platform behavior) or execute some other fallback logic (e.g. show an
+     *                appropriate message to the user).
      *
      * @return The portion of the passed-in content whose processing should be delegated to
      * the platform. Return null if all content was handled in some way. Actual insertion of

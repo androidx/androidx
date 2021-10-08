@@ -1,19 +1,3 @@
-/*
- * Copyright 2018 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package a.b;
 
 import android.os.Bundle;
@@ -33,6 +17,7 @@ public class MainFragment$InnerFragmentArgs implements NavArgs {
     private MainFragment$InnerFragmentArgs() {
     }
 
+    @SuppressWarnings("unchecked")
     private MainFragment$InnerFragmentArgs(HashMap argumentsMap) {
         this.arguments.putAll(argumentsMap);
     }
@@ -90,6 +75,17 @@ public class MainFragment$InnerFragmentArgs implements NavArgs {
         return __result;
     }
 
+    @SuppressWarnings("unchecked")
+    @NonNull
+    public SavedStateHandle toSavedStateHandle() {
+        SavedStateHandle __result = new SavedStateHandle();
+        if (arguments.containsKey("mainArg")) {
+            String mainArg = (String) arguments.get("mainArg");
+            __result.set("mainArg", mainArg);
+        }
+        return __result;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {
@@ -122,13 +118,15 @@ public class MainFragment$InnerFragmentArgs implements NavArgs {
                 + "}";
     }
 
-    public static class Builder {
+    public static final class Builder {
         private final HashMap arguments = new HashMap();
 
-        public Builder(MainFragment$InnerFragmentArgs original) {
+        @SuppressWarnings("unchecked")
+        public Builder(@NonNull MainFragment$InnerFragmentArgs original) {
             this.arguments.putAll(original.arguments);
         }
 
+        @SuppressWarnings("unchecked")
         public Builder(@NonNull String mainArg) {
             if (mainArg == null) {
                 throw new IllegalArgumentException("Argument \"mainArg\" is marked as non-null but was passed a null value.");
@@ -143,6 +141,7 @@ public class MainFragment$InnerFragmentArgs implements NavArgs {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setMainArg(@NonNull String mainArg) {
             if (mainArg == null) {
                 throw new IllegalArgumentException("Argument \"mainArg\" is marked as non-null but was passed a null value.");
@@ -151,7 +150,7 @@ public class MainFragment$InnerFragmentArgs implements NavArgs {
             return this;
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         @NonNull
         public String getMainArg() {
             return (String) arguments.get("mainArg");

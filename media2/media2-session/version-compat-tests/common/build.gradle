@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -30,5 +28,5 @@ android {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")
-    implementation(JUNIT)
+    implementation(libs.junit)
 }

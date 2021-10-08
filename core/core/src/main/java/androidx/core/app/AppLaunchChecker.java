@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-
 package androidx.core.app;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +33,8 @@ import androidx.core.content.IntentCompat;
  * than just if the app has been opened in the past in order to view a link,
  * open a document or perform some other service for other apps on the device.
  */
+@SuppressWarnings("JavadocReference") // Unreliable warning
+@SuppressLint("PrivateConstructorForUtilityClass") // Already launched with public constructor
 public class AppLaunchChecker {
     private static final String SHARED_PREFS_NAME = "android.support.AppLaunchChecker";
     private static final String KEY_STARTED_FROM_LAUNCHER = "startedFromLauncher";
@@ -83,7 +85,6 @@ public class AppLaunchChecker {
 
     /** @deprecated This type should not be instantiated as it contains only static methods. */
     @Deprecated
-    @SuppressWarnings("PrivateConstructorForUtilityClass")
     public AppLaunchChecker() {
     }
 }

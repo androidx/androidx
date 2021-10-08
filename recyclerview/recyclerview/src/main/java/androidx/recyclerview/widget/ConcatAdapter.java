@@ -18,6 +18,7 @@ package androidx.recyclerview.widget;
 
 import static androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode.NO_STABLE_IDS;
 
+import android.util.Pair;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -286,8 +287,10 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
      * If the given {@link Adapter} is not part of this {@link ConcatAdapter},
      * {@link RecyclerView#NO_POSITION} is returned.
      *
-     * @param adapter    The adapter which is a sub adapter of this ConcatAdapter or itself.
-     * @param viewHolder The view holder whose local position in the given adapter will be returned.
+     * @param adapter       The adapter which is a sub adapter of this ConcatAdapter or itself.
+     * @param viewHolder    The view holder whose local position in the given adapter will be
+     *                      returned.
+     * @param localPosition The position of the given {@link ViewHolder} in this {@link Adapter}.
      * @return The local position of the given {@link ViewHolder} in the given {@link Adapter} or
      * {@link RecyclerView#NO_POSITION} if the {@link ViewHolder} is not bound to an item or the
      * given {@link Adapter} is not part of this ConcatAdapter.
@@ -296,8 +299,30 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
     public int findRelativeAdapterPositionIn(
             @NonNull Adapter<? extends ViewHolder> adapter,
             @NonNull ViewHolder viewHolder,
-            int globalPosition) {
-        return mController.getLocalAdapterPosition(adapter, viewHolder, globalPosition);
+            int localPosition) {
+        return mController.getLocalAdapterPosition(adapter, viewHolder, localPosition);
+    }
+
+
+    /**
+     * Retrieve the adapter and local position for a given position in this {@code ConcatAdapter}.
+     *
+     * This allows for retrieving wrapped adapter information in situations where you don't have a
+     * {@link ViewHolder}, such as within a
+     * {@link androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup} in which you want to
+     * look up information from the source adapter.
+     *
+     * @param globalPosition The position in this {@code ConcatAdapter}.
+     * @return a Pair with the first element set to the wrapped {@code Adapter} containing that
+     * position and the second element set to the local position in the wrapped adapter
+     * @throws IllegalArgumentException if the specified {@code globalPosition} does not
+     * correspond to a valid element of this adapter.  That is, if {@code globalPosition} is less
+     * than 0 or greater than the total number of items in the {@code ConcatAdapter}
+     */
+    @NonNull
+    public Pair<Adapter<? extends ViewHolder>, Integer> getWrappedAdapterAndPosition(int
+            globalPosition) {
+        return mController.getWrappedAdapterAndPosition(globalPosition);
     }
 
     /**
@@ -351,6 +376,11 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
         public final StableIdMode stableIdMode;
 
 
+        /**
+         * Default configuration for {@link ConcatAdapter} where {@link Config#isolateViewTypes}
+         * is set to {@code true} and {@link Config#stableIdMode} is set to
+         * {@link StableIdMode#NO_STABLE_IDS}.
+         */
         @NonNull
         public static final Config DEFAULT = new Config(true, NO_STABLE_IDS);
 
@@ -401,8 +431,8 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
          * The builder for {@link Config} class.
          */
         public static final class Builder {
-            private boolean mIsolateViewTypes;
-            private StableIdMode mStableIdMode = NO_STABLE_IDS;
+            private boolean mIsolateViewTypes = DEFAULT.isolateViewTypes;
+            private StableIdMode mStableIdMode = DEFAULT.stableIdMode;
 
             /**
              * Sets whether {@link ConcatAdapter} should isolate view types of nested adapters from
@@ -411,7 +441,8 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
              * @param isolateViewTypes {@code true} if {@link ConcatAdapter} should override view
              *                         types of nested adapters to avoid view type
              *                         conflicts, {@code false} otherwise.
-             *                         Defaults to true.
+             *                         Defaults to {@link Config#DEFAULT}'s
+             *                         {@link Config#isolateViewTypes} value ({@code true}).
              * @return this
              * @see Config#isolateViewTypes
              */
@@ -427,7 +458,8 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
              * for details.
              *
              * @param stableIdMode The stable id mode for the {@link ConcatAdapter}. Defaults to
-             *                     {@link StableIdMode#NO_STABLE_IDS}.
+             *                     {@link Config#DEFAULT}'s {@link Config#stableIdMode} value
+             *                     ({@link StableIdMode#NO_STABLE_IDS}).
              * @return this
              * @see Config#stableIdMode
              */

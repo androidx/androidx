@@ -27,6 +27,7 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -38,6 +39,7 @@ import java.util.LinkedHashSet;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class LifecycleCameraTest {
     private LifecycleCamera mLifecycleCamera;
     private FakeLifecycleOwner mLifecycleOwner;

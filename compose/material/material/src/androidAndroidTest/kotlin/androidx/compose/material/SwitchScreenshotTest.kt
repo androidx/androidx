@@ -31,14 +31,10 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.center
-import androidx.compose.ui.test.down
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.move
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performGesture
-import androidx.compose.ui.test.up
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -139,15 +135,25 @@ class SwitchScreenshotTest {
 
     @Test
     fun switchTest_pressed() {
+        rule.mainClock.autoAdvance = false
+
         rule.setMaterialContent {
             Box(wrapperModifier) {
                 Switch(checked = false, enabled = true, onCheckedChange = { })
             }
         }
 
-        rule.onNodeWithTag(wrapperTestTag).performGesture {
+        rule.onNode(isToggleable()).performTouchInput {
             down(center)
         }
+
+        // Advance past the tap timeout
+        rule.mainClock.advanceTimeBy(100)
+
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
+
         assertToggeableAgainstGolden("switch_pressed")
     }
 
@@ -187,17 +193,20 @@ class SwitchScreenshotTest {
 
         rule.onNode(isToggleable())
             // split click into (down) and (move, up) to enforce a composition in between
-            .performGesture { down(center) }
-            .performGesture { move(); up() }
+            .performTouchInput { down(center) }
+            .performTouchInput { move(); up() }
 
         rule.waitForIdle()
         rule.mainClock.advanceTimeBy(milliseconds = 96)
+
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
 
         assertToggeableAgainstGolden("switch_animateToChecked")
     }
 
     @Test
-    @Suppress("DEPRECATION") // Due to clockTestRule
     fun switchTest_checked_animateToUnchecked() {
         rule.setMaterialContent {
             val isChecked = remember { mutableStateOf(true) }
@@ -213,17 +222,20 @@ class SwitchScreenshotTest {
 
         rule.onNode(isToggleable())
             // split click into (down) and (move, up) to enforce a composition in between
-            .performGesture { down(center) }
-            .performGesture { move(); up() }
+            .performTouchInput { down(center) }
+            .performTouchInput { move(); up() }
 
         rule.waitForIdle()
         rule.mainClock.advanceTimeBy(milliseconds = 96)
+
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
 
         assertToggeableAgainstGolden("switch_animateToUnchecked")
     }
 
     private fun assertToggeableAgainstGolden(goldenName: String) {
-        // TODO: replace with find(isToggeable()) after b/157687898 is fixed
         rule.onNodeWithTag(wrapperTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenName)

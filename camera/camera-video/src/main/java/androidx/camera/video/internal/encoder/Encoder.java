@@ -19,6 +19,7 @@ package androidx.camera.video.internal.encoder;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.video.internal.BufferProvider;
 
 import java.util.concurrent.Executor;
@@ -29,6 +30,7 @@ import java.util.concurrent.Executor;
  * <p>An encoder could be either a video encoder or an audio encoder. The interface defines the
  * common APIs to communicate with an encoder.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface Encoder {
 
     /** Returns the encoder's input instance. */
@@ -68,6 +70,11 @@ public interface Encoder {
      *
      * <p>Once the encoder is released, it cannot be used anymore. Any other method call after
      * the encoder is released will get {@link IllegalStateException}.
+     *
+     * <p>If this encoder takes {@link SurfaceInput}, this method will release all the
+     * {@link Surface}s updated via {@link SurfaceInput#setOnSurfaceUpdateListener}. So this
+     * method should only be called when the frame producer is finished with the surface which
+     * may be the current surface or one of the obsolete surfaces.
      */
     void release();
 
@@ -79,6 +86,13 @@ public interface Encoder {
      */
     void setEncoderCallback(@NonNull EncoderCallback encoderCallback, @NonNull Executor executor);
 
+    /**
+     * Request a key frame.
+     *
+     * <p>Only take effect when the encoder is a video encoder and encoder is started.
+     */
+    void requestKeyFrame();
+
     /** The encoder's input. */
     interface EncoderInput {
     }
@@ -87,8 +101,12 @@ public interface Encoder {
      * A SurfaceInput provides a {@link Surface} as the interface to receive video raw data.
      *
      * <p>SurfaceInput is only available for video encoder. It has to set
-     * {@link #setOnSurfaceUpdateListener} to obtain the {@link Surface} update. It is the caller's
-     * responsibility to release the updated {@link Surface}.
+     * {@link #setOnSurfaceUpdateListener} to obtain the {@link Surface} update. A new surface
+     * instance may be updated after there is already an updated surface. For Encoder, it is safe
+     * and recommended to release the old surface by the surface receiver via
+     * {@link Surface#release()} since the old surface is no longer used by Encoder. For the
+     * latest surface, the receiver should rely on {@link Encoder#release()} to release it. After
+     * {@link Encoder#release()} is called, all updated surfaces will be released.
      */
     interface SurfaceInput extends EncoderInput {
 

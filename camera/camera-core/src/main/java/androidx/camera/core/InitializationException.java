@@ -17,11 +17,13 @@
 package androidx.camera.core;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * {@code InitializationException} is thrown when a failure occurs during an initialization
  * process.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class InitializationException extends Exception {
 
     public InitializationException(@Nullable String message) {

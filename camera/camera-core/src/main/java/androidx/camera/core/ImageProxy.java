@@ -22,10 +22,12 @@ import android.media.Image;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.nio.ByteBuffer;
 
 /** An image proxy which has a similar interface as {@link android.media.Image}. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface ImageProxy extends AutoCloseable {
     /**
      * Closes the underlying {@link android.media.Image}.
@@ -52,6 +54,9 @@ public interface ImageProxy extends AutoCloseable {
 
     /**
      * Returns the image format.
+     *
+     * <p> The image format can be one of the {@link android.graphics.ImageFormat} or
+     * {@link android.graphics.PixelFormat} constants.
      *
      * @see android.media.Image#getFormat()
      */
@@ -81,6 +86,7 @@ public interface ImageProxy extends AutoCloseable {
     PlaneProxy[] getPlanes();
 
     /** A plane proxy which has an analogous interface as {@link android.media.Image.Plane}. */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     interface PlaneProxy {
         /**
          * Returns the row stride.

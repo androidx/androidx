@@ -29,7 +29,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.Screen;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.model.constraints.CarTextConstraints;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -38,6 +40,7 @@ import java.util.Objects;
 /**
  * Represents a grid item with an image and an optional title.
  */
+@CarProtocol
 public final class GridItem implements Item {
     /**
      * The type of images supported within grid items.
@@ -53,8 +56,9 @@ public final class GridItem implements Item {
     /**
      * Represents an icon to be displayed in the grid item.
      *
-     * <p>If necessary, icons will be scaled down to fit within a 64 x 64 dp bounding box,
-     * preserving their aspect ratios.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * icons targeting a 128 x 128 dp bounding box. If necessary, the icon will be scaled down while
+     * preserving its aspect ratio.
      *
      * <p>A tint color is expected to be provided via {@link CarIcon.Builder#setTint}. Otherwise, a
      * default tint color as determined by the host will be applied.
@@ -64,8 +68,9 @@ public final class GridItem implements Item {
     /**
      * Represents a large image to be displayed in the grid item.
      *
-     * <p>If necessary, these images will be scaled down to fit within a 64 x 64 dp bounding box,
-     * preserving their aspect ratio.
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 128 x 128 dp bounding box. If necessary, the image will be scaled down
+     * while preserving its aspect ratio.
      */
     public static final int IMAGE_TYPE_LARGE = (1 << 1);
 
@@ -227,14 +232,14 @@ public final class GridItem implements Item {
         }
 
         /**
-         * Sets the title of the row.
+         * Sets the title of the {@link GridItem}.
          *
-         * <p>Unless set with this method, the grid item will not have an title.
-         *
-         * <p>Spans are not supported in the input string.
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
          *
          * @throws NullPointerException     if {@code title} is {@code null}
-         * @throws IllegalArgumentException if {@code title} is empty
+         * @throws IllegalArgumentException if {@code title} is empty, of if it contains
+         *                                  unsupported spans
          */
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
@@ -242,27 +247,73 @@ public final class GridItem implements Item {
             if (titleText.isEmpty()) {
                 throw new IllegalArgumentException("The title cannot be null or empty");
             }
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(titleText);
             mTitle = titleText;
+            return this;
+        }
+
+        /**
+         * Sets the title of the {@link GridItem}, with support for multiple length variants.,
+         *
+         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
+         * string.
+         *
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} is empty, of if it contains
+         *                                  unsupported spans
+         */
+        @NonNull
+        public Builder setTitle(@NonNull CarText title) {
+            if (CarText.isNullOrEmpty(title)) {
+                throw new IllegalArgumentException("The title cannot be null or empty");
+            }
+            CarTextConstraints.TEXT_ONLY.validateOrThrow(title);
+            mTitle = title;
             return this;
         }
 
         /**
          * Sets a secondary text string to the grid item that is displayed below the title.
          *
-         * <p>Unless set with this method, the grid item will not have a secondary text string.
+         * <p>The text can be customized with {@link ForegroundCarColorSpan},
+         * {@link androidx.car.app.model.DistanceSpan}, and
+         * {@link androidx.car.app.model.DurationSpan} instances, any other spans will be ignored
+         * by the host.
          *
-         * <p>The text's color can be customized with {@link ForegroundCarColorSpan} instances, any
-         * other spans will be ignored by the host.
+         * <h2>Text Wrapping</h2>
+         *
+         * This text is truncated at the end to fit in a single line below the title
+         *
+         * @throws NullPointerException     if {@code text} is {@code null}
+         * @throws IllegalArgumentException if {@code text} contains unsupported spans
+         */
+        @NonNull
+        public Builder setText(@NonNull CharSequence text) {
+            mText = CarText.create(requireNonNull(text));
+            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(mText);
+            return this;
+        }
+
+        /**
+         * Sets a secondary text string to the grid item that is displayed below the title, with
+         * support for multiple length variants.
+         *
+         * <p>The text can be customized with {@link ForegroundCarColorSpan},
+         * {@link androidx.car.app.model.DistanceSpan}, and
+         * {@link androidx.car.app.model.DurationSpan} instances, any other spans will be ignored
+         * by the host.
          *
          * <h2>Text Wrapping</h2>
          *
          * This text is truncated at the end to fit in a single line below the title
          *
          * @throws NullPointerException if {@code text} is {@code null}
+         * @throws IllegalArgumentException if {@code text} contains unsupported spans
          */
         @NonNull
-        public Builder setText(@NonNull CharSequence text) {
-            mText = CarText.create(requireNonNull(text));
+        public Builder setText(@NonNull CarText text) {
+            mText = requireNonNull(text);
+            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(mText);
             return this;
         }
 
@@ -289,7 +340,7 @@ public final class GridItem implements Item {
          *
          * <p>If the input image's size exceeds the sizing requirements for the given image type in
          * either one of the dimensions, it will be scaled down to be centered inside the
-         * bounding box while preserving the aspect ratio.
+         * bounding box while preserving its aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.

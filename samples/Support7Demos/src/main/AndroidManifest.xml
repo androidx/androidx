@@ -23,76 +23,63 @@
     package="com.example.android.supportv7">
     <!-- Permission for INTERNET is required for streaming video content
          from the web, it's not required otherwise. -->
-    <uses-permission android:name="android.permission.INTERNET" />
-    <!-- Permission for SYSTEM_ALERT_WINDOW is only required for emulating
-         remote display using system alert window. -->
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <!-- Permission for READ_EXTERNAL_STORAGE is explicitly required for
-         reading images from the media store from API v19+. -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
-    <!-- Permission for ACCESS_COARSE_LOCATION is required for DayNight themes. -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-    <!-- The smallest screen this app works on is a phone.  The app will
-         scale its UI to larger screens but doesn't make good use of them
-         so allow the compatibility mode button to be shown (mostly because
-         this is just convenient for testing). -->
-    <supports-screens android:requiresSmallestWidthDp="320"
-            android:compatibleWidthLimitDp="480" />
-
     <application
-            android:label="@string/activity_sample_code"
-            android:supportsRtl="true"
-            android:icon="@drawable/app_sample_code"
-            android:hardwareAccelerated="true">
+        android:hardwareAccelerated="true"
+        android:icon="@drawable/app_sample_code"
+        android:label="@string/activity_sample_code"
+        android:supportsRtl="true">
 
-        <activity android:name="Support7Demos">
+        <activity
+            android:name="Support7Demos"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name="com.example.android.supportv7.media.SampleMediaButtonReceiver">
+        <activity
+            android:name=".media.SampleMediaRouterActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true"
+            android:label="@string/sample_media_router_activity_dark"
+            android:theme="@style/Theme.SampleMediaRouter">
             <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
-        </receiver>
+        </activity>
         <!-- MediaRouter Support Samples -->
 
-        <activity android:name=".media.SampleMediaRouterActivity"
-                android:configChanges="orientation|screenSize"
-                android:label="@string/sample_media_router_activity_dark"
-                android:theme="@style/Theme.SampleMediaRouter">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".media.SampleMediaRouterActivity$Light"
-                android:configChanges="orientation|screenSize"
-                android:label="@string/sample_media_router_activity_light"
-                android:theme="@style/Theme.SampleMediaRouter.Light">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".media.SampleMediaRouterActivity$LightWithDarkActionBar"
-                android:configChanges="orientation|screenSize"
-                android:label="@string/sample_media_router_activity_light_with_dark_action_bar"
-                android:theme="@style/Theme.SampleMediaRouter.Light.DarkActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".media.SampleMediaRouterActivity$DynamicGroupActivity"
+        <activity
+            android:name=".media.SampleMediaRouterActivity$Light"
             android:configChanges="orientation|screenSize"
+            android:exported="true"
+            android:label="@string/sample_media_router_activity_light"
+            android:theme="@style/Theme.SampleMediaRouter.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".media.SampleMediaRouterActivity$LightWithDarkActionBar"
+            android:configChanges="orientation|screenSize"
+            android:exported="true"
+            android:label="@string/sample_media_router_activity_light_with_dark_action_bar"
+            android:theme="@style/Theme.SampleMediaRouter.Light.DarkActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".media.SampleMediaRouterActivity$DynamicGroupActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true"
             android:label="@string/sample_media_router_activity_dynamic_group"
             android:theme="@style/Theme.SampleMediaRouter">
             <intent-filter>
@@ -101,8 +88,10 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".media.SampleMediaRouterActivity$OutputSwitcherActivity"
+        <activity
+            android:name=".media.SampleMediaRouterActivity$OutputSwitcherActivity"
             android:configChanges="orientation|screenSize"
+            android:exported="true"
             android:label="@string/sample_media_router_activity_output_switcher"
             android:theme="@style/Theme.SampleMediaRouter">
             <intent-filter>
@@ -111,63 +100,51 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".media.SampleMediaRouteSettingsActivity"
-                android:label="@string/sample_media_route_settings_activity"
-                android:theme="@style/Theme.AppCompat.Light">
+        <activity
+            android:name=".media.SampleMediaRouteSettingsActivity"
+            android:exported="true"
+            android:label="@string/sample_media_route_settings_activity"
+            android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
 
-        <service android:name=".media.SampleMediaRouteProviderService"
-                android:label="@string/sample_media_route_provider_service"
-                android:process=":mrp">
-            <intent-filter>
-                <action android:name="android.media.MediaRouteProviderService" />
-                <action android:name="android.media.MediaRoute2ProviderService" />
-            </intent-filter>
-        </service>
-
-        <service android:name=".media.SampleDynamicGroupMrpService"
-            android:label="@string/sample_media_route_provider_service"
-            android:process=":dynamic_mrp">
-            <intent-filter>
-                <action android:name="android.media.MediaRouteProviderService" />
-                <action android:name="android.media.MediaRoute2ProviderService" />
-            </intent-filter>
-        </service>
-
-        <receiver android:name="androidx.mediarouter.media.MediaTransferReceiver" />
-
-        <!-- GridLayout Support Samples -->
-
-        <activity android:name=".view.GridLayout1"
-                android:label="@string/grid_layout_1">
+        <activity
+            android:name=".view.GridLayout1"
+            android:exported="true"
+            android:label="@string/grid_layout_1">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.GridLayout2"
-                android:label="@string/grid_layout_2">
+        <activity
+            android:name=".view.GridLayout2"
+            android:exported="true"
+            android:label="@string/grid_layout_2">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.GridLayout3"
-                android:label="@string/grid_layout_3">
+        <activity
+            android:name=".view.GridLayout3"
+            android:exported="true"
+            android:label="@string/grid_layout_3">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.SystemUIModes"
-            android:label="Views/System UI Visibility/System UI Modes"
+        <activity
+            android:name=".view.SystemUIModes"
             android:enabled="@bool/atLeastJellyBeanMR2"
+            android:exported="true"
+            android:label="Views/System UI Visibility/System UI Modes"
             android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -175,27 +152,35 @@
             </intent-filter>
         </activity>
 
-        <!-- Action Bar Samples -->
-        <activity android:name=".app.ActionBarMechanics"
-                android:label="@string/action_bar_mechanics"
-                android:theme="@style/Theme.AppCompat">
+        <!-- GridLayout Support Samples -->
+
+        <activity
+            android:name=".app.ActionBarMechanics"
+            android:exported="true"
+            android:label="@string/action_bar_mechanics"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.SearchActivity">
+        <activity
+            android:name=".app.SearchActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
 
-            <meta-data android:name="android.app.searchable"
-                       android:resource="@xml/searchable" />
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
 
         </activity>
 
-        <activity android:name=".app.ActionBarUsage"
+        <activity
+            android:name=".app.ActionBarUsage"
+            android:exported="true"
             android:label="@string/action_bar_usage"
             android:theme="@style/Theme.AppCompat">
             <intent-filter>
@@ -204,7 +189,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.ActionBarBackgroundChange"
+        <activity
+            android:name=".app.ActionBarBackgroundChange"
+            android:exported="true"
             android:label="@string/action_bar_background_change"
             android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
@@ -213,62 +200,77 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.ActionBarDisplayOptions"
-                android:label="@string/action_bar_display_options"
-                android:logo="@drawable/apidemo_androidlogo"
-                android:theme="@style/Theme.AppCompat">
+        <!-- Action Bar Samples -->
+        <activity
+            android:name=".app.ActionBarDisplayOptions"
+            android:exported="true"
+            android:label="@string/action_bar_display_options"
+            android:logo="@drawable/apidemo_androidlogo"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.ActionBarSettingsActionProviderActivity"
-                  android:label="@string/action_bar_settings_action_provider"
-                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        <activity
+            android:name=".app.ActionBarSettingsActionProviderActivity"
+            android:exported="true"
+            android:label="@string/action_bar_settings_action_provider"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.ActionBarShareActionProvider"
-                  android:label="@string/action_bar_share_action_provider"
-                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        <activity
+            android:name=".app.ActionBarShareActionProvider"
+            android:exported="true"
+            android:label="@string/action_bar_share_action_provider"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.ActionBarFragmentMenu"
-                android:label="@string/action_bar_fragment_menu"
-                android:theme="@style/Theme.AppCompat">
+        <activity
+            android:name=".app.ActionBarFragmentMenu"
+            android:exported="true"
+            android:label="@string/action_bar_fragment_menu"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.ActionBarActionMode"
-                  android:label="@string/action_bar_action_mode"
-                  android:theme="@style/Theme.Custom.WithActionMode">
+        <activity
+            android:name=".app.ActionBarActionMode"
+            android:exported="true"
+            android:label="@string/action_bar_action_mode"
+            android:theme="@style/Theme.Custom.WithActionMode">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.ActionBarHideOnScroll"
-                  android:label="@string/action_bar_hide_scroll"
-                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        <activity
+            android:name=".app.ActionBarHideOnScroll"
+            android:exported="true"
+            android:label="@string/action_bar_hide_scroll"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.AppCompatWidgetsButtons"
+        <activity
+            android:name=".app.AppCompatWidgetsButtons"
+            android:exported="true"
             android:label="@string/appcompat_widgets_buttons"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
             <intent-filter>
@@ -277,7 +279,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.AppCompatWidgetsIcons"
+        <activity
+            android:name=".app.AppCompatWidgetsIcons"
+            android:exported="true"
             android:label="@string/appcompat_widgets_icons"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
             <intent-filter>
@@ -286,7 +290,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.AppCompatWidgetsRatingBars"
+        <activity
+            android:name=".app.AppCompatWidgetsRatingBars"
+            android:exported="true"
             android:label="@string/appcompat_widgets_ratingbars"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
             <intent-filter>
@@ -295,16 +301,20 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.AppCompatWidgetsSpinners"
-                  android:label="@string/appcompat_widgets_spinners"
-                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        <activity
+            android:name=".app.AppCompatWidgetsSpinners"
+            android:exported="true"
+            android:label="@string/appcompat_widgets_spinners"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.AppCompatWidgetsSwitches"
+        <activity
+            android:name=".app.AppCompatWidgetsSwitches"
+            android:exported="true"
             android:label="@string/appcompat_widgets_switches"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
             <intent-filter>
@@ -313,25 +323,31 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.AppCompatWidgetsTextInput"
-                  android:label="@string/appcompat_widgets_text_input"
-                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        <activity
+            android:name=".app.AppCompatWidgetsTextInput"
+            android:exported="true"
+            android:label="@string/appcompat_widgets_text_input"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.AppCompatWidgetsTextViews"
-                  android:label="@string/appcompat_widgets_text_views"
-                  android:theme="@style/Theme.Custom.TextLink">
+        <activity
+            android:name=".app.AppCompatWidgetsTextViews"
+            android:exported="true"
+            android:label="@string/appcompat_widgets_text_views"
+            android:theme="@style/Theme.Custom.TextLink">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.AppCompatWidgetsToggleButtons"
+        <activity
+            android:name=".app.AppCompatWidgetsToggleButtons"
+            android:exported="true"
             android:label="@string/appcompat_widgets_toggle_buttons"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
             <intent-filter>
@@ -340,56 +356,68 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.MenuItemIconTinting"
-                  android:label="@string/menu_item_icon_tinting"
-                  android:theme="@style/Theme.Custom.NoActionBar">
+        <activity
+            android:name=".app.MenuItemIconTinting"
+            android:exported="true"
+            android:label="@string/menu_item_icon_tinting"
+            android:theme="@style/Theme.Custom.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.ToolbarUsage"
-                  android:label="@string/toolbar_usage"
-                  android:theme="@style/Theme.Custom.NoActionBar">
+        <activity
+            android:name=".app.ToolbarUsage"
+            android:exported="true"
+            android:label="@string/toolbar_usage"
+            android:theme="@style/Theme.Custom.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
 
             <meta-data
-                    android:name="android.app.default_searchable"
-                    android:value=".app.SearchActivity" />
+                android:name="android.app.default_searchable"
+                android:value=".app.SearchActivity" />
         </activity>
 
-        <activity android:name=".app.ToolbarDisplayOptions"
-                  android:label="@string/toolbar_display_options"
-                  android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity
+            android:name=".app.ToolbarDisplayOptions"
+            android:exported="true"
+            android:label="@string/toolbar_display_options"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.ToolbarFragmentPagerMenu"
-                  android:label="@string/toolbar_fragment_pager"
-                  android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity
+            android:name=".app.ToolbarFragmentPagerMenu"
+            android:exported="true"
+            android:label="@string/toolbar_fragment_pager"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.ToolbarActionMode"
-                  android:label="@string/toolbar_action_mode"
-                  android:theme="@style/Theme.Custom.NoActionBar.WithActionMode">
+        <activity
+            android:name=".app.ToolbarActionMode"
+            android:exported="true"
+            android:label="@string/toolbar_action_mode"
+            android:theme="@style/Theme.Custom.NoActionBar.WithActionMode">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.ToolbarBackgroundChange"
+        <activity
+            android:name=".app.ToolbarBackgroundChange"
+            android:exported="true"
             android:label="@string/toolbar_background_change"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
@@ -402,7 +430,9 @@
                 android:value=".app.SearchActivity" />
         </activity>
 
-        <activity android:name=".app.ToolbarTall"
+        <activity
+            android:name=".app.ToolbarTall"
+            android:exported="true"
             android:label="@string/toolbar_tall"
             android:theme="@style/Theme.Custom.NoActionBar">
             <intent-filter>
@@ -411,43 +441,53 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.DialogUsage"
-                  android:label="@string/dialog_usage"
-                  android:theme="@style/Theme.AppCompat.Light">
+        <activity
+            android:name=".app.DialogUsage"
+            android:exported="true"
+            android:label="@string/dialog_usage"
+            android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.AlertDialogUsage"
-                  android:label="@string/alert_dialog_usage"
-                  android:theme="@style/Theme.AppCompat.Light">
+        <activity
+            android:name=".app.AlertDialogUsage"
+            android:exported="true"
+            android:label="@string/alert_dialog_usage"
+            android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.DialogFragmentUsage"
-                  android:label="@string/dialogfragment_usage"
-                  android:theme="@style/Theme.AppCompat.Light">
+        <activity
+            android:name=".app.DialogFragmentUsage"
+            android:exported="true"
+            android:label="@string/dialogfragment_usage"
+            android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.AppCompatDefaultNightModeActivity"
-                  android:label="@string/mode_night_activity_title_default"
-                  android:theme="@style/Theme.AppCompat.DayNight">
+        <activity
+            android:name=".app.AppCompatDefaultNightModeActivity"
+            android:exported="true"
+            android:label="@string/mode_night_activity_title_default"
+            android:theme="@style/Theme.AppCompat.DayNight">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.AppCompatNightModeBounceActivity"
+        <activity
+            android:name=".app.AppCompatNightModeBounceActivity"
+            android:exported="true"
             android:label="@string/mode_night_activity_title_bounce"
             android:theme="@style/Theme.AppCompat.DayNight">
             <intent-filter>
@@ -456,7 +496,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.AppCompatLocalNightModeActivity"
+        <activity
+            android:name=".app.AppCompatLocalNightModeActivity"
+            android:exported="true"
             android:label="@string/mode_night_activity_title_local"
             android:theme="@style/Theme.AppCompat.DayNight">
             <intent-filter>
@@ -465,10 +507,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.AppCompatDefaultNightModeBootAwareActivity"
-            android:label="@string/mode_night_activity_title_bootaware"
+        <activity
+            android:name=".app.AppCompatDefaultNightModeBootAwareActivity"
             android:directBootAware="true"
             android:exported="true"
+            android:label="@string/mode_night_activity_title_bootaware"
             android:theme="@style/Theme.AppCompat.DayNight">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -481,48 +524,53 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.AppCompatNightModeDialog"
-                  android:label="@string/mode_night_dialog_title"
-                  android:theme="@style/Theme.AppCompat">
+        <activity
+            android:name=".app.AppCompatNightModeDialog"
+            android:exported="true"
+            android:label="@string/mode_night_dialog_title"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.AppCompatNightModeAlertDialog"
-                  android:label="@string/mode_night_alertdialog_title"
-                  android:theme="@style/Theme.AppCompat">
+        <activity
+            android:name=".app.AppCompatNightModeAlertDialog"
+            android:exported="true"
+            android:label="@string/mode_night_alertdialog_title"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.AppCompatAnimatedVector"
-                  android:label="@string/appcompat_vector_title"
-                  android:theme="@style/Theme.AppCompat.Light">
+        <activity
+            android:name=".app.AppCompatAnimatedVector"
+            android:exported="true"
+            android:label="@string/appcompat_vector_title"
+            android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <!-- AnimatedStateListDrawable activity -->
-        <activity android:name=".app.AppCompatAnimatedSelector"
-                  android:label="@string/appcompat_animated_selector_title"
-                  android:theme="@style/Theme.AppCompat">
+        <activity
+            android:name=".app.AppCompatAnimatedSelector"
+            android:exported="true"
+            android:label="@string/appcompat_animated_selector_title"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <provider android:name=".app.RecentSuggestionsProvider"
-                  android:authorities="com.example.android.supportv7.RecentSuggestionsProvider" />
-
-        <!-- Nested Scrolling Samples -->
-        <activity android:name=".widget.RecyclerViewCoordinatorLayoutAppBarActivity"
+        <activity
+            android:name=".widget.RecyclerViewCoordinatorLayoutAppBarActivity"
+            android:exported="true"
             android:label="@string/nested_scrolling_rv_cl_appbar_activity"
             android:theme="@style/Theme.AppCompat">
             <intent-filter>
@@ -530,7 +578,10 @@
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-        <activity android:name=".widget.NestedScrollViewCoordinatorLayoutAppBarActivity"
+
+        <activity
+            android:name=".widget.NestedScrollViewCoordinatorLayoutAppBarActivity"
+            android:exported="true"
             android:label="@string/nested_scrolling_nsv_cl_appbar_activity"
             android:theme="@style/Theme.AppCompat">
             <intent-filter>
@@ -539,17 +590,21 @@
             </intent-filter>
         </activity>
 
-        <!-- RecyclerView samples -->
-        <activity android:name=".widget.RecyclerViewActivity"
-                  android:label="@string/recycler_view"
-                  android:theme="@style/Theme.AppCompat">
+        <activity
+            android:name=".widget.RecyclerViewActivity"
+            android:exported="true"
+            android:label="@string/recycler_view"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.RecyclerViewSmoothScrollByActivity"
+        <!-- AnimatedStateListDrawable activity -->
+        <activity
+            android:name=".widget.RecyclerViewSmoothScrollByActivity"
+            android:exported="true"
             android:label="@string/recycler_view_smooth_scroll_by"
             android:theme="@style/Theme.AppCompat">
             <intent-filter>
@@ -558,43 +613,54 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.RvInNestedScrollViewActivity"
-                  android:label="@string/rv_in_nestedScrollView"
-                  android:theme="@style/Theme.AppCompat">
+        <activity
+            android:name=".widget.RvInNestedScrollViewActivity"
+            android:exported="true"
+            android:label="@string/rv_in_nestedScrollView"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.RvIn2NestedScrollViewsActivity"
-                  android:label="@string/rv_in_2_nestedScrollViews"
-                  android:theme="@style/Theme.AppCompat">
+        <!-- Nested Scrolling Samples -->
+        <activity
+            android:name=".widget.RvIn2NestedScrollViewsActivity"
+            android:exported="true"
+            android:label="@string/rv_in_2_nestedScrollViews"
+            android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".widget.PagerRecyclerViewActivity"
+            android:exported="true"
+            android:label="@string/pager_recycler_view"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.PagerRecyclerViewActivity"
-                  android:label="@string/pager_recycler_view"
-                  android:theme="@style/Theme.AppCompat">
+        <!-- RecyclerView samples -->
+        <activity
+            android:name=".widget.AnimatedRecyclerView"
+            android:exported="true"
+            android:label="@string/animated_recycler_view"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.AnimatedRecyclerView"
-                  android:label="@string/animated_recycler_view"
-                  android:theme="@style/Theme.AppCompat">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".widget.RemoveLargeItemsDemo"
+        <activity
+            android:name=".widget.RemoveLargeItemsDemo"
+            android:exported="true"
             android:label="RecyclerView/Remove Large Items Demo"
             android:theme="@style/Theme.AppCompat">
             <intent-filter>
@@ -603,206 +669,305 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.NestedRecyclerViewActivity"
-                  android:label="@string/nested_recycler_view"
-                  android:theme="@style/Theme.AppCompat">
+        <activity
+            android:name=".widget.NestedRecyclerViewActivity"
+            android:exported="true"
+            android:label="@string/nested_recycler_view"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.LinearLayoutManagerActivity"
-                  android:label="@string/linear_layout_manager"
-                  android:theme="@style/Theme.AppCompat">
+        <activity
+            android:name=".widget.LinearLayoutManagerActivity"
+            android:exported="true"
+            android:label="@string/linear_layout_manager"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.LinearLayoutManagerJankActivity"
-                  android:label="@string/linear_layout_manager_jank"
-                  android:theme="@style/Theme.AppCompat">
+        <activity
+            android:name=".widget.LinearLayoutManagerJankActivity"
+            android:exported="true"
+            android:label="@string/linear_layout_manager_jank"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".util.SortedListActivity"
-                  android:label="@string/sorted_list_activity"
-                  android:windowSoftInputMode="adjustResize"
-                  android:theme="@style/Theme.AppCompat">
+        <activity
+            android:name=".util.SortedListActivity"
+            android:exported="true"
+            android:label="@string/sorted_list_activity"
+            android:theme="@style/Theme.AppCompat"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.StableIdActivity"
-                  android:label="@string/recycler_view_stableid"
-                  android:theme="@style/Theme.AppCompat">
+        <activity
+            android:name=".widget.StableIdActivity"
+            android:exported="true"
+            android:label="@string/recycler_view_stableid"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".util.DiffUtilActivity"
-                  android:label="@string/diff_util_activity"
-                  android:theme="@style/Theme.AppCompat">
+        <activity
+            android:name=".util.DiffUtilActivity"
+            android:exported="true"
+            android:label="@string/diff_util_activity"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.GridLayoutManagerActivity"
-                  android:label="@string/grid_layout_manager"
-                  android:theme="@style/Theme.AppCompat">
+        <activity
+            android:name=".widget.GridLayoutManagerActivity"
+            android:exported="true"
+            android:label="@string/grid_layout_manager"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.StaggeredGridLayoutManagerActivity"
-                  android:label="@string/staggered_grid_layout_manager"
-                  android:theme="@style/Theme.AppCompat">
+        <activity
+            android:name=".widget.StaggeredGridLayoutManagerActivity"
+            android:exported="true"
+            android:label="@string/staggered_grid_layout_manager"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".widget.AsyncListUtilActivity"
-                  android:label="@string/async_list_util"
-                  android:theme="@style/Theme.AppCompat">
+        <activity
+            android:name=".widget.AsyncListUtilActivity"
+            android:exported="true"
+            android:label="@string/async_list_util"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.CardViewActivity"
-                  android:label="@string/card_view"
-                  android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity
+            android:name=".view.CardViewActivity"
+            android:exported="true"
+            android:label="@string/card_view"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".graphics.PaletteActivity"
-                  android:label="@string/palette"
-                  android:theme="@style/Theme.AppCompat">
+        <activity
+            android:name=".graphics.PaletteActivity"
+            android:exported="true"
+            android:label="@string/palette"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".graphics.PaletteDetailActivity"
-                  android:label="@string/palette"
-                  android:theme="@style/Theme.AppCompat" />
+        <activity
+            android:name=".graphics.PaletteDetailActivity"
+            android:exported="true"
+            android:label="@string/palette"
+            android:theme="@style/Theme.AppCompat" />
+
+        <activity
+            android:name=".widget.touch.SwipeToDismissActivity"
+            android:exported="true"
+            android:label="@string/swipe_to_dismiss_activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".widget.touch.DragAndDropActivity"
+            android:exported="true"
+            android:label="@string/drag_and_drop_activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".widget.DrawerLayoutActivity"
+            android:exported="true"
+            android:label="@string/drawer_layout_activity"
+            android:theme="@style/Theme.SampleDrawerLayout">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".widget.ListPopupWindowActivity"
+            android:exported="true"
+            android:label="@string/list_popup_window_activity"
+            android:theme="@style/Theme.AppCompat.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".widget.PopupMenuActivity"
+            android:exported="true"
+            android:label="@string/popup_menu_activity"
+            android:theme="@style/Theme.AppCompat.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
 
         <!-- item touch helper demo activities-->
-        <activity android:name=".widget.touch.SwipeToDismissActivity"
-                  android:label="@string/swipe_to_dismiss_activity">
+        <activity
+            android:name=".widget.ListViewActivity"
+            android:exported="true"
+            android:label="@string/list_view_activity"
+            android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-        <activity android:name=".widget.touch.DragAndDropActivity"
-                  android:label="@string/drag_and_drop_activity">
+        <activity
+            android:name=".widget.selection.single.SingleStableIdSelectionDemoActivity"
+            android:exported="true"
+            android:label="@string/single_selection_demo_activity"
+            android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
         <!-- DrawerLayout demo activity -->
-        <activity android:name=".widget.DrawerLayoutActivity"
-                  android:label="@string/drawer_layout_activity"
-                  android:theme="@style/Theme.SampleDrawerLayout">
+        <activity
+            android:name=".widget.selection.simple.SimpleSelectionDemoActivity"
+            android:exported="true"
+            android:label="@string/simple_selection_demo_activity"
+            android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
         <!-- ListPopupWindow demo activity -->
-        <activity android:name=".widget.ListPopupWindowActivity"
-                  android:label="@string/list_popup_window_activity"
-                  android:theme="@style/Theme.AppCompat.Light">
+        <activity
+            android:name=".widget.selection.fancy.FancySelectionDemoActivity"
+            android:exported="true"
+            android:label="@string/fancy_selection_demo_activity"
+            android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
         <!-- PopupMenu demo activity -->
-        <activity android:name=".widget.PopupMenuActivity"
-                  android:label="@string/popup_menu_activity"
-                  android:theme="@style/Theme.AppCompat.Light">
+        <activity
+            android:name=".drawable.CustomDrawableActivity"
+            android:exported="true"
+            android:label="@string/custom_drawable"
+            android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
         <!-- ListView styling activity -->
-        <activity android:name=".widget.ListViewActivity"
-                  android:label="@string/list_view_activity"
-                  android:theme="@style/Theme.AppCompat.Light">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
-            </intent-filter>
-        </activity>
+        <provider
+            android:name=".app.RecentSuggestionsProvider"
+            android:authorities="com.example.android.supportv7.RecentSuggestionsProvider" />
 
         <!-- Selection helper single selection demo activity -->
-        <activity android:name=".widget.selection.single.SingleStableIdSelectionDemoActivity"
-            android:label="@string/single_selection_demo_activity"
-            android:theme="@style/Theme.AppCompat.Light">
+        <receiver android:name="com.example.android.supportv7.media.SampleMediaButtonReceiver"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
-        </activity>
+        </receiver>
 
         <!-- Selection helper rudimentary demo activity -->
-        <activity android:name=".widget.selection.simple.SimpleSelectionDemoActivity"
-                  android:label="@string/simple_selection_demo_activity"
-                  android:theme="@style/Theme.AppCompat.Light">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
-            </intent-filter>
-        </activity>
+        <receiver android:name="androidx.mediarouter.media.MediaTransferReceiver"
+            android:exported="true" />
 
         <!-- Selection helper "the whole kit and caboodle" demo activity -->
-        <activity android:name=".widget.selection.fancy.FancySelectionDemoActivity"
-                  android:label="@string/fancy_selection_demo_activity"
-                  android:theme="@style/Theme.AppCompat.Light">
+        <service
+            android:name=".media.SampleMediaRouteProviderService"
+            android:exported="true"
+            android:label="@string/sample_media_route_provider_service"
+            android:process=":mrp">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+                <action android:name="android.media.MediaRouteProviderService" />
+                <action android:name="android.media.MediaRoute2ProviderService" />
             </intent-filter>
-        </activity>
+        </service>
 
         <!-- Custom drawable activity -->
-        <activity android:name=".drawable.CustomDrawableActivity"
-            android:label="@string/custom_drawable"
-            android:theme="@style/Theme.AppCompat.Light">
+        <service
+            android:name=".media.SampleDynamicGroupMrpService"
+            android:label="@string/sample_media_route_provider_service"
+            android:exported="true"
+            android:process=":dynamic_mrp">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.example.android.supportv7.SAMPLE_CODE"/>
+                <action android:name="android.media.MediaRouteProviderService" />
+                <action android:name="android.media.MediaRoute2ProviderService" />
             </intent-filter>
-        </activity>
+        </service>
 
     </application>
+    <!-- Permission for SYSTEM_ALERT_WINDOW is only required for emulating
+         remote display using system alert window. -->
+    <supports-screens
+        android:compatibleWidthLimitDp="480"
+        android:requiresSmallestWidthDp="320" />
+    <!-- Permission for READ_EXTERNAL_STORAGE is explicitly required for
+         reading images from the media store from API v19+. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <!-- Permission for ACCESS_COARSE_LOCATION is required for DayNight themes. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- The smallest screen this app works on is a phone.  The app will
+         scale its UI to larger screens but doesn't make good use of them
+         so allow the compatibility mode button to be shown (mostly because
+         this is just convenient for testing). -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
 </manifest>

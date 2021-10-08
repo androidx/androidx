@@ -187,17 +187,28 @@ final class FragmentManagerViewModel extends ViewModel {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(TAG, "Clearing non-config state for " + f);
         }
+        clearNonConfigStateInternal(f.mWho);
+    }
+
+    void clearNonConfigState(@NonNull String who) {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "Clearing non-config state for saved state of Fragment " + who);
+        }
+        clearNonConfigStateInternal(who);
+    }
+
+    private void clearNonConfigStateInternal(@NonNull String who) {
         // Clear and remove the Fragment's child non config state
-        FragmentManagerViewModel childNonConfig = mChildNonConfigs.get(f.mWho);
+        FragmentManagerViewModel childNonConfig = mChildNonConfigs.get(who);
         if (childNonConfig != null) {
             childNonConfig.onCleared();
-            mChildNonConfigs.remove(f.mWho);
+            mChildNonConfigs.remove(who);
         }
         // Clear and remove the Fragment's ViewModelStore
-        ViewModelStore viewModelStore = mViewModelStores.get(f.mWho);
+        ViewModelStore viewModelStore = mViewModelStores.get(who);
         if (viewModelStore != null) {
             viewModelStore.clear();
-            mViewModelStores.remove(f.mWho);
+            mViewModelStores.remove(who);
         }
     }
 

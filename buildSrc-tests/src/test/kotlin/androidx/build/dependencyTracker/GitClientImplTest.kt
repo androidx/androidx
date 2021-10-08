@@ -20,7 +20,7 @@ import androidx.build.gitclient.Commit
 import androidx.build.gitclient.GitClient
 import androidx.build.gitclient.GitClientImpl
 import androidx.build.gitclient.GitClientImpl.Companion.CHANGED_FILES_CMD_PREFIX
-import androidx.build.gitclient.GitClientImpl.Companion.PREV_MERGE_CMD
+import androidx.build.gitclient.GitClientImpl.Companion.PREVIOUS_SUBMITTED_CMD
 import androidx.build.gitclient.GitCommitRange
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNull
@@ -51,17 +51,17 @@ class GitClientImplTest {
     @Test
     fun findMerge() {
         commandRunner.addReply(
-                PREV_MERGE_CMD,
+                PREVIOUS_SUBMITTED_CMD,
                 "abcdefghij (m/androidx-md, aosp/androidx-md) Merge blah blah into and"
         )
         assertEquals(
                 "abcdefghij",
-                client.findPreviousMergeCL())
+                client.findPreviousSubmittedChange())
     }
 
     @Test
     fun findMerge_fail() {
-        assertNull(client.findPreviousMergeCL())
+        assertNull(client.findPreviousSubmittedChange())
     }
 
     @Test

@@ -1,0 +1,30 @@
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+dependencies {
+    api("androidx.core:core:1.1.0")
+    implementation("androidx.collection:collection:1.1.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+}
+
+androidx {
+    name = "Android Support DynamicAnimation"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenVersion = LibraryVersions.DYNAMICANIMATION
+    mavenGroup = LibraryGroups.DYNAMICANIMATION
+    inceptionYear = "2017"
+    description = "Physics-based animation in support library, where the animations are driven by physics force. You can use this Animation library to create smooth and realistic animations."
+    }

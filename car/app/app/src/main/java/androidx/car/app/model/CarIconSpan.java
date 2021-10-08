@@ -25,6 +25,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarIconConstraints;
 
 import java.lang.annotation.Retention;
@@ -58,6 +59,7 @@ import java.util.Objects;
  *
  * @see CarIcon
  */
+@CarProtocol
 public final class CarIconSpan extends CarSpan {
     /**
      * Indicates how to align a car icon span with its surrounding text.
@@ -149,11 +151,17 @@ public final class CarIconSpan extends CarSpan {
         mAlignment = ALIGN_BASELINE;
     }
 
-    @Nullable
+    /**
+     * Returns the {@link CarIcon} instance associated with this span.
+     */
+    @NonNull
     public CarIcon getIcon() {
-        return mIcon;
+        return requireNonNull(mIcon);
     }
 
+    /**
+     * Returns the alignment that should be used with this span.
+     */
     @Alignment
     public int getAlignment() {
         return mAlignment;

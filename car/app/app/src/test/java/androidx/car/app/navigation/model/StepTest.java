@@ -23,7 +23,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.car.app.TestUtils;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarText;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,6 +61,85 @@ public class StepTest {
         assertThat(maneuver).isEqualTo(step.getManeuver());
         assertThat(cue).isEqualTo(step.getCue().toString());
         assertThat(road).isEqualTo(step.getRoad().toString());
+    }
+
+    @Test
+    public void createInstance_cueHasVariants() {
+        Lane lane = new Lane.Builder().addDirection(
+                LaneDirection.create(SHAPE_SHARP_LEFT, true)).build();
+        CarText cue = new CarText.Builder("Foo Long").addVariant("Foo").build();
+        Step step =
+                new Step.Builder(cue)
+                        .addLane(lane)
+                        .build();
+
+        assertThat(step.getCue().toString()).isEqualTo("Foo Long");
+        assertThat(step.getCue().getVariants().get(0).toString()).isEqualTo("Foo");
+    }
+
+    @Test
+    public void createInstance_cue_unsupportedSpans_throws() {
+        CharSequence cue1 = TestUtils.getCharSequenceWithClickableSpan("Cue");
+        CarText cue2 = TestUtils.getCarTextVariantsWithColorSpan("Cue");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Step.Builder(cue1).build());
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Step.Builder(cue2).build());
+
+        CharSequence cue3 = TestUtils.getCharSequenceWithIconSpan("Cue");
+        CarText cue4 = TestUtils.getCarTextVariantsWithIconSpan("Cue");
+        new Step.Builder(cue3).build();
+        new Step.Builder(cue4).build();
+    }
+
+    @Test
+    public void createInstance_noCue() {
+        Lane lane = new Lane.Builder().addDirection(
+                LaneDirection.create(SHAPE_SHARP_LEFT, true)).build();
+
+        Step step =
+                new Step.Builder()
+                        .addLane(lane)
+                        .build();
+
+        assertThat(step.getCue()).isNull();
+    }
+
+    @Test
+    public void createInstance_road_unsupportedSpans_throws() {
+        CharSequence road1 = TestUtils.getCharSequenceWithClickableSpan("Road");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Step.Builder().setRoad(road1).build());
+
+        CharSequence road2 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Road");
+        new Step.Builder().setRoad(road2).build();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void createInstance_cueIsNullInBuilder() {
+        Lane lane = new Lane.Builder().addDirection(
+                LaneDirection.create(SHAPE_SHARP_LEFT, true)).build();
+        CharSequence charSequence = null;
+
+        Step step =
+                new Step.Builder(charSequence)
+                    .addLane(lane)
+                    .build();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void createInstance_cueIsNullInSetter() {
+        Lane lane = new Lane.Builder().addDirection(
+                LaneDirection.create(SHAPE_SHARP_LEFT, true)).build();
+
+        Step step =
+                new Step.Builder()
+                    .setCue(null)
+                    .addLane(lane)
+                    .build();
     }
 
     @Test

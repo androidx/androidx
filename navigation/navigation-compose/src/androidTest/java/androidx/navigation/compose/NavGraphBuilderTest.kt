@@ -20,8 +20,11 @@ import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.core.net.toUri
+import androidx.navigation.contains
 import androidx.navigation.NavDeepLinkRequest
+import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import androidx.navigation.navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -152,6 +155,61 @@ class NavGraphBuilderTest {
             assertWithMessage("Destination should be added to the graph")
                 .that(secondRoute in navController.graph)
                 .isTrue()
+        }
+    }
+
+    @Test
+    fun testNestedNavigationDefaultArguments() {
+        lateinit var navController: TestNavHostController
+        val key = "key"
+        val defaultArg = "default"
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = firstRoute) {
+                composable(firstRoute) { }
+                navigation(
+                    startDestination = thirdRoute, route = secondRoute,
+                    arguments = listOf(navArgument(key) { defaultValue = defaultArg })
+                ) {
+                    composable(thirdRoute) { }
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            navController.navigate(secondRoute)
+            assertThat(navController.currentBackStackEntry!!.arguments!!.getString(key))
+                .isEqualTo(defaultArg)
+        }
+    }
+
+    @Test
+    fun testNestedNavigationDeepLink() {
+        lateinit var navController: TestNavHostController
+        val uriString = "https://www.example.com"
+        val deeplink = NavDeepLinkRequest.Builder.fromUri(Uri.parse(uriString)).build()
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = firstRoute) {
+                composable(firstRoute) { }
+                navigation(
+                    startDestination = thirdRoute, route = secondRoute,
+                    deepLinks = listOf(navDeepLink { uriPattern = uriString })
+                ) {
+                    composable(thirdRoute) { }
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            navController.navigate(uriString.toUri())
+            assertThat(
+                navController.getBackStackEntry(secondRoute).destination.hasDeepLink(deeplink)
+            ).isTrue()
         }
     }
 }

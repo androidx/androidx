@@ -24,6 +24,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -85,6 +86,7 @@ import java.util.Objects;
  * #createCustom}. Wherever custom colors are used by the app, the host may use a default color
  * instead if the custom color does not pass the contrast requirements.
  */
+@CarProtocol
 public final class CarColor {
     /**
      * The type of color represented by the {@link CarColor} instance.

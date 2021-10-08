@@ -24,16 +24,18 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.testutils.WithTouchSlop
+import androidx.compose.testutils.expectError
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalViewConfiguration
-import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.bottomCenter
 import androidx.compose.ui.test.bottomRight
+import androidx.compose.ui.test.centerX
+import androidx.compose.ui.test.centerY
 import androidx.compose.ui.test.down
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.moveTo
@@ -85,6 +87,7 @@ class SendSwipeTest {
     @Test
     fun swipeUp() {
         rule.setContent { Ui(Alignment.TopStart) }
+        @Suppress("DEPRECATION")
         rule.onNodeWithTag(tag).performGesture { swipeUp() }
         rule.runOnIdle {
             recorder.run {
@@ -98,6 +101,7 @@ class SendSwipeTest {
     @Test
     fun swipeDown() {
         rule.setContent { Ui(Alignment.TopEnd) }
+        @Suppress("DEPRECATION")
         rule.onNodeWithTag(tag).performGesture { swipeDown() }
         rule.runOnIdle {
             recorder.run {
@@ -111,6 +115,7 @@ class SendSwipeTest {
     @Test
     fun swipeLeft() {
         rule.setContent { Ui(Alignment.BottomEnd) }
+        @Suppress("DEPRECATION")
         rule.onNodeWithTag(tag).performGesture { swipeLeft() }
         rule.runOnIdle {
             recorder.run {
@@ -124,6 +129,7 @@ class SendSwipeTest {
     @Test
     fun swipeRight() {
         rule.setContent { Ui(Alignment.BottomStart) }
+        @Suppress("DEPRECATION")
         rule.onNodeWithTag(tag).performGesture { swipeRight() }
         rule.runOnIdle {
             recorder.run {
@@ -135,8 +141,117 @@ class SendSwipeTest {
     }
 
     @Test
+    fun swipeUp_withParameters() {
+        rule.setContent { Ui(Alignment.TopStart) }
+        @Suppress("DEPRECATION")
+        @OptIn(ExperimentalTestApi::class)
+        rule.onNodeWithTag(tag).performGesture { swipeUp(endY = centerY) }
+        rule.runOnIdle {
+            recorder.run {
+                assertTimestampsAreIncreasing()
+                assertOnlyLastEventIsUp()
+                assertSwipeIsUp()
+            }
+        }
+    }
+
+    @Test
+    fun swipeDown_withParameters() {
+        rule.setContent { Ui(Alignment.TopEnd) }
+        @Suppress("DEPRECATION")
+        @OptIn(ExperimentalTestApi::class)
+        rule.onNodeWithTag(tag).performGesture { swipeDown(endY = centerY) }
+        rule.runOnIdle {
+            recorder.run {
+                assertTimestampsAreIncreasing()
+                assertOnlyLastEventIsUp()
+                assertSwipeIsDown()
+            }
+        }
+    }
+
+    @Test
+    fun swipeLeft_withParameters() {
+        rule.setContent { Ui(Alignment.BottomEnd) }
+        @Suppress("DEPRECATION")
+        @OptIn(ExperimentalTestApi::class)
+        rule.onNodeWithTag(tag).performGesture { swipeLeft(endX = centerX) }
+        rule.runOnIdle {
+            recorder.run {
+                assertTimestampsAreIncreasing()
+                assertOnlyLastEventIsUp()
+                assertSwipeIsLeft()
+            }
+        }
+    }
+
+    @Test
+    fun swipeRight_withParameters() {
+        rule.setContent { Ui(Alignment.BottomStart) }
+        @Suppress("DEPRECATION")
+        @OptIn(ExperimentalTestApi::class)
+        rule.onNodeWithTag(tag).performGesture { swipeRight(endX = centerX) }
+        rule.runOnIdle {
+            recorder.run {
+                assertTimestampsAreIncreasing()
+                assertOnlyLastEventIsUp()
+                assertSwipeIsRight()
+            }
+        }
+    }
+
+    @Test
+    fun swipeUp_wrongParameters() {
+        rule.setContent { Ui(Alignment.TopStart) }
+        expectError<IllegalArgumentException>(
+            expectedMessage = "startY=0.0 needs to be greater than or equal to endY=1.0"
+        ) {
+            @Suppress("DEPRECATION")
+            @OptIn(ExperimentalTestApi::class)
+            rule.onNodeWithTag(tag).performGesture { swipeUp(startY = 0f, endY = 1f) }
+        }
+    }
+
+    @Test
+    fun swipeDown_wrongParameters() {
+        rule.setContent { Ui(Alignment.TopEnd) }
+        expectError<IllegalArgumentException>(
+            expectedMessage = "startY=1.0 needs to be less than or equal to endY=0.0"
+        ) {
+            @Suppress("DEPRECATION")
+            @OptIn(ExperimentalTestApi::class)
+            rule.onNodeWithTag(tag).performGesture { swipeDown(startY = 1f, endY = 0f) }
+        }
+    }
+
+    @Test
+    fun swipeLeft_wrongParameters() {
+        rule.setContent { Ui(Alignment.BottomEnd) }
+        expectError<IllegalArgumentException>(
+            expectedMessage = "startX=0.0 needs to be greater than or equal to endX=1.0"
+        ) {
+            @Suppress("DEPRECATION")
+            @OptIn(ExperimentalTestApi::class)
+            rule.onNodeWithTag(tag).performGesture { swipeLeft(startX = 0f, endX = 1f) }
+        }
+    }
+
+    @Test
+    fun swipeRight_wrongParameters() {
+        rule.setContent { Ui(Alignment.BottomStart) }
+        expectError<IllegalArgumentException>(
+            expectedMessage = "startX=1.0 needs to be less than or equal to endX=0.0"
+        ) {
+            @Suppress("DEPRECATION")
+            @OptIn(ExperimentalTestApi::class)
+            rule.onNodeWithTag(tag).performGesture { swipeRight(startX = 1f, endX = 0f) }
+        }
+    }
+
+    @Test
     fun swipeShort() {
         rule.setContent { Ui(Alignment.Center) }
+        @Suppress("DEPRECATION")
         rule.onNodeWithTag(tag).performGesture { swipe(topLeft, bottomRight, 1) }
         rule.runOnIdle {
             recorder.run {
@@ -162,10 +277,10 @@ class SendSwipeTest {
 
     @Test
     fun swipeScrollable() {
-        val touchSlop = TestTouchSlop
+        val touchSlop = 18f
         val scrollState = ScrollState(initial = 0)
         rule.setContent {
-            CompositionLocalProvider(LocalViewConfiguration provides FakeViewConfiguration) {
+            WithTouchSlop(touchSlop) {
                 with(LocalDensity.current) {
                     // Scrollable with a viewport the size of 10 boxes
                     Column(
@@ -187,6 +302,7 @@ class SendSwipeTest {
         assertThat(scrollState.maxValue).isEqualTo(9000)
 
         val swipeDistance = 800f - touchSlop
+        @Suppress("DEPRECATION")
         rule.onNodeWithTag("scrollable").performGesture {
             val from = bottomCenter - Offset(0f, 99f)
             val touchSlopThreshold = from - Offset(0f, touchSlop)
@@ -240,18 +356,5 @@ class SendSwipeTest {
         // All events in between only move to the right
         events.map { it.position.x }.assertIncreasing()
         events.map { it.position.y }.assertSame(tolerance = 0.001f)
-    }
-
-    internal val TestTouchSlop = 18f
-
-    private val FakeViewConfiguration = object : ViewConfiguration {
-        override val longPressTimeoutMillis: Long
-            get() = 500L
-        override val doubleTapTimeoutMillis: Long
-            get() = 300L
-        override val doubleTapMinTimeMillis: Long
-            get() = 40L
-        override val touchSlop: Float
-            get() = TestTouchSlop
     }
 }

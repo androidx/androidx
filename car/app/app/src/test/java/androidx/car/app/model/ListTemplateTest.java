@@ -20,6 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.car.app.TestUtils;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -117,6 +119,18 @@ public class ListTemplateTest {
         // Positive cases/.
         new ListTemplate.Builder().setTitle("Title").setSingleList(getList()).build();
         new ListTemplate.Builder().setHeaderAction(Action.BACK).setSingleList(getList()).build();
+    }
+
+    @Test
+    public void createInstance_header_unsupportedSpans_throws() {
+        CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ListTemplate.Builder().setTitle(title));
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence title2 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
+        new ListTemplate.Builder().setTitle(title2).setSingleList(getList()).build();
     }
 
     @Test

@@ -16,6 +16,7 @@
 
 package androidx.camera.extensions.impl;
 
+import android.graphics.ImageFormat;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
 
@@ -32,8 +33,8 @@ public interface PreviewImageProcessorImpl extends ProcessorImpl {
      * <p> The result of the processing step should be written to the {@link android.view.Surface}
      * that was received by {@link ProcessorImpl#onOutputSurface(android.view.Surface, int)}.
      *
-     * @param image The image to process. This will be invalid after the method completes so no
-     *              reference to it should be kept.
+     * @param image  The {@link ImageFormat#YUV_420_888} format image to process. This will be
+     *               invalid after the method completes so no reference to it should be kept.
      * @param result The metadata associated with the image to process.
      */
     void process(Image image, TotalCaptureResult result);

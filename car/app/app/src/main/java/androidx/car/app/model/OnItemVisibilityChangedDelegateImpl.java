@@ -18,14 +18,18 @@ package androidx.car.app.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import static java.util.Objects.requireNonNull;
+
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.ItemList.OnItemVisibilityChangedListener;
 import androidx.car.app.utils.RemoteUtils;
 
@@ -35,17 +39,19 @@ import androidx.car.app.utils.RemoteUtils;
  * @hide
  */
 @RestrictTo(LIBRARY)
+@CarProtocol
 public class OnItemVisibilityChangedDelegateImpl implements
         OnItemVisibilityChangedDelegate {
 
     @Keep
+    @Nullable
     private final IOnItemVisibilityChangedListener mStub;
 
     @Override
     public void sendItemVisibilityChanged(int startIndex, int rightIndex,
             @NonNull OnDoneCallback callback) {
         try {
-            mStub.onItemVisibilityChanged(startIndex, rightIndex,
+            requireNonNull(mStub).onItemVisibilityChanged(startIndex, rightIndex,
                     RemoteUtils.createOnDoneCallbackStub(callback));
         } catch (RemoteException e) {
             throw new RuntimeException(e);
@@ -84,11 +90,13 @@ public class OnItemVisibilityChangedDelegateImpl implements
         @Override
         public void onItemVisibilityChanged(
                 int startIndexInclusive, int endIndexExclusive, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mListener.onItemVisibilityChanged(
-                            startIndexInclusive, endIndexExclusive),
-                    callback,
-                    "onItemVisibilityChanged");
+            RemoteUtils.dispatchCallFromHost(
+                    callback, "onItemVisibilityChanged", () -> {
+                        mListener.onItemVisibilityChanged(
+                                startIndexInclusive, endIndexExclusive);
+                        return null;
+                    }
+            );
         }
     }
 }

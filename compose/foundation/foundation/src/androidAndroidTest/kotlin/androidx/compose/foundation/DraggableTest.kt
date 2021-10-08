@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
@@ -36,15 +37,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.center
-import androidx.compose.ui.test.down
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.moveBy
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performGesture
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeWithVelocity
-import androidx.compose.ui.test.up
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -52,6 +49,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -83,7 +81,7 @@ class DraggableTest {
         setDraggableContent {
             Modifier.draggable(Orientation.Horizontal) { total += it }
         }
-        rule.onNodeWithTag(draggableBoxTag).performGesture {
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
@@ -94,7 +92,7 @@ class DraggableTest {
             assertThat(total).isGreaterThan(0)
             total
         }
-        rule.onNodeWithTag(draggableBoxTag).performGesture {
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
                 end = Offset(this.center.x, this.center.y + 100f),
@@ -104,7 +102,7 @@ class DraggableTest {
         rule.runOnIdle {
             assertThat(total).isEqualTo(lastTotal)
         }
-        rule.onNodeWithTag(draggableBoxTag).performGesture {
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
                 end = Offset(this.center.x - 100f, this.center.y),
@@ -122,7 +120,7 @@ class DraggableTest {
         setDraggableContent {
             Modifier.draggable(Orientation.Vertical) { total += it }
         }
-        rule.onNodeWithTag(draggableBoxTag).performGesture {
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
                 end = Offset(this.center.x, this.center.y + 100f),
@@ -133,7 +131,7 @@ class DraggableTest {
             assertThat(total).isGreaterThan(0)
             total
         }
-        rule.onNodeWithTag(draggableBoxTag).performGesture {
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
@@ -143,7 +141,46 @@ class DraggableTest {
         rule.runOnIdle {
             assertThat(total).isEqualTo(lastTotal)
         }
-        rule.onNodeWithTag(draggableBoxTag).performGesture {
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            this.swipe(
+                start = this.center,
+                end = Offset(this.center.x, this.center.y - 100f),
+                durationMillis = 100
+            )
+        }
+        rule.runOnIdle {
+            assertThat(total).isLessThan(0.01f)
+        }
+    }
+
+    @Test
+    fun draggable_verticalDrag_newState() {
+        var total = 0f
+        setDraggableContent {
+            Modifier.draggable(Orientation.Vertical) { total += it }
+        }
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            this.swipe(
+                start = this.center,
+                end = Offset(this.center.x, this.center.y + 100f),
+                durationMillis = 100
+            )
+        }
+        val lastTotal = rule.runOnIdle {
+            assertThat(total).isGreaterThan(0)
+            total
+        }
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            this.swipe(
+                start = this.center,
+                end = Offset(this.center.x + 100f, this.center.y),
+                durationMillis = 100
+            )
+        }
+        rule.runOnIdle {
+            assertThat(total).isEqualTo(lastTotal)
+        }
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
                 end = Offset(this.center.x, this.center.y - 100f),
@@ -170,7 +207,7 @@ class DraggableTest {
             assertThat(startTrigger).isEqualTo(0)
             assertThat(stopTrigger).isEqualTo(0)
         }
-        rule.onNodeWithTag(draggableBoxTag).performGesture {
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
@@ -192,7 +229,7 @@ class DraggableTest {
                 total += it
             }
         }
-        rule.onNodeWithTag(draggableBoxTag).performGesture {
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
@@ -204,7 +241,7 @@ class DraggableTest {
             enabled.value = false
             total
         }
-        rule.onNodeWithTag(draggableBoxTag).performGesture {
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
@@ -227,7 +264,7 @@ class DraggableTest {
                 }
             ) {}
         }
-        rule.onNodeWithTag(draggableBoxTag).performGesture {
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             this.swipeWithVelocity(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
@@ -249,7 +286,7 @@ class DraggableTest {
                 total += it
             }
         }
-        rule.onNodeWithTag(draggableBoxTag).performGesture {
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
@@ -275,7 +312,7 @@ class DraggableTest {
                 ) { total += it }
             } else Modifier
         }
-        rule.onNodeWithTag(draggableBoxTag).performGesture {
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 100f, this.center.y),
@@ -286,6 +323,78 @@ class DraggableTest {
             // should be exactly 100 as there's no slop
             assertThat(total).isGreaterThan(0f)
             assertThat(dragStopped).isEqualTo(1f)
+        }
+    }
+
+    @Test
+    fun draggable_callsDragStop_whenNewState() {
+        var total = 0f
+        var dragStopped = 0f
+        val state = mutableStateOf(
+            DraggableState { total += it }
+        )
+        setDraggableContent {
+            if (total < 20f) {
+                Modifier.draggable(
+                    orientation = Orientation.Horizontal,
+                    onDragStopped = { dragStopped += 1 },
+                    state = state.value
+                )
+            } else Modifier
+        }
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 100f))
+        }
+        rule.runOnIdle {
+            assertThat(dragStopped).isEqualTo(0f)
+            state.value = DraggableState { /* do nothing */ }
+        }
+        rule.runOnIdle {
+            assertThat(dragStopped).isEqualTo(1f)
+        }
+    }
+
+    @Test
+    fun draggable_resumesNormally_whenInterruptedWithHigherPriority() = runBlocking {
+        var total = 0f
+        var dragStopped = 0f
+        val state = DraggableState {
+            total += it
+        }
+        setDraggableContent {
+            if (total < 20f) {
+                Modifier.draggable(
+                    orientation = Orientation.Horizontal,
+                    onDragStopped = { dragStopped += 1 },
+                    state = state
+                )
+            } else Modifier
+        }
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 100f))
+        }
+        val prevTotal = rule.runOnIdle {
+            assertThat(dragStopped).isEqualTo(0f)
+            assertThat(total).isGreaterThan(0f)
+            total
+        }
+        state.drag(MutatePriority.PreventUserInput) {
+            dragBy(123f)
+        }
+        rule.runOnIdle {
+            assertThat(total).isEqualTo(prevTotal + 123f)
+            assertThat(dragStopped).isEqualTo(1f)
+        }
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            up()
+            down(center)
+            moveBy(Offset(100f, 100f))
+            up()
+        }
+        rule.runOnIdle {
+            assertThat(total).isGreaterThan(prevTotal + 123f)
         }
     }
 
@@ -314,7 +423,7 @@ class DraggableTest {
                 }
             }
         }
-        rule.onNodeWithTag(draggableBoxTag).performGesture {
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
                 end = Offset(this.center.x + 200f, this.center.y),
@@ -353,7 +462,7 @@ class DraggableTest {
         }
 
         rule.onNodeWithTag(draggableBoxTag)
-            .performGesture {
+            .performTouchInput {
                 down(Offset(visibleSize.width / 4f, visibleSize.height / 2f))
                 moveBy(Offset(visibleSize.width / 2f, 0f))
             }
@@ -364,7 +473,7 @@ class DraggableTest {
         }
 
         rule.onNodeWithTag(draggableBoxTag)
-            .performGesture {
+            .performTouchInput {
                 up()
             }
 
@@ -412,7 +521,7 @@ class DraggableTest {
         }
 
         rule.onNodeWithTag(draggableBoxTag)
-            .performGesture {
+            .performTouchInput {
                 down(Offset(visibleSize.width / 4f, visibleSize.height / 2f))
                 moveBy(Offset(visibleSize.width / 2f, 0f))
             }
@@ -448,12 +557,13 @@ class DraggableTest {
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "orientation",
                 "enabled",
+                "canDrag",
                 "reverseDirection",
                 "interactionSource",
                 "startDragImmediately",
                 "onDragStarted",
                 "onDragStopped",
-                "state",
+                "stateFactory",
             )
         }
     }

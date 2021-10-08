@@ -19,6 +19,7 @@ package androidx.camera.video.internal.encoder;
 import android.media.MediaCodec;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -32,6 +33,7 @@ import java.nio.ByteBuffer;
  *
  * @see EncoderCallback#onEncodedData
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface EncodedData extends AutoCloseable {
     /**
      * Gets the {@link ByteBuffer} of the encoded data.
@@ -53,6 +55,12 @@ public interface EncodedData extends AutoCloseable {
 
     /** Gets the timestamp of the encoded data in microseconds. */
     long getPresentationTimeUs();
+
+    /** Gets the data size in bytes. */
+    long size();
+
+    /**  Returns true if this is a video key frame (I-Frame). */
+    boolean isKeyFrame();
 
     /** The encoded data should be explicitly closed in order to release the resources. */
     @Override

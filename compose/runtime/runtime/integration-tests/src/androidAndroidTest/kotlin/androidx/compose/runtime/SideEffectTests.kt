@@ -224,9 +224,9 @@ class SideEffectTests : BaseComposeTest() {
                     "DisposableEffect:b2",
                     "DisposableEffect:b1",
                     "recompose",
+                    "onDispose:b1",
                     "onDispose:b2",
                     "onDispose:a2",
-                    "onDispose:b1",
                     "onDispose:a1",
                     "DisposableEffect:a1",
                     "DisposableEffect:b1"
@@ -298,10 +298,10 @@ class SideEffectTests : BaseComposeTest() {
             }
         }.then {
             assertEquals(1, counter)
-            ch.offer(Unit)
+            ch.trySend(Unit)
         }.then {
             assertEquals(2, counter)
-            ch.offer(Unit)
+            ch.trySend(Unit)
         }.then {
             assertEquals(3, counter)
         }
@@ -405,10 +405,10 @@ class SideEffectTests : BaseComposeTest() {
         }.then {
             myComposableArg = "world"
         }.then {
-            val offerSucceeded = pleaseSend.offer(Unit)
+            val offerSucceeded = pleaseSend.trySend(Unit).isSuccess
             assertTrue(offerSucceeded, "task wasn't awaiting send signal")
         }.then {
-            val receivedResult = output.poll()
+            val receivedResult = output.tryReceive().getOrNull()
             assertEquals("world", receivedResult)
         }
     }

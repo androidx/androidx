@@ -24,7 +24,8 @@ import java.lang.annotation.Target;
 import dagger.hilt.GeneratesRootInput;
 
 /**
- * Identifies a {@link androidx.work.ListenableWorker}'s constructor for injection.
+ * A type annotation that identifies a {@link androidx.work.ListenableWorker}'s constructor for
+ * injection.
  * <p>
  * The {@code Worker} will be available for creation by the
  * {@link androidx.hilt.work.HiltWorkerFactory} that should be set in {@code WorkManager}'s

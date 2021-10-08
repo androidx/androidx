@@ -30,8 +30,23 @@ public final class LogTags {
     /** Tag to use for logging in the library. */
     public static final String TAG = "CarApp";
 
+    /** Tag to use for IPC dispatching */
+    public static final String TAG_DISPATCH = TAG + ".Dispatch";
+
     /** Tag to use for host validation */
     public static final String TAG_HOST_VALIDATION = TAG + ".Val";
+
+    /** Tag to use for navigation manager. */
+    public static final String TAG_NAVIGATION_MANAGER = TAG + ".Nav";
+
+    /** Tag to use for serialization. */
+    public static final String TAG_BUNDLER = TAG + ".Bun";
+
+    /** Tag to use for checking connection to a car head unit. */
+    public static final String TAG_CONNECTION_TO_CAR = TAG + ".Conn";
+
+    /** Tag to use for car hardware related issues. */
+    public static final String TAG_CAR_HARDWARE = TAG + ".Hardware";
 
     private LogTags() {
     }

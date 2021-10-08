@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.annotation.SuppressLint
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.EvCompControl
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
@@ -31,7 +32,8 @@ import javax.inject.Inject
 /**
  * [CameraStateAdapter] caches and updates based on callbacks from the active CameraGraph.
  */
-@SuppressLint("UnsafeExperimentalUsageError")
+@SuppressLint("UnsafeOptInUsageError")
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
 class CameraStateAdapter @Inject constructor(
     private val zoomControl: ZoomControl,
@@ -63,21 +65,6 @@ class CameraStateAdapter @Inject constructor(
         }
     }
 
-    private val _exposureState by lazy {
-        MutableLiveData<ExposureState>(
-            EvCompValue(
-                evCompControl.supported,
-                evCompControl.evCompIndex,
-                evCompControl.range,
-                evCompControl.step,
-            )
-        )
-    }
-    val exposureStateLiveData: LiveData<ExposureState>
-        get() = _exposureState
-    suspend fun setExposureState(value: ExposureState) {
-        withContext(Dispatchers.Main) {
-            _exposureState.value = value
-        }
-    }
+    val exposureState: ExposureState
+        get() = evCompControl.exposureState
 }

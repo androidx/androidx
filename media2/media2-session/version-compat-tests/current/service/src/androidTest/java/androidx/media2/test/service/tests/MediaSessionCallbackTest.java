@@ -319,10 +319,6 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     public void onSetMediaUri() throws InterruptedException {
-        if (!MediaTestUtils.isClientToT()) {
-            return;
-        }
-
         final Uri testUri = Uri.parse("foo://boo");
         final Bundle testExtras = TestUtils.createTestBundle();
         final CountDownLatch latch = new CountDownLatch(1);

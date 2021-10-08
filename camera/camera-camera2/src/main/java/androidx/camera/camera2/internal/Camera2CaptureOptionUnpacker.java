@@ -17,7 +17,8 @@
 package androidx.camera.camera2.internal;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.impl.CaptureConfig;
@@ -29,11 +30,12 @@ import androidx.camera.core.impl.UseCaseConfig;
  * A {@link CaptureConfig.OptionUnpacker} implementation for unpacking Camera2 options into
  * {@link CaptureConfig.Builder}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class Camera2CaptureOptionUnpacker implements CaptureConfig.OptionUnpacker {
 
     static final Camera2CaptureOptionUnpacker INSTANCE = new Camera2CaptureOptionUnpacker();
 
-    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @Override
     public void unpack(@NonNull UseCaseConfig<?> config,
             @NonNull final CaptureConfig.Builder builder) {

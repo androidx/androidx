@@ -109,7 +109,6 @@ import java.util.List;
      * Do not access directly, visible for testing only.
      * @return
      */
-    @SuppressWarnings("UnsafeNewApiCall")
     @VisibleForTesting
     @NonNull
     static FontInfo[] query(

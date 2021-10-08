@@ -30,12 +30,9 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.center
-import androidx.compose.ui.test.down
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performGesture
-import androidx.compose.ui.test.up
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -98,6 +95,8 @@ class IndicationTest {
 
         var scope: CoroutineScope? = null
 
+        rule.mainClock.autoAdvance = false
+
         rule.setContent {
             scope = rememberCoroutineScope()
             Box(
@@ -118,15 +117,20 @@ class IndicationTest {
         assertThat(countDownLatch.count).isEqualTo(2)
         rule.onNodeWithTag(testTag)
             .assertExists()
-            .performGesture {
+            .performTouchInput {
                 down(center)
             }
+
+        // Advance past the tap timeout
+        rule.mainClock.advanceTimeBy(TapIndicationDelay)
+
         rule.runOnIdle {
             assertThat(countDownLatch.count).isEqualTo(1)
         }
+
         rule.onNodeWithTag(testTag)
             .assertExists()
-            .performGesture {
+            .performTouchInput {
                 up()
             }
         assertThat(countDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()

@@ -25,8 +25,6 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 
 import androidx.ads.identifier.AdvertisingIdUtils;
-import androidx.ads.identifier.provider.AdvertisingIdProvider;
-import androidx.ads.identifier.provider.AdvertisingIdProviderManager;
 import androidx.ads.identifier.provider.IAdvertisingIdService;
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
@@ -47,6 +45,7 @@ import java.util.concurrent.TimeUnit;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SuppressWarnings("deprecation")
 public class AdvertisingIdServiceTest {
     private static final String TESTING_AD_ID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
 
@@ -59,7 +58,7 @@ public class AdvertisingIdServiceTest {
 
     @Before
     public void setUp() {
-        AdvertisingIdProviderManager.clearProviderCallable();
+        androidx.ads.identifier.provider.AdvertisingIdProviderManager.clearProviderCallable();
 
         mContext = ApplicationProvider.getApplicationContext();
 
@@ -93,7 +92,7 @@ public class AdvertisingIdServiceTest {
 
     @Test
     public void getId() throws Exception {
-        AdvertisingIdProviderManager.registerProviderCallable(
+        androidx.ads.identifier.provider.AdvertisingIdProviderManager.registerProviderCallable(
                 () -> new MockAdvertisingIdProvider(TESTING_AD_ID, true));
 
         IAdvertisingIdService service = getService();
@@ -104,18 +103,20 @@ public class AdvertisingIdServiceTest {
 
     @Test(expected = RuntimeException.class)
     public void getId_providerThrowsException() throws Exception {
-        AdvertisingIdProviderManager.registerProviderCallable(() -> {
-            MockAdvertisingIdProvider mockAdvertisingIdProvider =
-                    new MockAdvertisingIdProvider(TESTING_AD_ID, true);
-            mockAdvertisingIdProvider.mGetIdThrowsException = true;
-            return mockAdvertisingIdProvider;
-        });
+        androidx.ads.identifier.provider.AdvertisingIdProviderManager.registerProviderCallable(
+                () -> {
+                    MockAdvertisingIdProvider mockAdvertisingIdProvider =
+                            new MockAdvertisingIdProvider(TESTING_AD_ID, true);
+                    mockAdvertisingIdProvider.mGetIdThrowsException = true;
+                    return mockAdvertisingIdProvider;
+                });
 
         IAdvertisingIdService service = getService();
         service.getId();
     }
 
-    private static class MockAdvertisingIdProvider implements AdvertisingIdProvider {
+    private static class MockAdvertisingIdProvider implements
+            androidx.ads.identifier.provider.AdvertisingIdProvider {
         private final String mId;
         private final boolean mLimitAdTrackingEnabled;
         boolean mGetIdThrowsException = false;
@@ -147,16 +148,18 @@ public class AdvertisingIdServiceTest {
 
     @Test(expected = RuntimeException.class)
     public void getId_providerCallableThrowsException() {
-        AdvertisingIdProviderManager.registerProviderCallable(() -> {
-            throw new Exception();
-        });
+        androidx.ads.identifier.provider.AdvertisingIdProviderManager.registerProviderCallable(
+                () -> {
+                    throw new Exception();
+                });
 
         AdvertisingIdService.getAdvertisingIdProvider();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getId_providerCallableReturnsNull() {
-        AdvertisingIdProviderManager.registerProviderCallable(() -> null);
+        androidx.ads.identifier.provider.AdvertisingIdProviderManager.registerProviderCallable(
+                () -> null);
 
         AdvertisingIdService.getAdvertisingIdProvider();
     }

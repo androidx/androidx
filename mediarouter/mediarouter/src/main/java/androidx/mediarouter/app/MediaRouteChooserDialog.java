@@ -327,8 +327,11 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
             if (route.isEnabled()) {
                 ImageView iconView = view.findViewById(R.id.mr_chooser_route_icon);
                 ProgressBar progressBar = view.findViewById(R.id.mr_chooser_route_progress_bar);
-                iconView.setVisibility(View.GONE);
-                progressBar.setVisibility(View.VISIBLE);
+                // Show the progress bar
+                if (iconView != null && progressBar != null) {
+                    iconView.setVisibility(View.GONE);
+                    progressBar.setVisibility(View.VISIBLE);
+                }
                 route.select();
             }
         }

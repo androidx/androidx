@@ -41,7 +41,7 @@
             android:layout_height="match_parent"
             android:drawSelectorOnTop="false"/>
 
-        <!-- Here is the view to show if the list is emtpy -->
+        <!-- Here is the view to show if the list is empty -->
         <TextView android:id="@android:id/empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

@@ -53,4 +53,27 @@ public class ExtensionVersionImpl {
     public String checkApiVersion(String version) {
         throw new RuntimeException("Stub, replace with implementation.");
     }
+
+    /**
+     * Specify whether or not CameraX should invoke the AdvancedExtenderImpl instead of
+     * PreviewExtenderImpl/ImageCaptureExtenderImpl.
+     *
+     * <p>Starting from version 1.2, a set of alternative interfaces called advanced extender for
+     * implementing extensions are provided to OEMs as another option. OEMs can continue using
+     * previous interfaces (PreviewExtenderImpl/ImageCaptureExtenderImpl, also called basic
+     * extender).
+     *
+     * <p>OEMs should return false here if only basic extender is implemented. When returning true,
+     * CameraX will invoke the AdvancedExtenderImpl implementation in advanced package for all
+     * types of extension modes.
+     *
+     * <p>ExtensionVersionImpl, InitializerImpl will still be called for both basic and advanced
+     * extender implementation paths.
+     *
+     * @return true if AdvancedExtenderImpl is implemented
+     * @since 1.2
+     */
+    public boolean isAdvancedExtenderImplemented() {
+        return false;
+    }
 }

@@ -17,6 +17,7 @@
 package androidx.camera.video.internal.compat.quirk;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import java.util.List;
 /**
  * Loads all video specific quirks required for the current device.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class DeviceQuirksLoader {
 
     private DeviceQuirksLoader() {
@@ -41,6 +43,15 @@ public class DeviceQuirksLoader {
         // Load all video specific quirks
         if (ExcludeKeyFrameRateInFindEncoderQuirk.load()) {
             quirks.add(new ExcludeKeyFrameRateInFindEncoderQuirk());
+        }
+        if (MediaCodecInfoReportIncorrectInfoQuirk.load()) {
+            quirks.add(new MediaCodecInfoReportIncorrectInfoQuirk());
+        }
+        if (DeactivateEncoderSurfaceBeforeStopEncoderQuirk.load()) {
+            quirks.add(new DeactivateEncoderSurfaceBeforeStopEncoderQuirk());
+        }
+        if (CameraUseInconsistentTimebaseQuirk.load()) {
+            quirks.add(new CameraUseInconsistentTimebaseQuirk());
         }
 
         return quirks;

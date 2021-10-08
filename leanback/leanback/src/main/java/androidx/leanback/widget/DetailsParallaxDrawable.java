@@ -52,10 +52,10 @@ import androidx.leanback.graphics.FitWidthBitmapDrawable;
  * Call {@link #DetailsParallaxDrawable(Context, DetailsParallax)} to create DetailsParallaxDrawable
  * using {@link FitWidthBitmapDrawable} for cover drawable.
  * </li>
- * </ul>
  * <li>
  * In case the solid color is not set, it will use defaultBrandColorDark from LeanbackTheme.
  * </li>
+ * </ul>
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)

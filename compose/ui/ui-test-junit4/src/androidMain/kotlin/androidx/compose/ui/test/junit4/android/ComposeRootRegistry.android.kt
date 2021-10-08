@@ -33,7 +33,6 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
-import kotlin.time.ExperimentalTime
 
 /**
  * Registry where all views implementing [ViewRootForTest] should be registered while they
@@ -104,6 +103,8 @@ internal class ComposeRootRegistry {
                 } catch (_: ConcurrentModificationException) {
                     // A weakly referenced key may have been cleared while copying the set
                     // Keep trying until we succeed
+                } catch (_: NoSuchElementException) {
+                    // Same as above
                 }
             }
         }
@@ -189,7 +190,9 @@ internal class ComposeRootRegistry {
         override fun onViewAttachedToWindow(view: View) {
             // Only add lifecycle observer. If the root is resumed,
             // the lifecycle observer will get notified.
-            val lifecycle = checkNotNull(ViewTreeLifecycleOwner.get(view)?.lifecycle)
+            // TODO: This can be missing if the ComposeView is in a ViewOverlay.
+            // If so, we do nothing and bail.
+            val lifecycle = ViewTreeLifecycleOwner.get(view)?.lifecycle ?: return
             lifecycle.addObserver(this)
             // Setup a lambda to remove the observer when we're detached from the window. When
             // that happens, we won't have access to the lifecycle anymore.
@@ -286,7 +289,6 @@ internal fun ComposeRootRegistry.waitForComposeRoots(atLeastOneRootExpected: Boo
     }
 }
 
-@OptIn(ExperimentalTime::class)
 internal suspend fun ComposeRootRegistry.awaitComposeRoots() {
     ensureComposeRootRegistryIsSetUp()
 

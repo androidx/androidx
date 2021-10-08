@@ -71,6 +71,7 @@ import androidx.textclassifier.TestUtils;
 
 import org.hamcrest.Matcher;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -204,6 +205,7 @@ public final class FloatingToolbarTest {
         assertFloatingToolbarIsShowing();
     }
 
+    @Ignore // b/188568469
     @Test
     public void ui_itemClick() throws Exception {
         final SupportMenu menu = new MenuBuilder(mContext);
@@ -219,6 +221,7 @@ public final class FloatingToolbarTest {
         onFloatingToolbar().check(matches(isDisplayed()));
     }
 
+    @Ignore // b/188568469
     @Test
     public void ui_dismissOnItemClick() throws Exception {
         final SupportMenu menu = new MenuBuilder(mContext);
@@ -239,6 +242,7 @@ public final class FloatingToolbarTest {
         assertFloatingToolbarIsDismissed();
     }
 
+    @Ignore // b/188568469
     @Test
     @SuppressWarnings("deprecation") /* defaultDisplay */
     public void ui_dismissOnOutsideClick() throws Exception {
@@ -321,6 +325,7 @@ public final class FloatingToolbarTest {
         onFloatingToolbar().check(matches(isDisplayed()));
     }
 
+    @Ignore // b/188568469
     @Test
     public void ui_toggleOverflow() throws Exception {
         onWidget().perform(showFloatingToolbar());
@@ -336,6 +341,7 @@ public final class FloatingToolbarTest {
         onFloatingToolbarOverflowPanel().check(matches(not(isDisplayed())));
     }
 
+    @Ignore // b/188568469
     @Test
     public void ui_itemPanel() throws Exception {
         final SupportMenu menu = new MenuBuilder(mContext);
@@ -383,6 +389,7 @@ public final class FloatingToolbarTest {
         onFloatingToolbarItem("C").check(matches(isDisplayed()));
     }
 
+    @Ignore // b/188568469
     @Test
     public void ui_horizontalAlignment() throws Exception {
         enableLtRMode();

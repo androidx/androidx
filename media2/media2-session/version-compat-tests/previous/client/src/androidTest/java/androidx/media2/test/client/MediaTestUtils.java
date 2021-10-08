@@ -16,6 +16,9 @@
 
 package androidx.media2.test.client;
 
+import static androidx.media2.test.common.CommonConstants.KEY_SERVICE_VERSION;
+import static androidx.media2.test.common.CommonConstants.VERSION_TOT;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -32,6 +35,7 @@ import androidx.media2.common.MediaParcelUtils;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.test.common.TestUtils;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.versionedparcelable.ParcelImpl;
 
 import java.util.ArrayList;
@@ -111,17 +115,13 @@ public final class MediaTestUtils {
 
     public static List<SessionPlayer.TrackInfo> createTrackInfoList() {
         List<SessionPlayer.TrackInfo> list = new ArrayList<>();
-        list.add(createTrackInfo(0, "test_0", SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO));
-        list.add(createTrackInfo(1, "test_1", SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO));
-        list.add(createTrackInfo(2, "test_2", SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
+        list.add(createTrackInfo(0, SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO));
+        list.add(createTrackInfo(1, SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO));
+        list.add(createTrackInfo(2, SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
         return list;
     }
 
-    public static SessionPlayer.TrackInfo createTrackInfo(int index, String mediaId,
-            int trackType) {
-        MediaMetadata metadata = new MediaMetadata.Builder().putString(
-                MediaMetadata.METADATA_KEY_MEDIA_ID, mediaId).build();
-        MediaItem mediaItem = new MediaItem.Builder().setMetadata(metadata).build();
+    public static SessionPlayer.TrackInfo createTrackInfo(int index, int trackType) {
         MediaFormat format = null;
         if (trackType == SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
             format = new MediaFormat();
@@ -131,7 +131,7 @@ public final class MediaTestUtils {
             format.setInteger(MediaFormat.KEY_IS_AUTOSELECT, 0);
             format.setInteger(MediaFormat.KEY_IS_DEFAULT, 1);
         }
-        return new SessionPlayer.TrackInfo(index, mediaItem, trackType, format);
+        return new SessionPlayer.TrackInfo(index, trackType, format);
     }
 
     public static List<ParcelImpl> convertToParcelImplList(List<MediaItem> list) {
@@ -213,5 +213,11 @@ public final class MediaTestUtils {
 
     public static void assertNotMediaItemSubclass(MediaItem item) {
         assertEquals(MediaItem.class, item.getClass());
+    }
+
+    public static boolean isServiceToT() {
+        String serviceVersion = InstrumentationRegistry.getArguments()
+                .getString(KEY_SERVICE_VERSION, "");
+        return VERSION_TOT.equals(serviceVersion);
     }
 }

@@ -200,7 +200,6 @@ class PlayerWrapper {
                 && mAllowedCommands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_DESELECT_TRACK);
     }
 
-    // TODO(b/138091975) Do not ignore the returned Future.
     @SuppressWarnings("FutureReturnValueIgnored")
     void pause() {
         if (mController != null) {
@@ -210,7 +209,6 @@ class PlayerWrapper {
         }
     }
 
-    // TODO(b/138091975) Do not ignore the returned Future.
     @SuppressWarnings("FutureReturnValueIgnored")
     void play() {
         if (mController != null) {
@@ -220,7 +218,6 @@ class PlayerWrapper {
         }
     }
 
-    // TODO(b/138091975) Do not ignore the returned Future.
     @SuppressWarnings("FutureReturnValueIgnored")
     void seekTo(long posMs) {
         if (mController != null) {
@@ -230,7 +227,6 @@ class PlayerWrapper {
         }
     }
 
-    // TODO(b/138091975) Do not ignore the returned Future.
     @SuppressWarnings("FutureReturnValueIgnored")
     void skipToNextItem() {
         if (mController != null) {
@@ -240,7 +236,6 @@ class PlayerWrapper {
         }
     }
 
-    // TODO(b/138091975) Do not ignore the returned Future.
     @SuppressWarnings("FutureReturnValueIgnored")
     void skipToPreviousItem() {
         if (mController != null) {
@@ -259,7 +254,6 @@ class PlayerWrapper {
         return 1f;
     }
 
-    // TODO(b/138091975) Do not ignore the returned Future.
     @SuppressWarnings("FutureReturnValueIgnored")
     void setPlaybackSpeed(float speed) {
         if (mController != null) {
@@ -269,7 +263,6 @@ class PlayerWrapper {
         }
     }
 
-    // TODO(b/138091975) Do not ignore the returned Future.
     @SuppressWarnings("FutureReturnValueIgnored")
     void selectTrack(TrackInfo trackInfo) {
         if (mController != null) {
@@ -279,7 +272,6 @@ class PlayerWrapper {
         }
     }
 
-    // TODO(b/138091975) Do not ignore the returned Future.
     @SuppressWarnings("FutureReturnValueIgnored")
     void deselectTrack(TrackInfo trackInfo) {
         if (mController != null) {

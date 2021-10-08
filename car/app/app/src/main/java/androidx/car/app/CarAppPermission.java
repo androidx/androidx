@@ -56,25 +56,28 @@ public final class CarAppPermission {
      * Permission that apps can use to get access to the navigation templates of the car app
      * library.
      *
-     * <p>This permission can <b>ONLY</b> be requested by apps that declare themselves as a
-     * navigation app.
-     *
-     * @see CarAppService#CATEGORY_NAVIGATION_APP
+     * <p>This permission should only be declared by apps that belong to one of the categories that
+     * allow using the navigation templates. See
+     * <a href="https://developer.android.com/training/cars/apps/navigation#access-navigation-templates">the
+     * documentation</a> for the list of such categories. An app not in one of those categories
+     * requesting this permission may be rejected upon submission to the Play Store. See
+     * {@link CarAppService} for how to declare your app's category.
      */
     public static final String NAVIGATION_TEMPLATES = "androidx.car.app.NAVIGATION_TEMPLATES";
 
     /**
      * Permission that apps can use to get access to templates that show a map such as
-     * {@link androidx.car.app.model.PlaceListMapTemplate}.  Templates used by navigation apps that
+     * {@link androidx.car.app.model.PlaceListMapTemplate}. Templates used by navigation apps that
      * draw their own maps
      * (e.g. {@link androidx.car.app.navigation.model.PlaceListNavigationTemplate}) don't require
      * this permission.
      *
-     * <p>This permission can <b>ONLY</b> be requested by apps that declare themselves as a
-     * parking or charging app.
-     *
-     * @see CarAppService#CATEGORY_CHARGING_APP
-     * @see CarAppService#CATEGORY_PARKING_APP
+     * <p>This permission should only be declared by apps that belong to one of the categories that
+     * allow using the map templates. See
+     * <a href="https://developer.android.com/training/cars/apps/poi#access-map-template">the
+     * documentation</a> for the list of such categories. An app not in one of those categories
+     * requesting this permission may be rejected upon submission to the Play Store. See
+     * {@link CarAppService} for how to declare your app's category.
      */
     public static final String MAP_TEMPLATES = "androidx.car.app.MAP_TEMPLATES";
 
@@ -103,15 +106,16 @@ public final class CarAppPermission {
      */
     public static void checkHasLibraryPermission(
             @NonNull Context context, @NonNull @LibraryPermission String permission) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG,
+                    "Checking to see if the car app requested the required library permission: "
+                            + permission);
+        }
+
         try {
             checkHasPermission(context, permission);
             return;
         } catch (SecurityException e) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG,
-                        "Checking to see if the car app requested the required library permission: "
-                                + permission);
-            }
             // Do nothing, we use a fallback for library permissions.
         }
 

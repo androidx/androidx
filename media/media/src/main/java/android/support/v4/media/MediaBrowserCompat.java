@@ -55,6 +55,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.MediaDescription;
 import android.media.browse.MediaBrowser;
 import android.os.BadParcelableException;
 import android.os.Binder;
@@ -75,6 +76,7 @@ import android.support.v4.os.ResultReceiver;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -95,12 +97,23 @@ import java.util.Map;
 
 /**
  * Browses media content offered by a {@link MediaBrowserServiceCompat}.
- * <p>
- * This object is not thread-safe. All calls should happen on the thread on which the browser
- * was constructed.
- * </p><p>
- * All callback methods will be called from the thread on which the browser was constructed.
- * </p>
+ *
+ * <p>The app targeting API level 30 or higher must include a {@code <queries>} element in their
+ * manifest to connect to a media browser service in another app. See the following example and
+ * <a href="{@docRoot}training/package-visibility">this guide</a> for more information.</p>
+ *
+ * <pre>{@code
+ * <!-- As an intent action -->
+ * <intent>
+ *   <action android:name="android.media.browse.MediaBrowserService" />
+ * </intent>
+ * <!-- Or, as a package name -->
+ * <package android:name="package_name_of_the_other_app" />
+ * }</pre>
+ *
+ * <p>This object is not thread-safe. All calls should happen on the thread on which the browser was
+ * constructed. All callback methods will be called from the thread on which the browser was
+ * constructed.</p>
  *
  * <div class="special reference">
  * <h3>Developer Guides</h3>
@@ -496,9 +509,9 @@ public final class MediaBrowserCompat {
                 return null;
             }
             MediaBrowser.MediaItem itemFwk = (MediaBrowser.MediaItem) itemObj;
-            int flags = itemFwk.getFlags();
+            int flags = Api21Impl.getFlags(itemFwk);
             MediaDescriptionCompat descriptionCompat =
-                    MediaDescriptionCompat.fromMediaDescription(itemFwk.getDescription());
+                    MediaDescriptionCompat.fromMediaDescription(Api21Impl.getDescription(itemFwk));
             return new MediaItem(descriptionCompat, flags);
         }
 
@@ -2317,7 +2330,7 @@ public final class MediaBrowserCompat {
             Parcelable[] items = resultData.getParcelableArray(
                     MediaBrowserServiceCompat.KEY_SEARCH_RESULTS);
             if (items != null) {
-                List<MediaItem> results = new ArrayList<>();
+                List<MediaItem> results = new ArrayList<>(items.length);
                 for (Parcelable item : items) {
                     results.add((MediaItem) item);
                 }
@@ -2362,6 +2375,21 @@ public final class MediaBrowserCompat {
                             + ", resultData=" + resultData + ")");
                     break;
             }
+        }
+    }
+
+    @RequiresApi(21)
+    private static class Api21Impl {
+        private Api21Impl() {}
+
+        @DoNotInline
+        static MediaDescription getDescription(MediaBrowser.MediaItem item) {
+            return item.getDescription();
+        }
+
+        @DoNotInline
+        static int getFlags(MediaBrowser.MediaItem item) {
+            return item.getFlags();
         }
     }
 }

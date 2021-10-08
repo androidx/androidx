@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import dagger.Binds
@@ -23,6 +24,7 @@ import dagger.Module
 import dagger.multibindings.IntoSet
 import javax.inject.Inject
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
 class ZoomControl @Inject constructor(private val zoomCompat: ZoomCompat) : UseCaseCameraControl {
     private var _zoomRatio = 1.0f

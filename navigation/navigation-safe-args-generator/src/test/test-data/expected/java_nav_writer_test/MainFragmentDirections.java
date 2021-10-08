@@ -43,6 +43,7 @@ public class MainFragmentDirections {
     public static class Previous implements NavDirections {
         private final HashMap arguments = new HashMap();
 
+        @SuppressWarnings("unchecked")
         private Previous(@NonNull String arg1, @NonNull String arg2) {
             if (arg1 == null) {
                 throw new IllegalArgumentException("Argument \"arg1\" is marked as non-null but was passed a null value.");
@@ -55,6 +56,7 @@ public class MainFragmentDirections {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Previous setArg1(@NonNull String arg1) {
             if (arg1 == null) {
                 throw new IllegalArgumentException("Argument \"arg1\" is marked as non-null but was passed a null value.");
@@ -64,6 +66,7 @@ public class MainFragmentDirections {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Previous setArg2(@NonNull String arg2) {
             if (arg2 == null) {
                 throw new IllegalArgumentException("Argument \"arg2\" is marked as non-null but was passed a null value.");
@@ -153,6 +156,7 @@ public class MainFragmentDirections {
     public static class Next implements NavDirections {
         private final HashMap arguments = new HashMap();
 
+        @SuppressWarnings("unchecked")
         private Next(@NonNull String main) {
             if (main == null) {
                 throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
@@ -161,6 +165,7 @@ public class MainFragmentDirections {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Next setMain(@NonNull String main) {
             if (main == null) {
                 throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
@@ -170,6 +175,7 @@ public class MainFragmentDirections {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Next setOptional(@NonNull String optional) {
             if (optional == null) {
                 throw new IllegalArgumentException("Argument \"optional\" is marked as non-null but was passed a null value.");

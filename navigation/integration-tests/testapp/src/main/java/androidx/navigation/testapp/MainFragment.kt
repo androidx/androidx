@@ -50,6 +50,14 @@ class MainFragment : Fragment() {
         view.setBackgroundColor(
             if (myarg == "one") {
                 Color.GREEN
+            } else if (myarg == "two") {
+                Color.RED
+            } else if (myarg == "three") {
+                Color.YELLOW
+            } else if (myarg == "four") {
+                Color.GRAY
+            } else if (myarg == "five") {
+                Color.MAGENTA
             } else {
                 Color.RED
             }

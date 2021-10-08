@@ -49,7 +49,8 @@ import java.util.concurrent.Executor;
 @SuppressWarnings("deprecation")
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
+        instrumentedPackages = { "androidx.camera.camera2.internal.compat.params" })
 public final class CameraDeviceCompatTest {
 
     private static final int NUM_OUTPUTS = 3;
@@ -70,7 +71,8 @@ public final class CameraDeviceCompatTest {
     @Test
     @Config(maxSdk = 23)
     @SuppressWarnings("unchecked")
-    public void createCaptureSession_createsSession_withBaseMethod() throws CameraAccessException {
+    public void createCaptureSession_createsSession_withBaseMethod()
+            throws CameraAccessException, CameraAccessExceptionCompat {
         SessionConfigurationCompat sessionConfig = new SessionConfigurationCompat(
                 SessionConfigurationCompat.SESSION_REGULAR,
                 mOutputs,
@@ -91,7 +93,7 @@ public final class CameraDeviceCompatTest {
     @Config(minSdk = 24, maxSdk = 27)
     @SuppressWarnings("unchecked")
     public void createCaptureSession_createsSession_byOutputConfiguration()
-            throws CameraAccessException {
+            throws CameraAccessException, CameraAccessExceptionCompat {
         SessionConfigurationCompat sessionConfig = new SessionConfigurationCompat(
                 SessionConfigurationCompat.SESSION_REGULAR,
                 mOutputs,
@@ -110,7 +112,7 @@ public final class CameraDeviceCompatTest {
     @Test
     @Config(minSdk = 28)
     public void createCaptureSession_createsSession_bySessionConfiguration()
-            throws CameraAccessException {
+            throws CameraAccessException, CameraAccessExceptionCompat {
         SessionConfigurationCompat sessionConfig = new SessionConfigurationCompat(
                 SessionConfigurationCompat.SESSION_REGULAR,
                 mOutputs,
@@ -126,7 +128,8 @@ public final class CameraDeviceCompatTest {
 
     @Test(expected = IllegalArgumentException.class)
     @Config(maxSdk = 22)
-    public void createCaptureSession_throwsForReprocessableSession() throws CameraAccessException {
+    public void createCaptureSession_throwsForReprocessableSession()
+            throws CameraAccessExceptionCompat {
         SessionConfigurationCompat sessionConfig = new SessionConfigurationCompat(
                 SessionConfigurationCompat.SESSION_REGULAR,
                 mOutputs,
@@ -142,7 +145,8 @@ public final class CameraDeviceCompatTest {
 
     @Test(expected = IllegalArgumentException.class)
     @Config(maxSdk = 22)
-    public void createCaptureSession_throwsForHighSpeedSession() throws CameraAccessException {
+    public void createCaptureSession_throwsForHighSpeedSession()
+            throws CameraAccessExceptionCompat {
         SessionConfigurationCompat sessionConfig = new SessionConfigurationCompat(
                 SessionConfigurationCompat.SESSION_HIGH_SPEED,
                 mOutputs,
@@ -155,7 +159,8 @@ public final class CameraDeviceCompatTest {
     @Test
     @Config(minSdk = 23, maxSdk = 23)
     @SuppressWarnings("unchecked")
-    public void createCaptureSession_createsReprocessableSession() throws CameraAccessException {
+    public void createCaptureSession_createsReprocessableSession()
+            throws CameraAccessException, CameraAccessExceptionCompat {
         SessionConfigurationCompat sessionConfig = new SessionConfigurationCompat(
                 SessionConfigurationCompat.SESSION_REGULAR,
                 mOutputs,
@@ -180,7 +185,7 @@ public final class CameraDeviceCompatTest {
     @Config(minSdk = 24, maxSdk = 27)
     @SuppressWarnings("unchecked")
     public void createCaptureSession_createsReprocessableSession_byConfiguration()
-            throws CameraAccessException {
+            throws CameraAccessException, CameraAccessExceptionCompat {
         SessionConfigurationCompat sessionConfig = new SessionConfigurationCompat(
                 SessionConfigurationCompat.SESSION_REGULAR,
                 mOutputs,
@@ -204,7 +209,8 @@ public final class CameraDeviceCompatTest {
     @Test
     @Config(minSdk = 23, maxSdk = 27)
     @SuppressWarnings("unchecked")
-    public void createCaptureSession_createsHighSpeedSession() throws CameraAccessException {
+    public void createCaptureSession_createsHighSpeedSession()
+            throws CameraAccessException, CameraAccessExceptionCompat {
         SessionConfigurationCompat sessionConfig = new SessionConfigurationCompat(
                 SessionConfigurationCompat.SESSION_HIGH_SPEED,
                 mOutputs,

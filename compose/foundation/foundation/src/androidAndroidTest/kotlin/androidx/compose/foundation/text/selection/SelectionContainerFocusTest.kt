@@ -23,7 +23,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.CoreText
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -33,26 +34,21 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.longClick
-import androidx.compose.ui.test.performGesture
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.test.R
-import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
@@ -72,11 +68,7 @@ class SelectionContainerFocusTest {
     private lateinit var view: View
 
     private val textContent = "Text Demo Text"
-    private val fontFamily = Font(
-        resId = R.font.sample_font,
-        weight = FontWeight.Normal,
-        style = FontStyle.Normal
-    ).toFontFamily()
+    private val fontFamily = TEST_FONT_FAMILY
 
     private val selection1 = mutableStateOf<Selection?>(null)
     private val selection2 = mutableStateOf<Selection?>(null)
@@ -85,11 +77,9 @@ class SelectionContainerFocusTest {
 
     private val hapticFeedback = mock<HapticFeedback>()
 
-    @FlakyTest(bugId = 179770443)
     @Test
-    fun click_anywhere_to_cancel() {
+    fun tap_to_cancel() {
         // Setup. Long press to create a selection.
-        // A reasonable number.
         createSelectionContainer()
         // Touch position. In this test, each character's width and height equal to fontSize.
         // Position is computed so that (position, position) is the center of the first character.
@@ -97,19 +87,14 @@ class SelectionContainerFocusTest {
             fontSize.toPx() / 2
         }
         rule.onNode(hasTestTag("selectionContainer1"))
-            .performGesture { longClick(Offset(x = positionInText, y = positionInText)) }
+            .performTouchInput { longClick(Offset(x = positionInText, y = positionInText)) }
         rule.runOnIdle {
             assertThat(selection1.value).isNotNull()
         }
 
-        // Touch position. In this test, each character's width and height equal to fontSize.
-        // Position is computed so that (position, position) is the center of the first character.
-        val positionInBox = with(Density(view.context)) {
-            boxSize.toPx() / 2
-        }
         // Act.
         rule.onNode(hasTestTag("box"))
-            .performGesture { click(Offset(x = positionInBox, y = positionInBox)) }
+            .performTouchInput { click(center) }
 
         // Assert.
         rule.runOnIdle {
@@ -122,11 +107,9 @@ class SelectionContainerFocusTest {
         }
     }
 
-    @FlakyTest(bugId = 179770443)
     @Test
     fun select_anotherContainer_cancelOld() {
         // Setup. Long press to create a selection.
-        // A reasonable number.
         createSelectionContainer()
         // Touch position. In this test, each character's width and height equal to fontSize.
         // Position is computed so that (position, position) is the center of the first character.
@@ -134,14 +117,14 @@ class SelectionContainerFocusTest {
             fontSize.toPx() / 2
         }
         rule.onNode(hasTestTag("selectionContainer1"))
-            .performGesture { longClick(Offset(x = positionInText, y = positionInText)) }
+            .performTouchInput { longClick(Offset(x = positionInText, y = positionInText)) }
         rule.runOnIdle {
             assertThat(selection1.value).isNotNull()
         }
 
         // Act.
         rule.onNode(hasTestTag("selectionContainer2"))
-            .performGesture { longClick(Offset(x = positionInText, y = positionInText)) }
+            .performTouchInput { longClick(Offset(x = positionInText, y = positionInText)) }
 
         // Assert.
         rule.runOnIdle {
@@ -163,7 +146,8 @@ class SelectionContainerFocusTest {
         rule.setContent {
             CompositionLocalProvider(
                 LocalHapticFeedback provides hapticFeedback,
-                LocalLayoutDirection provides layoutDirection
+                LocalLayoutDirection provides layoutDirection,
+                LocalTextToolbar provides mock()
             ) {
                 Column {
                     SelectionContainer(
@@ -175,16 +159,19 @@ class SelectionContainerFocusTest {
                             selection1.value = it
                         }
                     ) {
-                        CoreText(
-                            AnnotatedString(textContent),
-                            Modifier.fillMaxWidth(),
-                            style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
-                            softWrap = true,
-                            overflow = TextOverflow.Clip,
-                            maxLines = Int.MAX_VALUE,
-                            inlineContent = mapOf(),
-                            onTextLayout = {}
-                        )
+                        Column {
+                            BasicText(
+                                AnnotatedString(textContent),
+                                Modifier.fillMaxWidth(),
+                                style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
+                                softWrap = true,
+                                overflow = TextOverflow.Clip,
+                                maxLines = Int.MAX_VALUE,
+                                inlineContent = mapOf(),
+                                onTextLayout = {}
+                            )
+                            Box(Modifier.size(boxSize, boxSize).testTag("box"))
+                        }
                     }
 
                     SelectionContainer(
@@ -196,7 +183,7 @@ class SelectionContainerFocusTest {
                             selection2.value = it
                         }
                     ) {
-                        CoreText(
+                        BasicText(
                             AnnotatedString(textContent),
                             Modifier.fillMaxWidth(),
                             style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
@@ -207,8 +194,6 @@ class SelectionContainerFocusTest {
                             onTextLayout = {}
                         )
                     }
-
-                    Box(Modifier.size(boxSize, boxSize).testTag("box"))
                 }
             }
         }

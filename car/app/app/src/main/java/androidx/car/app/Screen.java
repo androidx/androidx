@@ -136,6 +136,17 @@ public abstract class Screen implements LifecycleOwner {
     }
 
     /**
+     * Returns the result set via {@link #setResult}, or {@code null} if none is set.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Nullable
+    public Object getResultInternal() {
+        return mResult;
+    }
+
+    /**
      * Updates the marker for this screen.
      *
      * <p>Set the {@code marker} to {@code null} to clear it.
@@ -179,6 +190,9 @@ public abstract class Screen implements LifecycleOwner {
      *   <dd>The screen is in the process of being pushed to the screen stack, it is valid, but
      *       contents from it are not yet visible in the car screen. You should get a callback to
      *       {@link #onGetTemplate} at a point after this call.
+     *       This is where you can make decision on whether this {@link Screen} is still
+     *       relevant, and if you choose to not return a {@link Template} from this
+     *       {@link Screen} call {@link #finish()}.
      *   <dt>{@link Event#ON_START}
      *   <dd>The template returned from this screen is visible in the car screen.
      *   <dt>{@link Event#ON_RESUME}
@@ -244,12 +258,13 @@ public abstract class Screen implements LifecycleOwner {
      *   <li>{@link androidx.car.app.model.MessageTemplate}
      * </ul>
      *
-     * If the 5 template quota is exhausted and the app attempts to send a new template, the host
-     * will display an error message to the user. Note that this limit applies to the number of
-     * templates, and not the number of screen instances in the stack. For example, if while in
-     * screen A an app sends 2 templates, and then pushes screen B, it can now send 3 more
-     * templates. Alternatively, if each screen is structured to send a single template, then the
-     * app can push 5 {@link Screen} instances onto the {@link ScreenManager} stack.
+     * <p><b>If the 5 template quota is exhausted and the app attempts to send a new template, the
+     * host will display an error message to the user before closing the app.</b> Note that this
+     * limit applies to the number of templates, and not the number of screen instances in the
+     * stack. For example, if while in screen A an app sends 2 templates, and then pushes screen
+     * B, it can now send 3 more templates. Alternatively, if each screen is structured to send a
+     * single template, then the app can push 5 {@link Screen} instances onto the
+     * {@link ScreenManager} stack.
      *
      * <p>There are special cases to these restrictions: template refreshes, back and reset
      * operations.
@@ -311,9 +326,15 @@ public abstract class Screen implements LifecycleOwner {
      */
     @RestrictTo(LIBRARY_GROUP)
     // Restrict to testing library
-    void dispatchLifecycleEvent(Event event) {
+    public void dispatchLifecycleEvent(@NonNull Event event) {
         ThreadUtils.runOnMain(
                 () -> {
+                    State currentState = mLifecycleRegistry.getCurrentState();
+                    // Avoid handling further events if the screen is already marked as destroyed.
+                    if (!currentState.isAtLeast(State.INITIALIZED)) {
+                        return;
+                    }
+
                     if (event == Event.ON_DESTROY) {
                         mOnScreenResultListener.onScreenResult(mResult);
                     }
@@ -352,7 +373,9 @@ public abstract class Screen implements LifecycleOwner {
 
         mTemplateWrapper = wrapper;
 
-        Log.d(TAG, "Returning " + template + " from screen " + this);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Returning " + template + " from screen " + this);
+        }
         return wrapper;
     }
 

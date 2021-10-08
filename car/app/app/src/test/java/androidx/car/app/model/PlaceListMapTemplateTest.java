@@ -268,6 +268,22 @@ public class PlaceListMapTemplateTest {
     }
 
     @Test
+    public void createInstance_title_variants() {
+        CarText title = new CarText.Builder("Very Long Title").addVariant("Short Title").build();
+        ItemList itemList = TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan);
+
+        PlaceListMapTemplate template =
+                new PlaceListMapTemplate.Builder()
+                        .setItemList(itemList)
+                        .setTitle(title)
+                        .setCurrentLocationEnabled(true)
+                        .build();
+        assertThat(template.getTitle()).isNotNull();
+        assertThat(template.getTitle().toString()).isEqualTo("Very Long Title");
+        assertThat(template.getTitle().getVariants().get(0).toString()).isEqualTo("Short Title");
+    }
+
+    @Test
     public void createInstance_noHeaderTitleOrAction_throws() {
         ItemList itemList = TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan);
 
@@ -283,6 +299,26 @@ public class PlaceListMapTemplateTest {
         new PlaceListMapTemplate.Builder().setTitle("Title").setItemList(itemList).build();
         new PlaceListMapTemplate.Builder().setHeaderAction(Action.BACK).setItemList(
                 itemList).build();
+    }
+
+    @Test
+    public void createInstance_header_unsupportedSpans_throws() {
+        ItemList itemList = TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan);
+
+        CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
+        CarText title2 = TestUtils.getCarTextVariantsWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new PlaceListMapTemplate.Builder().setItemList(itemList).setTitle(title));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new PlaceListMapTemplate.Builder().setItemList(itemList).setTitle(title2));
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence title3 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
+        CarText title4 = TestUtils.getCarTextVariantsWithDistanceAndDurationSpans("Title");
+        new PlaceListMapTemplate.Builder().setItemList(itemList).setTitle(title3).build();
+        new PlaceListMapTemplate.Builder().setItemList(itemList).setTitle(title4).build();
     }
 
     @Test

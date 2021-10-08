@@ -37,6 +37,9 @@ interface LazyListScope {
      * @param key a stable and unique key representing the item. Using the same key
      * for multiple items in the list is not allowed. Type of the key should be saveable
      * via Bundle on Android. If null is passed the position in the list will represent the key.
+     * When you specify the key the scroll position will be maintained based on the key, which
+     * means if you add/remove items before the current visible item the item with the given key
+     * will be kept as the first visible one.
      * @param content the content of the item
      */
     fun item(key: Any? = null, content: @Composable LazyItemScope.() -> Unit)
@@ -48,6 +51,9 @@ interface LazyListScope {
      * @param key a factory of stable and unique keys representing the item. Using the same key
      * for multiple items in the list is not allowed. Type of the key should be saveable
      * via Bundle on Android. If null is passed the position in the list will represent the key.
+     * When you specify the key the scroll position will be maintained based on the key, which
+     * means if you add/remove items before the current visible item the item with the given key
+     * will be kept as the first visible one.
      * @param itemContent the content displayed by a single item
      */
     fun items(
@@ -65,6 +71,9 @@ interface LazyListScope {
      * @param key a stable and unique key representing the item. Using the same key
      * for multiple items in the list is not allowed. Type of the key should be saveable
      * via Bundle on Android. If null is passed the position in the list will represent the key.
+     * When you specify the key the scroll position will be maintained based on the key, which
+     * means if you add/remove items before the current visible item the item with the given key
+     * will be kept as the first visible one.
      * @param content the content of the header
      */
     @ExperimentalFoundationApi
@@ -78,6 +87,9 @@ interface LazyListScope {
  * @param key a factory of stable and unique keys representing the item. Using the same key
  * for multiple items in the list is not allowed. Type of the key should be saveable
  * via Bundle on Android. If null is passed the position in the list will represent the key.
+ * When you specify the key the scroll position will be maintained based on the key, which
+ * means if you add/remove items before the current visible item the item with the given key
+ * will be kept as the first visible one.
  * @param itemContent the content displayed by a single item
  */
 inline fun <T> LazyListScope.items(
@@ -95,6 +107,9 @@ inline fun <T> LazyListScope.items(
  * @param key a factory of stable and unique keys representing the item. Using the same key
  * for multiple items in the list is not allowed. Type of the key should be saveable
  * via Bundle on Android. If null is passed the position in the list will represent the key.
+ * When you specify the key the scroll position will be maintained based on the key, which
+ * means if you add/remove items before the current visible item the item with the given key
+ * will be kept as the first visible one.
  * @param itemContent the content displayed by a single item
  */
 inline fun <T> LazyListScope.itemsIndexed(
@@ -112,6 +127,9 @@ inline fun <T> LazyListScope.itemsIndexed(
  * @param key a factory of stable and unique keys representing the item. Using the same key
  * for multiple items in the list is not allowed. Type of the key should be saveable
  * via Bundle on Android. If null is passed the position in the list will represent the key.
+ * When you specify the key the scroll position will be maintained based on the key, which
+ * means if you add/remove items before the current visible item the item with the given key
+ * will be kept as the first visible one.
  * @param itemContent the content displayed by a single item
  */
 inline fun <T> LazyListScope.items(
@@ -129,6 +147,9 @@ inline fun <T> LazyListScope.items(
  * @param key a factory of stable and unique keys representing the item. Using the same key
  * for multiple items in the list is not allowed. Type of the key should be saveable
  * via Bundle on Android. If null is passed the position in the list will represent the key.
+ * When you specify the key the scroll position will be maintained based on the key, which
+ * means if you add/remove items before the current visible item the item with the given key
+ * will be kept as the first visible one.
  * @param itemContent the content displayed by a single item
  */
 inline fun <T> LazyListScope.itemsIndexed(
@@ -137,63 +158,6 @@ inline fun <T> LazyListScope.itemsIndexed(
     crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
 ) = items(items.size, if (key != null) { index: Int -> key(index, items[index]) } else null) {
     itemContent(it, items[it])
-}
-
-private class IntervalContent(
-    val key: ((index: Int) -> Any)?,
-    val content: LazyItemScope.(index: Int) -> @Composable() () -> Unit
-)
-
-private class LazyListScopeImpl : LazyListScope {
-    private val intervals = IntervalList<IntervalContent>()
-    val totalSize get() = intervals.totalSize
-    var headersIndexes: MutableList<Int>? = null
-        private set
-
-    fun contentFor(index: Int, scope: LazyItemScope): ItemContent {
-        val interval = intervals.intervalForIndex(index)
-        val localIntervalIndex = index - interval.startIndex
-        val key = interval.content.key?.invoke(localIntervalIndex)
-
-        return ItemContent(
-            key = key ?: "[DefaultKeyForIndex=$index]",
-            content = interval.content.content.invoke(scope, localIntervalIndex)
-        )
-    }
-
-    override fun items(
-        count: Int,
-        key: ((index: Int) -> Any)?,
-        itemContent: @Composable LazyItemScope.(index: Int) -> Unit
-    ) {
-        intervals.add(
-            count,
-            IntervalContent(
-                key = key,
-                content = { index -> @Composable { itemContent(index) } }
-            )
-        )
-    }
-
-    override fun item(key: Any?, content: @Composable LazyItemScope.() -> Unit) {
-        intervals.add(
-            1,
-            IntervalContent(
-                key = if (key != null) { _: Int -> key } else null,
-                content = { @Composable { content() } }
-            )
-        )
-    }
-
-    @ExperimentalFoundationApi
-    override fun stickyHeader(key: Any?, content: @Composable LazyItemScope.() -> Unit) {
-        val headersIndexes = headersIndexes ?: mutableListOf<Int>().also {
-            headersIndexes = it
-        }
-        headersIndexes.add(totalSize)
-
-        item(key, content)
-    }
 }
 
 /**
@@ -233,11 +197,7 @@ fun LazyRow(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     content: LazyListScope.() -> Unit
 ) {
-    val scope = LazyListScopeImpl()
-    scope.apply(content)
-
     LazyList(
-        itemsCount = scope.totalSize,
         modifier = modifier,
         state = state,
         contentPadding = contentPadding,
@@ -246,10 +206,8 @@ fun LazyRow(
         isVertical = false,
         flingBehavior = flingBehavior,
         reverseLayout = reverseLayout,
-        headerIndexes = scope.headersIndexes ?: emptyList()
-    ) { index ->
-        scope.contentFor(index, this)
-    }
+        content = content
+    )
 }
 
 /**
@@ -289,11 +247,7 @@ fun LazyColumn(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     content: LazyListScope.() -> Unit
 ) {
-    val scope = LazyListScopeImpl()
-    scope.apply(content)
-
     LazyList(
-        itemsCount = scope.totalSize,
         modifier = modifier,
         state = state,
         contentPadding = contentPadding,
@@ -302,8 +256,14 @@ fun LazyColumn(
         verticalArrangement = verticalArrangement,
         isVertical = true,
         reverseLayout = reverseLayout,
-        headerIndexes = scope.headersIndexes ?: emptyList()
-    ) { index ->
-        scope.contentFor(index, this)
-    }
+        content = content
+    )
 }
+
+/**
+ * This should create an object meeting following requirements:
+ * 1) objects created for the same index are equals and never equals for different indexes
+ * 2) this class is saveable via a default SaveableStateRegistry on the platform
+ * 3) this objects can't be equals to any object which could be provided by a user as a custom key
+ */
+internal expect fun getDefaultLazyKeyFor(index: Int): Any

@@ -17,6 +17,7 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
@@ -28,6 +29,7 @@ import androidx.camera.core.impl.utils.ExifData;
  * The result of a single image capture.
  *
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraCaptureResult {
 
     /** Returns the current auto focus mode of operation. */

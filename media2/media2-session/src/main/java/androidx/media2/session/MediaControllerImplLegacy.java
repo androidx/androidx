@@ -56,6 +56,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.ObjectsCompat;
+import androidx.media2.common.ClassVerificationHelper;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.Rating;
@@ -205,7 +206,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             mHandler.removeCallbacksAndMessages(null);
 
             if (Build.VERSION.SDK_INT >= 18) {
-                mHandlerThread.quitSafely();
+                ClassVerificationHelper.HandlerThread.Api18.quitSafely(mHandlerThread);
             } else {
                 mHandlerThread.quit();
             }
@@ -986,6 +987,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     @SuppressWarnings({"GuardedBy", "WeakerAccess"}) /* WeakerAccess for synthetic access */
     void setCurrentMediaItemLocked(MediaMetadataCompat metadata) {
         mMediaMetadataCompat = metadata;
+        int ratingType = mControllerCompat.getRatingType();
         if (metadata == null) {
             mCurrentMediaItemIndex = -1;
             mCurrentMediaItem = null;
@@ -994,7 +996,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
 
         if (mQueue == null) {
             mCurrentMediaItemIndex = -1;
-            mCurrentMediaItem = MediaUtils.convertToMediaItem(metadata);
+            mCurrentMediaItem = MediaUtils.convertToMediaItem(metadata, ratingType);
             return;
         }
 
@@ -1004,7 +1006,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             for (int i = 0; i < mQueue.size(); ++i) {
                 QueueItem item = mQueue.get(i);
                 if (item.getQueueId() == queueId) {
-                    mCurrentMediaItem = MediaUtils.convertToMediaItem(metadata);
+                    mCurrentMediaItem = MediaUtils.convertToMediaItem(metadata, ratingType);
                     mCurrentMediaItemIndex = i;
                     return;
                 }
@@ -1014,7 +1016,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         String mediaId = metadata.getString(METADATA_KEY_MEDIA_ID);
         if (mediaId == null) {
             mCurrentMediaItemIndex = -1;
-            mCurrentMediaItem = MediaUtils.convertToMediaItem(metadata);
+            mCurrentMediaItem = MediaUtils.convertToMediaItem(metadata, ratingType);
             return;
         }
 
@@ -1024,7 +1026,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 && TextUtils.equals(mediaId,
                         mQueue.get(mSkipToPlaylistIndex).getDescription().getMediaId())) {
             // metadata changed after skipToPlaylistIItem() was called.
-            mCurrentMediaItem = MediaUtils.convertToMediaItem(metadata);
+            mCurrentMediaItem = MediaUtils.convertToMediaItem(metadata, ratingType);
             mCurrentMediaItemIndex = mSkipToPlaylistIndex;
             mSkipToPlaylistIndex = -1;
             return;
@@ -1035,14 +1037,14 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             QueueItem item = mQueue.get(i);
             if (TextUtils.equals(mediaId, item.getDescription().getMediaId())) {
                 mCurrentMediaItemIndex = i;
-                mCurrentMediaItem = MediaUtils.convertToMediaItem(metadata);
+                mCurrentMediaItem = MediaUtils.convertToMediaItem(metadata, ratingType);
                 return;
             }
         }
 
         // Failed to find media item from the playlist.
         mCurrentMediaItemIndex = -1;
-        mCurrentMediaItem = MediaUtils.convertToMediaItem(mMediaMetadataCompat);
+        mCurrentMediaItem = MediaUtils.convertToMediaItem(mMediaMetadataCompat, ratingType);
     }
 
     private class ConnectionCallback extends MediaBrowserCompat.ConnectionCallback {

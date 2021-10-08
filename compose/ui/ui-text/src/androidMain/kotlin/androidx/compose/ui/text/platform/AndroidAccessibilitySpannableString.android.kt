@@ -21,8 +21,11 @@ import android.os.Build
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ScaleXSpan
+import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.text.style.TypefaceSpan
+import android.text.style.UnderlineSpan
+import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.ui.text.AnnotatedString
@@ -38,8 +41,8 @@ import androidx.compose.ui.text.platform.extensions.setBackground
 import androidx.compose.ui.text.platform.extensions.setColor
 import androidx.compose.ui.text.platform.extensions.setFontSize
 import androidx.compose.ui.text.platform.extensions.setLocaleList
-import androidx.compose.ui.text.platform.extensions.setTextDecoration
 import androidx.compose.ui.text.platform.extensions.toSpan
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
 
@@ -125,12 +128,29 @@ private fun SpannableString.setSpanStyle(
         }
     }
 
-    setTextDecoration(spanStyle.textDecoration, start, end)
+    if (spanStyle.textDecoration != null) {
+        // This doesn't match how we rendering the styles. When TextDecoration.None is set, it
+        // should remove the underline and lineThrough effect on the given range. Here we didn't
+        // remove any previously applied spans yet.
+        if (TextDecoration.Underline in spanStyle.textDecoration) {
+            setSpan(
+                UnderlineSpan(),
+                start,
+                end,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+        if (TextDecoration.LineThrough in spanStyle.textDecoration) {
+            setSpan(
+                StrikethroughSpan(),
+                start,
+                end,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+    }
 
-    if (
-        spanStyle.textGeometricTransform != null &&
-        spanStyle.textGeometricTransform.scaleX != 1f
-    ) {
+    if (spanStyle.textGeometricTransform != null) {
         setSpan(
             ScaleXSpan(spanStyle.textGeometricTransform.scaleX),
             start,
@@ -146,5 +166,6 @@ private fun SpannableString.setSpanStyle(
 
 @RequiresApi(28)
 private object Api28Impl {
+    @DoNotInline
     fun createTypefaceSpan(typeface: Typeface): TypefaceSpan = TypefaceSpan(typeface)
 }

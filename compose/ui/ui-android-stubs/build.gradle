@@ -15,21 +15,11 @@
  */
 
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
-import androidx.build.Publish
-
-import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-}
-
-android {
-    compileOptions {
-        targetCompatibility = JavaVersion.VERSION_1_7
-        sourceCompatibility = JavaVersion.VERSION_1_7
-    }
 }
 
 dependencies {
@@ -38,7 +28,7 @@ dependencies {
 
 androidx {
     name = "Compose Android Stubs"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.Compose.UI
     inceptionYear = "2020"
     description = "Stubs for classes in older Android APIs"

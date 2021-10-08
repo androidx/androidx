@@ -25,6 +25,7 @@ import android.os.Looper;
 import androidx.annotation.FloatRange;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
@@ -64,6 +65,7 @@ import java.util.concurrent.Executor;
  * on {@link ZoomControl} when apps are ready to accept zoom operations and set inactive if camera
  * is closing or closed.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class ZoomControl {
     private static final String TAG = "ZoomControl";
     public static final float DEFAULT_ZOOM_RATIO = 1.0f;

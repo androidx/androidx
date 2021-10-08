@@ -19,7 +19,7 @@ limitations under the License.
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="lb_navigation_menu_contentDescription" msgid="8084428500709675515">"ನ್ಯಾವಿಗೇಶನ್‌ ಮೆನು"</string>
     <string name="orb_search_action" msgid="1301877238242752863">"ಹುಡುಕಾಟ ಕ್ರಿಯೆ"</string>
-    <string name="lb_search_bar_hint" msgid="5700349211583074131">"Search"</string>
+    <string name="lb_search_bar_hint" msgid="5700349211583074131">"ಹುಡುಕಿ"</string>
     <string name="lb_search_bar_hint_speech" msgid="5926531297066387462">"ಹುಡುಕಲು ಮಾತನಾಡಿ"</string>
     <string name="lb_search_bar_hint_with_title" msgid="4826526877249029043">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> ಹುಡುಕಿ"</string>
     <string name="lb_search_bar_hint_with_title_speech" msgid="6032250334706920550">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> ಮಾತನಾಡಿ ಹುಡುಕಾಟ ನಡೆಸಿ"</string>

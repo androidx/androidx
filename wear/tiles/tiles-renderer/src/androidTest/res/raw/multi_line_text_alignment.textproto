@@ -1,0 +1,111 @@
+column {
+  contents {
+    spannable {
+      multiline_alignment {
+        value: HORIZONTAL_ALIGN_START
+      }
+      max_lines: {
+        value: 5
+      }
+      spans {
+        text {
+          text {
+            value: "This should be a multi-line bit of text that should be left-aligned"
+          }
+          font_style {
+            weight {
+              value: FONT_WEIGHT_BOLD
+            }
+            size {
+              value: 16
+            }
+            color {
+              argb: 0xFFFF0000
+            }
+          }
+        }
+      }
+    }
+  }
+  contents {
+    spannable {
+      multiline_alignment {
+        value: HORIZONTAL_ALIGN_CENTER
+      }
+      max_lines: {
+        value: 5
+      }
+      spans {
+        text {
+          text {
+            value: "This should be a multi-line bit of text that should be center-aligned"
+          }
+          font_style {
+            weight {
+              value: FONT_WEIGHT_BOLD
+            }
+            size {
+              value: 16
+            }
+            color {
+              argb: 0xFF00FF00
+            }
+          }
+        }
+      }
+    }
+  }
+  contents {
+    spannable {
+      multiline_alignment {
+        value: HORIZONTAL_ALIGN_END
+      }
+      max_lines: {
+        value: 5
+      }
+      spans {
+        text {
+          text {
+            value: "This should be a multi-line bit of text that should be right-aligned"
+          }
+          font_style {
+            weight {
+              value: FONT_WEIGHT_BOLD
+            }
+            size {
+              value: 16
+            }
+            color {
+              argb: 0xFF0000FF
+            }
+          }
+        }
+      }
+    }
+  }
+  contents {
+    spannable {
+      max_lines: {
+        value: 5
+      }
+      spans {
+        text {
+          text {
+            value: "Multi-line with no alignment. Should be center-aligned"
+          }
+          font_style {
+            weight {
+              value: FONT_WEIGHT_BOLD
+            }
+            size {
+              value: 16
+            }
+            color {
+              argb: 0xFFFF0000
+            }
+          }
+        }
+      }
+    }
+  }
+}

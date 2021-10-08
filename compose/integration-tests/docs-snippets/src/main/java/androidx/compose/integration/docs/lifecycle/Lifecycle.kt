@@ -15,41 +15,19 @@
  */
 
 // Ignore lint warnings in documentation snippets
-@file:Suppress("unused", "UNUSED_PARAMETER", "UNUSED_VARIABLE")
+@file:Suppress(
+    "unused", "UNUSED_PARAMETER", "UNUSED_VARIABLE", "SimplifyBooleanWithConstants"
+)
 
 package androidx.compose.integration.docs.lifecycle
 
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.OnBackPressedDispatcher
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Button
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Scaffold
-import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.Modifier
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 /**
  * This file lets DevRel track changes to snippets present in
@@ -73,7 +51,7 @@ private object LifecycleSnippet2 {
         if (showError) {
             LoginError()
         }
-        LoginInput() // This call site is used to generate the key
+        LoginInput() // This call site affects where LoginInput is placed in Composition
     }
 
     @Composable
@@ -85,8 +63,8 @@ private object LifecycleSnippet3 {
     fun MoviesScreen(movies: List<Movie>) {
         Column {
             for (movie in movies) {
-                // All MovieOverview composables in Composition will have the same key!
-                // Thus, all calls will always recompose and restart all side effects.
+                // MovieOverview composables are placed in Composition given its
+                // index position in the for loop
                 MovieOverview(movie)
             }
         }
@@ -94,6 +72,21 @@ private object LifecycleSnippet3 {
 }
 
 private object LifecycleSnippet4 {
+    @Composable
+    fun MovieOverview(movie: Movie) {
+        Column {
+            // Side effect explained later in the docs. If MovieOverview
+            // recomposes, while fetching the image is in progress,
+            // it is cancelled and restarted.
+            val image = loadNetworkImage(movie.url)
+            MovieHeader(image)
+
+            /* ... */
+        }
+    }
+}
+
+private object LifecycleSnippet5 {
     @Composable
     fun MoviesScreen(movies: List<Movie>) {
         Column {
@@ -106,7 +99,7 @@ private object LifecycleSnippet4 {
     }
 }
 
-private object LifecycleSnippet5 {
+private object LifecycleSnippet6 {
     @Composable
     fun MoviesScreen(movies: List<Movie>) {
         LazyColumn {
@@ -117,7 +110,7 @@ private object LifecycleSnippet5 {
     }
 }
 
-private object LifecycleSnippet6 {
+private object LifecycleSnippet7 {
     // Marking the type as stable to favor skipping and smart recompositions.
     @Stable
     interface UiState<T : Result<T>> {
@@ -129,249 +122,17 @@ private object LifecycleSnippet6 {
     }
 }
 
-@ExperimentalMaterialApi
-private object LifecycleSnippet7 {
-    @Composable
-    fun MyScreen(
-        state: UiState<List<Movie>>,
-        scaffoldState: ScaffoldState = rememberScaffoldState()
-    ) {
-
-        // If the UI state contains an error, show snackbar
-        if (state.hasError) {
-
-            // `LaunchedEffect` will cancel and re-launch if `scaffoldState` changes
-            LaunchedEffect(scaffoldState) {
-                // Show snackbar using a coroutine, when the coroutine is cancelled the
-                // snackbar will automatically dismiss. This coroutine will cancel whenever
-                // `state.hasError` is false, and only start when `state.hasError`
-                // is true (due to the above if-check), or if `scaffoldState` changes.
-                scaffoldState.snackbarHostState.showSnackbar(
-                    message = "Error message",
-                    actionLabel = "Retry message"
-                )
-            }
-        }
-
-        Scaffold(scaffoldState = scaffoldState) {
-            /* ... */
-        }
-    }
-}
-
-@ExperimentalMaterialApi
-private object LifecycleSnippet8 {
-    @Composable
-    fun MoviesScreen(scaffoldState: ScaffoldState = rememberScaffoldState()) {
-
-        // Creates a CoroutineScope bound to the MoviesScreen's lifecycle
-        val scope = rememberCoroutineScope()
-
-        Scaffold(scaffoldState = scaffoldState) {
-            Column {
-                /* ... */
-                Button(
-                    onClick = {
-                        // Create a new coroutine in the event handler to show a snackbar
-                        scope.launch {
-                            scaffoldState.snackbarHostState.showSnackbar("Something happened!")
-                        }
-                    }
-                ) {
-                    Text("Press me")
-                }
-            }
-        }
-    }
-}
-
-private object LifecycleSnippet9 {
-    @Composable
-    fun LandingScreen(onTimeout: () -> Unit) {
-
-        // This will always refer to the latest onTimeout function that
-        // LandingScreen was recomposed with
-        val currentOnTimeout by rememberUpdatedState(onTimeout)
-
-        // Create an effect that matches the lifecycle of LandingScreen.
-        // If LandingScreen recomposes, the delay shouldn't start again.
-        LaunchedEffect(Unit) {
-            delay(SplashWaitTimeMillis)
-            currentOnTimeout()
-        }
-
-        /* Landing screen content */
-    }
-}
-
-private object LifecycleSnippet10 {
-    @Composable
-    fun BackHandler(backDispatcher: OnBackPressedDispatcher, onBack: () -> Unit) {
-
-        // Safely update the current `onBack` lambda when a new one is provided
-        val currentOnBack by rememberUpdatedState(onBack)
-
-        // Remember in Composition a back callback that calls the `onBack` lambda
-        val backCallback = remember {
-            // Always intercept back events. See the SideEffect for a more complete version
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    currentOnBack()
-                }
-            }
-        }
-
-        // If `backDispatcher` changes, dispose and reset the effect
-        DisposableEffect(backDispatcher) {
-            // Add callback to the backDispatcher
-            backDispatcher.addCallback(backCallback)
-
-            // When the effect leaves the Composition, remove the callback
-            onDispose {
-                backCallback.remove()
-            }
-        }
-    }
-}
-
-private object LifecycleSnippet11 {
-    @Composable
-    fun BackHandler(
-        backDispatcher: OnBackPressedDispatcher,
-        enabled: Boolean = true, // Whether back events should be intercepted or not
-        onBack: () -> Unit
-    ) {
-        // START - DO NOT COPY IN CODE SNIPPET
-        val currentOnBack by rememberUpdatedState(onBack)
-
-        val backCallback = remember {
-            // Always intercept back events. See the SideEffect for a more complete version
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    currentOnBack()
-                }
-            }
-        }
-        // END - DO NOT COPY IN CODE SNIPPET, just use /* ... */
-
-        // On every successful composition, update the callback with the `enabled` value
-        // to tell `backCallback` whether back events should be intercepted or not
-        SideEffect {
-            backCallback.isEnabled = enabled
-        }
-
-        /* Rest of the code */
-    }
-}
-
-private object LifecycleSnippet12 {
-    @Composable
-    fun loadNetworkImage(
-        url: String,
-        imageRepository: ImageRepository
-    ): State<Result<Image>> {
-
-        // Creates a State<T> with Result.Loading as initial value
-        // If either `url` or `imageRepository` changes, the running producer
-        // will cancel and will be re-launched with the new inputs.
-        return produceState(initialValue = Result.Loading, url, imageRepository) {
-
-            // In a coroutine, can make suspend calls
-            val image = imageRepository.load(url)
-
-            // Update State with either an Error or Success result.
-            // This will trigger a recomposition where this State is read
-            value = if (image == null) {
-                Result.Error
-            } else {
-                Result.Success(image)
-            }
-        }
-    }
-}
-
-private object LifecycleSnippet13 {
-    @Composable
-    fun TodoList(highPriorityKeywords: List<String> = listOf("Review", "Unblock", "Compose")) {
-
-        val todoTasks = remember { mutableStateListOf<String>() }
-
-        // Calculate high priority tasks only when the todoTasks or highPriorityKeywords
-        // change, not on every recomposition
-        val highPriorityTasks by remember(todoTasks, highPriorityKeywords) {
-            derivedStateOf { todoTasks.filter { it.containsWord(highPriorityKeywords) } }
-        }
-
-        Box(Modifier.fillMaxSize()) {
-            LazyColumn {
-                items(highPriorityTasks) { /* ... */ }
-                items(todoTasks) { /* ... */ }
-            }
-            /* Rest of the UI where users can add elements to the list */
-        }
-    }
-}
-
-private object LifecycleSnippet14 {
-    @Composable
-    fun BackHandler(backDispatcher: OnBackPressedDispatcher, onBack: () -> Unit) {
-        // START - DO NOT COPY IN CODE SNIPPET
-        val currentOnBack by rememberUpdatedState(onBack)
-
-        val backCallback = remember {
-            // Always intercept back events. See the SideEffect for a more complete version
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    currentOnBack()
-                }
-            }
-        }
-        // END - DO NOT COPY IN CODE SNIPPET, just use /* ... */
-
-        DisposableEffect(backDispatcher) {
-            backDispatcher.addCallback(backCallback)
-            onDispose {
-                backCallback.remove()
-            }
-        }
-    }
-}
-
 /*
 Fakes needed for snippets to build:
  */
-private const val SplashWaitTimeMillis = 1000L
 
 @Composable
 private fun LoginError() { }
 
 @Composable
 private fun MovieOverview(movie: Movie) { }
-private data class Movie(val id: Long)
+@Composable
+private fun MovieHeader(movie: String) { }
+private data class Movie(val id: Long, val url: String = "")
 
-private data class UiState<T>(
-    val loading: Boolean = false,
-    val exception: Exception? = null,
-    val data: T? = null
-) {
-    val hasError: Boolean
-        get() = exception != null
-}
-
-private class Image
-private class ImageRepository {
-    fun load(url: String): Image? = if (Random.nextInt() == 0) Image() else null // Avoid warnings
-}
-
-private sealed class Result<out R> {
-    data class Success<out T>(val data: T) : Result<T>()
-    object Loading : Result<Nothing>()
-    object Error : Result<Nothing>()
-}
-
-private class User
-private class Weather
-private class Greeting(val name: String)
-private fun prepareGreeting(user: User, weather: Weather) = Greeting("haha")
-
-private fun String.containsWord(input: List<String>): Boolean = false
+private fun loadNetworkImage(url: String): String = ""

@@ -29,35 +29,36 @@ import androidx.annotation.Nullable
  *
  * To register a configuration activity for a watch face, add a `<meta-data>` entry to the
  * watch face component in its Android Manifest file with an intent action to be fired to start the
- * activity. The following meta-data will register the `com.example.watchface.CONFIG_DIGITAL`
- * action to be started when configuring a watch face on the wearable device:
+ * activity. The following meta-data will register the
+ * `androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR` action to be started when
+ * configuring a watch face on the wearable device:
  * ```
- * &lt;meta-data
+ * <meta-data
  * android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
- * android:value="com.example.watchface.CONFIG_DIGITAL" /&gt;
+ * android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR" />
  * ```
  *
  *
  * To register a configuration activity to be started on a companion phone, add the following
  * alternative meta-data entry to the watch face component:
  * ```
- * &lt;meta-data
+ * <meta-data
  * android:name="com.google.android.wearable.watchface.companionConfigurationAction"
- * android:value="com.example.watchface.CONFIG_DIGITAL" /&gt;
+ * android:value="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR" />
  * ```
  *
  *
  * The activity should have an intent filter which lists the action specified in the meta-data
  * block above, in addition to the two categories present in the following example:
  * ```
- * &lt;activity android:name=".MyWatchFaceConfigActivity"&gt;
- * &lt;intent-filter&gt;
- * &lt;action android:name="com.example.watchface.CONFIG_DIGITAL" /&gt;
- * &lt;category android:name=
- * "com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" /&gt;
- * &lt;category android:name="android.intent.category.DEFAULT" /&gt;
- * &lt;/intent-filter&gt;
- * &lt;/activity&gt;
+ * <activity android:name=".MyWatchFaceConfigActivity">
+ * <intent-filter>
+ * <action android:name="androidx.wear.watchface.editor.action.WATCH_FACE_EDITOR" />
+ * <category android:name=
+ * "com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
+ * <category android:name="android.intent.category.DEFAULT" />
+ * </intent-filter>
+ * </activity>
  * ```
  *
  *

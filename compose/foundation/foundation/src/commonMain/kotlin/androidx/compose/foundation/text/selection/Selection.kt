@@ -62,17 +62,20 @@ internal data class Selection(
         val offset: Int,
 
         /**
-         * The [Selectable] which contains this [Selection] Anchor.
+         * The id of the [Selectable] which contains this [Selection] Anchor.
          */
-        val selectable: Selectable
+        val selectableId: Long
     )
 
     fun merge(other: Selection?): Selection {
         if (other == null) return this
 
         var selection = this
-        if (handlesCrossed) selection = selection.copy(start = other.start)
-        else selection = selection.copy(end = other.end)
+        selection = if (handlesCrossed) {
+            selection.copy(start = other.start)
+        } else {
+            selection.copy(end = other.end)
+        }
 
         return selection
     }

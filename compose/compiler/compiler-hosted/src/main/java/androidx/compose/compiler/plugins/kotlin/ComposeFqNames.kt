@@ -22,6 +22,10 @@ import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.descriptors.findClassAcrossModuleDependencies
+import org.jetbrains.kotlin.descriptors.impl.AnonymousFunctionDescriptor
+import org.jetbrains.kotlin.ir.declarations.IrAnnotationContainer
+import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
@@ -45,6 +49,7 @@ object ComposeFqNames {
     val ExplicitGroupsComposable = fqNameFor("ExplicitGroupsComposable")
     val NonRestartableComposable = fqNameFor("NonRestartableComposable")
     val composableLambda = internalFqNameFor("composableLambda")
+    val composableLambdaInstance = internalFqNameFor("composableLambdaInstance")
     val remember = fqNameFor("remember")
     val key = fqNameFor("key")
     val StableMarker = fqNameFor("StableMarker")
@@ -70,6 +75,21 @@ fun KotlinType.makeComposable(module: ModuleDescriptor): KotlinType {
     val annotation = ComposeFqNames.makeComposableAnnotation(module)
     return replaceAnnotations(Annotations.create(annotations + annotation))
 }
+
+fun AnonymousFunctionDescriptor.annotateAsComposable(module: ModuleDescriptor) =
+    AnonymousFunctionDescriptor(
+        containingDeclaration,
+        Annotations.create(annotations + ComposeFqNames.makeComposableAnnotation(module)),
+        kind,
+        source,
+        isSuspend
+    )
+
+fun IrType.hasComposableAnnotation(): Boolean =
+    hasAnnotation(ComposeFqNames.Composable)
+
+fun IrAnnotationContainer.hasComposableAnnotation(): Boolean =
+    hasAnnotation(ComposeFqNames.Composable)
 
 fun KotlinType.hasComposableAnnotation(): Boolean =
     !isSpecialType && annotations.findAnnotation(ComposeFqNames.Composable) != null

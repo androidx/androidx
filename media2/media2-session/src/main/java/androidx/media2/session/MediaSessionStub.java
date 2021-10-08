@@ -29,7 +29,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.support.v4.media.session.MediaSessionCompat;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
@@ -43,6 +43,7 @@ import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.MediaParcelUtils;
 import androidx.media2.common.Rating;
+import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.PlayerResult;
 import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.SubtitleData;
@@ -490,10 +491,8 @@ class MediaSessionStub extends IMediaSession.Stub {
                 new SessionCallbackTask<Integer>() {
                     @Override
                     public Integer run(MediaSessionImpl sessionImpl, ControllerInfo controller) {
-                        MediaSessionCompat sessionCompat = sessionImpl.getSessionCompat();
-                        if (sessionCompat != null) {
-                            sessionCompat.getController().setVolumeTo(value, flags);
-                        }
+                        sessionImpl.getSessionCompat()
+                                .getController().setVolumeTo(value, flags);
                         return SessionResult.RESULT_SUCCESS;
                     }
                 });
@@ -509,10 +508,8 @@ class MediaSessionStub extends IMediaSession.Stub {
                 new SessionCallbackTask<Integer>() {
                     @Override
                     public Integer run(MediaSessionImpl sessionImpl, ControllerInfo controller) {
-                        MediaSessionCompat sessionCompat = sessionImpl.getSessionCompat();
-                        if (sessionCompat != null) {
-                            sessionCompat.getController().adjustVolume(direction, flags);
-                        }
+                        sessionImpl.getSessionCompat()
+                                .getController().adjustVolume(direction, flags);
                         return SessionResult.RESULT_SUCCESS;
                     }
                 });
@@ -1235,6 +1232,78 @@ class MediaSessionStub extends IMediaSession.Stub {
                 result = new LibraryResult(LibraryResult.RESULT_ERROR_UNKNOWN);
             }
             mIControllerCallback.onLibraryResult(seq, MediaParcelUtils.toParcelable(result));
+        }
+
+        @Override
+        void onPlayerChanged(int seq, @Nullable SessionPlayer oldPlayer,
+                @Nullable PlaybackInfo oldPlaybackInfo,
+                @NonNull SessionPlayer player, @NonNull PlaybackInfo playbackInfo)
+                throws RemoteException {
+            if (oldPlayer == null) {
+                // Ignore player changed callback called in initialization.
+                return;
+            }
+            MediaSessionImpl sessionImpl = mSessionImpl.get();
+            if (sessionImpl == null) {
+                return;
+            }
+            // Tells the playlist change first, so current media item index change notification
+            // can point to the valid current media item in the playlist.
+            List<MediaItem> oldPlaylist = oldPlayer.getPlaylist();
+            final List<MediaItem> newPlaylist = player.getPlaylist();
+            if (!ObjectsCompat.equals(oldPlaylist, newPlaylist)) {
+                onPlaylistChanged(seq,
+                        newPlaylist, player.getPlaylistMetadata(),
+                        player.getCurrentMediaItemIndex(),
+                        player.getPreviousMediaItemIndex(),
+                        player.getNextMediaItemIndex());
+            } else {
+                MediaMetadata oldMetadata = oldPlayer.getPlaylistMetadata();
+                final MediaMetadata newMetadata = player.getPlaylistMetadata();
+                if (!ObjectsCompat.equals(oldMetadata, newMetadata)) {
+                    onPlaylistMetadataChanged(seq, newMetadata);
+                }
+            }
+            MediaItem oldCurrentItem = oldPlayer.getCurrentMediaItem();
+            final MediaItem newCurrentItem = player.getCurrentMediaItem();
+            if (!ObjectsCompat.equals(oldCurrentItem, newCurrentItem)) {
+                onCurrentMediaItemChanged(seq, newCurrentItem,
+                        player.getCurrentMediaItemIndex(), player.getPreviousMediaItemIndex(),
+                        player.getNextMediaItemIndex());
+            }
+            final @SessionPlayer.RepeatMode int repeatMode = player.getRepeatMode();
+            if (oldPlayer.getRepeatMode() != repeatMode) {
+                onRepeatModeChanged(seq, repeatMode, player.getCurrentMediaItemIndex(),
+                        player.getPreviousMediaItemIndex(), player.getNextMediaItemIndex());
+            }
+            final @SessionPlayer.ShuffleMode int shuffleMode = player.getShuffleMode();
+            if (oldPlayer.getShuffleMode() != shuffleMode) {
+                onShuffleModeChanged(seq, shuffleMode, player.getCurrentMediaItemIndex(),
+                        player.getPreviousMediaItemIndex(), player.getNextMediaItemIndex());
+            }
+
+            // Always forcefully send the player state and buffered state to send the current
+            // position and buffered position.
+            final long currentTimeMs = SystemClock.elapsedRealtime();
+            final long positionMs = player.getCurrentPosition();
+            final int playerState = player.getPlayerState();
+            onPlayerStateChanged(seq, currentTimeMs, positionMs, playerState);
+
+            final MediaItem item = player.getCurrentMediaItem();
+            if (item != null) {
+                final int bufferingState = player.getBufferingState();
+                final long bufferedPositionMs = player.getBufferedPosition();
+                onBufferingStateChanged(seq, item, bufferingState, bufferedPositionMs,
+                        SystemClock.elapsedRealtime(), player.getCurrentPosition());
+            }
+            final float speed = player.getPlaybackSpeed();
+            if (speed != oldPlayer.getPlaybackSpeed()) {
+                onPlaybackSpeedChanged(seq, currentTimeMs, positionMs, speed);
+            }
+
+            if (!ObjectsCompat.equals(oldPlaybackInfo, playbackInfo)) {
+                onPlaybackInfoChanged(seq, playbackInfo);
+            }
         }
 
         @Override

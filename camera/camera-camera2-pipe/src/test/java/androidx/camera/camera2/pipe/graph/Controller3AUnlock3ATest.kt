@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -48,6 +49,7 @@ internal class Controller3AUnlock3ATest {
     private val listener3A = Listener3A()
     private val controller3A = Controller3A(graphProcessor, graphState3A, listener3A)
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testUnlockAe(): Unit = runBlocking {
         initGraphProcessor()
@@ -107,10 +109,11 @@ internal class Controller3AUnlock3ATest {
         }
 
         val result3A = result.await()
-        Truth.assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        Truth.assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         Truth.assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testUnlockAf(): Unit = runBlocking {
         initGraphProcessor()
@@ -168,10 +171,11 @@ internal class Controller3AUnlock3ATest {
         }
 
         val result3A = result.await()
-        Truth.assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        Truth.assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         Truth.assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testUnlockAwb(): Unit = runBlocking {
         initGraphProcessor()
@@ -231,10 +235,11 @@ internal class Controller3AUnlock3ATest {
         }
 
         val result3A = result.await()
-        Truth.assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        Truth.assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         Truth.assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testUnlockAeAf(): Unit = runBlocking {
         initGraphProcessor()
@@ -298,7 +303,7 @@ internal class Controller3AUnlock3ATest {
         }
 
         val result3A = result.await()
-        Truth.assertThat(result3A.frameNumber.value).isEqualTo(101L)
+        Truth.assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         Truth.assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 

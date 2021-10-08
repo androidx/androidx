@@ -24,7 +24,7 @@ import org.mockito.Mockito
 /**
  * A dynamic install manager used for testing.
  */
-class TestDynamicInstallManager :
+public class TestDynamicInstallManager :
     DynamicInstallManager(
         Mockito.spy(Context::class.java),
         Mockito.mock(SplitInstallManager::class.java)

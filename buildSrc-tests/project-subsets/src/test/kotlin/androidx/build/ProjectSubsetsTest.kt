@@ -56,9 +56,15 @@ public class ProjectSubsetsTest {
      * Validates a specific project subset
      */
     fun validateSubset(name: String) {
+        val projectDir = File("../..").normalize()
+        var outDir = System.getenv("OUT_DIR")
+        if (outDir == null || outDir == "") {
+            outDir = File(projectDir, "../../out").normalize().toString()
+        }
         GradleRunner.create()
-            .withProjectDir(File("../..").normalize())
+            .withProjectDir(projectDir)
             .withArguments("-Pandroidx.projects=$name", "tasks")
+            .withTestKitDir(File(outDir, ".gradle-testkit"))
             .build(); // fails the test if the build fails
     }
 }

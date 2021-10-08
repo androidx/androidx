@@ -226,15 +226,15 @@ public class PathInterpolator implements Interpolator {
      * as the x coordinate. Values less than 0 will always return 0 and values greater
      * than 1 will always return 1.
      *
-     * @param t Treated as the x coordinate along the line.
+     * @param input Treated as the x coordinate along the line.
      * @return The y coordinate of the Path along the line where x = <code>t</code>.
      * @see Interpolator#getInterpolation(float)
      */
     @Override
-    public float getInterpolation(@FloatRange(from = 0, to = 1) float t) {
-        if (t <= 0) {
+    public float getInterpolation(@FloatRange(from = 0, to = 1) float input) {
+        if (input <= 0) {
             return 0;
-        } else if (t >= 1) {
+        } else if (input >= 1) {
             return 1;
         }
         // Do a binary search for the correct x to interpolate between.
@@ -243,7 +243,7 @@ public class PathInterpolator implements Interpolator {
 
         while (endIndex - startIndex > 1) {
             int midIndex = (startIndex + endIndex) / 2;
-            if (t < getXAtIndex(midIndex)) {
+            if (input < getXAtIndex(midIndex)) {
                 endIndex = midIndex;
             } else {
                 startIndex = midIndex;
@@ -255,7 +255,7 @@ public class PathInterpolator implements Interpolator {
             return getYAtIndex(startIndex);
         }
 
-        float tInRange = t - getXAtIndex(startIndex);
+        float tInRange = input - getXAtIndex(startIndex);
         float fraction = tInRange / xRange;
 
         float startY = getYAtIndex(startIndex);

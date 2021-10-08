@@ -30,6 +30,11 @@
                 app:destination="@+id/simple_child_second_test"
                 app:popUpTo="@id/simple_child_start_test"
                 app:popUpToInclusive="true"/>
+            <action
+                android:id="@+id/navigate_pop_base"
+                app:destination="@+id/deep_link_child_start"
+                app:popUpTo="@id/nav_multi_module_base"
+                app:popUpToInclusive="true"/>
         </test>
         <test android:id="@+id/simple_child_second_test"/>
     </navigation>
@@ -40,6 +45,11 @@
         <test android:id="@+id/deep_link_child_start_test">
             <action android:id="@+id/deep_link_child_second"
                 app:destination="@+id/deep_link_child_second_test" />
+            <action
+                android:id="@+id/navigate_start_pop_base"
+                app:destination="@+id/simple_child_start"
+                app:popUpTo="@id/nav_multi_module_base"
+                app:popUpToInclusive="true"/>
         </test>
 
         <test android:id="@+id/deep_link_child_second_test">

@@ -22,8 +22,8 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
@@ -47,8 +47,11 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.sqrt
 
 /**
- * A TopAppBar displays information and actions relating to the current screen and is placed at the
- * top of the screen.
+ * <a href="https://material.io/components/app-bars-top" class="external" target="_blank">Material Design top app bar</a>.
+ *
+ * The top app bar displays information and actions relating to the current screen.
+ *
+ * ![App bars: top image](https://developer.android.com/images/reference/androidx/compose/material/app-bars-top.png)
  *
  * This TopAppBar has slots for a title, navigation icon, and actions. Note that the [title] slot
  * is inset from the start according to spec - for custom use cases such as horizontally
@@ -123,11 +126,19 @@ fun TopAppBar(
 }
 
 /**
- * A TopAppBar displays information and actions relating to the current screen and is placed at the
- * top of the screen.
+ * <a href="https://material.io/components/app-bars-top" class="external" target="_blank">Material Design top app bar</a>.
+ *
+ * The top app bar displays information and actions relating to the current screen.
+ *
+ * ![App bars: top image](https://developer.android.com/images/reference/androidx/compose/material/app-bars-top.png)
  *
  * This TopAppBar has no pre-defined slots for content, allowing you to customize the layout of
- * content inside.
+ * content inside. See the other TopAppBar overload for a TopAppBar that has opinionated slots
+ * for title, navigation icon, and trailing actions.
+ *
+ * The [LocalContentAlpha] inside this TopAppBar is [ContentAlpha.medium] - this is the default
+ * for trailing and overflow icons. It is recommended that any text, and leading icons at the
+ * start of the TopAppBar use [ContentAlpha.high] instead.
  *
  * @param modifier The [Modifier] to be applied to this TopAppBar
  * @param backgroundColor The background color for the TopAppBar. Use [Color.Transparent] to have
@@ -161,12 +172,27 @@ fun TopAppBar(
 }
 
 /**
- * A BottomAppBar displays actions relating to the current screen and is placed at the bottom of
- * the screen. It can also optionally display a [FloatingActionButton], which is either overlaid
+ * <a href="https://material.io/components/app-bars-bottom" class="external" target="_blank">Material Design bottom app bar</a>.
+ *
+ * A bottom app bar displays navigation and key actions at the bottom of screens.
+ *
+ * ![App bars: bottom image](https://developer.android.com/images/reference/androidx/compose/material/app-bars-bottom.png)
+ *
+ * It can also optionally display a [FloatingActionButton], which is either overlaid
  * on top of the BottomAppBar, or inset, carving a cutout in the BottomAppBar.
  *
  * See [BottomAppBar anatomy](https://material.io/components/app-bars-bottom/#anatomy) for the
  * recommended content depending on the [FloatingActionButton] position.
+ *
+ * Note that when you pass a non-null [cutoutShape] this makes the AppBar shape concave. The shadows
+ * for such shapes will not be drawn on Android versions less than 10.
+ *
+ * The [LocalContentAlpha] inside a BottomAppBar is [ContentAlpha.medium] - this is the default
+ * for trailing and overflow icons. It is recommended that any leading icons at the start of the
+ * BottomAppBar, such as a menu icon, use [ContentAlpha.high] instead. This is demonstrated in the
+ * sample below.
+ *
+ * Also see [BottomNavigation].
  *
  * @sample androidx.compose.material.samples.SimpleBottomAppBar
  *
@@ -201,7 +227,6 @@ fun BottomAppBar(
     } else {
         RectangleShape
     }
-    // TODO: b/150609566 clarify emphasis for children
     AppBar(
         backgroundColor,
         contentColor,
@@ -260,7 +285,7 @@ private data class BottomAppBarCutoutShape(
         val path = Path().apply {
             addCutoutShape(layoutDirection, density)
             // Subtract this path from the bounding rectangle
-            op(boundingRectangle, this, PathOperation.difference)
+            op(boundingRectangle, this, PathOperation.Difference)
         }
         return Outline.Generic(path)
     }
@@ -470,7 +495,8 @@ internal fun calculateRoundedEdgeIntercept(
 }
 
 /**
- * An empty App Bar that expands to the parent's width.
+ * An empty App Bar that expands to the parent's width. The default [LocalContentAlpha] is
+ * [ContentAlpha.medium].
  *
  * For an App Bar that follows Material spec guidelines to be placed on the top of the screen, see
  * [TopAppBar].
@@ -492,14 +518,16 @@ private fun AppBar(
         shape = shape,
         modifier = modifier
     ) {
-        Row(
-            Modifier.fillMaxWidth()
-                .padding(contentPadding)
-                .height(AppBarHeight),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
-            content = content
-        )
+        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+            Row(
+                Modifier.fillMaxWidth()
+                    .padding(contentPadding)
+                    .height(AppBarHeight),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+                content = content
+            )
+        }
     }
 }
 

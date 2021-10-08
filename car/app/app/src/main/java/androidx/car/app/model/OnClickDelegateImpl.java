@@ -18,14 +18,18 @@ package androidx.car.app.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import static java.util.Objects.requireNonNull;
+
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.utils.RemoteUtils;
 
 /**
@@ -34,11 +38,13 @@ import androidx.car.app.utils.RemoteUtils;
  * @hide
  */
 @RestrictTo(LIBRARY)
+@CarProtocol
 public class OnClickDelegateImpl implements OnClickDelegate {
 
     @Keep
     private final boolean mIsParkedOnly;
     @Keep
+    @Nullable
     private final IOnClickListener mListener;
 
     /**
@@ -52,7 +58,7 @@ public class OnClickDelegateImpl implements OnClickDelegate {
     @Override
     public void sendClick(@NonNull OnDoneCallback callback) {
         try {
-            mListener.onClick(RemoteUtils.createOnDoneCallbackStub(callback));
+            requireNonNull(mListener).onClick(RemoteUtils.createOnDoneCallbackStub(callback));
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -89,7 +95,10 @@ public class OnClickDelegateImpl implements OnClickDelegate {
 
         @Override
         public void onClick(IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(mOnClickListener::onClick, callback, "onClick");
+            RemoteUtils.dispatchCallFromHost(callback, "onClick", () -> {
+                mOnClickListener.onClick();
+                return null;
+            });
         }
     }
 }

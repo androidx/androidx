@@ -38,6 +38,7 @@ import androidx.annotation.RestrictTo;
  * @param <T> Should be specified as the root class (e.g. class X extends
  *           ContentProviderWithCallbacks\<X>)
  */
+@SuppressWarnings("HiddenSuperclass")
 public abstract class ContentProviderWithCallbacks<T extends ContentProviderWithCallbacks> extends
         ContentProvider implements CallbackReceiver<T>, CallbackBase<T> {
 

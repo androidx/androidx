@@ -16,11 +16,15 @@
 
 package androidx.camera.video;
 
+import android.media.AudioFormat;
+import android.media.MediaRecorder;
 import android.util.Range;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 
 import com.google.auto.value.AutoValue;
 
@@ -28,10 +32,27 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Audio specification that is options to config audio encoding.
+ * Audio specification that is options to config audio source and encoding.
+ * @hide
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+@RestrictTo(Scope.LIBRARY)
 @AutoValue
 public abstract class AudioSpec {
+
+    /**
+     * The audio source format representing no preference for audio source format.
+     */
+    static final int SOURCE_FORMAT_AUTO = -1;
+    /**
+     * The PCM 16 bit per sample audio source format. Guaranteed to be supported by all devices.
+     */
+    static final int SOURCE_FORMAT_PCM_16BIT = AudioFormat.ENCODING_PCM_16BIT;
+
+    @IntDef({SOURCE_FORMAT_AUTO, SOURCE_FORMAT_PCM_16BIT})
+    @Retention(RetentionPolicy.SOURCE)
+    @interface SourceFormat {
+    }
 
     /**
      * Allows the audio source to choose the appropriate number of channels.
@@ -60,11 +81,29 @@ public abstract class AudioSpec {
     }
 
     /**
+     * The audio source representing no preference for audio source.
+     */
+    public static final int SOURCE_AUTO = -1;
+    /**
+     * Microphone audio source tuned for video recording, with the same orientation as the camera
+     * if available.
+     */
+    public static final int SOURCE_CAMCORDER = MediaRecorder.AudioSource.CAMCORDER;
+
+    /** @hide */
+    @IntDef({SOURCE_AUTO, SOURCE_CAMCORDER})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public @interface Source {
+    }
+
+    /**
      * Bitrate range representing no preference for bitrate.
      *
      * <p>Using this value with {@link AudioSpec.Builder#setBitrate(Range)} informs the device it
      * should choose any appropriate bitrate given the device and codec constraints.
      */
+    @NonNull
     public static final Range<Integer> BITRATE_RANGE_AUTO = new Range<>(0,
             Integer.MAX_VALUE);
 
@@ -74,6 +113,7 @@ public abstract class AudioSpec {
      * <p>Using this value with {@link AudioSpec.Builder#setSampleRate(Range)} informs the device it
      * should choose any appropriate sample rate given the device and codec constraints.
      */
+    @NonNull
     public static final Range<Integer> SAMPLE_RATE_RANGE_AUTO = new Range<>(0,
             Integer.MAX_VALUE);
 
@@ -85,6 +125,8 @@ public abstract class AudioSpec {
     @NonNull
     public static Builder builder() {
         return new AutoValue_AudioSpec.Builder()
+                .setSourceFormat(SOURCE_FORMAT_AUTO)
+                .setSource(SOURCE_AUTO)
                 .setChannelCount(CHANNEL_COUNT_AUTO)
                 .setBitrate(BITRATE_RANGE_AUTO)
                 .setSampleRate(SAMPLE_RATE_RANGE_AUTO);
@@ -94,6 +136,17 @@ public abstract class AudioSpec {
     @NonNull
     public abstract Range<Integer> getBitrate();
 
+    // Configurations for AudioRecord.
+    // *********************************************************************************************
+
+    /** Gets the audio format. */
+    @SourceFormat
+    abstract int getSourceFormat();
+
+    /** Gets the audio source. */
+    @Source
+    public abstract int getSource();
+
     /** Gets the sample bitrate. */
     @NonNull
     public abstract Range<Integer> getSampleRate();
@@ -102,13 +155,20 @@ public abstract class AudioSpec {
     @ChannelCount
     public abstract int getChannelCount();
 
+    // *********************************************************************************************
+
     /**
-     * Returns a {@link AudioSpec.Builder} instance with the same property values as this instance.
+     * Returns a {@link Builder} instance with the same property values as this instance.
      */
     @NonNull
-    public abstract AudioSpec.Builder toBuilder();
+    public abstract Builder toBuilder();
 
-    /** The builder of the {@link AudioSpec}. */
+    /**
+     * The builder of the {@link AudioSpec}.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    @SuppressWarnings("StaticFinalBuilder")
     @AutoValue.Builder
     public abstract static class Builder {
         // Restrict construction to same package
@@ -122,6 +182,30 @@ public abstract class AudioSpec {
          */
         @NonNull
         public abstract Builder setBitrate(@NonNull Range<Integer> bitrate);
+
+        // Configurations for AudioRecord.
+        // *****************************************************************************************
+
+        /**
+         * Sets the audio source format.
+         *
+         * <p>Available values for source format are {@link #SOURCE_FORMAT_AUTO} and
+         * {@link #SOURCE_FORMAT_PCM_16BIT}.
+         *
+         * <p>If not set, defaults to {@link #SOURCE_FORMAT_AUTO}.
+         */
+        @NonNull
+        abstract Builder setSourceFormat(@SourceFormat int audioFormat);
+
+        /**
+         * Sets the audio source.
+         *
+         * <p>Available values for source are {@link #SOURCE_AUTO} and {@link #SOURCE_CAMCORDER}.
+         *
+         * <p>If not set, defaults to {@link #SOURCE_AUTO}.
+         */
+        @NonNull
+        public abstract Builder setSource(@Source int source);
 
         /**
          * Sets the desired range of sample rates to be used by the encoder.
@@ -142,6 +226,8 @@ public abstract class AudioSpec {
          */
         @NonNull
         public abstract Builder setChannelCount(@ChannelCount int channelCount);
+
+        // *****************************************************************************************
 
         /** Builds the AudioSpec instance. */
         @NonNull

@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 
 import java.util.Objects;
 
@@ -57,6 +58,7 @@ import java.util.Objects;
  * string.setSpan(ForegroundCarColorSpan.create(CarColor.BLUE), 0, 1, SPAN_EXCLUSIVE_EXCLUSIVE);
  * }</pre>
  */
+@CarProtocol
 public final class DistanceSpan extends CarSpan {
     @Nullable
     @Keep
@@ -69,12 +71,11 @@ public final class DistanceSpan extends CarSpan {
     }
 
     /**
-     * Returns the {@link Distance} instance associated with this span or {@code null} if not
-     * set.
+     * Returns the {@link Distance} instance associated with this span.
      */
-    @Nullable
+    @NonNull
     public Distance getDistance() {
-        return mDistance;
+        return requireNonNull(mDistance);
     }
 
     @NonNull

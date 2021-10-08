@@ -20,27 +20,25 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
-import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.IndicationInstance
+import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.isUnspecified
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -81,7 +79,7 @@ public fun rememberRipple(
 ): Indication {
     val colorState = rememberUpdatedState(color)
     return remember(bounded, radius) {
-        Ripple(bounded, radius, colorState)
+        PlatformRipple(bounded, radius, colorState)
     }
 }
 
@@ -101,15 +99,19 @@ public fun rememberRipple(
  *
  * You can also explicitly create a Ripple and provide it to components in order to change the
  * parameters from the default, such as to create an unbounded ripple with a fixed size.
+ *
+ * Ripple is provided on different platforms using [PlatformRipple].
  */
 @Stable
-private class Ripple(
+internal abstract class Ripple(
     private val bounded: Boolean,
     private val radius: Dp,
-    private val color: State<Color>,
+    private val color: State<Color>
 ) : Indication {
     @Composable
-    override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
+    final override fun rememberUpdatedInstance(
+        interactionSource: InteractionSource
+    ): IndicationInstance {
         val theme = LocalRippleTheme.current
         val color = rememberUpdatedState(
             if (color.value.isSpecified) {
@@ -119,32 +121,40 @@ private class Ripple(
             }
         )
         val rippleAlpha = rememberUpdatedState(theme.rippleAlpha())
-        val instance = remember(interactionSource, this) {
-            RippleIndicationInstance(bounded, radius, color, rippleAlpha)
-        }
-        LaunchedEffect(interactionSource, instance) {
+
+        val instance = rememberUpdatedRippleInstance(
+            interactionSource,
+            bounded,
+            radius,
+            color,
+            rippleAlpha
+        )
+
+        LaunchedEffect(instance, interactionSource) {
             interactionSource.interactions.collect { interaction ->
                 when (interaction) {
-                    is PressInteraction.Press -> {
-                        launch {
-                            instance.addRipple(interaction)
-                        }
-                    }
-                    is PressInteraction.Release -> {
-                        instance.removeRipple(interaction.press)
-                    }
-                    is PressInteraction.Cancel -> {
-                        instance.removeRipple(interaction.press)
-                    }
-                    else -> instance.updateStateLayer(interaction)
+                    is PressInteraction.Press -> instance.addRipple(interaction, this)
+                    is PressInteraction.Release -> instance.removeRipple(interaction.press)
+                    is PressInteraction.Cancel -> instance.removeRipple(interaction.press)
+                    else -> instance.updateStateLayer(interaction, this)
                 }
             }
         }
+
         return instance
     }
 
-    // to force stability on this indication we need equals and hashcode, there's no value in
-    // making this class to be "data class"
+    @Composable
+    abstract fun rememberUpdatedRippleInstance(
+        interactionSource: InteractionSource,
+        bounded: Boolean,
+        radius: Dp,
+        color: State<Color>,
+        rippleAlpha: State<RippleAlpha>
+    ): RippleIndicationInstance
+
+    // To force stability on this Ripple we need equals and hashcode, there's no value in
+    // making this class to be a `data class`
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Ripple) return false
@@ -164,67 +174,40 @@ private class Ripple(
     }
 }
 
-private class RippleIndicationInstance constructor(
-    private val bounded: Boolean,
-    private val radius: Dp,
-    private val color: State<Color>,
-    private val rippleAlpha: State<RippleAlpha>
-) : RememberObserver, IndicationInstance {
+/**
+ * Platform-specific implementation of [Ripple]. This is needed as expect classes cannot
+ * (currently) have default implementations, otherwise we would make [Ripple] the expect class.
+ */
+@Stable
+internal expect class PlatformRipple(
+    bounded: Boolean,
+    radius: Dp,
+    color: State<Color>
+) : Ripple
 
+/**
+ * Abstract [IndicationInstance] that provides common functionality used by [PlatformRipple]
+ * implementations. Implementing classes should call [drawStateLayer] to draw the [StateLayer], so
+ * they only need to handle showing the ripple effect when pressed, and not other [Interaction]s.
+ */
+internal abstract class RippleIndicationInstance(
+    bounded: Boolean,
+    rippleAlpha: State<RippleAlpha>
+) : IndicationInstance {
     private val stateLayer = StateLayer(bounded, rippleAlpha)
 
-    private val ripples = mutableStateMapOf<PressInteraction.Press, RippleAnimation>()
+    abstract fun addRipple(interaction: PressInteraction.Press, scope: CoroutineScope)
 
-    override fun ContentDrawScope.drawIndication() {
-        val color = color.value
-        drawContent()
+    abstract fun removeRipple(interaction: PressInteraction.Press)
+
+    internal fun updateStateLayer(interaction: Interaction, scope: CoroutineScope) {
+        stateLayer.handleInteraction(interaction, scope)
+    }
+
+    fun DrawScope.drawStateLayer(radius: Dp, color: Color) {
         with(stateLayer) {
             drawStateLayer(radius, color)
         }
-        drawRipples(color)
-    }
-
-    suspend fun addRipple(interaction: PressInteraction.Press) {
-        // Finish existing ripples
-        ripples.forEach { (_, ripple) -> ripple.finish() }
-        val origin = if (bounded) interaction.pressPosition else null
-        val rippleAnimation = RippleAnimation(
-            origin = origin,
-            radius = radius,
-            bounded = bounded
-        )
-        ripples[interaction] = rippleAnimation
-        rippleAnimation.animate()
-        ripples.remove(interaction)
-    }
-
-    suspend fun updateStateLayer(interaction: Interaction) {
-        stateLayer.handleInteraction(interaction)
-    }
-
-    fun removeRipple(interaction: PressInteraction.Press) {
-        ripples[interaction]?.finish()
-    }
-
-    private fun DrawScope.drawRipples(color: Color) {
-        ripples.forEach { (_, ripple) ->
-            with(ripple) {
-                val alpha = rippleAlpha.value.pressedAlpha
-                if (alpha != 0f) {
-                    draw(color.copy(alpha = alpha))
-                }
-            }
-        }
-    }
-
-    override fun onRemembered() {}
-
-    override fun onForgotten() {
-        ripples.clear()
-    }
-
-    override fun onAbandoned() {
-        ripples.clear()
     }
 }
 
@@ -262,7 +245,7 @@ private class StateLayer(
     private val interactions: MutableList<Interaction> = mutableListOf()
     private var currentInteraction: Interaction? = null
 
-    suspend fun handleInteraction(interaction: Interaction) {
+    fun handleInteraction(interaction: Interaction, scope: CoroutineScope) {
         // TODO: handle hover / focus states
         when (interaction) {
             is DragInteraction.Start -> {
@@ -288,11 +271,15 @@ private class StateLayer(
                 }
                 val incomingAnimationSpec = incomingStateLayerAnimationSpecFor(newInteraction)
 
-                animatedAlpha.animateTo(targetAlpha, incomingAnimationSpec)
+                scope.launch {
+                    animatedAlpha.animateTo(targetAlpha, incomingAnimationSpec)
+                }
             } else {
                 val outgoingAnimationSpec = outgoingStateLayerAnimationSpecFor(currentInteraction)
 
-                animatedAlpha.animateTo(0f, outgoingAnimationSpec)
+                scope.launch {
+                    animatedAlpha.animateTo(0f, outgoingAnimationSpec)
+                }
             }
             currentInteraction = newInteraction
         }

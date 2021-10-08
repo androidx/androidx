@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
@@ -26,13 +29,17 @@ import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraState
 import androidx.camera.core.ExposureState
+import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ZoomState
+import androidx.camera.core.impl.CamcorderProfileProvider
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import java.util.concurrent.Executor
 import javax.inject.Inject
 
@@ -42,7 +49,7 @@ internal val defaultQuirks = Quirks(emptyList())
  * Adapt the [CameraInfoInternal] interface to [CameraPipe].
  */
 @SuppressLint(
-    "UnsafeExperimentalUsageError" // Suppressed due to experimental ExposureState
+    "UnsafeOptInUsageError" // Suppressed due to experimental ExposureState
 )
 @CameraScope
 class CameraInfoAdapter @Inject constructor(
@@ -81,8 +88,13 @@ class CameraInfoAdapter @Inject constructor(
     override fun getZoomState(): LiveData<ZoomState> = cameraState.zoomStateLiveData
     override fun getTorchState(): LiveData<Int> = cameraState.torchStateLiveData
 
-    @SuppressLint("UnsafeExperimentalUsageError")
-    override fun getExposureState(): ExposureState = cameraState.exposureStateLiveData.value!!
+    @SuppressLint("UnsafeOptInUsageError")
+    override fun getExposureState(): ExposureState = cameraState.exposureState
+
+    override fun getCameraState(): LiveData<CameraState> {
+        Log.warn { "TODO: CameraState is not yet supported." }
+        return MutableLiveData(CameraState.create(CameraState.Type.CLOSED))
+    }
 
     override fun addSessionCaptureCallback(executor: Executor, callback: CameraCaptureCallback) =
         cameraCallbackMap.addCaptureCallback(callback, executor)
@@ -91,10 +103,21 @@ class CameraInfoAdapter @Inject constructor(
         cameraCallbackMap.removeCaptureCallback(callback)
 
     override fun getImplementationType(): String = "CameraPipe"
+
+    override fun getCamcorderProfileProvider(): CamcorderProfileProvider {
+        Log.warn { "TODO: CamcorderProfileProvider is not yet supported." }
+        return CamcorderProfileProvider.EMPTY
+    }
+
     override fun toString(): String = "CameraInfoAdapter<$cameraConfig.cameraId>"
 
     override fun getCameraQuirks(): Quirks {
         Log.warn { "TODO: Quirks are not yet supported." }
         return defaultQuirks
+    }
+
+    override fun isFocusMeteringSupported(action: FocusMeteringAction): Boolean {
+        Log.warn { "TODO: isFocusAndMeteringSupported are not yet supported." }
+        return false
     }
 }

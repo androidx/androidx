@@ -27,9 +27,12 @@ import java.lang.annotation.Target;
 /**
  * Denotes that the annotated method is the getter for a resources-backed property that should be
  * shown in Android Studio's inspection tools.
+ *
+ * @deprecated Replaced by the {@code androidx.resourceinpsection} package.
  */
 @Target({METHOD})
 @Retention(SOURCE)
+@Deprecated
 public @interface InspectableProperty {
     /**
      * The name of the property.

@@ -22,6 +22,8 @@ import static androidx.media2.session.MediaUtils.TRANSACTION_SIZE_LIMIT_IN_BYTES
 import static androidx.media2.session.SessionCommand.COMMAND_VERSION_CURRENT;
 import static androidx.media2.session.SessionResult.RESULT_SUCCESS;
 
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
@@ -45,8 +47,11 @@ import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaSessionManager;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
+import androidx.media.VolumeProviderCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
+import androidx.media2.common.Rating;
+import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.PlayerResult;
 import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.SubtitleData;
@@ -58,13 +63,17 @@ import androidx.media2.session.MediaSession.ControllerCb;
 import androidx.media2.session.MediaSession.ControllerInfo;
 import androidx.media2.session.SessionCommand.CommandCode;
 
+import java.io.Closeable;
 import java.util.List;
 import java.util.Set;
 
 // Getting the commands from MediaControllerCompat'
-class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
+class MediaSessionLegacyStub extends MediaSessionCompat.Callback implements Closeable {
 
     private static final String TAG = "MediaSessionLegacyStub";
+    private static final String DEFAULT_MEDIA_SESSION_TAG_PREFIX = "androidx.media2.session.id";
+    private static final String DEFAULT_MEDIA_SESSION_TAG_DELIM = ".";
+
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     // Used to call onDisconnected() after the timeout.
@@ -92,11 +101,15 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     final Context mContext;
     final ControllerCb mControllerLegacyCbForBroadcast;
     final ConnectionTimeoutHandler mConnectionTimeoutHandler;
+    final MediaSessionCompat mSessionCompat;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     volatile long mConnectionTimeoutMs;
 
-    MediaSessionLegacyStub(MediaSession.MediaSessionImpl session, Handler handler) {
+    private final Handler mHandler;
+
+    MediaSessionLegacyStub(MediaSession.MediaSessionImpl session,
+            ComponentName mbrComponent, PendingIntent mediaButtonIntent, Handler handler) {
         mSessionImpl = session;
         mContext = mSessionImpl.getContext();
         mSessionManager = MediaSessionManager.getSessionManager(mContext);
@@ -104,6 +117,37 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         mConnectionTimeoutHandler = new ConnectionTimeoutHandler(handler.getLooper());
         mConnectedControllersManager = new ConnectedControllersManager<>(session);
         mConnectionTimeoutMs = DEFAULT_CONNECTION_TIMEOUT_MS;
+        mHandler = handler;
+
+        String sessionCompatId = TextUtils.join(DEFAULT_MEDIA_SESSION_TAG_DELIM,
+                new String[] {DEFAULT_MEDIA_SESSION_TAG_PREFIX, session.getId()});
+        mSessionCompat = new MediaSessionCompat(mContext,
+                sessionCompatId,
+                mbrComponent,
+                mediaButtonIntent, session.getToken().getExtras(),
+                session.getToken());
+        mSessionCompat.setSessionActivity(session.getSessionActivity());
+        mSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
+        // Note: Rest of mSessionCompat initialization will be done via
+        // {@link ControllerLegacyCbForBroadcast#onPlayerChanged} and {@link #start}, called
+        // indirectly by {@link MediaSessionImplBase#MediaSessionImplBase}.
+    }
+
+    /**
+     * Starts to receive and send commands.
+     */
+    public void start() {
+        mSessionCompat.setCallback(this, mHandler);
+        mSessionCompat.setActive(true);
+    }
+
+    @Override
+    public void close() {
+        mSessionCompat.release();
+    }
+
+    public MediaSessionCompat getSessionCompat() {
+        return mSessionCompat;
     }
 
     @Override
@@ -127,7 +171,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     @Override
     public void onPrepare() {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_PREPARE, new SessionTask() {
-            // TODO(b/138091975) Do not ignore the returned Future.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
@@ -161,7 +204,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     @Override
     public void onPrepareFromUri(final Uri mediaUri, final Bundle extras) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI, new SessionTask() {
-            // TODO(b/138091975) Do not ignore the returned Future.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
@@ -176,7 +218,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     @Override
     public void onPlay() {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_PLAY, new SessionTask() {
-            // TODO(b/138091975) Do not ignore the returned Future.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
@@ -210,7 +251,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     @Override
     public void onPlayFromUri(final Uri mediaUri, final Bundle extras) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI, new SessionTask() {
-            // TODO(b/138091975) Do not ignore the returned Future.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
@@ -225,7 +265,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     @Override
     public void onPause() {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_PAUSE, new SessionTask() {
-            // TODO(b/138091975) Do not ignore the returned Future.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
@@ -244,7 +283,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
             public void run(ControllerInfo controller) throws RemoteException {
                 handleTaskOnExecutor(controller, null,
                         SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO, new SessionTask() {
-                            // TODO(b/138091975) Do not ignore the returned Future.
                             @SuppressWarnings("FutureReturnValueIgnored")
                             @Override
                             public void run(ControllerInfo controller) throws RemoteException {
@@ -259,7 +297,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     @Override
     public void onSeekTo(final long pos) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO, new SessionTask() {
-            // TODO(b/138091975) Do not ignore the returned Future.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
@@ -272,7 +309,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     public void onSkipToNext() {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM,
                 new SessionTask() {
-                    // TODO(b/138091975) Do not ignore the returned Future.
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -285,7 +321,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     public void onSkipToPrevious() {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM,
                 new SessionTask() {
-                    // TODO(b/138091975) Do not ignore the returned Future.
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -297,7 +332,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     @Override
     public void onSetPlaybackSpeed(final float speed) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SET_SPEED, new SessionTask() {
-            // TODO(b/138091975) Do not ignore the returned Future.
             @SuppressWarnings("FutureReturnValueIgnored")
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
@@ -310,7 +344,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     public void onSkipToQueueItem(final long queueId) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM,
                 new SessionTask() {
-                    // TODO(b/138091975) Do not ignore the returned Future.
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -388,7 +421,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     public void onSetRepeatMode(final int repeatMode) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SET_REPEAT_MODE,
                 new SessionTask() {
-                    // TODO(b/138091975) Do not ignore the returned Future.
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -401,7 +433,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     public void onSetShuffleMode(final int shuffleMode) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE,
                 new SessionTask() {
-                    // TODO(b/138091975) Do not ignore the returned Future.
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -422,7 +453,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
                 new SessionTask() {
-                    // TODO(b/138091975) Do not ignore the returned Future.
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -445,7 +475,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
                 new SessionTask() {
-                    // TODO(b/138091975) Do not ignore the returned Future.
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -470,7 +499,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     public void onRemoveQueueItemAt(final int index) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
                 new SessionTask() {
-                    // TODO(b/138091975) Do not ignore the returned Future.
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
@@ -508,7 +536,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
             return;
         }
         final RemoteUserInfo remoteUserInfo =
-                mSessionImpl.getSessionCompat().getCurrentControllerInfo();
+                mSessionCompat.getCurrentControllerInfo();
         if (remoteUserInfo == null) {
             Log.d(TAG, "RemoteUserInfo is null, ignoring command=" + sessionCommand
                     + ", commandCode=" + commandCode);
@@ -596,6 +624,48 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         mConnectionTimeoutMs = timeoutMs;
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static VolumeProviderCompat createVolumeProviderCompat(
+            @NonNull RemoteSessionPlayer player) {
+        return new VolumeProviderCompat(player.getVolumeControlType(), player.getMaxVolume(),
+                player.getVolume()) {
+            @SuppressWarnings("FutureReturnValueIgnored")
+            @Override
+            public void onSetVolumeTo(int volume) {
+                player.setVolume(volume);
+            }
+
+            @SuppressWarnings("FutureReturnValueIgnored")
+            @Override
+            public void onAdjustVolume(int direction) {
+                player.adjustVolume(direction);
+            }
+        };
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static int getRatingType(@Nullable Rating rating) {
+        if (rating instanceof HeartRating) {
+            return RatingCompat.RATING_HEART;
+        } else if (rating instanceof ThumbRating) {
+            return RatingCompat.RATING_THUMB_UP_DOWN;
+        } else if (rating instanceof StarRating) {
+            switch (((StarRating) rating).getMaxStars()) {
+                case 3:
+                    return RatingCompat.RATING_3_STARS;
+                case 4:
+                    return RatingCompat.RATING_4_STARS;
+                case 5:
+                    return RatingCompat.RATING_5_STARS;
+                default:
+                    return RatingCompat.RATING_NONE;
+            }
+        } else if (rating instanceof PercentageRating) {
+            return RatingCompat.RATING_PERCENTAGE;
+        }
+        return RatingCompat.RATING_NONE;
+    }
+
     @FunctionalInterface
     private interface SessionTask {
         void run(ControllerInfo controller) throws RemoteException;
@@ -621,6 +691,13 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
         @Override
         void onLibraryResult(int seq, LibraryResult result) throws RemoteException {
+            // no-op
+        }
+
+        @Override
+        void onPlayerChanged(int seq, @Nullable SessionPlayer oldPlayer,
+                @Nullable PlaybackInfo oldPlaybackInfo, @NonNull SessionPlayer player,
+                @NonNull PlaybackInfo playbackInfo) throws RemoteException {
             // no-op
         }
 
@@ -788,14 +865,70 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
+        void onPlayerChanged(int seq, @Nullable SessionPlayer oldPlayer,
+                @Nullable PlaybackInfo oldPlaybackInfo,
+                @NonNull SessionPlayer player, @NonNull PlaybackInfo playbackInfo)
+                throws RemoteException {
+            // Tells the playlist change first, so current media item index change notification
+            // can point to the valid current media item in the playlist.
+            if (oldPlayer == null
+                    || !ObjectsCompat.equals(oldPlayer.getPlaylist(), player.getPlaylist())) {
+                onPlaylistChanged(seq,
+                        player.getPlaylist(), player.getPlaylistMetadata(),
+                        player.getCurrentMediaItemIndex(),
+                        player.getPreviousMediaItemIndex(),
+                        player.getNextMediaItemIndex());
+            } else if (oldPlayer == null
+                    || !ObjectsCompat.equals(oldPlayer.getPlaylistMetadata(),
+                            player.getPlaylistMetadata())) {
+                onPlaylistMetadataChanged(seq, player.getPlaylistMetadata());
+            }
+            if (oldPlayer == null || oldPlayer.getShuffleMode() != player.getShuffleMode()) {
+                onShuffleModeChanged(seq, player.getShuffleMode(),
+                        player.getCurrentMediaItemIndex(), player.getPreviousMediaItemIndex(),
+                        player.getNextMediaItemIndex());
+            }
+            if (oldPlayer == null || oldPlayer.getRepeatMode() != player.getRepeatMode()) {
+                onRepeatModeChanged(seq, player.getRepeatMode(),
+                        player.getCurrentMediaItemIndex(), player.getPreviousMediaItemIndex(),
+                        player.getNextMediaItemIndex());
+            }
+            if (oldPlayer == null
+                    || !ObjectsCompat.equals(oldPlayer.getCurrentMediaItem(),
+                            player.getCurrentMediaItem())) {
+                // Note: This will update PlaybackStateCompat.
+                onCurrentMediaItemChanged(seq, player.getCurrentMediaItem(),
+                        player.getCurrentMediaItemIndex(), player.getPreviousMediaItemIndex(),
+                        player.getNextMediaItemIndex());
+            } else {
+                // If PlaybackStateCompat isn't updated by above if-statement, forcefully update
+                // PlaybackStateCompat to tell the latest position and its event
+                // time. This would also update playback speed and buffering/player state.
+                mSessionCompat.setPlaybackState(mSessionImpl.createPlaybackStateCompat());
+            }
+
+            // Forcefully update playback info to update VolumeProviderCompat attached to the
+            // old player.
+            onPlaybackInfoChanged(seq, playbackInfo);
+        }
+
+        @Override
         void setCustomLayout(int seq, @NonNull List<CommandButton> layout) throws RemoteException {
             throw new AssertionError("This shouldn't be called");
         }
 
         @Override
-        void onPlaybackInfoChanged(int seq, @NonNull PlaybackInfo info) throws RemoteException {
-            // no-op. Calling MediaSessionCompat#setPlaybackToLocal/Remote
-            // is already done in updatePlayerConnector().
+        void onPlaybackInfoChanged(int seq,
+                @NonNull PlaybackInfo playbackInfo) throws RemoteException {
+            if (playbackInfo.getPlaybackType() == PlaybackInfo.PLAYBACK_TYPE_REMOTE) {
+                VolumeProviderCompat volumeProviderCompat =
+                        createVolumeProviderCompat(
+                                (RemoteSessionPlayer) mSessionImpl.getPlayer());
+                mSessionCompat.setPlaybackToRemote(volumeProviderCompat);
+            } else {
+                int stream = MediaUtils.getLegacyStreamType(playbackInfo.getAudioAttributes());
+                mSessionCompat.setPlaybackToLocal(stream);
+            }
         }
 
         @Override
@@ -814,7 +947,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         void onPlayerStateChanged(int seq, long eventTimeMs, long positionMs, int playerState)
                 throws RemoteException {
             // Note: This method does not use any of the given arguments.
-            mSessionImpl.getSessionCompat().setPlaybackState(
+            mSessionCompat.setPlaybackState(
                     mSessionImpl.createPlaybackStateCompat());
         }
 
@@ -822,7 +955,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         void onPlaybackSpeedChanged(int seq, long eventTimeMs, long positionMs, float speed)
                 throws RemoteException {
             // Note: This method does not use any of the given arguments.
-            mSessionImpl.getSessionCompat().setPlaybackState(
+            mSessionCompat.setPlaybackState(
                     mSessionImpl.createPlaybackStateCompat());
         }
 
@@ -830,7 +963,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         void onBufferingStateChanged(int seq, @NonNull MediaItem item, int bufferingState,
                 long bufferedPositionMs, long eventTimeMs, long positionMs) throws RemoteException {
             // Note: This method does not use any of the given arguments.
-            mSessionImpl.getSessionCompat().setPlaybackState(
+            mSessionCompat.setPlaybackState(
                     mSessionImpl.createPlaybackStateCompat());
         }
 
@@ -838,16 +971,21 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         void onSeekCompleted(int seq, long eventTimeMs, long positionMs, long position)
                 throws RemoteException {
             // Note: This method does not use any of the given arguments.
-            mSessionImpl.getSessionCompat().setPlaybackState(
+            mSessionCompat.setPlaybackState(
                     mSessionImpl.createPlaybackStateCompat());
         }
 
         @Override
         void onCurrentMediaItemChanged(int seq, MediaItem item, int currentIdx, int previousIdx,
                 int nextIdx) throws RemoteException {
-            mSessionImpl.getSessionCompat().setMetadata(item == null ? null
-                    : MediaUtils.convertToMediaMetadataCompat(item.getMetadata()));
-            mSessionImpl.getSessionCompat().setPlaybackState(
+            MediaMetadata metadata = (item == null) ? null : item.getMetadata();
+            mSessionCompat.setMetadata(MediaUtils.convertToMediaMetadataCompat(metadata));
+            int ratingType = getRatingType(
+                    (metadata == null)
+                            ? null
+                            : metadata.getRating(MediaMetadata.METADATA_KEY_USER_RATING));
+            mSessionCompat.setRatingType(ratingType);
+            mSessionCompat.setPlaybackState(
                     mSessionImpl.createPlaybackStateCompat());
         }
 
@@ -856,7 +994,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 int currentIdx, int previousIdx, int nextIdx) throws RemoteException {
             if (Build.VERSION.SDK_INT < 21) {
                 if (playlist == null) {
-                    mSessionImpl.getSessionCompat().setQueue(null);
+                    mSessionCompat.setQueue(null);
                 } else {
                     // In order to avoid TransactionTooLargeException for below API 21, we need to
                     // cut the list so that it doesn't exceed the binder transaction limit.
@@ -867,13 +1005,13 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                         Log.i(TAG, "Sending " + truncatedList.size() + " items out of "
                                 + playlist.size());
                     }
-                    mSessionImpl.getSessionCompat().setQueue(truncatedList);
+                    mSessionCompat.setQueue(truncatedList);
                 }
 
             } else {
                 // Framework MediaSession#setQueue() uses ParceledListSlice,
                 // which means we can safely send long lists.
-                mSessionImpl.getSessionCompat().setQueue(
+                mSessionCompat.setQueue(
                         MediaUtils.convertToQueueItemList(playlist));
             }
             onPlaylistMetadataChanged(seq, metadata);
@@ -882,7 +1020,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         @Override
         void onPlaylistMetadataChanged(int seq, MediaMetadata metadata) throws RemoteException {
             // Since there is no 'queue metadata', only set title of the queue.
-            CharSequence oldTitle = mSessionImpl.getSessionCompat().getController().getQueueTitle();
+            CharSequence oldTitle = mSessionCompat.getController().getQueueTitle();
             CharSequence newTitle = null;
 
             if (metadata != null) {
@@ -893,20 +1031,20 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
             }
 
             if (!TextUtils.equals(oldTitle, newTitle)) {
-                mSessionImpl.getSessionCompat().setQueueTitle(newTitle);
+                mSessionCompat.setQueueTitle(newTitle);
             }
         }
 
         @Override
         void onShuffleModeChanged(int seq, int shuffleMode, int currentIdx, int previousIdx,
                 int nextIdx) throws RemoteException {
-            mSessionImpl.getSessionCompat().setShuffleMode(shuffleMode);
+            mSessionCompat.setShuffleMode(shuffleMode);
         }
 
         @Override
         void onRepeatModeChanged(int seq, int repeatMode, int currentIdx, int previousIdx,
                 int nextIdx) throws RemoteException {
-            mSessionImpl.getSessionCompat().setRepeatMode(repeatMode);
+            mSessionCompat.setRepeatMode(repeatMode);
         }
 
         @Override
@@ -918,7 +1056,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                                 state.getPlaybackSpeed())
                         .build();
             }
-            mSessionImpl.getSessionCompat().setPlaybackState(state);
+            mSessionCompat.setPlaybackState(state);
         }
 
         @Override

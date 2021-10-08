@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
 
 dependencies {
-    androidTestImplementation("androidx.media2:media2-session:1.0.0-beta02")
+    androidTestImplementation("androidx.media2:media2-session:1.2.0-rc01")
     androidTestImplementation(project(":media2:media2-session:version-compat-tests:common"))
 
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
 }
 
 android {
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 16
     }
 }
 

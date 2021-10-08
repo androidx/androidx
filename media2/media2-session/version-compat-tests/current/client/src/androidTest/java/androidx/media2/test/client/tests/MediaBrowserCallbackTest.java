@@ -154,19 +154,12 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     public void getItem_nullResult() throws Exception {
         final String mediaId = MediaBrowserConstants.MEDIA_ID_GET_NULL_ITEM;
 
-        // Exception will be thrown in the service side, and the process will be crashed.
-        // In that case one of following will happen
-        //   Case 1) Process is crashed. Pending ListenableFuture will get error
-        //   Case 2) Due to the frequent crashes with other tests, process may not crash immediately
-        //           because the Android shows dialog 'xxx keeps stopping' and defer sending
-        //           SIG_KILL until the user's explicit action.
         try {
             LibraryResult result = createBrowser().getItem(mediaId)
                     .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-            // Case 1.
             assertNotEquals(RESULT_SUCCESS, result.getResultCode());
         } catch (TimeoutException e) {
-            // Case 2.
+            // May happen.
         }
     }
 
@@ -174,19 +167,12 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     public void getItem_invalidResult() throws Exception {
         final String mediaId = MediaBrowserConstants.MEDIA_ID_GET_INVALID_ITEM;
 
-        // Exception will be thrown in the service side, and the process will be crashed.
-        // In that case one of following will happen
-        //   Case 1) Process is crashed. Pending ListenableFuture will get error
-        //   Case 2) Due to the frequent crashes with other tests, process may not crash immediately
-        //           because the Android shows dialog 'xxx keeps stopping' and defer sending
-        //           SIG_KILL until the user's explicit action.
         try {
             LibraryResult result = createBrowser().getItem(mediaId)
                     .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-            // Case 1.
             assertNotEquals(RESULT_SUCCESS, result.getResultCode());
         } catch (TimeoutException e) {
-            // Case 2.
+            // May happen.
         }
     }
 

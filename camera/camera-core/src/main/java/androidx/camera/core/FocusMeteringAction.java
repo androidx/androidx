@@ -19,6 +19,7 @@ package androidx.camera.core;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 
@@ -67,6 +68,7 @@ import java.util.concurrent.TimeUnit;
  * default the auto-cancel duration is 5 seconds. Apps can call {@link Builder#disableAutoCancel()}
  * to disable auto-cancel.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FocusMeteringAction {
 
     /**
@@ -154,6 +156,7 @@ public final class FocusMeteringAction {
     /**
      * The builder used to create the {@link FocusMeteringAction}.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class Builder {
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         final List<MeteringPoint> mMeteringPointsAf = new ArrayList<>();

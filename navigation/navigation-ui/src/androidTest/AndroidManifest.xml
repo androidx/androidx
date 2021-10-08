@@ -16,5 +16,5 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.navigation.ui">
-
+    <application android:name="androidx.multidex.MultiDexApplication" />
 </manifest>

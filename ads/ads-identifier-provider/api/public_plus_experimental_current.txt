@@ -1,20 +1,20 @@
 // Signature format: 4.0
 package androidx.ads.identifier.provider {
 
-  public interface AdvertisingIdProvider {
-    method public String getId();
-    method public boolean isLimitAdTrackingEnabled();
+  @Deprecated public interface AdvertisingIdProvider {
+    method @Deprecated public String getId();
+    method @Deprecated public boolean isLimitAdTrackingEnabled();
   }
 
-  @com.google.auto.value.AutoValue public abstract class AdvertisingIdProviderInfo {
-    method public abstract String getPackageName();
-    method public abstract android.content.Intent? getSettingsIntent();
-    method public abstract boolean isHighestPriority();
+  @Deprecated @com.google.auto.value.AutoValue @com.google.auto.value.AutoValue.CopyAnnotations public abstract class AdvertisingIdProviderInfo {
+    method @Deprecated public abstract String getPackageName();
+    method @Deprecated public abstract android.content.Intent? getSettingsIntent();
+    method @Deprecated public abstract boolean isHighestPriority();
   }
 
-  public class AdvertisingIdProviderManager {
-    method public static java.util.List<androidx.ads.identifier.provider.AdvertisingIdProviderInfo!> getAdvertisingIdProviders(android.content.Context);
-    method public static void registerProviderCallable(java.util.concurrent.Callable<androidx.ads.identifier.provider.AdvertisingIdProvider!>);
+  @Deprecated public class AdvertisingIdProviderManager {
+    method @Deprecated public static java.util.List<androidx.ads.identifier.provider.AdvertisingIdProviderInfo!> getAdvertisingIdProviders(android.content.Context);
+    method @Deprecated public static void registerProviderCallable(java.util.concurrent.Callable<androidx.ads.identifier.provider.AdvertisingIdProvider!>);
   }
 
 }

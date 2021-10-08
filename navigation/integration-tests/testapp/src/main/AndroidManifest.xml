@@ -14,15 +14,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="androidx.navigation.testapp">
-    <!-- TODO: Remove this override after androidx.window lowers the level -->
-    <uses-sdk tools:overrideLibrary="androidx.slidingpanelayout, androidx.window" />
+
     <application
         android:allowBackup="true"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning,MissingApplicationIcon">
-        <activity android:name=".NavigationActivity">
+        <activity android:name=".NavigationActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -32,9 +31,9 @@
         </activity>
         <activity
             android:name=".HelpActivity"
-            android:label="@string/help"/>
+            android:label="@string/help" android:exported="true"/>
 
-        <receiver android:name=".DeepLinkAppWidgetProvider" >
+        <receiver android:name=".DeepLinkAppWidgetProvider" android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

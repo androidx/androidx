@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.graph
 
 import android.hardware.camera2.CaptureResult
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
@@ -96,9 +99,7 @@ internal class Result3AStateListenerImpl(
             currentTimestampNs != null &&
             currentTimestampNs - timestampOfFirstUpdateNs > timeLimitNs
         ) {
-            _result.complete(
-                Result3A(frameMetadata.frameNumber, Result3A.Status.TIME_LIMIT_REACHED)
-            )
+            _result.complete(Result3A(Result3A.Status.TIME_LIMIT_REACHED, frameMetadata))
             return true
         }
 
@@ -110,9 +111,7 @@ internal class Result3AStateListenerImpl(
         if (frameNumberOfFirstUpdate != null && frameLimit != null &&
             currentFrameNumber.value - frameNumberOfFirstUpdate.value > frameLimit
         ) {
-            _result.complete(
-                Result3A(frameMetadata.frameNumber, Result3A.Status.FRAME_LIMIT_REACHED)
-            )
+            _result.complete(Result3A(Result3A.Status.FRAME_LIMIT_REACHED, frameMetadata))
             return true
         }
 
@@ -122,7 +121,7 @@ internal class Result3AStateListenerImpl(
                 return false
             }
         }
-        _result.complete(Result3A(frameMetadata.frameNumber, Result3A.Status.OK))
+        _result.complete(Result3A(Result3A.Status.OK, frameMetadata))
         return true
     }
 

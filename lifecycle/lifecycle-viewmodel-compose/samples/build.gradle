@@ -14,31 +14,25 @@
  * limitations under the License.
  */
 
-
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("AndroidXUiPlugin")
+    id("AndroidXComposePlugin")
     id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
-    implementation(KOTLIN_STDLIB)
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
+    implementation(libs.kotlinStdlib)
     implementation projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose")
 }
 
 androidx {
     name = "AndroidX Lifecycle ViewModel Compose Integration Samples"
     type = LibraryType.SAMPLES
-    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2021"
     description = "Samples for Compose integration with Lifecycle ViewModel"

@@ -170,7 +170,7 @@ private val goldenDefaultConfig = """
     <option name="wifi:disable" value="true" />
     <include name="google/unbundled/common/setup" />
     <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
-    <option name="cleanup-apks" value="true" />
+    <option name="cleanup-apks" value="false" />
     <option name="test-file-name" value="placeholder.apk" />
     </target_preparer>
     <test class="com.android.tradefed.testtype.AndroidJUnitTest">

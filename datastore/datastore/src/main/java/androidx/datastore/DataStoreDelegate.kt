@@ -26,7 +26,6 @@ import androidx.datastore.core.Serializer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import java.io.File
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -34,6 +33,8 @@ import kotlin.reflect.KProperty
  * Creates a property delegate for a single process DataStore. This should only be called once
  * in a file (at the top level), and all usages of the DataStore should use a reference the same
  * Instance. The receiver type for the property delegate must be an instance of [Context].
+ *
+ * This should only be used from a single application in a single classloader in a single process.
  *
  * Example usage:
  * ```
@@ -44,28 +45,31 @@ import kotlin.reflect.KProperty
  * }
  * ```
  *
- * @param fileName the filename relative to Context.filesDir that DataStore acts on. The File is
- * obtained by calling File(context.filesDir, "datastore/$fileName")). No two instances of DataStore
- * should act on the same file at the same time.
+ * @param fileName the filename relative to Context.applicationContext.filesDir that DataStore
+ * acts on. The File is obtained from [dataStoreFile]. It is created in the "/datastore"
+ * subdirectory.
  * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
  * [androidx.datastore.core.CorruptionException] when attempting to read data. CorruptionExceptions
  * are thrown by serializers when data can not be de-serialized.
- * @param migrations are run before any access to data can occur. Each producer and migration
- * may be run more than once whether or not it already succeeded (potentially because another
- * migration failed or a write to disk failed.)
+ * @param produceMigrations produce the migrations. The ApplicationContext is passed in to these
+ * callbacks as a parameter. DataMigrations are run before any access to data can occur. Each
+ * producer and migration may be run more than once whether or not it already succeeded
+ * (potentially because another migration failed or a write to disk failed.)
  * @param scope The scope in which IO operations and transform functions will execute.
  *
  * @return a property delegate that manages a datastore as a singleton.
  */
-@JvmOverloads
+@Suppress("MissingJvmstatic")
 public fun <T> dataStore(
     fileName: String,
     serializer: Serializer<T>,
     corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
-    migrations: List<DataMigration<T>> = listOf(),
+    produceMigrations: (Context) -> List<DataMigration<T>> = { listOf() },
     scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 ): ReadOnlyProperty<Context, DataStore<T>> {
-    return DataStoreSingletonDelegate(fileName, serializer, corruptionHandler, migrations, scope)
+    return DataStoreSingletonDelegate(
+        fileName, serializer, corruptionHandler, produceMigrations, scope
+    )
 }
 
 /**
@@ -75,7 +79,7 @@ internal class DataStoreSingletonDelegate<T> internal constructor(
     private val fileName: String,
     private val serializer: Serializer<T>,
     private val corruptionHandler: ReplaceFileCorruptionHandler<T>?,
-    private val migrations: List<DataMigration<T>>,
+    private val produceMigrations: (Context) -> List<DataMigration<T>>,
     private val scope: CoroutineScope
 ) : ReadOnlyProperty<Context, DataStore<T>> {
 
@@ -94,16 +98,12 @@ internal class DataStoreSingletonDelegate<T> internal constructor(
     override fun getValue(thisRef: Context, property: KProperty<*>): DataStore<T> {
         return INSTANCE ?: synchronized(lock) {
             if (INSTANCE == null) {
+                val applicationContext = thisRef.applicationContext
                 INSTANCE = DataStoreFactory.create(
                     serializer = serializer,
-                    produceFile = {
-                        File(
-                            thisRef.applicationContext.filesDir,
-                            "datastore/$fileName"
-                        )
-                    },
+                    produceFile = { applicationContext.dataStoreFile(fileName) },
                     corruptionHandler = corruptionHandler,
-                    migrations = migrations,
+                    migrations = produceMigrations(applicationContext),
                     scope = scope
                 )
             }

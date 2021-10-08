@@ -51,8 +51,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.function.BooleanSupplier;
-
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 /**
@@ -137,12 +135,11 @@ public class EditTextPreferenceDialogFragmentCompatTest {
                 .check(matches(isFocused()));
 
         // Wait until the IME insets be visible.
-        waitUntil("IME insets should be visible", new BooleanSupplier() {
-            @Override
-            public boolean getAsBoolean() {
-                return ViewCompat.getRootWindowInsets(mTargetPreference.getView()).isVisible(ime());
-            }
-        }, 5000 /* timeoutMs */);
+        waitUntil(
+                "IME insets should be visible",
+                () -> ViewCompat.getRootWindowInsets(mTargetPreference.getView()).isVisible(ime()),
+                5000 /* timeoutMs */
+        );
     }
 
     private static void waitUntil(String message, BooleanSupplier condition, int timeoutMs) {
@@ -158,5 +155,12 @@ public class EditTextPreferenceDialogFragmentCompatTest {
             }
         }
         fail("Timed out for: " + message);
+    }
+
+    /**
+     * Clone of java.util.BooleanSupplier which isn't available on older devices
+     */
+    private interface BooleanSupplier {
+        boolean getAsBoolean();
     }
 }

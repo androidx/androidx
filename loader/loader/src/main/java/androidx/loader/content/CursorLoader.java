@@ -96,22 +96,22 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
 
     /* Runs on the UI thread */
     @Override
-    public void deliverResult(@Nullable Cursor cursor) {
+    public void deliverResult(@Nullable Cursor data) {
         if (isReset()) {
             // An async query came in while the loader is stopped
-            if (cursor != null) {
-                cursor.close();
+            if (data != null) {
+                data.close();
             }
             return;
         }
         Cursor oldCursor = mCursor;
-        mCursor = cursor;
+        mCursor = data;
 
         if (isStarted()) {
-            super.deliverResult(cursor);
+            super.deliverResult(data);
         }
 
-        if (oldCursor != null && oldCursor != cursor && !oldCursor.isClosed()) {
+        if (oldCursor != null && oldCursor != data && !oldCursor.isClosed()) {
             oldCursor.close();
         }
     }
@@ -171,9 +171,9 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
     }
 
     @Override
-    public void onCanceled(@Nullable Cursor cursor) {
-        if (cursor != null && !cursor.isClosed()) {
-            cursor.close();
+    public void onCanceled(@Nullable Cursor data) {
+        if (data != null && !data.isClosed()) {
+            data.close();
         }
     }
 

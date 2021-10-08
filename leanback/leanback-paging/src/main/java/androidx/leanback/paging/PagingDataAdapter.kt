@@ -16,12 +16,14 @@
 
 package androidx.leanback.paging
 
+import androidx.annotation.IntRange
 import androidx.leanback.widget.ObjectAdapter
 import androidx.leanback.widget.Presenter
 import androidx.leanback.widget.PresenterSelector
 import androidx.lifecycle.Lifecycle
 import androidx.paging.AsyncPagingDataDiffer
 import androidx.paging.CombinedLoadStates
+import androidx.paging.ItemSnapshotList
 import androidx.paging.LoadState
 import androidx.paging.LoadType
 import androidx.paging.Pager
@@ -32,7 +34,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -149,10 +150,6 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      * Present a [PagingData] until it is invalidated by a call to [refresh] or
      * [PagingSource.invalidate].
      *
-     * [submitData] should be called on the same [CoroutineDispatcher] where updates will be
-     * dispatched to UI, typically [Dispatchers.Main] (this is done for you if you use
-     * `lifecycleScope.launch {}`).
-     *
      * This method is typically used when collecting from a [Flow] produced by [Pager]. For RxJava
      * or LiveData support, use the non-suspending overload of [submitData], which accepts a
      * [Lifecycle].
@@ -217,13 +214,27 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
     }
 
     /**
+     * Returns the presented item at the specified position, without notifying Paging of the item
+     * access that would normally trigger page loads.
+     *
+     * @param index Index of the presented item to return, including placeholders.
+     * @return The presented item at position [index], `null` if it is a placeholder.
+     */
+    fun peek(@IntRange(from = 0) index: Int) = differ.peek(index)
+
+    /**
+     * Returns a new [ItemSnapshotList] representing the currently presented items, including any
+     * placeholders if they are enabled.
+     */
+    fun snapshot(): ItemSnapshotList<T> = differ.snapshot()
+
+    /**
      * A hot [Flow] of [CombinedLoadStates] that emits a snapshot whenever the loading state of the
      * current [PagingData] changes.
      *
      * This flow is conflated, so it buffers the last update to [CombinedLoadStates] and
      * immediately delivers the current load states on collection.
      */
-    @OptIn(FlowPreview::class)
     val loadStateFlow: Flow<CombinedLoadStates>
         get() = differ.loadStateFlow
 

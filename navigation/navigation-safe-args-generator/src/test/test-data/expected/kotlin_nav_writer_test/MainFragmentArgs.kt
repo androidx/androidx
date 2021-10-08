@@ -20,12 +20,12 @@ import kotlin.jvm.JvmStatic
 
 public data class MainFragmentArgs(
   public val main: String,
+  public val floatArrayArg: FloatArray,
+  public val objectArrayArg: Array<ActivityInfo>,
   public val optional: Int = -1,
   public val reference: Int = R.drawable.background,
   public val referenceZeroDefaultValue: Int = 0,
   public val floatArg: Float = 1F,
-  public val floatArrayArg: FloatArray,
-  public val objectArrayArg: Array<ActivityInfo>,
   public val boolArg: Boolean = true,
   public val optionalParcelable: ActivityInfo? = null,
   public val enumArg: AccessMode = AccessMode.READ
@@ -50,6 +50,30 @@ public data class MainFragmentArgs(
       result.putParcelable("enumArg", this.enumArg as Parcelable)
     } else if (Serializable::class.java.isAssignableFrom(AccessMode::class.java)) {
       result.putSerializable("enumArg", this.enumArg as Serializable)
+    }
+    return result
+  }
+
+  @Suppress("CAST_NEVER_SUCCEEDS")
+  public fun toSavedStateHandle(): SavedStateHandle {
+    val result = SavedStateHandle()
+    result.set("main", this.main)
+    result.set("optional", this.optional)
+    result.set("reference", this.reference)
+    result.set("referenceZeroDefaultValue", this.referenceZeroDefaultValue)
+    result.set("floatArg", this.floatArg)
+    result.set("floatArrayArg", this.floatArrayArg)
+    result.set("objectArrayArg", this.objectArrayArg)
+    result.set("boolArg", this.boolArg)
+    if (Parcelable::class.java.isAssignableFrom(ActivityInfo::class.java)) {
+      result.set("optionalParcelable", this.optionalParcelable as Parcelable?)
+    } else if (Serializable::class.java.isAssignableFrom(ActivityInfo::class.java)) {
+      result.set("optionalParcelable", this.optionalParcelable as Serializable?)
+    }
+    if (Parcelable::class.java.isAssignableFrom(AccessMode::class.java)) {
+      result.set("enumArg", this.enumArg as Parcelable)
+    } else if (Serializable::class.java.isAssignableFrom(AccessMode::class.java)) {
+      result.set("enumArg", this.enumArg as Serializable)
     }
     return result
   }
@@ -144,8 +168,8 @@ public data class MainFragmentArgs(
       } else {
         __enumArg = AccessMode.READ
       }
-      return MainFragmentArgs(__main, __optional, __reference, __referenceZeroDefaultValue,
-          __floatArg, __floatArrayArg, __objectArrayArg, __boolArg, __optionalParcelable, __enumArg)
+      return MainFragmentArgs(__main, __floatArrayArg, __objectArrayArg, __optional, __reference,
+          __referenceZeroDefaultValue, __floatArg, __boolArg, __optionalParcelable, __enumArg)
     }
 
     @JvmStatic
@@ -237,8 +261,8 @@ public data class MainFragmentArgs(
       } else {
         __enumArg = AccessMode.READ
       }
-      return MainFragmentArgs(__main, __optional, __reference, __referenceZeroDefaultValue,
-          __floatArg, __floatArrayArg, __objectArrayArg, __boolArg, __optionalParcelable, __enumArg)
+      return MainFragmentArgs(__main, __floatArrayArg, __objectArrayArg, __optional, __reference,
+          __referenceZeroDefaultValue, __floatArg, __boolArg, __optionalParcelable, __enumArg)
     }
   }
 }

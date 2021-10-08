@@ -5,7 +5,7 @@ package androidx.activity.compose {
   }
 
   public final class ActivityResultRegistryKt {
-    method @androidx.compose.runtime.Composable public static <I, O> androidx.activity.result.ActivityResultLauncher<I> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O> contract, kotlin.jvm.functions.Function1<? super O,kotlin.Unit> onResult);
+    method @androidx.compose.runtime.Composable public static <I, O> androidx.activity.compose.ManagedActivityResultLauncher<I,O> rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O> contract, kotlin.jvm.functions.Function1<? super O,kotlin.Unit> onResult);
   }
 
   public final class BackHandlerKt {
@@ -17,17 +17,23 @@ package androidx.activity.compose {
   }
 
   public final class LocalActivityResultRegistryOwner {
-    method @androidx.compose.runtime.Composable public androidx.activity.result.ActivityResultRegistryOwner getCurrent();
+    method @androidx.compose.runtime.Composable public androidx.activity.result.ActivityResultRegistryOwner? getCurrent();
     method public infix androidx.compose.runtime.ProvidedValue<androidx.activity.result.ActivityResultRegistryOwner> provides(androidx.activity.result.ActivityResultRegistryOwner registryOwner);
-    property @androidx.compose.runtime.Composable public final androidx.activity.result.ActivityResultRegistryOwner current;
+    property @androidx.compose.runtime.Composable public final androidx.activity.result.ActivityResultRegistryOwner? current;
     field public static final androidx.activity.compose.LocalActivityResultRegistryOwner INSTANCE;
   }
 
   public final class LocalOnBackPressedDispatcherOwner {
-    method @androidx.compose.runtime.Composable public androidx.activity.OnBackPressedDispatcherOwner getCurrent();
+    method @androidx.compose.runtime.Composable public androidx.activity.OnBackPressedDispatcherOwner? getCurrent();
     method public infix androidx.compose.runtime.ProvidedValue<androidx.activity.OnBackPressedDispatcherOwner> provides(androidx.activity.OnBackPressedDispatcherOwner dispatcherOwner);
-    property @androidx.compose.runtime.Composable public final androidx.activity.OnBackPressedDispatcherOwner current;
+    property @androidx.compose.runtime.Composable public final androidx.activity.OnBackPressedDispatcherOwner? current;
     field public static final androidx.activity.compose.LocalOnBackPressedDispatcherOwner INSTANCE;
+  }
+
+  public final class ManagedActivityResultLauncher<I, O> extends androidx.activity.result.ActivityResultLauncher<I> {
+    method public androidx.activity.result.contract.ActivityResultContract<I,?> getContract();
+    method public void launch(I? input, androidx.core.app.ActivityOptionsCompat? options);
+    method @Deprecated public void unregister();
   }
 
 }

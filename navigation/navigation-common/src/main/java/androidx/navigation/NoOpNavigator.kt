@@ -33,7 +33,7 @@ public class NoOpNavigator : Navigator<NavDestination>() {
         args: Bundle?,
         navOptions: NavOptions?,
         navigatorExtras: Extras?
-    ): NavDestination? = destination
+    ): NavDestination = destination
 
     override fun popBackStack(): Boolean = true
 }

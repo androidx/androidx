@@ -51,7 +51,7 @@ fun insertSeparatorsSample() {
         pagingData.insertSeparators { before: String?, after: String? ->
             if (after != null && before?.first() != after.first()) {
                 // separator - after is first item that starts with its first letter
-                after.first().toUpperCase().toString()
+                after.first().uppercaseChar().toString()
             } else {
                 // no separator - either end of list, or first letters of before/after are the same
                 null
@@ -77,7 +77,7 @@ fun insertSeparatorsRxSample() {
             Maybe.fromCallable<String> {
                 if (after != null && before?.first() != after.first()) {
                     // separator - after is first item that starts with its first letter
-                    after.first().toUpperCase().toString()
+                    after.first().uppercaseChar().toString()
                 } else {
                     // no separator - either end of list, or first letters of before/after are the same
                     null
@@ -110,7 +110,7 @@ fun insertSeparatorsFutureSample() {
                         val (before, after) = it!!
                         if (after != null && before?.first() != after.first()) {
                             // separator - after is first item that starts with its first letter
-                            after.first().toUpperCase().toString()
+                            after.first().uppercaseChar().toString()
                         } else {
                             // no separator - either end of list, or first letters of before/after are the same
                             null

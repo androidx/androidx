@@ -18,11 +18,10 @@ package androidx.camera.testing.fakes;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
-import androidx.camera.core.ExperimentalAvailableCamerasLimiter;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
 
@@ -31,6 +30,7 @@ import androidx.camera.core.impl.CameraFactory;
  *
  * <p>This {@link CameraXConfig} contains all fake CameraX implementation components.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FakeAppConfig {
     private FakeAppConfig() {
     }
@@ -39,7 +39,6 @@ public final class FakeAppConfig {
     private static final String CAMERA_ID_1 = "1";
 
     /** Generates a fake {@link CameraXConfig}. */
-    @UseExperimental(markerClass = ExperimentalAvailableCamerasLimiter.class)
     @NonNull
     public static CameraXConfig create() {
         return create(null);
@@ -49,7 +48,6 @@ public final class FakeAppConfig {
      * Generates a fake {@link CameraXConfig} with the provided {@linkplain CameraSelector
      * available cameras limiter}.
      */
-    @ExperimentalAvailableCamerasLimiter
     @NonNull
     public static CameraXConfig create(@Nullable CameraSelector availableCamerasSelector) {
         final CameraFactory.Provider cameraFactoryProvider = (ignored1, ignored2, ignored3) -> {
@@ -81,6 +79,7 @@ public final class FakeAppConfig {
     }
 
     /** @hide */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final class DefaultProvider implements CameraXConfig.Provider {
 

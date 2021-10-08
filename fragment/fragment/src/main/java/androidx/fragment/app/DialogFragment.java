@@ -43,6 +43,9 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewTreeLifecycleOwner;
+import androidx.lifecycle.ViewTreeViewModelStoreOwner;
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -253,6 +256,7 @@ public class DialogFragment extends Fragment
         mDismissed = false;
         mShownByMe = true;
         FragmentTransaction ft = manager.beginTransaction();
+        ft.setReorderingAllowed(true);
         ft.add(this, tag);
         ft.commit();
     }
@@ -290,6 +294,7 @@ public class DialogFragment extends Fragment
         mDismissed = false;
         mShownByMe = true;
         FragmentTransaction ft = manager.beginTransaction();
+        ft.setReorderingAllowed(true);
         ft.add(this, tag);
         ft.commitNow();
     }
@@ -341,10 +346,11 @@ public class DialogFragment extends Fragment
         mViewDestroyed = true;
         if (mBackStackId >= 0) {
             getParentFragmentManager().popBackStack(mBackStackId,
-                    FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    FragmentManager.POP_BACK_STACK_INCLUSIVE, allowStateLoss);
             mBackStackId = -1;
         } else {
             FragmentTransaction ft = getParentFragmentManager().beginTransaction();
+            ft.setReorderingAllowed(true);
             ft.remove(this);
             if (allowStateLoss) {
                 ft.commitAllowingStateLoss();
@@ -504,19 +510,15 @@ public class DialogFragment extends Fragment
             @Nullable
             @Override
             public View onFindViewById(int id) {
-                View dialogView = DialogFragment.this.onFindViewById(id);
-                if (dialogView != null) {
-                    return dialogView;
-                }
                 if (fragmentContainer.onHasView()) {
                     return fragmentContainer.onFindViewById(id);
                 }
-                return null;
+                return DialogFragment.this.onFindViewById(id);
             }
 
             @Override
             public boolean onHasView() {
-                return DialogFragment.this.onHasView() || fragmentContainer.onHasView();
+                return  fragmentContainer.onHasView() || DialogFragment.this.onHasView();
             }
         };
     }
@@ -678,6 +680,26 @@ public class DialogFragment extends Fragment
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated use {@link #onCreateDialog} for code touching the dialog created by
+     * {@link #onCreateDialog}, {@link #onViewCreated(View, Bundle)} for code touching the
+     * view created by {@link #onCreateView} and {@link #onCreate(Bundle)} for other initialization.
+     * To get a callback specifically when a Fragment activity's
+     * {@link Activity#onCreate(Bundle)} is called, register a
+     * {@link androidx.lifecycle.LifecycleObserver} on the Activity's
+     * {@link Lifecycle} in {@link #onAttach(Context)}, removing it when it receives the
+     * {@link Lifecycle.State#CREATED} callback.
+     */
+    @SuppressWarnings("deprecation")
+    @MainThread
+    @Override
+    @Deprecated
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
+
     @MainThread
     @Override
     public void onStart() {
@@ -686,6 +708,11 @@ public class DialogFragment extends Fragment
         if (mDialog != null) {
             mViewDestroyed = false;
             mDialog.show();
+            // Only after we show does the dialog window actually return a decor view.
+            View decorView = mDialog.getWindow().getDecorView();
+            ViewTreeLifecycleOwner.set(decorView, this);
+            ViewTreeViewModelStoreOwner.set(decorView, this);
+            ViewTreeSavedStateRegistryOwner.set(decorView, this);
         }
     }
 

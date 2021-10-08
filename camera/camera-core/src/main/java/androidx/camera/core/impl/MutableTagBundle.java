@@ -19,15 +19,17 @@ package androidx.camera.core.impl;
 import android.util.ArrayMap;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.util.Map;
 
 /**
  * A mutable {@link TagBundle} which allows insertion/removal.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MutableTagBundle extends TagBundle {
 
-    private MutableTagBundle(Map<String, Integer> source) {
+    private MutableTagBundle(Map<String, Object> source) {
         super(source);
     }
 
@@ -49,7 +51,7 @@ public class MutableTagBundle extends TagBundle {
      */
     @NonNull
     public static MutableTagBundle from(@NonNull TagBundle otherTagBundle) {
-        Map<String, Integer> tags = new ArrayMap<>();
+        Map<String, Object> tags = new ArrayMap<>();
         for (String key : otherTagBundle.listKeys()) {
             tags.put(key, otherTagBundle.getTag(key));
         }
@@ -58,7 +60,7 @@ public class MutableTagBundle extends TagBundle {
     }
 
     /** Adds a tag with specified key. */
-    public void putTag(@NonNull String key, @NonNull Integer value) {
+    public void putTag(@NonNull String key, @NonNull Object value) {
         // If the key exists, its value will be replaced.
         mTagMap.put(key, value);
     }

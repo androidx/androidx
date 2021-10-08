@@ -19,9 +19,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.DesktopPath
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.asSkiaPath
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
@@ -48,31 +48,34 @@ import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.sp
-import org.jetbrains.skija.Paint
-import org.jetbrains.skija.Typeface
-import org.jetbrains.skija.paragraph.Alignment as SkAlignment
-import org.jetbrains.skija.paragraph.BaselineMode
-import org.jetbrains.skija.paragraph.LineMetrics
-import org.jetbrains.skija.paragraph.ParagraphBuilder
-import org.jetbrains.skija.paragraph.ParagraphStyle
-import org.jetbrains.skija.paragraph.PlaceholderAlignment
-import org.jetbrains.skija.paragraph.PlaceholderStyle
-import org.jetbrains.skija.paragraph.RectHeightMode
-import org.jetbrains.skija.paragraph.RectWidthMode
-import org.jetbrains.skija.paragraph.TextBox
+import org.jetbrains.skia.Paint
+import org.jetbrains.skia.Typeface
+import org.jetbrains.skia.paragraph.Alignment as SkAlignment
+import org.jetbrains.skia.paragraph.BaselineMode
+import org.jetbrains.skia.paragraph.Direction as SkDirection
+import org.jetbrains.skia.paragraph.LineMetrics
+import org.jetbrains.skia.paragraph.ParagraphBuilder
+import org.jetbrains.skia.paragraph.ParagraphStyle
+import org.jetbrains.skia.paragraph.PlaceholderAlignment
+import org.jetbrains.skia.paragraph.PlaceholderStyle
+import org.jetbrains.skia.paragraph.RectHeightMode
+import org.jetbrains.skia.paragraph.RectWidthMode
+import org.jetbrains.skia.paragraph.StrutStyle
+import org.jetbrains.skia.paragraph.TextBox
+import java.lang.IllegalStateException
 import java.lang.UnsupportedOperationException
-import java.nio.charset.Charset
 import java.util.WeakHashMap
 import kotlin.math.floor
-import org.jetbrains.skija.Rect as SkRect
-import org.jetbrains.skija.paragraph.Paragraph as SkParagraph
-import org.jetbrains.skija.paragraph.TextStyle as SkTextStyle
-import org.jetbrains.skija.FontStyle as SkFontStyle
-import org.jetbrains.skija.Font as SkFont
-import org.jetbrains.skija.paragraph.DecorationLineStyle as SkDecorationLineStyle
-import org.jetbrains.skija.paragraph.DecorationStyle as SkDecorationStyle
-import org.jetbrains.skija.paragraph.Shadow as SkShadow
+import org.jetbrains.skia.Rect as SkRect
+import org.jetbrains.skia.paragraph.Paragraph as SkParagraph
+import org.jetbrains.skia.paragraph.TextStyle as SkTextStyle
+import org.jetbrains.skia.FontStyle as SkFontStyle
+import org.jetbrains.skia.Font as SkFont
+import org.jetbrains.skia.paragraph.DecorationLineStyle as SkDecorationLineStyle
+import org.jetbrains.skia.paragraph.DecorationStyle as SkDecorationStyle
+import org.jetbrains.skia.paragraph.Shadow as SkShadow
 
 private val DefaultFontSize = 16.sp
 
@@ -120,19 +123,23 @@ internal class DesktopParagraph(
     override val width: Float
 ) : Paragraph {
 
-    val paragraphIntrinsics = intrinsics as DesktopParagraphIntrinsics
+    private val ellipsisChar = if (ellipsis) "\u2026" else ""
+
+    private val paragraphIntrinsics = intrinsics as DesktopParagraphIntrinsics
+
+    private val layouter = paragraphIntrinsics.layouter()
 
     /**
      * Paragraph isn't always immutable, it could be changed via [paint] method without
      * rerunning layout
      */
-    val para: SkParagraph
-        get() = paragraphIntrinsics.para
+    private var para = layouter.layoutParagraph(
+        width = width,
+        maxLines = maxLines,
+        ellipsis = ellipsisChar
+    )
 
     init {
-        if (resetMaxLinesIfNeeded()) {
-            rebuildParagraph()
-        }
         para.layout(width)
     }
 
@@ -140,7 +147,7 @@ internal class DesktopParagraph(
         get() = paragraphIntrinsics.text
 
     override val height: Float
-        get() = para.getHeight()
+        get() = para.height
 
     override val minIntrinsicWidth: Float
         get() = paragraphIntrinsics.minIntrinsicWidth
@@ -149,16 +156,21 @@ internal class DesktopParagraph(
         get() = paragraphIntrinsics.maxIntrinsicWidth
 
     override val firstBaseline: Float
-        get() = para.getLineMetrics().firstOrNull()?.run { baseline.toFloat() } ?: 0f
+        get() = lineMetrics.firstOrNull()?.run { baseline.toFloat() } ?: 0f
 
     override val lastBaseline: Float
-        get() = para.getLineMetrics().lastOrNull()?.run { baseline.toFloat() } ?: 0f
+        get() = lineMetrics.lastOrNull()?.run { baseline.toFloat() } ?: 0f
 
     override val didExceedMaxLines: Boolean
         get() = para.didExceedMaxLines()
 
     override val lineCount: Int
-        get() = para.lineNumber.toInt()
+        // workaround for https://bugs.chromium.org/p/skia/issues/detail?id=11321
+        get() = if (text == "") {
+            1
+        } else {
+            para.lineNumber.toInt()
+        }
 
     override val placeholderRects: List<Rect?>
         get() =
@@ -173,65 +185,77 @@ internal class DesktopParagraph(
             RectHeightMode.MAX,
             RectWidthMode.MAX
         )
-        val path = DesktopPath()
+        val path = Path()
         for (b in boxes) {
-            path.internalPath.addRect(b.rect)
+            path.asSkiaPath().addRect(b.rect)
         }
         return path
     }
 
-    private val cursorWidth = 2.0f
-    override fun getCursorRect(offset: Int) =
-        getBoxForwardByOffset(offset)?.let { box ->
-            Rect(box.rect.left, box.rect.top, box.rect.left + cursorWidth, box.rect.bottom)
-        } ?: getBoxBackwardByOffset(offset)?.let { box ->
-            Rect(box.rect.right, box.rect.top, box.rect.right + cursorWidth, box.rect.bottom)
-        } ?: Rect(0f, 0f, cursorWidth, paragraphIntrinsics.builder.defaultHeight)
+    override fun getCursorRect(offset: Int): Rect {
+        val horizontal = getHorizontalPosition(offset, true)
+        val line = lineMetricsForOffset(offset)!!
 
-    override fun getLineLeft(lineIndex: Int): Float {
-        println("Paragraph.getLineLeft $lineIndex")
-        return 0.0f
+        return Rect(
+            horizontal,
+            (line.baseline - line.ascent).toFloat(),
+            horizontal,
+            (line.baseline + line.descent).toFloat()
+        )
     }
 
-    override fun getLineRight(lineIndex: Int): Float {
-        println("Paragraph.getLineRight $lineIndex")
-        return 0.0f
-    }
+    override fun getLineLeft(lineIndex: Int): Float =
+        lineMetrics.getOrNull(lineIndex)?.left?.toFloat() ?: 0f
+
+    override fun getLineRight(lineIndex: Int): Float =
+        lineMetrics.getOrNull(lineIndex)?.right?.toFloat() ?: 0f
 
     override fun getLineTop(lineIndex: Int) =
-        para.lineMetrics.getOrNull(lineIndex)?.let { line ->
+        lineMetrics.getOrNull(lineIndex)?.let { line ->
             floor((line.baseline - line.ascent).toFloat())
         } ?: 0f
 
     override fun getLineBottom(lineIndex: Int) =
-        para.lineMetrics.getOrNull(lineIndex)?.let { line ->
+        lineMetrics.getOrNull(lineIndex)?.let { line ->
             floor((line.baseline + line.descent).toFloat())
         } ?: 0f
 
     private fun lineMetricsForOffset(offset: Int): LineMetrics? {
-        // For some reasons SkParagraph Line metrics use (UTF-8) byte offsets for start and end
-        // indexes
-        val byteOffset = text.substring(0, offset).toByteArray(Charset.forName("UTF-8")).size
-        val metrics = para.lineMetrics
+        val metrics = lineMetrics
         for (line in metrics) {
-            if (byteOffset < line.endIndex) {
+            if (offset < line.endIndex) {
                 return line
             }
+        }
+        if (metrics.isEmpty()) {
+            return null
         }
         return metrics.last()
     }
 
-    override fun getLineHeight(lineIndex: Int) = para.lineMetrics[lineIndex].height.toFloat()
+    override fun getLineHeight(lineIndex: Int) = lineMetrics[lineIndex].height.toFloat()
 
-    override fun getLineWidth(lineIndex: Int) = para.lineMetrics[lineIndex].width.toFloat()
+    override fun getLineWidth(lineIndex: Int) = lineMetrics[lineIndex].width.toFloat()
 
-    override fun getLineStart(lineIndex: Int) = para.lineMetrics[lineIndex].startIndex.toInt()
+    override fun getLineStart(lineIndex: Int) = lineMetrics[lineIndex].startIndex.toInt()
 
     override fun getLineEnd(lineIndex: Int, visibleEnd: Boolean) =
         if (visibleEnd) {
-            para.lineMetrics[lineIndex].endExcludingWhitespaces.toInt()
+            val metrics = lineMetrics[lineIndex]
+            // workarounds for https://bugs.chromium.org/p/skia/issues/detail?id=11321 :(
+            // we are waiting for fixes
+            if (lineIndex > 0 && metrics.startIndex < lineMetrics[lineIndex - 1].endIndex) {
+                metrics.endIndex.toInt()
+            } else if (
+                metrics.startIndex < text.length &&
+                text[metrics.startIndex.toInt()] == '\n'
+            ) {
+                metrics.startIndex.toInt()
+            } else {
+                metrics.endExcludingWhitespaces.toInt()
+            }
         } else {
-            para.lineMetrics[lineIndex].endIndex.toInt()
+            lineMetrics[lineIndex].endIndex.toInt()
         }
 
     override fun isLineEllipsized(lineIndex: Int) = false
@@ -246,12 +270,39 @@ internal class DesktopParagraph(
     }
 
     override fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float {
-        return if (usePrimaryDirection) {
-            getHorizontalPositionForward(offset) ?: getHorizontalPositionBackward(offset) ?: 0f
-        } else {
-            getHorizontalPositionBackward(offset) ?: getHorizontalPositionForward(offset) ?: 0f
+        val prevBox = getBoxBackwardByOffset(offset)
+        val nextBox = getBoxForwardByOffset(offset)
+        return when {
+            prevBox == null -> {
+                val line = lineMetricsForOffset(offset)!!
+                return when (getParagraphDirection(offset)) {
+                    ResolvedTextDirection.Ltr -> line.left.toFloat()
+                    ResolvedTextDirection.Rtl -> line.right.toFloat()
+                }
+            }
+
+            nextBox == null || usePrimaryDirection || nextBox.direction == prevBox.direction ->
+                prevBox.cursorHorizontalPosition()
+
+            else ->
+                nextBox.cursorHorizontalPosition(true)
         }
     }
+
+    // workaround for https://bugs.chromium.org/p/skia/issues/detail?id=11321 :(
+    private val lineMetrics: Array<LineMetrics>
+        get() = if (text == "") {
+            val height = layouter.defaultHeight.toDouble()
+            arrayOf(
+                LineMetrics(
+                    0, 0, 0, 0, true,
+                    height, 0.0, height, height, 0.0, 0.0, height, 0
+                )
+            )
+        } else {
+            @Suppress("UNCHECKED_CAST", "USELESS_CAST")
+            para.lineMetrics as Array<LineMetrics>
+        }
 
     private fun getBoxForwardByOffset(offset: Int): TextBox? {
         var to = offset + 1
@@ -288,17 +339,15 @@ internal class DesktopParagraph(
         return null
     }
 
-    private fun getHorizontalPositionForward(from: Int) =
-        getBoxForwardByOffset(from)?.rect?.left
-
-    private fun getHorizontalPositionBackward(to: Int) =
-        getBoxBackwardByOffset(to)?.rect?.right
-
     override fun getParagraphDirection(offset: Int): ResolvedTextDirection =
-        ResolvedTextDirection.Ltr
+        paragraphIntrinsics.textDirection
 
     override fun getBidiRunDirection(offset: Int): ResolvedTextDirection =
-        ResolvedTextDirection.Ltr
+        when (getBoxForwardByOffset(offset)?.direction) {
+            org.jetbrains.skia.paragraph.Direction.RTL -> ResolvedTextDirection.Rtl
+            org.jetbrains.skia.paragraph.Direction.LTR -> ResolvedTextDirection.Ltr
+            null -> ResolvedTextDirection.Ltr
+        }
 
     override fun getOffsetForPosition(position: Offset): Int {
         return para.getGlyphPositionAtCoordinate(position.x, position.y).position
@@ -309,8 +358,17 @@ internal class DesktopParagraph(
         return box.rect.toComposeRect()
     }
 
-    override fun getWordBoundary(offset: Int) = para.getWordBoundary(offset).let {
-        TextRange(it.start, it.end)
+    override fun getWordBoundary(offset: Int): TextRange {
+        return when {
+            (text[offset].isLetterOrDigit()) -> para.getWordBoundary(offset).let {
+                TextRange(it.start, it.end)
+            }
+            (text.getOrNull(offset - 1)?.isLetterOrDigit() ?: false) ->
+                para.getWordBoundary(offset - 1).let {
+                    TextRange(it.start, it.end)
+                }
+            else -> TextRange(offset, offset)
+        }
     }
 
     override fun paint(
@@ -319,54 +377,16 @@ internal class DesktopParagraph(
         shadow: Shadow?,
         textDecoration: TextDecoration?
     ) {
-        var toRebuild = false
-        var currentColor = paragraphIntrinsics.builder.textStyle.color
-        var currentShadow = paragraphIntrinsics.builder.textStyle.shadow
-        var currentTextDecoration = paragraphIntrinsics.builder.textStyle.textDecoration
-        if (color.isSpecified && color != currentColor) {
-            toRebuild = true
-            currentColor = color
-        }
+        para = layouter.layoutParagraph(
+            width = width,
+            maxLines = maxLines,
+            ellipsis = ellipsisChar,
+            color = color,
+            shadow = shadow,
+            textDecoration = textDecoration
+        )
 
-        if (shadow != currentShadow) {
-            toRebuild = true
-            currentShadow = shadow
-        }
-
-        if (textDecoration != currentTextDecoration) {
-            toRebuild = true
-            currentTextDecoration = textDecoration
-        }
-
-        if (resetMaxLinesIfNeeded()) {
-            toRebuild = true
-        }
-
-        if (toRebuild) {
-            paragraphIntrinsics.builder.textStyle =
-                paragraphIntrinsics.builder.textStyle.copy(
-                    color = currentColor,
-                    shadow = currentShadow,
-                    textDecoration = currentTextDecoration
-                )
-            rebuildParagraph()
-            para.layout(width)
-        }
         para.paint(canvas.nativeCanvas, 0.0f, 0.0f)
-    }
-
-    fun resetMaxLinesIfNeeded(): Boolean {
-        if (maxLines != paragraphIntrinsics.builder.maxLines) {
-            paragraphIntrinsics.builder.maxLines = maxLines
-            paragraphIntrinsics.builder.ellipsis = if (ellipsis) "\u2026" else ""
-            return true
-        } else {
-            return false
-        }
-    }
-
-    fun rebuildParagraph() {
-        paragraphIntrinsics.para = paragraphIntrinsics.builder.build()
     }
 }
 
@@ -429,7 +449,7 @@ private data class ComputedStyle(
         }
         fontFamily?.let {
             val fontFamilies = fontLoader.ensureRegistered(it)
-            res.setFontFamilies(fontFamilies.toTypedArray())
+            res.fontFamilies = fontFamilies.toTypedArray()
         }
         fontStyle?.let {
             res.fontStyle = it.toSkFontStyle()
@@ -503,7 +523,8 @@ internal class ParagraphBuilder(
     var maxLines: Int = Int.MAX_VALUE,
     val spanStyles: List<Range<SpanStyle>>,
     val placeholders: List<Range<Placeholder>>,
-    val density: Density
+    val density: Density,
+    val textDirection: ResolvedTextDirection
 ) {
     private lateinit var initialStyle: SpanStyle
     private lateinit var defaultStyle: ComputedStyle
@@ -531,7 +552,7 @@ internal class ParagraphBuilder(
         val ps = textStyleToParagraphStyle(textStyle)
 
         if (maxLines != Int.MAX_VALUE) {
-            ps.maxLinesCount = maxLines.toLong()
+            ps.maxLinesCount = maxLines
             ps.ellipsis = ellipsis
         }
 
@@ -679,7 +700,7 @@ internal class ParagraphBuilder(
                         height = fontSizeInHierarchy(
                             density,
                             currentStyle.fontSize,
-                            cut.placeholder.width
+                            cut.placeholder.height
                         ),
                     )
                     ops.add(op)
@@ -713,6 +734,26 @@ internal class ParagraphBuilder(
         style.textAlign?.let {
             pStyle.alignment = it.toSkAlignment()
         }
+
+        if (style.lineHeight.isSpecified) {
+            val strutStyle = StrutStyle()
+
+            strutStyle.isEnabled = true
+            strutStyle.isHeightOverridden = true
+            val fontSize = with(density) {
+                style.fontSize.orDefaultFontSize().toPx()
+            }
+            val lineHeight = when {
+                style.lineHeight.isSp -> with(density) {
+                    style.lineHeight.toPx()
+                }
+                style.lineHeight.isEm -> fontSize * style.lineHeight.value
+                else -> throw IllegalStateException()
+            }
+            strutStyle.height = lineHeight / fontSize
+            pStyle.strutStyle = strutStyle
+        }
+        pStyle.direction = textDirection.toSkDirection()
         return pStyle
     }
 
@@ -738,12 +779,14 @@ internal class ParagraphBuilder(
     }
 }
 
+private fun TextUnit.orDefaultFontSize() = when {
+    isUnspecified -> DefaultFontSize
+    isEm -> DefaultFontSize * value
+    else -> this
+}
+
 private fun SpanStyle.withDefaultFontSize(): SpanStyle {
-    val fontSize = when {
-        this.fontSize.isUnspecified -> DefaultFontSize
-        this.fontSize.isEm -> DefaultFontSize * this.fontSize.value
-        else -> this.fontSize
-    }
+    val fontSize = this.fontSize.orDefaultFontSize()
     val letterSpacing = when {
         this.letterSpacing.isEm -> fontSize * this.letterSpacing.value
         else -> this.letterSpacing
@@ -756,8 +799,8 @@ private fun SpanStyle.withDefaultFontSize(): SpanStyle {
 
 fun FontStyle.toSkFontStyle(): SkFontStyle {
     return when (this) {
-        FontStyle.Normal -> org.jetbrains.skija.FontStyle.NORMAL
-        FontStyle.Italic -> org.jetbrains.skija.FontStyle.ITALIC
+        FontStyle.Italic -> org.jetbrains.skia.FontStyle.ITALIC
+        else -> org.jetbrains.skia.FontStyle.NORMAL
     }
 }
 
@@ -790,14 +833,15 @@ fun PlaceholderVerticalAlign.toSkPlaceholderAlignment(): PlaceholderAlignment {
         PlaceholderVerticalAlign.Top -> PlaceholderAlignment.TOP
         PlaceholderVerticalAlign.Bottom -> PlaceholderAlignment.BOTTOM
         PlaceholderVerticalAlign.Center -> PlaceholderAlignment.MIDDLE
+        else -> error("Invalid PlaceholderVerticalAlign.")
     }
 }
 
-fun Shadow.toSkShadow(): SkShadow {
+internal fun Shadow.toSkShadow(): SkShadow {
     return SkShadow(color.toArgb(), offset.x, offset.y, blurRadius.toDouble())
 }
 
-fun TextAlign.toSkAlignment(): SkAlignment {
+internal fun TextAlign.toSkAlignment(): SkAlignment {
     return when (this) {
         TextAlign.Left -> SkAlignment.LEFT
         TextAlign.Right -> SkAlignment.RIGHT
@@ -805,5 +849,20 @@ fun TextAlign.toSkAlignment(): SkAlignment {
         TextAlign.Justify -> SkAlignment.JUSTIFY
         TextAlign.Start -> SkAlignment.START
         TextAlign.End -> SkAlignment.END
+        else -> error("Invalid TextAlign")
+    }
+}
+
+internal fun ResolvedTextDirection.toSkDirection(): SkDirection {
+    return when (this) {
+        ResolvedTextDirection.Ltr -> SkDirection.LTR
+        ResolvedTextDirection.Rtl -> SkDirection.RTL
+    }
+}
+
+internal fun TextBox.cursorHorizontalPosition(opposite: Boolean = false): Float {
+    return when (direction) {
+        SkDirection.LTR -> if (opposite) rect.left else rect.right
+        SkDirection.RTL -> if (opposite) rect.right else rect.left
     }
 }

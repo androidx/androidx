@@ -26,11 +26,13 @@ public class InnerSettingsDirections {
     public static class Exit implements NavDirections {
         private final HashMap arguments = new HashMap();
 
+        @SuppressWarnings("unchecked")
         private Exit(int exitReason) {
             this.arguments.put("exitReason", exitReason);
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Exit setExitReason(int exitReason) {
             this.arguments.put("exitReason", exitReason);
             return this;

@@ -210,6 +210,7 @@
     <string name="diff_util_activity">RecyclerView/Diff Util</string>
     <string name="add_new_item">Add New Item</string>
     <string name="start_action_mode">Start Action Mode</string>
+    <string name="action_mode_title">Action Mode</string>
 
     <string name="swipe_to_dismiss_activity">RecyclerView/ItemTouchHelper/Swipe To Dismiss</string>
     <string name="drag_and_drop_activity">RecyclerView/ItemTouchHelper/Drag and Drop Activity</string>

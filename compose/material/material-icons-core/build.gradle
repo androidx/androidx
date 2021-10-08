@@ -15,24 +15,20 @@
  */
 
 
-import androidx.build.AndroidXUiPlugin
+import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
-import androidx.build.Publish
+import androidx.build.LibraryType
 import androidx.compose.material.icons.generator.tasks.IconGenerationTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("AndroidXUiPlugin")
+    id("AndroidXComposePlugin")
 }
 
-AndroidXUiPlugin.applyAndConfigureKotlinPlugin(project)
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
-if (!AndroidXUiPlugin.isMultiplatformEnabled(project)) {
+if (!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     dependencies {
         /*
          * When updating dependencies, make sure to make the an an analogous update in the
@@ -40,12 +36,15 @@ if (!AndroidXUiPlugin.isMultiplatformEnabled(project)) {
          */
         kotlinPlugin(project(":compose:compiler:compiler"))
 
-        api(project(":compose:ui:ui"))
-        implementation(KOTLIN_STDLIB)
+        api("androidx.compose.ui:ui:1.0.0")
+        implementation(project(":compose:runtime:runtime"))
+        implementation(libs.kotlinStdlib)
+
+        samples(project(":compose:material:material-icons-core:material-icons-core-samples"))
     }
 }
 
-if (AndroidXUiPlugin.isMultiplatformEnabled(project)) {
+if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     kotlin {
         android()
         jvm("desktop")
@@ -56,26 +55,29 @@ if (AndroidXUiPlugin.isMultiplatformEnabled(project)) {
          */
         sourceSets {
             commonMain.dependencies {
-                implementation(KOTLIN_STDLIB_COMMON)
+                implementation(libs.kotlinStdlibCommon)
                 api(project(":compose:ui:ui"))
             }
 
             androidMain.dependencies {
-                implementation(KOTLIN_STDLIB)
+                implementation(libs.kotlinStdlib)
             }
         }
+    }
+    dependencies {
+        samples(project(":compose:material:material-icons-core:material-icons-core-samples"))
     }
 }
 
 IconGenerationTask.registerCoreIconProject(
         project,
         android,
-        AndroidXUiPlugin.isMultiplatformEnabled(project)
+        AndroidXComposePlugin.isMultiplatformEnabled(project)
 )
 
 androidx {
     name = "Compose Material Icons Core"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.Compose.MATERIAL
     inceptionYear = "2020"
     description = "Compose Material Design core icons. This module contains the most commonly used set of Material icons."

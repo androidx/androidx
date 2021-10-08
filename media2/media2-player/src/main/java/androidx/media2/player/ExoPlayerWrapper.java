@@ -398,16 +398,19 @@ import java.util.Map;
                 primaryAudioMimeType = mimeType;
             }
         }
-        PersistableBundle bundle = new PersistableBundle();
+        PersistableBundle bundle = PersistableBundleHelper.Api21Impl.createInstance();
         if (primaryVideoMimeType != null) {
-            bundle.putString(MediaPlayer2.MetricsConstants.MIME_TYPE_VIDEO, primaryVideoMimeType);
+            PersistableBundleHelper.Api21Impl.putString(bundle,
+                    MediaPlayer2.MetricsConstants.MIME_TYPE_VIDEO, primaryVideoMimeType);
         }
         if (primaryAudioMimeType != null) {
-            bundle.putString(MediaPlayer2.MetricsConstants.MIME_TYPE_AUDIO, primaryAudioMimeType);
+            PersistableBundleHelper.Api21Impl.putString(bundle,
+                    MediaPlayer2.MetricsConstants.MIME_TYPE_AUDIO, primaryAudioMimeType);
         }
-        bundle.putLong(MediaPlayer2.MetricsConstants.DURATION,
+        PersistableBundleHelper.Api21Impl.putLong(bundle, MediaPlayer2.MetricsConstants.DURATION,
                 durationMs == C.TIME_UNSET ? -1 : durationMs);
-        bundle.putLong(MediaPlayer2.MetricsConstants.PLAYING, playingTimeMs);
+        PersistableBundleHelper.Api21Impl.putLong(bundle, MediaPlayer2.MetricsConstants.PLAYING,
+                playingTimeMs);
         return bundle;
     }
 

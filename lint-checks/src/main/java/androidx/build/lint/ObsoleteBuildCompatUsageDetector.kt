@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.build.lint
 
 import com.android.tools.lint.detector.api.Category
@@ -38,7 +40,7 @@ class ObsoleteBuildCompatUsageDetector : Detector(), Detector.UastScanner {
 
     override fun getApplicableMethodNames() = methodsToApiLevels.keys.toList()
 
-    override fun visitMethod(context: JavaContext, node: UCallExpression, method: PsiMethod) {
+    override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (!context.evaluator.isMemberInClass(method, "androidx.core.os.BuildCompat")) {
             return
         }

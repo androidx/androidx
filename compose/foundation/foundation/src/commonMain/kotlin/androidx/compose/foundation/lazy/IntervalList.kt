@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ internal class IntervalList<T> {
         var right = list.lastIndex
 
         while (left < right) {
-            val middle = (left + right) / 2
+            val middle = left + (right - left) / 2
 
             val middleValue = list[middle].startIndex
             if (middleValue == value) {

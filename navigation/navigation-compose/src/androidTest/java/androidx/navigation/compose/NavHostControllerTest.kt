@@ -18,24 +18,22 @@ package androidx.navigation.compose
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination
-import androidx.navigation.NavDestinationBuilder
-import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.createGraph
 import androidx.navigation.get
-import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.TestNavigator
+import androidx.testutils.test
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.lang.IllegalArgumentException
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -47,7 +45,7 @@ class NavHostControllerTest {
     fun testCurrentBackStackEntrySetGraph() {
         var currentBackStackEntry: State<NavBackStackEntry?> = mutableStateOf(null)
         composeTestRule.setContent {
-            val navController = TestNavHostController(LocalContext.current)
+            val navController = rememberNavController(remember { TestNavigator() })
 
             navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
                 test(FIRST_DESTINATION)
@@ -57,7 +55,7 @@ class NavHostControllerTest {
         }
 
         assertWithMessage("the currentBackStackEntry should be set with the graph")
-            .that(currentBackStackEntry.value?.arguments?.getString(KEY_ROUTE))
+            .that(currentBackStackEntry.value?.destination?.route)
             .isEqualTo(FIRST_DESTINATION)
     }
 
@@ -66,7 +64,7 @@ class NavHostControllerTest {
         var currentBackStackEntry: State<NavBackStackEntry?> = mutableStateOf(null)
         lateinit var navController: NavController
         composeTestRule.setContent {
-            navController = TestNavHostController(LocalContext.current)
+            navController = rememberNavController(remember { TestNavigator() })
 
             navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
                 test(FIRST_DESTINATION)
@@ -77,7 +75,7 @@ class NavHostControllerTest {
         }
 
         assertWithMessage("the currentBackStackEntry should be set with the graph")
-            .that(currentBackStackEntry.value?.arguments?.getString(KEY_ROUTE))
+            .that(currentBackStackEntry.value?.destination?.route)
             .isEqualTo(FIRST_DESTINATION)
 
         composeTestRule.runOnUiThread {
@@ -85,16 +83,16 @@ class NavHostControllerTest {
         }
 
         assertWithMessage("the currentBackStackEntry should be after navigate")
-            .that(currentBackStackEntry.value?.arguments?.getString(KEY_ROUTE))
+            .that(currentBackStackEntry.value?.destination?.route)
             .isEqualTo(SECOND_DESTINATION)
     }
 
     @Test
     fun testCurrentBackStackEntryPop() {
         var currentBackStackEntry: State<NavBackStackEntry?> = mutableStateOf(null)
-        lateinit var navController: TestNavHostController
+        lateinit var navController: NavHostController
         composeTestRule.setContent {
-            navController = TestNavHostController(LocalContext.current)
+            navController = rememberNavController(remember { TestNavigator() })
 
             navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
                 test(FIRST_DESTINATION)
@@ -105,12 +103,12 @@ class NavHostControllerTest {
         }
 
         composeTestRule.runOnUiThread {
-            navController.setCurrentDestination(SECOND_DESTINATION)
+            navController.navigate(SECOND_DESTINATION)
             navController.popBackStack()
         }
 
         assertWithMessage("the currentBackStackEntry should return to first destination after pop")
-            .that(currentBackStackEntry.value?.arguments?.getString(KEY_ROUTE))
+            .that(currentBackStackEntry.value?.destination?.route)
             .isEqualTo(FIRST_DESTINATION)
     }
 
@@ -118,10 +116,8 @@ class NavHostControllerTest {
     fun testNavigateThenNavigateWithPop() {
         var currentBackStackEntry: State<NavBackStackEntry?> = mutableStateOf(null)
         lateinit var navController: NavController
-        val navigator = TestNavigator()
         composeTestRule.setContent {
-            navController = TestNavHostController(LocalContext.current)
-            navController.navigatorProvider.addNavigator(navigator)
+            navController = rememberNavController(remember { TestNavigator() })
 
             navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
                 test(FIRST_DESTINATION)
@@ -131,8 +127,10 @@ class NavHostControllerTest {
             currentBackStackEntry = navController.currentBackStackEntryAsState()
         }
 
+        val navigator = navController.navigatorProvider[TestNavigator::class]
+
         assertWithMessage("the currentBackStackEntry should be set with the graph")
-            .that(currentBackStackEntry.value?.arguments?.getString(KEY_ROUTE))
+            .that(currentBackStackEntry.value?.destination?.route)
             .isEqualTo(FIRST_DESTINATION)
         assertThat(navigator.backStack.size).isEqualTo(1)
 
@@ -143,7 +141,7 @@ class NavHostControllerTest {
         }
 
         assertWithMessage("the currentBackStackEntry should be after navigate")
-            .that(currentBackStackEntry.value?.arguments?.getString(KEY_ROUTE))
+            .that(currentBackStackEntry.value?.destination?.route)
             .isEqualTo(SECOND_DESTINATION)
         assertWithMessage("the second destination should be the only one on the back stack")
             .that(navigator.backStack.size)
@@ -154,10 +152,8 @@ class NavHostControllerTest {
     fun testNavigateOptionSingleTop() {
         var currentBackStackEntry: State<NavBackStackEntry?> = mutableStateOf(null)
         lateinit var navController: NavController
-        val navigator = TestNavigator()
         composeTestRule.setContent {
-            navController = TestNavHostController(LocalContext.current)
-            navController.navigatorProvider.addNavigator(navigator)
+            navController = rememberNavController(remember { TestNavigator() })
 
             navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
                 test(FIRST_DESTINATION)
@@ -167,8 +163,9 @@ class NavHostControllerTest {
             currentBackStackEntry = navController.currentBackStackEntryAsState()
         }
 
+        val navigator = navController.navigatorProvider[TestNavigator::class]
         assertWithMessage("the currentBackStackEntry should be set with the graph")
-            .that(currentBackStackEntry.value?.arguments?.getString(KEY_ROUTE))
+            .that(currentBackStackEntry.value?.destination?.route)
             .isEqualTo(FIRST_DESTINATION)
         assertThat(navigator.backStack.size).isEqualTo(1)
 
@@ -192,10 +189,42 @@ class NavHostControllerTest {
     }
 
     @Test
+    fun testNavigateOptionSingleTopDifferentArguments() {
+        var value = ""
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first?arg={arg}") {
+                composable("first?arg={arg}") { entry ->
+                    if (entry.arguments?.containsKey("arg") == true) {
+                        value = entry.arguments?.getString("arg", "").toString()
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            navController.navigate("first?arg=value2") {
+                launchSingleTop = true
+            }
+        }
+        composeTestRule.runOnIdle {
+            val navigator = navController.navigatorProvider.get<ComposeNavigator>(
+                navController.currentDestination?.navigatorName!!
+            )
+            assertWithMessage("there should be 1 destination on back stack when using singleTop")
+                .that(navigator.backStack.value.size)
+                .isEqualTo(1)
+            assertThat(value).isEqualTo("value2")
+        }
+    }
+
+    @Test
     fun testGetBackStackEntry() {
         lateinit var navController: NavController
         composeTestRule.setContent {
-            navController = TestNavHostController(LocalContext.current)
+            navController = rememberNavController(remember { TestNavigator() })
 
             navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
                 test(FIRST_DESTINATION)
@@ -209,13 +238,13 @@ class NavHostControllerTest {
 
         assertWithMessage("first destination should be on back stack")
             .that(
-                navController.getBackStackEntry(FIRST_DESTINATION).arguments?.getString(KEY_ROUTE)
+                navController.getBackStackEntry(FIRST_DESTINATION).destination.route
             )
             .isEqualTo(FIRST_DESTINATION)
 
         assertWithMessage("second destination should be on back stack")
             .that(
-                navController.getBackStackEntry(SECOND_DESTINATION).arguments?.getString(KEY_ROUTE)
+                navController.getBackStackEntry(SECOND_DESTINATION).destination.route
             )
             .isEqualTo(SECOND_DESTINATION)
     }
@@ -224,7 +253,7 @@ class NavHostControllerTest {
     fun testGetBackStackEntryNoEntryFound() {
         lateinit var navController: NavController
         composeTestRule.setContent {
-            navController = TestNavHostController(LocalContext.current)
+            navController = rememberNavController(remember { TestNavigator() })
 
             navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
                 test(FIRST_DESTINATION)
@@ -248,20 +277,6 @@ class NavHostControllerTest {
         }
     }
 }
-
-internal inline fun NavGraphBuilder.test(
-    route: String,
-    builder: NavDestinationBuilder<NavDestination>.() -> Unit = { deepLink(createRoute(route)) }
-) = destination(
-    NavDestinationBuilder<NavDestination>(
-        provider["test"],
-        createRoute(route).hashCode()
-    ).apply(builder).apply { argument(KEY_ROUTE) { defaultValue = route } }
-)
-
-internal fun TestNavHostController.setCurrentDestination(
-    route: String
-) = setCurrentDestination(createRoute(route).hashCode())
 
 private const val FIRST_DESTINATION = "first"
 private const val SECOND_DESTINATION = "second"

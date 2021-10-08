@@ -26,8 +26,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
@@ -50,6 +54,12 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.max
 
 /**
+ * <a href="https://material.io/components/tabs" class="external" target="_blank">Material Design tab</a>.
+ *
+ * Tabs organize content across different screens, data sets, and other interactions.
+ *
+ * ![Tab image](https://developer.android.com/images/reference/androidx/compose/material/tab.png)
+ *
  * A Tab represents a single page of content using a text label and/or icon. It represents its
  * selected state by tinting the text label and/or image with [selectedContentColor].
  *
@@ -73,6 +83,8 @@ import kotlin.math.max
  * @param selectedContentColor the color for the content of this tab when selected, and the color
  * of the ripple.
  * @param unselectedContentColor the color for the content of this tab when not selected
+ *
+ * @see LeadingIconTab
  */
 @Composable
 fun Tab(
@@ -106,6 +118,86 @@ fun Tab(
 }
 
 /**
+ * <a href="https://material.io/components/tabs" class="external" target="_blank">Material Design tab</a>.
+ *
+ * Tabs organize content across different screens, data sets, and other interactions.
+ *
+ * ![Tab image](https://developer.android.com/images/reference/androidx/compose/material/tab.png)
+ *
+ * A LeadingIconTab represents a single page of content using a text label and an icon in
+ * front of the label.
+ * It represents its selected state by tinting the text label and icon with [selectedContentColor].
+ *
+ * This should typically be used inside of a [TabRow], see the corresponding documentation for
+ * example usage.
+ *
+ * @param selected whether this tab is selected or not
+ * @param onClick the callback to be invoked when this tab is selected
+ * @param text the text label displayed in this tab
+ * @param icon the icon displayed in this tab
+ * @param modifier optional [Modifier] for this tab
+ * @param enabled controls the enabled state of this tab. When `false`, this tab will not
+ * be clickable and will appear disabled to accessibility services.
+ * @param interactionSource the [MutableInteractionSource] representing the different [Interaction]s
+ * present on this tab. You can create and pass in your own remembered [MutableInteractionSource] if
+ * you want to read the [Interaction] and customize the appearance / behavior of this tab
+ * in different [Interaction]s.
+ * @param selectedContentColor the color for the content of this tab when selected, and the color
+ * of the ripple.
+ * @param unselectedContentColor the color for the content of this tab when not selected
+ *
+ * @see Tab
+ */
+@ExperimentalMaterialApi
+@Composable
+fun LeadingIconTab(
+    selected: Boolean,
+    onClick: () -> Unit,
+    text: @Composable (() -> Unit),
+    icon: @Composable (() -> Unit),
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    selectedContentColor: Color = LocalContentColor.current,
+    unselectedContentColor: Color = selectedContentColor.copy(alpha = ContentAlpha.medium)
+) {
+    // The color of the Ripple should always the be selected color, as we want to show the color
+    // before the item is considered selected, and hence before the new contentColor is
+    // provided by TabTransition.
+    val ripple = rememberRipple(bounded = true, color = selectedContentColor)
+
+    TabTransition(selectedContentColor, unselectedContentColor, selected) {
+        Row(
+            modifier = modifier
+                .height(SmallTabHeight)
+                .selectable(
+                    selected = selected,
+                    onClick = onClick,
+                    enabled = enabled,
+                    role = Role.Tab,
+                    interactionSource = interactionSource,
+                    indication = ripple
+                )
+                .padding(horizontal = HorizontalTextPadding)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            icon()
+            Spacer(Modifier.requiredWidth(TextDistanceFromLeadingIcon))
+            val style = MaterialTheme.typography.button.copy(textAlign = TextAlign.Center)
+            ProvideTextStyle(style, content = text)
+        }
+    }
+}
+
+/**
+ * <a href="https://material.io/components/tabs" class="external" target="_blank">Material Design tab</a>.
+ *
+ * Tabs organize content across different screens, data sets, and other interactions.
+ *
+ * ![Tab image](https://developer.android.com/images/reference/androidx/compose/material/tab.png)
+ *
  * Generic [Tab] overload that is not opinionated about content / color. See the other overload
  * for a Tab that has specific slots for text and / or an icon, as well as providing the correct
  * colors for selected / unselected states.
@@ -142,7 +234,7 @@ fun Tab(
     // The color of the Ripple should always the selected color, as we want to show the color
     // before the item is considered selected, and hence before the new contentColor is
     // provided by TabTransition.
-    val ripple = rememberRipple(bounded = false, color = selectedContentColor)
+    val ripple = rememberRipple(bounded = true, color = selectedContentColor)
 
     TabTransition(selectedContentColor, unselectedContentColor, selected) {
         Column(
@@ -257,55 +349,25 @@ private fun TabBaselineLayout(
                     firstBaseline = firstBaseline!!,
                     lastBaseline = lastBaseline!!
                 )
-                textPlaceable != null -> placeText(
-                    density = this@Layout,
-                    textPlaceable = textPlaceable,
-                    tabHeight = tabHeight,
-                    firstBaseline = firstBaseline!!,
-                    lastBaseline = lastBaseline!!
-                )
-                iconPlaceable != null -> placeIcon(iconPlaceable, tabHeight)
-                else -> {}
+                textPlaceable != null -> placeTextOrIcon(textPlaceable, tabHeight)
+                iconPlaceable != null -> placeTextOrIcon(iconPlaceable, tabHeight)
+                else -> {
+                }
             }
         }
     }
 }
 
 /**
- * Places the provided [iconPlaceable] in the vertical center of the provided [tabHeight].
+ * Places the provided [textOrIconPlaceable] in the vertical center of the provided
+ * [tabHeight].
  */
-private fun Placeable.PlacementScope.placeIcon(
-    iconPlaceable: Placeable,
+private fun Placeable.PlacementScope.placeTextOrIcon(
+    textOrIconPlaceable: Placeable,
     tabHeight: Int
 ) {
-    val iconY = (tabHeight - iconPlaceable.height) / 2
-    iconPlaceable.placeRelative(0, iconY)
-}
-
-/**
- * Places the provided [textPlaceable] offset from the bottom of the tab using the correct
- * baseline offset.
- */
-private fun Placeable.PlacementScope.placeText(
-    density: Density,
-    textPlaceable: Placeable,
-    tabHeight: Int,
-    firstBaseline: Int,
-    lastBaseline: Int
-) {
-    val baselineOffset = if (firstBaseline == lastBaseline) {
-        SingleLineTextBaseline
-    } else {
-        DoubleLineTextBaseline
-    }
-
-    // Total offset between the last text baseline and the bottom of the Tab layout
-    val totalOffset = with(density) {
-        baselineOffset.roundToPx() + TabRowDefaults.IndicatorHeight.roundToPx()
-    }
-
-    val textPlaceableY = tabHeight - lastBaseline - totalOffset
-    textPlaceable.placeRelative(0, textPlaceableY)
+    val contentY = (tabHeight - textOrIconPlaceable.height) / 2
+    textOrIconPlaceable.placeRelative(0, contentY)
 }
 
 /**
@@ -360,15 +422,13 @@ private const val TabFadeOutAnimationDuration = 100
 // The horizontal padding on the left and right of text
 private val HorizontalTextPadding = 16.dp
 
-// Distance from the top of the indicator to the text baseline when there is one line of text
-private val SingleLineTextBaseline = 18.dp
 // Distance from the top of the indicator to the text baseline when there is one line of text and an
 // icon
 private val SingleLineTextBaselineWithIcon = 14.dp
-// Distance from the top of the indicator to the last text baseline when there are two lines of text
-private val DoubleLineTextBaseline = 10.dp
 // Distance from the top of the indicator to the last text baseline when there are two lines of text
 // and an icon
 private val DoubleLineTextBaselineWithIcon = 6.dp
 // Distance from the first text baseline to the bottom of the icon in a combined tab
 private val IconDistanceFromBaseline = 20.sp
+// Distance from the end of the leading icon to the start of the text
+private val TextDistanceFromLeadingIcon = 8.dp

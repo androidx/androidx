@@ -23,6 +23,7 @@ public class MainFragmentArgs implements NavArgs {
     private MainFragmentArgs() {
     }
 
+    @SuppressWarnings("unchecked")
     private MainFragmentArgs(HashMap argumentsMap) {
         this.arguments.putAll(argumentsMap);
     }
@@ -348,6 +349,79 @@ public class MainFragmentArgs implements NavArgs {
         return __result;
     }
 
+    @SuppressWarnings("unchecked")
+    @NonNull
+    public SavedStateHandle toSavedStateHandle() {
+        SavedStateHandle __result = new SavedStateHandle();
+        if (arguments.containsKey("main")) {
+            String main = (String) arguments.get("main");
+            __result.set("main", main);
+        }
+        if (arguments.containsKey("optional")) {
+            int optional = (int) arguments.get("optional");
+            __result.set("optional", optional);
+        } else {
+            __result.set("optional", -1);
+        }
+        if (arguments.containsKey("reference")) {
+            int reference = (int) arguments.get("reference");
+            __result.set("reference", reference);
+        } else {
+            __result.set("reference", R.drawable.background);
+        }
+        if (arguments.containsKey("referenceZeroDefaultValue")) {
+            int referenceZeroDefaultValue = (int) arguments.get("referenceZeroDefaultValue");
+            __result.set("referenceZeroDefaultValue", referenceZeroDefaultValue);
+        } else {
+            __result.set("referenceZeroDefaultValue", 0);
+        }
+        if (arguments.containsKey("floatArg")) {
+            float floatArg = (float) arguments.get("floatArg");
+            __result.set("floatArg", floatArg);
+        } else {
+            __result.set("floatArg", 1F);
+        }
+        if (arguments.containsKey("floatArrayArg")) {
+            float[] floatArrayArg = (float[]) arguments.get("floatArrayArg");
+            __result.set("floatArrayArg", floatArrayArg);
+        }
+        if (arguments.containsKey("objectArrayArg")) {
+            ActivityInfo[] objectArrayArg = (ActivityInfo[]) arguments.get("objectArrayArg");
+            __result.set("objectArrayArg", objectArrayArg);
+        }
+        if (arguments.containsKey("boolArg")) {
+            boolean boolArg = (boolean) arguments.get("boolArg");
+            __result.set("boolArg", boolArg);
+        } else {
+            __result.set("boolArg", true);
+        }
+        if (arguments.containsKey("optionalParcelable")) {
+            ActivityInfo optionalParcelable = (ActivityInfo) arguments.get("optionalParcelable");
+            if (Parcelable.class.isAssignableFrom(ActivityInfo.class) || optionalParcelable == null) {
+                __result.set("optionalParcelable", Parcelable.class.cast(optionalParcelable));
+            } else if (Serializable.class.isAssignableFrom(ActivityInfo.class)) {
+                __result.set("optionalParcelable", Serializable.class.cast(optionalParcelable));
+            } else {
+                throw new UnsupportedOperationException(ActivityInfo.class.getName() + " must implement Parcelable or Serializable or must be an Enum.");
+            }
+        } else {
+            __result.set("optionalParcelable", null);
+        }
+        if (arguments.containsKey("enumArg")) {
+            AccessMode enumArg = (AccessMode) arguments.get("enumArg");
+            if (Parcelable.class.isAssignableFrom(AccessMode.class) || enumArg == null) {
+                __result.set("enumArg", Parcelable.class.cast(enumArg));
+            } else if (Serializable.class.isAssignableFrom(AccessMode.class)) {
+                __result.set("enumArg", Serializable.class.cast(enumArg));
+            } else {
+                throw new UnsupportedOperationException(AccessMode.class.getName() + " must implement Parcelable or Serializable or must be an Enum.");
+            }
+        } else {
+            __result.set("enumArg", AccessMode.READ);
+        }
+        return __result;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {
@@ -452,13 +526,15 @@ public class MainFragmentArgs implements NavArgs {
                 + "}";
     }
 
-    public static class Builder {
+    public static final class Builder {
         private final HashMap arguments = new HashMap();
 
-        public Builder(MainFragmentArgs original) {
+        @SuppressWarnings("unchecked")
+        public Builder(@NonNull MainFragmentArgs original) {
             this.arguments.putAll(original.arguments);
         }
 
+        @SuppressWarnings("unchecked")
         public Builder(@NonNull String main, @NonNull float[] floatArrayArg,
                 @NonNull ActivityInfo[] objectArrayArg) {
             if (main == null) {
@@ -482,6 +558,7 @@ public class MainFragmentArgs implements NavArgs {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setMain(@NonNull String main) {
             if (main == null) {
                 throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
@@ -491,30 +568,35 @@ public class MainFragmentArgs implements NavArgs {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setOptional(int optional) {
             this.arguments.put("optional", optional);
             return this;
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setReference(int reference) {
             this.arguments.put("reference", reference);
             return this;
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setReferenceZeroDefaultValue(int referenceZeroDefaultValue) {
             this.arguments.put("referenceZeroDefaultValue", referenceZeroDefaultValue);
             return this;
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setFloatArg(float floatArg) {
             this.arguments.put("floatArg", floatArg);
             return this;
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setFloatArrayArg(@NonNull float[] floatArrayArg) {
             if (floatArrayArg == null) {
                 throw new IllegalArgumentException("Argument \"floatArrayArg\" is marked as non-null but was passed a null value.");
@@ -524,6 +606,7 @@ public class MainFragmentArgs implements NavArgs {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setObjectArrayArg(@NonNull ActivityInfo[] objectArrayArg) {
             if (objectArrayArg == null) {
                 throw new IllegalArgumentException("Argument \"objectArrayArg\" is marked as non-null but was passed a null value.");
@@ -533,18 +616,21 @@ public class MainFragmentArgs implements NavArgs {
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setBoolArg(boolean boolArg) {
             this.arguments.put("boolArg", boolArg);
             return this;
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setOptionalParcelable(@Nullable ActivityInfo optionalParcelable) {
             this.arguments.put("optionalParcelable", optionalParcelable);
             return this;
         }
 
         @NonNull
+        @SuppressWarnings("unchecked")
         public Builder setEnumArg(@NonNull AccessMode enumArg) {
             if (enumArg == null) {
                 throw new IllegalArgumentException("Argument \"enumArg\" is marked as non-null but was passed a null value.");
@@ -553,56 +639,56 @@ public class MainFragmentArgs implements NavArgs {
             return this;
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         @NonNull
         public String getMain() {
             return (String) arguments.get("main");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         public int getOptional() {
             return (int) arguments.get("optional");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         public int getReference() {
             return (int) arguments.get("reference");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         public int getReferenceZeroDefaultValue() {
             return (int) arguments.get("referenceZeroDefaultValue");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         public float getFloatArg() {
             return (float) arguments.get("floatArg");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         @NonNull
         public float[] getFloatArrayArg() {
             return (float[]) arguments.get("floatArrayArg");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         @NonNull
         public ActivityInfo[] getObjectArrayArg() {
             return (ActivityInfo[]) arguments.get("objectArrayArg");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         public boolean getBoolArg() {
             return (boolean) arguments.get("boolArg");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         @Nullable
         public ActivityInfo getOptionalParcelable() {
             return (ActivityInfo) arguments.get("optionalParcelable");
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked","GetterOnBuilder"})
         @NonNull
         public AccessMode getEnumArg() {
             return (AccessMode) arguments.get("enumArg");

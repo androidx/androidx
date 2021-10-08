@@ -16,16 +16,21 @@
 
 package androidx.compose.ui.input.pointer
 
-import android.annotation.SuppressLint
 import android.os.Build
+import android.util.SparseLongArray
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_HOVER_ENTER
+import android.view.MotionEvent.ACTION_HOVER_EXIT
+import android.view.MotionEvent.ACTION_HOVER_MOVE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
+import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 
 /**
@@ -40,7 +45,19 @@ internal class MotionEventAdapter {
      * with it. This holds that association.
      */
     @VisibleForTesting
-    internal val motionEventToComposePointerIdMap: MutableMap<Int, PointerId> = mutableMapOf()
+    internal val motionEventToComposePointerIdMap = SparseLongArray()
+
+    private val pointers: MutableList<PointerInputEventData> = mutableListOf()
+
+    /**
+     * The most recent hover event's tool type.
+     */
+    private var hoverPointerToolType: Int = -1
+
+    /**
+     * The most recent hover event's source type.
+     */
+    private var hoverPointerSource: Int = -1
 
     /**
      * Converts a single [MotionEvent] from an Android event stream into a [PointerInputEvent], or
@@ -57,41 +74,40 @@ internal class MotionEventAdapter {
         motionEvent: MotionEvent,
         positionCalculator: PositionCalculator
     ): PointerInputEvent? {
-
-        if (motionEvent.actionMasked == ACTION_CANCEL) {
+        val action = motionEvent.actionMasked
+        if (action == ACTION_CANCEL) {
+            hoverPointerToolType = -1
+            hoverPointerSource = -1
             motionEventToComposePointerIdMap.clear()
             return null
         }
+        addFreshIds(motionEvent)
 
-        val downIndex = when (motionEvent.actionMasked) {
-            ACTION_POINTER_DOWN -> motionEvent.actionIndex
-            ACTION_DOWN -> 0
-            else -> null
-        }
+        val isHover = action == ACTION_HOVER_EXIT || action == ACTION_HOVER_MOVE ||
+            action == ACTION_HOVER_ENTER
 
-        val upIndex = when (motionEvent.actionMasked) {
-            ACTION_POINTER_UP -> motionEvent.actionIndex
+        val upIndex = when (action) {
             ACTION_UP -> 0
-            else -> null
+            ACTION_POINTER_UP -> motionEvent.actionIndex
+            else -> -1
         }
 
-        // TODO(shepshapard): Avoid allocating for every event.
-        val pointers: MutableList<PointerInputEventData> = mutableListOf()
+        pointers.clear()
 
         // This converts the MotionEvent into a list of PointerInputEventData, and updates
         // internal record keeping.
-        @Suppress("NAME_SHADOWING")
         for (i in 0 until motionEvent.pointerCount) {
             pointers.add(
                 createPointerInputEventData(
                     positionCalculator,
                     motionEvent,
                     i,
-                    downIndex,
-                    upIndex
+                    !isHover && i != upIndex
                 )
             )
         }
+
+        removeStaleIds(motionEvent)
 
         return PointerInputEvent(
             motionEvent.eventTime,
@@ -101,88 +117,155 @@ internal class MotionEventAdapter {
     }
 
     /**
+     * Add any new pointer IDs. If a pointer is new, [hoverPointerToolType] and [hoverPointerSource]
+     * are cleared and possibly set to new values if the new pointer hovers.
+     */
+    private fun addFreshIds(motionEvent: MotionEvent) {
+        if (hoverPointerSource == -1) {
+            addNewIdIfNecessary(motionEvent)
+            return
+        }
+        if (motionEvent.pointerCount == 1 &&
+            motionEventToComposePointerIdMap.size() == 1 &&
+            motionEventToComposePointerIdMap.indexOfKey(motionEvent.getPointerId(0)) == 0 &&
+            motionEvent.isFromSource(hoverPointerSource) &&
+            motionEvent.getToolType(0) == hoverPointerToolType
+        ) {
+            return // nothing to add. This is the same one as the last event.
+        }
+        hoverPointerSource = -1
+        hoverPointerToolType = -1
+        addNewIdIfNecessary(motionEvent)
+    }
+
+    /**
+     * If there is a new pointer, it is added. If the new pointer is hovering, [hoverPointerSource]
+     * and [hoverPointerToolType] are set to the new pointer's values.
+     */
+    private fun addNewIdIfNecessary(motionEvent: MotionEvent) {
+        when (motionEvent.actionMasked) {
+            ACTION_HOVER_ENTER -> {
+                // Must be a new hoverable source
+                hoverPointerSource = motionEvent.source
+                hoverPointerToolType = motionEvent.getToolType(0)
+                motionEventToComposePointerIdMap.clear()
+                motionEventToComposePointerIdMap.put(motionEvent.getPointerId(0), nextId++)
+            }
+            ACTION_DOWN -> {
+                motionEventToComposePointerIdMap.clear()
+                motionEventToComposePointerIdMap.put(motionEvent.getPointerId(0), nextId++)
+            }
+            ACTION_POINTER_DOWN -> {
+                val index = motionEvent.actionIndex
+                motionEventToComposePointerIdMap.put(motionEvent.getPointerId(index), nextId++)
+            }
+        }
+    }
+
+    /**
+     * Remove an existing pointer.
+     */
+    private fun removePointerId(motionEventPointerId: Int) {
+        val index = motionEventToComposePointerIdMap.indexOfKey(motionEventPointerId)
+        check(index >= 0) {
+            "Trying to remove pointer ID $motionEventPointerId that doesn't exist"
+        }
+        motionEventToComposePointerIdMap.removeAt(index)
+    }
+
+    /**
+     * Remove any raised pointers if they didn't previously hover. Anything that hovers
+     * will stay until a different event causes it to be removed.
+     */
+    private fun removeStaleIds(motionEvent: MotionEvent) {
+        when (motionEvent.actionMasked) {
+            ACTION_POINTER_UP -> removePointerId(motionEvent.getPointerId(motionEvent.actionIndex))
+            ACTION_UP ->
+                if (hoverPointerSource == -1) {
+                    // This wasn't hovering, so we can remove it.
+                    check(motionEventToComposePointerIdMap.size() == 1) {
+                        "Should be removing the last pointer ID, but there are " +
+                            "${motionEventToComposePointerIdMap.size()}"
+                    }
+                    removePointerId(motionEvent.getPointerId(0))
+                }
+        }
+    }
+
+    /**
      * Creates a new PointerInputEventData.
      */
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun createPointerInputEventData(
         positionCalculator: PositionCalculator,
         motionEvent: MotionEvent,
         index: Int,
-        downIndex: Int?,
-        upIndex: Int?
+        pressed: Boolean
     ): PointerInputEventData {
 
         val motionEventPointerId = motionEvent.getPointerId(index)
 
-        val pointerId =
-            when (index) {
-                downIndex ->
-                    PointerId(nextId++).also {
-                        motionEventToComposePointerIdMap[motionEventPointerId] = it
-                    }
-                upIndex ->
-                    motionEventToComposePointerIdMap.remove(motionEventPointerId)
-                else ->
-                    motionEventToComposePointerIdMap[motionEventPointerId]
-            } ?: throw IllegalStateException(
-                "Compose assumes that all pointer ids in MotionEvents are first provided " +
-                    "alongside ACTION_DOWN or ACTION_POINTER_DOWN.  This appears not " +
-                    "to have been the case"
-            )
+        val pointerIndex = motionEventToComposePointerIdMap.indexOfKey(motionEventPointerId)
+        check(pointerIndex >= 0) {
+            "Compose assumes that all pointer ids in MotionEvents are first provided " +
+                "alongside ACTION_DOWN, ACTION_POINTER_DOWN, or ACTION_HOVER_ENTER.  Instead" +
+                " the first event was seen for ID $motionEventPointerId with " +
+                MotionEvent.actionToString(motionEvent.actionMasked)
+        }
+        val pointerId = PointerId(motionEventToComposePointerIdMap.valueAt(pointerIndex))
 
-        return createPointerInputEventData(
-            positionCalculator,
+        var position = Offset(motionEvent.getX(index), motionEvent.getY(index))
+        val rawPosition: Offset
+        if (index == 0) {
+            rawPosition = Offset(motionEvent.rawX, motionEvent.rawY)
+            position = positionCalculator.screenToLocal(rawPosition)
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            rawPosition = MotionEventHelper.toRawOffset(motionEvent, index)
+            position = positionCalculator.screenToLocal(rawPosition)
+        } else {
+            rawPosition = positionCalculator.localToScreen(position)
+        }
+        val toolType = when (motionEvent.getToolType(index)) {
+            MotionEvent.TOOL_TYPE_UNKNOWN -> PointerType.Unknown
+            MotionEvent.TOOL_TYPE_FINGER -> PointerType.Touch
+            MotionEvent.TOOL_TYPE_STYLUS -> PointerType.Stylus
+            MotionEvent.TOOL_TYPE_MOUSE -> PointerType.Mouse
+            MotionEvent.TOOL_TYPE_ERASER -> PointerType.Eraser
+            else -> PointerType.Unknown
+        }
+
+        val historical = mutableListOf<HistoricalChange>()
+        with(motionEvent) {
+            repeat(getHistorySize()) { pos ->
+                val historicalChange = HistoricalChange(
+                    getHistoricalEventTime(pos),
+                    Offset(getHistoricalX(index, pos), getHistoricalY(index, pos))
+                )
+                historical.add(historicalChange)
+            }
+        }
+
+        return PointerInputEventData(
             pointerId,
             motionEvent.eventTime,
-            motionEvent,
-            index,
-            upIndex
+            rawPosition,
+            position,
+            pressed,
+            toolType,
+            historical
         )
     }
 }
 
 /**
- * Creates a new PointerInputData.
+ * This class is here to ensure that the classes that use this API will get verified and can be
+ * AOT compiled. It is expected that this class will soft-fail verification, but the classes
+ * which use this method will pass.
  */
-private fun createPointerInputEventData(
-    positionCalculator: PositionCalculator,
-    pointerId: PointerId,
-    timestamp: Long,
-    motionEvent: MotionEvent,
-    index: Int,
-    upIndex: Int?
-): PointerInputEventData {
-    var position = Offset(motionEvent.getX(index), motionEvent.getY(index))
-    val rawPosition: Offset
-    if (index == 0) {
-        rawPosition = Offset(motionEvent.rawX, motionEvent.rawY)
-        position = positionCalculator.screenToLocal(rawPosition)
-    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        rawPosition = motionEvent.toRawOffset(index)
-        position = positionCalculator.screenToLocal(rawPosition)
-    } else {
-        rawPosition = positionCalculator.localToScreen(position)
-    }
-    val toolType = when (motionEvent.getToolType(index)) {
-        MotionEvent.TOOL_TYPE_UNKNOWN -> PointerType.Unknown
-        MotionEvent.TOOL_TYPE_FINGER -> PointerType.Touch
-        MotionEvent.TOOL_TYPE_STYLUS -> PointerType.Stylus
-        MotionEvent.TOOL_TYPE_MOUSE -> PointerType.Mouse
-        MotionEvent.TOOL_TYPE_ERASER -> PointerType.Eraser
-        else -> PointerType.Unknown
-    }
-
-    return PointerInputEventData(
-        pointerId,
-        timestamp,
-        rawPosition,
-        position,
-        index != upIndex,
-        toolType
-    )
-}
-
 @RequiresApi(Build.VERSION_CODES.Q)
-@SuppressLint("UnsafeNewApiCall") // not sure why RequiresApi is not enough
-private fun MotionEvent.toRawOffset(index: Int): Offset {
-    return Offset(getRawX(index), getRawY(index))
+private object MotionEventHelper {
+    @DoNotInline
+    fun toRawOffset(motionEvent: MotionEvent, index: Int): Offset {
+        return Offset(motionEvent.getRawX(index), motionEvent.getRawY(index))
+    }
 }

@@ -1,39 +1,27 @@
 // Signature format: 4.0
 package androidx.car.app.testing {
 
-  public class CarAppServiceController {
-    method public androidx.car.app.testing.CarAppServiceController create(android.content.Intent?);
-    method public androidx.car.app.testing.CarAppServiceController destroy();
-    method public androidx.car.app.CarAppService get();
-    method public androidx.car.app.testing.CarAppServiceController newIntent(android.content.Intent);
-    method public static androidx.car.app.testing.CarAppServiceController of(androidx.car.app.testing.TestCarContext, androidx.car.app.Session, androidx.car.app.CarAppService);
-    method public androidx.car.app.testing.CarAppServiceController pause();
-    method public androidx.car.app.testing.CarAppServiceController resume();
-    method public void setAppInfo(androidx.car.app.AppInfo);
-    method public void setHostInfo(androidx.car.app.HostInfo);
-    method public androidx.car.app.testing.CarAppServiceController start();
-    method public androidx.car.app.testing.CarAppServiceController stop();
-  }
-
   public class FakeHost {
     method public void performNotificationActionClick(android.app.PendingIntent);
   }
 
   public class ScreenController {
-    method public androidx.car.app.testing.ScreenController create();
-    method public androidx.car.app.testing.ScreenController destroy();
-    method public androidx.car.app.Screen get();
+    ctor public ScreenController(androidx.car.app.Screen);
+    method public androidx.car.app.Screen getScreen();
+    method public Object? getScreenResult();
     method public java.util.List<androidx.car.app.model.Template!> getTemplatesReturned();
-    method public static androidx.car.app.testing.ScreenController of(androidx.car.app.testing.TestCarContext, androidx.car.app.Screen);
-    method public androidx.car.app.testing.ScreenController pause();
+    method public androidx.car.app.testing.ScreenController moveToState(androidx.lifecycle.Lifecycle.State);
     method public void reset();
-    method public androidx.car.app.testing.ScreenController resume();
-    method public androidx.car.app.testing.ScreenController start();
-    method public androidx.car.app.testing.ScreenController stop();
+  }
+
+  public class SessionController {
+    ctor public SessionController(androidx.car.app.Session, androidx.car.app.testing.TestCarContext, android.content.Intent);
+    method public androidx.car.app.Session getSession();
+    method public androidx.car.app.testing.SessionController moveToState(androidx.lifecycle.Lifecycle.State);
   }
 
   public class TestAppManager extends androidx.car.app.AppManager {
-    method public androidx.car.app.SurfaceCallback? getSurfaceListener();
+    method public androidx.car.app.SurfaceCallback? getSurfaceCallback();
     method public java.util.List<android.util.Pair<androidx.car.app.Screen!,androidx.car.app.model.Template!>!> getTemplatesReturned();
     method public java.util.List<java.lang.CharSequence!> getToastsShown();
     method public void reset();
@@ -42,9 +30,15 @@ package androidx.car.app.testing {
   public class TestCarContext extends androidx.car.app.CarContext {
     method public static androidx.car.app.testing.TestCarContext createCarContext(android.content.Context);
     method public androidx.car.app.testing.FakeHost getFakeHost();
+    method public androidx.car.app.testing.TestCarContext.PermissionRequestInfo? getLastPermissionRequestInfo();
     method public java.util.List<android.content.Intent!> getStartCarAppIntents();
     method public boolean hasCalledFinishCarApp();
     method public void reset();
+  }
+
+  public static class TestCarContext.PermissionRequestInfo {
+    method public androidx.car.app.OnRequestPermissionsListener getListener();
+    method public java.util.List<java.lang.String!> getPermissionsRequested();
   }
 
   public class TestScreenManager extends androidx.car.app.ScreenManager {

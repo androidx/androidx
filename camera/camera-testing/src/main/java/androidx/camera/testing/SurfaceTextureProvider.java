@@ -22,6 +22,7 @@ import android.view.Surface;
 import android.view.TextureView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
@@ -29,6 +30,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
  * This class creates implementations of PreviewSurfaceProvider that provide Surfaces that have been
  * pre-configured for specific work flows.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SurfaceTextureProvider {
     private SurfaceTextureProvider() {
     }
@@ -90,6 +92,7 @@ public final class SurfaceTextureProvider {
      * {@link Preview}. See {@link #createSurfaceTextureProvider(SurfaceTextureCallback)} for
      * code example.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public interface SurfaceTextureCallback {
 
         /**

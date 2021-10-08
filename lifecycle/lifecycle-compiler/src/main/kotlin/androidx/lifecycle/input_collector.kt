@@ -35,6 +35,7 @@ import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 import javax.tools.Diagnostic
 
+@Suppress("DEPRECATION")
 fun collectAndVerifyInput(
     processingEnv: ProcessingEnvironment,
     roundEnv: RoundEnvironment
@@ -94,6 +95,7 @@ class ObserversCollector(processingEnv: ProcessingEnvironment) {
             ?.filter { executable -> isSyntheticMethod(executable) }
     }
 
+    @Suppress("DEPRECATION")
     private fun createObserverInfo(
         typeElement: TypeElement,
         parents: List<LifecycleObserverInfo>

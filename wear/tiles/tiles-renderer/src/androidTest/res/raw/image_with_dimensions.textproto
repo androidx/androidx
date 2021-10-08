@@ -1,0 +1,15 @@
+image {
+  resource_id {
+    value: "android"
+  }
+  width {
+    linear_dimension {
+      value: 20
+    }
+  }
+  height {
+    linear_dimension {
+      value: 15
+    }
+  }
+}

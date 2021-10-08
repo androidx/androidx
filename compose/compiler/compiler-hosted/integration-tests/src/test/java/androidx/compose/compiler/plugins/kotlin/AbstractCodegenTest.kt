@@ -80,13 +80,14 @@ abstract class AbstractCodegenTest : AbstractCompilerTest() {
             """
            @file:OptIn(
              InternalComposeApi::class,
-             ComposeCompilerApi::class
            )
            package test
 
            import androidx.compose.runtime.*
 
            $src
+
+            fun used(x: Any?) {}
         """,
             fileName, dumpClasses
         )

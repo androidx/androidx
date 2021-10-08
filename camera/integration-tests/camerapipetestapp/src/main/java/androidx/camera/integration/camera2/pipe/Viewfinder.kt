@@ -41,6 +41,7 @@ import kotlin.math.roundToInt
  *
  * To use the viewfinder, call configure with the desired surface size, mode, and format.
  */
+@Suppress("DEPRECATION")
 class Viewfinder(
     context: Context?,
     attrs: AttributeSet?,
@@ -424,7 +425,7 @@ class Viewfinder(
 
         companion object {
             fun parseString(layoutMode: String): ViewfinderLayout {
-                return when (layoutMode.toLowerCase(Locale.ROOT)) {
+                return when (layoutMode.lowercase(Locale.ROOT)) {
                     "fit" -> FIT
                     "fill" -> FILL
                     "center" -> CENTER

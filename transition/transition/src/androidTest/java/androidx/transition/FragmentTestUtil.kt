@@ -25,9 +25,9 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.TargetTracking
-import androidx.transition.test.R
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.runOnUiThreadRethrow
+import androidx.transition.test.R
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.lang.ref.WeakReference
@@ -42,27 +42,6 @@ sealed class ReorderingAllowed {
 }
 object Reordered : ReorderingAllowed()
 object Ordered : ReorderingAllowed()
-
-sealed class StateManager {
-    abstract fun setup()
-
-    override fun toString(): String = this.javaClass.simpleName
-
-    fun teardown() {
-        // Reset it back to the default
-        FragmentManager.enableNewStateManager(true)
-    }
-}
-object NewStateManager : StateManager() {
-    override fun setup() {
-        FragmentManager.enableNewStateManager(true)
-    }
-}
-object OldStateManager : StateManager() {
-    override fun setup() {
-        FragmentManager.enableNewStateManager(false)
-    }
-}
 
 @Suppress("DEPRECATION")
 fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.executePendingTransactions(

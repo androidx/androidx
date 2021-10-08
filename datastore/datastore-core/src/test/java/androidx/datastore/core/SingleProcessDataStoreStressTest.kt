@@ -98,6 +98,7 @@ class SingleProcessDataStoreStressTest {
 
         // There's no reason this should take more than a few seconds once writers complete and
         // there's no reason writers won't complete.
+        @Suppress("DEPRECATION")
         withTimeout(10.seconds) {
             readers.awaitAll()
         }
@@ -162,6 +163,7 @@ class SingleProcessDataStoreStressTest {
 
         // There's no reason this should take more than a few seconds once writers complete and
         // there's no reason writers won't complete.
+        @Suppress("DEPRECATION")
         withTimeout(10.seconds) {
             readers.awaitAll()
         }
@@ -222,6 +224,7 @@ class SingleProcessDataStoreStressTest {
 
         // There's no reason this should take more than a few seconds once writers complete and
         // there's no reason writers won't complete.
+        @Suppress("DEPRECATION")
         withTimeout(10.seconds) {
             readers.awaitAll()
         }

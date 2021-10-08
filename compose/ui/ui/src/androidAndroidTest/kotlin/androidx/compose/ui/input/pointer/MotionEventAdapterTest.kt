@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.input.pointer
 
+import android.util.SparseLongArray
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
@@ -1050,25 +1051,32 @@ class MotionEventAdapterTest {
             arrayOf(PointerCoords(30f, 31f))
         )
 
+        // Test the different events sequentially, since the returned event contains a list that
+        // will be reused by convertToPointerInputEvent for performance, so it shouldn't be held
+        // for longer than needed during the sequential dispatch.
+
         val pointerInputEventDown1 = motionEventAdapter.convertToPointerInputEvent(down1)
-        val pointerInputEventUp1 = motionEventAdapter.convertToPointerInputEvent(up1)
-        val pointerInputEventDown2 = motionEventAdapter.convertToPointerInputEvent(down2)
-        val pointerInputEventUp2 = motionEventAdapter.convertToPointerInputEvent(up2)
-        val pointerInputEventDown3 = motionEventAdapter.convertToPointerInputEvent(down3)
-        val pointerInputEventUp3 = motionEventAdapter.convertToPointerInputEvent(up3)
-
         assertThat(pointerInputEventDown1).isNotNull()
-        assertThat(pointerInputEventUp1).isNotNull()
-        assertThat(pointerInputEventDown2).isNotNull()
-        assertThat(pointerInputEventUp2).isNotNull()
-        assertThat(pointerInputEventDown3).isNotNull()
-        assertThat(pointerInputEventUp3).isNotNull()
-
         assertThat(pointerInputEventDown1!!.pointers[0].id).isEqualTo(PointerId(0))
+
+        val pointerInputEventUp1 = motionEventAdapter.convertToPointerInputEvent(up1)
+        assertThat(pointerInputEventUp1).isNotNull()
         assertThat(pointerInputEventUp1!!.pointers[0].id).isEqualTo(PointerId(0))
+
+        val pointerInputEventDown2 = motionEventAdapter.convertToPointerInputEvent(down2)
+        assertThat(pointerInputEventDown2).isNotNull()
         assertThat(pointerInputEventDown2!!.pointers[0].id).isEqualTo(PointerId(1))
+
+        val pointerInputEventUp2 = motionEventAdapter.convertToPointerInputEvent(up2)
+        assertThat(pointerInputEventUp2).isNotNull()
         assertThat(pointerInputEventUp2!!.pointers[0].id).isEqualTo(PointerId(1))
+
+        val pointerInputEventDown3 = motionEventAdapter.convertToPointerInputEvent(down3)
+        assertThat(pointerInputEventDown3).isNotNull()
         assertThat(pointerInputEventDown3!!.pointers[0].id).isEqualTo(PointerId(2))
+
+        val pointerInputEventUp3 = motionEventAdapter.convertToPointerInputEvent(up3)
+        assertThat(pointerInputEventUp3).isNotNull()
         assertThat(pointerInputEventUp3!!.pointers[0].id).isEqualTo(PointerId(2))
     }
 
@@ -1119,21 +1127,26 @@ class MotionEventAdapterTest {
             )
         )
 
+        // Test the different events sequentially, since the returned event contains a list that
+        // will be reused by convertToPointerInputEvent for performance, so it shouldn't be held
+        // for longer than needed during the sequential dispatch.
+
         val pointerInputEventDown1 = motionEventAdapter.convertToPointerInputEvent(down1)
-        val pointerInputEventDown2 = motionEventAdapter.convertToPointerInputEvent(down2)
-        val pointerInputEventDown3 = motionEventAdapter.convertToPointerInputEvent(down3)
 
         assertThat(pointerInputEventDown1).isNotNull()
-        assertThat(pointerInputEventDown2).isNotNull()
-        assertThat(pointerInputEventDown3).isNotNull()
-
         assertThat(pointerInputEventDown1!!.pointers).hasSize(1)
         assertThat(pointerInputEventDown1.pointers[0].id).isEqualTo(PointerId(0))
 
+        val pointerInputEventDown2 = motionEventAdapter.convertToPointerInputEvent(down2)
+
+        assertThat(pointerInputEventDown2).isNotNull()
         assertThat(pointerInputEventDown2!!.pointers).hasSize(2)
         assertThat(pointerInputEventDown2.pointers[0].id).isEqualTo(PointerId(0))
         assertThat(pointerInputEventDown2.pointers[1].id).isEqualTo(PointerId(1))
 
+        val pointerInputEventDown3 = motionEventAdapter.convertToPointerInputEvent(down3)
+
+        assertThat(pointerInputEventDown3).isNotNull()
         assertThat(pointerInputEventDown3!!.pointers).hasSize(3)
         assertThat(pointerInputEventDown2.pointers[0].id).isEqualTo(PointerId(0))
         assertThat(pointerInputEventDown2.pointers[1].id).isEqualTo(PointerId(1))
@@ -1202,7 +1215,7 @@ class MotionEventAdapterTest {
         motionEventAdapter.convertToPointerInputEvent(motionEvent1)
         motionEventAdapter.convertToPointerInputEvent(motionEvent2)
 
-        assertThat(motionEventAdapter.motionEventToComposePointerIdMap).isEmpty()
+        assertThat(motionEventAdapter.motionEventToComposePointerIdMap.size()).isEqualTo(0)
     }
 
     @Test
@@ -1233,12 +1246,13 @@ class MotionEventAdapterTest {
         motionEventAdapter.convertToPointerInputEvent(motionEvent1)
         motionEventAdapter.convertToPointerInputEvent(motionEvent2)
 
-        assertThat(motionEventAdapter.motionEventToComposePointerIdMap).containsExactlyEntriesIn(
-            mapOf(
-                2 to PointerId(0),
-                5 to PointerId(1)
+        assertThat(motionEventAdapter.motionEventToComposePointerIdMap.toMap())
+            .containsExactlyEntriesIn(
+                mapOf(
+                    2 to PointerId(0),
+                    5 to PointerId(1)
+                )
             )
-        )
     }
 
     @Test
@@ -1284,9 +1298,10 @@ class MotionEventAdapterTest {
         motionEventAdapter.convertToPointerInputEvent(motionEvent2)
         motionEventAdapter.convertToPointerInputEvent(motionEvent3)
 
-        assertThat(motionEventAdapter.motionEventToComposePointerIdMap).containsExactlyEntriesIn(
-            mapOf(2 to PointerId(0))
-        )
+        assertThat(motionEventAdapter.motionEventToComposePointerIdMap.toMap())
+            .containsExactlyEntriesIn(
+                mapOf(2 to PointerId(0))
+            )
     }
 
     @Test
@@ -1332,9 +1347,10 @@ class MotionEventAdapterTest {
         motionEventAdapter.convertToPointerInputEvent(motionEvent2)
         motionEventAdapter.convertToPointerInputEvent(motionEvent3)
 
-        assertThat(motionEventAdapter.motionEventToComposePointerIdMap).containsExactlyEntriesIn(
-            mapOf(5 to PointerId(1))
-        )
+        assertThat(motionEventAdapter.motionEventToComposePointerIdMap.toMap())
+            .containsExactlyEntriesIn(
+                mapOf(5 to PointerId(1))
+            )
     }
 
     @Test
@@ -1389,7 +1405,7 @@ class MotionEventAdapterTest {
         motionEventAdapter.convertToPointerInputEvent(motionEvent3)
         motionEventAdapter.convertToPointerInputEvent(motionEvent4)
 
-        assertThat(motionEventAdapter.motionEventToComposePointerIdMap).isEmpty()
+        assertThat(motionEventAdapter.motionEventToComposePointerIdMap.toMap()).isEmpty()
     }
 
     @Test
@@ -1434,7 +1450,7 @@ class MotionEventAdapterTest {
         motionEventAdapter.convertToPointerInputEvent(motionEvent2)
         motionEventAdapter.convertToPointerInputEvent(motionEvent3)
 
-        assertThat(motionEventAdapter.motionEventToComposePointerIdMap).isEmpty()
+        assertThat(motionEventAdapter.motionEventToComposePointerIdMap.toMap()).isEmpty()
     }
 
     @Test
@@ -1528,6 +1544,16 @@ class MotionEventAdapterTest {
 
     private fun MotionEventAdapter.convertToPointerInputEvent(motionEvent: MotionEvent) =
         convertToPointerInputEvent(motionEvent, positionCalculator)
+
+    private fun SparseLongArray.toMap(): Map<Int, PointerId> {
+        val map = mutableMapOf<Int, PointerId>()
+        for (i in 0 until size()) {
+            val key = keyAt(i)
+            val value = valueAt(i)
+            map[key] = PointerId(value)
+        }
+        return map
+    }
 }
 
 // Private helper functions

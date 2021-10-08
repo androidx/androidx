@@ -20,11 +20,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.MessageQueue;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.testing.compat.LooperCompat;
 
 import java.util.concurrent.Semaphore;
 
 /** Utility functions for {@link Handler} */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class HandlerUtil {
     /**
      * Wait for the {@link Looper} of the given {@link Handler} to idle.

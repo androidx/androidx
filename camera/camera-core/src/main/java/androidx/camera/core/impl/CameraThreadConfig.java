@@ -19,6 +19,7 @@ package androidx.camera.core.impl;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
 
@@ -27,6 +28,7 @@ import java.util.concurrent.Executor;
 /**
  * Configuration options for threads used by the camera stack implementation.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class CameraThreadConfig {
 

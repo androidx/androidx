@@ -21,12 +21,15 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.model.constraints.CarTextConstraints;
 
 import java.util.Objects;
 
 /**
  * Represents an {@link ItemList} that is contained inside a section, for internal use only.
  */
+@CarProtocol
 public final class SectionedItemList {
     @Keep
     @Nullable
@@ -38,24 +41,29 @@ public final class SectionedItemList {
     /**
      * Creates an instance of a {@link SectionedItemList} with the given {@code itemList} and
      * {@code sectionHeader}.
+     *
+     * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the section header.
+     *
+     * @throws IllegalArgumentException if {@code sectionHeader} contains unsupported spans
      */
     @NonNull
     public static SectionedItemList create(
             @NonNull ItemList itemList, @NonNull CharSequence sectionHeader) {
-        return new SectionedItemList(requireNonNull(itemList),
-                CarText.create(requireNonNull(sectionHeader)));
+        CarText sectionHeaderText = CarText.create(requireNonNull(sectionHeader));
+        CarTextConstraints.TEXT_ONLY.validateOrThrow(sectionHeaderText);
+        return new SectionedItemList(requireNonNull(itemList), sectionHeaderText);
     }
 
-    /** Returns the {@link ItemList} for the section or {@code null} if not set. */
-    @Nullable
+    /** Returns the {@link ItemList} for the section. */
+    @NonNull
     public ItemList getItemList() {
-        return mItemList;
+        return requireNonNull(mItemList);
     }
 
-    /** Returns the title of the section or {@code null} if not set */
-    @Nullable
+    /** Returns the title of the section. */
+    @NonNull
     public CarText getHeader() {
-        return mHeader;
+        return requireNonNull(mHeader);
     }
 
     @Override

@@ -20,10 +20,13 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.OnDoneCallback;
+import androidx.car.app.annotations.CarProtocol;
 
 /**
- * A host-side interface for reporting to clients that an item was selected.
+ * A host-side delegate for sending
+ * {@link androidx.car.app.model.ItemList.OnSelectedListener} events to the car app.
  */
+@CarProtocol
 public interface OnSelectedDelegate {
     /**
      * Notifies that an item was selected.

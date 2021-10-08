@@ -45,7 +45,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * A CaptureProcessor which produces JPEGs from input YUV images.
@@ -151,10 +150,15 @@ public class YuvToJpegProcessor implements CaptureProcessor {
             // Enqueue the completed jpeg image
             imageWriter.queueInputImage(jpegImage);
             jpegImage = null;
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (Exception e) {
+            // InterruptedException, ExecutionException and EOFException might be caught here.
+            //
             // InterruptedException should not be possible here since
             // imageProxyListenableFuture.isDone() returned true, but we have to handle the
             // exception case so bundle it with ExecutionException.
+            //
+            // EOFException might happen if the compressed JPEG data size exceeds the byte buffer
+            // size of the output image reader.
             if (processing) {
                 Logger.e(TAG, "Failed to process YUV -> JPEG", e);
                 // Something went wrong attempting to retrieve ImageProxy. Enqueue an invalid buffer

@@ -16,26 +16,38 @@
 
 package androidx.compose.ui.graphics
 
-import org.jetbrains.skija.ColorFilter as SkijaColorFilter
+import org.jetbrains.skia.ColorFilter as SkiaColorFilter
 
-actual typealias NativeColorFilter = SkijaColorFilter
+actual typealias NativeColorFilter = SkiaColorFilter
 
 /**
  * Obtain a reference to the desktop ColorFilter type
  */
-fun ColorFilter.asDesktopColorFilter(): SkijaColorFilter = nativeColorFilter
+@Deprecated("Use asSkiaColorFilter()", replaceWith = ReplaceWith("asSkiaColorFilter()"))
+fun ColorFilter.asDesktopColorFilter(): SkiaColorFilter = nativeColorFilter
 
-fun org.jetbrains.skija.ColorFilter.toComposeColorFilter(): ColorFilter = ColorFilter(this)
+/**
+ * Obtain a [org.jetbrains.skia.ColorFilter] instance from this [ColorFilter]
+ */
+fun ColorFilter.asSkiaColorFilter(): SkiaColorFilter = nativeColorFilter
+
+@Deprecated("Use asComposeColorFilter()", replaceWith = ReplaceWith("asComposeColorFilter()"))
+fun org.jetbrains.skia.ColorFilter.toComposeColorFilter(): ColorFilter = ColorFilter(this)
+
+/**
+ * Create a [ColorFilter] from the given [org.jetbrains.skia.ColorFilter] instance
+ */
+fun org.jetbrains.skia.ColorFilter.asComposeColorFilter(): ColorFilter = ColorFilter(this)
 
 internal actual fun actualTintColorFilter(color: Color, blendMode: BlendMode): ColorFilter =
-    ColorFilter(SkijaColorFilter.makeBlend(color.toArgb(), blendMode.toSkija()))
+    ColorFilter(SkiaColorFilter.makeBlend(color.toArgb(), blendMode.toSkia()))
 
 internal actual fun actualColorMatrixColorFilter(colorMatrix: ColorMatrix): ColorFilter =
     ColorFilter(
-        SkijaColorFilter.makeMatrix(
-            org.jetbrains.skija.ColorMatrix(*colorMatrix.values)
+        SkiaColorFilter.makeMatrix(
+            org.jetbrains.skia.ColorMatrix(*colorMatrix.values)
         )
     )
 
 internal actual fun actualLightingColorFilter(multiply: Color, add: Color): ColorFilter =
-    ColorFilter(SkijaColorFilter.makeLighting(multiply.toArgb(), add.toArgb()))
+    ColorFilter(SkiaColorFilter.makeLighting(multiply.toArgb(), add.toArgb()))

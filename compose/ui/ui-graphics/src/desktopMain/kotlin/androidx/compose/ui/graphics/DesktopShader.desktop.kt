@@ -17,10 +17,9 @@
 package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Offset
-import org.jetbrains.skija.FilterTileMode
-import org.jetbrains.skija.GradientStyle
+import org.jetbrains.skia.GradientStyle
 
-actual typealias Shader = org.jetbrains.skija.Shader
+actual typealias Shader = org.jetbrains.skia.Shader
 
 internal actual fun ActualLinearGradientShader(
     from: Offset,
@@ -32,7 +31,7 @@ internal actual fun ActualLinearGradientShader(
     validateColorStops(colors, colorStops)
     return Shader.makeLinearGradient(
         from.x, from.y, to.x, to.y, colors.toIntArray(), colorStops?.toFloatArray(),
-        GradientStyle(tileMode.toSkijaRect(), true, identityMatrix33())
+        GradientStyle(tileMode.toSkiaTileMode(), true, identityMatrix33())
     )
 }
 
@@ -50,7 +49,7 @@ internal actual fun ActualRadialGradientShader(
         radius,
         colors.toIntArray(),
         colorStops?.toFloatArray(),
-        GradientStyle(tileMode.toSkijaRect(), true, identityMatrix33())
+        GradientStyle(tileMode.toSkiaTileMode(), true, identityMatrix33())
     )
 }
 
@@ -73,16 +72,10 @@ internal actual fun ActualImageShader(
     tileModeX: TileMode,
     tileModeY: TileMode
 ): Shader {
-    return image.asDesktopBitmap().makeShader(
-        tileModeX.toSkijaTileMode(),
-        tileModeY.toSkijaTileMode()
+    return image.asSkiaBitmap().makeShader(
+        tileModeX.toSkiaTileMode(),
+        tileModeY.toSkiaTileMode()
     )
-}
-
-private fun TileMode.toSkijaTileMode() = when (this) {
-    TileMode.Clamp -> FilterTileMode.CLAMP
-    TileMode.Repeated -> FilterTileMode.REPEAT
-    TileMode.Mirror -> FilterTileMode.MIRROR
 }
 
 private fun List<Color>.toIntArray(): IntArray =
@@ -102,10 +95,4 @@ private fun validateColorStops(colors: List<Color>, colorStops: List<Float>?) {
                 " equal length."
         )
     }
-}
-
-private fun TileMode.toSkijaRect() = when (this) {
-    TileMode.Clamp -> FilterTileMode.CLAMP
-    TileMode.Repeated -> FilterTileMode.REPEAT
-    TileMode.Mirror -> FilterTileMode.MIRROR
 }

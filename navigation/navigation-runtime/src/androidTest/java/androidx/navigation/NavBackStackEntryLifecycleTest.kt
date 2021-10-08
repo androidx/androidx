@@ -30,7 +30,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.TestNavigator
 import androidx.testutils.test
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.withIndex
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.inOrder
@@ -43,6 +49,7 @@ class NavBackStackEntryLifecycleTest {
     /**
      * Test that navigating between siblings correctly stops the previous sibling.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycle() {
@@ -101,10 +108,38 @@ class NavBackStackEntryLifecycleTest {
             .isEqualTo(Lifecycle.State.DESTROYED)
     }
 
+    @UiThreadTest
+    @Test
+    @Suppress("DEPRECATION", "EXPERIMENTAL_API_USAGE")
+    fun visibleEntriesFlow() = runBlocking {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = 1) {
+            test(1)
+            test(2)
+            test(3)
+        }
+
+        navController.visibleEntries
+            .take(navController.graph.count())
+            .withIndex()
+            .onEach { (index, list) ->
+                val expectedDestination = index + 1
+                assertWithMessage("Flow emitted unexpected back stack entry (wrong destination)")
+                    .that(list)
+                    .containsExactly(navController.currentBackStackEntry)
+
+                if (expectedDestination < navController.graph.count()) {
+                    navController.navigate(expectedDestination + 1)
+                }
+            }
+            .collect()
+    }
+
     /**
      * Test that navigating from a sibling to a FloatingWindow sibling leaves the previous
      * destination started.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleWithDialog() {
@@ -167,6 +202,7 @@ class NavBackStackEntryLifecycleTest {
      * Test that navigating from within a nested navigation graph to one of the graph's
      * siblings correctly stops both the previous destination and its graph.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNested() {
@@ -227,11 +263,36 @@ class NavBackStackEntryLifecycleTest {
             .isEqualTo(Lifecycle.State.DESTROYED)
     }
 
+    @UiThreadTest
+    @Test
+    fun testNavigateOptionSingleTopNestedGraph() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_multiple_navigation)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        val graphEntry = navController.getBackStackEntry(R.id.simple_child_start)
+
+        navController.navigate(
+            R.id.simple_child_start_test, null,
+            navOptions {
+                launchSingleTop = true
+            }
+        )
+
+        navController.popBackStack()
+
+        assertThat(graphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
     /**
      * Test that navigating from within a nested navigation graph to one of the graph's
      * FloatingWindow siblings correctly moves both the previous destination and its graph to
      * started.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedWithDialog() {
@@ -299,6 +360,7 @@ class NavBackStackEntryLifecycleTest {
      * Test that navigating from within a nested navigation graph to one of the graph's
      * siblings correctly stops both the previous destination and its graph.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedOrdering() {
@@ -387,6 +449,41 @@ class NavBackStackEntryLifecycleTest {
         )
 
         inOrder.verifyNoMoreInteractions()
+
+        navController.popBackStack()
+
+        inOrder.verify(nestedObserver).onStateChanged(
+            nestedBackStackEntry, Lifecycle.Event.ON_PAUSE
+        )
+        inOrder.verify(nestedObserver).onStateChanged(
+            nestedBackStackEntry, Lifecycle.Event.ON_STOP
+        )
+        inOrder.verify(nestedObserver).onStateChanged(
+            nestedBackStackEntry, Lifecycle.Event.ON_DESTROY
+        )
+
+        inOrder.verify(nestedGraphObserver).onStateChanged(
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_PAUSE
+        )
+        inOrder.verify(nestedGraphObserver).onStateChanged(
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_STOP
+        )
+
+        inOrder.verify(nestedGraphObserver).onStateChanged(
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_DESTROY
+        )
+
+        inOrder.verify(graphObserver).onStateChanged(
+            graphBackStackEntry, Lifecycle.Event.ON_PAUSE
+        )
+        inOrder.verify(graphObserver).onStateChanged(
+            graphBackStackEntry, Lifecycle.Event.ON_STOP
+        )
+        inOrder.verify(graphObserver).onStateChanged(
+            graphBackStackEntry, Lifecycle.Event.ON_DESTROY
+        )
+
+        inOrder.verifyNoMoreInteractions()
     }
 
     /**
@@ -394,6 +491,7 @@ class NavBackStackEntryLifecycleTest {
      * FloatingWindow siblings correctly moves both the previous destination and its graph to
      * started.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedOrderingWithDialog() {
@@ -476,6 +574,7 @@ class NavBackStackEntryLifecycleTest {
      * Test that popping the last destination in a graph while navigating to a new
      * destination in that graph keeps the graph around
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleReplaceLastDestination() {
@@ -533,6 +632,7 @@ class NavBackStackEntryLifecycleTest {
      * Test that popping the last destination in a graph while navigating correctly
      * cleans up the previous navigation graph
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleOrphanedGraph() {
@@ -586,10 +686,65 @@ class NavBackStackEntryLifecycleTest {
             .isEqualTo(Lifecycle.State.RESUMED)
     }
 
+    @Suppress("DEPRECATION")
+    @UiThreadTest
+    @Test
+    fun testLifecyclePoppedGraph() {
+        val navController = createNavController()
+        val navGraph = navController.navigatorProvider.navigation(
+            id = 1,
+            startDestination = R.id.nested
+        ) {
+            navigation(id = R.id.nested, startDestination = R.id.nested_test) {
+                test(R.id.nested_test)
+            }
+            test(R.id.second_test)
+        }
+        navController.graph = navGraph
+
+        val graphBackStackEntry = navController.getBackStackEntry(navGraph.id)
+        assertWithMessage("The parent graph should be resumed when its child is resumed")
+            .that(graphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val nestedGraphBackStackEntry = navController.getBackStackEntry(R.id.nested)
+        assertWithMessage("The nested graph should be resumed when its child is resumed")
+            .that(nestedGraphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val nestedBackStackEntry = navController.getBackStackEntry(R.id.nested_test)
+        assertWithMessage("The nested start destination should be resumed")
+            .that(nestedBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.navigate(
+            R.id.second_test,
+            null,
+            navOptions {
+                popUpTo(R.id.nested) {
+                    inclusive = true
+                }
+            }
+        )
+
+        assertWithMessage("The parent graph should be resumed when its child is resumed")
+            .that(graphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        assertWithMessage("The nested graph should be destroyed when its children are destroyed")
+            .that(nestedGraphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+        assertWithMessage("The nested start destination should be destroyed after being popped")
+            .that(nestedBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+        val secondBackStackEntry = navController.getBackStackEntry(R.id.second_test)
+        assertWithMessage("The new destination should be resumed")
+            .that(secondBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+    }
+
     /**
      * Test that navigating to a new instance of a graph leaves the previous instance in its
      * current state.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedRepeated() {
@@ -663,6 +818,7 @@ class NavBackStackEntryLifecycleTest {
      * Test that navigating to a new instance of a graph back to back with its previous
      * instance creates a brand new graph instance
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedRepeatedBackToBack() {
@@ -722,6 +878,7 @@ class NavBackStackEntryLifecycleTest {
      * last destination from the previous instance of the graph correctly cleans up
      * the orphaned graph and creates a new graph instance.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedRepeatedBackToBackWithOrphanedGraph() {
@@ -789,6 +946,7 @@ class NavBackStackEntryLifecycleTest {
      * Test that navigating to a new instance of a graph via a deep link to a FloatingWindow
      * destination leaves the previous instance in its current state.
      */
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleNestedRepeatedWithDialog() {
@@ -861,6 +1019,7 @@ class NavBackStackEntryLifecycleTest {
             .isEqualTo(Lifecycle.State.RESUMED)
     }
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
     fun testLifecycleToDestroyedWhenInitialized() {

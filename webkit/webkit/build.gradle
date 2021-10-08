@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.Publish
 import androidx.build.SupportConfigKt
@@ -28,15 +27,15 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.1.0")
 
-    androidTestImplementation(OKHTTP_MOCKWEBSERVER)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(libs.okhttpMockwebserver)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
     androidTestImplementation("androidx.concurrent:concurrent-futures:1.0.0")
 
     // Hamcrest matchers:
-    androidTestImplementation(ESPRESSO_CONTRIB, libs.exclude_for_espresso)
+    androidTestImplementation(libs.espressoContrib, excludes.espresso)
 }
 
 ext {

@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe
 
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
-import android.hardware.camera2.params.StreamConfigurationMap
 import android.view.Surface
+import androidx.annotation.RequiresApi
 
 /**
  * A map-like interface used to describe or interact with metadata from CameraPipe and Camera2.
@@ -59,29 +60,6 @@ public interface Metadata {
             return name
         }
     }
-}
-
-/**
- * CameraMetadata is a wrapper around [CameraCharacteristics].
- *
- * In some cases the properties on this interface will provide faster or more backwards compatible
- * access to features that are only available on newer versions of the OS.
- */
-public interface CameraMetadata : Metadata, UnsafeWrapper<CameraCharacteristics> {
-    public operator fun <T> get(key: CameraCharacteristics.Key<T>): T?
-    public fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T
-
-    public val camera: CameraId
-    public val isRedacted: Boolean
-
-    public val keys: Set<CameraCharacteristics.Key<*>>
-    public val requestKeys: Set<CaptureRequest.Key<*>>
-    public val resultKeys: Set<CaptureResult.Key<*>>
-    public val sessionKeys: Set<CaptureRequest.Key<*>>
-    public val physicalCameraIds: Set<CameraId>
-    public val physicalRequestKeys: Set<CaptureRequest.Key<*>>
-
-    public val streamMap: StreamConfigurationMap
 }
 
 /**
@@ -199,14 +177,14 @@ public data class MetadataTransform(
  * A [RequestTemplate] indicates which preset set list of parameters will be applied to a request by
  * default. These values are defined by camera2.
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 public inline class RequestTemplate(public val value: Int)
 
 /**
  * A [RequestNumber] is an artificial identifier that is created for each request that is submitted
  * to the Camera.
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 public inline class RequestNumber(public val value: Long)
 
 /**
@@ -214,7 +192,7 @@ public inline class RequestNumber(public val value: Long)
  * increase within a specific CameraCaptureSession, and are not created until the HAL begins
  * processing a request.
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 public inline class FrameNumber(public val value: Long)
 
 /**
@@ -228,7 +206,7 @@ public inline class FrameNumber(public val value: Long)
  * operate based on a real-time clock, while audio/visual systems commonly operate based on a
  * monotonic clock.
  */
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 public inline class CameraTimestamp(public val value: Long)
 
 /**

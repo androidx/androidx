@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-MissingNullability: androidx.hilt.navigation.fragment.HiltNavGraphViewModelLazyKt#hiltNavGraphViewModels(androidx.fragment.app.Fragment, int):
-    Missing nullability on method `hiltNavGraphViewModels` return

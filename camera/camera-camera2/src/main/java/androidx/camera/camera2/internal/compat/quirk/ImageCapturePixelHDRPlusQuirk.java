@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal.compat.quirk;
 
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.Quirk;
 
@@ -29,6 +30,7 @@ import androidx.camera.core.impl.Quirk;
  * disabling ZSL, and when it is {@link ImageCapture#CAPTURE_MODE_MAXIMIZE_QUALITY}, HDR+ is
  * turned on by enabling ZSL.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCapturePixelHDRPlusQuirk implements Quirk {
 
     static boolean load() {

@@ -102,7 +102,7 @@ suspend fun Fragment.class2BiometricOrCredentialAuth() {
 }
 
 @Sampled
-@Suppress("UnsafeNewApiCall", "NewApi")
+@Suppress("NewApi", "ClassVerificationFailure")
 suspend fun Fragment.class3BiometricAuth() {
     // To use Class3 authentication, we need to create a CryptoObject.
     // First create a spec for the key to be generated.
@@ -163,7 +163,7 @@ suspend fun Fragment.class3BiometricAuth() {
 }
 
 @Sampled
-@Suppress("UnsafeNewApiCall", "NewApi")
+@Suppress("NewApi", "ClassVerificationFailure")
 suspend fun Fragment.class3BiometricOrCredentialAuth() {
     // To use Class3 authentication, we need to create a CryptoObject.
     // First create a spec for the key to be generated.
@@ -224,7 +224,7 @@ suspend fun Fragment.class3BiometricOrCredentialAuth() {
 }
 
 @Sampled
-@Suppress("UnsafeNewApiCall", "NewApi")
+@Suppress("NewApi", "ClassVerificationFailure")
 suspend fun Fragment.credentialAuth() {
     // To use credential authentication, we need to create a CryptoObject.
     // First create a spec for the key to be generated.

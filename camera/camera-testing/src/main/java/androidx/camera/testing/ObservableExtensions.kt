@@ -15,9 +15,11 @@
  */
 
 @file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 
 package androidx.camera.testing
 
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Observable
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineStart
@@ -28,7 +30,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlin.coroutines.ContinuationInterceptor
 
-public fun <T> Observable<T>.asFlow(): Flow<T> = callbackFlow {
+public fun <T> Observable<T>.asFlow(): Flow<T?> = callbackFlow {
     val observer = object : Observable.Observer<T> {
         override fun onNewData(value: T?) {
             launch(start = CoroutineStart.UNDISPATCHED) {

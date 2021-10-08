@@ -19,6 +19,8 @@ package androidx.compose.ui.platform
 import android.os.Build
 import android.view.ActionMode
 import android.view.View
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.actionmodecallback.FloatingTextActionModeCallback
 import androidx.compose.ui.platform.actionmodecallback.PrimaryTextActionModeCallback
@@ -29,7 +31,9 @@ import androidx.compose.ui.platform.actionmodecallback.TextActionModeCallback
  */
 internal class AndroidTextToolbar(private val view: View) : TextToolbar {
     private var actionMode: ActionMode? = null
-    private var textToolbarStatus = TextToolbarStatus.Hidden
+    private val textActionModeCallback: TextActionModeCallback = TextActionModeCallback()
+    override var status: TextToolbarStatus = TextToolbarStatus.Hidden
+        private set
 
     override fun showMenu(
         rect: Rect,
@@ -38,42 +42,58 @@ internal class AndroidTextToolbar(private val view: View) : TextToolbar {
         onCutRequested: ActionCallback?,
         onSelectAllRequested: ActionCallback?
     ) {
-        textToolbarStatus = TextToolbarStatus.Shown
-        if (Build.VERSION.SDK_INT >= 23) {
-            val actionModeCallback =
-                FloatingTextActionModeCallback(
-                    TextActionModeCallback(
-                        onCopyRequested = onCopyRequested,
-                        onCutRequested = onCutRequested,
-                        onPasteRequested = onPasteRequested,
-                        onSelectAllRequested = onSelectAllRequested
-                    )
+        textActionModeCallback.rect = rect
+        textActionModeCallback.onCopyRequested = onCopyRequested
+        textActionModeCallback.onCutRequested = onCutRequested
+        textActionModeCallback.onPasteRequested = onPasteRequested
+        textActionModeCallback.onSelectAllRequested = onSelectAllRequested
+        if (actionMode == null) {
+            status = TextToolbarStatus.Shown
+            actionMode = if (Build.VERSION.SDK_INT >= 23) {
+                TextToolbarHelperMethods.startActionMode(
+                    view,
+                    FloatingTextActionModeCallback(textActionModeCallback),
+                    ActionMode.TYPE_FLOATING
                 )
-            actionModeCallback.setRect(rect)
-            actionMode = view.startActionMode(
-                actionModeCallback,
-                ActionMode.TYPE_FLOATING
-            )
+            } else {
+                view.startActionMode(
+                    PrimaryTextActionModeCallback(textActionModeCallback)
+                )
+            }
         } else {
-            val actionModeCallback =
-                PrimaryTextActionModeCallback(
-                    TextActionModeCallback(
-                        onCopyRequested = onCopyRequested,
-                        onPasteRequested = onPasteRequested,
-                        onCutRequested = onCutRequested,
-                        onSelectAllRequested = onSelectAllRequested
-                    )
-                )
-            actionMode = view.startActionMode(actionModeCallback)
+            actionMode?.invalidate()
         }
     }
 
     override fun hide() {
-        textToolbarStatus = TextToolbarStatus.Hidden
+        status = TextToolbarStatus.Hidden
         actionMode?.finish()
         actionMode = null
     }
+}
 
-    override val status: TextToolbarStatus
-        get() = textToolbarStatus
+/**
+ * This class is here to ensure that the classes that use this API will get verified and can be
+ * AOT compiled. It is expected that this class will soft-fail verification, but the classes
+ * which use this method will pass.
+ */
+@RequiresApi(23)
+internal object TextToolbarHelperMethods {
+    @RequiresApi(23)
+    @DoNotInline
+    fun startActionMode(
+        view: View,
+        actionModeCallback: ActionMode.Callback,
+        type: Int
+    ): ActionMode {
+        return view.startActionMode(
+            actionModeCallback,
+            type
+        )
+    }
+
+    @RequiresApi(23)
+    fun invalidateContentRect(actionMode: ActionMode) {
+        actionMode.invalidateContentRect()
+    }
 }

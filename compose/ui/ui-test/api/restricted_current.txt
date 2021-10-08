@@ -3,10 +3,18 @@ package androidx.compose.ui.test {
 
   public final class ActionsKt {
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performClick(androidx.compose.ui.test.SemanticsNodeInteraction);
-    method public static androidx.compose.ui.test.SemanticsNodeInteraction performGesture(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.GestureScope,kotlin.Unit> block);
+    method @Deprecated public static androidx.compose.ui.test.SemanticsNodeInteraction performGesture(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.GestureScope,kotlin.Unit> block);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction performMultiModalInput(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.MultiModalInjectionScope,kotlin.Unit> block);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performScrollTo(androidx.compose.ui.test.SemanticsNodeInteraction);
-    method public static <T extends kotlin.Function<? extends java.lang.Boolean>> void performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<T>> key, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> invocation);
-    method public static void performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> key);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction performScrollToIndex(androidx.compose.ui.test.SemanticsNodeInteraction, int index);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction performScrollToKey(androidx.compose.ui.test.SemanticsNodeInteraction, Object key);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction performScrollToNode(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.test.SemanticsMatcher matcher);
+    method public static <T extends kotlin.Function<? extends java.lang.Boolean>> androidx.compose.ui.test.SemanticsNodeInteraction performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<T>> key, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> invocation);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> key);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction performTouchInput(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.TouchInjectionScope,kotlin.Unit> block);
+  }
+
+  public final class Actions_androidKt {
   }
 
   public final class AndroidAssertions_androidKt {
@@ -26,8 +34,8 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.SemanticsNodeInteraction assert(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.test.SemanticsMatcher matcher, optional kotlin.jvm.functions.Function0<java.lang.String>? messagePrefixOnError);
     method public static androidx.compose.ui.test.SemanticsNodeInteractionCollection assertAll(androidx.compose.ui.test.SemanticsNodeInteractionCollection, androidx.compose.ui.test.SemanticsMatcher matcher);
     method public static androidx.compose.ui.test.SemanticsNodeInteractionCollection assertAny(androidx.compose.ui.test.SemanticsNodeInteractionCollection, androidx.compose.ui.test.SemanticsMatcher matcher);
-    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertContentDescriptionContains(androidx.compose.ui.test.SemanticsNodeInteraction, String value, optional boolean ignoreCase);
-    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertContentDescriptionEquals(androidx.compose.ui.test.SemanticsNodeInteraction, String value, optional boolean ignoreCase);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertContentDescriptionContains(androidx.compose.ui.test.SemanticsNodeInteraction, String value, optional boolean substring, optional boolean ignoreCase);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertContentDescriptionEquals(androidx.compose.ui.test.SemanticsNodeInteraction, java.lang.String... values);
     method public static androidx.compose.ui.test.SemanticsNodeInteractionCollection assertCountEquals(androidx.compose.ui.test.SemanticsNodeInteractionCollection, int expectedSize);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction assertHasClickAction(androidx.compose.ui.test.SemanticsNodeInteraction);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction assertHasNoClickAction(androidx.compose.ui.test.SemanticsNodeInteraction);
@@ -44,20 +52,24 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.SemanticsNodeInteraction assertIsSelected(androidx.compose.ui.test.SemanticsNodeInteraction);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction assertIsToggleable(androidx.compose.ui.test.SemanticsNodeInteraction);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction assertRangeInfoEquals(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.ProgressBarRangeInfo value);
-    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertTextContains(androidx.compose.ui.test.SemanticsNodeInteraction, String value, optional boolean ignoreCase);
-    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertTextEquals(androidx.compose.ui.test.SemanticsNodeInteraction, String value, optional boolean ignoreCase);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertTextContains(androidx.compose.ui.test.SemanticsNodeInteraction, String value, optional boolean substring, optional boolean ignoreCase);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertTextEquals(androidx.compose.ui.test.SemanticsNodeInteraction, String![] values, optional boolean includeEditableText);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction assertValueEquals(androidx.compose.ui.test.SemanticsNodeInteraction, String value);
   }
 
   public final class BoundsAssertionsKt {
-    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertHeightIsAtLeast-3AN6ZEs(androidx.compose.ui.test.SemanticsNodeInteraction, float expectedMinHeight);
-    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertHeightIsEqualTo-3AN6ZEs(androidx.compose.ui.test.SemanticsNodeInteraction, float expectedHeight);
-    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertLeftPositionInRootIsEqualTo-3AN6ZEs(androidx.compose.ui.test.SemanticsNodeInteraction, float expectedLeft);
-    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertPositionInRootIsEqualTo-aELHoiQ(androidx.compose.ui.test.SemanticsNodeInteraction, float expectedLeft, float expectedTop);
-    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertTopPositionInRootIsEqualTo-3AN6ZEs(androidx.compose.ui.test.SemanticsNodeInteraction, float expectedTop);
-    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertWidthIsAtLeast-3AN6ZEs(androidx.compose.ui.test.SemanticsNodeInteraction, float expectedMinWidth);
-    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertWidthIsEqualTo-3AN6ZEs(androidx.compose.ui.test.SemanticsNodeInteraction, float expectedWidth);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertHeightIsAtLeast(androidx.compose.ui.test.SemanticsNodeInteraction, float expectedMinHeight);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertHeightIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, float expectedHeight);
+    method public static void assertIsEqualTo(float, float expected, String subject, optional float tolerance);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertLeftPositionInRootIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, float expectedLeft);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertPositionInRootIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, float expectedLeft, float expectedTop);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertTopPositionInRootIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, float expectedTop);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertTouchHeightIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, float expectedHeight);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertTouchWidthIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, float expectedWidth);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertWidthIsAtLeast(androidx.compose.ui.test.SemanticsNodeInteraction, float expectedMinWidth);
+    method public static androidx.compose.ui.test.SemanticsNodeInteraction assertWidthIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, float expectedWidth);
     method public static float getAlignmentLinePosition(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.layout.AlignmentLine alignmentLine);
+    method public static androidx.compose.ui.unit.DpRect getBoundsInRoot(androidx.compose.ui.test.SemanticsNodeInteraction);
     method public static androidx.compose.ui.unit.DpRect getUnclippedBoundsInRoot(androidx.compose.ui.test.SemanticsNodeInteraction);
   }
 
@@ -68,26 +80,28 @@ package androidx.compose.ui.test {
   public final class ErrorMessagesKt {
   }
 
-  @kotlin.RequiresOptIn(message="This testing API is experimental and is likely to be changed or removed entirely") public @interface ExperimentalTestApi {
-  }
-
   public final class FiltersKt {
     method public static androidx.compose.ui.test.SemanticsMatcher hasAnyAncestor(androidx.compose.ui.test.SemanticsMatcher matcher);
     method public static androidx.compose.ui.test.SemanticsMatcher hasAnyChild(androidx.compose.ui.test.SemanticsMatcher matcher);
     method public static androidx.compose.ui.test.SemanticsMatcher hasAnyDescendant(androidx.compose.ui.test.SemanticsMatcher matcher);
     method public static androidx.compose.ui.test.SemanticsMatcher hasAnySibling(androidx.compose.ui.test.SemanticsMatcher matcher);
     method public static androidx.compose.ui.test.SemanticsMatcher hasClickAction();
-    method public static androidx.compose.ui.test.SemanticsMatcher hasContentDescription(String label, optional boolean substring, optional boolean ignoreCase);
-    method public static androidx.compose.ui.test.SemanticsMatcher hasImeAction(androidx.compose.ui.text.input.ImeAction actionType);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasContentDescription(String value, optional boolean substring, optional boolean ignoreCase);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasContentDescriptionExactly(java.lang.String... values);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasImeAction(int actionType);
     method public static androidx.compose.ui.test.SemanticsMatcher hasNoClickAction();
     method public static androidx.compose.ui.test.SemanticsMatcher hasNoScrollAction();
     method public static androidx.compose.ui.test.SemanticsMatcher hasParent(androidx.compose.ui.test.SemanticsMatcher matcher);
     method public static androidx.compose.ui.test.SemanticsMatcher hasProgressBarRangeInfo(androidx.compose.ui.semantics.ProgressBarRangeInfo rangeInfo);
     method public static androidx.compose.ui.test.SemanticsMatcher hasScrollAction();
+    method public static androidx.compose.ui.test.SemanticsMatcher hasScrollToIndexAction();
+    method public static androidx.compose.ui.test.SemanticsMatcher hasScrollToKeyAction();
+    method public static androidx.compose.ui.test.SemanticsMatcher hasScrollToNodeAction();
     method public static androidx.compose.ui.test.SemanticsMatcher hasSetTextAction();
     method public static androidx.compose.ui.test.SemanticsMatcher hasStateDescription(String value);
     method public static androidx.compose.ui.test.SemanticsMatcher hasTestTag(String testTag);
     method public static androidx.compose.ui.test.SemanticsMatcher hasText(String text, optional boolean substring, optional boolean ignoreCase);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasTextExactly(String![] textValues, optional boolean includeEditableText);
     method public static androidx.compose.ui.test.SemanticsMatcher isDialog();
     method public static androidx.compose.ui.test.SemanticsMatcher isEnabled();
     method public static androidx.compose.ui.test.SemanticsMatcher isFocusable();
@@ -116,52 +130,53 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.SemanticsNodeInteraction onRoot(androidx.compose.ui.test.SemanticsNodeInteractionsProvider, optional boolean useUnmergedTree);
   }
 
-  public final class GestureScope {
-    ctor public GestureScope(androidx.compose.ui.semantics.SemanticsNode node, androidx.compose.ui.test.TestContext testContext);
-    method public long getVisibleSize-YbymL2g();
+  @Deprecated public final class GestureScope {
+    ctor @Deprecated public GestureScope(androidx.compose.ui.semantics.SemanticsNode node, androidx.compose.ui.test.TestContext testContext);
+    method @Deprecated public long getVisibleSize();
     property public final long visibleSize;
+    field @Deprecated @kotlin.PublishedApi internal final androidx.compose.ui.test.MultiModalInjectionScope delegateScope;
   }
 
   public final class GestureScopeKt {
-    method public static void cancel(androidx.compose.ui.test.GestureScope);
-    method public static void click-ssxj34k(androidx.compose.ui.test.GestureScope, optional long position);
-    method public static void doubleClick-LZsBx1o(androidx.compose.ui.test.GestureScope, optional long position, optional long delayMillis);
-    method public static void down-NAWZHwc(androidx.compose.ui.test.GestureScope, int pointerId, long position);
-    method public static void down-ssxj34k(androidx.compose.ui.test.GestureScope, long position);
-    method public static inline float getBottom(androidx.compose.ui.test.GestureScope);
-    method public static long getBottomCenter(androidx.compose.ui.test.GestureScope);
-    method public static long getBottomLeft(androidx.compose.ui.test.GestureScope);
-    method public static long getBottomRight(androidx.compose.ui.test.GestureScope);
-    method public static long getCenter(androidx.compose.ui.test.GestureScope);
-    method public static long getCenterLeft(androidx.compose.ui.test.GestureScope);
-    method public static long getCenterRight(androidx.compose.ui.test.GestureScope);
-    method public static inline float getCenterX(androidx.compose.ui.test.GestureScope);
-    method public static inline float getCenterY(androidx.compose.ui.test.GestureScope);
-    method public static inline int getHeight(androidx.compose.ui.test.GestureScope);
-    method public static inline float getLeft(androidx.compose.ui.test.GestureScope);
-    method public static inline float getRight(androidx.compose.ui.test.GestureScope);
-    method public static inline float getTop(androidx.compose.ui.test.GestureScope);
-    method public static long getTopCenter(androidx.compose.ui.test.GestureScope);
-    method public static long getTopLeft(androidx.compose.ui.test.GestureScope);
-    method public static long getTopRight(androidx.compose.ui.test.GestureScope);
-    method public static inline int getWidth(androidx.compose.ui.test.GestureScope);
-    method public static void longClick-LZsBx1o(androidx.compose.ui.test.GestureScope, optional long position, optional long durationMillis);
-    method public static void move(androidx.compose.ui.test.GestureScope);
-    method public static void moveBy-NAWZHwc(androidx.compose.ui.test.GestureScope, int pointerId, long delta);
-    method public static void moveBy-ssxj34k(androidx.compose.ui.test.GestureScope, long delta);
-    method public static void movePointerBy-NAWZHwc(androidx.compose.ui.test.GestureScope, int pointerId, long delta);
-    method public static void movePointerTo-NAWZHwc(androidx.compose.ui.test.GestureScope, int pointerId, long position);
-    method public static void moveTo-NAWZHwc(androidx.compose.ui.test.GestureScope, int pointerId, long position);
-    method public static void moveTo-ssxj34k(androidx.compose.ui.test.GestureScope, long position);
-    method public static long percentOffset(androidx.compose.ui.test.GestureScope, optional float x, optional float y);
-    method public static void pinch-1c52nSY(androidx.compose.ui.test.GestureScope, long start0, long end0, long start1, long end1, optional long durationMillis);
-    method public static void swipe-DPh1Mgw(androidx.compose.ui.test.GestureScope, long start, long end, optional long durationMillis);
-    method public static void swipeDown(androidx.compose.ui.test.GestureScope);
-    method public static void swipeLeft(androidx.compose.ui.test.GestureScope);
-    method public static void swipeRight(androidx.compose.ui.test.GestureScope);
-    method public static void swipeUp(androidx.compose.ui.test.GestureScope);
-    method public static void swipeWithVelocity-YsXUJPI(androidx.compose.ui.test.GestureScope, long start, long end, float endVelocity, optional long durationMillis);
-    method public static void up(androidx.compose.ui.test.GestureScope, optional int pointerId);
+    method @Deprecated public static void cancel(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static void click(androidx.compose.ui.test.GestureScope, optional long position);
+    method @Deprecated public static void doubleClick(androidx.compose.ui.test.GestureScope, optional long position, optional long delayMillis);
+    method @Deprecated public static void down(androidx.compose.ui.test.GestureScope, int pointerId, long position);
+    method @Deprecated public static void down(androidx.compose.ui.test.GestureScope, long position);
+    method @Deprecated public static inline float getBottom(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static long getBottomCenter(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static long getBottomLeft(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static long getBottomRight(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static long getCenter(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static long getCenterLeft(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static long getCenterRight(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static inline float getCenterX(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static inline float getCenterY(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static inline int getHeight(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static inline float getLeft(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static inline float getRight(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static inline float getTop(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static long getTopCenter(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static long getTopLeft(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static long getTopRight(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static inline int getWidth(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static void longClick(androidx.compose.ui.test.GestureScope, optional long position, optional long durationMillis);
+    method @Deprecated public static void move(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static void moveBy(androidx.compose.ui.test.GestureScope, int pointerId, long delta);
+    method @Deprecated public static void moveBy(androidx.compose.ui.test.GestureScope, long delta);
+    method @Deprecated public static void movePointerBy(androidx.compose.ui.test.GestureScope, int pointerId, long delta);
+    method @Deprecated public static void movePointerTo(androidx.compose.ui.test.GestureScope, int pointerId, long position);
+    method @Deprecated public static void moveTo(androidx.compose.ui.test.GestureScope, int pointerId, long position);
+    method @Deprecated public static void moveTo(androidx.compose.ui.test.GestureScope, long position);
+    method @Deprecated public static long percentOffset(androidx.compose.ui.test.GestureScope, optional float x, optional float y);
+    method @Deprecated public static void pinch(androidx.compose.ui.test.GestureScope, long start0, long end0, long start1, long end1, optional long durationMillis);
+    method @Deprecated public static void swipe(androidx.compose.ui.test.GestureScope, long start, long end, optional long durationMillis);
+    method @Deprecated public static void swipeDown(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static void swipeLeft(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static void swipeRight(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static void swipeUp(androidx.compose.ui.test.GestureScope);
+    method @Deprecated public static void swipeWithVelocity(androidx.compose.ui.test.GestureScope, long start, long end, float endVelocity, optional long durationMillis);
+    method @Deprecated public static void up(androidx.compose.ui.test.GestureScope, optional int pointerId);
   }
 
   public interface IdlingResource {
@@ -170,11 +185,55 @@ package androidx.compose.ui.test {
     property public abstract boolean isIdleNow;
   }
 
-  @kotlin.RequiresOptIn(message="This is internal API for Compose modules that may change frequently and without warning.") public @interface InternalTestApi {
+  public interface InjectionScope extends androidx.compose.ui.unit.Density {
+    method public void advanceEventTime(optional long durationMillis);
+    method public void dispose();
+    method public void flush();
+    method public default float getBottom();
+    method public default long getBottomCenter();
+    method public default long getBottomLeft();
+    method public default long getBottomRight();
+    method public default long getCenter();
+    method public default long getCenterLeft();
+    method public default long getCenterRight();
+    method public default float getCenterX();
+    method public default float getCenterY();
+    method public default long getEventPeriodMillis();
+    method public default int getHeight();
+    method public default float getLeft();
+    method public default float getRight();
+    method public default float getTop();
+    method public default long getTopCenter();
+    method public default long getTopLeft();
+    method public default long getTopRight();
+    method public androidx.compose.ui.platform.ViewConfiguration getViewConfiguration();
+    method public long getVisibleSize();
+    method public default int getWidth();
+    method public default long percentOffset(optional float x, optional float y);
+    property public default float bottom;
+    property public default long bottomCenter;
+    property public default long bottomLeft;
+    property public default long bottomRight;
+    property public default long center;
+    property public default long centerLeft;
+    property public default long centerRight;
+    property public default float centerX;
+    property public default float centerY;
+    property public default long eventPeriodMillis;
+    property public default int height;
+    property public default float left;
+    property public default float right;
+    property public default float top;
+    property public default long topCenter;
+    property public default long topLeft;
+    property public default long topRight;
+    property public abstract androidx.compose.ui.platform.ViewConfiguration viewConfiguration;
+    property public abstract long visibleSize;
+    property public default int width;
   }
 
   public final class KeyInputHelpersKt {
-    method public static boolean performKeyPress-S8GO8FU(androidx.compose.ui.test.SemanticsNodeInteraction, android.view.KeyEvent keyEvent);
+    method public static boolean performKeyPress(androidx.compose.ui.test.SemanticsNodeInteraction, android.view.KeyEvent keyEvent);
   }
 
   public interface MainTestClock {
@@ -183,9 +242,17 @@ package androidx.compose.ui.test {
     method public void advanceTimeUntil(optional long timeoutMillis, kotlin.jvm.functions.Function0<java.lang.Boolean> condition);
     method public boolean getAutoAdvance();
     method public long getCurrentTime();
-    method public void setAutoAdvance(boolean p);
+    method public void setAutoAdvance(boolean autoAdvance);
     property public abstract boolean autoAdvance;
     property public abstract long currentTime;
+  }
+
+  public final class MouseInjectionScopeKt {
+  }
+
+  public sealed interface MultiModalInjectionScope extends androidx.compose.ui.test.InjectionScope {
+    method public androidx.compose.ui.test.TouchInjectionScope getTouch();
+    property public abstract androidx.compose.ui.test.TouchInjectionScope Touch;
   }
 
   public final class OutputKt {
@@ -196,7 +263,7 @@ package androidx.compose.ui.test {
   }
 
   public final class SelectionResult {
-    ctor public SelectionResult(java.util.List<androidx.compose.ui.semantics.SemanticsNode> selectedNodes, String? customErrorOnNoMatch);
+    ctor public SelectionResult(java.util.List<androidx.compose.ui.semantics.SemanticsNode> selectedNodes, optional String? customErrorOnNoMatch);
     method public String? getCustomErrorOnNoMatch();
     method public java.util.List<androidx.compose.ui.semantics.SemanticsNode> getSelectedNodes();
     property public final String? customErrorOnNoMatch;
@@ -256,7 +323,7 @@ package androidx.compose.ui.test {
   }
 
   public final class SemanticsSelector {
-    ctor public SemanticsSelector(String description, boolean requiresExactlyOneNode, androidx.compose.ui.test.SemanticsSelector? chainedInputSelector, kotlin.jvm.functions.Function1<? super java.lang.Iterable<androidx.compose.ui.semantics.SemanticsNode>,androidx.compose.ui.test.SelectionResult> selector);
+    ctor public SemanticsSelector(String description, boolean requiresExactlyOneNode, optional androidx.compose.ui.test.SemanticsSelector? chainedInputSelector, kotlin.jvm.functions.Function1<? super java.lang.Iterable<androidx.compose.ui.semantics.SemanticsNode>,androidx.compose.ui.test.SelectionResult> selector);
     method public String getDescription();
     method public androidx.compose.ui.test.SelectionResult map(Iterable<androidx.compose.ui.semantics.SemanticsNode> nodes, String errorOnFail);
     property public final String description;
@@ -268,31 +335,10 @@ package androidx.compose.ui.test {
   public final class TestContext {
   }
 
-  @kotlinx.coroutines.ExperimentalCoroutinesApi public final class TestMonotonicFrameClock implements androidx.compose.runtime.MonotonicFrameClock {
-    ctor public TestMonotonicFrameClock(kotlinx.coroutines.CoroutineScope coroutineScope, kotlinx.coroutines.test.DelayController delayController, long frameDelayNanos);
-    method public long getFrameDelayNanos();
-    method public boolean getHasAwaiters();
-    method public suspend <R> Object? withFrameNanos(kotlin.jvm.functions.Function1<? super java.lang.Long,? extends R> onFrame, kotlin.coroutines.Continuation<? super R> p);
-    property public final long frameDelayNanos;
-    property public final boolean hasAwaiters;
-  }
-
   public final class TestMonotonicFrameClock_jvmKt {
-    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static androidx.compose.ui.test.TestMonotonicFrameClock TestMonotonicFrameClock(kotlinx.coroutines.CoroutineScope coroutineScope, optional long frameDelayNanos);
-    method public static long getFrameDelayMillis(androidx.compose.ui.test.TestMonotonicFrameClock);
-  }
-
-  @androidx.compose.ui.test.InternalTestApi public interface TestOwner {
-    method public androidx.compose.ui.test.MainTestClock getMainClock();
-    method public java.util.Set<androidx.compose.ui.node.RootForTest> getRoots(boolean atLeastOneRootExpected);
-    method public <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
-    method public void sendImeAction(androidx.compose.ui.semantics.SemanticsNode node, androidx.compose.ui.text.input.ImeAction actionSpecified);
-    method public void sendTextInputCommand(androidx.compose.ui.semantics.SemanticsNode node, java.util.List<? extends androidx.compose.ui.text.input.EditCommand> command);
-    property public abstract androidx.compose.ui.test.MainTestClock mainClock;
   }
 
   public final class TestOwnerKt {
-    method @androidx.compose.ui.test.InternalTestApi public static androidx.compose.ui.test.TestContext createTestContext(androidx.compose.ui.test.TestOwner owner);
   }
 
   public final class TextActionsKt {
@@ -300,6 +346,35 @@ package androidx.compose.ui.test {
     method public static void performTextClearance(androidx.compose.ui.test.SemanticsNodeInteraction);
     method public static void performTextInput(androidx.compose.ui.test.SemanticsNodeInteraction, String text);
     method public static void performTextReplacement(androidx.compose.ui.test.SemanticsNodeInteraction, String text);
+  }
+
+  public interface TouchInjectionScope extends androidx.compose.ui.test.InjectionScope {
+    method public void cancel(optional long delayMillis);
+    method public androidx.compose.ui.geometry.Offset? currentPosition(optional int pointerId);
+    method public void down(int pointerId, long position);
+    method public default void down(long position);
+    method public void move(optional long delayMillis);
+    method public default void moveBy(int pointerId, long delta, optional long delayMillis);
+    method public default void moveBy(long delta, optional long delayMillis);
+    method public default void moveTo(int pointerId, long position, optional long delayMillis);
+    method public default void moveTo(long position, optional long delayMillis);
+    method public void up(optional int pointerId);
+    method public default void updatePointerBy(int pointerId, long delta);
+    method public void updatePointerTo(int pointerId, long position);
+  }
+
+  public final class TouchInjectionScopeKt {
+    method public static void click(androidx.compose.ui.test.TouchInjectionScope, optional long position);
+    method public static void doubleClick(androidx.compose.ui.test.TouchInjectionScope, optional long position, optional long delayMillis);
+    method public static void longClick(androidx.compose.ui.test.TouchInjectionScope, optional long position, optional long durationMillis);
+    method public static void pinch(androidx.compose.ui.test.TouchInjectionScope, long start0, long end0, long start1, long end1, optional long durationMillis);
+    method public static void swipe(androidx.compose.ui.test.TouchInjectionScope, long start, long end, optional long durationMillis);
+    method public static void swipe(androidx.compose.ui.test.TouchInjectionScope, kotlin.jvm.functions.Function1<? super java.lang.Long,androidx.compose.ui.geometry.Offset> curve, long durationMillis, optional java.util.List<java.lang.Long> keyTimes);
+    method public static void swipeDown(androidx.compose.ui.test.TouchInjectionScope, optional float startY, optional float endY, optional long durationMillis);
+    method public static void swipeLeft(androidx.compose.ui.test.TouchInjectionScope, optional float startX, optional float endX, optional long durationMillis);
+    method public static void swipeRight(androidx.compose.ui.test.TouchInjectionScope, optional float startX, optional float endX, optional long durationMillis);
+    method public static void swipeUp(androidx.compose.ui.test.TouchInjectionScope, optional float startY, optional float endY, optional long durationMillis);
+    method public static void swipeWithVelocity(androidx.compose.ui.test.TouchInjectionScope, long start, long end, float endVelocity, optional long durationMillis);
   }
 
   public final class UtilsKt {

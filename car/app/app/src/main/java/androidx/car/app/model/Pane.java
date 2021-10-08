@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.Objects;
  * Represents a list of rows used for displaying informational content and a set of {@link Action}s
  * that users can perform based on such content.
  */
+@CarProtocol
 public final class Pane {
     @Keep
     private final List<Action> mActionList;
@@ -147,7 +149,7 @@ public final class Pane {
          *
          * <p>By default, no actions are displayed.
          *
-         * @throws NullPointerException if {@code action} is {@code null}
+         * @throws NullPointerException     if {@code action} is {@code null}
          */
         @NonNull
         public Builder addAction(@NonNull Action action) {

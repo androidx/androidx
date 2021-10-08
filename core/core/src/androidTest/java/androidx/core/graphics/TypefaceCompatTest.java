@@ -255,7 +255,7 @@ public class TypefaceCompatTest {
         Instrumentation inst = InstrumentationRegistry.getInstrumentation();
         CountDownLatch latch = new CountDownLatch(1);
         final FontCallback callback = new FontCallback(latch);
-        FontsContractCompat.resetCache();
+        FontsContractCompat.resetTypefaceCache();
 
         final Typeface[] result = new Typeface[1];
         inst.runOnMainSync(new Runnable() {
@@ -277,7 +277,7 @@ public class TypefaceCompatTest {
         Instrumentation inst = InstrumentationRegistry.getInstrumentation();
         CountDownLatch latch = new CountDownLatch(1);
         final FontCallback callback = new FontCallback(latch);
-        FontsContractCompat.resetCache();
+        FontsContractCompat.resetTypefaceCache();
 
         final Typeface[] result = new Typeface[2];
         inst.runOnMainSync(new Runnable() {

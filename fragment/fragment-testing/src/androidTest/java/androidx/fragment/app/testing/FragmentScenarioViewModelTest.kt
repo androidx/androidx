@@ -44,7 +44,7 @@ class FragmentScenarioViewModelTest {
         `when`(mockViewModel.getUserName()).thenReturn(fakeUserName)
         val viewModelFactory = object : ViewModelProvider.NewInstanceFactory() {
             @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return when (modelClass) {
                     InjectedViewModel::class.java -> mockViewModel as T
                     else -> super.create(modelClass)

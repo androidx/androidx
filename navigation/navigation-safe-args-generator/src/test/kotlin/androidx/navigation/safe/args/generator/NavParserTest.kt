@@ -21,11 +21,8 @@ import androidx.navigation.safe.args.generator.models.Argument
 import androidx.navigation.safe.args.generator.models.Destination
 import androidx.navigation.safe.args.generator.models.IncludedDestination
 import androidx.navigation.safe.args.generator.models.ResReference
+import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.nullValue
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -110,7 +107,7 @@ class NavParserTest {
             null, null, "navigation", emptyList(), emptyList(),
             listOf(expectedFirst, expectedNext)
         )
-        assertThat(navGraph, `is`(expectedGraph))
+        assertThat(navGraph).isEqualTo(expectedGraph)
     }
 
     @Test
@@ -159,7 +156,7 @@ class NavParserTest {
             listOf(expectedMainFragment, expectedNestedGraph)
         )
 
-        assertThat(navGraph, `is`(expectedGraph))
+        assertThat(navGraph).isEqualTo(expectedGraph)
     }
 
     @Test
@@ -189,48 +186,44 @@ class NavParserTest {
             listOf(expectedMainFragment), listOf(expectedIncluded)
         )
 
-        assertThat(nestedIncludeNavGraph, `is`(expectedGraph))
+        assertThat(nestedIncludeNavGraph).isEqualTo(expectedGraph)
     }
 
     @Test
     fun testReferenceParsing() {
-        assertThat(parseReference("@+id/next", "a.b"), `is`(ResReference("a.b", "id", "next")))
-        assertThat(parseReference("@id/next", "a.b"), `is`(ResReference("a.b", "id", "next")))
-        assertThat(
-            parseReference("@android:string/text", "a.b"),
-            `is`(ResReference("android", "string", "text"))
-        )
-        assertThat(
-            parseReference("@android:id/text", "a.b"),
-            `is`(ResReference("android", "id", "text"))
-        )
-        assertThat(
-            parseReference("@not.android:string/text", "a.b"),
-            `is`(ResReference("not.android", "string", "text"))
-        )
+        assertThat(parseReference("@+id/next", "a.b"))
+            .isEqualTo(ResReference("a.b", "id", "next"))
+        assertThat(parseReference("@+id/next", "a.b"))
+            .isEqualTo(ResReference("a.b", "id", "next"))
+        assertThat(parseReference("@android:string/text", "a.b"))
+            .isEqualTo(ResReference("android", "string", "text"))
+        assertThat(parseReference("@android:id/text", "a.b"))
+            .isEqualTo(ResReference("android", "id", "text"))
+        assertThat(parseReference("@not.android:string/text", "a.b"))
+            .isEqualTo(ResReference("not.android", "string", "text"))
     }
 
     @Test
     fun testIntValueParsing() {
-        assertThat(parseIntValue("foo"), nullValue())
-        assertThat(parseIntValue("10"), `is`(IntValue("10")))
-        assertThat(parseIntValue("-10"), `is`(IntValue("-10")))
-        assertThat(parseIntValue("0xA"), `is`(IntValue("0xA")))
-        assertThat(parseIntValue("0xFFFFFFFF"), `is`(IntValue("0xFFFFFFFF")))
-        assertThat(parseIntValue("0x1FFFFFFFF"), nullValue())
+        assertThat(parseIntValue("foo")).isNull()
+        assertThat(parseIntValue("10")).isEqualTo(IntValue("10"))
+        assertThat(parseIntValue("-10")).isEqualTo(IntValue("-10"))
+        assertThat(parseIntValue("0xA")).isEqualTo(IntValue("0xA"))
+        assertThat(parseIntValue("0xFFFFFFFF")).isEqualTo(IntValue("0xFFFFFFFF"))
+        assertThat(parseIntValue("0x1FFFFFFFF")).isNull()
     }
 
     @Test
     fun testLongValueParsing() {
-        assertThat(parseLongValue("foo"), nullValue())
-        assertThat(parseLongValue("10"), nullValue())
-        assertThat(parseLongValue("10L"), `is`(LongValue("10L")))
-        assertThat(parseLongValue("-10L"), `is`(LongValue("-10L")))
-        assertThat(parseLongValue("0xA"), nullValue())
-        assertThat(parseLongValue("0xAL"), `is`(LongValue("0xAL")))
-        assertThat(parseLongValue("0xFFFFFFFFL"), `is`(LongValue("0xFFFFFFFFL")))
-        assertThat(parseLongValue("0x1FFFFFFFFL"), `is`(LongValue("0x1FFFFFFFFL")))
-        assertThat(parseLongValue("0x1FFFFFFFF1FFFFFFFFL"), nullValue())
+        assertThat(parseLongValue("foo")).isNull()
+        assertThat(parseLongValue("10")).isNull()
+        assertThat(parseLongValue("10L")).isEqualTo(LongValue("10L"))
+        assertThat(parseLongValue("-10L")).isEqualTo(LongValue("-10L"))
+        assertThat(parseLongValue("0xA")).isNull()
+        assertThat(parseLongValue("0xAL")).isEqualTo(LongValue("0xAL"))
+        assertThat(parseLongValue("0xFFFFFFFFL")).isEqualTo(LongValue("0xFFFFFFFFL"))
+        assertThat(parseLongValue("0x1FFFFFFFFL")).isEqualTo(LongValue("0x1FFFFFFFFL"))
+        assertThat(parseLongValue("0x1FFFFFFFF1FFFFFFFFL")).isNull()
     }
 
     @Test
@@ -249,92 +242,60 @@ class NavParserTest {
             Argument("foo", argType, ReferenceValue(ResReference(pName, type, value)))
         }
 
-        assertThat(infer("spb"), `is`(stringArg("spb")))
-        assertThat(infer("@null"), `is`(nullStringArg))
-        assertThat(infer("null"), `is`(stringArg("null")))
-        assertThat(infer("10"), `is`(intArg("10")))
-        assertThat(infer("0x10"), `is`(intArg("0x10")))
-        assertThat(infer("@android:id/some_la"), `is`(referenceArg("android", "id", "some_la")))
-        assertThat(infer("@foo"), `is`(stringArg("@foo")))
-        assertThat(infer("@+id/foo"), `is`(referenceArg("a.b", "id", "foo")))
-        assertThat(infer("@foo:stuff"), `is`(stringArg("@foo:stuff")))
-        assertThat(infer("@/stuff"), `is`(stringArg("@/stuff")))
-        assertThat(infer("10101010100100"), `is`(floatArg("10101010100100")))
-        assertThat(infer("1."), `is`(floatArg("1.")))
-        assertThat(infer("1.2e-4"), `is`(floatArg("1.2e-4")))
-        assertThat(infer(".4"), `is`(floatArg(".4")))
-        assertThat(infer("true"), `is`(boolArg("true")))
-        assertThat(infer("false"), `is`(boolArg("false")))
-        assertThat(infer("123L"), `is`(longArg("123L")))
-        assertThat(infer("1234123412341234L"), `is`(longArg("1234123412341234L")))
+        assertThat(infer("spb")).isEqualTo(stringArg("spb"))
+        assertThat(infer("@null")).isEqualTo(nullStringArg)
+        assertThat(infer("null")).isEqualTo(stringArg("null"))
+        assertThat(infer("10")).isEqualTo(intArg("10"))
+        assertThat(infer("0x10")).isEqualTo(intArg("0x10"))
+        assertThat(infer("@android:id/some_la")).isEqualTo(referenceArg("android", "id", "some_la"))
+        assertThat(infer("@foo")).isEqualTo(stringArg("@foo"))
+        assertThat(infer("@+id/foo")).isEqualTo(referenceArg("a.b", "id", "foo"))
+        assertThat(infer("@foo:stuff")).isEqualTo(stringArg("@foo:stuff"))
+        assertThat(infer("@/stuff")).isEqualTo(stringArg("@/stuff"))
+        assertThat(infer("10101010100100")).isEqualTo(floatArg("10101010100100"))
+        assertThat(infer("1.")).isEqualTo(floatArg("1."))
+        assertThat(infer("1.2e-4")).isEqualTo(floatArg("1.2e-4"))
+        assertThat(infer(".4")).isEqualTo(floatArg(".4"))
+        assertThat(infer("true")).isEqualTo(boolArg("true"))
+        assertThat(infer("false")).isEqualTo(boolArg("false"))
+        assertThat(infer("123L")).isEqualTo(longArg("123L"))
+        assertThat(infer("1234123412341234L")).isEqualTo(longArg("1234123412341234L"))
 
-        assertThat(
-            infer("@integer/test_integer_arg"),
-            `is`(resolvedReferenceArg("a.b", IntType, "integer", "test_integer_arg"))
-        )
-        assertThat(
-            infer("@dimen/test_dimen_arg"),
-            `is`(resolvedReferenceArg("a.b", IntType, "dimen", "test_dimen_arg"))
-        )
-        assertThat(
-            infer("@style/AppTheme"),
-            `is`(resolvedReferenceArg("a.b", ReferenceType, "style", "AppTheme"))
-        )
-        assertThat(
-            infer("@string/test_string_arg"),
-            `is`(resolvedReferenceArg("a.b", StringType, "string", "test_string_arg"))
-        )
-        assertThat(
-            infer("@color/test_color_arg"),
-            `is`(resolvedReferenceArg("a.b", IntType, "color", "test_color_arg"))
-        )
+        assertThat(infer("@integer/test_integer_arg"))
+            .isEqualTo(resolvedReferenceArg("a.b", IntType, "integer", "test_integer_arg"))
+        assertThat(infer("@dimen/test_dimen_arg"))
+            .isEqualTo(resolvedReferenceArg("a.b", IntType, "dimen", "test_dimen_arg"))
+        assertThat(infer("@style/AppTheme"))
+            .isEqualTo(resolvedReferenceArg("a.b", ReferenceType, "style", "AppTheme"))
+        assertThat(infer("@string/test_string_arg"))
+            .isEqualTo(resolvedReferenceArg("a.b", StringType, "string", "test_string_arg"))
+        assertThat(infer("@color/test_color_arg"))
+            .isEqualTo(resolvedReferenceArg("a.b", IntType, "color", "test_color_arg"))
     }
 
     @Test
     fun testArgSanitizedName() {
-        assertEquals(
-            "camelCaseName",
-            Argument("camelCaseName", IntType).sanitizedName
-        )
-        assertEquals(
-            "ALLCAPSNAME",
-            Argument("ALLCAPSNAME", IntType).sanitizedName
-        )
-        assertEquals(
-            "alllowercasename",
-            Argument("alllowercasename", IntType).sanitizedName
-        )
-        assertEquals(
-            "nameWithUnderscore",
-            Argument("name_with_underscore", IntType).sanitizedName
-        )
-        assertEquals(
-            "NameWithUnderscore",
-            Argument("Name_With_Underscore", IntType).sanitizedName
-        )
-        assertEquals(
-            "NAMEWITHUNDERSCORE",
-            Argument("NAME_WITH_UNDERSCORE", IntType).sanitizedName
-        )
-        assertEquals(
-            "nameWithSpaces",
-            Argument("name with spaces", IntType).sanitizedName
-        )
-        assertEquals(
-            "nameWithDot",
-            Argument("name.with.dot", IntType).sanitizedName
-        )
-        assertEquals(
-            "nameWithDollars",
-            Argument("name\$with\$dollars", IntType).sanitizedName
-        )
-        assertEquals(
-            "nameWithBangs",
-            Argument("name!with!bangs", IntType).sanitizedName
-        )
-        assertEquals(
-            "nameWithHyphens",
-            Argument("name-with-hyphens", IntType).sanitizedName
-        )
+        assertThat("camelCaseName")
+            .isEqualTo(Argument("camelCaseName", IntType).sanitizedName)
+        assertThat("ALLCAPSNAME")
+            .isEqualTo(Argument("ALLCAPSNAME", IntType).sanitizedName)
+        assertThat("alllowercasename")
+            .isEqualTo(Argument("alllowercasename", IntType).sanitizedName)
+        assertThat("nameWithUnderscore")
+            .isEqualTo(Argument("name_with_underscore", IntType).sanitizedName)
+        assertThat("NameWithUnderscore")
+            .isEqualTo(Argument("Name_With_Underscore", IntType).sanitizedName)
+        assertThat("NAMEWITHUNDERSCORE")
+            .isEqualTo(Argument("NAME_WITH_UNDERSCORE", IntType).sanitizedName)
+        assertThat("nameWithSpaces")
+            .isEqualTo(Argument("name with spaces", IntType).sanitizedName)
+        assertThat("nameWithDot")
+            .isEqualTo(Argument("name.with.dot", IntType).sanitizedName)
+        assertThat("nameWithDollars")
+            .isEqualTo(Argument("name\$with\$dollars", IntType).sanitizedName)
+        assertThat("nameWithBangs")
+            .isEqualTo(Argument("name!with!bangs", IntType).sanitizedName)
+        assertThat("nameWithHyphens")
+            .isEqualTo(Argument("name-with-hyphens", IntType).sanitizedName)
     }
 }

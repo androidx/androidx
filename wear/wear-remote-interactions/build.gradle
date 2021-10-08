@@ -18,8 +18,6 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
 
-import static androidx.build.dependencies.DependenciesKt.*
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -28,15 +26,29 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api(KOTLIN_STDLIB)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
+    api(libs.kotlinStdlib)
+    api(libs.guavaListenableFuture)
+    api(libs.kotlinCoroutinesGuava)
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
     androidTestImplementation 'junit:junit:4.12'
-    testImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    testImplementation(ANDROIDX_TEST_CORE)
-    testImplementation(ANDROIDX_TEST_RULES)
+
+    // Needed for Assert.assertThrows
+    testImplementation("junit:junit:4.13")
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRules)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoKotlin)
+
+    implementation("androidx.annotation:annotation:1.2.0")
+    implementation(libs.playServicesBasement)
+    implementation(libs.playServicesWearable, { exclude group: "androidx.core"})
 }
 
 android {

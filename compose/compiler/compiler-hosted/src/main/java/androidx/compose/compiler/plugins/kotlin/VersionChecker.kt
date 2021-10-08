@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrConstKind
+import org.jetbrains.kotlin.platform.jvm.isJvm
 
 class VersionChecker(val context: IrPluginContext) {
 
@@ -38,24 +39,44 @@ class VersionChecker(val context: IrPluginContext) {
             2200 to "1.0.0-alpha11",
             2300 to "1.0.0-alpha12",
             2400 to "1.0.0-alpha13",
+            2500 to "1.0.0-beta04",
+            2600 to "1.0.0-beta05",
+            2700 to "1.0.0-beta06",
+            2800 to "1.0.0-beta07",
+            2900 to "1.0.0-beta08",
+            3000 to "1.0.0-beta09",
+            3100 to "1.0.0-rc01",
+            3200 to "1.0.0-rc02",
+            3300 to "1.0.0",
+            3301 to "1.0.1",
+            3302 to "1.0.2",
+            4000 to "1.1.0-alpha01",
+            4100 to "1.1.0-alpha02",
+            4200 to "1.1.0-alpha03",
+            4300 to "1.1.0-alpha04",
+            4400 to "1.1.0-alpha05",
+            4500 to "1.1.0-alpha06",
         )
 
         /**
          * The minimum version int that this compiler is guaranteed to be compatible with. Typically
          * this will match the version int that is in ComposeVersion.kt in the runtime.
          */
-        private val minimumRuntimeVersionInt: Int = 2400
+        private const val minimumRuntimeVersionInt: Int = 3300
 
         /**
          * The maven version string of this compiler. This string should be updated before/after every
          * release.
          */
-        val compilerVersion: String = "1.0.0-alpha13"
+        const val compilerVersion: String = "1.1.0-alpha06"
         private val minimumRuntimeVersion: String
             get() = versionTable[minimumRuntimeVersionInt] ?: "unknown"
     }
 
     fun check() {
+        // version checker accesses bodies of the functions that are not deserialized in KLIB
+        if (!context.platform.isJvm()) return
+
         val versionClass = context.referenceClass(ComposeFqNames.ComposeVersion)
         if (versionClass == null) {
             // If the version class isn't present, it likely means that compose runtime isn't on the
@@ -63,7 +84,7 @@ class VersionChecker(val context: IrPluginContext) {
             // all, so we check for the presence of the Composer class here to try and check for the
             // case that an older version of Compose runtime is available.
             val composerClass = context.referenceClass(ComposeFqNames.Composer)
-            if (composerClass == null) {
+            if (composerClass != null) {
                 outdatedRuntimeWithUnknownVersionNumber()
             } else {
                 noRuntimeOnClasspathError()

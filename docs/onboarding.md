@@ -8,14 +8,14 @@ make simple changes in Android Studio, and upload commits to Gerrit for review.
 This page does **not** cover best practices for the content of changes. Please
 see [Life of a Jetpack Feature](loaf.md) for details on developing and releasing
 a library, [API Guidelines](api_guidelines.md) for best practices regarding
-public APIs, or [Policies and Processes](policies.md) for an overview of the
-constraints placed on changes.
+public APIs and an overview of the constraints placed on changes.
 
 ## Workstation setup {#setup}
 
-You will need to install the `repo` tool, which is used for Git branch and
-commit management. If you want to learn more about `repo`, see the
-[Repo Command Reference](https://source.android.com/setup/develop/repo).
+You will need to install the
+[`repo`](https://source.android.com/setup/develop#repo) tool, which is used for
+Git branch and commit management. If you want to learn more about `repo`, see
+the [Repo Command Reference](https://source.android.com/setup/develop/repo).
 
 ### Linux and MacOS {#setup-linux-mac}
 
@@ -130,12 +130,20 @@ git config --global merge.renameLimit 999999
 git config --global diff.renameLimit 999999
 ```
 
+### To check out older source, use the superproject
+
+The
+[git superproject](https://android.googlesource.com/platform/superproject/+/androidx-main)
+contains a history of the matching exact commits of each git repository over
+time, and it can be
+[checked out directly via git](https://stackoverflow.com/questions/3796927/how-to-git-clone-including-submodules)
+
 ## Explore source code from a browser {#code-search}
 
 `androidx-main` has a publicly-accessible
 [code search](https://cs.android.com/androidx/platform/frameworks/support) that
 allows you to explore all of the source code in the repository. Links to this
-URL may be shared on public Buganizer and other external sites.
+URL may be shared on the public issue tracked and other external sites.
 
 We recommend setting up a custom search engine in Chrome as a faster (and
 publicly-accessible) alternative to `cs/`.
@@ -159,17 +167,13 @@ query to search for, e.g. `AppCompatButton file:appcompat`, and press the
 Library development uses a curated version of Android Studio to ensure
 compatibility between various components of the development workflow.
 
-From the `frameworks/support` directory, you can use `ANDROIDX_PROJECTS=MAIN
-./gradlew studio` to automatically download and run the correct version of
-Studio to work on main set of androidx projects. `ANDROIDX_PROJECTS` has several
-other options like `ANDROIDX_PROJECTS=ALL` to open other subsets of the
-projects.
-[settings.gradle](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:settings.gradle)
-file in the repository has these options listed.
-
-```shell
-ANDROIDX_PROJECTS=MAIN ./gradlew studio
-```
+From the `frameworks/support` directory, you can use `./studiow m` (short for
+`ANDROIDX_PROJECTS=main ./gradlew studio`) to automatically download and run the
+correct version of Studio to work on the `main` set of androidx projects
+(non-Compose Jetpack libraries).
+[studiow](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:studiow)
+also supports several other arguments like `all` for other subsets of the
+projects (run `./studiow` for help).
 
 Next, open the `framework/support` project root from your checkout. If Studio
 asks you which SDK you would like to use, select `Use project SDK`. Importing
@@ -195,6 +199,22 @@ build completes.
 > -Dsun.java2d.uiScale.enabled=false
 > ```
 
+If in the future you encounter unexpected errors in Studio and you want to check
+for the possibility it is due to some incorrect settings or other generated
+files, you can run `./studiow --clean main <project subset>` or `./studiow
+--reinstall <project subset>` to clean generated files or reinstall Studio.
+
+> Tip: If you don't see a specific Gradle task listed in Studio's Gradle pane,
+> check the following:
+>
+> *   Studio might be running a different project subset than the one intended.
+>     For example, `./studiow main` only loads the `main` set of androidx
+>     projects; run `./studiow compose` to load the tasks specific to Compose.
+>
+> *   Gradle tasks aren't being loaded. Under Studio's settings => Experimental,
+>     make sure that "Do not build Gradle task list during Gradle sync" is
+>     unchecked. (Note that unchecking this can reduce Studio's performance)
+
 ## Making changes {#changes}
 
 Similar to Android framework development, library development should occur in
@@ -210,7 +230,52 @@ repo upload --cbr -t .
 ```
 
 The `--cbr` switch automatically picks the current repo branch for upload. The
-`-t` switch sets the Gerrit topic to the branch name, e.g. `my-branch-name`.
+`-t` switch sets the Gerrit topic to the branch name, e.g. `my-branch-name`. You
+can refer to the
+[Android documentation](https://source.android.com/setup/create/coding-tasks#workflow)
+for a high level overview of this basic workflow.
+
+NOTE If you encounter issues with `repo upload`, consider running upload with
+trace enabled, e.g. `GIT_DAPPER_TRACE=1 repo --trace upload . --cbr -y`. These
+logs can be helpful for reporting issues to the team that manages our git
+servers.
+
+NOTE If `repo upload` or any `git` command hangs and causes your CPU usage to
+skyrocket (e.g. your laptop fan sounds like a jet engine), then you may be
+hitting a rare issue with Git-on-Borg and HTTP/2. You can force `git` and `repo`
+to use HTTP/1.1 with `git config --global http.version HTTP/1.1`.
+
+### Fixing Kotlin code style errors
+
+`repo upload` automatically runs `ktlint`, which will cause the upload to fail
+if your code has style errors, which it reports on the command line like so:
+
+```
+[FAILED] ktlint_hook
+    [path]/MessageListAdapter.kt:36:69: Missing newline before ")"
+```
+
+To find and fix these errors, you can run ktlint locally, either in a console
+window or in the Terminal tool in Android Studio. Running in the Terminal tool
+is preferable because it will surface links to your source files/lines so you
+can easily navigate to the code to fix any problems.
+
+First, to run the tool and see all of the errors, run:
+
+`./gradlew module:submodule:ktlint`
+
+where module/submodule are the names used to refer to the module you want to
+check, such as `navigation:navigation-common`. You can also run ktlint on the
+entire project, but that takes longer as it is checking all active modules in
+your project.
+
+Many of the errors that ktlint finds can be automatically fixed by running
+ktlintFormat:
+
+`./gradlew module:submodule:ktlintFormat`
+
+ktlintFormat will report any remaining errors, but you can also run `ktlint`
+again at any time to see an updated list of the remaining errors.
 
 ## Building {#building}
 
@@ -223,11 +288,12 @@ example, if you are working on `core` module use:
 ./gradlew core:core:assemble
 ```
 
-Use the `-Pandroidx.allWarningsAsErrors` to make warnings fail your build (same
-as presubmits):
+To make warnings fail your build (same as presubmit), use the `--strict` flag,
+which our gradlew expands into a few correctness-related flags including
+`-Pandroidx.allWarningsAsErrors`:
 
 ```shell
-./gradlew core:core:assemble -Pandroidx.allWarningsAsErrors
+./gradlew core:core:assemble --strict
 ```
 
 To build every module, run the Lint verifier, verify the public API surface, and
@@ -238,11 +304,11 @@ task:
 ./gradlew createArchive
 ```
 
-To run the complete build task that our build servers use, use the
-`buildOnServer` Gradle task:
+To run the complete build task that our build servers use, use the corresponding
+shell script:
 
 ```shell
-./gradlew buildOnServer
+./busytown/androidx.sh
 ```
 
 ### Attaching a debugger to the build
@@ -254,10 +320,10 @@ right-clicking on it, and then selecting `Debug...`.
 
 Note that debugging will not be available until Gradle sync has completed.
 
-## From the command line
+#### From the command line
 
 Tasks may also be debugged from the command line, which may be useful if
-`./gradlew studio` cannot run due to a Gradle task configuration issue.
+`./studiow` cannot run due to a Gradle task configuration issue.
 
 1.  From the configurations dropdown in Studio, select "Edit Configurations".
 1.  Click the plus in the top left to create a new "Remote" configuration. Give
@@ -278,7 +344,7 @@ killing the running gradle daemons:
 ./gradlew --stop
 ```
 
-Note: This is described in more detail in this
+NOTE This is described in more detail in this
 [Medium article](https://medium.com/grandcentrix/how-to-debug-gradle-plugins-with-intellij-eef2ef681a7b).
 
 #### Attaching to an annotation processor
@@ -323,9 +389,8 @@ task:
 ./gradlew doclavaDocs
 ```
 
-To generate offline docs use '-PofflineDocs=true' parameter. Places the
-documentation in
-`{androidx-main}/out/dist/out/androidx/docs-tip-of-tree/build/javadoc`
+Places the documentation in
+`{androidx-main}/out/androidx/docs-tip-of-tree/build/javadoc`
 
 #### KotlinDocs
 
@@ -338,6 +403,22 @@ task:
 
 Places the documentation in
 `{androidx-main}/out/dist/out/androidx/docs-tip-of-tree/build/dokkaKotlinDocs`
+
+#### Dackka docs
+
+To build API reference docs for both Java and Kotlin source code using Dackka,
+run the Gradle task:
+
+```
+./gradlew dackkaDocs
+```
+
+Location of generated refdocs:
+
+*   docs-public (what is published to DAC):
+    `{androidx-main}/out/dist/out/androidx/docs-public/build/dackkaDocs`
+*   docs-tip-of-tree:
+    `{androidx-main}/out/dist/out/androidx/docs-tip-of-tree/build/dackkaDocs`
 
 #### Release docs
 
@@ -354,10 +435,10 @@ based on the version specified in
 `{androidx-main-checkout}/frameworks/support/buildSrc/src/main/kotlin/androidx/build/PublishDocsRules.kt`
 and uses the prebuilt checked into
 `{androidx-main-checkout}/prebuilts/androidx/internal/androidx/`. We
-colloquially refer to this two step process of (1) updating PublishDocsRules.kt
-and (2) checking in a prebuilt artifact into the prebuilts directory as
-[The Prebuilts Dance](releasing.md#the-prebuilts-dance™). So, to build javadocs
-that will be published to
+colloquially refer to this two step process of (1) updating
+`PublishDocsRules.kt` and (2) checking in a prebuilt artifact into the prebuilts
+directory as [The Prebuilts Dance](releasing_detailed.md#the-prebuilts-dance™).
+So, to build javadocs that will be published to
 https://developer.android.com/reference/androidx/packages, both of these steps
 need to be completed.
 
@@ -369,6 +450,15 @@ difference being that we use the Gradle command:
 ```
 
 This will create the artifact `{androidx-main}/out/dist/dokka-public-docs-0.zip`
+
+To generate a zip artifact for both Java and Kotlin source code using Dackka:
+
+```
+./gradlew zipDackkaDocs
+```
+
+This will create the artifact
+`{androidx-main}/out/dist/dackka-public-docs-0.zip`
 
 ### Updating public APIs {#updating-public-apis}
 
@@ -398,6 +488,20 @@ This is handled automatically by the `updateApi` Gradle task:
 
 If you change the public APIs without updating the API file, your module will
 still build **but** your CL will fail Treehugger presubmit checks.
+
+#### What are all these files in `api/`? {#updating-public-apis-glossary}
+
+Historical API surfaces are tracked for compatibility and docs generation
+purposes. For each version -- including `current` to represent the tip-of-tree
+version -- we record three different types of API surfaces.
+
+*   `<version>.txt`: Public API surface, tracked for compatibility
+*   `restricted_<version>.txt`: `@RestrictTo` API surface, tracked for
+    compatibility where necessary (see
+    [Restricted APIs](api_guidelines.md#restricted-api))
+*   `public_plus_experimental_<version>.txt`: Public API surface plus
+    `@RequiresOptIn` experimental API surfaces used for documentation (see
+    [Experimental APIs](api_guidelines.md#experimental-api)) and API review
 
 ### Release notes & the `Relnote:` tag {#relnote}
 
@@ -496,7 +600,7 @@ If you are developing against pre-release platform APIs in the internal
 `androidx-platform-dev` branch, you may need to update these prebuilts to obtain
 the latest API changes.
 
-### Missing external dependency
+#### Missing external dependency
 
 If Gradle cannot resolve a dependency listed in your `build.gradle`, you may
 need to import the corresponding artifact into `prebuilts/androidx/external`.
@@ -564,15 +668,14 @@ monitoring tests.
 
 ### AVD Manager
 
-The Android Studio instance started by `./gradlew studio` uses a custom SDK
-directory, which means any virtual devices created by a "standard" non-AndroidX
-instance of Android Studio will be _visible_ from the `./gradlew studio`
-instance but will be unable to locate the SDK artifacts -- they will display a
-`Download` button.
+The Android Studio instance started by `./studiow` uses a custom SDK directory,
+which means any virtual devices created by a "standard" non-AndroidX instance of
+Android Studio will be *visible* from the `./studiow` instance but will be
+unable to locate the SDK artifacts -- they will display a `Download` button.
 
 You can either use the `Download` button to download an extra copy of the SDK
-artifacts _or_ you can set up a symlink to your "standard" non-AndroidX SDK
-directory to expose your existing artifacts to the `./gradlew studio` instance:
+artifacts *or* you can set up a symlink to your "standard" non-AndroidX SDK
+directory to expose your existing artifacts to the `./studiow` instance:
 
 ```shell
 # Using the default MacOS Android SDK directory...
@@ -587,10 +690,10 @@ Libraries are encouraged to write and monitor performance benchmarks. See the
 
 ## Library snapshots {#snapshots}
 
-### Quick how to
+### Quick how-to
 
 Add the following snippet to your build.gradle file, replacing `buildId` with a
-snapshot build Id.
+snapshot build ID.
 
 ```groovy {highlight=context:[buildId]}
 allprojects {
@@ -602,8 +705,8 @@ allprojects {
 }
 ```
 
-You must define dependencies on artifacts using the SNAPSHOT version suffix, for
-example:
+You must define dependencies on artifacts using the `SNAPSHOT` version suffix,
+for example:
 
 ```groovy {highlight=context:SNAPSHOT}
 dependencies {

@@ -19,37 +19,31 @@ package androidx.compose.foundation.gestures
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.animateDecay
-import androidx.compose.animation.defaultDecayAnimationSpec
+import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.Orientation.Horizontal
 import androidx.compose.foundation.gestures.Orientation.Vertical
-import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.Drag
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.Fling
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.PointerInputChange
-import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.input.pointer.consumePositionChange
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChange
-import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.layout.onRelocationRequest
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Velocity
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.coroutineScope
+import androidx.compose.ui.unit.toSize
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -83,28 +77,58 @@ fun Modifier.scrollable(
     reverseDirection: Boolean = false,
     flingBehavior: FlingBehavior? = null,
     interactionSource: MutableInteractionSource? = null
+): Modifier = scrollable(
+    state = state,
+    orientation = orientation,
+    enabled = enabled,
+    reverseDirection = reverseDirection,
+    flingBehavior = flingBehavior,
+    interactionSource = interactionSource,
+    overScrollController = null
+)
+
+internal fun Modifier.scrollable(
+    state: ScrollableState,
+    orientation: Orientation,
+    overScrollController: OverScrollController?,
+    enabled: Boolean = true,
+    reverseDirection: Boolean = false,
+    flingBehavior: FlingBehavior? = null,
+    interactionSource: MutableInteractionSource? = null
 ): Modifier = composed(
     inspectorInfo = debugInspectorInfo {
         name = "scrollable"
         properties["orientation"] = orientation
         properties["state"] = state
+        properties["overScrollController"] = overScrollController
         properties["enabled"] = enabled
         properties["reverseDirection"] = reverseDirection
         properties["flingBehavior"] = flingBehavior
         properties["interactionSource"] = interactionSource
     },
     factory = {
+        val overscrollModifier =
+            if (overScrollController != null) {
+                Modifier.overScroll(overScrollController)
+            } else {
+                Modifier
+            }
+
         fun Float.reverseIfNeeded(): Float = if (reverseDirection) this * -1 else this
-        touchScrollImplementation(
-            interactionSource,
-            orientation,
-            reverseDirection,
-            state,
-            flingBehavior,
-            enabled
-        ).mouseScrollable(orientation) {
-            state.dispatchRawDelta(it.reverseIfNeeded())
-        }
+        relocationScrollable(state, orientation, reverseDirection)
+            .then(overscrollModifier)
+            .touchScrollable(
+                interactionSource,
+                orientation,
+                reverseDirection,
+                state,
+                flingBehavior,
+                overScrollController,
+                enabled
+            )
+            .mouseScrollable(orientation) {
+                state.dispatchRawDelta(it.reverseIfNeeded())
+            }
     }
 )
 
@@ -118,7 +142,7 @@ object ScrollableDefaults {
      */
     @Composable
     fun flingBehavior(): FlingBehavior {
-        val flingSpec = defaultDecayAnimationSpec()
+        val flingSpec = rememberSplineBasedDecay<Float>()
         return remember(flingSpec) {
             DefaultFlingBehavior(flingSpec)
         }
@@ -136,24 +160,16 @@ internal expect fun Modifier.mouseScrollable(
 
 @Suppress("ComposableModifierFactory")
 @Composable
-private fun Modifier.touchScrollImplementation(
+private fun Modifier.touchScrollable(
     interactionSource: MutableInteractionSource?,
     orientation: Orientation,
     reverseDirection: Boolean,
     controller: ScrollableState,
     flingBehavior: FlingBehavior?,
+    overScrollController: OverScrollController?,
     enabled: Boolean
 ): Modifier {
-    val draggedInteraction = remember { mutableStateOf<DragInteraction.Start?>(null) }
-    DisposableEffect(interactionSource) {
-        onDispose {
-            draggedInteraction.value?.let { interaction ->
-                interactionSource?.tryEmit(DragInteraction.Cancel(interaction))
-                draggedInteraction.value = null
-            }
-        }
-    }
-
+    val fling = flingBehavior ?: ScrollableDefaults.flingBehavior()
     val nestedScrollDispatcher = remember { mutableStateOf(NestedScrollDispatcher()) }
     val scrollLogic = rememberUpdatedState(
         ScrollingLogic(
@@ -161,162 +177,29 @@ private fun Modifier.touchScrollImplementation(
             reverseDirection,
             nestedScrollDispatcher,
             controller,
-            flingBehavior ?: ScrollableDefaults.flingBehavior()
+            fling,
+            overScrollController
         )
     )
-    val nestedScrollConnection = remember { scrollableNestedScrollConnection(scrollLogic) }
-    val orientationState = rememberUpdatedState(orientation)
-    val enabledState = rememberUpdatedState(enabled)
-    val controllerState = rememberUpdatedState(controller)
-    val interactionSourceState = rememberUpdatedState(interactionSource)
-    return dragForEachGesture(
-        orientation = orientationState,
-        enabled = enabledState,
-        scrollableState = controllerState,
-        nestedScrollDispatcher = nestedScrollDispatcher,
-        interactionSource = interactionSourceState,
-        dragStartInteraction = draggedInteraction,
-        scrollLogic = scrollLogic
+    val nestedScrollConnection = remember(enabled) {
+        scrollableNestedScrollConnection(scrollLogic, enabled)
+    }
+    val draggableState = remember { ScrollDraggableState(scrollLogic) }
+
+    return draggable(
+        { draggableState },
+        orientation = orientation,
+        enabled = enabled,
+        interactionSource = interactionSource,
+        reverseDirection = false,
+        startDragImmediately = { scrollLogic.value.shouldScrollImmediately() },
+        onDragStopped = { velocity ->
+            nestedScrollDispatcher.value.coroutineScope.launch {
+                scrollLogic.value.onDragStopped(velocity)
+            }
+        },
+        canDrag = { down -> down.type != PointerType.Mouse }
     ).nestedScroll(nestedScrollConnection, nestedScrollDispatcher.value)
-}
-
-@Suppress("ComposableModifierFactory")
-@Composable
-private fun Modifier.dragForEachGesture(
-    orientation: State<Orientation>,
-    enabled: State<Boolean>,
-    scrollableState: State<ScrollableState>,
-    nestedScrollDispatcher: State<NestedScrollDispatcher>,
-    interactionSource: State<MutableInteractionSource?>,
-    dragStartInteraction: MutableState<DragInteraction.Start?>,
-    scrollLogic: State<ScrollingLogic>
-): Modifier {
-    fun isVertical() = orientation.value == Vertical
-
-    fun Offset.axisValue() = this.run { if (isVertical()) y else x }
-
-    suspend fun PointerInputScope.initialDown(): Pair<PointerInputChange?, Float> {
-        var initialDelta = 0f
-        return awaitPointerEventScope {
-            val down = awaitFirstDown(requireUnconsumed = false)
-            if (!enabled.value || down.type == PointerType.Mouse) {
-                null to initialDelta
-            } else if (scrollableState.value.isScrollInProgress) {
-                // since we start immediately we don't wait for slop and set initial delta to 0
-                initialDelta = 0f
-                down to initialDelta
-            } else {
-                val onSlopPassed = { event: PointerInputChange, overSlop: Float ->
-                    event.consumePositionChange()
-                    initialDelta = overSlop
-                }
-                val result = if (isVertical()) {
-                    awaitVerticalTouchSlopOrCancellation(down.id, onSlopPassed)
-                } else {
-                    awaitHorizontalTouchSlopOrCancellation(down.id, onSlopPassed)
-                }
-                (if (enabled.value) result else null) to initialDelta
-            }
-        }
-    }
-
-    suspend fun PointerInputScope.mainDragCycle(
-        drag: PointerInputChange,
-        initialDelta: Float,
-        velocityTracker: VelocityTracker,
-    ): Boolean {
-        var result = false
-
-        fun ScrollScope.touchDragTick(event: PointerInputChange) {
-            velocityTracker.addPosition(event.uptimeMillis, event.position)
-            val delta = event.positionChange().axisValue()
-            if (enabled.value) {
-                with(scrollLogic.value) {
-                    dispatchScroll(delta, NestedScrollSource.Drag)
-                }
-            }
-            event.consumePositionChange()
-        }
-
-        try {
-            scrollableState.value.scroll(MutatePriority.UserInput) {
-                awaitPointerEventScope {
-                    if (enabled.value) {
-                        with(scrollLogic.value) {
-                            dispatchScroll(initialDelta, NestedScrollSource.Drag)
-                        }
-                    }
-                    velocityTracker.addPosition(drag.uptimeMillis, drag.position)
-                    val dragTick = { event: PointerInputChange ->
-                        if (event.type != PointerType.Mouse) {
-                            touchDragTick(event)
-                        }
-                    }
-                    result = if (isVertical()) {
-                        verticalDrag(drag.id, dragTick)
-                    } else {
-                        horizontalDrag(drag.id, dragTick)
-                    }
-                }
-            }
-        } catch (c: CancellationException) {
-            result = false
-        }
-        return result
-    }
-
-    suspend fun fling(velocity: Velocity) {
-        val preConsumedByParent = nestedScrollDispatcher.value.dispatchPreFling(velocity)
-        val available = velocity - preConsumedByParent
-        val velocityLeft = scrollLogic.value.doFlingAnimation(available)
-        nestedScrollDispatcher.value.dispatchPostFling(available - velocityLeft, velocityLeft)
-    }
-
-    val scrollLambda: suspend PointerInputScope.() -> Unit = remember {
-        {
-            forEachGesture {
-                val (startEvent, initialDelta) = initialDown()
-                if (startEvent != null) {
-                    val velocityTracker = VelocityTracker()
-                    // remember enabled state when we add interaction to remove later if needed
-                    val enabledWhenInteractionAdded = enabled.value
-                    if (enabledWhenInteractionAdded) {
-                        coroutineScope {
-                            launch {
-                                dragStartInteraction.value?.let { oldInteraction ->
-                                    interactionSource.value?.emit(
-                                        DragInteraction.Cancel(oldInteraction)
-                                    )
-                                }
-                                val interaction = DragInteraction.Start()
-                                interactionSource.value?.emit(interaction)
-                                dragStartInteraction.value = interaction
-                            }
-                        }
-                    }
-                    val isDragSuccessful = mainDragCycle(startEvent, initialDelta, velocityTracker)
-                    if (enabledWhenInteractionAdded) {
-                        coroutineScope {
-                            launch {
-                                dragStartInteraction.value?.let { interaction ->
-                                    interactionSource.value?.emit(
-                                        DragInteraction.Stop(interaction)
-                                    )
-                                    dragStartInteraction.value = null
-                                }
-                            }
-                        }
-                    }
-                    if (isDragSuccessful) {
-                        nestedScrollDispatcher.value.coroutineScope.launch {
-                            fling(velocityTracker.calculateVelocity())
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return pointerInput(scrollLambda, scrollLambda)
 }
 
 private class ScrollingLogic(
@@ -324,10 +207,14 @@ private class ScrollingLogic(
     val reverseDirection: Boolean,
     val nestedScrollDispatcher: State<NestedScrollDispatcher>,
     val scrollableState: ScrollableState,
-    val flingBehavior: FlingBehavior
+    val flingBehavior: FlingBehavior,
+    val overScrollController: OverScrollController?
 ) {
-    fun Float.toOffset(): Offset =
-        if (orientation == Horizontal) Offset(this, 0f) else Offset(0f, this)
+    fun Float.toOffset(): Offset = when {
+        this == 0f -> Offset.Zero
+        orientation == Horizontal -> Offset(this, 0f)
+        else -> Offset(0f, this)
+    }
 
     fun Float.toVelocity(): Velocity =
         if (orientation == Horizontal) Velocity(this, 0f) else Velocity(0f, this)
@@ -338,19 +225,38 @@ private class ScrollingLogic(
     fun Velocity.toFloat(): Float =
         if (orientation == Horizontal) this.x else this.y
 
+    fun Velocity.update(newValue: Float): Velocity =
+        if (orientation == Horizontal) copy(x = newValue) else copy(y = newValue)
+
     fun Float.reverseIfNeeded(): Float = if (reverseDirection) this * -1 else this
 
-    fun ScrollScope.dispatchScroll(scrollDelta: Float, source: NestedScrollSource): Float {
-        val scrollOffset = scrollDelta.toOffset()
-        val preConsumedByParent = nestedScrollDispatcher.value
-            .dispatchPreScroll(scrollOffset, source)
+    fun ScrollScope.dispatchScroll(
+        scrollDelta: Float,
+        pointerPosition: Offset?,
+        source: NestedScrollSource
+    ): Float {
+        val overScrollPreConsumed =
+            overScrollController
+                ?.consumePreScroll(scrollDelta.toOffset(), pointerPosition, source)
+                ?.toFloat()
+                ?: 0f
+        val afterPreOverscroll = scrollDelta - overScrollPreConsumed
+        val nestedScrollDispatcher = nestedScrollDispatcher.value
+        val preConsumedByParent = nestedScrollDispatcher
+            .dispatchPreScroll(afterPreOverscroll.toOffset(), source)
 
-        val scrollAvailable = scrollOffset - preConsumedByParent
-        val consumed = scrollBy(scrollAvailable.toFloat().reverseIfNeeded())
-            .reverseIfNeeded().toOffset()
+        val scrollAvailable = afterPreOverscroll - preConsumedByParent.toFloat()
+        val consumed = scrollBy(scrollAvailable.reverseIfNeeded()).reverseIfNeeded()
         val leftForParent = scrollAvailable - consumed
-        nestedScrollDispatcher.value.dispatchPostScroll(consumed, leftForParent, source)
-        return leftForParent.toFloat()
+        val parentConsumed = nestedScrollDispatcher
+            .dispatchPostScroll(consumed.toOffset(), leftForParent.toOffset(), source)
+        overScrollController?.consumePostScroll(
+            scrollAvailable.toOffset(),
+            (leftForParent - parentConsumed.toFloat()).toOffset(),
+            pointerPosition,
+            source
+        )
+        return leftForParent
     }
 
     fun performRawScroll(scroll: Offset): Offset {
@@ -362,12 +268,28 @@ private class ScrollingLogic(
         }
     }
 
+    suspend fun onDragStopped(axisVelocity: Float) {
+        val preOverscrollConsumed = overScrollController
+            ?.consumePreFling(axisVelocity.toVelocity())?.toFloat()
+            ?: 0f
+        val velocity = (axisVelocity - preOverscrollConsumed).toVelocity()
+        val preConsumedByParent = nestedScrollDispatcher.value.dispatchPreFling(velocity)
+        val available = velocity - preConsumedByParent
+        val velocityLeft = doFlingAnimation(available)
+        val consumedPost =
+            nestedScrollDispatcher.value.dispatchPostFling(available - velocityLeft, velocityLeft)
+        val totalLeft = velocityLeft - consumedPost
+        overScrollController?.consumePostFling(totalLeft.toFloat().toVelocity())
+        overScrollController?.release()
+    }
+
     suspend fun doFlingAnimation(available: Velocity): Velocity {
         var result: Velocity = available
-        // come up with the better threshold, but we need it since spline curve gives us NaNs
-        if (abs(available.toFloat()) > 1f) scrollableState.scroll {
-            val outerScopeScroll: (Float) -> Float =
-                { delta -> this.dispatchScroll(delta, NestedScrollSource.Fling) }
+        scrollableState.scroll {
+            val outerScopeScroll: (Float) -> Float = { delta ->
+                val consumed = this.dispatchScroll(delta.reverseIfNeeded(), null, Fling)
+                delta - consumed.reverseIfNeeded()
+            }
             val scope = object : ScrollScope {
                 override fun scrollBy(pixels: Float): Float {
                     return outerScopeScroll.invoke(pixels)
@@ -375,29 +297,77 @@ private class ScrollingLogic(
             }
             with(scope) {
                 with(flingBehavior) {
-                    result = performFling(available.toFloat()).toVelocity()
+                    result = result.update(
+                        performFling(available.toFloat().reverseIfNeeded()).reverseIfNeeded()
+                    )
                 }
             }
         }
         return result
     }
+
+    fun shouldScrollImmediately(): Boolean {
+        return scrollableState.isScrollInProgress ||
+            overScrollController?.stopOverscrollAnimation() ?: false
+    }
+}
+
+private class ScrollDraggableState(
+    val scrollLogic: State<ScrollingLogic>
+) : PointerAwareDraggableState, PointerAwareDragScope {
+    var latestScrollScope: ScrollScope = NoOpScrollScope
+
+    override fun dragBy(pixels: Float, pointerPosition: Offset) {
+        with(scrollLogic.value) {
+            with(latestScrollScope) {
+                dispatchScroll(pixels, pointerPosition, Drag)
+            }
+        }
+    }
+
+    override suspend fun drag(
+        dragPriority: MutatePriority,
+        block: suspend PointerAwareDragScope.() -> Unit
+    ) {
+        scrollLogic.value.scrollableState.scroll(dragPriority) {
+            latestScrollScope = this
+            block()
+        }
+    }
+
+    override fun dispatchRawDelta(delta: Float) {
+        with(scrollLogic.value) { performRawScroll(delta.toOffset()) }
+    }
+}
+
+private val NoOpScrollScope: ScrollScope = object : ScrollScope {
+    override fun scrollBy(pixels: Float): Float = pixels
 }
 
 private fun scrollableNestedScrollConnection(
-    scrollLogic: State<ScrollingLogic>
+    scrollLogic: State<ScrollingLogic>,
+    enabled: Boolean
 ): NestedScrollConnection = object : NestedScrollConnection {
     override fun onPostScroll(
         consumed: Offset,
         available: Offset,
         source: NestedScrollSource
-    ): Offset = scrollLogic.value.performRawScroll(available)
+    ): Offset = if (enabled) {
+        scrollLogic.value.performRawScroll(available)
+    } else {
+        Offset.Zero
+    }
 
     override suspend fun onPostFling(
         consumed: Velocity,
         available: Velocity
     ): Velocity {
-        val velocityLeft = scrollLogic.value.doFlingAnimation(available)
-        return available - velocityLeft
+        return if (enabled) {
+            val velocityLeft = scrollLogic.value.doFlingAnimation(available)
+            available - velocityLeft
+        } else {
+            Velocity.Zero
+        }
     }
 }
 
@@ -405,19 +375,67 @@ private class DefaultFlingBehavior(
     private val flingDecay: DecayAnimationSpec<Float>
 ) : FlingBehavior {
     override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
-        var velocityLeft = initialVelocity
-        var lastValue = 0f
-        AnimationState(
-            initialValue = 0f,
-            initialVelocity = initialVelocity,
-        ).animateDecay(flingDecay) {
-            val delta = value - lastValue
-            val left = scrollBy(delta)
-            lastValue = value
-            velocityLeft = this.velocity
-            // avoid rounding errors and stop if anything is unconsumed
-            if (abs(left) > 0.5f) this.cancelAnimation()
+        // come up with the better threshold, but we need it since spline curve gives us NaNs
+        return if (abs(initialVelocity) > 1f) {
+            var velocityLeft = initialVelocity
+            var lastValue = 0f
+            AnimationState(
+                initialValue = 0f,
+                initialVelocity = initialVelocity,
+            ).animateDecay(flingDecay) {
+                val delta = value - lastValue
+                val consumed = scrollBy(delta)
+                lastValue = value
+                velocityLeft = this.velocity
+                // avoid rounding errors and stop if anything is unconsumed
+                if (abs(delta - consumed) > 0.5f) this.cancelAnimation()
+            }
+            velocityLeft
+        } else {
+            initialVelocity
         }
-        return velocityLeft
     }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+private fun Modifier.relocationScrollable(
+    scrollableState: ScrollableState,
+    orientation: Orientation,
+    reverseDirection: Boolean = false
+): Modifier {
+    fun Float.reverseIfNeeded(): Float = if (reverseDirection) this * -1 else this
+    return this.onRelocationRequest(
+        onProvideDestination = { rect, layoutCoordinates ->
+            val size = layoutCoordinates.size.toSize()
+            when (orientation) {
+                Vertical ->
+                    rect.translate(0f, relocationDistance(rect.top, rect.bottom, size.height))
+                Horizontal ->
+                    rect.translate(relocationDistance(rect.left, rect.right, size.width), 0f)
+            }
+        },
+        onPerformRelocation = { source, destination ->
+            val offset = when (orientation) {
+                Vertical -> source.top - destination.top
+                Horizontal -> source.left - destination.left
+            }
+            scrollableState.animateScrollBy(offset.reverseIfNeeded())
+        }
+    )
+}
+
+// Calculate the offset needed to bring one of the edges into view. The leadingEdge is the side
+// closest to the origin (For the x-axis this is 'left', for the y-axis this is 'top').
+// The trailing edge is the other side (For the x-axis this is 'right', for the y-axis this is
+// 'bottom').
+private fun relocationDistance(leadingEdge: Float, trailingEdge: Float, parentSize: Float) = when {
+    // If the item is already visible, no need to scroll.
+    leadingEdge >= 0 && trailingEdge <= parentSize -> 0f
+
+    // If the item is visible but larger than the parent, we don't scroll.
+    leadingEdge < 0 && trailingEdge > parentSize -> 0f
+
+    // Find the minimum scroll needed to make one of the edges coincide with the parent's edge.
+    abs(leadingEdge) < abs(trailingEdge - parentSize) -> leadingEdge
+    else -> trailingEdge - parentSize
 }

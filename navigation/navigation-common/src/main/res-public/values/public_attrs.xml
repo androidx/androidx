@@ -25,8 +25,11 @@
     <public type="attr" name="nullable"/>
     <public type="attr" name="popUpTo"/>
     <public type="attr" name="popUpToInclusive"/>
+    <public type="attr" name="popUpToSaveState"/>
     <public type="attr" name="popEnterAnim"/>
     <public type="attr" name="popExitAnim"/>
+    <public type="attr" name="restoreState"/>
+    <public type="attr" name="route"/>
     <public type="attr" name="startDestination"/>
     <public type="attr" name="uri"/>
 </resources>

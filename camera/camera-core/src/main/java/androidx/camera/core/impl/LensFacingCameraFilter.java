@@ -17,11 +17,10 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ import java.util.List;
 /**
  * A filter that filters camera based on lens facing.
  */
-@UseExperimental(markerClass = ExperimentalCameraFilter.class)
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class LensFacingCameraFilter implements CameraFilter {
     @CameraSelector.LensFacing
     private int mLensFacing;

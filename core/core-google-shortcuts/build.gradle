@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.LibraryType
@@ -25,9 +24,28 @@ plugins {
     id("kotlin-android")
 }
 
+android {
+    defaultConfig {
+        multiDexEnabled = true
+    }
+}
+
 dependencies {
-    api(KOTLIN_STDLIB)
-    // Add dependencies here
+    api("androidx.core:core:1.6.0-rc01")
+
+    implementation("com.google.firebase:firebase-appindexing:20.0.0")
+    implementation("com.google.crypto.tink:tink-android:1.5.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.espressoIntents)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.multidex)
 }
 
 androidx {

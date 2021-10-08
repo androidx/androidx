@@ -36,7 +36,7 @@
     <string name="mr_controller_volume_slider" msgid="2955862765169128170">"ধ্বনি শ্লাইডাৰ"</string>
     <string name="mr_controller_no_media_selected" msgid="5495452265246139458">"কোনো মিডিয়া বাছনি কৰা হোৱা নাই"</string>
     <string name="mr_controller_no_info_available" msgid="855271725131981086">"কোনো তথ্য নাই"</string>
-    <string name="mr_controller_casting_screen" msgid="9171231064758955152">"স্ক্ৰীণ কাষ্ট কৰি থকা হৈছে"</string>
+    <string name="mr_controller_casting_screen" msgid="9171231064758955152">"স্ক্ৰীন কাষ্ট কৰি থকা হৈছে"</string>
     <string name="mr_dialog_default_group_name" msgid="4115858704575247342">"গোট"</string>
     <string name="mr_dialog_groupable_header" msgid="4307018456678388936">"কোনো এটা ডিভাইচ যোগ কৰক"</string>
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"কোনো এটা গোটত প্লে’ কৰক"</string>

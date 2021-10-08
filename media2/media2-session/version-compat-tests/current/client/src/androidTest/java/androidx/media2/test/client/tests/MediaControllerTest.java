@@ -224,11 +224,6 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void setVolumeWithLocalVolume_afterStreamTypeChanged() throws Exception {
-        if (!MediaTestUtils.isServiceToT()) {
-            // The previous service didn't handle stream type changes.
-            return;
-        }
-
         if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
             // This test is not eligible for this device.
             return;
@@ -586,12 +581,6 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void futuresCompleted_AllowedCommandsChange() throws Exception {
-        if (!MediaTestUtils.isServiceToT()) {
-            // TODO(b/147400981): Remove this early return once the previous service module is
-            //  updated to the next version that has fixed the issue.
-            return;
-        }
-
         RemoteMediaSession session = mRemoteSession;
         MediaController controller = createController(session.getToken());
 
@@ -624,11 +613,6 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void play_returnsSessionResultWithMediaItem() throws Exception {
-        if (!MediaTestUtils.isServiceToT()) {
-            // SessionResult had a null item until media2-session 1.0.x (b/154885520).
-            return;
-        }
-
         RemoteMediaSession session = mRemoteSession;
         session.getMockPlayer().createAndSetFakePlaylist(/* size= */ 1);
         session.getMockPlayer().setCurrentMediaItem(/* index= */ 0);
@@ -640,12 +624,6 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void getPlaylistMetadata_returnsPlaylistMetadataOfPlayerInSession() throws Exception {
-        if (!MediaTestUtils.isServiceToT()) {
-            // TODO(b/156594425): Remove this condition after previous module has the fix of
-            //  b/156878628.
-            return;
-        }
-
         MediaMetadata testMetadata = MediaTestUtils.createMetadata();
         Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
                 .setPlaylistMetadata(testMetadata)
@@ -660,12 +638,6 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void getBufferingState_returnsBufferingStateOfPlayerInSession() throws Exception {
-        if (!MediaTestUtils.isServiceToT()) {
-            // TODO(b/156594425): Remove this condition after previous module has the fix of
-            //  b/166223339.
-            return;
-        }
-
         int testBufferingState = SessionPlayer.BUFFERING_STATE_COMPLETE;
         Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
                 .setBufferingState(testBufferingState)

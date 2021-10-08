@@ -17,11 +17,11 @@
 package androidx.room.integration.kotlintestapp.migration
 
 import androidx.room.Room
+import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.room.testing.MigrationTestHelper
 import androidx.room.util.TableInfo
 import androidx.sqlite.db.SupportSQLiteDatabase
-import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import org.hamcrest.CoreMatchers.`is`
@@ -40,20 +40,21 @@ class MigrationKotlinTest {
     @get:Rule
     var helper: MigrationTestHelper = MigrationTestHelper(
         InstrumentationRegistry.getInstrumentation(),
-        MigrationDbKotlin::class.java.canonicalName,
-        FrameworkSQLiteOpenHelperFactory()
+        MigrationDbKotlin::class.java
     )
 
     companion object {
         val TEST_DB = "migration-test"
     }
 
+    abstract class EmptyDb : RoomDatabase()
+
     @Test
     @Throws(IOException::class)
     fun giveBadResource() {
         val helper = MigrationTestHelper(
             InstrumentationRegistry.getInstrumentation(),
-            "foo", FrameworkSQLiteOpenHelperFactory()
+            EmptyDb::class.java
         )
         try {
             helper.createDatabase(TEST_DB, 1)

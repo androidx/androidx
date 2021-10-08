@@ -286,6 +286,7 @@ public class SystemUIModes extends AppCompatActivity
     /**
      * Instrumented ImageView for use in SystemUIModes activity.
      */
+    @SuppressWarnings("AppCompatCustomView")
     public static class IV extends ImageView implements View.OnSystemUiVisibilityChangeListener {
         private SystemUIModes mActivity;
         private ActionMode mActionMode;

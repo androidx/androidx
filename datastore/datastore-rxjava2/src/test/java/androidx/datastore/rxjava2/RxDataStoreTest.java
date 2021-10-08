@@ -72,8 +72,9 @@ public class RxDataStoreTest {
         TestSubscriber<Byte> testSubscriber = byteStore.data().test();
 
         byteStore.updateDataAsync(RxDataStoreTest::incrementByte);
+        // Wait for our subscriber to see the second write, otherwise we may skip from 0 - 2
+        testSubscriber.awaitCount(2);
         byteStore.updateDataAsync(RxDataStoreTest::incrementByte);
-
         testSubscriber.awaitCount(3).assertValues((byte) 0, (byte) 1, (byte) 2);
     }
 
@@ -159,11 +160,13 @@ public class RxDataStoreTest {
 
         assertThat(testSubscriber.awaitTerminalEvent()).isTrue();
         testSubscriber.assertTerminated()
-                // Note(rohitsat): this is different from coroutines bc asFlowable converts the
-                // CancellationException to onComplete.
-                .assertNoErrors()
-                .assertComplete()
-                .assertValueCount(0);
+                // FIXME: This used to be different from coroutines bc asFlowable used to convert
+                //        the CancellationException to onComplete. This behavior changed with
+                //        kotlinx-coroutines-rx2:1.5.0
+                //        https://github.com/Kotlin/kotlinx.coroutines/issues/2173
+                //.assertNoErrors()
+                //.assertComplete()
+                .assertNoValues();
 
 
         // NOTE(rohitsat): this is different from data()

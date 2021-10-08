@@ -17,7 +17,7 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.tooling.CompositionData
-import kotlinx.collections.immutable.persistentHashMapOf
+import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentHashMapOf
 import kotlin.coroutines.CoroutineContext
 
 private val EmptyCompositionLocalMap: CompositionLocalMap = persistentHashMapOf()
@@ -44,6 +44,7 @@ abstract class CompositionContext internal constructor() {
         content: @Composable () -> Unit
     )
     internal abstract fun invalidate(composition: ControlledComposition)
+    internal abstract fun invalidateScope(scope: RecomposeScopeImpl)
 
     internal open fun recordInspectionTable(table: MutableSet<CompositionData>) {}
     internal open fun registerComposer(composer: Composer) { }

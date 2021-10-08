@@ -21,7 +21,7 @@
     <string name="abc_action_bar_up_description" msgid="8388173803310557296">"മുകളിലേക്ക് പോവുക"</string>
     <string name="abc_action_menu_overflow_description" msgid="3937310113216875497">"കൂടുതൽ ഓപ്ഷനുകൾ"</string>
     <string name="abc_toolbar_collapse_description" msgid="1656852541809559762">"ചുരുക്കുക"</string>
-    <string name="abc_searchview_description_search" msgid="3417662926640357176">"Search"</string>
+    <string name="abc_searchview_description_search" msgid="3417662926640357176">"തിരയുക"</string>
     <string name="abc_search_hint" msgid="7208076849092622260">"തിരയുക…"</string>
     <string name="abc_searchview_description_query" msgid="693312494995508443">"ചോദ്യം തിരയുക"</string>
     <string name="abc_searchview_description_clear" msgid="3741173234950517107">"ചോദ്യം മായ്‌ക്കുക"</string>
@@ -33,7 +33,7 @@
     <string name="abc_shareactionprovider_share_with" msgid="8875138169939072951">"ഇനിപ്പറയുന്നതുമായി പങ്കിടുക"</string>
     <string name="abc_capital_on" msgid="884982626291842264">"ഓൺ"</string>
     <string name="abc_capital_off" msgid="4215997306490295099">"ഓഫ്"</string>
-    <string name="search_menu_title" msgid="6264217191555673260">"Search"</string>
+    <string name="search_menu_title" msgid="6264217191555673260">"തിരയുക"</string>
     <string name="abc_prepend_shortcut_label" msgid="5520303668377388990">"മെനു+"</string>
     <string name="abc_menu_meta_shortcut_label" msgid="4192209724446364286">"മെറ്റ+"</string>
     <string name="abc_menu_ctrl_shortcut_label" msgid="2223301931652355242">"Ctrl+"</string>

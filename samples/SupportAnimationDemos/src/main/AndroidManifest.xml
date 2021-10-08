@@ -16,25 +16,33 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.android.support.animation">
-    <application android:label="@string/activity_sample_code"
-            android:supportsRtl="true"
-            android:icon="@drawable/app_sample_code"
-            android:theme="@style/android:Theme.Holo.Light">
-        <activity android:name=".MainActivity"
-                  android:label="ChainedSpringDemo">
+
+    <application
+        android:icon="@drawable/app_sample_code"
+        android:label="@string/activity_sample_code"
+        android:supportsRtl="true"
+        android:theme="@style/android:Theme.Holo.Light">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="ChainedSpringDemo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-        <activity android:name=".BrowseActivity">
+        <activity
+            android:name=".BrowseActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SpringActivity"
-                  android:label="SpringDemo">
+        <activity
+            android:name=".SpringActivity"
+            android:exported="true"
+            android:label="SpringDemo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.SAMPLE_CODE" />

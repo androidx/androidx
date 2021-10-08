@@ -23,6 +23,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.SurfaceRequest;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -32,6 +33,7 @@ import com.google.common.util.concurrent.ListenableFuture;
  * done using either a {@link android.view.TextureView} (see {@link TextureViewImplementation})
  * or a {@link android.view.SurfaceView} (see {@link SurfaceViewImplementation}).
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 abstract class PreviewViewImplementation {
 
     @Nullable
@@ -42,6 +44,8 @@ abstract class PreviewViewImplementation {
 
     @NonNull
     private final PreviewTransformation mPreviewTransform;
+
+    private boolean mWasSurfaceProvided = false;
 
     abstract void initializePreview();
 
@@ -75,7 +79,10 @@ abstract class PreviewViewImplementation {
      */
     void redrawPreview() {
         View preview = getPreview();
-        if (preview == null) {
+        // Only calls setScaleX/Y and setTranslationX/Y after the surface has been provided.
+        // Otherwise, it might cause some preview stretched issue when using PERFORMANCE mode
+        // together with Compose UI. For more details, please see b/183864890.
+        if (preview == null || !mWasSurfaceProvided) {
             return;
         }
         mPreviewTransform.transformView(new Size(mParent.getWidth(),
@@ -84,6 +91,7 @@ abstract class PreviewViewImplementation {
 
     /** Invoked after a {@link android.view.Surface} has been provided to the camera for preview. */
     void onSurfaceProvided() {
+        mWasSurfaceProvided = true;
         redrawPreview();
     }
 

@@ -77,8 +77,8 @@ public class AnticipateInterpolator implements Interpolator {
 
     @Override
     @FloatRange(to = 1)
-    public float getInterpolation(@FloatRange(from = 0, to = 1) float t) {
+    public float getInterpolation(@FloatRange(from = 0, to = 1) float input) {
         // a(t) = t * t * ((tension + 1) * t - tension)
-        return t * t * ((mTension + 1) * t - mTension);
+        return input * input * ((mTension + 1) * input - mTension);
     }
 }

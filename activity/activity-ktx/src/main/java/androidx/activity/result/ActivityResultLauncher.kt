@@ -30,5 +30,5 @@ public fun ActivityResultLauncher<Void?>.launch(options: ActivityOptionsCompat? 
  */
 @JvmName("launchUnit")
 public fun ActivityResultLauncher<Unit>.launch(options: ActivityOptionsCompat? = null) {
-    launch(null, options)
+    launch(Unit, options)
 }

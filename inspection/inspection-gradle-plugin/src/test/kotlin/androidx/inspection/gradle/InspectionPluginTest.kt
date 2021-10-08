@@ -66,10 +66,18 @@ class InspectionPluginTest {
                     id("androidx.inspection")
                 }
             """.trimIndent(),
-            suffix = ""
+            suffix = """
+                dependencies {
+                    implementation("androidx.inspection:inspection:1.0.0")
+                }
+                android {
+                    defaultConfig {
+                        targetSdkVersion 30
+                    }
+                }
+            """
         )
-
-        val output = gradleRunner.withArguments("dexInspectorRelease").build()
+        val output = gradleRunner.withArguments("dexInspectorRelease", "--stacktrace").build()
         assertEquals(output.task(":dexInspectorRelease")!!.outcome, TaskOutcome.SUCCESS)
         val artifact = File(
             projectSetup.rootDir,

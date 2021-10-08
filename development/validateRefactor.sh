@@ -106,11 +106,6 @@ function checkout() {
   done
 }
 function doBuild() {
-  # build compose
-  echoAndDo ./ui/gradlew -p ui createArchive generateDocs --no-daemon --rerun-tasks --offline
-  archiveName="top-of-tree-m2repository-all-0.zip"
-  echoAndDo unzip -q "${tempOutPath}/dist/ui/${archiveName}" -d "${tempOutPath}/dist/ui/${archiveName}.unzipped"
-
   # build androidx
   echoAndDo ./gradlew createArchive generateDocs --no-daemon --rerun-tasks --offline
   archiveName="top-of-tree-m2repository-all-0.zip"

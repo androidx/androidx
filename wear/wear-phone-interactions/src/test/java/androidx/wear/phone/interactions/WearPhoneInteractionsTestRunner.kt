@@ -29,7 +29,9 @@ import org.robolectric.internal.bytecode.InstrumentationConfiguration
  * inline classes. We don't need shadowing of our classes because we want to use the actual
  * objects in our tests.
  */
-class WearPhoneInteractionsTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
+internal class WearPhoneInteractionsTestRunner(
+    testClass: Class<*>
+) : RobolectricTestRunner(testClass) {
     override fun createClassLoaderConfig(method: FrameworkMethod): InstrumentationConfiguration =
         InstrumentationConfiguration.Builder(
             super.createClassLoaderConfig(method)

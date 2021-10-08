@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.LifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -62,6 +63,7 @@ public class ViewModelInComponentActivityTest {
         assertEquals(activity, owner)
     }
 
+    @FlakyTest(bugId = 190609144)
     @Test
     public fun lifecycleOwnerIsAvailableWhenComposedIntoViewGroup() {
         val latch = CountDownLatch(1)

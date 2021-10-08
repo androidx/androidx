@@ -18,11 +18,14 @@ package androidx.car.app.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import static java.util.Objects.requireNonNull;
+
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
@@ -38,12 +41,13 @@ import androidx.car.app.utils.RemoteUtils;
 public class OnSelectedDelegateImpl implements OnSelectedDelegate {
 
     @Keep
+    @Nullable
     private final IOnSelectedListener mStub;
 
     @Override
     public void sendSelected(int selectedIndex, @NonNull OnDoneCallback callback) {
         try {
-            mStub.onSelected(selectedIndex,
+            requireNonNull(mStub).onSelected(selectedIndex,
                     RemoteUtils.createOnDoneCallbackStub(callback));
         } catch (RemoteException e) {
             throw new RuntimeException(e);
@@ -76,8 +80,11 @@ public class OnSelectedDelegateImpl implements OnSelectedDelegate {
 
         @Override
         public void onSelected(int index, IOnDoneCallback callback) {
-            RemoteUtils.dispatchHostCall(
-                    () -> mListener.onSelected(index), callback, "onSelectedListener");
+            RemoteUtils.dispatchCallFromHost(
+                    callback, "onSelectedListener", () -> {
+                        mListener.onSelected(index);
+                        return null;
+                    });
         }
     }
 }

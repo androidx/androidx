@@ -21,7 +21,7 @@
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"לא זוהתה"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"החומרה בשביל טביעת אצבע אינה זמינה."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"לא נרשמו טביעות אצבע."</string>
-    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"במכשיר זה אין חיישן טביעות אצבע"</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"במכשיר הזה אין חיישן טביעות אצבע"</string>
     <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"פעולת טביעת האצבע בוטלה בידי המשתמש."</string>
     <string name="fingerprint_error_lockout" msgid="7291787166416782245">"ניסית יותר מדי פעמים. יש לנסות שוב מאוחר יותר."</string>
     <string name="default_error_msg" msgid="4776854077120974966">"שגיאה לא ידועה"</string>

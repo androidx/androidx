@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-MissingNullability: androidx.versionedparcelable.ParcelUtils#getVersionedParcelableList(android.os.Bundle, String) parameter #0:
-    Missing nullability on parameter `bundle` in method `getVersionedParcelableList`
-MissingNullability: androidx.versionedparcelable.ParcelUtils#getVersionedParcelableList(android.os.Bundle, String) parameter #1:
-    Missing nullability on parameter `key` in method `getVersionedParcelableList`

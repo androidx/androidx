@@ -30,6 +30,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.view.Display;
 import android.view.DragEvent;
 import android.view.View;
 
@@ -41,6 +42,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.LocusIdCompat;
+import androidx.core.os.BuildCompat;
 import androidx.core.view.DragAndDropPermissionsCompat;
 
 import java.util.Arrays;
@@ -556,6 +558,42 @@ public class ActivityCompat extends ContextCompat {
     }
 
     /**
+     * Indicates whether this activity is launched from a bubble. A bubble is a floating shortcut
+     * on the screen that expands to show an activity.
+     *
+     * If your activity can be used normally or as a bubble, you might use this method to check
+     * if the activity is bubbled to modify any behaviour that might be different between the
+     * normal activity and the bubbled activity. For example, if you normally cancel the
+     * notification associated with the activity when you open the activity, you might not want to
+     * do that when you're bubbled as that would remove the bubble.
+     *
+     * @return {@code true} if the activity is launched from a bubble.
+     *
+     * @see NotificationCompat.Builder#setBubbleMetadata(NotificationCompat.BubbleMetadata)
+     * @see NotificationCompat.BubbleMetadata.Builder#Builder(String)
+     *
+     * Compatibility behavior:
+     * <ul>
+     *     <li>API 31 and above, this method matches platform behavior</li>
+     *     <li>API 29, 30, this method checks the window display ID</li>
+     *     <li>API 28 and earlier, this method is a no-op</li>
+     * </ul>
+     */
+    public static boolean isLaunchedFromBubble(@NonNull Activity activity) {
+        if (BuildCompat.isAtLeastS()) {
+            return Api31Impl.isLaunchedFromBubble(activity);
+        } else if (Build.VERSION.SDK_INT == 30) {
+            return activity.getDisplay() != null
+                    && activity.getDisplay().getDisplayId() != Display.DEFAULT_DISPLAY;
+        } else if (Build.VERSION.SDK_INT == 29) {
+            return activity.getWindowManager().getDefaultDisplay() != null
+                    && activity.getWindowManager().getDefaultDisplay().getDisplayId()
+                    != Display.DEFAULT_DISPLAY;
+        }
+        return false;
+    }
+
+    /**
      * Create {@link DragAndDropPermissionsCompat} object bound to this activity and controlling
      * the access permissions for content URIs associated with the {@link android.view.DragEvent}.
      * @param dragEvent Drag event to request permission for
@@ -713,6 +751,21 @@ public class ActivityCompat extends ContextCompat {
         static void setLocusContext(@NonNull final Activity activity,
                 @Nullable final LocusIdCompat locusId, @Nullable final Bundle bundle) {
             activity.setLocusContext(locusId == null ? null : locusId.toLocusId(), bundle);
+        }
+    }
+
+    @RequiresApi(31)
+    static class Api31Impl  {
+
+      /**
+       * This class should not be instantiated.
+       */
+        private Api31Impl() {
+            // Not intended for instantiation.
+        }
+
+        static boolean isLaunchedFromBubble(@NonNull final Activity activity)  {
+            return activity.isLaunchedFromBubble();
         }
     }
 }

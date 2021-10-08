@@ -17,6 +17,7 @@
 package androidx.media2.test.service.tests;
 
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_RATING;
+import static androidx.media2.common.MediaMetadata.METADATA_KEY_USER_RATING;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -65,12 +66,12 @@ public class MediaMetadataTest {
         Builder builder = new Builder();
         builder.putString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, title);
         builder.putLong(MediaMetadata.METADATA_KEY_DISC_NUMBER, discNumber);
-        builder.putRating(MediaMetadata.METADATA_KEY_USER_RATING, rating);
+        builder.putRating(METADATA_KEY_USER_RATING, rating);
 
         MediaMetadata metadata = builder.build();
         assertEquals(title, metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE));
         assertEquals(discNumber, metadata.getLong(MediaMetadata.METADATA_KEY_DISC_NUMBER));
-        assertEquals(rating, metadata.getRating(MediaMetadata.METADATA_KEY_USER_RATING));
+        assertEquals(rating, metadata.getRating(METADATA_KEY_USER_RATING));
     }
 
     @Test
@@ -273,7 +274,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void mediaUtils_convertToMediaItem() {
+    public void mediaUtils_convertToMediaItem_withoutUserRating() {
         RatingCompat testRating = RatingCompat.newHeartRating(true);
         long testState = MediaDescriptionCompat.STATUS_DOWNLOADING;
         String testCustomKey = "android.media.test";
@@ -284,15 +285,34 @@ public class MediaMetadataTest {
                 .putString(testCustomKey, testCustomValue)
                 .build();
 
-        MediaItem item = MediaUtils.convertToMediaItem(testMetadataCompat);
+        MediaItem item = MediaUtils.convertToMediaItem(
+                testMetadataCompat, RatingCompat.RATING_HEART);
         Rating returnedRating = item.getMetadata().getRating(METADATA_KEY_RATING);
         assertTrue(returnedRating instanceof HeartRating);
         assertTrue(returnedRating.isRated());
         assertEquals(testRating.hasHeart(), ((HeartRating) returnedRating).hasHeart());
+        Rating returnedUserRating = item.getMetadata().getRating(METADATA_KEY_USER_RATING);
+        assertTrue(returnedUserRating instanceof HeartRating);
+        assertFalse(returnedUserRating.isRated());
         assertEquals(MediaMetadata.STATUS_DOWNLOADING,
                 item.getMetadata().getLong(MediaMetadata.METADATA_KEY_DOWNLOAD_STATUS));
         assertFalse(item.getMetadata().containsKey(
                 MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS));
         assertEquals(testCustomValue, item.getMetadata().getString(testCustomKey));
+    }
+
+    @Test
+    public void mediaUtils_convertToMediaItem_withUserRating() {
+        RatingCompat testRating = RatingCompat.newHeartRating(true);
+        MediaMetadataCompat testMetadataCompat = new MediaMetadataCompat.Builder()
+                .putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING, testRating)
+                .build();
+
+        MediaItem item = MediaUtils.convertToMediaItem(
+                testMetadataCompat, RatingCompat.RATING_HEART);
+        Rating returnedUserRating = item.getMetadata().getRating(METADATA_KEY_USER_RATING);
+        assertTrue(returnedUserRating instanceof HeartRating);
+        assertTrue(returnedUserRating.isRated());
+        assertTrue(((HeartRating) returnedUserRating).hasHeart());
     }
 }

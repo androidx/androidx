@@ -1,0 +1,461 @@
+// Baseline format: 1.0
+ActionValue: androidx.tvprovider.media.tv.TvContractCompat#ACTION_INITIALIZE_PROGRAMS:
+    Inconsistent action value; expected `androidx.tvprovider.media.tv.action.INITIALIZE_PROGRAMS`, was `android.media.tv.action.INITIALIZE_PROGRAMS`
+ActionValue: androidx.tvprovider.media.tv.TvContractCompat#ACTION_PREVIEW_PROGRAM_ADDED_TO_WATCH_NEXT:
+    Inconsistent action value; expected `androidx.tvprovider.media.tv.action.PREVIEW_PROGRAM_ADDED_TO_WATCH_NEXT`, was `android.media.tv.action.PREVIEW_PROGRAM_ADDED_TO_WATCH_NEXT`
+ActionValue: androidx.tvprovider.media.tv.TvContractCompat#ACTION_PREVIEW_PROGRAM_BROWSABLE_DISABLED:
+    Inconsistent action value; expected `androidx.tvprovider.media.tv.action.PREVIEW_PROGRAM_BROWSABLE_DISABLED`, was `android.media.tv.action.PREVIEW_PROGRAM_BROWSABLE_DISABLED`
+ActionValue: androidx.tvprovider.media.tv.TvContractCompat#ACTION_REQUEST_CHANNEL_BROWSABLE:
+    Inconsistent action value; expected `androidx.tvprovider.media.tv.action.REQUEST_CHANNEL_BROWSABLE`, was `android.media.tv.action.REQUEST_CHANNEL_BROWSABLE`
+ActionValue: androidx.tvprovider.media.tv.TvContractCompat#ACTION_WATCH_NEXT_PROGRAM_BROWSABLE_DISABLED:
+    Inconsistent action value; expected `androidx.tvprovider.media.tv.action.WATCH_NEXT_PROGRAM_BROWSABLE_DISABLED`, was `android.media.tv.action.WATCH_NEXT_PROGRAM_BROWSABLE_DISABLED`
+ActionValue: androidx.tvprovider.media.tv.TvContractCompat#EXTRA_CHANNEL_ID:
+    Inconsistent extra value; expected `androidx.tvprovider.media.tv.extra.CHANNEL_ID`, was `android.media.tv.extra.CHANNEL_ID`
+ActionValue: androidx.tvprovider.media.tv.TvContractCompat#EXTRA_PREVIEW_PROGRAM_ID:
+    Inconsistent extra value; expected `androidx.tvprovider.media.tv.extra.PREVIEW_PROGRAM_ID`, was `android.media.tv.extra.PREVIEW_PROGRAM_ID`
+ActionValue: androidx.tvprovider.media.tv.TvContractCompat#EXTRA_WATCH_NEXT_PROGRAM_ID:
+    Inconsistent extra value; expected `androidx.tvprovider.media.tv.extra.WATCH_NEXT_PROGRAM_ID`, was `android.media.tv.extra.WATCH_NEXT_PROGRAM_ID`
+
+
+ArrayReturn: androidx.tvprovider.media.tv.PreviewProgram#getContentRatings():
+    Method should return Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
+ArrayReturn: androidx.tvprovider.media.tv.PreviewProgram.Builder#setContentRatings(android.media.tv.TvContentRating[]) parameter #0:
+    Method parameter should be Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
+ArrayReturn: androidx.tvprovider.media.tv.Program#getContentRatings():
+    Method should return Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
+ArrayReturn: androidx.tvprovider.media.tv.Program.Builder#setContentRatings(android.media.tv.TvContentRating[]) parameter #0:
+    Method parameter should be Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
+ArrayReturn: androidx.tvprovider.media.tv.WatchNextProgram#getContentRatings():
+    Method should return Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
+ArrayReturn: androidx.tvprovider.media.tv.WatchNextProgram.Builder#setContentRatings(android.media.tv.TvContentRating[]) parameter #0:
+    Method parameter should be Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
+
+
+AutoBoxing: androidx.tvprovider.media.tv.Channel#getInternalProviderFlag1():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.Channel#getInternalProviderFlag2():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.Channel#getInternalProviderFlag3():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.Channel#getInternalProviderFlag4():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.PreviewChannel#getInternalProviderFlag1():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.PreviewChannel#getInternalProviderFlag2():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.PreviewChannel#getInternalProviderFlag3():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.PreviewChannel#getInternalProviderFlag4():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.PreviewProgram#getInternalProviderFlag1():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.PreviewProgram#getInternalProviderFlag2():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.PreviewProgram#getInternalProviderFlag3():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.PreviewProgram#getInternalProviderFlag4():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.Program#getInternalProviderFlag1():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.Program#getInternalProviderFlag2():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.Program#getInternalProviderFlag3():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.Program#getInternalProviderFlag4():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.WatchNextProgram#getInternalProviderFlag1():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.WatchNextProgram#getInternalProviderFlag2():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.WatchNextProgram#getInternalProviderFlag3():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.WatchNextProgram#getInternalProviderFlag4():
+    Must avoid boxed primitives (`java.lang.Long`)
+
+
+HiddenSuperclass: androidx.tvprovider.media.tv.PreviewProgram:
+    Public class androidx.tvprovider.media.tv.PreviewProgram stripped of unavailable superclass androidx.tvprovider.media.tv.BasePreviewProgram
+HiddenSuperclass: androidx.tvprovider.media.tv.Program:
+    Public class androidx.tvprovider.media.tv.Program stripped of unavailable superclass androidx.tvprovider.media.tv.BaseProgram
+HiddenSuperclass: androidx.tvprovider.media.tv.WatchNextProgram:
+    Public class androidx.tvprovider.media.tv.WatchNextProgram stripped of unavailable superclass androidx.tvprovider.media.tv.BasePreviewProgram
+
+
+IntentName: androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#COLUMN_INTERACTION_COUNT:
+    Intent action constant name must be ACTION_FOO: COLUMN_INTERACTION_COUNT
+IntentName: androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#COLUMN_INTERACTION_TYPE:
+    Intent action constant name must be ACTION_FOO: COLUMN_INTERACTION_TYPE
+IntentName: androidx.tvprovider.media.tv.TvContractCompat.WatchNextPrograms#COLUMN_INTERACTION_COUNT:
+    Intent action constant name must be ACTION_FOO: COLUMN_INTERACTION_COUNT
+IntentName: androidx.tvprovider.media.tv.TvContractCompat.WatchNextPrograms#COLUMN_INTERACTION_TYPE:
+    Intent action constant name must be ACTION_FOO: COLUMN_INTERACTION_TYPE
+
+
+MissingGetterMatchingBuilder: androidx.tvprovider.media.tv.Channel.Builder#setInternalProviderData(String):
+    androidx.tvprovider.media.tv.Channel does not declare a `getInternalProviderData()` method matching method androidx.tvprovider.media.tv.Channel.Builder.setInternalProviderData(String)
+MissingGetterMatchingBuilder: androidx.tvprovider.media.tv.Channel.Builder#setInternalProviderData(byte[]):
+    androidx.tvprovider.media.tv.Channel does not declare a `getInternalProviderData()` method matching method androidx.tvprovider.media.tv.Channel.Builder.setInternalProviderData(byte[])
+MissingGetterMatchingBuilder: androidx.tvprovider.media.tv.PreviewChannel.Builder#setInternalProviderData(byte[]):
+    androidx.tvprovider.media.tv.PreviewChannel does not declare a `getInternalProviderData()` method matching method androidx.tvprovider.media.tv.PreviewChannel.Builder.setInternalProviderData(byte[])
+MissingGetterMatchingBuilder: androidx.tvprovider.media.tv.PreviewProgram.Builder#setInternalProviderData(byte[]):
+    androidx.tvprovider.media.tv.PreviewProgram does not declare a `getInternalProviderData()` method matching method androidx.tvprovider.media.tv.PreviewProgram.Builder.setInternalProviderData(byte[])
+MissingGetterMatchingBuilder: androidx.tvprovider.media.tv.Program.Builder#setInternalProviderData(byte[]):
+    androidx.tvprovider.media.tv.Program does not declare a `getInternalProviderData()` method matching method androidx.tvprovider.media.tv.Program.Builder.setInternalProviderData(byte[])
+MissingGetterMatchingBuilder: androidx.tvprovider.media.tv.WatchNextProgram.Builder#setInternalProviderData(byte[]):
+    androidx.tvprovider.media.tv.WatchNextProgram does not declare a `getInternalProviderData()` method matching method androidx.tvprovider.media.tv.WatchNextProgram.Builder.setInternalProviderData(byte[])
+
+
+MissingNullability: androidx.tvprovider.media.tv.Channel#fromCursor(android.database.Cursor):
+    Missing nullability on method `fromCursor` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#fromCursor(android.database.Cursor) parameter #0:
+    Missing nullability on parameter `cursor` in method `fromCursor`
+MissingNullability: androidx.tvprovider.media.tv.Channel#getAppLinkIconUri():
+    Missing nullability on method `getAppLinkIconUri` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getAppLinkIntent():
+    Missing nullability on method `getAppLinkIntent` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getAppLinkIntentUri():
+    Missing nullability on method `getAppLinkIntentUri` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getAppLinkPosterArtUri():
+    Missing nullability on method `getAppLinkPosterArtUri` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getAppLinkText():
+    Missing nullability on method `getAppLinkText` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getDescription():
+    Missing nullability on method `getDescription` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getDisplayName():
+    Missing nullability on method `getDisplayName` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getDisplayNumber():
+    Missing nullability on method `getDisplayNumber` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getInputId():
+    Missing nullability on method `getInputId` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getInternalProviderDataByteArray():
+    Missing nullability on method `getInternalProviderDataByteArray` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getInternalProviderFlag1():
+    Missing nullability on method `getInternalProviderFlag1` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getInternalProviderFlag2():
+    Missing nullability on method `getInternalProviderFlag2` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getInternalProviderFlag3():
+    Missing nullability on method `getInternalProviderFlag3` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getInternalProviderFlag4():
+    Missing nullability on method `getInternalProviderFlag4` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getInternalProviderId():
+    Missing nullability on method `getInternalProviderId` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getNetworkAffiliation():
+    Missing nullability on method `getNetworkAffiliation` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getPackageName():
+    Missing nullability on method `getPackageName` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getServiceType():
+    Missing nullability on method `getServiceType` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getSystemChannelKey():
+    Missing nullability on method `getSystemChannelKey` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getType():
+    Missing nullability on method `getType` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#getVideoFormat():
+    Missing nullability on method `getVideoFormat` return
+MissingNullability: androidx.tvprovider.media.tv.Channel#toContentValues():
+    Missing nullability on method `toContentValues` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#Builder(androidx.tvprovider.media.tv.Channel) parameter #0:
+    Missing nullability on parameter `other` in method `Builder`
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#build():
+    Missing nullability on method `build` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setAppLinkColor(int):
+    Missing nullability on method `setAppLinkColor` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setAppLinkIconUri(android.net.Uri):
+    Missing nullability on method `setAppLinkIconUri` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setAppLinkIconUri(android.net.Uri) parameter #0:
+    Missing nullability on parameter `appLinkIconUri` in method `setAppLinkIconUri`
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setAppLinkIntent(android.content.Intent):
+    Missing nullability on method `setAppLinkIntent` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setAppLinkIntent(android.content.Intent) parameter #0:
+    Missing nullability on parameter `appLinkIntent` in method `setAppLinkIntent`
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setAppLinkIntentUri(android.net.Uri):
+    Missing nullability on method `setAppLinkIntentUri` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setAppLinkIntentUri(android.net.Uri) parameter #0:
+    Missing nullability on parameter `appLinkIntentUri` in method `setAppLinkIntentUri`
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setAppLinkPosterArtUri(android.net.Uri):
+    Missing nullability on method `setAppLinkPosterArtUri` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setAppLinkPosterArtUri(android.net.Uri) parameter #0:
+    Missing nullability on parameter `appLinkPosterArtUri` in method `setAppLinkPosterArtUri`
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setAppLinkText(String):
+    Missing nullability on method `setAppLinkText` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setAppLinkText(String) parameter #0:
+    Missing nullability on parameter `appLinkText` in method `setAppLinkText`
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setConfigurationDisplayOrder(int):
+    Missing nullability on method `setConfigurationDisplayOrder` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setDescription(String):
+    Missing nullability on method `setDescription` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setDescription(String) parameter #0:
+    Missing nullability on parameter `description` in method `setDescription`
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setDisplayName(String):
+    Missing nullability on method `setDisplayName` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setDisplayName(String) parameter #0:
+    Missing nullability on parameter `displayName` in method `setDisplayName`
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setDisplayNumber(String):
+    Missing nullability on method `setDisplayNumber` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setDisplayNumber(String) parameter #0:
+    Missing nullability on parameter `displayNumber` in method `setDisplayNumber`
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setInputId(String):
+    Missing nullability on method `setInputId` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setInputId(String) parameter #0:
+    Missing nullability on parameter `inputId` in method `setInputId`
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setInternalProviderData(String):
+    Missing nullability on method `setInternalProviderData` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setInternalProviderData(String) parameter #0:
+    Missing nullability on parameter `internalProviderData` in method `setInternalProviderData`
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setInternalProviderData(byte[]):
+    Missing nullability on method `setInternalProviderData` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setInternalProviderData(byte[]) parameter #0:
+    Missing nullability on parameter `internalProviderData` in method `setInternalProviderData`
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setInternalProviderFlag1(long):
+    Missing nullability on method `setInternalProviderFlag1` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setInternalProviderFlag2(long):
+    Missing nullability on method `setInternalProviderFlag2` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setInternalProviderFlag3(long):
+    Missing nullability on method `setInternalProviderFlag3` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setInternalProviderFlag4(long):
+    Missing nullability on method `setInternalProviderFlag4` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setInternalProviderId(String):
+    Missing nullability on method `setInternalProviderId` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setInternalProviderId(String) parameter #0:
+    Missing nullability on parameter `internalProviderId` in method `setInternalProviderId`
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setNetworkAffiliation(String):
+    Missing nullability on method `setNetworkAffiliation` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setNetworkAffiliation(String) parameter #0:
+    Missing nullability on parameter `networkAffiliation` in method `setNetworkAffiliation`
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setOriginalNetworkId(int):
+    Missing nullability on method `setOriginalNetworkId` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setSearchable(boolean):
+    Missing nullability on method `setSearchable` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setServiceId(int):
+    Missing nullability on method `setServiceId` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setServiceType(String):
+    Missing nullability on method `setServiceType` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setServiceType(String) parameter #0:
+    Missing nullability on parameter `serviceType` in method `setServiceType`
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setSystemChannelKey(String):
+    Missing nullability on method `setSystemChannelKey` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setSystemChannelKey(String) parameter #0:
+    Missing nullability on parameter `value` in method `setSystemChannelKey`
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setTransient(boolean):
+    Missing nullability on method `setTransient` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setTransportStreamId(int):
+    Missing nullability on method `setTransportStreamId` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setType(String):
+    Missing nullability on method `setType` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setType(String) parameter #0:
+    Missing nullability on parameter `type` in method `setType`
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setVideoFormat(String):
+    Missing nullability on method `setVideoFormat` return
+MissingNullability: androidx.tvprovider.media.tv.Channel.Builder#setVideoFormat(String) parameter #0:
+    Missing nullability on parameter `videoFormat` in method `setVideoFormat`
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#fromCursor(android.database.Cursor):
+    Missing nullability on method `fromCursor` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#fromCursor(android.database.Cursor) parameter #0:
+    Missing nullability on parameter `cursor` in method `fromCursor`
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#getAppLinkIntent():
+    Missing nullability on method `getAppLinkIntent` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#getAppLinkIntentUri():
+    Missing nullability on method `getAppLinkIntentUri` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#getDescription():
+    Missing nullability on method `getDescription` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#getDisplayName():
+    Missing nullability on method `getDisplayName` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#getInternalProviderDataByteArray():
+    Missing nullability on method `getInternalProviderDataByteArray` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#getInternalProviderFlag1():
+    Missing nullability on method `getInternalProviderFlag1` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#getInternalProviderFlag2():
+    Missing nullability on method `getInternalProviderFlag2` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#getInternalProviderFlag3():
+    Missing nullability on method `getInternalProviderFlag3` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#getInternalProviderFlag4():
+    Missing nullability on method `getInternalProviderFlag4` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#getInternalProviderId():
+    Missing nullability on method `getInternalProviderId` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#getLogo(android.content.Context):
+    Missing nullability on method `getLogo` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#getLogo(android.content.Context) parameter #0:
+    Missing nullability on parameter `context` in method `getLogo`
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#getPackageName():
+    Missing nullability on method `getPackageName` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#getType():
+    Missing nullability on method `getType` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel#hasAnyUpdatedValues(androidx.tvprovider.media.tv.PreviewChannel) parameter #0:
+    Missing nullability on parameter `update` in method `hasAnyUpdatedValues`
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#Builder(androidx.tvprovider.media.tv.PreviewChannel) parameter #0:
+    Missing nullability on parameter `other` in method `Builder`
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#build():
+    Missing nullability on method `build` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setAppLinkIntent(android.content.Intent):
+    Missing nullability on method `setAppLinkIntent` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setAppLinkIntent(android.content.Intent) parameter #0:
+    Missing nullability on parameter `appLinkIntent` in method `setAppLinkIntent`
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setAppLinkIntentUri(android.net.Uri):
+    Missing nullability on method `setAppLinkIntentUri` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setAppLinkIntentUri(android.net.Uri) parameter #0:
+    Missing nullability on parameter `appLinkIntentUri` in method `setAppLinkIntentUri`
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setDisplayName(CharSequence):
+    Missing nullability on method `setDisplayName` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setDisplayName(CharSequence) parameter #0:
+    Missing nullability on parameter `displayName` in method `setDisplayName`
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setInternalProviderData(byte[]):
+    Missing nullability on method `setInternalProviderData` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setInternalProviderData(byte[]) parameter #0:
+    Missing nullability on parameter `internalProviderData` in method `setInternalProviderData`
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setInternalProviderFlag1(long):
+    Missing nullability on method `setInternalProviderFlag1` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setInternalProviderFlag2(long):
+    Missing nullability on method `setInternalProviderFlag2` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setInternalProviderFlag3(long):
+    Missing nullability on method `setInternalProviderFlag3` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setInternalProviderFlag4(long):
+    Missing nullability on method `setInternalProviderFlag4` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setInternalProviderId(String):
+    Missing nullability on method `setInternalProviderId` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setInternalProviderId(String) parameter #0:
+    Missing nullability on parameter `internalProviderId` in method `setInternalProviderId`
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setLogo(android.graphics.Bitmap):
+    Missing nullability on method `setLogo` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setLogo(android.net.Uri):
+    Missing nullability on method `setLogo` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannelHelper#PreviewChannelHelper(android.content.Context) parameter #0:
+    Missing nullability on parameter `context` in method `PreviewChannelHelper`
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannelHelper#PreviewChannelHelper(android.content.Context, int, int) parameter #0:
+    Missing nullability on parameter `context` in method `PreviewChannelHelper`
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannelHelper#downloadBitmap(android.net.Uri):
+    Missing nullability on method `downloadBitmap` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewChannelHelper#getAllChannels():
+    Missing nullability on method `getAllChannels` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#fromCursor(android.database.Cursor):
+    Missing nullability on method `fromCursor` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#fromCursor(android.database.Cursor) parameter #0:
+    Missing nullability on parameter `cursor` in method `fromCursor`
+MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#hasAnyUpdatedValues(androidx.tvprovider.media.tv.PreviewProgram) parameter #0:
+    Missing nullability on parameter `update` in method `hasAnyUpdatedValues`
+MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#toContentValues():
+    Missing nullability on method `toContentValues` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewProgram.Builder#Builder(androidx.tvprovider.media.tv.PreviewProgram) parameter #0:
+    Missing nullability on parameter `other` in method `Builder`
+MissingNullability: androidx.tvprovider.media.tv.PreviewProgram.Builder#build():
+    Missing nullability on method `build` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewProgram.Builder#setChannelId(long):
+    Missing nullability on method `setChannelId` return
+MissingNullability: androidx.tvprovider.media.tv.PreviewProgram.Builder#setWeight(int):
+    Missing nullability on method `setWeight` return
+MissingNullability: androidx.tvprovider.media.tv.Program#fromCursor(android.database.Cursor):
+    Missing nullability on method `fromCursor` return
+MissingNullability: androidx.tvprovider.media.tv.Program#fromCursor(android.database.Cursor) parameter #0:
+    Missing nullability on parameter `cursor` in method `fromCursor`
+MissingNullability: androidx.tvprovider.media.tv.Program#getBroadcastGenres():
+    Missing nullability on method `getBroadcastGenres` return
+MissingNullability: androidx.tvprovider.media.tv.Program#toContentValues():
+    Missing nullability on method `toContentValues` return
+MissingNullability: androidx.tvprovider.media.tv.Program.Builder#Builder(androidx.tvprovider.media.tv.Program) parameter #0:
+    Missing nullability on parameter `other` in method `Builder`
+MissingNullability: androidx.tvprovider.media.tv.Program.Builder#build():
+    Missing nullability on method `build` return
+MissingNullability: androidx.tvprovider.media.tv.Program.Builder#setBroadcastGenres(String[]):
+    Missing nullability on method `setBroadcastGenres` return
+MissingNullability: androidx.tvprovider.media.tv.Program.Builder#setBroadcastGenres(String[]) parameter #0:
+    Missing nullability on parameter `genres` in method `setBroadcastGenres`
+MissingNullability: androidx.tvprovider.media.tv.Program.Builder#setChannelId(long):
+    Missing nullability on method `setChannelId` return
+MissingNullability: androidx.tvprovider.media.tv.Program.Builder#setEndTimeUtcMillis(long):
+    Missing nullability on method `setEndTimeUtcMillis` return
+MissingNullability: androidx.tvprovider.media.tv.Program.Builder#setRecordingProhibited(boolean):
+    Missing nullability on method `setRecordingProhibited` return
+MissingNullability: androidx.tvprovider.media.tv.Program.Builder#setStartTimeUtcMillis(long):
+    Missing nullability on method `setStartTimeUtcMillis` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildChannelLogoUri(android.net.Uri):
+    Missing nullability on method `buildChannelLogoUri` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildChannelLogoUri(android.net.Uri) parameter #0:
+    Missing nullability on parameter `channelUri` in method `buildChannelLogoUri`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildChannelLogoUri(long):
+    Missing nullability on method `buildChannelLogoUri` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildChannelUri(long):
+    Missing nullability on method `buildChannelUri` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildChannelUriForPassthroughInput(String):
+    Missing nullability on method `buildChannelUriForPassthroughInput` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildChannelUriForPassthroughInput(String) parameter #0:
+    Missing nullability on parameter `inputId` in method `buildChannelUriForPassthroughInput`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildChannelsUriForInput(String):
+    Missing nullability on method `buildChannelsUriForInput` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildInputId(android.content.ComponentName):
+    Missing nullability on method `buildInputId` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildInputId(android.content.ComponentName) parameter #0:
+    Missing nullability on parameter `name` in method `buildInputId`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildPreviewProgramUri(long):
+    Missing nullability on method `buildPreviewProgramUri` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildPreviewProgramsUriForChannel(android.net.Uri):
+    Missing nullability on method `buildPreviewProgramsUriForChannel` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildPreviewProgramsUriForChannel(android.net.Uri) parameter #0:
+    Missing nullability on parameter `channelUri` in method `buildPreviewProgramsUriForChannel`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildPreviewProgramsUriForChannel(long):
+    Missing nullability on method `buildPreviewProgramsUriForChannel` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildProgramUri(long):
+    Missing nullability on method `buildProgramUri` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildProgramsUriForChannel(android.net.Uri):
+    Missing nullability on method `buildProgramsUriForChannel` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildProgramsUriForChannel(android.net.Uri) parameter #0:
+    Missing nullability on parameter `channelUri` in method `buildProgramsUriForChannel`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildProgramsUriForChannel(android.net.Uri, long, long):
+    Missing nullability on method `buildProgramsUriForChannel` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildProgramsUriForChannel(android.net.Uri, long, long) parameter #0:
+    Missing nullability on parameter `channelUri` in method `buildProgramsUriForChannel`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildProgramsUriForChannel(long):
+    Missing nullability on method `buildProgramsUriForChannel` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildProgramsUriForChannel(long, long, long):
+    Missing nullability on method `buildProgramsUriForChannel` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildRecordedProgramUri(long):
+    Missing nullability on method `buildRecordedProgramUri` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#buildWatchNextProgramUri(long):
+    Missing nullability on method `buildWatchNextProgramUri` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#isChannelUri(android.net.Uri) parameter #0:
+    Missing nullability on parameter `uri` in method `isChannelUri`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#isChannelUriForPassthroughInput(android.net.Uri) parameter #0:
+    Missing nullability on parameter `uri` in method `isChannelUriForPassthroughInput`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#isChannelUriForTunerInput(android.net.Uri) parameter #0:
+    Missing nullability on parameter `uri` in method `isChannelUriForTunerInput`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#isProgramUri(android.net.Uri) parameter #0:
+    Missing nullability on parameter `uri` in method `isProgramUri`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#isRecordedProgramUri(android.net.Uri) parameter #0:
+    Missing nullability on parameter `uri` in method `isRecordedProgramUri`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#requestChannelBrowsable(android.content.Context, long) parameter #0:
+    Missing nullability on parameter `context` in method `requestChannelBrowsable`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat.Channels#CONTENT_URI:
+    Missing nullability on field `CONTENT_URI` in class `class androidx.tvprovider.media.tv.TvContractCompat.Channels`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat.Channels#getVideoResolution(String) parameter #0:
+    Missing nullability on parameter `videoFormat` in method `getVideoResolution`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#CONTENT_URI:
+    Missing nullability on field `CONTENT_URI` in class `class androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat.Programs#CONTENT_URI:
+    Missing nullability on field `CONTENT_URI` in class `class androidx.tvprovider.media.tv.TvContractCompat.Programs`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat.Programs.Genres#decode(String):
+    Missing nullability on method `decode` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat.Programs.Genres#encode(java.lang.String...):
+    Missing nullability on method `encode` return
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat.Programs.Genres#isCanonical(String) parameter #0:
+    Missing nullability on parameter `genre` in method `isCanonical`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat.RecordedPrograms#CONTENT_URI:
+    Missing nullability on field `CONTENT_URI` in class `class androidx.tvprovider.media.tv.TvContractCompat.RecordedPrograms`
+MissingNullability: androidx.tvprovider.media.tv.TvContractCompat.WatchNextPrograms#CONTENT_URI:
+    Missing nullability on field `CONTENT_URI` in class `class androidx.tvprovider.media.tv.TvContractCompat.WatchNextPrograms`
+MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#fromCursor(android.database.Cursor):
+    Missing nullability on method `fromCursor` return
+MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#fromCursor(android.database.Cursor) parameter #0:
+    Missing nullability on parameter `cursor` in method `fromCursor`
+MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#hasAnyUpdatedValues(androidx.tvprovider.media.tv.WatchNextProgram) parameter #0:
+    Missing nullability on parameter `update` in method `hasAnyUpdatedValues`
+MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#toContentValues():
+    Missing nullability on method `toContentValues` return
+MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram.Builder#Builder(androidx.tvprovider.media.tv.WatchNextProgram) parameter #0:
+    Missing nullability on parameter `other` in method `Builder`
+MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram.Builder#build():
+    Missing nullability on method `build` return
+MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram.Builder#setLastEngagementTimeUtcMillis(long):
+    Missing nullability on method `setLastEngagementTimeUtcMillis` return
+MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram.Builder#setWatchNextType(int):
+    Missing nullability on method `setWatchNextType` return
+
+
+StaticFinalBuilder: androidx.tvprovider.media.tv.Program.Builder:
+    Builder must be final: androidx.tvprovider.media.tv.Program.Builder

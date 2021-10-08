@@ -26,7 +26,6 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <!-- Profileable to enable macrobenchmark profiling -->
-        <!--suppress AndroidElementNotAllowed -->
         <profileable android:shell="true"/>
 
         <!--
@@ -36,12 +35,24 @@
         <activity
             android:name=".TrivialStartupActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
             <intent-filter>
                 <action android:name="androidx.compose.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".IoSettingsActivity"
+            android:exported="true">
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+            <intent-filter>
+                <action android:name="androidx.compose.integration.macrobenchmark.target.IO_SETTINGS_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -50,6 +61,18 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="androidx.compose.integration.macrobenchmark.target.LAZY_COLUMN_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".NestedListsActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.compose.integration.macrobenchmark.target.NESTED_LISTS_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

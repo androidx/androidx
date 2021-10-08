@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.Publish
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -25,9 +24,22 @@ plugins {
 
 dependencies {
     api(project(":car:app:app"))
+    implementation "androidx.lifecycle:lifecycle-runtime:2.2.0"
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
     implementation 'androidx.annotation:annotation:1.1.0'
-    implementation project(path: ':lifecycle:lifecycle-runtime')
+    implementation(libs.robolectric)
+    implementation("androidx.annotation:annotation-experimental:1.1.0")
+    compileOnly libs.kotlinStdlib // Due to :annotation-experimental
+
+    testImplementation("junit:junit:4.13")
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.truth)
+
+    annotationProcessor(libs.nullaway)
 }
 
 android {
@@ -35,14 +47,15 @@ android {
         minSdkVersion 23
         multiDexEnabled = true
     }
+    lintOptions {
+        disable("InvalidPackage")
+    }
 }
 
 androidx {
     name = "androidx.car.app:app-testing"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.CAR_APP
-    // Special pre-release version to exclude the app-aaos module from the 1.0.0 release.
-    mavenVersion = LibraryVersions.CAR_APP_PRE_RELEASE
     inceptionYear = "2021"
     description = "androidx.car.app:app-testing"
 }

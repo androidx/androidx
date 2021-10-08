@@ -16,29 +16,53 @@
 
 package androidx.car.app;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.model.TemplateWrapper;
+import androidx.annotation.VisibleForTesting;
+import androidx.car.app.managers.Manager;
 import androidx.car.app.utils.RemoteUtils;
-import androidx.car.app.utils.ThreadUtils;
+import androidx.lifecycle.Lifecycle;
 
 /** Manages the communication between the app and the host. */
-public class AppManager {
+public class AppManager implements Manager {
+    private static final int LOCATION_UPDATE_MIN_INTERVAL_MILLIS = 1000;
+    private static final int LOCATION_UPDATE_MIN_DISTANCE_METER = 1;
+
     @NonNull
     private final CarContext mCarContext;
     @NonNull
     private final IAppManager.Stub mAppManager;
     @NonNull
     private final HostDispatcher mHostDispatcher;
+    @NonNull
+    private final Lifecycle mLifecycle;
+
+    /**
+     * {@link LocationListener} for getting location updates within the app and sends them over to
+     * the car host.
+     *
+     * <p>This should only be enabled when the car host explicitly calls {@code IAppManager
+     * .startLocationUpdates}.
+     */
+    private final LocationListener mLocationListener;
+    @VisibleForTesting
+    final HandlerThread mLocationUpdateHandlerThread;
 
     /**
      * Sets the {@link SurfaceCallback} to get changes and updates to the surface on which the
@@ -56,15 +80,18 @@ public class AppManager {
      *                           surface
      * @throws HostException     if the remote call fails
      */
+    // TODO(b/178748627): the nullable annotation from the AIDL file is not being considered.
+    @SuppressWarnings("NullAway")
     @SuppressLint("ExecutorRegistration")
     public void setSurfaceCallback(@Nullable SurfaceCallback surfaceCallback) {
         mHostDispatcher.dispatch(
                 CarContext.APP_SERVICE,
-                (IAppHost host) -> {
-                    host.setSurfaceCallback(RemoteUtils.stubSurfaceCallback(surfaceCallback));
+                "setSurfaceListener", (IAppHost host) -> {
+                    host.setSurfaceCallback(
+                            RemoteUtils.stubSurfaceCallback(mLifecycle, surfaceCallback));
                     return null;
-                },
-                "setSurfaceListener");
+                }
+        );
     }
 
     /**
@@ -76,11 +103,11 @@ public class AppManager {
     public void invalidate() {
         mHostDispatcher.dispatch(
                 CarContext.APP_SERVICE,
-                (IAppHost host) -> {
+                "invalidate", (IAppHost host) -> {
                     host.invalidate();
                     return null;
-                },
-                "invalidate");
+                }
+        );
     }
 
     /**
@@ -88,18 +115,18 @@ public class AppManager {
      *
      * @param text     the text to show
      * @param duration how long to display the message
-     * @throws HostException if the remote call fails
+     * @throws HostException        if the remote call fails
      * @throws NullPointerException if {@code text} is {@code null}
      */
     public void showToast(@NonNull CharSequence text, @CarToast.Duration int duration) {
         requireNonNull(text);
         mHostDispatcher.dispatch(
                 CarContext.APP_SERVICE,
-                (IAppHost host) -> {
+                "showToast", (IAppHost host) -> {
                     host.showToast(text, duration);
                     return null;
-                },
-                "showToast");
+                }
+        );
     }
 
     /** Returns the {@code IAppManager.Stub} binder. */
@@ -107,54 +134,110 @@ public class AppManager {
         return mAppManager;
     }
 
-    /** Creates an instance of {@link AppManager}. */
-    static AppManager create(@NonNull CarContext carContext,
-            @NonNull HostDispatcher hostDispatcher) {
-        requireNonNull(carContext);
-        requireNonNull(hostDispatcher);
-
-        return new AppManager(carContext, hostDispatcher);
+    @NonNull
+    Lifecycle getLifecycle() {
+        return mLifecycle;
     }
 
-    // Strictly to avoid synthetic accessor.
-    @NonNull
-    CarContext getCarContext() {
-        return mCarContext;
+    /**
+     * Start requesting location updates from the app.
+     *
+     * <p>This is only called from the host. If location permission(s) have not been granted, we
+     * return a {@link FailureResponse} back to the host and would not call this method.
+     */
+    // Location permissions should be granted by the app if they need this API.
+    @SuppressLint("MissingPermission")
+    void startLocationUpdates() {
+        stopLocationUpdates();
+        LocationManager locationManager = mCarContext.getSystemService(LocationManager.class);
+        locationManager.requestLocationUpdates(LocationManager.FUSED_PROVIDER,
+                LOCATION_UPDATE_MIN_INTERVAL_MILLIS,
+                LOCATION_UPDATE_MIN_DISTANCE_METER,
+                mLocationListener,
+                mLocationUpdateHandlerThread.getLooper());
+    }
+
+    /**
+     * Stops requesting location updates from the app.
+     */
+    void stopLocationUpdates() {
+        LocationManager locationManager = mCarContext.getSystemService(LocationManager.class);
+        locationManager.removeUpdates(mLocationListener);
+    }
+
+    /** Creates an instance of {@link AppManager}. */
+    static AppManager create(@NonNull CarContext carContext,
+            @NonNull HostDispatcher hostDispatcher, @NonNull Lifecycle lifecycle) {
+        requireNonNull(carContext);
+        requireNonNull(hostDispatcher);
+        requireNonNull(lifecycle);
+
+        return new AppManager(carContext, hostDispatcher, lifecycle);
     }
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
-    protected AppManager(@NonNull CarContext carContext, @NonNull HostDispatcher hostDispatcher) {
+    protected AppManager(@NonNull CarContext carContext, @NonNull HostDispatcher hostDispatcher,
+            @NonNull Lifecycle lifecycle) {
         mCarContext = carContext;
         mHostDispatcher = hostDispatcher;
+        mLifecycle = lifecycle;
         mAppManager = new IAppManager.Stub() {
             @Override
             public void getTemplate(IOnDoneCallback callback) {
-                ThreadUtils.runOnMain(
-                        () -> {
-                            TemplateWrapper templateWrapper;
-                            try {
-                                templateWrapper = getCarContext().getCarService(
-                                        ScreenManager.class).getTopTemplate();
-                            } catch (RuntimeException e) {
-                                // Catch exceptions, notify the host of it, then rethrow it.
-                                // This allows the host to log, and show an error to the user.
-                                RemoteUtils.sendFailureResponse(callback,
-                                        "getTemplate", e);
-                                throw new RuntimeException(e);
-                            }
-
-                            RemoteUtils.sendSuccessResponse(callback, "getTemplate",
-                                    templateWrapper);
-                        });
+                RemoteUtils.dispatchCallFromHost(getLifecycle(), callback, "getTemplate",
+                        carContext.getCarService(ScreenManager.class)::getTopTemplate);
             }
 
             @Override
             public void onBackPressed(IOnDoneCallback callback) {
-                RemoteUtils.dispatchHostCall(
-                        carContext.getOnBackPressedDispatcher()::onBackPressed, callback,
-                        "onBackPressed");
+                RemoteUtils.dispatchCallFromHost(getLifecycle(), callback,
+                        "onBackPressed",
+                        () -> {
+                            carContext.getOnBackPressedDispatcher().onBackPressed();
+                            return null;
+                        });
             }
+
+            @Override
+            public void startLocationUpdates(IOnDoneCallback callback) {
+                if (carContext.checkSelfPermission(ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_DENIED && carContext.checkSelfPermission(
+                        ACCESS_COARSE_LOCATION)
+                        == PackageManager.PERMISSION_DENIED) {
+                    RemoteUtils.sendFailureResponseToHost(callback, "startLocationUpdates",
+                            new SecurityException("Location permission(s) not granted."));
+                }
+
+
+                RemoteUtils.dispatchCallFromHost(getLifecycle(), callback,
+                        "startLocationUpdates",
+                        () -> {
+                            carContext.getCarService(AppManager.class).startLocationUpdates();
+                            return null;
+                        });
+            }
+
+            @Override
+            public void stopLocationUpdates(IOnDoneCallback callback) {
+                RemoteUtils.dispatchCallFromHost(getLifecycle(), callback,
+                        "stopLocationUpdates",
+                        () -> {
+                            carContext.getCarService(AppManager.class).stopLocationUpdates();
+                            return null;
+                        });
+            }
+        };
+
+        mLocationUpdateHandlerThread = new HandlerThread("LocationUpdateThread");
+        mLocationListener = location -> {
+            mHostDispatcher.dispatch(
+                    CarContext.APP_SERVICE,
+                    "sendLocation", (IAppHost host) -> {
+                        host.sendLocation(location);
+                        return null;
+                    }
+            );
         };
     }
 }

@@ -25,6 +25,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryOwner;
 
@@ -162,8 +163,12 @@ public final class SavedStateViewModelFactory extends ViewModelProvider.KeyedFac
         return null;
     }
 
+    /**
+     * @hide
+     */
     @Override
-    void onRequery(@NonNull ViewModel viewModel) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void onRequery(@NonNull ViewModel viewModel) {
         attachHandleIfNeeded(viewModel, mSavedStateRegistry, mLifecycle);
     }
 }

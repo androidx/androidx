@@ -21,13 +21,21 @@
 
 boolean currentBuildIsRootBuild = (gradle.parent == null)
 
+File getExternalProjectPath() {
+    def scriptDir = file(buildscript.sourceFile.parent)
+    if (System.getenv("COMPOSE_DESKTOP_GITHUB_BUILD") != null) {
+        def path = new File(System.env.OUT_DIR)
+        if (!(new File(path, "doclava").isDirectory())) {
+            throw new GradleException("Please checkout doclava to $path")
+        }
+        return path.getCanonicalFile()
+    } else {
+        return new File(scriptDir, "../../external").getCanonicalFile()
+    }
+}
+
 // Add included builds. This only works if this is currently the root build, so this script should
 // be applied to several builds and will only enable itself when part of the root build.
 if (currentBuildIsRootBuild) {
-  String buildScriptDir = buildscript.sourceFile.parent
-  File externalRoot = new File(buildScriptDir, "../../external")
-
-  includeBuild(new File(externalRoot, "doclava"))
+  includeBuild(new File(getExternalProjectPath(), "doclava"))
 }
-
-

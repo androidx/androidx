@@ -9,6 +9,9 @@ package androidx.activity {
     method public static androidx.activity.OnBackPressedCallback addCallback(androidx.activity.OnBackPressedDispatcher, optional androidx.lifecycle.LifecycleOwner? owner, optional boolean enabled, kotlin.jvm.functions.Function1<? super androidx.activity.OnBackPressedCallback,kotlin.Unit> onBackPressed);
   }
 
+  public final class PipHintTrackerKt {
+  }
+
 }
 
 package androidx.activity.contextaware {

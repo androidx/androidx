@@ -35,6 +35,7 @@ import androidx.compose.material.samples.SimpleScaffoldWithTopBar
 val MaterialDemos = DemoCategory(
     "Material",
     listOf(
+        ComposableDemo("ExposedDropdownMenu") { ExposedDropdownMenuDemo() },
         DemoCategory(
             "AlertDialog",
             listOf(
@@ -44,8 +45,15 @@ val MaterialDemos = DemoCategory(
         ),
         ComposableDemo("App Bars") { AppBarDemo() },
         ComposableDemo("Backdrop") { BackdropScaffoldSample() },
+        ComposableDemo("Badge") { BadgeDemo() },
         ComposableDemo("Bottom Navigation") { BottomNavigationDemo() },
-        ComposableDemo("Bottom Sheet") { BottomSheetScaffoldSample() },
+        DemoCategory(
+            "Bottom Sheets",
+            listOf(
+                ComposableDemo("Bottom Sheet") { BottomSheetScaffoldSample() },
+                ComposableDemo("Modal Bottom Sheet") { ModalBottomSheetSample() },
+            )
+        ),
         ComposableDemo("Buttons & FABs") { ButtonDemo() },
         DemoCategory(
             "Navigation drawer",
@@ -64,7 +72,14 @@ val MaterialDemos = DemoCategory(
             )
         ),
         ComposableDemo("Material Theme") { MaterialThemeDemo() },
-        ComposableDemo("Menus") { MenuDemo() },
+        DemoCategory(
+            "Menus",
+            listOf(
+                ComposableDemo("Dropdown Menu positioning") { MenuDemo() },
+                ComposableDemo("Menu variations") { DropdownMenuVariationsDemo() },
+            )
+        ),
+        ComposableDemo("Navigation Rail") { NavigationRailDemo() },
         DemoCategory(
             "Playground",
             listOf(
@@ -72,7 +87,6 @@ val MaterialDemos = DemoCategory(
                 ActivityDemo("Dynamic Theme", DynamicThemeActivity::class)
             )
         ),
-        ComposableDemo("Modal bottom sheet") { ModalBottomSheetSample() },
         ComposableDemo("Progress Indicators") { ProgressIndicatorDemo() },
         DemoCategory(
             "Scaffold",

@@ -34,7 +34,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
 import kotlin.test.assertEquals
 
 val stringKey = stringPreferencesKey("key1")
@@ -50,41 +49,43 @@ val Context.withCorruptionHandler by preferencesDataStore(
 
 val Context.withMigrations by preferencesDataStore(
     name = "test3",
-    migrations = listOf(
-        object : DataMigration<Preferences> {
-            override suspend fun shouldMigrate(currentData: Preferences) = true
+    produceMigrations = {
+        listOf(
+            object : DataMigration<Preferences> {
+                override suspend fun shouldMigrate(currentData: Preferences) = true
 
-            override suspend fun migrate(currentData: Preferences) =
-                currentData.toMutablePreferences().apply { set(stringKey, "value") }.toPreferences()
+                override suspend fun migrate(currentData: Preferences) =
+                    currentData.toMutablePreferences().apply { set(stringKey, "value") }
+                        .toPreferences()
 
-            override suspend fun cleanUp() {}
-        },
-        object : DataMigration<Preferences> {
-            override suspend fun shouldMigrate(currentData: Preferences) = true
+                override suspend fun cleanUp() {}
+            },
+            object : DataMigration<Preferences> {
+                override suspend fun shouldMigrate(currentData: Preferences) = true
 
-            override suspend fun migrate(currentData: Preferences) =
-                currentData.toMutablePreferences().apply { set(booleanKey, true) }.toPreferences()
+                override suspend fun migrate(currentData: Preferences) =
+                    currentData.toMutablePreferences().apply { set(booleanKey, true) }
+                        .toPreferences()
 
-            override suspend fun cleanUp() {}
-        }
-    )
+                override suspend fun cleanUp() {}
+            }
+
+        )
+    }
 )
 
 @ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 @FlowPreview
-class GlobalPreferenceDataStoreTest {
+class PreferenceDataStoreDelegateTest {
     @get:Rule
     val tmp = TemporaryFolder()
 
-    private lateinit var testFile: File
     private lateinit var dataStoreScope: TestCoroutineScope
     private lateinit var context: Context
 
     @Before
     fun setUp() {
-        testFile =
-            tmp.newFile("test_file." + /*PreferencesSerializer.fileExtension=*/"preferences_pb")
         dataStoreScope = TestCoroutineScope()
         context = ApplicationProvider.getApplicationContext()
     }
@@ -105,7 +106,7 @@ class GlobalPreferenceDataStoreTest {
 
     @Test
     fun testCorruptionHandlerInstalled() = runBlocking<Unit> {
-        File(context.applicationContext.filesDir, "datastore/test2.preferences_pb").let {
+        context.preferencesDataStoreFile("test2").let {
             it.parentFile!!.mkdirs()
 
             it.writeBytes(

@@ -16,7 +16,6 @@
 
 package androidx.webkit.internal;
 
-import android.annotation.SuppressLint;
 import android.webkit.ServiceWorkerWebSettings;
 
 import androidx.annotation.NonNull;
@@ -87,7 +86,6 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
         return mBoundaryInterface;
     }
 
-    @SuppressLint("NewApi")
     @Override
     public void setCacheMode(int mode) {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.SERVICE_WORKER_CACHE_MODE;
@@ -100,7 +98,6 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
         }
     }
 
-    @SuppressLint("NewApi")
     @Override
     public int getCacheMode() {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.SERVICE_WORKER_CACHE_MODE;
@@ -113,7 +110,6 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
         }
     }
 
-    @SuppressLint("NewApi")
     @Override
     public void setAllowContentAccess(boolean allow) {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.SERVICE_WORKER_CONTENT_ACCESS;
@@ -126,7 +122,6 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
         }
     }
 
-    @SuppressLint("NewApi")
     @Override
     public boolean getAllowContentAccess() {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.SERVICE_WORKER_CONTENT_ACCESS;
@@ -139,7 +134,6 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
         }
     }
 
-    @SuppressLint("NewApi")
     @Override
     public void setAllowFileAccess(boolean allow) {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.SERVICE_WORKER_FILE_ACCESS;
@@ -152,7 +146,6 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
         }
     }
 
-    @SuppressLint("NewApi")
     @Override
     public boolean getAllowFileAccess() {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.SERVICE_WORKER_FILE_ACCESS;
@@ -165,7 +158,6 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
         }
     }
 
-    @SuppressLint("NewApi")
     @Override
     public void setBlockNetworkLoads(boolean flag) {
         final WebViewFeatureInternal feature =
@@ -179,7 +171,6 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
         }
     }
 
-    @SuppressLint("NewApi")
     @Override
     public boolean getBlockNetworkLoads() {
         final WebViewFeatureInternal feature =

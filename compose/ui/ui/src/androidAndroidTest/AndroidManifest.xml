@@ -25,8 +25,12 @@
             android:name="androidx.compose.ui.input.pointer.AndroidPointerInputTestActivity" />
         <activity android:name="androidx.appcompat.app.AppCompatActivity"
             android:theme="@style/Theme.AppCompat"/>
+        <activity android:name="androidx.activity.ComponentActivity" />
         <activity android:name="androidx.fragment.app.FragmentActivity"/>
         <activity android:name="androidx.compose.ui.window.ActivityWithFlagSecure"/>
         <activity android:name="androidx.compose.ui.RecyclerViewActivity" />
+        <activity
+            android:name="androidx.compose.ui.draw.NotHardwareAcceleratedActivity"
+            android:hardwareAccelerated="false" />
     </application>
 </manifest>

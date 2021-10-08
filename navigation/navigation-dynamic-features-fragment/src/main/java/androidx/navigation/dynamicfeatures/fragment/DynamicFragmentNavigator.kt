@@ -17,11 +17,10 @@
 package androidx.navigation.dynamicfeatures.fragment
 
 import android.content.Context
-import android.os.Bundle
 import android.util.AttributeSet
 import androidx.core.content.withStyledAttributes
 import androidx.fragment.app.FragmentManager
-import androidx.navigation.NavDestination
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider
@@ -43,21 +42,31 @@ public class DynamicFragmentNavigator(
     override fun createDestination(): Destination = Destination(this)
 
     override fun navigate(
-        destination: FragmentNavigator.Destination,
-        args: Bundle?,
+        entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
         navigatorExtras: Navigator.Extras?
-    ): NavDestination? {
+    ) {
+        for (entry in entries) {
+            navigate(entry, navOptions, navigatorExtras)
+        }
+    }
+
+    private fun navigate(
+        entry: NavBackStackEntry,
+        navOptions: NavOptions?,
+        navigatorExtras: Navigator.Extras?
+    ) {
+        val destination = entry.destination
         val extras = navigatorExtras as? DynamicExtras
         if (destination is Destination) {
             val moduleName = destination.moduleName
             if (moduleName != null && installManager.needsInstall(moduleName)) {
-                return installManager.performInstall(destination, args, extras, moduleName)
+                installManager.performInstall(entry, extras, moduleName)
+                return
             }
         }
-        return super.navigate(
-            destination,
-            args,
+        super.navigate(
+            listOf(entry),
             navOptions,
             if (extras != null) extras.destinationExtras else navigatorExtras
         )
@@ -81,6 +90,17 @@ public class DynamicFragmentNavigator(
             context.withStyledAttributes(attrs, R.styleable.DynamicFragmentNavigator) {
                 moduleName = getString(R.styleable.DynamicFragmentNavigator_moduleName)
             }
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is Destination) return false
+            return super.equals(other) && moduleName == other.moduleName
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + moduleName.hashCode()
+            return result
         }
     }
 }

@@ -36,8 +36,10 @@ public class TestScreen extends Screen {
     }
 
     @Override
-    void dispatchLifecycleEvent(Event event) {
-        super.dispatchLifecycleEvent(event);
+    public void dispatchLifecycleEvent(@NonNull Event event) {
+        // Calls the mock first, then the actual so that changes like finishing another screen
+        // due to a setResult callback go through in the expected order for the mock.
         mScreenForMocking.dispatchLifecycleEvent(event);
+        super.dispatchLifecycleEvent(event);
     }
 }

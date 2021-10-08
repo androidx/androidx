@@ -38,18 +38,12 @@ import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.center
-import androidx.compose.ui.test.centerX
-import androidx.compose.ui.test.centerY
-import androidx.compose.ui.test.down
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.moveBy
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performGesture
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeWithVelocity
-import androidx.compose.ui.test.up
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -403,7 +397,7 @@ class SwipeableTest {
      */
     @Test
     @LargeTest
-    fun swipeable_thresholds_fixed_small() = runBlocking {
+    fun swipeable_thresholds_fixed_small() = runBlocking(AutoTestFrameClock()) {
         rule.mainClock.autoAdvance = false
         lateinit var state: SwipeableState<String>
         val offsetDp = with(rule.density) { 35.toDp() }
@@ -459,7 +453,7 @@ class SwipeableTest {
      */
     @Test
     @LargeTest
-    fun swipeable_thresholds_fixed_large() = runBlocking {
+    fun swipeable_thresholds_fixed_large() = runBlocking(AutoTestFrameClock()) {
         lateinit var state: SwipeableState<String>
         val offsetDp = with(rule.density) { 65.toDp() }
         setSwipeableContent {
@@ -514,7 +508,7 @@ class SwipeableTest {
      */
     @Test
     @LargeTest
-    fun swipeable_thresholds_fractional_half() = runBlocking {
+    fun swipeable_thresholds_fractional_half() = runBlocking(AutoTestFrameClock()) {
         lateinit var state: SwipeableState<String>
         setSwipeableContent {
             state = rememberSwipeableState("A")
@@ -568,7 +562,7 @@ class SwipeableTest {
      */
     @Test
     @LargeTest
-    fun swipeable_thresholds_fractional_quarter() = runBlocking {
+    fun swipeable_thresholds_fractional_quarter() = runBlocking(AutoTestFrameClock()) {
         lateinit var state: SwipeableState<String>
         setSwipeableContent {
             state = rememberSwipeableState("A")
@@ -622,7 +616,7 @@ class SwipeableTest {
      */
     @Test
     @LargeTest
-    fun swipeable_thresholds_fractional_threeQuarters() = runBlocking {
+    fun swipeable_thresholds_fractional_threeQuarters() = runBlocking(AutoTestFrameClock()) {
         lateinit var state: SwipeableState<String>
         setSwipeableContent {
             state = rememberSwipeableState("A")
@@ -676,7 +670,7 @@ class SwipeableTest {
      */
     @Test
     @LargeTest
-    fun swipeable_thresholds_mixed() = runBlocking {
+    fun swipeable_thresholds_mixed() = runBlocking(AutoTestFrameClock()) {
         lateinit var state: SwipeableState<String>
         val offsetDp = with(rule.density) { 35.toDp() }
         setSwipeableContent {
@@ -737,7 +731,7 @@ class SwipeableTest {
      */
     @Test
     @LargeTest
-    fun swipeable_thresholds_custom() = runBlocking {
+    fun swipeable_thresholds_custom() = runBlocking(AutoTestFrameClock()) {
         lateinit var state: SwipeableState<String>
         setSwipeableContent {
             state = rememberSwipeableState("A")
@@ -997,7 +991,7 @@ class SwipeableTest {
      */
     @Test
     @LargeTest
-    fun swipeable_targetValue() = runBlocking {
+    fun swipeable_targetValue() = runBlocking(AutoTestFrameClock()) {
         lateinit var state: SwipeableState<String>
         setSwipeableContent {
             state = rememberSwipeableState("A")
@@ -1177,11 +1171,11 @@ class SwipeableTest {
             assertThat(state.progress.fraction).isEqualTo(1f)
         }
 
-        rule.onNodeWithTag(swipeableTag).performGesture {
+        rule.onNodeWithTag(swipeableTag).performTouchInput {
             swipe(start = center, end = center + Offset(125f - slop, 0f))
         }
         rule.mainClock.advanceTimeByFrame()
-        rule.onNodeWithTag(swipeableTag).performGesture {
+        rule.onNodeWithTag(swipeableTag).performTouchInput {
             swipe(start = center, end = center - Offset(25f, 0f))
         }
 
@@ -1201,11 +1195,11 @@ class SwipeableTest {
             assertThat(state.progress.fraction).isEqualTo(1f)
         }
 
-        rule.onNodeWithTag(swipeableTag).performGesture {
+        rule.onNodeWithTag(swipeableTag).performTouchInput {
             swipe(start = center, end = center - Offset(125f - slop, 0f))
         }
         rule.mainClock.advanceTimeByFrame()
-        rule.onNodeWithTag(swipeableTag).performGesture {
+        rule.onNodeWithTag(swipeableTag).performTouchInput {
             swipe(start = center, end = center + Offset(25f, 0f))
         }
 
@@ -1250,13 +1244,16 @@ class SwipeableTest {
             assertThat(state.direction).isEqualTo(0f)
         }
 
-        rule.onNodeWithTag(swipeableTag).performGesture {
-            swipe(start = center, end = center + Offset(125f - slop, 0f))
+        val largeSwipe = with(rule.density) { 125.dp.toPx() + slop }
+        val smallSwipe = with(rule.density) { 25.dp.toPx() + slop }
+
+        rule.onNodeWithTag(swipeableTag).performTouchInput {
+            swipe(start = center, end = center + Offset(largeSwipe, 0f))
         }
         // draggable needs to recompose to toggle startDragImmediately
         rule.mainClock.advanceTimeByFrame()
-        rule.onNodeWithTag(swipeableTag).performGesture {
-            swipe(start = center, end = center - Offset(25f, 0f))
+        rule.onNodeWithTag(swipeableTag).performTouchInput {
+            swipe(start = center, end = center - Offset(smallSwipe, 0f))
         }
 
         rule.runOnIdle {
@@ -1271,13 +1268,13 @@ class SwipeableTest {
             assertThat(state.direction).isEqualTo(0f)
         }
 
-        rule.onNodeWithTag(swipeableTag).performGesture {
-            swipe(start = center, end = center - Offset(125f - slop, 0f))
+        rule.onNodeWithTag(swipeableTag).performTouchInput {
+            swipe(start = center, end = center - Offset(largeSwipe, 0f))
         }
         // draggable needs to recompose to toggle startDragImmediately
         rule.mainClock.advanceTimeByFrame()
-        rule.onNodeWithTag(swipeableTag).performGesture {
-            swipe(start = center, end = center + Offset(25f, 0f))
+        rule.onNodeWithTag(swipeableTag).performTouchInput {
+            swipe(start = center, end = center + Offset(smallSwipe, 0f))
         }
 
         rule.runOnIdle {
@@ -1297,7 +1294,7 @@ class SwipeableTest {
      * Tests that 'snapTo' updates the state and offset immediately.
      */
     @Test
-    fun swipeable_snapTo() = runBlocking {
+    fun swipeable_snapTo() = runBlocking(AutoTestFrameClock()) {
         lateinit var state: SwipeableState<String>
         setSwipeableContent {
             state = rememberSwipeableState("A")
@@ -1326,7 +1323,7 @@ class SwipeableTest {
      * Tests that 'animateTo' starts an animation which updates the state and offset.
      */
     @Test
-    fun swipeable_animateTo() = runBlocking {
+    fun swipeable_animateTo() = runBlocking(AutoTestFrameClock()) {
         lateinit var state: SwipeableState<String>
         setSwipeableContent {
             state = rememberSwipeableState("A")
@@ -1358,7 +1355,7 @@ class SwipeableTest {
      * Tests that the 'onEnd' callback of 'animateTo' is invoked and with the correct end value.
      */
     @Test
-    fun swipeable_animateTo_onEnd() = runBlocking {
+    fun swipeable_animateTo_onEnd() = runBlocking(AutoTestFrameClock()) {
         lateinit var state: SwipeableState<String>
         setSwipeableContent {
             state = rememberSwipeableState("A")
@@ -1403,7 +1400,7 @@ class SwipeableTest {
             state.animateTo("B")
         }
         rule.mainClock.advanceTimeByFrame()
-        rule.onNodeWithTag(swipeableTag).performGesture {
+        rule.onNodeWithTag(swipeableTag).performTouchInput {
             down(center)
             up()
         }
@@ -1415,7 +1412,7 @@ class SwipeableTest {
      * Tests that the [SwipeableState] is restored, when created with [rememberSwipeableState].
      */
     @Test
-    fun swipeable_restoreSwipeableState() = runBlocking {
+    fun swipeable_restoreSwipeableState() = runBlocking(AutoTestFrameClock()) {
         val restorationTester = StateRestorationTester(rule)
         var state: SwipeableState<String>? = null
 
@@ -1511,6 +1508,38 @@ class SwipeableTest {
     }
 
     /**
+     * Tests that the new [SwipeableState] `onValueChange` is set up if the anchors didn't change
+     */
+    @Test
+    fun swipeable_newStateIsInitialized_afterRecomposingWithOldAnchors() {
+        lateinit var swipeableState: MutableState<SwipeableState<String>>
+        val anchors = mapOf(0f to "A")
+        setSwipeableContent {
+            swipeableState = remember { mutableStateOf(SwipeableState("A")) }
+            Modifier.swipeable(
+                state = swipeableState.value,
+                anchors = anchors,
+                thresholds = { _, _ -> FractionalThreshold(0.5f) },
+                orientation = Orientation.Horizontal
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(swipeableState.value.currentValue).isEqualTo("A")
+            assertThat(swipeableState.value.offset.value).isEqualTo(0f)
+            assertThat(swipeableState.value.anchors).isEqualTo(anchors)
+        }
+
+        swipeableState.value = SwipeableState("A")
+
+        rule.runOnIdle {
+            assertThat(swipeableState.value.currentValue).isEqualTo("A")
+            assertThat(swipeableState.value.offset.value).isEqualTo(0f)
+            assertThat(swipeableState.value.anchors).isEqualTo(anchors)
+        }
+    }
+
+    /**
      * Tests that the [SwipeableState] is updated if the anchors change.
      */
     @Test
@@ -1538,6 +1567,45 @@ class SwipeableTest {
         rule.runOnIdle {
             assertThat(swipeableState.currentValue).isEqualTo("B")
             assertThat(swipeableState.offset.value).isEqualTo(50f)
+        }
+    }
+
+    /**
+     * Tests that the [SwipeableState] is updated if the anchors change.
+     */
+    @Test
+    fun swipeable_anchorsUpdated_whenAnimationInProgress() = runBlocking(AutoTestFrameClock()) {
+        rule.mainClock.autoAdvance = false
+        lateinit var swipeableState: SwipeableState<String>
+        lateinit var anchors: MutableState<Map<Float, String>>
+        setSwipeableContent {
+            swipeableState = rememberSwipeableState("A")
+            anchors = remember { mutableStateOf(mapOf(10f to "A", 50f to "B", 100f to "C")) }
+            Modifier.swipeable(
+                state = swipeableState,
+                anchors = anchors.value,
+                thresholds = { _, _ -> FractionalThreshold(0.5f) },
+                orientation = Orientation.Horizontal
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(swipeableState.currentValue).isEqualTo("A")
+            assertThat(swipeableState.offset.value).isEqualTo(10f)
+        }
+
+        swipeableState.animateTo("B")
+
+        rule.mainClock.advanceTimeByFrame()
+
+        anchors.value = mapOf(10f to "A", 100f to "C")
+
+        advanceClock()
+
+        rule.runOnIdle {
+            // closes wins
+            assertThat(swipeableState.currentValue).isEqualTo("A")
+            assertThat(swipeableState.offset.value).isEqualTo(10f)
         }
     }
 
@@ -1599,7 +1667,7 @@ class SwipeableTest {
         assertThat(swipeableState.currentValue).isEqualTo("A")
 
         rule.onNodeWithTag(swipeableTag)
-            .performGesture {
+            .performTouchInput {
                 down(Offset(x = 10f, y = 10f))
                 moveBy(Offset(x = 0f, y = -1500f))
                 up()
@@ -1611,7 +1679,7 @@ class SwipeableTest {
         assertThat(scrollState.value).isGreaterThan(0)
 
         rule.onNodeWithTag(swipeableTag)
-            .performGesture {
+            .performTouchInput {
                 down(Offset(x = 10f, y = 10f))
                 moveBy(Offset(x = 0f, y = 1500f))
                 up()
@@ -1658,7 +1726,7 @@ class SwipeableTest {
         }
 
         rule.onNodeWithTag(swipeableTag)
-            .performGesture {
+            .performTouchInput {
                 swipeWithVelocity(
                     center,
                     center.copy(y = centerY - 500, x = centerX),
@@ -1674,7 +1742,7 @@ class SwipeableTest {
         }
 
         rule.onNodeWithTag(swipeableTag)
-            .performGesture {
+            .performTouchInput {
                 swipeWithVelocity(
                     center,
                     center.copy(y = centerY + 500, x = centerX),
@@ -1690,7 +1758,7 @@ class SwipeableTest {
     }
 
     @Test
-    fun swipeable_nestedScroll_postFlings() = runBlocking {
+    fun swipeable_nestedScroll_postFlings() = runBlocking(AutoTestFrameClock()) {
         lateinit var swipeableState: SwipeableState<String>
         lateinit var anchors: MutableState<Map<Float, String>>
         lateinit var scrollState: ScrollState
@@ -1724,7 +1792,7 @@ class SwipeableTest {
         assertThat(scrollState.value).isEqualTo(5000)
 
         rule.onNodeWithTag(swipeableTag)
-            .performGesture {
+            .performTouchInput {
                 // swipe less than scrollState.value but with velocity to test that backdrop won't
                 // move when receives, because it's at anchor
                 swipeWithVelocity(
@@ -1747,7 +1815,7 @@ class SwipeableTest {
         }
 
         rule.onNodeWithTag(swipeableTag)
-            .performGesture {
+            .performTouchInput {
                 // swipe more than scrollState.value so backdrop start receiving nested scroll
                 swipeWithVelocity(
                     center,
@@ -1788,7 +1856,7 @@ class SwipeableTest {
     }
 
     private fun performSwipe(x: Float = 0f, y: Float = 0f, velocity: Float? = null) {
-        rule.onNodeWithTag(swipeableTag).performGesture {
+        rule.onNodeWithTag(swipeableTag).performTouchInput {
             val start = Offset(center.x - x / 2, center.y - y / 2)
             val end = Offset(center.x + x / 2, center.y + y / 2)
             if (velocity == null) swipe(start, end) else swipeWithVelocity(start, end, velocity)

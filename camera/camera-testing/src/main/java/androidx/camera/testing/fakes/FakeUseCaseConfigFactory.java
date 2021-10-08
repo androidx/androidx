@@ -16,10 +16,15 @@
 
 package androidx.camera.testing.fakes;
 
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 
@@ -27,6 +32,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
  * A fake implementation of {@link UseCaseConfigFactory}.
  * @hide
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class FakeUseCaseConfigFactory implements UseCaseConfigFactory {
     /**
@@ -36,6 +42,11 @@ public final class FakeUseCaseConfigFactory implements UseCaseConfigFactory {
     @Nullable
     @Override
     public Config getConfig(@NonNull CaptureType captureType) {
-        return OptionsBundle.emptyBundle();
+        MutableOptionsBundle mutableConfig = MutableOptionsBundle.create();
+
+        mutableConfig.insertOption(OPTION_CAPTURE_CONFIG_UNPACKER, (config, builder) -> {});
+        mutableConfig.insertOption(OPTION_SESSION_CONFIG_UNPACKER, (config, builder) -> {});
+
+        return OptionsBundle.from(mutableConfig);
     }
 }

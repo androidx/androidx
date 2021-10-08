@@ -22,7 +22,7 @@ import static androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager.MAX_O
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.ExperimentalExposureCompensation;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
@@ -46,6 +46,7 @@ import java.util.List;
  * A fake implementation for the CameraControlInternal interface which is capable of notifying
  * submitted requests onCaptureCancelled/onCaptureCompleted/onCaptureFailed.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FakeCameraControl implements CameraControlInternal {
     private static final String TAG = "FakeCameraControl";
     private final ControlUpdateCallback mControlUpdateCallback;
@@ -58,7 +59,6 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     public FakeCameraControl(@NonNull ControlUpdateCallback controlUpdateCallback) {
         mControlUpdateCallback = controlUpdateCallback;
-        updateSessionConfig();
     }
 
     /** Notifies all submitted requests onCaptureCancelled */
@@ -123,27 +123,26 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     @Override
     @NonNull
-    public ListenableFuture<CameraCaptureResult> triggerAePrecapture() {
-        Logger.d(TAG, "triggerAePrecapture()");
-        return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create());
+    public ListenableFuture<Void> startFlashSequence(@ImageCapture.FlashType int flashType) {
+        Logger.d(TAG, "startFlashSequence()");
+        return Futures.immediateFuture(null);
     }
 
     @Override
-    public void cancelAfAeTrigger(final boolean cancelAfTrigger,
-            final boolean cancelAePrecaptureTrigger) {
-        Logger.d(TAG, "cancelAfAeTrigger(" + cancelAfTrigger + ", "
-                + cancelAePrecaptureTrigger + ")");
+    public void cancelAfAndFinishFlashSequence(final boolean cancelAfTrigger,
+            final boolean finishFlashSequence) {
+        Logger.d(TAG, "cancelAfAndFinishFlashSequence(" + cancelAfTrigger + ", "
+                + finishFlashSequence + ")");
     }
 
     @NonNull
     @Override
-    @ExperimentalExposureCompensation
     public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
         return Futures.immediateFuture(null);
     }
 
     @Override
-    public void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
+    public void submitStillCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
         mSubmittedCaptureRequests.addAll(captureConfigs);
         mControlUpdateCallback.onCameraControlCaptureRequests(captureConfigs);
         if (mOnNewCaptureRequestListener != null) {
@@ -153,12 +152,14 @@ public final class FakeCameraControl implements CameraControlInternal {
 
     @NonNull
     @Override
-    public Rect getSensorRect() {
-        return new Rect(0, 0, MAX_OUTPUT_SIZE.getWidth(), MAX_OUTPUT_SIZE.getHeight());
+    public SessionConfig getSessionConfig() {
+        return mSessionConfigBuilder.build();
     }
 
-    private void updateSessionConfig() {
-        mControlUpdateCallback.onCameraControlUpdateSessionConfig(mSessionConfigBuilder.build());
+    @NonNull
+    @Override
+    public Rect getSensorRect() {
+        return new Rect(0, 0, MAX_OUTPUT_SIZE.getWidth(), MAX_OUTPUT_SIZE.getHeight());
     }
 
     @NonNull
@@ -212,6 +213,7 @@ public final class FakeCameraControl implements CameraControlInternal {
     }
 
     /** A listener which are used to notify when there are new submitted capture requests */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public interface OnNewCaptureRequestListener {
         /** Called when there are new submitted capture request */
         void onNewCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);

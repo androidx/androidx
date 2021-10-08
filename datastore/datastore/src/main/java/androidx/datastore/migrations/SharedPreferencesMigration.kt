@@ -16,9 +16,11 @@
 
 package androidx.datastore.migrations
 
-import android.annotation.SuppressLint
+import androidx.annotation.DoNotInline
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.datastore.core.DataMigration
 import java.io.File
 import java.io.IOException
@@ -64,7 +66,8 @@ private constructor(
      * since this may be called multiple times. See [DataMigration.migrate] for more
      * information. The lambda accepts a SharedPreferencesView which is the view of the
      * SharedPreferences to migrate from (limited to [keysToMigrate] and a T which represent
-     * the current data. The function must return the migrated data.
+     * the current data. The function must return the migrated data. If SharedPreferences is
+     * empty or does not contain any keys which you specified, this callback will not run.
      */
     @JvmOverloads // Generate constructors for default params for java users.
     public constructor(
@@ -109,7 +112,8 @@ private constructor(
      * since this may be called multiple times. See [DataMigration.migrate] for more
      * information. The lambda accepts a SharedPreferencesView which is the view of the
      * SharedPreferences to migrate from (limited to [keysToMigrate] and a T which represent
-     * the current data. The function must return the migrated data.
+     * the current data. The function must return the migrated data. If SharedPreferences is
+     * empty or does not contain any keys which you specified, this callback will not run.
      */
     @JvmOverloads // Generate constructors for default params for java users.
     public constructor(
@@ -129,20 +133,26 @@ private constructor(
 
     private val sharedPrefs: SharedPreferences by lazy(produceSharedPreferences)
 
-    private val keySet: MutableSet<String> by lazy {
+    /**
+     * keySet is null if the user specified [MIGRATE_ALL_KEYS].
+     */
+    private val keySet: MutableSet<String>? =
         if (keysToMigrate === MIGRATE_ALL_KEYS) {
-            sharedPrefs.all.keys
+            null
         } else {
-            keysToMigrate
-        }.toMutableSet()
-    }
+            keysToMigrate.toMutableSet()
+        }
 
     override suspend fun shouldMigrate(currentData: T): Boolean {
         if (!shouldRunMigration(currentData)) {
             return false
         }
 
-        return keySet.any(sharedPrefs::contains)
+        return if (keySet == null) {
+            sharedPrefs.all.isNotEmpty()
+        } else {
+            keySet.any(sharedPrefs::contains)
+        }
     }
 
     override suspend fun migrate(currentData: T): T =
@@ -158,8 +168,12 @@ private constructor(
     override suspend fun cleanUp() {
         val sharedPrefsEditor = sharedPrefs.edit()
 
-        for (key in keySet) {
-            sharedPrefsEditor.remove(key)
+        if (keySet == null) {
+            sharedPrefsEditor.clear()
+        } else {
+            keySet.forEach { key ->
+                sharedPrefsEditor.remove(key)
+            }
         }
 
         if (!sharedPrefsEditor.commit()) {
@@ -170,26 +184,23 @@ private constructor(
             deleteSharedPreferences(context, name)
         }
 
-        keySet.clear()
+        keySet?.clear()
     }
 
-    // TODO(b/170429111): Fix the unsafe new API call.
-    @SuppressLint("UnsafeNewApiCall")
     private fun deleteSharedPreferences(context: Context, name: String) {
-        if (android.os.Build.VERSION.SDK_INT >= 24) {
-            if (!context.deleteSharedPreferences(name)) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            if (!Api24Impl.deleteSharedPreferences(context, name)) {
                 throw IOException("Unable to delete SharedPreferences: $name")
             }
-            return
+        } else {
+            // Context.deleteSharedPreferences is SDK 24+, so we have to reproduce the definition
+            val prefsFile = getSharedPrefsFile(context, name)
+            val prefsBackup = getSharedPrefsBackup(prefsFile)
+
+            // Silently continue if we aren't able to delete the Shared Preferences File.
+            prefsFile.delete()
+            prefsBackup.delete()
         }
-
-        // Context.deleteSharedPreferences is SDK 24+, so we have to reproduce the definition
-        val prefsFile = getSharedPrefsFile(context, name)
-        val prefsBackup = getSharedPrefsBackup(prefsFile)
-
-        // Silently continue if we aren't able to delete the Shared Preferences File.
-        prefsFile.delete()
-        prefsBackup.delete()
     }
 
     // ContextImpl.getSharedPreferencesPath is private, so we have to reproduce the definition
@@ -200,15 +211,23 @@ private constructor(
 
     // SharedPreferencesImpl.makeBackupFile is private, so we have to reproduce the definition
     private fun getSharedPrefsBackup(prefsFile: File) = File(prefsFile.path + ".bak")
+
+    @RequiresApi(24)
+    private object Api24Impl {
+        @JvmStatic
+        @DoNotInline
+        fun deleteSharedPreferences(context: Context, name: String): Boolean {
+            return context.deleteSharedPreferences(name)
+        }
+    }
 }
 
 /**
- *  Read-only wrapper around SharedPreferences. This will be passed in to your migration. The
- *  constructor is public to enable easier testing of migrations.
+ *  Read-only wrapper around SharedPreferences. This will be passed in to your migration.
  */
 public class SharedPreferencesView internal constructor(
     private val prefs: SharedPreferences,
-    private val keySet: Set<String>
+    private val keySet: Set<String>?
 ) {
     /**
      * Checks whether the preferences contains a preference.
@@ -277,18 +296,22 @@ public class SharedPreferencesView internal constructor(
         prefs.getStringSet(checkKey(key), defValues)?.toMutableSet()
 
     /** Retrieve all values from the preferences that are in the specified keySet. */
-    public fun getAll(): Map<String, Any?> = prefs.all.filter { (key, _) ->
-        key in keySet
-    }.mapValues { (_, value) ->
-        if (value is Set<*>) {
-            value.toSet()
-        } else {
-            value
+    public fun getAll(): Map<String, Any?> =
+        prefs.all.filter { (key, _) ->
+            keySet?.contains(key) ?: true
+        }.mapValues { (_, value) ->
+            if (value is Set<*>) {
+                value.toSet()
+            } else {
+                value
+            }
         }
-    }
 
     private fun checkKey(key: String): String {
-        check(key in keySet) { "Can't access key outside migration: $key" }
+        keySet?.let {
+            check(key in it) { "Can't access key outside migration: $key" }
+        }
+
         return key
     }
 }

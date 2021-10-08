@@ -3,3 +3,7 @@ MissingJvmstatic: androidx.datastore.migrations.SharedPreferencesView#getString(
     A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
 MissingJvmstatic: androidx.datastore.migrations.SharedPreferencesView#getStringSet(String, java.util.Set<java.lang.String>):
     A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+
+
+NullableCollection: androidx.datastore.migrations.SharedPreferencesView#getStringSet(String, java.util.Set<java.lang.String>):
+    Return type of method androidx.datastore.migrations.SharedPreferencesView.getStringSet(String,java.util.Set<java.lang.String>) is a nullable collection (`java.util.Set`); must be non-null

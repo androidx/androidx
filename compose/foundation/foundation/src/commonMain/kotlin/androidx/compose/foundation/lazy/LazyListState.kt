@@ -17,19 +17,19 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.interaction.InteractionSource
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchPolicy
+import androidx.compose.foundation.lazy.layout.LazyLayoutState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.layout.Remeasurement
-import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Density
 import kotlin.math.abs
 
@@ -57,7 +57,7 @@ fun rememberLazyListState(
 }
 
 /**
- * A state object that can be hoisted to control and observe scrolling
+ * A state object that can be hoisted to control and observe scrolling.
  *
  * In most cases, this will be created via [rememberLazyListState].
  *
@@ -74,7 +74,7 @@ class LazyListState constructor(
      * The holder class for the current scroll position.
      */
     private val scrollPosition =
-        ItemRelativeScrollPosition(firstVisibleItemIndex, firstVisibleItemScrollOffset)
+        LazyListScrollPosition(firstVisibleItemIndex, firstVisibleItemScrollOffset)
 
     /**
      * The index of the first item that is visible
@@ -123,6 +123,11 @@ class LazyListState constructor(
     internal val firstVisibleItemScrollOffsetNonObservable: Int get() = scrollPosition.scrollOffset
 
     /**
+     * Non-observable property with the count of items being visible during the last measure pass.
+     */
+    internal var visibleItemsCount = 0
+
+    /**
      * Needed for [animateScrollToItem].  Updated on every measure.
      */
     internal var density: Density = Density(1f, 1f)
@@ -134,12 +139,6 @@ class LazyListState constructor(
     private val scrollableState = ScrollableState { -onScroll(-it) }
 
     /**
-     * The [Remeasurement] object associated with our layout. It allows us to remeasure
-     * synchronously during scroll.
-     */
-    private lateinit var remeasurement: Remeasurement
-
-    /**
      * Only used for testing to confirm that we're not making too many measure passes
      */
     /*@VisibleForTesting*/
@@ -147,13 +146,26 @@ class LazyListState constructor(
         private set
 
     /**
-     * The modifier which provides [remeasurement].
+     * Only used for testing to disable prefetching when needed to test the main logic.
      */
-    internal val remeasurementModifier = object : RemeasurementModifier {
-        override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
-            this@LazyListState.remeasurement = remeasurement
-        }
-    }
+    /*@VisibleForTesting*/
+    internal var prefetchingEnabled: Boolean = true
+
+    /**
+     * The index scheduled to be prefetched (or the last prefetched index if the prefetch is done).
+     */
+    private var indexToPrefetch = -1
+
+    /**
+     * Keeps the scrolling direction during the previous calculation in order to be able to
+     * detect the scrolling direction change.
+     */
+    private var wasScrollingForward = false
+
+    /**
+     * The state of the inner LazyLayout.
+     */
+    internal var innerState: LazyLayoutState? = null
 
     /**
      * Instantly brings the item at [index] to the top of the viewport, offset by [scrollOffset]
@@ -172,18 +184,15 @@ class LazyListState constructor(
         index: Int,
         /*@IntRange(from = 0)*/
         scrollOffset: Int = 0
-    ) = scrollableState.scroll {
-        snapToItemIndexInternal(index, scrollOffset)
+    ) {
+        return scrollableState.scroll {
+            snapToItemIndexInternal(index, scrollOffset)
+        }
     }
 
     internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
-        scrollPosition.update(
-            index = DataIndex(index),
-            scrollOffset = scrollOffset,
-            // `true` will be replaced with the real value during the forceRemeasure() execution
-            canScrollForward = true
-        )
-        remeasurement.forceRemeasure()
+        scrollPosition.requestPosition(DataIndex(index), scrollOffset)
+        innerState?.remeasure()
     }
 
     /**
@@ -209,13 +218,15 @@ class LazyListState constructor(
     override val isScrollInProgress: Boolean
         get() = scrollableState.isScrollInProgress
 
+    private var canScrollBackward: Boolean = false
+    internal var canScrollForward: Boolean = false
+        private set
+
     // TODO: Coroutine scrolling APIs will allow this to be private again once we have more
     //  fine-grained control over scrolling
     /*@VisibleForTesting*/
     internal fun onScroll(distance: Float): Float {
-        if (distance < 0 && !scrollPosition.canScrollForward ||
-            distance > 0 && !scrollPosition.canScrollBackward
-        ) {
+        if (distance < 0 && !canScrollForward || distance > 0 && !canScrollBackward) {
             return 0f
         }
         check(abs(scrollToBeConsumed) <= 0.5f) {
@@ -227,7 +238,11 @@ class LazyListState constructor(
         // inside measuring we do scrollToBeConsumed.roundToInt() so there will be no scroll if
         // we have less than 0.5 pixels
         if (abs(scrollToBeConsumed) > 0.5f) {
-            remeasurement.forceRemeasure()
+            val preScrollToBeConsumed = scrollToBeConsumed
+            innerState?.remeasure()
+            if (prefetchingEnabled && prefetchPolicy != null) {
+                notifyPrefetch(preScrollToBeConsumed - scrollToBeConsumed)
+            }
         }
 
         // here scrollToBeConsumed is already consumed during the forceRemeasure invocation
@@ -243,6 +258,38 @@ class LazyListState constructor(
             return scrollConsumed
         }
     }
+
+    private fun notifyPrefetch(delta: Float) {
+        if (!prefetchingEnabled) {
+            return
+        }
+        val info = layoutInfo
+        if (info.visibleItemsInfo.isNotEmpty()) {
+            // check(isActive)
+            val scrollingForward = delta < 0
+            val indexToPrefetch = if (scrollingForward) {
+                info.visibleItemsInfo.last().index + 1
+            } else {
+                info.visibleItemsInfo.first().index - 1
+            }
+            if (indexToPrefetch != this.indexToPrefetch &&
+                indexToPrefetch in 0 until info.totalItemsCount
+            ) {
+                if (wasScrollingForward != scrollingForward) {
+                    // the scrolling direction has been changed which means the last prefetched
+                    // is not going to be reached anytime soon so it is safer to dispose it.
+                    // if this item is already visible it is safe to call the method anyway
+                    // as it will be no-op
+                    prefetchPolicy?.removeFromPrefetch(this.indexToPrefetch)
+                }
+                this.wasScrollingForward = scrollingForward
+                this.indexToPrefetch = indexToPrefetch
+                prefetchPolicy?.scheduleForPrefetch(indexToPrefetch)
+            }
+        }
+    }
+
+    internal var prefetchPolicy: LazyLayoutPrefetchPolicy? = null
 
     /**
      * Animate (smooth scroll) to the given item.
@@ -265,15 +312,26 @@ class LazyListState constructor(
     /**
      *  Updates the state with the new calculated scroll position and consumed scroll.
      */
-    internal fun applyMeasureResult(measureResult: LazyListMeasureResult) {
-        scrollPosition.update(
-            index = measureResult.firstVisibleItemIndex,
-            scrollOffset = measureResult.firstVisibleItemScrollOffset,
-            canScrollForward = measureResult.canScrollForward
-        )
-        scrollToBeConsumed -= measureResult.consumedScroll
-        layoutInfoState.value = measureResult
+    internal fun applyMeasureResult(result: LazyListMeasureResult) {
+        visibleItemsCount = result.visibleItemsInfo.size
+        scrollPosition.updateFromMeasureResult(result)
+        scrollToBeConsumed -= result.consumedScroll
+        layoutInfoState.value = result
+
+        canScrollForward = result.canScrollForward
+        canScrollBackward = (result.firstVisibleItem?.index ?: 0) != 0 ||
+            result.firstVisibleItemScrollOffset != 0
+
         numMeasurePasses++
+    }
+
+    /**
+     * When the user provided custom keys for the items we can try to detect when there were
+     * items added or removed before our current first visible item and keep this item
+     * as the first visible one even given that its index has been changed.
+     */
+    internal fun updateScrollPositionIfTheFirstItemWasMoved(itemsProvider: LazyListItemsProvider) {
+        scrollPosition.updateScrollPositionIfTheFirstItemWasMoved(itemsProvider)
     }
 
     companion object {
@@ -289,52 +347,6 @@ class LazyListState constructor(
                 )
             }
         )
-    }
-}
-
-/**
- * Contains the current scroll position represented by the first visible item index and the first
- * visible item scroll offset.
- *
- * Allows reading the values without recording the state read: [index] and [scrollOffset].
- * And with recording the state read which makes such reads observable: [observableIndex] and
- * [observableScrollOffset].
- *
- * To update the values use [update].
- *
- * The whole purpose of this class is to allow reading the scroll position without recording the
- * model read as if we do so inside the measure block the extra remeasurement will be scheduled
- * once we update the values in the end of the measure block. Abstracting the variables
- * duplication into a separate class allows us maintain the contract of keeping them in sync.
- */
-private class ItemRelativeScrollPosition(
-    initialIndex: Int = 0,
-    initialScrollOffset: Int = 0
-) {
-    var index = DataIndex(initialIndex)
-        private set
-
-    var scrollOffset = initialScrollOffset
-        private set
-
-    private val indexState = mutableStateOf(index.value)
-    val observableIndex get() = indexState.value
-
-    private val scrollOffsetState = mutableStateOf(scrollOffset)
-    val observableScrollOffset get() = scrollOffsetState.value
-
-    val canScrollBackward: Boolean get() = index.value != 0 || scrollOffset != 0
-    var canScrollForward: Boolean = false
-        private set
-
-    fun update(index: DataIndex, scrollOffset: Int, canScrollForward: Boolean) {
-        require(index.value >= 0f) { "Index should be non-negative (${index.value})" }
-        require(scrollOffset >= 0f) { "scrollOffset should be non-negative ($scrollOffset)" }
-        this.index = index
-        indexState.value = index.value
-        this.scrollOffset = scrollOffset
-        scrollOffsetState.value = scrollOffset
-        this.canScrollForward = canScrollForward
     }
 }
 

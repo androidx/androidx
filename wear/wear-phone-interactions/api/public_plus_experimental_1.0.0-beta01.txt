@@ -1,0 +1,146 @@
+// Signature format: 4.0
+package androidx.wear.phone.interactions {
+
+  public final class PhoneTypeHelper {
+    method public static int getPhoneDeviceType(android.content.Context context);
+    field public static final androidx.wear.phone.interactions.PhoneTypeHelper.Companion Companion;
+    field public static final int DEVICE_TYPE_ANDROID = 1; // 0x1
+    field public static final int DEVICE_TYPE_ERROR = 0; // 0x0
+    field public static final int DEVICE_TYPE_IOS = 2; // 0x2
+    field public static final int DEVICE_TYPE_UNKNOWN = 3; // 0x3
+  }
+
+  public static final class PhoneTypeHelper.Companion {
+    method public int getPhoneDeviceType(android.content.Context context);
+  }
+
+}
+
+package androidx.wear.phone.interactions.authentication {
+
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CodeChallenge {
+    ctor public CodeChallenge(androidx.wear.phone.interactions.authentication.CodeVerifier codeVerifier);
+    method public String getValue();
+    property public final String value;
+  }
+
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CodeVerifier {
+    ctor public CodeVerifier(optional int byteLength);
+    ctor public CodeVerifier(String value);
+    method public String getValue();
+    property public final String value;
+  }
+
+  public final class OAuthRequest {
+    method public String getPackageName();
+    method public android.net.Uri getRequestUrl();
+    property public final String packageName;
+    property public final android.net.Uri requestUrl;
+    field public static final androidx.wear.phone.interactions.authentication.OAuthRequest.Companion Companion;
+    field public static final String WEAR_REDIRECT_URL_PREFIX = "https://wear.googleapis.com/3p_auth/";
+    field public static final String WEAR_REDIRECT_URL_PREFIX_CN = "https://wear.googleapis-cn.com/3p_auth/";
+  }
+
+  public static final class OAuthRequest.Builder {
+    ctor public OAuthRequest.Builder(android.content.Context context);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.wear.phone.interactions.authentication.OAuthRequest build();
+    method public androidx.wear.phone.interactions.authentication.OAuthRequest.Builder setAuthProviderUrl(android.net.Uri authProviderUrl);
+    method public androidx.wear.phone.interactions.authentication.OAuthRequest.Builder setClientId(String clientId);
+    method public androidx.wear.phone.interactions.authentication.OAuthRequest.Builder setCodeChallenge(androidx.wear.phone.interactions.authentication.CodeChallenge codeChallenge);
+    method public androidx.wear.phone.interactions.authentication.OAuthRequest.Builder setRedirectUrl(android.net.Uri redirectUrl);
+  }
+
+  public static final class OAuthRequest.Companion {
+  }
+
+  public final class OAuthResponse {
+    method public int getErrorCode();
+    method public android.net.Uri? getResponseUrl();
+    property public final int errorCode;
+    property public final android.net.Uri? responseUrl;
+  }
+
+  public static final class OAuthResponse.Builder {
+    ctor public OAuthResponse.Builder();
+    method public androidx.wear.phone.interactions.authentication.OAuthResponse build();
+    method public androidx.wear.phone.interactions.authentication.OAuthResponse.Builder setErrorCode(int errorCode);
+    method public androidx.wear.phone.interactions.authentication.OAuthResponse.Builder setResponseUrl(android.net.Uri responseUrl);
+  }
+
+  public final class RemoteAuthClient implements java.lang.AutoCloseable {
+    method @UiThread public void close();
+    method public static androidx.wear.phone.interactions.authentication.RemoteAuthClient create(android.content.Context context);
+    method protected void finalize();
+    method @UiThread public void sendAuthorizationRequest(androidx.wear.phone.interactions.authentication.OAuthRequest request, java.util.concurrent.Executor executor, androidx.wear.phone.interactions.authentication.RemoteAuthClient.Callback clientCallback);
+    field public static final androidx.wear.phone.interactions.authentication.RemoteAuthClient.Companion Companion;
+    field public static final int ERROR_PHONE_UNAVAILABLE = 1; // 0x1
+    field public static final int ERROR_UNSUPPORTED = 0; // 0x0
+    field public static final int NO_ERROR = -1; // 0xffffffff
+  }
+
+  public abstract static class RemoteAuthClient.Callback {
+    ctor public RemoteAuthClient.Callback();
+    method @UiThread public abstract void onAuthorizationError(androidx.wear.phone.interactions.authentication.OAuthRequest request, int errorCode);
+    method @UiThread public abstract void onAuthorizationResponse(androidx.wear.phone.interactions.authentication.OAuthRequest request, androidx.wear.phone.interactions.authentication.OAuthResponse response);
+  }
+
+  public static final class RemoteAuthClient.Companion {
+    method public androidx.wear.phone.interactions.authentication.RemoteAuthClient create(android.content.Context context);
+  }
+
+  public interface RemoteAuthRequestHandler {
+    method public boolean isAuthSupported();
+    method public void sendAuthRequest(androidx.wear.phone.interactions.authentication.OAuthRequest request, kotlin.Pair<java.lang.String,java.lang.Integer> packageNameAndRequestId);
+  }
+
+  public abstract class RemoteAuthService extends android.app.Service {
+    ctor public RemoteAuthService();
+    method protected final android.os.IBinder onBind(android.content.Intent intent, androidx.wear.phone.interactions.authentication.RemoteAuthRequestHandler remoteAuthRequestHandler);
+    method public static final void sendResponseToCallback(androidx.wear.phone.interactions.authentication.OAuthResponse response, kotlin.Pair<java.lang.String,java.lang.Integer> packageNameAndRequestId);
+    method protected boolean verifyPackageName(android.content.Context context, String? requestPackageName);
+    field public static final androidx.wear.phone.interactions.authentication.RemoteAuthService.Companion Companion;
+  }
+
+  public static final class RemoteAuthService.Companion {
+    method public void sendResponseToCallback(androidx.wear.phone.interactions.authentication.OAuthResponse response, kotlin.Pair<java.lang.String,java.lang.Integer> packageNameAndRequestId);
+  }
+
+}
+
+package androidx.wear.phone.interactions.notifications {
+
+  public final class BridgingConfig {
+    method public java.util.Set<java.lang.String>? getExcludedTags();
+    method public boolean isBridgingEnabled();
+    property public final java.util.Set<java.lang.String>? excludedTags;
+    property public final boolean isBridgingEnabled;
+  }
+
+  public static final class BridgingConfig.Builder {
+    ctor public BridgingConfig.Builder(android.content.Context context, boolean isBridgingEnabled);
+    method public androidx.wear.phone.interactions.notifications.BridgingConfig.Builder addExcludedTag(String tag);
+    method public androidx.wear.phone.interactions.notifications.BridgingConfig.Builder addExcludedTags(java.util.Collection<java.lang.String> tags);
+    method public androidx.wear.phone.interactions.notifications.BridgingConfig build();
+  }
+
+  public fun interface BridgingConfigurationHandler {
+    method public void applyBridgingConfiguration(androidx.wear.phone.interactions.notifications.BridgingConfig bridgingConfig);
+  }
+
+  public final class BridgingManager {
+    method public static androidx.wear.phone.interactions.notifications.BridgingManager fromContext(android.content.Context context);
+    method public void setConfig(androidx.wear.phone.interactions.notifications.BridgingConfig bridgingConfig);
+    field public static final androidx.wear.phone.interactions.notifications.BridgingManager.Companion Companion;
+  }
+
+  public static final class BridgingManager.Companion {
+    method public androidx.wear.phone.interactions.notifications.BridgingManager fromContext(android.content.Context context);
+  }
+
+  public final class BridgingManagerService extends android.app.Service {
+    ctor public BridgingManagerService(android.content.Context context, androidx.wear.phone.interactions.notifications.BridgingConfigurationHandler bridgingConfigurationHandler);
+    method public android.os.IBinder? onBind(android.content.Intent? intent);
+  }
+
+}
+

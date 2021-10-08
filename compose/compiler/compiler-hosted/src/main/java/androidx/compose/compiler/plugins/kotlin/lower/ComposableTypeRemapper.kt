@@ -17,8 +17,10 @@
 package androidx.compose.compiler.plugins.kotlin.lower
 
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
+import androidx.compose.compiler.plugins.kotlin.lower.decoys.isDecoy
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContextImpl
+import org.jetbrains.kotlin.backend.common.peek
 import org.jetbrains.kotlin.backend.common.pop
 import org.jetbrains.kotlin.builtins.isFunctionType
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
@@ -37,10 +39,7 @@ import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrTypeParametersContainer
 import org.jetbrains.kotlin.ir.declarations.copyAttributes
-import org.jetbrains.kotlin.ir.declarations.impl.IrClassImpl
-import org.jetbrains.kotlin.ir.declarations.impl.IrFieldImpl
 import org.jetbrains.kotlin.ir.declarations.impl.IrFileImpl
-import org.jetbrains.kotlin.ir.declarations.impl.IrPropertyImpl
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression
@@ -63,12 +62,12 @@ import org.jetbrains.kotlin.ir.util.SymbolRemapper
 import org.jetbrains.kotlin.ir.util.SymbolRenamer
 import org.jetbrains.kotlin.ir.util.TypeRemapper
 import org.jetbrains.kotlin.ir.util.TypeTranslator
+import org.jetbrains.kotlin.ir.util.fqNameForIrSerialization
 import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.patchDeclarationParents
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.Variance
 
@@ -85,11 +84,15 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
     }
 
     override fun visitFunction(declaration: IrFunction): IrStatement {
-        return super.visitFunction(declaration).also { it.copyMetadataFrom(declaration) }
+        return super.visitFunction(declaration).also {
+            it.copyMetadataFrom(declaration)
+        }
     }
 
     override fun visitConstructor(declaration: IrConstructor): IrConstructor {
-        return super.visitConstructor(declaration).also { it.copyMetadataFrom(declaration) }
+        return super.visitConstructor(declaration).also {
+            it.copyMetadataFrom(declaration)
+        }
     }
 
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrSimpleFunction {
@@ -107,7 +110,7 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
 
     override fun visitField(declaration: IrField): IrField {
         return super.visitField(declaration).also {
-            (it as IrFieldImpl).metadata = declaration.metadata
+            it.metadata = declaration.metadata
         }
     }
 
@@ -233,19 +236,23 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
         ) {
             if (ownerFn.correspondingPropertySymbol != null) {
                 val property = ownerFn.correspondingPropertySymbol!!.owner
-                symbolRemapper.visitProperty(property)
-                super.visitProperty(property).also {
-                    it.getter?.correspondingPropertySymbol = it.symbol
-                    it.setter?.correspondingPropertySymbol = it.symbol
-                    it.parent = ownerFn.parent
-                    it.patchDeclarationParents(it.parent)
-                    it.copyAttributes(property)
+                // avoid java properties since they go through a different lowering and it is
+                // also impossible for them to have composable types
+                if (property.origin != IrDeclarationOrigin.IR_EXTERNAL_JAVA_DECLARATION_STUB) {
+                    symbolRemapper.visitProperty(property)
+                    visitProperty(property).also {
+                        it.getter?.correspondingPropertySymbol = it.symbol
+                        it.setter?.correspondingPropertySymbol = it.symbol
+                        it.parent = ownerFn.parent
+                        it.patchDeclarationParents(it.parent)
+                        it.copyAttributes(property)
+                    }
                 }
             } else {
                 symbolRemapper.visitSimpleFunction(ownerFn)
-                super.visitSimpleFunction(ownerFn).also {
+                visitSimpleFunction(ownerFn).also {
                     it.parent = ownerFn.parent
-                    it.correspondingPropertySymbol = ownerFn.correspondingPropertySymbol
+                    it.correspondingPropertySymbol = null
                     it.patchDeclarationParents(it.parent)
                 }
             }
@@ -335,11 +342,10 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
         }
 
     private fun IrElement.copyMetadataFrom(owner: IrMetadataSourceOwner) {
-        when (this) {
-            is IrPropertyImpl -> metadata = owner.metadata
-            is IrFunction -> metadata = owner.metadata
-            is IrClassImpl -> metadata = owner.metadata
-            else -> throw Error("Unknown type: $this")
+        if (this is IrMetadataSourceOwner) {
+            metadata = owner.metadata
+        } else {
+            throw IllegalArgumentException("Cannot copy metadata to $this")
         }
     }
 
@@ -396,6 +402,11 @@ class ComposerTypeRemapper(
         if (type !is IrSimpleType) return type
         if (!type.isFunction()) return underlyingRemapType(type)
         if (!type.isComposable()) return underlyingRemapType(type)
+        // do not convert types for decoys
+        if (scopeStack.peek()?.isDecoy() == true) {
+            return underlyingRemapType(type)
+        }
+
         val oldIrArguments = type.arguments
         val realParams = oldIrArguments.size - 1
         var extraArgs = listOf(
@@ -455,8 +466,5 @@ class ComposerTypeRemapper(
         )
 }
 
-@OptIn(ObsoleteDescriptorBasedAPI::class)
 private fun IrConstructorCall.isComposableAnnotation() =
-    @Suppress("DEPRECATION")
-    this.symbol.descriptor.returnType.constructor.declarationDescriptor?.fqNameSafe ==
-        ComposeFqNames.Composable
+    this.symbol.owner.parent.fqNameForIrSerialization == ComposeFqNames.Composable

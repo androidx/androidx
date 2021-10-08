@@ -21,7 +21,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
-import android.view.View;
 import android.webkit.WebViewClient;
 import android.widget.CheckBox;
 import android.widget.TextView;
@@ -95,25 +94,19 @@ public class PopupInterstitialActivity extends AppCompatActivity {
         final CheckBox reportingCheckbox = findViewById(R.id.reporting_checkbox);
 
         // Back to safety
-        findViewById(R.id.back_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                returnIntent.putExtra(ACTION_RESPONSE, ACTION_RESPONSE_BACK_TO_SAFETY);
-                returnIntent.putExtra(SHOULD_SEND_REPORT, reportingCheckbox.isChecked());
-                setResult(Activity.RESULT_OK, returnIntent);
-                finish();
-            }
+        findViewById(R.id.back_button).setOnClickListener(view -> {
+            returnIntent.putExtra(ACTION_RESPONSE, ACTION_RESPONSE_BACK_TO_SAFETY);
+            returnIntent.putExtra(SHOULD_SEND_REPORT, reportingCheckbox.isChecked());
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
         });
 
         // Proceed through anyway
-        findViewById(R.id.proceed_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                returnIntent.putExtra(ACTION_RESPONSE, ACTION_RESPONSE_PROCEED);
-                returnIntent.putExtra(SHOULD_SEND_REPORT, reportingCheckbox.isChecked());
-                setResult(Activity.RESULT_OK, returnIntent);
-                finish();
-            }
+        findViewById(R.id.proceed_button).setOnClickListener(view -> {
+            returnIntent.putExtra(ACTION_RESPONSE, ACTION_RESPONSE_PROCEED);
+            returnIntent.putExtra(SHOULD_SEND_REPORT, reportingCheckbox.isChecked());
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
         });
     }
 }

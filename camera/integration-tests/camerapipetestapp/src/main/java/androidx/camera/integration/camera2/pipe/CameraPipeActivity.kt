@@ -26,6 +26,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
+import kotlinx.coroutines.runBlocking
 
 /**
  * This is the main activity for the CameraPipe test application.
@@ -106,7 +107,7 @@ class CameraPipeActivity : Activity() {
         Trace.endSection()
 
         Trace.beginSection("CXCP-App#findNextCamera")
-        val cameraId = findNextCamera(lastCameraId)
+        val cameraId = runBlocking { findNextCamera(lastCameraId) }
         Trace.endSection()
 
         Trace.beginSection("CXCP-App#startCameraGraph")
@@ -122,23 +123,24 @@ class CameraPipeActivity : Activity() {
         Trace.endSection()
     }
 
-    private fun findNextCamera(lastCameraId: CameraId?): CameraId {
+    private suspend fun findNextCamera(lastCameraId: CameraId?): CameraId {
+        val cameras: List<CameraId> = cameraPipe.cameras().ids()
         // By default, open the first back facing camera if no camera was previously configured.
         if (lastCameraId == null) {
-            return cameraPipe.cameras().findAll().firstOrNull {
-                cameraPipe.cameras().awaitMetadata(it)[CameraCharacteristics.LENS_FACING] ==
+            return cameras.firstOrNull {
+                cameraPipe.cameras().getMetadata(it)[CameraCharacteristics.LENS_FACING] ==
                     CameraCharacteristics.LENS_FACING_BACK
-            } ?: cameraPipe.cameras().findAll().first()
+            } ?: cameras.first()
         }
 
         // If a camera was previously open, select the next camera in the list of all cameras. It is
         // possible that the list of cameras contains only one camera, in which case this will return
         // the same camera as "currentCameraId"
-        val cameras: List<CameraId> = cameraPipe.cameras().findAll()
+
         val lastCameraIndex = cameras.indexOf(lastCameraId)
         if (cameras.isEmpty() || lastCameraIndex == -1) {
             Log.e("CXCP-App", "Failed to find matching camera!")
-            return cameraPipe.cameras().findAll().first()
+            return cameras.first()
         }
 
         // When we reach the end of the list of cameras, loop.

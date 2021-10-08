@@ -61,6 +61,7 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        TestServiceRegistry.getInstance().cleanUp();
         TestServiceRegistry.getInstance().setHandler(sHandler);
         mToken = new SessionToken(mContext,
                 new ComponentName(mContext, MockMediaSessionService.class));

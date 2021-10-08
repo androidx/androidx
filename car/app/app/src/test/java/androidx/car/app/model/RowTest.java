@@ -34,6 +34,9 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /** Tests for {@link Row}. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -63,6 +66,61 @@ public class RowTest {
         String text2 = "bar";
         Row row = new Row.Builder().setTitle("Title").addText(text1).addText(text2).build();
         assertThat(row.getTexts()).containsExactly(CarText.create(text1), CarText.create(text2));
+    }
+
+    @Test
+    public void title_text_variants() {
+        List<CharSequence> titleVariants = new ArrayList<>();
+        titleVariants.add("foo");
+        titleVariants.add("foo long");
+
+        List<CharSequence> textVariants = new ArrayList<>();
+        textVariants.add("bar");
+        textVariants.add("bar long");
+
+        CarText title =
+                new CarText.Builder(titleVariants.get(0)).addVariant(titleVariants.get(1)).build();
+        CarText text = new CarText.Builder(textVariants.get(0)).addVariant(
+                textVariants.get(1)).build();
+        Row row = new Row.Builder().setTitle(title).addText(text).build();
+        assertThat(title).isEqualTo(row.getTitle());
+        assertThat(row.getTexts()).containsExactly(text);
+    }
+
+    @Test
+    public void title_unsupportedSpans_throws() {
+        CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle(title).build());
+        CarText title2 = TestUtils.getCarTextVariantsWithColorSpan("Title");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle(title2).build());
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence title3 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
+        new Row.Builder().setTitle(title3).build();
+        CarText title4 = TestUtils.getCarTextVariantsWithDistanceAndDurationSpans("Title");
+        new Row.Builder().setTitle(title4).build();
+    }
+
+    @Test
+    public void text_unsupportedSpans_throws() {
+        CharSequence text = TestUtils.getCharSequenceWithClickableSpan("Text");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle("Title").addText(text).build());
+        CarText text2 = TestUtils.getCarTextVariantsWithClickableSpan("Text");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Row.Builder().setTitle("Title").addText(text2).build());
+
+        // DurationSpan and DistanceSpan do not throw
+        CharSequence text3 = TestUtils.getCharSequenceWithColorSpan("Text");
+        new Row.Builder().setTitle("Title").addText(text3).build();
+        CarText text4 = TestUtils.getCarTextVariantsWithColorSpan("Text");
+        new Row.Builder().setTitle("Title").addText(text4).build();
     }
 
     @Test

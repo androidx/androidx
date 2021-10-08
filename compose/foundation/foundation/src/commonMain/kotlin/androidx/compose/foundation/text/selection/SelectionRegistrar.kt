@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -25,20 +26,36 @@ import androidx.compose.ui.layout.LayoutCoordinates
  */
 internal interface SelectionRegistrar {
     /**
+     * The map stored current selection information on each [Selectable]. A selectable can query
+     * its selected range using its [Selectable.selectableId]. This field is backed by a
+     * [MutableState]. And any composable reading this field will be recomposed once its value
+     * changed.
+     */
+    val subselections: Map<Long, Selection>
+
+    /**
      * Subscribe to SelectionContainer selection changes.
+     * @param selectable the [Selectable] that is subscribing to this [SelectionRegistrar].
      */
     fun subscribe(selectable: Selectable): Selectable
 
     /**
      * Unsubscribe from SelectionContainer selection changes.
+     * @param selectable the [Selectable] that is unsubscribing to this [SelectionRegistrar].
      */
     fun unsubscribe(selectable: Selectable)
+
+    /**
+     * Return a unique ID for a [Selectable].
+     * @see [Selectable.selectableId]
+     */
+    fun nextSelectableId(): Long
 
     /**
      * When the Global Position of a subscribed [Selectable] changes, this method
      * is called.
      */
-    fun notifyPositionChange()
+    fun notifyPositionChange(selectableId: Long)
 
     /**
      * Call this method to notify the [SelectionContainer] that the selection has been initiated.
@@ -55,33 +72,53 @@ internal interface SelectionRegistrar {
      *
      * @param layoutCoordinates [LayoutCoordinates] of the [Selectable].
      * @param startPosition coordinates of where the selection is initiated.
+     * @param adjustment selection should be adjusted according to this param
      *
      * @see notifySelectionUpdate
      * @see notifySelectionUpdateEnd
      */
     fun notifySelectionUpdateStart(
         layoutCoordinates: LayoutCoordinates,
-        startPosition: Offset
+        startPosition: Offset,
+        adjustment: SelectionAdjustment
     )
 
     /**
-     * Call this method to notify the [SelectionContainer] that  the selection has been updated.
+     * Call this method to notify the [SelectionContainer] that the selection has been initiated
+     * with selectAll [Selection].
+     *
+     * @param selectableId [selectableId] of the [Selectable]
+     */
+    fun notifySelectionUpdateSelectAll(selectableId: Long)
+
+    /**
+     * Call this method to notify the [SelectionContainer] that one of the selection handle has
+     * moved and selection should be updated.
      * The caller of this method should make sure that [notifySelectionUpdateStart] is always
      * called once before calling this function. And [notifySelectionUpdateEnd] is always called
      * once after the all updates finished.
      *
      * @param layoutCoordinates [LayoutCoordinates] of the [Selectable].
-     * @param startPosition coordinates of where the selection starts.
-     * @param endPosition coordinates of where the selection ends.
+     * @param previousPosition coordinates of where the selection starts.
+     * @param newPosition coordinates of where the selection ends.
+     * @param isStartHandle whether the moving selection handle the start handle.
+     * @param adjustment selection should be adjusted according to this parameter
      *
+     * @return true if the selection handle movement is consumed. This function acts like a
+     * pointer input consumer when a selection handle is dragged. It expects the caller to
+     * accumulate the unconsumed pointer movement:
+     * 1. if it returns true, the caller will zero out the previous movement.
+     * 2. if it returns false, the caller will continue accumulate pointer movement.
      * @see notifySelectionUpdateStart
      * @see notifySelectionUpdateEnd
      */
     fun notifySelectionUpdate(
         layoutCoordinates: LayoutCoordinates,
-        startPosition: Offset,
-        endPosition: Offset,
-    )
+        newPosition: Offset,
+        previousPosition: Offset,
+        isStartHandle: Boolean,
+        adjustment: SelectionAdjustment
+    ): Boolean
 
     /**
      * Call this method to notify the [SelectionContainer] that the selection update has stopped.
@@ -95,9 +132,23 @@ internal interface SelectionRegistrar {
      * Call this method to notify the [SelectionContainer] that the content of the passed
      * selectable has been changed.
      *
-     * @param selectable the selectable whose the content has been updated.
+     * @param selectableId the ID of the selectable whose the content has been updated.
      */
-    fun notifySelectableChange(selectable: Selectable)
+    fun notifySelectableChange(selectableId: Long)
+
+    companion object {
+        /**
+         * Representing an invalid ID for [Selectable].
+         */
+        const val InvalidSelectableId = 0L
+    }
+}
+
+/**
+ * Helper function that checks if there is a selection on this CoreText.
+ */
+internal fun SelectionRegistrar?.hasSelection(selectableId: Long): Boolean {
+    return this?.subselections?.containsKey(selectableId) ?: false
 }
 
 /**

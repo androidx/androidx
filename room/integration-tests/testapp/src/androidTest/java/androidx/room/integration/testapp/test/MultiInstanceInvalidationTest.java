@@ -262,6 +262,8 @@ public class MultiInstanceInvalidationTest {
         assertTrue(changed2.await(3, TimeUnit.SECONDS));
     }
 
+    // TODO(186405912): broken test
+    @Ignore
     @Test
     public void invalidatedByAnotherProcess() throws Exception {
         bindTestService();
@@ -277,6 +279,8 @@ public class MultiInstanceInvalidationTest {
         assertTrue(changed.await(3, TimeUnit.SECONDS));
     }
 
+    // TODO(186405912): broken test
+    @Ignore
     @Test
     public void invalidateAnotherProcess() throws Exception {
         bindTestService();

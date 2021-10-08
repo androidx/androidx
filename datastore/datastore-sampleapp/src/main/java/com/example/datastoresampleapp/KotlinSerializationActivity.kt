@@ -115,6 +115,7 @@ class KotlinSerializationActivity : AppCompatActivity() {
 @Serializable
 data class MySettings(val count: Int = 0)
 
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 object MySettingsSerializer : Serializer<MySettings> {
     override val defaultValue: MySettings
         get() = MySettings()

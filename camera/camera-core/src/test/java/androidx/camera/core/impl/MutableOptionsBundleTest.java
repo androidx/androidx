@@ -70,6 +70,14 @@ public class MutableOptionsBundleTest {
     }
 
     @Test
+    public void canSetNullValue() {
+        MutableOptionsBundle bundle = MutableOptionsBundle.create();
+        bundle.insertOption(OPTION_1, null);
+
+        assertThat(bundle.retrieveOption(OPTION_1)).isNull();
+    }
+
+    @Test
     public void canCreateFromConfiguration_andAddMore() {
         MutableOptionsBundle mutOpts = MutableOptionsBundle.create();
         mutOpts.insertOption(OPTION_1, REQUIRED, VALUE_2);

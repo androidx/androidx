@@ -23,7 +23,6 @@ import androidx.compose.ui.node.LayoutNode.LayoutState.NeedsRemeasure
 import androidx.compose.ui.node.LayoutNode.LayoutState.Ready
 import androidx.compose.ui.node.LayoutNode.UsageByParent.InLayoutBlock
 import androidx.compose.ui.node.LayoutNode.UsageByParent.InMeasureBlock
-import androidx.compose.ui.node.LayoutNode.UsageByParent.NotUsed
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.util.fastForEach
 
@@ -198,42 +197,41 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         var rootNodeResized = false
         if (relayoutNodes.isNotEmpty()) {
             duringMeasureLayout = true
-            relayoutNodes.popEach { layoutNode ->
-                val alignmentLinesOwner = layoutNode.alignmentLinesQueryOwner
-                if (layoutNode.isPlaced ||
-                    layoutNode.canAffectParent ||
-                    (
-                        alignmentLinesOwner != null && alignmentLinesOwner
-                            .alignmentUsageByParent != NotUsed
-                        )
-                ) {
-                    if (layoutNode.layoutState == NeedsRemeasure) {
-                        if (doRemeasure(layoutNode, rootConstraints)) {
-                            rootNodeResized = true
-                        }
-                    }
-                    if (layoutNode.layoutState == NeedsRelayout && layoutNode.isPlaced) {
-                        if (layoutNode === root) {
-                            layoutNode.place(0, 0)
-                        } else {
-                            layoutNode.replace()
-                        }
-                        onPositionedDispatcher.onNodePositioned(layoutNode)
-                        consistencyChecker?.assertConsistent()
-                    }
-                    measureIteration++
-                    // execute postponed `onRequestMeasure`
-                    if (postponedMeasureRequests.isNotEmpty()) {
-                        postponedMeasureRequests.fastForEach {
-                            if (it.isAttached) {
-                                requestRemeasure(it)
+            try {
+                relayoutNodes.popEach { layoutNode ->
+                    if (layoutNode.isPlaced ||
+                        layoutNode.canAffectParent ||
+                        layoutNode.alignmentLines.required
+                    ) {
+                        if (layoutNode.layoutState == NeedsRemeasure) {
+                            if (doRemeasure(layoutNode, rootConstraints)) {
+                                rootNodeResized = true
                             }
                         }
-                        postponedMeasureRequests.clear()
+                        if (layoutNode.layoutState == NeedsRelayout && layoutNode.isPlaced) {
+                            if (layoutNode === root) {
+                                layoutNode.place(0, 0)
+                            } else {
+                                layoutNode.replace()
+                            }
+                            onPositionedDispatcher.onNodePositioned(layoutNode)
+                            consistencyChecker?.assertConsistent()
+                        }
+                        measureIteration++
+                        // execute postponed `onRequestMeasure`
+                        if (postponedMeasureRequests.isNotEmpty()) {
+                            postponedMeasureRequests.fastForEach {
+                                if (it.isAttached) {
+                                    requestRemeasure(it)
+                                }
+                            }
+                            postponedMeasureRequests.clear()
+                        }
                     }
                 }
+            } finally {
+                duringMeasureLayout = false
             }
-            duringMeasureLayout = false
             consistencyChecker?.assertConsistent()
         }
         return rootNodeResized
@@ -263,5 +261,5 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
 
     private val LayoutNode.canAffectParent
         get() = layoutState == NeedsRemeasure &&
-            (measuredByParent == InMeasureBlock || alignmentLinesQueryOwner != null)
+            (measuredByParent == InMeasureBlock || alignmentLines.required)
 }

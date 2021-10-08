@@ -21,10 +21,11 @@ import static androidx.recyclerview.widget.RecyclerView.HORIZONTAL;
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static androidx.recyclerview.widget.RecyclerView.VERTICAL;
 
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.content.Context;
@@ -251,7 +252,9 @@ public class FocusSearchNavigationTest {
                 }
             }
         });
-        assertTrue("should go idle in 10 seconds", latch.await(10, TimeUnit.SECONDS));
+        assertWithMessage("should go idle in 10 seconds")
+                .that(latch.await(10, TimeUnit.SECONDS))
+                .isTrue();
     }
 
     static class FocusSearchAdapter extends RecyclerView.Adapter {
