@@ -35,9 +35,9 @@ import java.lang.annotation.Target;
  *
  * <p>Example:</p>
  *
- * <pre>{@code
+ * <pre>
  *  public void setFillColor(@ColorLong long color);
- * }</pre>
+ * </pre>
  *
  * @see android.graphics.Color
  */
