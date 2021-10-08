@@ -28,6 +28,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(libs.guavaListenableFuture)
+    api(project(":wear:tiles:tiles-renderer"))
 
     implementation "androidx.concurrent:concurrent-futures:1.1.0"
     implementation "androidx.concurrent:concurrent-futures-ktx:1.1.0"
@@ -35,7 +36,6 @@ dependencies {
     implementation "androidx.wear:wear:1.2.0-beta01"
 
     implementation(project(":wear:tiles:tiles"))
-    implementation(project(":wear:tiles:tiles-renderer"))
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesAndroid)
     implementation(libs.robolectric)
