@@ -4,12 +4,298 @@
     <issue
         id="ResourceType"
         message="Expected resource of type styleable"
+        errorLine1="                    AndroidResources.STYLEABLE_ACCELERATE_INTERPOLATOR, 0, 0);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AccelerateInterpolator.java"
+            line="71"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_ACCELERATE_INTERPOLATOR);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AccelerateInterpolator.java"
+            line="73"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
         errorLine1="    static final int STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR_EXTRA_TENSION = 1;"
         errorLine2="                                                                                ~">
         <location
             file="src/main/java/androidx/core/animation/AndroidResources.java"
             line="29"
             column="81"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    a = theme.obtainStyledAttributes(attrs, AndroidResources.STYLEABLE_ANIMATOR_SET,"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"
+            line="449"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_ANIMATOR_SET);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"
+            line="452"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                            AndroidResources.STYLEABLE_PROPERTY_VALUES_HOLDER, 0, 0);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"
+            line="510"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                            AndroidResources.STYLEABLE_PROPERTY_VALUES_HOLDER);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"
+            line="513"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = theme.obtainStyledAttributes(attrs, AndroidResources.STYLEABLE_KEYFRAME, 0, 0);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"
+            line="558"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_KEYFRAME);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"
+            line="560"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = theme.obtainStyledAttributes(attrs, AndroidResources.STYLEABLE_KEYFRAME, 0, 0);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"
+            line="728"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_KEYFRAME);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"
+            line="730"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            arrayAnimator = theme.obtainStyledAttributes(attrs, AndroidResources.STYLEABLE_ANIMATOR,"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"
+            line="803"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            arrayAnimator = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_ANIMATOR);"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"
+            line="806"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                        AndroidResources.STYLEABLE_PROPERTY_ANIMATOR, 0, 0);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"
+            line="813"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                        AndroidResources.STYLEABLE_PROPERTY_ANIMATOR);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"
+            line="816"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    AndroidResources.STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR, 0, 0);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnticipateInterpolator.java"
+            line="67"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    AndroidResources.STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnticipateInterpolator.java"
+            line="70"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    AndroidResources.STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR, 0, 0);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnticipateOvershootInterpolator.java"
+            line="77"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    AndroidResources.STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnticipateOvershootInterpolator.java"
+            line="80"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = theme.obtainStyledAttributes(attrs, AndroidResources.STYLEABLE_CYCLE_INTERPOLATOR,"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/CycleInterpolator.java"
+            line="58"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = resources.obtainAttributes(attrs, AndroidResources.STYLEABLE_CYCLE_INTERPOLATOR);"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/CycleInterpolator.java"
+            line="61"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    AndroidResources.STYLEABLE_DECELERATE_INTERPOLATOR, 0, 0);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/DecelerateInterpolator.java"
+            line="57"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_DECELERATE_INTERPOLATOR);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/DecelerateInterpolator.java"
+            line="59"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    AndroidResources.STYLEABLE_OVERSHOOT_INTERPOLATOR, 0, 0);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/OvershootInterpolator.java"
+            line="57"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_OVERSHOOT_INTERPOLATOR);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/OvershootInterpolator.java"
+            line="59"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = theme.obtainStyledAttributes(attrs, AndroidResources.STYLEABLE_PATH_INTERPOLATOR,"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PathInterpolator.java"
+            line="126"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_PATH_INTERPOLATOR);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PathInterpolator.java"
+            line="129"
+            column="45"/>
     </issue>
 
     <issue

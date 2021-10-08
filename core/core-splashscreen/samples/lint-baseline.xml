@@ -2,6 +2,17 @@
 <issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="true" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                aa = context.obtainStyledAttributes(attrs, ATTRS_ANDROID_SPINNERMODE,"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatSpinner.java"
+            line="234"
+            column="60"/>
+    </issue>
+
+    <issue
         id="WrongConstant"
         message="Must be one or more of: AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_STATE_DESCRIPTION, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_SUBTREE, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_TEXT, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_UNDEFINED, but could be AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_TITLE, AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED, AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_DISAPPEARED"
         errorLine1="            return event.getContentChangeTypes();"

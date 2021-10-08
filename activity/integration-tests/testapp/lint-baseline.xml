@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="inline fun Activity.setContentView(ui: ViewManager.() -> Unit) ="
+        errorLine2="                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/activity/integration/testapp/MainActivity.kt"
+            line="144"
+            column="21"/>
+    </issue>
+
 </issues>

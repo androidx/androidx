@@ -56,4 +56,15 @@
             column="5"/>
     </issue>
 
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override fun parseResult(resultCode: Int, intent: Intent?) = intent?.let {"
+        errorLine2="                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/editor/EditorSession.kt"
+            line="1022"
+            column="18"/>
+    </issue>
+
 </issues>

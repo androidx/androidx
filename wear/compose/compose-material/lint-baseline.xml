@@ -265,4 +265,48 @@
             column="10"/>
     </issue>
 
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override val currentTime: String"
+        errorLine2="                 ~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/wear/compose/material/DefaultTimeSource.kt"
+            line="42"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    public val colors: Colors"
+        errorLine2="               ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/wear/compose/material/MaterialTheme.kt"
+            line="89"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    public val typography: Typography"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/wear/compose/material/MaterialTheme.kt"
+            line="94"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    public val shapes: Shapes"
+        errorLine2="               ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/wear/compose/material/MaterialTheme.kt"
+            line="99"
+            column="16"/>
+    </issue>
+
 </issues>
