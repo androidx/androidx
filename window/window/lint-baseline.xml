@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="SupportAnnotationUsage"
@@ -9,6 +9,28 @@
         <location
             file="src/main/java/androidx/window/layout/SidecarCompat.kt"
             line="50"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 14 from the `minSdkVersion`"
+        errorLine1="    @RequiresApi(VERSION_CODES.ICE_CREAM_SANDWICH)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/window/layout/WindowMetricsCalculatorCompat.kt"
+            line="269"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 14 from the `minSdkVersion`"
+        errorLine1="    @RequiresApi(VERSION_CODES.ICE_CREAM_SANDWICH)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/window/layout/WindowMetricsCalculatorCompat.kt"
+            line="301"
             column="5"/>
     </issue>
 

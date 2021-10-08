@@ -283,8 +283,19 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/fragment/app/FragmentTransitionTest.kt"
-            line="1682"
+            line="1683"
             column="20"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 21 here from outer annotations"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/fragment/app/FragmentTransitionCompat21.java"
+            line="361"
+            column="5"/>
     </issue>
 
 </issues>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 26): `WatchFaceId`"
+        errorLine1="        WatchFaceId(watchFaceInstanceId ?: &quot;&quot;),"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/client/EditorState.kt"
+            line="94"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 26): `WatchFaceControlService`"
+        errorLine1="    private val realService = object : WatchFaceControlService() {"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/client/test/WatchFaceControlTestService.kt"
+            line="43"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Extending WatchFaceControlService requires API level 27 (current min is 26): `WatchFaceControlService`"
+        errorLine1="    private val realService = object : WatchFaceControlService() {"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/client/test/WatchFaceControlTestService.kt"
+            line="43"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 26): `IWatchFaceInstanceServiceStub`"
+        errorLine1="            object : IWatchFaceInstanceServiceStub(this, Handler(Looper.getMainLooper())) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/client/test/WatchFaceControlTestService.kt"
+            line="45"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Extending IWatchFaceInstanceServiceStub requires API level 27 (current min is 26): `IWatchFaceInstanceServiceStub`"
+        errorLine1="            object : IWatchFaceInstanceServiceStub(this, Handler(Looper.getMainLooper())) {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/watchface/client/test/WatchFaceControlTestService.kt"
+            line="45"
+            column="22"/>
+    </issue>
+
+</issues>
