@@ -56,6 +56,10 @@ import androidx.wear.compose.foundation.CurvedRowScope
  *
  * @sample androidx.wear.compose.material.samples.CurvedTextDemo
  *
+ * For more information, see the
+ * [Curved Text](https://developer.android.com/training/wearables/components/curved-text)
+ * guide.
+ *
  * @param text The text to display
  * @param color [Color] to apply to the text. If [Color.Unspecified], and [style] has no color set,
  * this will be [LocalContentColor].

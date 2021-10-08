@@ -54,6 +54,10 @@ import kotlin.math.sin
  * Example usage:
  * @sample androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
  *
+ * For more information, see the
+ * [Swipe to dismiss](https://developer.android.com/training/wearables/components/swipe-to-dismiss)
+ * guide.
+ *
  * @param state State containing information about ongoing swipe or animation.
  * @param modifier Optional [Modifier] for this component.
  * @param backgroundScrimColor Color for background scrim
