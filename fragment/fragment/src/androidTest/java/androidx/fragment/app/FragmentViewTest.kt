@@ -1094,6 +1094,46 @@ class FragmentViewTest {
         assertThat(fragment3.onCreateViewCount).isEqualTo(1)
     }
 
+    @Test
+    fun childFragmentOnHiddenWhenParentHidden() {
+        activityRule.setContentView(R.layout.simple_container)
+        val container =
+            activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
+        val fm = activityRule.activity.supportFragmentManager
+
+        val parent = StrictViewFragment(R.layout.fragment_container_view)
+
+        fm.beginTransaction()
+            .add(R.id.fragmentContainer, parent)
+            .addToBackStack(null)
+            .commit()
+
+        activityRule.executePendingTransactions()
+
+        assertChildren(container, parent)
+
+        val child = SimpleViewFragment()
+
+        parent.childFragmentManager.beginTransaction()
+            .add(R.id.fragment_container_view, child)
+            .addToBackStack(null)
+            .commit()
+
+        activityRule.executePendingTransactions(parent.childFragmentManager)
+
+        assertThat(child.wasHiddenChanged).isFalse()
+
+        fm.beginTransaction()
+            .hide(parent)
+            .addToBackStack(null)
+            .commit()
+
+        activityRule.executePendingTransactions()
+
+        assertThat(child.wasHiddenChanged).isTrue()
+        assertThat(child.hiddenValue).isTrue()
+    }
+
     private fun findViewById(viewId: Int): View? {
         return activityRule.activity.findViewById(viewId)
     }
@@ -1136,6 +1176,8 @@ class FragmentViewTest {
 
     class SimpleViewFragment : Fragment(R.layout.fragment_a) {
         var onCreateViewCount: Int = 0
+        var wasHiddenChanged = false
+        var hiddenValue = false
 
         override fun onCreateView(
             inflater: LayoutInflater,
@@ -1144,6 +1186,12 @@ class FragmentViewTest {
         ): View? {
             onCreateViewCount++
             return super.onCreateView(inflater, container, savedInstanceState)
+        }
+
+        override fun onHiddenChanged(hidden: Boolean) {
+            super.onHiddenChanged(hidden)
+            wasHiddenChanged = true
+            hiddenValue = hidden
         }
     }
 }
