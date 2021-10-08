@@ -20,6 +20,7 @@ import androidx.room.Dao;
 import androidx.room.Database;
 import androidx.room.Entity;
 import androidx.room.Fts4;
+import androidx.room.FtsOptions;
 import androidx.room.Query;
 import androidx.room.RoomDatabase;
 
@@ -29,7 +30,11 @@ import androidx.room.RoomDatabase;
  */
 public class CustomFTSTokenizerTest {
 
-    @Database(entities = TheEntity.class, version = 1, exportSchema = false)
+    @Database(
+            entities = {TheEntity.class, TheEntityWithICU.class},
+            version = 1,
+            exportSchema = false
+    )
     abstract static class CustomTokDatabase extends RoomDatabase  {
         public abstract TheDao getDao();
     }
@@ -37,6 +42,13 @@ public class CustomFTSTokenizerTest {
     @Entity
     @Fts4(tokenizer = "customICU", tokenizerArgs = "en_AU")
     static class TheEntity {
+        public String data;
+    }
+
+    // For b/201753224
+    @Entity
+    @Fts4(tokenizer = FtsOptions.TOKENIZER_ICU)
+    static class TheEntityWithICU {
         public String data;
     }
 
