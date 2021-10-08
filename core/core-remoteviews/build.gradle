@@ -43,6 +43,7 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
 }
