@@ -54,6 +54,7 @@ import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.UInstanceExpression
+import org.jetbrains.uast.UParenthesizedExpression
 import org.jetbrains.uast.USuperExpression
 import org.jetbrains.uast.UThisExpression
 import org.jetbrains.uast.getContainingUClass
@@ -645,15 +646,20 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             wrapperClassName: String,
             wrapperMethodName: String,
         ): String? {
+            var unwrappedCallReceiver = callReceiver
+            while (unwrappedCallReceiver is UParenthesizedExpression) {
+                unwrappedCallReceiver = unwrappedCallReceiver.expression
+            }
+
             val isStatic = context.evaluator.isStatic(method)
             val isConstructor = method.isConstructor
-            val isSimpleReference = callReceiver is JavaUSimpleNameReferenceExpression
+            val isSimpleReference = unwrappedCallReceiver is JavaUSimpleNameReferenceExpression
 
             val callReceiverStr = when {
                 isStatic -> null
                 isConstructor -> null
                 isSimpleReference ->
-                    (callReceiver as JavaUSimpleNameReferenceExpression).identifier
+                    (unwrappedCallReceiver as JavaUSimpleNameReferenceExpression).identifier
                 else -> {
                     // We don't know how to handle this type of receiver. This should never happen.
                     return null
