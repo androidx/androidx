@@ -21,6 +21,7 @@ package androidx.annotation.experimental.lint
 import com.android.tools.lint.client.api.AnnotationLookup
 import com.android.tools.lint.client.api.JavaEvaluator
 import com.android.tools.lint.detector.api.AnnotationUsageType
+import com.android.tools.lint.detector.api.AnnotationUsageType.FIELD_REFERENCE
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
@@ -435,6 +436,12 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         allClassAnnotations: List<UAnnotation>,
         allPackageAnnotations: List<UAnnotation>
     ) {
+        // Are we visiting a Kotlin property as a field reference when it's actually a method?
+        // Ignore it, since we'll also visit it as a method.
+        if (isKotlin(usage.sourcePsi) && type == FIELD_REFERENCE && referenced is PsiMethod) {
+            return
+        }
+
         when (qualifiedName) {
             JAVA_EXPERIMENTAL_ANNOTATION, JAVA_REQUIRES_OPT_IN_ANNOTATION -> {
                 // Only allow Java annotations, since the Kotlin compiler doesn't understand our
