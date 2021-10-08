@@ -14,6 +14,11 @@ package androidx.window.testing.layout {
     method @androidx.window.core.ExperimentalWindowApi public static androidx.window.layout.FoldingFeature createFoldingFeature(android.graphics.Rect windowBounds);
   }
 
+  @androidx.window.core.ExperimentalWindowApi public final class StubWindowMetricsCalculatorRule implements org.junit.rules.TestRule {
+    ctor public StubWindowMetricsCalculatorRule();
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
+  }
+
   public final class WindowLayoutInfoPublisherRule implements org.junit.rules.TestRule {
     ctor public WindowLayoutInfoPublisherRule();
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
