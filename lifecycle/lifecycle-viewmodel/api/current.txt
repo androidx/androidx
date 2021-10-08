@@ -7,6 +7,7 @@ package androidx.lifecycle {
   }
 
   public interface HasDefaultViewModelProviderFactory {
+    method public default androidx.lifecycle.viewmodel.CreationExtras getDefaultViewModelCreationExtras();
     method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
   }
 
@@ -23,6 +24,7 @@ package androidx.lifecycle {
   }
 
   public class ViewModelProvider {
+    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStore store, androidx.lifecycle.ViewModelProvider.Factory factory, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras);
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStore store, androidx.lifecycle.ViewModelProvider.Factory factory);
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner owner);
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner owner, androidx.lifecycle.ViewModelProvider.Factory factory);
@@ -82,6 +84,11 @@ package androidx.lifecycle.viewmodel {
 
   public interface CreationExtras {
     method public operator <T> T? get(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key);
+  }
+
+  public static final class CreationExtras.Empty implements androidx.lifecycle.viewmodel.CreationExtras {
+    method public <T> T? get(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key);
+    field public static final androidx.lifecycle.viewmodel.CreationExtras.Empty INSTANCE;
   }
 
   public static interface CreationExtras.Key<T> {

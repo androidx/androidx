@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.DE
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.defaultFactory
 import androidx.lifecycle.viewmodel.CreationExtras.Key
 import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.VIEW_MODEL_KEY
+import androidx.lifecycle.viewmodel.CombinedCreationExtras
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import java.lang.IllegalArgumentException
@@ -34,14 +35,20 @@ import java.lang.reflect.InvocationTargetException
  *
  * Default `ViewModelProvider` for an `Activity` or a `Fragment` can be obtained
  * by passing it to the constructor: `ViewModelProvider(myFragment)`
- *
- * @param store  `ViewModelStore` where ViewModels will be stored.
- * @param factory factory a `Factory` which will be used to instantiate
- * new `ViewModels`
  */
-public open class ViewModelProvider(
+public open class ViewModelProvider
+/**
+ * Creates a ViewModelProvider
+ *
+ * @param store `ViewModelStore` where ViewModels will be stored.
+ * @param factory factory a `Factory` which will be used to instantiate new `ViewModels`
+ * @param defaultCreationExtras extras to pass to a factory
+ */
+@JvmOverloads
+constructor(
     private val store: ViewModelStore,
-    private val factory: Factory
+    private val factory: Factory,
+    private val defaultCreationExtras: CreationExtras = CreationExtras.Empty,
 ) {
     /**
      * Implementations of `Factory` interface are responsible to instantiate ViewModels.
@@ -93,7 +100,7 @@ public open class ViewModelProvider(
      */
     public constructor(
         owner: ViewModelStoreOwner
-    ) : this(owner.viewModelStore, defaultFactory(owner))
+    ) : this(owner.viewModelStore, defaultFactory(owner), defaultCreationExtras(owner))
 
     /**
      * Creates `ViewModelProvider`, which will create `ViewModels` via the given
@@ -106,7 +113,8 @@ public open class ViewModelProvider(
      */
     public constructor(owner: ViewModelStoreOwner, factory: Factory) : this(
         owner.viewModelStore,
-        factory
+        factory,
+        defaultCreationExtras(owner)
     )
 
     /**
@@ -158,7 +166,10 @@ public open class ViewModelProvider(
         }
         val extras = MutableCreationExtras()
         extras[VIEW_MODEL_KEY] = key
-        return factory.create(modelClass, extras).also { store.put(key, it) }
+        return factory.create(
+            modelClass,
+            CombinedCreationExtras(extras, defaultCreationExtras)
+        ).also { store.put(key, it) }
     }
 
     /**
@@ -262,6 +273,12 @@ public open class ViewModelProvider(
             }
         }
     }
+}
+
+internal fun defaultCreationExtras(owner: ViewModelStoreOwner): CreationExtras {
+    return if (owner is HasDefaultViewModelProviderFactory) {
+        owner.defaultViewModelCreationExtras
+    } else CreationExtras.Empty
 }
 
 /**
