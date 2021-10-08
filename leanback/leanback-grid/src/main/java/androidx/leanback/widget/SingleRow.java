@@ -1,15 +1,17 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package androidx.leanback.widget;
 
@@ -112,7 +114,7 @@ class SingleRow extends Grid {
         for (int index = getStartIndexForAppend(); index < mProvider.getCount(); index++) {
             int size = mProvider.createItem(index, true, mTmpItem, false);
             int edge;
-            if (mFirstVisibleIndex < 0 || mLastVisibleIndex< 0) {
+            if (mFirstVisibleIndex < 0 || mLastVisibleIndex < 0) {
                 edge = mReversedFlow ? Integer.MAX_VALUE : Integer.MIN_VALUE;
                 mLastVisibleIndex = mFirstVisibleIndex = index;
             } else {
@@ -134,7 +136,7 @@ class SingleRow extends Grid {
 
     @Override
     public void collectAdjacentPrefetchPositions(int fromLimit, int da,
-        @NonNull RecyclerView.LayoutManager.LayoutPrefetchRegistry layoutPrefetchRegistry) {
+            @NonNull RecyclerView.LayoutManager.LayoutPrefetchRegistry layoutPrefetchRegistry) {
         int indexToPrefetch;
         int nearestEdge;
         if (mReversedFlow ? da > 0 : da < 0) {
@@ -190,5 +192,4 @@ class SingleRow extends Grid {
         return mReversedFlow ? mProvider.getEdge(indexLimit)
                 : mProvider.getEdge(indexLimit) + mProvider.getSize(indexLimit);
     }
-
 }
