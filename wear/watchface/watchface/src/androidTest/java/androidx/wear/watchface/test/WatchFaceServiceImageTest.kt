@@ -270,7 +270,7 @@ public class WatchFaceServiceImageTest {
                             ComplicationTapActivity::class.java
                         ).apply {
                         },
-                        PendingIntent.FLAG_ONE_SHOT
+                        PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
                     )
                 )
                 .build()

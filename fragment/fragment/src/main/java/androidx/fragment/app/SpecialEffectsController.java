@@ -754,6 +754,14 @@ abstract class SpecialEffectsController {
                     view.setVisibility(View.INVISIBLE);
                 }
                 view.setAlpha(fragment.getPostOnViewCreatedAlpha());
+            } else if (getLifecycleImpact() == LifecycleImpact.REMOVING) {
+                Fragment fragment = mFragmentStateManager.getFragment();
+                View view = fragment.requireView();
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(FragmentManager.TAG, "Clearing focus " + view.findFocus() + " on view "
+                            + view + " for Fragment " + fragment);
+                }
+                view.clearFocus();
             }
         }
 

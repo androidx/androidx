@@ -33,6 +33,7 @@ import androidx.wear.compose.material.samples.SimpleScalingLazyColumn
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContentPadding
 import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
+import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material.samples.TimeTextWithCustomSeparator
 import androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
 import androidx.wear.compose.material.samples.TitleCardStandard
@@ -47,13 +48,27 @@ internal val SwipeToDismissDemos =
     DemoCategory(
         "Swipe to Dismiss",
         listOf(
-            ComposableDemo("Sample") { navigateBack ->
-                SimpleSwipeToDismissBox(navigateBack = navigateBack)
-            },
-            ComposableDemo("Demo") { navigateBack ->
-                val state = remember { mutableStateOf(SwipeDismissDemoState.List) }
-                SwipeToDismissDemo(navigateBack = navigateBack, demoState = state)
-            },
+            DemoCategory(
+                "Samples",
+                listOf(
+                    ComposableDemo("Simple") { navBack ->
+                        SimpleSwipeToDismissBox(navBack)
+                    },
+                    ComposableDemo("Stateful") { StatefulSwipeToDismissBox() },
+                )
+            ),
+            DemoCategory(
+                "Demos",
+                listOf(
+                    ComposableDemo("Demo") { navigateBack ->
+                        val state = remember { mutableStateOf(SwipeDismissDemoState.List) }
+                        SwipeToDismissDemo(navigateBack = navigateBack, demoState = state)
+                    },
+                    ComposableDemo("Stateful Demo") { navigateBack ->
+                        SwipeToDismissBoxWithState(navigateBack)
+                    },
+                )
+            )
         )
     )
 
@@ -64,27 +79,37 @@ val WearMaterialDemos = DemoCategory(
         DemoCategory(
             "TimeText",
             listOf(
-                ComposableDemo("Clock only") {
-                    TimeTextClockOnly()
-                },
-                ComposableDemo("Clock with leading text") {
-                    TimeTextWithLeadingText()
-                },
-                ComposableDemo("Clock with trailing text") {
-                    TimeTextWithTrailingText()
-                },
-                ComposableDemo("Clock with leading and trailing text") {
-                    TimeTextWithLeadingAndTrailingText()
-                },
-                ComposableDemo("Clock with custom separator") {
-                    TimeTextWithCustomSeparator()
-                },
-                ComposableDemo("Clock with full date and time format") {
-                    TimeTextWithFullDateAndTimeFormat()
-                },
-                ComposableDemo("Clock with padding") {
-                    TimeTextWithPadding()
-                },
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Clock with custom separator") {
+                            TimeTextWithCustomSeparator()
+                        },
+                        ComposableDemo("Clock with full date and time format") {
+                            TimeTextWithFullDateAndTimeFormat()
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Clock only") {
+                            TimeTextClockOnly()
+                        },
+                        ComposableDemo("Clock with leading text") {
+                            TimeTextWithLeadingText()
+                        },
+                        ComposableDemo("Clock with trailing text") {
+                            TimeTextWithTrailingText()
+                        },
+                        ComposableDemo("Clock with leading and trailing text") {
+                            TimeTextWithLeadingAndTrailingText()
+                        },
+                        ComposableDemo("Clock with padding") {
+                            TimeTextWithPadding()
+                        },
+                    )
+                ),
             )
         ),
         DemoCategory(
@@ -109,7 +134,8 @@ val WearMaterialDemos = DemoCategory(
                 )
             )
         ),
-        DemoCategory("ToggleButton",
+        DemoCategory(
+            "ToggleButton",
             listOf(
                 ComposableDemo("Sample") { Centralize({ ToggleButtonWithIcon() }) },
                 ComposableDemo("Demos") { ToggleButtons() },
@@ -155,7 +181,8 @@ val WearMaterialDemos = DemoCategory(
                         }
                     )
                 ),
-                DemoCategory("Demos",
+                DemoCategory(
+                    "Demos",
                     listOf(
                         ComposableDemo("Toggle chip") { ToggleChips() },
                         ComposableDemo("RTL Toggle chip") { RtlToggleChips() },
@@ -163,7 +190,8 @@ val WearMaterialDemos = DemoCategory(
                 )
             )
         ),
-        DemoCategory("Card",
+        DemoCategory(
+            "Card",
             listOf(
                 DemoCategory(
                     "Samples",

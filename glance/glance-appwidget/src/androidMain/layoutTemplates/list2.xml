@@ -15,4 +15,5 @@
   -->
 
 <ListView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@id/glanceListView2" />
+    android:id="@id/glanceListView2"
+    android:divider="@null"  />

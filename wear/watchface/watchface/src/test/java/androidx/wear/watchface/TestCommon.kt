@@ -248,8 +248,10 @@ public fun createComplicationData(): androidx.wear.watchface.complications.data.
         .setShortText(ComplicationText.plainText("Test Text"))
         .setTapAction(
             PendingIntent.getActivity(
-                ApplicationProvider.getApplicationContext(), 0,
-                Intent("Fake intent"), 0
+                ApplicationProvider.getApplicationContext(),
+                0,
+                Intent("Fake intent"),
+                PendingIntent.FLAG_IMMUTABLE
             )
         ).build().toApiComplicationData()
 

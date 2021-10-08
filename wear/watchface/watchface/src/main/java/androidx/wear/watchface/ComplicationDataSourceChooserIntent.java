@@ -185,7 +185,8 @@ public class ComplicationDataSourceChooserIntent {
                 watchFace, watchFaceComplicationId, supportedTypes);
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
-                EXTRA_PENDING_INTENT, PendingIntent.getActivity(context, 0, new Intent(""), 0));
+                EXTRA_PENDING_INTENT, PendingIntent.getActivity(
+                        context, 0, new Intent(""), PendingIntent.FLAG_IMMUTABLE));
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }

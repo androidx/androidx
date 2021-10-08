@@ -373,6 +373,7 @@ class FragmentStateManager {
                 }
                 mFragment.mHiddenChanged = false;
                 mFragment.onHiddenChanged(mFragment.mHidden);
+                mFragment.mChildFragmentManager.dispatchOnHiddenChanged();
             }
         } finally {
             mMovingToState = false;

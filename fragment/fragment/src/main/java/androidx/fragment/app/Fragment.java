@@ -1183,14 +1183,16 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Return true if the fragment has been hidden.  By default fragments
+     * Return true if the fragment has been hidden. This includes the case if the fragment is
+     * hidden because its parent is hidden. By default fragments
      * are shown.  You can find out about changes to this state with
      * {@link #onHiddenChanged}.  Note that the hidden state is orthogonal
      * to other states -- that is, to be visible to the user, a fragment
      * must be both started and not hidden.
      */
     final public boolean isHidden() {
-        return mHidden;
+        return mHidden || (mFragmentManager != null
+                && mFragmentManager.isParentHidden(mParentFragment));
     }
 
     /** @hide */
@@ -1209,8 +1211,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     /**
      * Called when the hidden state (as returned by {@link #isHidden()} of
-     * the fragment has changed.  Fragments start out not hidden; this will
-     * be called whenever the fragment changes state from that.
+     * the fragment or another fragment in its hierarchy has changed.  Fragments start out not
+     * hidden; this will be called whenever the fragment changes state from that.
      * @param hidden True if the fragment is now hidden, false otherwise.
      */
     @MainThread

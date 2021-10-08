@@ -38,8 +38,6 @@ dependencies {
     testImplementation(libs.mockitoCore)
     testImplementation(libs.truth)
     testImplementation("junit:junit:4.13")
-
-    samples(project(":wear:watchface:watchface-complications-data-source-samples"))
 }
 
 android {
