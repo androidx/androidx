@@ -33,6 +33,7 @@ import androidx.wear.compose.material.samples.SimpleScalingLazyColumn
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContentPadding
 import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
+import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material.samples.TimeTextWithCustomSeparator
 import androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
 import androidx.wear.compose.material.samples.TitleCardStandard
@@ -47,13 +48,27 @@ internal val SwipeToDismissDemos =
     DemoCategory(
         "Swipe to Dismiss",
         listOf(
-            ComposableDemo("Sample") { navigateBack ->
-                SimpleSwipeToDismissBox(navigateBack = navigateBack)
-            },
-            ComposableDemo("Demo") { navigateBack ->
-                val state = remember { mutableStateOf(SwipeDismissDemoState.List) }
-                SwipeToDismissDemo(navigateBack = navigateBack, demoState = state)
-            },
+            DemoCategory(
+                "Samples",
+                listOf(
+                    ComposableDemo("Simple") { navBack ->
+                        SimpleSwipeToDismissBox(navBack)
+                    },
+                    ComposableDemo("Stateful") { StatefulSwipeToDismissBox() },
+                )
+            ),
+            DemoCategory(
+                "Demos",
+                listOf(
+                    ComposableDemo("Demo") { navigateBack ->
+                        val state = remember { mutableStateOf(SwipeDismissDemoState.List) }
+                        SwipeToDismissDemo(navigateBack = navigateBack, demoState = state)
+                    },
+                    ComposableDemo("Stateful Demo") { navigateBack ->
+                        SwipeToDismissBoxWithState(navigateBack)
+                    },
+                )
+            )
         )
     )
 
