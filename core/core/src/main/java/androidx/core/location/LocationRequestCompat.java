@@ -219,13 +219,13 @@ public final class LocationRequestCompat {
     @RequiresApi(31)
     @NonNull
     public LocationRequest toLocationRequest() {
-        return new LocationRequest.Builder(mIntervalMillis)
-                .setQuality(mQuality)
-                .setMinUpdateIntervalMillis(mMinUpdateIntervalMillis)
-                .setDurationMillis(mDurationMillis)
-                .setMaxUpdates(mMaxUpdates)
-                .setMinUpdateDistanceMeters(mMinUpdateDistanceMeters)
-                .setMaxUpdateDelayMillis(mMaxUpdateDelayMillis)
+        return new LocationRequest.Builder(getIntervalMillis())
+                .setQuality(getQuality())
+                .setMinUpdateIntervalMillis(getMinUpdateIntervalMillis())
+                .setDurationMillis(getDurationMillis())
+                .setMaxUpdates(getMaxUpdates())
+                .setMinUpdateDistanceMeters(getMinUpdateDistanceMeters())
+                .setMaxUpdateDelayMillis(getMaxUpdateDelayMillis())
                 .build();
     }
 
@@ -256,8 +256,8 @@ public final class LocationRequestCompat {
 
                 LocationRequest request =
                         (LocationRequest) sCreateFromDeprecatedProviderMethod.invoke(null, provider,
-                                mIntervalMillis,
-                                mMinUpdateDistanceMeters, false);
+                                getIntervalMillis(),
+                                getMinUpdateDistanceMeters(), false);
                 if (request == null) {
                     return null;
                 }
@@ -267,36 +267,34 @@ public final class LocationRequestCompat {
                             "setQuality", int.class);
                     sSetQualityMethod.setAccessible(true);
                 }
-                sSetQualityMethod.invoke(request, mQuality);
+                sSetQualityMethod.invoke(request, getQuality());
 
-                if (getMinUpdateIntervalMillis() != mIntervalMillis) {
-                    if (sSetFastestIntervalMethod == null) {
-                        sSetFastestIntervalMethod = LocationRequest.class.getDeclaredMethod(
-                                "setFastestInterval", long.class);
-                        sSetFastestIntervalMethod.setAccessible(true);
-                    }
-
-                    sSetFastestIntervalMethod.invoke(request, mMinUpdateIntervalMillis);
+                if (sSetFastestIntervalMethod == null) {
+                    sSetFastestIntervalMethod = LocationRequest.class.getDeclaredMethod(
+                            "setFastestInterval", long.class);
+                    sSetFastestIntervalMethod.setAccessible(true);
                 }
 
-                if (mMaxUpdates < Integer.MAX_VALUE) {
+                sSetFastestIntervalMethod.invoke(request, getMinUpdateIntervalMillis());
+
+                if (getMaxUpdates() < Integer.MAX_VALUE) {
                     if (sSetNumUpdatesMethod == null) {
                         sSetNumUpdatesMethod = LocationRequest.class.getDeclaredMethod(
                                 "setNumUpdates", int.class);
                         sSetNumUpdatesMethod.setAccessible(true);
                     }
 
-                    sSetNumUpdatesMethod.invoke(request, mMaxUpdates);
+                    sSetNumUpdatesMethod.invoke(request, getMaxUpdates());
                 }
 
-                if (mDurationMillis < Long.MAX_VALUE) {
+                if (getDurationMillis() < Long.MAX_VALUE) {
                     if (sSetExpireInMethod == null) {
                         sSetExpireInMethod = LocationRequest.class.getDeclaredMethod(
                                 "setExpireIn", long.class);
                         sSetExpireInMethod.setAccessible(true);
                     }
 
-                    sSetExpireInMethod.invoke(request, mDurationMillis);
+                    sSetExpireInMethod.invoke(request, getDurationMillis());
                 }
 
                 return request;
