@@ -128,7 +128,6 @@ internal class LayoutGenerator {
                 setNamedItemNS(generated.androidWeight("1"))
             }
             setNamedItemNS(generated.androidLayoutDirection("locale"))
-            setNamedItemNS(generated.androidClipToOutline(true))
         }
         return generated
     }
@@ -228,7 +227,6 @@ internal class LayoutGenerator {
                 setNamedItemNS(generated.androidAttr("layout_alignBottom", "@id/sizeView"))
             }
             setNamedItemNS(generated.androidLayoutDirection("locale"))
-            setNamedItemNS(generated.androidClipToOutline(true))
         }
         return generated
     }
@@ -270,9 +268,6 @@ internal fun Document.androidWeight(value: String) = androidAttr("layout_weight"
 
 internal fun Document.androidLayoutDirection(value: String) =
     androidAttr("layoutDirection", value)
-
-internal fun Document.androidClipToOutline(value: Boolean) =
-    androidAttr("clipToOutline", value.toString())
 
 internal val Document.androidNamespace
     get() = createAttribute("xmlns:android").apply {
