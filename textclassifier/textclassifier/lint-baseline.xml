@@ -2609,17 +2609,6 @@
     </issue>
 
     <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 28 here from outer annotations"
-        errorLine1="    @RequiresApi(28)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/textclassifier/PlatformEntityConfigWrapper.java"
-            line="81"
-            column="5"/>
-    </issue>
-
-    <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 23; however, the containing class androidx.textclassifier.widget.ToolbarController.OnToolbarDismissListener is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mTextView.setCustomInsertionActionModeCallback(mInsertionCallback);"
@@ -2837,6 +2826,17 @@
             file="src/main/java/androidx/textclassifier/widget/ToolbarController.java"
             line="131"
             column="22"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 28 here from outer annotations"
+        errorLine1="    @RequiresApi(28)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/PlatformEntityConfigWrapper.java"
+            line="81"
+            column="5"/>
     </issue>
 
 </issues>

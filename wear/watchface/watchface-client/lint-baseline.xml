@@ -56,4 +56,59 @@
             column="22"/>
     </issue>
 
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override val previewReferenceInstant: Instant"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/client/HeadlessWatchFaceClient.kt"
+            line="174"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override fun toBundle() = Bundle().apply {"
+        errorLine2="                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/client/HeadlessWatchFaceClient.kt"
+            line="253"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override val previewReferenceInstant: Instant"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/client/InteractiveWatchFaceClient.kt"
+            line="315"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override val instanceId: String"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/client/InteractiveWatchFaceClient.kt"
+            line="336"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override fun getInteractiveWatchFaceClientInstance("
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/client/WatchFaceControlClient.kt"
+            line="243"
+            column="18"/>
+    </issue>
+
 </issues>

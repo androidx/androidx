@@ -23,4 +23,48 @@
             column="5"/>
     </issue>
 
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    internal fun List&lt;Value>.getPrevKey() = firstOrNull()?.let { getKey(it) }"
+        errorLine2="                             ~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/paging/ItemKeyedDataSource.kt"
+            line="182"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    internal fun List&lt;Value>.getNextKey() = lastOrNull()?.let { getKey(it) }"
+        errorLine2="                             ~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/paging/ItemKeyedDataSource.kt"
+            line="183"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    internal val firstLoadedItem: T"
+        errorLine2="                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/paging/PagedStorage.kt"
+            line="35"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    internal val lastLoadedItem: T"
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/paging/PagedStorage.kt"
+            line="37"
+            column="18"/>
+    </issue>
+
 </issues>

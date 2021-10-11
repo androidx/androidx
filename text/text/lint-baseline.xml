@@ -12,4 +12,15 @@
             column="1"/>
     </issue>
 
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    val text: CharSequence"
+        errorLine2="        ~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/text/android/TextLayout.kt"
+            line="218"
+            column="9"/>
+    </issue>
+
 </issues>

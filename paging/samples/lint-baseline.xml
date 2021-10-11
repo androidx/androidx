@@ -23,4 +23,92 @@
             column="5"/>
     </issue>
 
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    internal fun List&lt;Value>.getPrevKey() = firstOrNull()?.let { getKey(it) }"
+        errorLine2="                             ~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/paging/ItemKeyedDataSource.kt"
+            line="182"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    internal fun List&lt;Value>.getNextKey() = lastOrNull()?.let { getKey(it) }"
+        errorLine2="                             ~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/paging/ItemKeyedDataSource.kt"
+            line="183"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    fun setCoroutineScope(coroutineScope: CoroutineScope) = this.apply {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/LivePagedListBuilder.kt"
+            line="216"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    fun setInitialLoadKey(key: Key?) = this.apply {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/LivePagedListBuilder.kt"
+            line="229"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    fun setBoundaryCallback("
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/LivePagedListBuilder.kt"
+            line="253"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    fun setFetchExecutor(fetchExecutor: Executor) = this.apply {"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/LivePagedListBuilder.kt"
+            line="272"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    internal val firstLoadedItem: T"
+        errorLine2="                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/paging/PagedStorage.kt"
+            line="35"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    internal val lastLoadedItem: T"
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/paging/PagedStorage.kt"
+            line="37"
+            column="18"/>
+    </issue>
+
 </issues>

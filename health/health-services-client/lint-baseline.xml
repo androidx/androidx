@@ -905,6 +905,39 @@
 
     <issue
         id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override val capabilities: ListenableFuture&lt;ExerciseCapabilities>"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ServiceBackedExerciseClient.kt"
+            line="160"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override val capabilities: ListenableFuture&lt;MeasureCapabilities>"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ServiceBackedMeasureClient.kt"
+            line="92"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override val capabilities: ListenableFuture&lt;PassiveMonitoringCapabilities>"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/services/client/impl/ServiceBackedPassiveMonitoringClient.kt"
+            line="95"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        void onConnected(ServiceConnection connection);"
         errorLine2="                         ~~~~~~~~~~~~~~~~~">
