@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro
 
+import android.os.Build
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.DeviceInfo
@@ -95,6 +96,12 @@ public sealed class CompilationMode(
  * For more information: https://source.android.com/devices/tech/dalvik/jit-compiler
  */
 internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
+    if (Build.VERSION.SDK_INT < 24) {
+        // All supported versions prior to 24 were full AOT
+        // TODO: clarify this with CompilationMode errors on these versions
+        return
+    }
+
     // Clear profile between runs.
     Log.d(TAG, "Clearing profiles for $packageName")
     Shell.executeCommand("cmd package compile --reset $packageName")
