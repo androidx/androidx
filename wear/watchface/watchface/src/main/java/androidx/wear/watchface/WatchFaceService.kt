@@ -28,6 +28,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
 import android.os.PowerManager
+import android.os.Process
 import android.os.RemoteException
 import android.os.Trace
 import android.service.wallpaper.WallpaperService
@@ -300,11 +301,14 @@ public abstract class WatchFaceService : WallpaperService() {
 
     internal var backgroundThread: HandlerThread? = null
 
-    /** This is open for testing. */
+    /** This is open for testing. The background thread is used for watch face initialization. */
     internal open fun getBackgroundThreadHandlerImpl(): Handler {
         synchronized(this) {
             if (backgroundThread == null) {
-                backgroundThread = HandlerThread("WatchFaceBackground").apply { start() }
+                backgroundThread = HandlerThread(
+                    "WatchFaceBackground",
+                    Process.THREAD_PRIORITY_FOREGROUND // The user is waiting on WF init.
+                ).apply { start() }
             }
             return Handler(backgroundThread!!.looper)
         }
