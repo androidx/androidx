@@ -56,6 +56,10 @@ fun collectBaselineProfile(
         "Baseline Profile Collection requires API 28 or higher."
     }
 
+    require(Shell.isSessionRooted()) {
+        "Baseline Profile Collection requires a rooted session. Use `adb root`."
+    }
+
     errors.checkAndGetSuppressionState(emptySet())
 
     val startTime = System.nanoTime()
@@ -73,6 +77,8 @@ fun collectBaselineProfile(
         }
         // The path of the reference profile
         val referenceProfile = "/data/misc/profiles/ref/$packageName/primary.prof"
+        // The path to the primary profile
+        val currentProfile = "/data/misc/profiles/cur/0/$packageName/primary.prof"
         Log.d(TAG, "Reference profile location: $referenceProfile")
         val pathResult = Shell.executeScript("pm path $packageName")
         // The result looks like: `package: <result>`
@@ -80,15 +86,8 @@ fun collectBaselineProfile(
         Log.d(TAG, "APK Path: $apkPath")
         // Convert to HRF
         Log.d(TAG, "Converting to human readable profile format")
-        val profile = Shell.executeScript(
-            "profman --dump-classes-and-methods --profile-file=$referenceProfile --apk=$apkPath"
-        )
-        require(profile.isNotBlank()) {
-            """
-                The profile is empty. This usually happens when you forget to `adb root` before
-                "running the test."
-            """.trimIndent()
-        }
+        // Look at reference profile first, and then fallback to current profile
+        val profile = profile(apkPath, listOf(referenceProfile, currentProfile))
         InstrumentationResults.instrumentationReport {
             val fileName = "$uniqueName-baseline-prof.txt"
             val absolutePath = Outputs.writeFile(fileName, "baseline-profile") {
@@ -102,6 +101,22 @@ fun collectBaselineProfile(
     } finally {
         scope.killProcess()
     }
+}
+
+private fun profile(apkPath: String, pathOptions: List<String>): String {
+    // When compiling with CompilationMode.SpeedProfile, ART stores the profile in one of
+    // 2 locations. The `ref` profile path, or the `current` path.
+    // The `current` path is eventually merged  into the `ref` path after background dexopt.
+    for (currentPath in pathOptions) {
+        Log.d(TAG, "Using profile location: $currentPath")
+        val profile = Shell.executeScript(
+            "profman --dump-classes-and-methods --profile-file=$currentPath --apk=$apkPath"
+        )
+        if (profile.isNotBlank()) {
+            return profile
+        }
+    }
+    throw IllegalStateException("The profile is empty.")
 }
 
 private fun summaryRecord(totalRunTime: Long, absolutePath: String): String {
