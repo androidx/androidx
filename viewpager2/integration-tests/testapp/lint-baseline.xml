@@ -23,4 +23,26 @@
             column="25"/>
     </issue>
 
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    fun removeAt(position: Int) = items.removeAt(position)"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager2/integration/testapp/MutableCollectionBaseActivity.kt"
+            line="146"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="        fun create(itemText: String) ="
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager2/integration/testapp/MutableCollectionFragmentActivity.kt"
+            line="98"
+            column="13"/>
+    </issue>
+
 </issues>

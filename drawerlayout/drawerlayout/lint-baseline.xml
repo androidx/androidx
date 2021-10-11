@@ -2,6 +2,17 @@
 <issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                final TypedArray a = context.obtainStyledAttributes(THEME_ATTRS);"
+        errorLine2="                                                                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/drawerlayout/widget/DrawerLayout.java"
+            line="378"
+            column="69"/>
+    </issue>
+
+    <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 23; however, the containing class androidx.drawerlayout.widget.DrawerLayout is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            WindowInsets rootInsets = getRootWindowInsets();"

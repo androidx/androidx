@@ -133,4 +133,26 @@
             column="5"/>
     </issue>
 
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    internal fun addToWireComplicationData(builder: WireComplicationDataBuilder) = builder.apply {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/complications/data/Image.kt"
+            line="57"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    internal fun addToWireComplicationData(builder: WireComplicationDataBuilder) = builder.apply {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/watchface/complications/data/Image.kt"
+            line="125"
+            column="18"/>
+    </issue>
+
 </issues>

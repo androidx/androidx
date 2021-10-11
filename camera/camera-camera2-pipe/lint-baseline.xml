@@ -144,4 +144,92 @@
             column="1"/>
     </issue>
 
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override val keys: Set&lt;CameraCharacteristics.Key&lt;*>> get() = _keys.value"
+        errorLine2="                 ~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/pipe/compat/Camera2CameraMetadata.kt"
+            line="87"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override val requestKeys: Set&lt;CaptureRequest.Key&lt;*>> get() = _requestKeys.value"
+        errorLine2="                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/pipe/compat/Camera2CameraMetadata.kt"
+            line="88"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override val resultKeys: Set&lt;CaptureResult.Key&lt;*>> get() = _resultKeys.value"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/pipe/compat/Camera2CameraMetadata.kt"
+            line="89"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override val sessionKeys: Set&lt;CaptureRequest.Key&lt;*>> get() = _sessionKeys.value"
+        errorLine2="                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/pipe/compat/Camera2CameraMetadata.kt"
+            line="90"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override val physicalCameraIds: Set&lt;CameraId> get() = _physicalCameraIds.value"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/pipe/compat/Camera2CameraMetadata.kt"
+            line="91"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    override val physicalRequestKeys: Set&lt;CaptureRequest.Key&lt;*>>"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/pipe/compat/Camera2CameraMetadata.kt"
+            line="92"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    val camera2Handler: Handler"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/pipe/core/Threads.kt"
+            line="41"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Should explicitly declare type here since implicit type does not specify nullness"
+        errorLine1="    val camera2Executor: Executor"
+        errorLine2="        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/pipe/core/Threads.kt"
+            line="43"
+            column="9"/>
+    </issue>
+
 </issues>
