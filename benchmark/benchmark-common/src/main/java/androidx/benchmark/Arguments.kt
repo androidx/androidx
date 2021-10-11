@@ -59,7 +59,12 @@ public object Arguments {
         val argumentName = "profiling.mode"
         val argumentValue = getBenchmarkArgument(argumentName, "")
         val profiler = Profiler.getByName(argumentValue)
-        if (profiler == null && argumentValue.isNotEmpty()) {
+        if (profiler == null &&
+            argumentValue.isNotEmpty() &&
+            // 'none' is documented as noop (and works better in gradle than
+            // an empty string, if a value must be specified)
+            argumentValue.trim().lowercase() != "none"
+        ) {
             error = "Could not parse $prefix$argumentName=$argumentValue"
             return null
         }
