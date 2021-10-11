@@ -86,7 +86,9 @@ public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
  * This property can be accessed only after this NavGraph is on the NavController back stack,
  * and an attempt access prior to that will result in an IllegalArgumentException.
  *
- * @param navGraphRoute route of a NavGraph that exists on the [NavController] back stack
+ * @param navGraphRoute [NavDestination.route] of a NavGraph that exists on the [NavController]
+ * back stack. If a [NavDestination] with the given route does not exist on the back stack, an
+ * [IllegalArgumentException] will be thrown.
  */
 @MainThread
 public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
