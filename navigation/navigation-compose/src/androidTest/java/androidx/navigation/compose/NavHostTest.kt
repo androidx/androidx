@@ -440,6 +440,7 @@ class NavHostTest {
         }
     }
 
+    @OptIn(androidx.navigation.NavControllerVisibleEntries::class)
     @Test
     fun testNavHostCrossFade() {
         lateinit var navController: NavHostController
