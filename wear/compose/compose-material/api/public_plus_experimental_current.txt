@@ -77,8 +77,8 @@ package androidx.wear.compose.material {
   }
 
   @androidx.compose.runtime.Stable public final class Colors {
-    ctor public Colors(optional long primary, optional long primaryVariant, optional long secondary, optional long secondaryVariant, optional long error, optional long onPrimary, optional long onSecondary, optional long onError);
-    method public androidx.wear.compose.material.Colors copy(optional long primary, optional long primaryVariant, optional long secondary, optional long secondaryVariant, optional long error, optional long onPrimary, optional long onSecondary, optional long onError);
+    ctor public Colors(optional long primary, optional long primaryVariant, optional long secondary, optional long secondaryVariant, optional long background, optional long surface, optional long error, optional long onPrimary, optional long onSecondary, optional long onBackground, optional long onSurface, optional long onSurfaceVariant, optional long onSurfaceVariant2, optional long onError);
+    method public androidx.wear.compose.material.Colors copy(optional long primary, optional long primaryVariant, optional long secondary, optional long secondaryVariant, optional long background, optional long surface, optional long error, optional long onPrimary, optional long onSecondary, optional long onBackground, optional long onSurface, optional long onSurfaceVariant, optional long onSurfaceVariant2, optional long onError);
     method public long getBackground();
     method public long getError();
     method public long getOnBackground();
