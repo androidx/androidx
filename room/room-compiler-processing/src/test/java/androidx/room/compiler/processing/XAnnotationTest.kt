@@ -163,10 +163,10 @@ class XAnnotationTest(
             val element = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
             val annotation = element.requireAnnotation<TestSuppressWarnings>()
 
-            val argument = annotation.annotationValues.single()
+            val argument = annotation.getAnnotationValue("value")
             assertThat(argument.name).isEqualTo("value")
             assertThat(
-                argument.value
+                argument.asStringList()
             ).isEqualTo(
                 listOf("warning1", "warning 2")
             )
@@ -192,10 +192,10 @@ class XAnnotationTest(
             val annotation =
                 element.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
 
-            val argument = annotation.annotationValues.single()
+            val argument = annotation.getAnnotationValue("value")
             assertThat(argument.name).isEqualTo("value")
             assertThat(
-                argument.value
+                argument.asStringList()
             ).isEqualTo(
                 listOf("warning1", "warning 2")
             )
@@ -857,10 +857,12 @@ class XAnnotationTest(
             val annotation =
                 element.requireAnnotation(ClassName.get(JavaAnnotationWithDefaults::class.java))
 
-            // Even though not necessary for calling from Kotlin, use the version that passes
-            // in a Class to test it.
-            assertThat(annotation.get("stringVal", String::class.java)).isEqualTo("test")
-            assertThat(annotation.get("intVal", Int::class.javaObjectType)).isEqualTo(3)
+            assertThat(annotation.get<String>("stringVal")).isEqualTo("test")
+            assertThat(annotation.get<Int>("intVal")).isEqualTo(3)
+
+            // Also test reading theses values through getAs*() methods
+            assertThat(annotation.getAsString("stringVal")).isEqualTo("test")
+            assertThat(annotation.getAsInt("intVal")).isEqualTo(3)
         }
     }
 
