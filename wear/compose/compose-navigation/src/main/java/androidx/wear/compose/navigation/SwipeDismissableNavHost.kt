@@ -96,6 +96,8 @@ public fun SwipeDismissableNavHost(
  * @param navController [NavHostController] for this host
  * @param graph Graph for this host
  * @param modifier [Modifier] to be applied to the layout.
+ *
+ * @throws IllegalArgumentException if no WearNavigation.Destination is on the navigation backstack.
  */
 @ExperimentalWearMaterialApi
 @Composable
@@ -106,7 +108,8 @@ public fun SwipeDismissableNavHost(
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
-        "NavHost requires a ViewModelStoreOwner to be provided via LocalViewModelStoreOwner"
+        "SwipeDismissableNavHost requires a ViewModelStoreOwner to be provided " +
+            "via LocalViewModelStoreOwner"
     }
 
     // Setup the navController with proper owners
@@ -125,7 +128,10 @@ public fun SwipeDismissableNavHost(
     ) as? WearNavigator ?: return
     val backStack by composeNavigator.backStack.collectAsState()
     val previous = if (backStack.size <= 1) null else backStack[backStack.lastIndex - 1]
-    val current = if (backStack.isEmpty()) null else backStack.last()
+    val current = if (backStack.isNotEmpty()) backStack.last() else throw IllegalArgumentException(
+        "No WearNavigation.Destination has been added to the WearNavigator in this NavGraph. " +
+            "For convenience, build NavGraph using androidx.wear.compose.navigation.composable."
+    )
 
     val state = rememberSwipeToDismissBoxState()
     LaunchedEffect(state.currentValue) {
@@ -140,7 +146,7 @@ public fun SwipeDismissableNavHost(
         modifier = Modifier,
         hasBackground = previous != null,
         backgroundKey = previous?.id ?: SwipeToDismissBoxDefaults.BackgroundKey,
-        contentKey = current?.id ?: SwipeToDismissBoxDefaults.ContentKey,
+        contentKey = current.id,
         content = { isBackground ->
             BoxedStackEntryContent(if (isBackground) previous else current, stateHolder, modifier)
         }
