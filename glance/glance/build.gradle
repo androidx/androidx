@@ -17,7 +17,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.Publish
-import androidx.build.RunApiTasks
 import androidx.build.AndroidXComposePlugin
 
 plugins {
@@ -38,6 +37,8 @@ dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
     implementation(libs.kotlinStdlib)
 
+    testImplementation(libs.robolectric)
+    testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
