@@ -33,8 +33,8 @@ android {
 dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout)
-    implementation("androidx.arch.core:core-runtime:2.1.0")
     implementation("androidx.appcompat:appcompat:1.2.0")
+    implementation("androidx.activity:activity:1.3.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation(libs.material)
 }

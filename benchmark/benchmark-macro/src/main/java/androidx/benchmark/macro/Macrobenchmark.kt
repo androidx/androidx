@@ -139,6 +139,9 @@ private fun macrobenchmark(
         }
     }
 
+    // package name for macrobench process, so it's captured as well
+    val macrobenchPackageName = InstrumentationRegistry.getInstrumentation().context.packageName
+
     // Perfetto collector is separate from metrics, so we can control file
     // output, and give it different (test-wide) lifecycle
     val perfettoCollector = PerfettoCaptureWrapper()
@@ -157,7 +160,20 @@ private fun macrobenchmark(
             val tracePath = perfettoCollector.record(
                 benchmarkName = uniqueName,
                 iteration = iteration,
-                packages = listOf(packageName)
+
+                /**
+                 * Prior to API 24, every package name was joined into a single setprop which can
+                 * overflow, and disable *ALL* app level tracing.
+                 *
+                 * For safety here, we only trace the macrobench package on newer platforms.
+                 * Eventually, we should find alternative methods - such as force-enabling tracing
+                 * within macrobench process via reflection.
+                 */
+                packages = if (Build.VERSION.SDK_INT >= 24) {
+                    listOf(packageName, macrobenchPackageName)
+                } else {
+                    listOf(packageName)
+                }
             ) {
                 try {
                     userspaceTrace("start metrics") {
