@@ -60,6 +60,7 @@ package androidx.glance.action {
   }
 
   public final class LaunchActivityActionKt {
+    method public static androidx.glance.action.Action launchActivityAction(android.content.ComponentName componentName);
     method public static <T extends android.app.Activity> androidx.glance.action.Action launchActivityAction(Class<T> activity);
     method public static inline <reified T extends android.app.Activity> androidx.glance.action.Action! launchActivityAction();
   }
