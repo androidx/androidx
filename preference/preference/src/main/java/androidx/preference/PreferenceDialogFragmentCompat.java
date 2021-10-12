@@ -74,6 +74,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
     /** Which button was clicked. */
     private int mWhichButtonClicked;
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -170,6 +171,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
      *
      * @return The {@link DialogPreference} associated with this dialog
      */
+    @SuppressWarnings("deprecation")
     public DialogPreference getPreference() {
         if (mPreference == null) {
             final String key = getArguments().getString(ARG_KEY);
