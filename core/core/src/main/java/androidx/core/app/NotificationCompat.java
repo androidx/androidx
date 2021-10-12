@@ -436,6 +436,15 @@ public class NotificationCompat {
     public static final String EXTRA_PICTURE = "android.picture";
 
     /**
+     * {@link #extras} key: this is a content description of the big picture supplied from
+     * {@link BigPictureStyle#bigPicture(Bitmap)}, supplied to
+     * {@link BigPictureStyle#setContentDescription(CharSequence)}.
+     */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
+    public static final String EXTRA_PICTURE_CONTENT_DESCRIPTION =
+            "android.pictureContentDescription";
+
+    /**
      * {@link #getExtras extras} key: this is a boolean to indicate that the
      * {@link BigPictureStyle#bigPicture(Bitmap) big picture} is to be shown in the collapsed state
      * of a {@link BigPictureStyle} notification.  This will replace a
@@ -3032,6 +3041,7 @@ public class NotificationCompat {
         private Bitmap mPicture;
         private IconCompat mBigLargeIcon;
         private boolean mBigLargeIconSet;
+        private CharSequence mPictureContentDescription;
         private boolean mShowBigPictureWhenCollapsed;
 
         public BigPictureStyle() {
@@ -3056,6 +3066,17 @@ public class NotificationCompat {
         public @NonNull BigPictureStyle setSummaryText(@Nullable CharSequence cs) {
             mSummaryText = Builder.limitCharSequenceLength(cs);
             mSummaryTextSet = true;
+            return this;
+        }
+
+        /**
+         * Set the content description of the big picture.
+         */
+        @RequiresApi(31)
+        @NonNull
+        public BigPictureStyle setContentDescription(
+                @Nullable CharSequence contentDescription) {
+            mPictureContentDescription = contentDescription;
             return this;
         }
 
@@ -3132,6 +3153,7 @@ public class NotificationCompat {
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     Api31Impl.showBigPictureWhenCollapsed(style, mShowBigPictureWhenCollapsed);
+                    Api31Impl.setContentDescription(style, mPictureContentDescription);
                 }
             }
         }
@@ -3242,6 +3264,15 @@ public class NotificationCompat {
             static void showBigPictureWhenCollapsed(Notification.BigPictureStyle style,
                     boolean show) {
                 style.showBigPictureWhenCollapsed(show);
+            }
+
+            /**
+             * Calls {@link Notification.BigPictureStyle#setContentDescription(CharSequence)}
+             */
+            @RequiresApi(31)
+            static void setContentDescription(Notification.BigPictureStyle style,
+                    CharSequence contentDescription) {
+                style.setContentDescription(contentDescription);
             }
         }
     }
