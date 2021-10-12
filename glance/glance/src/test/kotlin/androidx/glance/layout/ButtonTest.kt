@@ -18,7 +18,7 @@ package androidx.glance.layout
 import android.app.Activity
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LaunchActivityAction
-import androidx.glance.action.launchActivityAction
+import androidx.glance.action.actionLaunchActivity
 import androidx.glance.findModifier
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -40,7 +40,7 @@ class ButtonTest {
     @Test
     fun createComposableButton() = fakeCoroutineScope.runBlockingTest {
         val root = runTestingComposition {
-            Button(text = "button", onClick = launchActivityAction<Activity>(), enabled = true)
+            Button(text = "button", onClick = actionLaunchActivity<Activity>(), enabled = true)
         }
 
         assertThat(root.children).hasSize(1)
@@ -53,7 +53,7 @@ class ButtonTest {
     @Test
     fun createDisabledButton() = fakeCoroutineScope.runBlockingTest {
         val root = runTestingComposition {
-            Button(text = "button", onClick = launchActivityAction<Activity>(), enabled = false)
+            Button(text = "button", onClick = actionLaunchActivity<Activity>(), enabled = false)
         }
 
         assertThat(root.children).hasSize(1)

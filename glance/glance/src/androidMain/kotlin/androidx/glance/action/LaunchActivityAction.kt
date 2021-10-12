@@ -26,27 +26,28 @@ public interface LaunchActivityAction : Action
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class LaunchActivityComponentAction(val componentName: ComponentName) : LaunchActivityAction
+public class LaunchActivityComponentAction(val componentName: ComponentName) : LaunchActivityAction
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class LaunchActivityClassAction(val activityClass: Class<out Activity>) : LaunchActivityAction
+public class LaunchActivityClassAction(val activityClass: Class<out Activity>) :
+    LaunchActivityAction
 
 /**
  * Creates an [Action] that launches the [Activity] specified by the given [ComponentName].
  */
-public fun launchActivityAction(componentName: ComponentName): Action =
+public fun actionLaunchActivity(componentName: ComponentName): Action =
     LaunchActivityComponentAction(componentName)
 
 /**
  * Creates an [Action] that launches the specified [Activity] when triggered.
  */
-public fun <T : Activity> launchActivityAction(activity: Class<T>): Action =
+public fun <T : Activity> actionLaunchActivity(activity: Class<T>): Action =
     LaunchActivityClassAction(activity)
 
 @Suppress("MissingNullability") /* Shouldn't need to specify @NonNull. b/199284086 */
 /**
  * Creates an [Action] that launches the specified [Activity] when triggered.
  */
-public inline fun <reified T : Activity> launchActivityAction(): Action =
-    launchActivityAction(T::class.java)
+public inline fun <reified T : Activity> actionLaunchActivity(): Action =
+    actionLaunchActivity(T::class.java)

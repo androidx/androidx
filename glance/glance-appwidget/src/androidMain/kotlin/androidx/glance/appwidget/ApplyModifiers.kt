@@ -38,7 +38,7 @@ import androidx.glance.action.ActionModifier
 import androidx.glance.action.LaunchActivityAction
 import androidx.glance.action.LaunchActivityClassAction
 import androidx.glance.action.LaunchActivityComponentAction
-import androidx.glance.action.UpdateAction
+import androidx.glance.action.UpdateContentAction
 import androidx.glance.appwidget.action.LaunchActivityIntentAction
 import androidx.glance.layout.Dimension
 import androidx.glance.layout.HeightModifier
@@ -121,7 +121,7 @@ private fun applyAction(
                 )
             rv.setOnClickPendingIntent(viewId, pendingIntent)
         }
-        is UpdateAction -> {
+        is UpdateContentAction -> {
             val pendingIntent =
                 ActionRunnableBroadcastReceiver.createPendingIntent(context, action.runnableClass)
             rv.setOnClickPendingIntent(viewId, pendingIntent)

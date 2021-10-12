@@ -31,7 +31,7 @@ import android.widget.TextView
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.Modifier
-import androidx.glance.action.launchActivityAction
+import androidx.glance.action.actionLaunchActivity
 import androidx.glance.layout.Box
 import androidx.glance.layout.Button
 import androidx.glance.layout.Column
@@ -385,7 +385,7 @@ class GlanceAppWidgetReceiverTest {
     @Test
     fun createButton() {
         TestGlanceAppWidget.uiDefinition = {
-            Button("Button", onClick = launchActivityAction<Activity>(), enabled = false)
+            Button("Button", onClick = actionLaunchActivity<Activity>(), enabled = false)
         }
 
         mHostRule.startHost()

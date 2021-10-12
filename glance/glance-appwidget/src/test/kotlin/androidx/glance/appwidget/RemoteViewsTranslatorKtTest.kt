@@ -36,7 +36,7 @@ import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.core.view.children
 import androidx.glance.Modifier
-import androidx.glance.action.launchActivityAction
+import androidx.glance.action.actionLaunchActivity
 import androidx.glance.appwidget.layout.AndroidRemoteViews
 import androidx.glance.appwidget.layout.CheckBox
 import androidx.glance.appwidget.layout.LazyColumn
@@ -684,7 +684,7 @@ class RemoteViewsTranslatorKtTest {
         val rv = runAndTranslate {
             Button(
                 "Button",
-                onClick = launchActivityAction<Activity>(),
+                onClick = actionLaunchActivity<Activity>(),
                 enabled = true
             )
         }
@@ -700,7 +700,7 @@ class RemoteViewsTranslatorKtTest {
         val rv = runAndTranslate {
             Button(
                 "Button",
-                onClick = launchActivityAction<Activity>(),
+                onClick = actionLaunchActivity<Activity>(),
                 enabled = false
             )
         }

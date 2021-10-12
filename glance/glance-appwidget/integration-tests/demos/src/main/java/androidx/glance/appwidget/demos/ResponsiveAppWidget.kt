@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.Modifier
-import androidx.glance.action.launchActivityAction
+import androidx.glance.action.actionLaunchActivity
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
@@ -66,7 +66,7 @@ class ResponsiveAppWidget : GlanceAppWidget() {
                 )
             }
             Text(content)
-            Button("Button", onClick = launchActivityAction<Activity>())
+            Button("Button", onClick = actionLaunchActivity<Activity>())
         }
     }
 }
