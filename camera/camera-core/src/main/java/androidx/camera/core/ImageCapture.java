@@ -27,6 +27,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_FLASH_TYPE;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IMAGE_CAPTURE_MODE;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IMAGE_READER_PROXY_PROVIDER;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IO_EXECUTOR;
+import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_JPEG_COMPRESSION_QUALITY;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_CAPTURE_STAGES;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SESSION_CONFIG_UNPACKER;
@@ -382,6 +383,7 @@ public final class ImageCapture extends UseCase {
         Threads.checkMainThread();
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         sessionConfigBuilder.addRepeatingCameraCaptureCallback(mSessionCallbackChecker);
+        YuvToJpegProcessor softwareJpegProcessor = null;
 
         // Setup the ImageReader to do processing
         if (config.getImageReaderProxyProvider() != null) {
@@ -393,7 +395,6 @@ public final class ImageCapture extends UseCase {
             };
         } else if (mCaptureProcessor != null || mUseSoftwareJpeg) {
             // Capture processor set from configuration takes precedence over software JPEG.
-            YuvToJpegProcessor softwareJpegProcessor = null;
             CaptureProcessorPipeline captureProcessorPipeline = null;
             CaptureProcessor captureProcessor = mCaptureProcessor;
             int inputFormat = getImageFormat();
@@ -404,14 +405,14 @@ public final class ImageCapture extends UseCase {
                     Logger.i(TAG, "Using software JPEG encoder.");
 
                     if (mCaptureProcessor != null) {
-                        softwareJpegProcessor = new YuvToJpegProcessor(getJpegQuality(),
+                        softwareJpegProcessor = new YuvToJpegProcessor(getJpegQualityInternal(),
                                 mMaxCaptureStages);
                         captureProcessor = captureProcessorPipeline = new CaptureProcessorPipeline(
                                 mCaptureProcessor, mMaxCaptureStages, softwareJpegProcessor,
                                 mExecutor);
                     } else {
                         captureProcessor = softwareJpegProcessor =
-                                new YuvToJpegProcessor(getJpegQuality(), mMaxCaptureStages);
+                                new YuvToJpegProcessor(getJpegQualityInternal(), mMaxCaptureStages);
                     }
 
                     outputFormat = ImageFormat.JPEG;
@@ -454,8 +455,24 @@ public final class ImageCapture extends UseCase {
             mImageCaptureRequestProcessor.cancelRequests(
                     new CancellationException("Request is canceled."));
         }
+
+        final YuvToJpegProcessor finalSoftwareJpegProcessor = softwareJpegProcessor;
         mImageCaptureRequestProcessor = new ImageCaptureRequestProcessor(MAX_IMAGES,
-                request -> takePictureInternal(request));
+                request -> takePictureInternal(request), softwareJpegProcessor == null ? null :
+                new ImageCaptureRequestProcessor.RequestProcessCallback() {
+                    @Override
+                    public void onPreProcessRequest(
+                            @NonNull ImageCaptureRequest imageCaptureRequest) {
+                        if (Build.VERSION.SDK_INT >= 26) {
+                            // Updates output JPEG compression quality of YuvToJpegProcessor
+                            // according to current request. This was determined by whether the
+                            // final output image needs to be cropped (uncompress and recompress)
+                            // again when the capture request was created.
+                            finalSoftwareJpegProcessor.setJpegQuality(
+                                    imageCaptureRequest.mJpegQuality);
+                        }
+                    }
+                });
 
         // By default close images that come from the listener.
         mImageReader.setOnImageAvailableListener(mClosingListener,
@@ -790,6 +807,20 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
+     * Returns the JPEG quality setting.
+     *
+     * <p>This is set when constructing an ImageCapture using
+     * {@link ImageCapture.Builder#setJpegQuality(int)}. If not set, a default value will be set
+     * according to the capture mode setting. JPEG compression quality 95 is set for
+     * {@link #CAPTURE_MODE_MINIMIZE_LATENCY} and 100 is set for
+     * {@link #CAPTURE_MODE_MAXIMIZE_QUALITY}. This is static for an instance of ImageCapture.
+     */
+    @IntRange(from = 1, to = 100)
+    public int getJpegQuality() {
+        return getJpegQualityInternal();
+    }
+
+    /**
      * Gets selected resolution information of the {@link ImageCapture}.
      *
      * <p>The returned {@link ResolutionInfo} will be expressed in the coordinates of the camera
@@ -862,7 +893,11 @@ public final class ImageCapture extends UseCase {
             return;
         }
 
-        sendImageCaptureRequest(executor, callback);
+        // The captured image will be directly provided to the app via the OnImageCapturedCallback
+        // callback. It won't be uncompressed and compressed again after the image is captured.
+        // The JPEG quality setting will be directly provided to the HAL to compress the output
+        // JPEG image.
+        sendImageCaptureRequest(executor, callback, getJpegQualityInternal());
     }
 
     /**
@@ -935,7 +970,7 @@ public final class ImageCapture extends UseCase {
                     }
                 };
 
-        int jpegQuality = getJpegQuality();
+        int outputJpegQuality = getJpegQualityInternal();
 
         // Wrap the ImageCapture.OnImageSavedCallback with an OnImageCapturedCallback so it can
         // be put into the capture request queue
@@ -948,7 +983,7 @@ public final class ImageCapture extends UseCase {
                                         image,
                                         outputFileOptions,
                                         image.getImageInfo().getRotationDegrees(),
-                                        jpegQuality,
+                                        outputJpegQuality,
                                         executor,
                                         mSequentialIoExecutor,
                                         imageSavedCallbackWrapper));
@@ -960,9 +995,53 @@ public final class ImageCapture extends UseCase {
                     }
                 };
 
+        // If the final output image needs to be cropped, setting the JPEG quality as 100 when
+        // capturing the image. So that the image quality won't be lost when uncompressing and
+        // compressing the image again in the cropping process.
+        int capturingJpegQuality = shouldCropImage() ? 100 : outputJpegQuality;
+
         // Always use the mainThreadExecutor for the initial callback so we don't need to double
         // post to another thread
-        sendImageCaptureRequest(CameraXExecutors.mainThreadExecutor(), imageCaptureCallbackWrapper);
+        sendImageCaptureRequest(CameraXExecutors.mainThreadExecutor(),
+                imageCaptureCallbackWrapper, capturingJpegQuality);
+    }
+
+    private boolean shouldCropImage() {
+        CameraInternal attachedCamera = getCamera();
+
+        if (attachedCamera == null) {
+            return false;
+        }
+
+        int rotationDegrees = getRelativeRotation(attachedCamera);
+        Rect viewPortCropRect = getViewPortCropRect();
+        ResolutionInfo resolutionInfo = getResolutionInfoInternal();
+        Rect cropRect = null;
+
+        if (viewPortCropRect != null) {
+            // If Viewport is present, use the Viewport-based crop rect.
+            cropRect = ImageCaptureRequest.getDispatchCropRect(viewPortCropRect, rotationDegrees,
+                    resolutionInfo.getResolution(), rotationDegrees);
+        } else if (mCropAspectRatio != null) {
+            // Fall back to crop aspect ratio if view port is not available.
+            Rational cropAspectRatio = mCropAspectRatio;
+            if ((rotationDegrees % 180) != 0) {
+                cropAspectRatio = new Rational(
+                        /* invert the ratio numerator=*/ mCropAspectRatio.getDenominator(),
+                        /* invert the ratio denominator=*/ mCropAspectRatio.getNumerator());
+            }
+            if (ImageUtil.isAspectRatioValid(resolutionInfo.getResolution(), cropAspectRatio)) {
+                cropRect = ImageUtil.computeCropRectFromAspectRatio(resolutionInfo.getResolution(),
+                        cropAspectRatio);
+            }
+        }
+
+        if (cropRect == null) {
+            return false;
+        }
+
+        return !resolutionInfo.getResolution().equals(new Size(cropRect.width(),
+                cropRect.height()));
     }
 
     /**
@@ -986,8 +1065,9 @@ public final class ImageCapture extends UseCase {
     }
 
     @UiThread
-    private void sendImageCaptureRequest(
-            @NonNull Executor callbackExecutor, @NonNull OnImageCapturedCallback callback) {
+    private void sendImageCaptureRequest(@NonNull Executor callbackExecutor,
+            @NonNull OnImageCapturedCallback callback,
+            @IntRange(from = 1, to = 100) int jpegQuality) {
 
         // TODO(b/143734846): From here on, the image capture request should be
         //  self-contained and use this camera for everything. Currently the pre-capture
@@ -1010,7 +1090,7 @@ public final class ImageCapture extends UseCase {
         }
 
         mImageCaptureRequestProcessor.sendRequest(new ImageCaptureRequest(
-                getRelativeRotation(attachedCamera), getJpegQuality(), mCropAspectRatio,
+                getRelativeRotation(attachedCamera), jpegQuality, mCropAspectRatio,
                 getViewPortCropRect(), callbackExecutor, callback));
     }
 
@@ -1056,7 +1136,13 @@ public final class ImageCapture extends UseCase {
      * @return Compression quality of the captured JPEG image.
      */
     @IntRange(from = 1, to = 100)
-    private int getJpegQuality() {
+    private int getJpegQualityInternal() {
+        ImageCaptureConfig imageCaptureConfig = (ImageCaptureConfig) getCurrentConfig();
+
+        if (imageCaptureConfig.containsOption(OPTION_JPEG_COMPRESSION_QUALITY)) {
+            return imageCaptureConfig.getJpegQuality();
+        }
+
         switch (mCaptureMode) {
             case CAPTURE_MODE_MAXIMIZE_QUALITY:
                 return JPEG_QUALITY_MAXIMIZE_QUALITY_MODE;
@@ -1159,12 +1245,21 @@ public final class ImageCapture extends UseCase {
 
         private final int mMaxImages;
 
+        @Nullable
+        private final RequestProcessCallback mRequestProcessCallback;
+
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         final Object mLock = new Object();
 
         ImageCaptureRequestProcessor(int maxImages, @NonNull ImageCaptor imageCaptor) {
+            this(maxImages, imageCaptor, null);
+        }
+
+        ImageCaptureRequestProcessor(int maxImages, @NonNull ImageCaptor imageCaptor,
+                @Nullable RequestProcessCallback requestProcessCallback) {
             mMaxImages = maxImages;
             mImageCaptor = imageCaptor;
+            mRequestProcessCallback = requestProcessCallback;
         }
 
         /**
@@ -1234,6 +1329,9 @@ public final class ImageCapture extends UseCase {
                 }
 
                 mCurrentRequest = imageCaptureRequest;
+                if (mRequestProcessCallback != null) {
+                    mRequestProcessCallback.onPreProcessRequest(mCurrentRequest);
+                }
                 mCurrentRequestFuture = mImageCaptor.capture(imageCaptureRequest);
                 Futures.addCallback(mCurrentRequestFuture, new FutureCallback<ImageProxy>() {
                     @Override
@@ -1283,6 +1381,17 @@ public final class ImageCapture extends UseCase {
              */
             @NonNull
             ListenableFuture<ImageProxy> capture(@NonNull ImageCaptureRequest imageCaptureRequest);
+        }
+
+        /**
+         * An interface to provide callbacks when processing each capture request.
+         */
+        interface RequestProcessCallback {
+            /**
+             * This will be called before starting to process the
+             * ImageCaptureRequest.
+             */
+            void onPreProcessRequest(@NonNull ImageCaptureRequest imageCaptureRequest);
         }
     }
 
@@ -2966,6 +3075,33 @@ public final class ImageCapture extends UseCase {
         @RestrictTo(Scope.LIBRARY_GROUP)
         public Builder setFlashType(@FlashType int flashType) {
             getMutableConfig().insertOption(OPTION_FLASH_TYPE, flashType);
+            return this;
+        }
+
+        /**
+         * Sets the output JPEG image compression quality.
+         *
+         * <p>This is used for the {@link ImageProxy} which is returned by
+         * {@link #takePicture(Executor, OnImageCapturedCallback)} or the output JPEG image which
+         * is saved by {@link #takePicture(OutputFileOptions, Executor, OnImageSavedCallback)}.
+         * The saved JPEG image might be cropped according to the {@link ViewPort} setting or
+         * the crop aspect ratio set by {@link #setCropAspectRatio(Rational)}. The JPEG quality
+         * setting will also be used to compress the cropped output image.
+         *
+         * <p>If not set, a default value will be used according to the capture mode setting.
+         * JPEG compression quality 95 is used for {@link #CAPTURE_MODE_MINIMIZE_LATENCY} and 100
+         * is used for {@link #CAPTURE_MODE_MAXIMIZE_QUALITY}.
+         *
+         * @param jpegQuality The requested output JPEG image compression quality. The value must
+         *                   be in range [1..100] which larger is higher quality.
+         * @return The current Builder.
+         * @throws IllegalArgumentException if the input value is not in range [1..100].
+         */
+        @NonNull
+        public Builder setJpegQuality(@IntRange(from = 1, to = 100) int jpegQuality) {
+            Preconditions.checkArgumentInRange(jpegQuality, 1, 100, "jpegQuality");
+            getMutableConfig().insertOption(OPTION_JPEG_COMPRESSION_QUALITY,
+                    jpegQuality);
             return this;
         }
 
