@@ -23,4 +23,59 @@
             column="35"/>
     </issue>
 
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                                checksums[i] = new Checksum(apkChecksum.getSplitName(),"
+        errorLine2="                                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/appdigest/ChecksumsApiSImpl.java"
+            line="121"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                                        apkChecksum.getType(), apkChecksum.getValue(),"
+        errorLine2="                                                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/appdigest/ChecksumsApiSImpl.java"
+            line="122"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                                        apkChecksum.getType(), apkChecksum.getValue(),"
+        errorLine2="                                                                           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/appdigest/ChecksumsApiSImpl.java"
+            line="122"
+            column="76"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                                        apkChecksum.getInstallerPackageName(),"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/appdigest/ChecksumsApiSImpl.java"
+            line="123"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                                        apkChecksum.getInstallerCertificate());"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/appdigest/ChecksumsApiSImpl.java"
+            line="124"
+            column="53"/>
+    </issue>
+
 </issues>
