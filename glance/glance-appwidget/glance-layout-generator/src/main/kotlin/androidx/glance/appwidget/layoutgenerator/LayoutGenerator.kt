@@ -78,26 +78,35 @@ internal class LayoutGenerator {
     fun generateAllFiles(files: List<File>, outputResourcesDir: File): Map<File, LayoutProperties> {
         val outputLayoutDir = outputResourcesDir.resolve("layout")
         outputLayoutDir.mkdirs()
-        return files.associate {
-            it to generateForFile(it, outputLayoutDir)
-        }
+        return files.associateWith { generateForFile(it, outputLayoutDir) }
     }
 
     private fun generateForFile(file: File, outputLayoutDir: File): LayoutProperties {
         val document = parseLayoutTemplate(file)
-        ValidSize.values().forEach { width ->
-            ValidSize.values().forEach { height ->
-                val simpleLayout = generateSimpleLayout(document, width, height)
-                writeGeneratedLayout(
-                    simpleLayout,
-                    outputLayoutDir.resolve("${makeSimpleResourceName(file, width, height)}.xml")
+        forEachConfiguration(file) { width, height, childCount ->
+            writeGeneratedLayout(
+                generateSimpleLayout(document, width, height, childCount),
+                outputLayoutDir.resolve(
+                    makeSimpleResourceName(
+                        file,
+                        width,
+                        height,
+                        childCount
+                    ) + ".xml"
                 )
-                val complexLayout = generateComplexLayout(document, width, height)
-                writeGeneratedLayout(
-                    complexLayout,
-                    outputLayoutDir.resolve("${makeComplexResourceName(file, width, height)}.xml")
+            )
+            writeGeneratedLayout(
+                generateComplexLayout(document, width, height, childCount),
+                outputLayoutDir.resolve(
+                    makeComplexResourceName(
+                        file,
+                        width,
+                        height,
+                        childCount
+                    ) + ".xml"
+
                 )
-            }
+            )
         }
         return LayoutProperties(mainViewId = extractMainViewId(document))
     }
@@ -111,7 +120,8 @@ internal class LayoutGenerator {
     fun generateSimpleLayout(
         document: Document,
         width: ValidSize,
-        height: ValidSize
+        height: ValidSize,
+        childCount: Int
     ): Document {
         val generated = documentBuilder.newDocument()
         val root = generated.importNode(document.documentElement, true)
@@ -129,6 +139,7 @@ internal class LayoutGenerator {
             }
             setNamedItemNS(generated.androidLayoutDirection("locale"))
         }
+        generated.appendViewStubs(root, childCount)
         return generated
     }
 
@@ -179,7 +190,8 @@ internal class LayoutGenerator {
     fun generateComplexLayout(
         document: Document,
         width: ValidSize,
-        height: ValidSize
+        height: ValidSize,
+        childCount: Int
     ): Document {
         val generated = documentBuilder.newDocument()
         val root = generated.createElement("RelativeLayout")
@@ -228,8 +240,23 @@ internal class LayoutGenerator {
             }
             setNamedItemNS(generated.androidLayoutDirection("locale"))
         }
+        generated.appendViewStubs(mainNode, childCount)
         return generated
     }
+}
+
+internal fun Document.appendViewStubs(node: Node, childCount: Int) {
+    repeat(childCount) { node.appendChild(createViewStub(index = it)) }
+}
+
+internal fun Document.createViewStub(index: Int): Node {
+    val stub = createElement("ViewStub")
+    stub.attributes.apply {
+        setNamedItemNS(androidId("@id/stub$index"))
+        setNamedItemNS(androidWidth(ValidSize.Wrap))
+        setNamedItemNS(androidHeight(ValidSize.Wrap))
+    }
+    return stub
 }
 
 internal data class LayoutProperties(
@@ -281,4 +308,17 @@ internal val Document.androidNamespace
 internal fun ValidSize.toSizeViewDimension() = when (this) {
     ValidSize.Wrap, ValidSize.Fixed -> ValidSize.Wrap
     ValidSize.Match, ValidSize.Expand -> ValidSize.Match
+}
+
+internal inline fun forEachConfiguration(
+    file: File,
+    function: (width: ValidSize, height: ValidSize, childCount: Int) -> Unit
+) {
+    ValidSize.values().forEach { width ->
+        ValidSize.values().forEach { height ->
+            file.allChildCounts().forEach { childCount ->
+                function(width, height, childCount)
+            }
+        }
+    }
 }
