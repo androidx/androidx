@@ -1025,7 +1025,7 @@ public class BiometricPrompt {
      */
     @Nullable
     static BiometricViewModel getViewModel(@Nullable Context context) {
-        return  context instanceof ViewModelStoreOwner
+        return context instanceof ViewModelStoreOwner
                 ? new ViewModelProvider((ViewModelStoreOwner) context).get(BiometricViewModel.class)
                 : null;
     }
