@@ -326,6 +326,9 @@ public abstract class WatchFaceService : WallpaperService() {
      */
     internal open fun expectPreRInitFlow() = Build.VERSION.SDK_INT < Build.VERSION_CODES.R
 
+    /** This is open to allow mocking. */
+    internal open fun getChoreographer(): Choreographer = Choreographer.getInstance()
+
     /**
      * This is open for use by tests, it allows them to inject a custom [SurfaceHolder].
      * @hide
@@ -726,7 +729,16 @@ public abstract class WatchFaceService : WallpaperService() {
                     "Choreographer doFrame called but allowWatchfaceToAnimate is false"
                 }
                 frameCallbackPending = false
-                draw()
+
+                val watchFaceImpl: WatchFaceImpl? = getWatchFaceImplOrNull()
+
+                /**
+                 * It's possible we went ambient by the time our callback occurred in which case
+                 * there's no point drawing. Note if watchFaceImpl is null we call [drawBlack].
+                 */
+                if (watchFaceImpl?.renderer?.shouldAnimate() != false) {
+                    draw()
+                }
             }
         }
 
@@ -875,7 +887,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 // It's unlikely an ambient tick would be sent to a watch face that hasn't loaded
                 // yet. The watch face will render at least once upon loading so we don't need to do
                 // anything special here.
-                invalidate()
+                draw()
                 ambientUpdateWakelock.acquire(SURFACE_DRAW_TIMEOUT_MS)
             }
         }
@@ -1005,7 +1017,6 @@ public abstract class WatchFaceService : WallpaperService() {
             holder: SurfaceHolder
         ): Unit = TraceEvent("EngineWrapper.onCreate").use {
             super.onCreate(holder)
-
             ambientUpdateWakelock =
                 (getSystemService(Context.POWER_SERVICE) as PowerManager)
                     .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "$TAG:[AmbientUpdate]")
@@ -1639,7 +1650,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
                 frameCallbackPending = true
                 if (!this::choreographer.isInitialized) {
-                    choreographer = Choreographer.getInstance()
+                    choreographer = getChoreographer()
                 }
                 choreographer.postFrameCallback(frameCallback)
             } else {
@@ -1655,7 +1666,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     Trace.beginSection("onDraw")
                 }
                 if (LOG_VERBOSE) {
-                    Log.v(WatchFaceService.TAG, "drawing frame")
+                    Log.v(TAG, "drawing frame")
                 }
 
                 val watchFaceImpl: WatchFaceImpl? = getWatchFaceImplOrNull()
