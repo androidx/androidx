@@ -388,6 +388,17 @@
 
     <issue
         id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            builder.setExpedited(true);"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
+            line="130"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
         message="This call references a method added in API level 24; however, the containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        return new JobInfo.TriggerContentUri(trigger.getUri(), flag);"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">

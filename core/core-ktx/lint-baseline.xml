@@ -47,6 +47,17 @@
 
     <issue
         id="NewApi"
+        message="Call requires API level S (current min is 14): `android.util.SparseArray#set`"
+        errorLine1="        array[1] = &quot;one&quot;"
+        errorLine2="             ~">
+        <location
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
+            line="61"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="NewApi"
         message="Call requires API level 17 (current min is 14): `updatePaddingRelative`"
         errorLine1="        view.updatePaddingRelative(start = 10, end = 20)"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
