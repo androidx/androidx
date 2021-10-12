@@ -23,6 +23,7 @@ class FrameData(
      * The time at which this frame began (in nanoseconds)
      */
     val frameStartNanos: Long,
+
     /**
      * The duration of this frame (in nanoseconds)
      */
@@ -76,6 +77,12 @@ class FrameData(
     }
 }
 
+/**
+ * This class contains information about application state.
+ * @property stateName An arbitrary name used for this state, used as a key for storing
+ * the state value.
+ * @property state The value of this state.
+ */
 class StateInfo(val stateName: String, val state: String) {
 
     override fun equals(other: Any?): Boolean {

@@ -59,7 +59,7 @@ internal open class JankStatsApi16Impl(
                             val now = System.nanoTime()
                             val frameStart = getFrameStartTime()
                             val expectedDuration = getExpectedFrameDuration(decorView) *
-                                JankStats.jankHeuristicMultiplier
+                                jankStats.jankHeuristicMultiplier
                             jankStats.logFrameData(
                                 frameStart,
                                 now - frameStart,
