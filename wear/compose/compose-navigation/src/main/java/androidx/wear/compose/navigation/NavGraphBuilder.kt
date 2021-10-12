@@ -24,7 +24,9 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.get
 
 /**
- * Add the [Composable] to the [NavGraphBuilder]
+ * Utility function for building Wear Compose navigation graphs.
+ *
+ * Adds the content composable to the [NavGraphBuilder] as a [WearNavigator.Destination].
  *
  * @param route route for the destination
  * @param arguments list of arguments to associate with destination
