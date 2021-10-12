@@ -43,11 +43,45 @@ class StartupTimingQueryTest {
             absoluteTracePath = traceFile.absolutePath,
             captureApiLevel = api,
             targetPackageName = "androidx.benchmark.integration.macrobenchmark.target",
-            testPackageName = "androidx.benchmark.integration.macrobenchmark.test"
+            testPackageName = "androidx.benchmark.integration.macrobenchmark.test",
+            startupMode = startupMode
         )
 
         assertEquals(expected = expectedMetrics, actual = startupSubMetrics)
     }
+
+    @Test
+    fun fixedApi24Cold() = validateFixedTrace(
+        api = 24,
+        startupMode = StartupMode.COLD,
+        StartupTimingQuery.SubMetrics(
+            timeToInitialDisplayNs = 358237760,
+            timeToFullDisplayNs = 784769167,
+            timelineRange = 269543917431669..269544702200836
+        )
+    )
+
+    @Test
+    fun fixedApi24Warm() = validateFixedTrace(
+        api = 24,
+        startupMode = StartupMode.WARM,
+        StartupTimingQuery.SubMetrics(
+            timeToInitialDisplayNs = 135008333,
+            timeToFullDisplayNs = 598500833,
+            timelineRange = 268757401479247..268757999980080
+        )
+    )
+
+    @Test
+    fun fixedApi24Hot() = validateFixedTrace(
+        api = 24,
+        startupMode = StartupMode.HOT,
+        StartupTimingQuery.SubMetrics(
+            timeToInitialDisplayNs = 54248802,
+            timeToFullDisplayNs = 529336511,
+            timelineRange = 268727533977218..268728063313729
+        )
+    )
 
     @Test
     fun fixedApi31Cold() = validateFixedTrace(

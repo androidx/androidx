@@ -165,9 +165,10 @@ private fun macrobenchmark(
                  * Prior to API 24, every package name was joined into a single setprop which can
                  * overflow, and disable *ALL* app level tracing.
                  *
-                 * For safety here, we only trace the macrobench package on newer platforms.
-                 * Eventually, we should find alternative methods - such as force-enabling tracing
-                 * within macrobench process via reflection.
+                 * For safety here, we only trace the macrobench package on newer platforms, and use
+                 * reflection in the macrobench test process to trace important sections
+                 *
+                 * @see androidx.benchmark.macro.perfetto.ForceTracing
                  */
                 packages = if (Build.VERSION.SDK_INT >= 24) {
                     listOf(packageName, macrobenchPackageName)
