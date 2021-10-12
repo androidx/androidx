@@ -19,7 +19,6 @@ package androidx.navigation
 /**
  * Construct a new [NavArgument]
  */
-@NavDestinationDsl
 public fun navArgument(
     name: String,
     builder: NavArgumentBuilder.() -> Unit
