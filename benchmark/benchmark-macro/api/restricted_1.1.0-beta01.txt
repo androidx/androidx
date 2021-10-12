@@ -83,3 +83,10 @@ package androidx.benchmark.macro {
 
 }
 
+package androidx.benchmark.macro.perfetto {
+
+  public final class ForceTracingKt {
+  }
+
+}
+

@@ -95,7 +95,8 @@ private val PROCESS_STATS_DATASOURCE = TraceConfig.DataSource(
         name = "linux.process_stats",
         target_buffer = 1,
         process_stats_config = ProcessStatsConfig(
-            proc_stats_poll_ms = 10000
+            proc_stats_poll_ms = 10000,
+            scan_all_processes_on_start = true
         )
     )
 )

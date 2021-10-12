@@ -22,9 +22,9 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
+import androidx.benchmark.macro.perfetto.forceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import androidx.tracing.trace
 
 /**
  * Provides access to common operations in app automation, such as killing the app,
@@ -73,7 +73,7 @@ public class MacrobenchmarkScope(
      *
      * @param intent Specifies which app/Activity should be launched.
      */
-    public fun startActivityAndWait(intent: Intent): Unit = trace("startActivityAndWait") {
+    public fun startActivityAndWait(intent: Intent): Unit = forceTrace("startActivityAndWait") {
         // Must launch with new task, as we're not launching from an existing task
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         if (launchWithClearTask) {
