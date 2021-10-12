@@ -82,4 +82,78 @@ public class PackageUtilsTest {
         when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)).thenReturn(true);
         assertThat(PackageUtils.hasSystemFeatureFingerprint(mContext)).isTrue();
     }
+
+    @Test
+    @Config(maxSdk = Build.VERSION_CODES.P)
+    public void testHasSystemFeatureFace_ReturnsFalse_OnApi28AndBelow() {
+        when(mContext.getPackageManager()).thenReturn(mPackageManager);
+        when(mPackageManager.hasSystemFeature(anyString())).thenReturn(true);
+        assertThat(PackageUtils.hasSystemFeatureFace(mContext)).isFalse();
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.Q)
+    public void testHasSystemFeatureFace_ReturnsFalse_WhenContextIsNull() {
+        assertThat(PackageUtils.hasSystemFeatureFace(null)).isFalse();
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.Q)
+    public void testHasSystemFeatureFace_ReturnsFalse_WhenPackageManagerIsNull() {
+        when(mContext.getPackageManager()).thenReturn(null);
+        assertThat(PackageUtils.hasSystemFeatureFace(mContext)).isFalse();
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.Q)
+    public void testHasSystemFeatureFace_ReturnsFalse_WhenPackageManagerReturnsFalse() {
+        when(mContext.getPackageManager()).thenReturn(mPackageManager);
+        when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_FACE)).thenReturn(false);
+        assertThat(PackageUtils.hasSystemFeatureFace(mContext)).isFalse();
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.Q)
+    public void testHasSystemFeatureFace_ReturnsTrue_WhenPackageManagerReturnsTrue() {
+        when(mContext.getPackageManager()).thenReturn(mPackageManager);
+        when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_FACE)).thenReturn(true);
+        assertThat(PackageUtils.hasSystemFeatureFace(mContext)).isTrue();
+    }
+
+    @Test
+    @Config(maxSdk = Build.VERSION_CODES.P)
+    public void testHasSystemFeatureIris_ReturnsFalse_OnApi28AndBelow() {
+        when(mContext.getPackageManager()).thenReturn(mPackageManager);
+        when(mPackageManager.hasSystemFeature(anyString())).thenReturn(true);
+        assertThat(PackageUtils.hasSystemFeatureIris(mContext)).isFalse();
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.Q)
+    public void testHasSystemFeatureIris_ReturnsFalse_WhenContextIsNull() {
+        assertThat(PackageUtils.hasSystemFeatureIris(null)).isFalse();
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.Q)
+    public void testHasSystemFeatureIris_ReturnsFalse_WhenPackageManagerIsNull() {
+        when(mContext.getPackageManager()).thenReturn(null);
+        assertThat(PackageUtils.hasSystemFeatureIris(mContext)).isFalse();
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.Q)
+    public void testHasSystemFeatureIris_ReturnsFalse_WhenPackageManagerReturnsFalse() {
+        when(mContext.getPackageManager()).thenReturn(mPackageManager);
+        when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_IRIS)).thenReturn(false);
+        assertThat(PackageUtils.hasSystemFeatureIris(mContext)).isFalse();
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.Q)
+    public void testHasSystemFeatureIris_ReturnsTrue_WhenPackageManagerReturnsTrue() {
+        when(mContext.getPackageManager()).thenReturn(mPackageManager);
+        when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_IRIS)).thenReturn(true);
+        assertThat(PackageUtils.hasSystemFeatureIris(mContext)).isTrue();
+    }
 }
