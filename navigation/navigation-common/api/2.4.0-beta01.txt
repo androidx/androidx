@@ -40,7 +40,7 @@ package androidx.navigation {
   }
 
   public final class NamedNavArgumentKt {
-    method @androidx.navigation.NavDestinationDsl public static androidx.navigation.NamedNavArgument navArgument(String name, kotlin.jvm.functions.Function1<? super androidx.navigation.NavArgumentBuilder,kotlin.Unit> builder);
+    method public static androidx.navigation.NamedNavArgument navArgument(String name, kotlin.jvm.functions.Function1<? super androidx.navigation.NavArgumentBuilder,kotlin.Unit> builder);
   }
 
   public final class NavAction {
