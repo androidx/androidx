@@ -30,55 +30,60 @@ import javax.lang.model.util.AbstractAnnotationValueVisitor8
 
 internal class JavacAnnotationValue(
     val env: JavacProcessingEnv,
-    val element: ExecutableElement,
-    val annotationValue: AnnotationValue
+    val method: ExecutableElement,
+    val annotationValue: AnnotationValue,
+    private val valueProvider: () -> Any? = {
+        UNWRAP_VISITOR.visit(annotationValue, VisitorData(env, method))
+    }
 ) : XAnnotationValue {
     override val name: String
-        get() = element.simpleName.toString()
+        get() = method.simpleName.toString()
 
-    override val value: Any? by lazy { UNWRAP_VISITOR.visit(annotationValue, env) }
+    override val value: Any? by lazy { valueProvider.invoke() }
 }
 
-private val UNWRAP_VISITOR = object : AbstractAnnotationValueVisitor8<Any?, JavacProcessingEnv>() {
-    override fun visitBoolean(b: Boolean, env: JavacProcessingEnv) = b
-    override fun visitByte(b: Byte, env: JavacProcessingEnv) = b
-    override fun visitChar(c: Char, env: JavacProcessingEnv) = c
-    override fun visitDouble(d: Double, env: JavacProcessingEnv) = d
-    override fun visitFloat(f: Float, env: JavacProcessingEnv) = f
-    override fun visitInt(i: Int, env: JavacProcessingEnv) = i
-    override fun visitLong(i: Long, env: JavacProcessingEnv) = i
-    override fun visitShort(s: Short, env: JavacProcessingEnv) = s
+private data class VisitorData(val env: JavacProcessingEnv, val method: ExecutableElement)
 
-    override fun visitString(s: String?, env: JavacProcessingEnv) =
+private val UNWRAP_VISITOR = object : AbstractAnnotationValueVisitor8<Any?, VisitorData>() {
+    override fun visitBoolean(b: Boolean, data: VisitorData) = b
+    override fun visitByte(b: Byte, data: VisitorData) = b
+    override fun visitChar(c: Char, data: VisitorData) = c
+    override fun visitDouble(d: Double, data: VisitorData) = d
+    override fun visitFloat(f: Float, data: VisitorData) = f
+    override fun visitInt(i: Int, data: VisitorData) = i
+    override fun visitLong(i: Long, data: VisitorData) = i
+    override fun visitShort(s: Short, data: VisitorData) = s
+
+    override fun visitString(s: String?, data: VisitorData) =
         if (s == "<error>") {
             throw TypeNotPresentException(s, null)
         } else {
             s
         }
 
-    override fun visitType(t: TypeMirror, env: JavacProcessingEnv): JavacType {
+    override fun visitType(t: TypeMirror, data: VisitorData): JavacType {
         if (t.kind == TypeKind.ERROR) {
             throw TypeNotPresentException(t.toString(), null)
         }
-        return env.wrap(t, kotlinType = null, XNullability.NONNULL)
+        return data.env.wrap(t, kotlinType = null, XNullability.NONNULL)
     }
 
-    override fun visitEnumConstant(c: VariableElement, env: JavacProcessingEnv): JavacEnumEntry {
+    override fun visitEnumConstant(c: VariableElement, data: VisitorData): JavacEnumEntry {
         val type = c.asType()
         if (type.kind == TypeKind.ERROR) {
             throw TypeNotPresentException(type.toString(), null)
         }
         val enumTypeElement = MoreTypes.asTypeElement(type)
         return JavacEnumEntry(
-            env = env,
+            env = data.env,
             entryElement = c,
-            enumTypeElement = JavacTypeElement.create(env, enumTypeElement) as XEnumTypeElement
+            enumTypeElement = JavacTypeElement.create(data.env, enumTypeElement) as XEnumTypeElement
         )
     }
 
-    override fun visitAnnotation(a: AnnotationMirror, env: JavacProcessingEnv) =
-        JavacAnnotation(env, a)
+    override fun visitAnnotation(a: AnnotationMirror, data: VisitorData) =
+        JavacAnnotation(data.env, a)
 
-    override fun visitArray(vals: MutableList<out AnnotationValue>, env: JavacProcessingEnv) =
-        vals.map { it.accept(this, env) }
+    override fun visitArray(vals: MutableList<out AnnotationValue>, data: VisitorData) =
+        vals.map { JavacAnnotationValue(data.env, data.method, it) { it.accept(this, data) } }
 }
