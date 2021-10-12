@@ -79,7 +79,7 @@ internal abstract class AbstractAppBarOnDestinationChangedListener(
                     title.append(arguments[argName].toString())
                 } else {
                     throw IllegalArgumentException(
-                        "Could not find $argName in $arguments to fill label $label"
+                        "Could not find \"$argName\" in $arguments to fill label \"$label\""
                     )
                 }
             }
