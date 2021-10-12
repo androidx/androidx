@@ -24,6 +24,8 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +41,7 @@ public class MainActivity extends android.app.ListActivity {
     private static final String NAME = "name";
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@NonNull Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SimpleAdapter adapter = new SimpleAdapter(this, getActivityList(),
                 android.R.layout.simple_list_item_1, new String[]{NAME},
@@ -49,12 +51,13 @@ public class MainActivity extends android.app.ListActivity {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected void onListItemClick(ListView l, View v, int position, long id) {
+    protected void onListItemClick(@NonNull ListView l, @NonNull View v, int position, long id) {
         Map<String, Object> map = (Map<String, Object>) l.getItemAtPosition(position);
         Intent intent = (Intent) map.get(INTENT);
         startActivity(intent);
     }
 
+    @NonNull
     protected List<Map<String, Object>> getActivityList() {
         List<Map<String, Object>> activityList = new ArrayList<>();
 
@@ -63,7 +66,6 @@ public class MainActivity extends android.app.ListActivity {
 
         PackageManager pm = getPackageManager();
         List<ResolveInfo> list = pm.queryIntentActivities(mainIntent, 0);
-
         for (int i = 0; i < list.size(); i++) {
             ResolveInfo info = list.get(i);
             String label = info.loadLabel(pm).toString();
