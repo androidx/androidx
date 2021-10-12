@@ -22,10 +22,10 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.glance.action.ActionRunnable
-import androidx.glance.action.UpdateAction
+import androidx.glance.action.UpdateContentAction
 
 /**
- * Responds to broadcasts from [UpdateAction] clicks by executing the associated action.
+ * Responds to broadcasts from [UpdateContentAction] clicks by executing the associated action.
  */
 internal class ActionRunnableBroadcastReceiver : BroadcastReceiver() {
 
@@ -39,7 +39,7 @@ internal class ActionRunnableBroadcastReceiver : BroadcastReceiver() {
                 "The custom work intent must contain a work class name string using extra: " +
                     ExtraClassName
             }
-            UpdateAction.run(context, className)
+            UpdateContentAction.run(context, className)
         }
     }
 

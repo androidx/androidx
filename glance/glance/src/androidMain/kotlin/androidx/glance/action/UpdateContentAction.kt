@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class UpdateAction(val runnableClass: Class<out ActionRunnable>) : Action {
+public class UpdateContentAction(val runnableClass: Class<out ActionRunnable>) : Action {
     companion object {
 
         public suspend fun run(context: Context, className: String) {
@@ -42,20 +42,22 @@ class UpdateAction(val runnableClass: Class<out ActionRunnable>) : Action {
  * implementing class must have a public zero argument constructor, this is used to instantiate
  * the class at runtime.
  */
-interface ActionRunnable {
+public interface ActionRunnable {
     suspend fun run(context: Context)
 }
 
 /**
- * Creates an [Action] that executes a custom [ActionRunnable] and then updates the component view.
+ * Creates an [Action] that executes a custom [ActionRunnable] and then updates the component
+ * content.
  */
-public fun <T : ActionRunnable> updateContentAction(runnable: Class<T>): Action =
-    UpdateAction(runnable)
+public fun <T : ActionRunnable> actionUpdateContent(runnable: Class<T>): Action =
+    UpdateContentAction(runnable)
 
 @Suppress("MissingNullability") /* Shouldn't need to specify @NonNull. b/199284086 */
 /**
- * Creates an [Action] that executes a custom [ActionRunnable] and then updates the component view.
+ * Creates an [Action] that executes a custom [ActionRunnable] and then updates the component
+ * content.
  */
 // TODO(b/201418282): Add the UI update path
-public inline fun <reified T : ActionRunnable> updateContentAction(): Action =
-    updateContentAction(T::class.java)
+public inline fun <reified T : ActionRunnable> actionUpdateContent(): Action =
+    actionUpdateContent(T::class.java)

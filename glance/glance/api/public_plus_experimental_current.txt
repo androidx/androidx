@@ -60,14 +60,14 @@ package androidx.glance.action {
   }
 
   public final class LaunchActivityActionKt {
-    method public static androidx.glance.action.Action launchActivityAction(android.content.ComponentName componentName);
-    method public static <T extends android.app.Activity> androidx.glance.action.Action launchActivityAction(Class<T> activity);
-    method public static inline <reified T extends android.app.Activity> androidx.glance.action.Action! launchActivityAction();
+    method public static androidx.glance.action.Action actionLaunchActivity(android.content.ComponentName componentName);
+    method public static <T extends android.app.Activity> androidx.glance.action.Action actionLaunchActivity(Class<T> activity);
+    method public static inline <reified T extends android.app.Activity> androidx.glance.action.Action! actionLaunchActivity();
   }
 
-  public final class UpdateActionKt {
-    method public static <T extends androidx.glance.action.ActionRunnable> androidx.glance.action.Action updateContentAction(Class<T> runnable);
-    method public static inline <reified T extends androidx.glance.action.ActionRunnable> androidx.glance.action.Action! updateContentAction();
+  public final class UpdateContentActionKt {
+    method public static <T extends androidx.glance.action.ActionRunnable> androidx.glance.action.Action actionUpdateContent(Class<T> runnable);
+    method public static inline <reified T extends androidx.glance.action.ActionRunnable> androidx.glance.action.Action! actionUpdateContent();
   }
 
 }
