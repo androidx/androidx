@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.Icon
+import androidx.wear.compose.material.LocalContentAlpha
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import kotlin.reflect.KClass
@@ -107,6 +108,7 @@ fun DemoImage(
         contentDescription = null,
         modifier = modifier.size(size),
         contentScale = ContentScale.Crop,
+        alpha = LocalContentAlpha.current
     )
 }
 
@@ -122,8 +124,12 @@ fun TextIcon(
             .requiredSize(32.dp),
         onClick = {},
         colors = ButtonDefaults.buttonColors(
-            disabledBackgroundColor = MaterialTheme.colors.primary,
-            disabledContentColor = MaterialTheme.colors.onPrimary
+            disabledBackgroundColor = MaterialTheme.colors.primary.copy(
+                alpha = LocalContentAlpha.current
+            ),
+            disabledContentColor = MaterialTheme.colors.onPrimary.copy(
+                alpha = LocalContentAlpha.current
+            )
         ),
         enabled = false
     ) {
@@ -136,8 +142,8 @@ fun TextIcon(
             Text(
                 text = text,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.onPrimary,
-                style = style
+                color = MaterialTheme.colors.onPrimary.copy(alpha = LocalContentAlpha.current),
+                style = style,
             )
         }
     }
