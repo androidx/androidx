@@ -395,6 +395,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("deprecation")
     @Override
     public boolean onPreferenceTreeClick(Preference preference) {
         if (preference.getFragment() != null) {
@@ -402,6 +403,17 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
             if (getCallbackFragment() instanceof OnPreferenceStartFragmentCallback) {
                 handled = ((OnPreferenceStartFragmentCallback) getCallbackFragment())
                         .onPreferenceStartFragment(this, preference);
+            }
+            //  If the callback fragment doesn't handle OnPreferenceStartFragmentCallback, looks up
+            //  its parent fragment in the hierarchy that implements the callback until the first
+            //  one that returns true
+            Fragment callbackFragment = this;
+            while (!handled && callbackFragment != null) {
+                if (callbackFragment instanceof OnPreferenceStartFragmentCallback) {
+                    handled = ((OnPreferenceStartFragmentCallback) callbackFragment)
+                            .onPreferenceStartFragment(this, preference);
+                }
+                callbackFragment = callbackFragment.getParentFragment();
             }
             if (!handled && getContext() instanceof OnPreferenceStartFragmentCallback) {
                 handled = ((OnPreferenceStartFragmentCallback) getContext())
@@ -587,6 +599,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      *
      * @param preference The {@link Preference} object requesting the dialog
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void onDisplayPreferenceDialog(Preference preference) {
 

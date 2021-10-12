@@ -20,11 +20,21 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
+import androidx.fragment.app.commit
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceScreen
+import androidx.preference.test.R
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -32,14 +42,15 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Test for [PreferenceFragmentCompat] interfaces that can be implemented via both [Context] and
- * [android.app.Activity], to ensure that they are called, and only once.
+ * Test for [PreferenceFragmentCompat] interfaces that can be implemented via subclasses,
+ * [Context] and [android.app.Activity], to ensure that they are called, and only once.
  *
  * This test doesn't test the paths including [PreferenceFragmentCompat.getCallbackFragment], as
  * this API is @RestrictTo and we don't expect developers to be using it.
@@ -98,6 +109,16 @@ class PreferenceFragmentCompatInterfaceTest {
                 fragment = "dummy.fragment"
             }
         }
+    }
+
+    @Test
+    fun onPreferenceStartFragmentTest_FragmentCallback_childHandlesCall() {
+        verifyCallsWithNestedFragment(booleanArrayOf(true, false))
+    }
+
+    @Test
+    fun onPreferenceStartFragmentTest_FragmentCallback_childDoesNotHandleCall() {
+        verifyCallsWithNestedFragment(booleanArrayOf(true, true))
     }
 
     @Test
@@ -301,13 +322,67 @@ class PreferenceFragmentCompatInterfaceTest {
             assertEquals(expectedActivityCount, activityCount)
         }
     }
+
+    /**
+     * Verify the callback is dispatched to the parent fragment via the fragment hierarchy. Use
+     * [fragmentHandlesCall] to indicates whether or not the
+     * corresponding fragment handles the callback.
+     *
+     * @param fragmentHandlesCall A boolean array indicates whether or not the corresponding
+     * child fragment handles the callback. The first element in the array represents the
+     * parent fragment, and the second element is the child fragment.
+     */
+    private fun verifyCallsWithNestedFragment(
+        fragmentHandlesCall: BooleanArray
+    ) {
+        var parentCount = 0
+        val incrementParentCount: () -> Boolean = {
+            Log.i("DEBUG_TEST", "parent get called ")
+            parentCount++
+            fragmentHandlesCall[0]
+        }
+
+        var childCount = 0
+        val incrementChildCount: () -> Boolean = {
+            Log.i("DEBUG_TEST", "child get called ")
+            childCount++
+            fragmentHandlesCall[1]
+        }
+
+        noInterfaceActivityRule.launchActivity(Intent())
+        noInterfaceActivityRule.run {
+            runOnUiThread {
+                activity.displayPreferenceFragment(
+                    WithInterfaceParentFragment(
+                        incrementParentCount,
+                        incrementChildCount
+                    )
+                )
+            }
+        }
+
+        TestFragment.assertPreferenceIsDisplayed()
+
+        noInterfaceActivityRule.runOnUiThread {
+            assertEquals(0, parentCount)
+            assertEquals(0, childCount)
+        }
+
+        TestFragment.clickOnPreference()
+        noInterfaceActivityRule.runOnUiThread {
+            assertEquals(1, childCount)
+            // If the child fragment doesn't handle the callback, the callback is dispatched to
+            // parent fragment.
+            assertEquals(if (!fragmentHandlesCall[1]) 1 else 0, parentCount)
+        }
+    }
 }
 
 open class NoInterfaceTestActivity : AppCompatActivity() {
     /**
      * Displays the given [fragment] by adding it to a FragmentTransaction
      */
-    fun displayPreferenceFragment(fragment: PreferenceFragmentCompat) {
+    fun displayPreferenceFragment(fragment: Fragment) {
         supportFragmentManager
             .beginTransaction()
             .replace(android.R.id.content, fragment)
@@ -422,4 +497,84 @@ class TestFragment(
             onView(withText(preferenceTitle)).perform(click())
         }
     }
+}
+
+/**
+ * Testing a nested fragment that implements the interface [PreferenceFragmentCompat
+ * .OnPreferenceStartFragmentCallback].
+ *
+ * @property parentTestCallback invoked when an interface method from [PreferenceFragmentCompat
+ * .OnPreferenceStartFragmentCallback] is invoked on parent fragment. Returns true if it handles
+ * the event, false if not.
+ * @property childTestCallback
+ */
+class WithInterfaceParentFragment(
+    private val parentTestCallback: () -> Boolean,
+    private val childTestCallback: () -> Boolean
+) :
+    Fragment(),
+    PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
+
+    class ChildFragment(private val callback: () -> Boolean) :
+        Fragment(),
+        PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
+
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+            val contentView = FrameLayout(inflater.context)
+            contentView.addView(
+                FragmentContainerView(inflater.context).apply {
+                    id = R.id.child_fragment
+                },
+                ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            )
+
+            if (childFragmentManager.findFragmentById(R.id.child_fragment) == null) {
+                childFragmentManager.commit {
+                    setReorderingAllowed(true)
+                    add(
+                        R.id.child_fragment,
+                        TestFragment(
+                            { Preference(context).apply { fragment = "preference.fragment" } },
+                            { false }
+                        )
+                    )
+                }
+            }
+            return contentView
+        }
+
+        override fun onPreferenceStartFragment(
+            caller: PreferenceFragmentCompat?,
+            pref: Preference?
+        ) = callback()
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val contentView = FrameLayout(inflater.context)
+        contentView.addView(
+            FragmentContainerView(inflater.context).apply { id = R.id.fragment_container_view },
+            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        )
+
+        if (childFragmentManager.findFragmentById(R.id.fragment_container_view) == null) {
+            childFragmentManager.commit {
+                setReorderingAllowed(true)
+                add(R.id.fragment_container_view, ChildFragment(childTestCallback))
+            }
+        }
+        return contentView
+    }
+
+    override fun onPreferenceStartFragment(
+        caller: PreferenceFragmentCompat?,
+        pref: Preference?
+    ) = parentTestCallback()
 }
