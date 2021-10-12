@@ -411,4 +411,48 @@
         <item>0</item>
         <item>0</item>
     </array>
+    <array name="heif_with_exif_31_and_above">
+        <!--Whether thumbnail exists-->
+        <item>false</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>false</item>
+        <!--Whether GPS LatLong information exists-->
+        <item>false</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0.0</item>
+        <item>0.0</item>
+        <item>0.0</item>
+        <!--Whether Make information exists-->
+        <item>true</item>
+        <item>3519</item>
+        <item>4</item>
+        <item>LGE</item>
+        <item>Nexus 5</item>
+        <item>0.0</item>
+        <item />
+        <item>0.0</item>
+        <item>0</item>
+        <item />
+        <item />
+        <item />
+        <item />
+        <item />
+        <item />
+        <item />
+        <item />
+        <item />
+        <item />
+        <item>1080</item>
+        <item>1920</item>
+        <item />
+        <item>1</item>
+        <item>0</item>
+        <item>true</item>
+        <item>3721</item>
+        <item>3020</item>
+    </array>
 </resources>
