@@ -34,6 +34,8 @@ import android.os.Build;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +44,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
@@ -54,12 +55,7 @@ import java.util.concurrent.Executor;
 @DoNotInstrument
 @SuppressWarnings("deprecation")
 public class BiometricFragmentTest {
-    private static final Executor EXECUTOR = new Executor() {
-        @Override
-        public void execute(@NonNull Runnable runnable) {
-            runnable.run();
-        }
-    };
+    private static final Executor EXECUTOR = Runnable::run;
 
     @Mock private BiometricPrompt.AuthenticationCallback mAuthenticationCallback;
     @Mock private Context mContext;
@@ -68,22 +64,21 @@ public class BiometricFragmentTest {
 
     @Captor private ArgumentCaptor<BiometricPrompt.AuthenticationResult> mResultCaptor;
 
-    private BiometricFragment mFragment;
     private BiometricViewModel mViewModel;
+    private TestInjector.Builder mInjectorBuilder;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         prepareMockHandler(mHandler);
-        mFragment = BiometricFragment.newInstance();
         mViewModel = new BiometricViewModel();
-        mFragment.mHandler = mHandler;
-        mFragment.mViewModel = mViewModel;
+        mInjectorBuilder = new TestInjector.Builder(mHandler).setViewModel(mViewModel);
     }
 
     @Test
     public void testCancel_DoesNotCrash_WhenNotAssociatedWithFragmentManager() {
-        mFragment.cancelAuthentication(BiometricFragment.CANCELED_FROM_INTERNAL);
+        final BiometricFragment fragment = BiometricFragment.newInstance(mInjectorBuilder.build());
+        fragment.cancelAuthentication(BiometricFragment.CANCELED_FROM_INTERNAL);
     }
 
     @Test
@@ -92,7 +87,8 @@ public class BiometricFragmentTest {
         mViewModel.setClientCallback(mAuthenticationCallback);
         mViewModel.setAwaitingResult(true);
 
-        mFragment.onAuthenticationSucceeded(
+        final BiometricFragment fragment = BiometricFragment.newInstance(mInjectorBuilder.build());
+        fragment.onAuthenticationSucceeded(
                 new BiometricPrompt.AuthenticationResult(
                         null /* crypto */, BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC));
 
@@ -112,7 +108,8 @@ public class BiometricFragmentTest {
         mViewModel.setAwaitingResult(true);
         mViewModel.setFingerprintDialogDismissedInstantly(false);
 
-        mFragment.onAuthenticationError(errMsgId, errString);
+        final BiometricFragment fragment = BiometricFragment.newInstance(mInjectorBuilder.build());
+        fragment.onAuthenticationError(errMsgId, errString);
 
         assertThat(mViewModel.getFingerprintDialogState().getValue())
                 .isEqualTo(FingerprintDialogFragment.STATE_FINGERPRINT_ERROR);
@@ -123,7 +120,8 @@ public class BiometricFragmentTest {
 
     @Test
     public void testAuthenticate_ReturnsWithoutError_WhenDetached() {
-        mFragment.authenticate(
+        final BiometricFragment fragment = BiometricFragment.newInstance(mInjectorBuilder.build());
+        fragment.authenticate(
                 new BiometricPrompt.PromptInfo.Builder()
                         .setTitle("Title")
                         .setNegativeButtonText("Cancel")
@@ -150,13 +148,15 @@ public class BiometricFragmentTest {
                 nullable(Handler.class));
         when(mContext.getString(anyInt())).thenReturn(errString);
 
-        mFragment.authenticateWithFingerprint(mFingerprintManager, mContext);
+        final BiometricFragment fragment = BiometricFragment.newInstance(mInjectorBuilder.build());
+        fragment.authenticateWithFingerprint(mFingerprintManager, mContext);
 
         verify(mAuthenticationCallback).onAuthenticationError(eq(errMsgId), anyString());
     }
 
     @Test
     @Config(minSdk = Build.VERSION_CODES.P)
+    @RequiresApi(Build.VERSION_CODES.P)
     public void testAuthenticateWithBiometricPrompt_DoesShowErrorAndDismiss_WhenNPEThrown() {
         final int errMsgId = BiometricPrompt.ERROR_HW_UNAVAILABLE;
         final String errString = "test string";
@@ -173,7 +173,8 @@ public class BiometricFragmentTest {
                 any(android.hardware.biometrics.BiometricPrompt.AuthenticationCallback.class));
         when(mContext.getString(anyInt())).thenReturn(errString);
 
-        mFragment.authenticateWithBiometricPrompt(biometricPrompt, mContext);
+        final BiometricFragment fragment = BiometricFragment.newInstance(mInjectorBuilder.build());
+        fragment.authenticateWithBiometricPrompt(biometricPrompt, mContext);
 
         verify(mAuthenticationCallback).onAuthenticationError(eq(errMsgId), anyString());
     }
@@ -181,15 +182,102 @@ public class BiometricFragmentTest {
     private static void prepareMockHandler(Handler mockHandler) {
         // Immediately invoke any scheduled callbacks.
         when(mockHandler.postDelayed(any(Runnable.class), anyLong()))
-                .thenAnswer(new Answer<Boolean>() {
-                    @Override
-                    public Boolean answer(InvocationOnMock invocation) {
-                        final Runnable runnable = invocation.getArgument(0);
-                        if (runnable != null) {
-                            runnable.run();
-                        }
-                        return true;
+                .thenAnswer((Answer<Boolean>) invocation -> {
+                    final Runnable runnable = invocation.getArgument(0);
+                    if (runnable != null) {
+                        runnable.run();
                     }
+                    return true;
                 });
+    }
+
+    private static class TestInjector implements BiometricFragment.Injector {
+        static class Builder {
+            @NonNull private final Handler mHandler;
+
+            @Nullable private BiometricViewModel mViewModel = null;
+            private boolean mIsFingerprintHardwarePresent = false;
+            private boolean mIsFaceHardwarePresent = false;
+            private boolean mIsIrisHardwarePresent = false;
+
+            Builder(@NonNull Handler handler) {
+                mHandler = handler;
+            }
+
+            Builder setViewModel(@Nullable BiometricViewModel viewModel) {
+                mViewModel = viewModel;
+                return this;
+            }
+
+            Builder setFingerprintHardwarePresent(boolean fingerprintHardwarePresent) {
+                mIsFingerprintHardwarePresent = fingerprintHardwarePresent;
+                return this;
+            }
+
+            Builder setFaceHardwarePresent(boolean faceHardwarePresent) {
+                mIsFaceHardwarePresent = faceHardwarePresent;
+                return this;
+            }
+
+            Builder setIrisHardwarePresent(boolean irisHardwarePresent) {
+                mIsIrisHardwarePresent = irisHardwarePresent;
+                return this;
+            }
+
+            TestInjector build() {
+                return new TestInjector(
+                        mHandler,
+                        mViewModel,
+                        mIsFingerprintHardwarePresent,
+                        mIsFaceHardwarePresent,
+                        mIsIrisHardwarePresent);
+            }
+        }
+
+        @NonNull private final Handler mHandler;
+        @Nullable private final BiometricViewModel mViewModel;
+        private final boolean mIsFingerprintHardwarePresent;
+        private final boolean mIsFaceHardwarePresent;
+        private final boolean mIsIrisHardwarePresent;
+
+        private TestInjector(
+                @NonNull Handler handler,
+                @Nullable BiometricViewModel viewModel,
+                boolean isFingerprintHardwarePresent,
+                boolean isFaceHardwarePresent,
+                boolean isIrisHardwarePresent) {
+            mHandler = handler;
+            mViewModel = viewModel;
+            mIsFingerprintHardwarePresent = isFingerprintHardwarePresent;
+            mIsFaceHardwarePresent = isFaceHardwarePresent;
+            mIsIrisHardwarePresent = isIrisHardwarePresent;
+        }
+
+        @Override
+        @NonNull
+        public Handler getHandler() {
+            return mHandler;
+        }
+
+        @Override
+        @Nullable
+        public BiometricViewModel getViewModel(@Nullable Context hostContext) {
+            return mViewModel;
+        }
+
+        @Override
+        public boolean isFingerprintHardwarePresent(@Nullable Context context) {
+            return mIsFingerprintHardwarePresent;
+        }
+
+        @Override
+        public boolean isFaceHardwarePresent(@Nullable Context context) {
+            return mIsFaceHardwarePresent;
+        }
+
+        @Override
+        public boolean isIrisHardwarePresent(@Nullable Context context) {
+            return  mIsIrisHardwarePresent;
+        }
     }
 }
