@@ -276,7 +276,7 @@ object InlineSliderDefaults {
         selectedBarColor: Color = MaterialTheme.colors.secondary,
         unselectedBarColor: Color = MaterialTheme.colors.onSurface.copy(0.1f),
         disabledBackgroundColor: Color = backgroundColor.copy(alpha = ContentAlpha.disabled),
-        disabledSpacerColor: Color = spacerColor,
+        disabledSpacerColor: Color = spacerColor.copy(alpha = ContentAlpha.disabled),
         disabledSelectedBarColor: Color = selectedBarColor.copy(alpha = ContentAlpha.disabled),
         disabledUnselectedBarColor: Color = unselectedBarColor.copy(alpha = 0.05f),
     ): InlineSliderColors = DefaultInlineSliderColors(
