@@ -72,27 +72,27 @@ private fun buildInitializer(layouts: Map<File, LayoutProperties>): CodeBlock {
 
 private fun createFileInitializer(layout: File, mainViewId: String): CodeBlock = buildCodeBlock {
     val viewType = layout.nameWithoutExtension.toLayoutType()
-    ValidSize.values().forEach { width ->
-        ValidSize.values().forEach { height ->
-            addLayout(
-                resourceName = makeSimpleResourceName(layout, width, height),
-                viewType = viewType,
-                width = width,
-                height = height,
-                canResize = false,
-                mainViewId = "R.id.$mainViewId",
-                sizeViewId = null
-            )
-            addLayout(
-                resourceName = makeComplexResourceName(layout, width, height),
-                viewType = viewType,
-                width = width,
-                height = height,
-                canResize = true,
-                mainViewId = "R.id.$mainViewId",
-                sizeViewId = "R.id.sizeView"
-            )
-        }
+    forEachConfiguration(layout) { width, height, childCount ->
+        addLayout(
+            resourceName = makeSimpleResourceName(layout, width, height, childCount),
+            viewType = viewType,
+            width = width,
+            height = height,
+            canResize = false,
+            mainViewId = "R.id.$mainViewId",
+            sizeViewId = null,
+            childCount = childCount
+        )
+        addLayout(
+            resourceName = makeComplexResourceName(layout, width, height, childCount),
+            viewType = viewType,
+            width = width,
+            height = height,
+            canResize = true,
+            mainViewId = "R.id.$mainViewId",
+            sizeViewId = "R.id.sizeView",
+            childCount = childCount
+        )
     }
 }
 
@@ -103,14 +103,16 @@ private fun CodeBlock.Builder.addLayout(
     height: ValidSize,
     canResize: Boolean,
     mainViewId: String,
-    sizeViewId: String?
+    sizeViewId: String?,
+    childCount: Int
 ) {
     addStatement(
-        "%T(type = %M, width = %M, height = %M, canResize = $canResize) to ",
+        "%T(type = %M, width = %M, height = %M, canResize = $canResize, childCount = %L) to ",
         LayoutSelector,
         makeViewType(viewType),
         width.toValue(),
         height.toValue(),
+        childCount
     )
     withIndent {
         addStatement("%T(", LayoutIds)
@@ -149,11 +151,36 @@ private fun ValidSize.toValue() = when (this) {
     ValidSize.Match -> MatchValue
 }
 
-internal fun makeSimpleResourceName(file: File, width: ValidSize, height: ValidSize) =
-    "${file.nameWithoutExtension}_simple_${width.resourceName}_${height.resourceName}"
+internal fun makeSimpleResourceName(
+    file: File,
+    width: ValidSize,
+    height: ValidSize,
+    childCount: Int
+) = makeResourceName(file, width, height, childCount, isSimple = true)
 
-internal fun makeComplexResourceName(file: File, width: ValidSize, height: ValidSize) =
-    "${file.nameWithoutExtension}_complex_${width.resourceName}_${height.resourceName}"
+internal fun makeComplexResourceName(
+    file: File,
+    width: ValidSize,
+    height: ValidSize,
+    childCount: Int
+) = makeResourceName(file, width, height, childCount, isSimple = false)
+
+private fun makeResourceName(
+    file: File,
+    width: ValidSize,
+    height: ValidSize,
+    childCount: Int,
+    isSimple: Boolean,
+): String {
+    return listOfNotNull(
+        file.nameWithoutExtension,
+        if (isSimple) "simple" else "complex",
+        width.resourceName,
+        height.resourceName,
+        if (childCount > 0) "${childCount}child" else null
+    )
+        .joinToString(separator = "_")
+}
 
 fun CodeBlock.Builder.withIndent(builderAction: CodeBlock.Builder.() -> Unit): CodeBlock.Builder {
     indent()
@@ -161,6 +188,28 @@ fun CodeBlock.Builder.withIndent(builderAction: CodeBlock.Builder.() -> Unit): C
     unindent()
     return this
 }
+
+/**
+ * The list of layout templates corresponding to collections that should have view stub children.
+ */
+private val CollectionFiles = listOf("box", "column", "row")
+
+/**
+ * Returns whether the [File] is for a collection layout that should have generated view stub
+ * children.
+ */
+internal fun File.isCollectionLayout() = nameWithoutExtension in CollectionFiles
+
+internal fun File.allChildCounts(): List<Int> {
+    return if (isCollectionLayout()) {
+        (0..MaxChildren).toList()
+    } else {
+        listOf(0)
+    }
+}
+
+/** The maximum number of direct children that a collection layout can have. */
+internal const val MaxChildren = 10
 
 val LicenseComment =
     """
