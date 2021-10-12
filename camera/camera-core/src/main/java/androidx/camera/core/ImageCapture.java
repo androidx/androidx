@@ -42,15 +42,11 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_CASE_EVENT
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_SOFTWARE_JPEG_ENCODER;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
-import static androidx.camera.core.internal.utils.ImageUtil.min;
-import static androidx.camera.core.internal.utils.ImageUtil.sizeToVertexes;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.graphics.ImageFormat;
-import android.graphics.Matrix;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.location.Location;
 import android.media.Image;
 import android.media.ImageReader;
@@ -998,7 +994,19 @@ public final class ImageCapture extends UseCase {
         // If the final output image needs to be cropped, setting the JPEG quality as 100 when
         // capturing the image. So that the image quality won't be lost when uncompressing and
         // compressing the image again in the cropping process.
-        int capturingJpegQuality = shouldCropImage() ? 100 : outputJpegQuality;
+        int rotationDegrees = getRelativeRotation(getCamera());
+        Size dispatchResolution = getAttachedSurfaceResolution();
+        // At this point, we can't know whether HAL will rotate the captured image or not. No
+        // matter HAL will rotate the image byte array or not, it won't affect whether the final
+        // image needs cropping or not. Therefore, we can still use the attached surface
+        // resolution and its relative rotation degrees against to the target rotation setting to
+        // calculate the possible crop rectangle and then use it to determine whether the final
+        // image will need cropping or not.
+        Rect cropRect = computeDispatchCropRect(getViewPortCropRect(), mCropAspectRatio,
+                rotationDegrees, dispatchResolution, rotationDegrees);
+        boolean shouldCropImage = ImageUtil.shouldCropImage(dispatchResolution.getWidth(),
+                dispatchResolution.getHeight(), cropRect.width(), cropRect.height());
+        int capturingJpegQuality = shouldCropImage ? 100 : outputJpegQuality;
 
         // Always use the mainThreadExecutor for the initial callback so we don't need to double
         // post to another thread
@@ -1006,42 +1014,28 @@ public final class ImageCapture extends UseCase {
                 imageCaptureCallbackWrapper, capturingJpegQuality);
     }
 
-    private boolean shouldCropImage() {
-        CameraInternal attachedCamera = getCamera();
-
-        if (attachedCamera == null) {
-            return false;
-        }
-
-        int rotationDegrees = getRelativeRotation(attachedCamera);
-        Rect viewPortCropRect = getViewPortCropRect();
-        ResolutionInfo resolutionInfo = getResolutionInfoInternal();
-        Rect cropRect = null;
-
+    @NonNull
+    static Rect computeDispatchCropRect(@Nullable Rect viewPortCropRect,
+            @Nullable Rational cropAspectRatio, int rotationDegrees,
+            @NonNull Size dispatchResolution, int dispatchRotationDegrees) {
         if (viewPortCropRect != null) {
-            // If Viewport is present, use the Viewport-based crop rect.
-            cropRect = ImageCaptureRequest.getDispatchCropRect(viewPortCropRect, rotationDegrees,
-                    resolutionInfo.getResolution(), rotationDegrees);
-        } else if (mCropAspectRatio != null) {
+            return ImageUtil.computeCropRectFromDispatchInfo(viewPortCropRect, rotationDegrees,
+                    dispatchResolution, dispatchRotationDegrees);
+        } else if (cropAspectRatio != null) {
             // Fall back to crop aspect ratio if view port is not available.
-            Rational cropAspectRatio = mCropAspectRatio;
-            if ((rotationDegrees % 180) != 0) {
-                cropAspectRatio = new Rational(
-                        /* invert the ratio numerator=*/ mCropAspectRatio.getDenominator(),
-                        /* invert the ratio denominator=*/ mCropAspectRatio.getNumerator());
+            Rational aspectRatio = cropAspectRatio;
+            if ((dispatchRotationDegrees % 180) != 0) {
+                aspectRatio = new Rational(
+                        /* invert the ratio numerator=*/ cropAspectRatio.getDenominator(),
+                        /* invert the ratio denominator=*/ cropAspectRatio.getNumerator());
             }
-            if (ImageUtil.isAspectRatioValid(resolutionInfo.getResolution(), cropAspectRatio)) {
-                cropRect = ImageUtil.computeCropRectFromAspectRatio(resolutionInfo.getResolution(),
-                        cropAspectRatio);
+            if (ImageUtil.isAspectRatioValid(dispatchResolution, aspectRatio)) {
+                return ImageUtil.computeCropRectFromAspectRatio(dispatchResolution,
+                        aspectRatio);
             }
         }
 
-        if (cropRect == null) {
-            return false;
-        }
-
-        return !resolutionInfo.getResolution().equals(new Size(cropRect.width(),
-                cropRect.height()));
+        return new Rect(0, 0, dispatchResolution.getWidth(), dispatchResolution.getHeight());
     }
 
     /**
@@ -2514,31 +2508,13 @@ public final class ImageCapture extends UseCase {
                     image.getImageInfo().getTimestamp(), dispatchRotationDegrees);
 
             final ImageProxy dispatchedImageProxy = new SettableImageProxy(image,
-                    dispatchResolution,
-                    imageInfo);
+                    dispatchResolution, imageInfo);
 
             // Update the crop rect aspect ratio after it has been rotated into the buffer
             // orientation
-            if (mViewPortCropRect != null) {
-                // If Viewport is present, use the Viewport-based crop rect.
-                dispatchedImageProxy.setCropRect(getDispatchCropRect(mViewPortCropRect,
-                        mRotationDegrees, dispatchResolution, dispatchRotationDegrees));
-            } else if (mTargetRatio != null) {
-                // Fall back to crop aspect ratio if view port is not available.
-                Rational dispatchRatio = mTargetRatio;
-                if ((dispatchRotationDegrees % 180) != 0) {
-                    dispatchRatio = new Rational(
-                            /* invert the ratio numerator=*/ mTargetRatio.getDenominator(),
-                            /* invert the ratio denominator=*/ mTargetRatio.getNumerator());
-                }
-                Size sourceSize = new Size(dispatchedImageProxy.getWidth(),
-                        dispatchedImageProxy.getHeight());
-                if (ImageUtil.isAspectRatioValid(sourceSize, dispatchRatio)) {
-                    dispatchedImageProxy.setCropRect(
-                            ImageUtil.computeCropRectFromAspectRatio(sourceSize,
-                                    dispatchRatio));
-                }
-            }
+            Rect cropRect = computeDispatchCropRect(mViewPortCropRect, mTargetRatio,
+                    mRotationDegrees, dispatchResolution, dispatchRotationDegrees);
+            dispatchedImageProxy.setCropRect(cropRect);
 
             try {
                 mListenerExecutor.execute(() -> {
@@ -2550,50 +2526,6 @@ public final class ImageCapture extends UseCase {
                 // Unable to execute on the supplied executor, close the image.
                 image.close();
             }
-        }
-
-        /**
-         * Corrects crop rect based on JPEG exif rotation.
-         *
-         * <p> The original crop rect is calculated based on camera sensor buffer. On some devices,
-         * the buffer is rotated before being passed to users, in which case the crop rect also
-         * needs additional transformations.
-         *
-         * <p> There are two most common scenarios: 1) exif rotation is 0, or 2) exif rotation
-         * equals output rotation. 1) means the HAL rotated the buffer based on target
-         * rotation. 2) means HAL no-oped on the rotation. Theoretically only 1) needs
-         * additional transformations, but this method is also generic enough to handle all possible
-         * HAL rotations.
-         */
-        @NonNull
-        static Rect getDispatchCropRect(@NonNull Rect surfaceCropRect, int surfaceToOutputDegrees,
-                @NonNull Size dispatchResolution, int dispatchToOutputDegrees) {
-            // There are 3 coordinate systems: surface, dispatch and output. Surface is where
-            // the original crop rect is defined. We need to figure out what HAL
-            // has done to the buffer (the surface->dispatch mapping) and apply the same
-            // transformation to the crop rect.
-            // The surface->dispatch mapping is calculated by inverting a dispatch->surface mapping.
-
-            Matrix matrix = new Matrix();
-            // Apply the dispatch->surface rotation.
-            matrix.setRotate(dispatchToOutputDegrees - surfaceToOutputDegrees);
-            // Apply the dispatch->surface translation. The translation is calculated by
-            // compensating for the offset caused by the dispatch->surface rotation.
-            float[] vertexes = sizeToVertexes(dispatchResolution);
-            matrix.mapPoints(vertexes);
-            float left = min(vertexes[0], vertexes[2], vertexes[4], vertexes[6]);
-            float top = min(vertexes[1], vertexes[3], vertexes[5], vertexes[7]);
-            matrix.postTranslate(-left, -top);
-            // Inverting the dispatch->surface mapping to get the surface->dispatch mapping.
-            matrix.invert(matrix);
-
-            // Apply the surface->dispatch mapping to surface crop rect.
-            RectF dispatchCropRectF = new RectF();
-            matrix.mapRect(dispatchCropRectF, new RectF(surfaceCropRect));
-            dispatchCropRectF.sort();
-            Rect dispatchCropRect = new Rect();
-            dispatchCropRectF.round(dispatchCropRect);
-            return dispatchCropRect;
         }
 
         void notifyCallbackError(final @ImageCaptureError int imageCaptureError,

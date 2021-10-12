@@ -20,7 +20,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.YuvImage;
 import android.util.Rational;
 import android.util.Size;
@@ -273,6 +275,51 @@ public final class ImageUtil {
         return new Rect(cropLeft, cropTop, cropLeft + outputWidth, cropTop + outputHeight);
     }
 
+    /**
+     * Calculates crop rect based on the dispatch resolution and rotation degrees info.
+     *
+     * <p> The original crop rect is calculated based on camera sensor buffer. On some devices,
+     * the buffer is rotated before being passed to users, in which case the crop rect also
+     * needs additional transformations.
+     *
+     * <p> There are two most common scenarios: 1) exif rotation is 0, or 2) exif rotation
+     * equals output rotation. 1) means the HAL rotated the buffer based on target
+     * rotation. 2) means HAL no-oped on the rotation. Theoretically only 1) needs
+     * additional transformations, but this method is also generic enough to handle all possible
+     * HAL rotations.
+     */
+    @NonNull
+    public static Rect computeCropRectFromDispatchInfo(@NonNull Rect surfaceCropRect,
+            int surfaceToOutputDegrees, @NonNull Size dispatchResolution,
+            int dispatchToOutputDegrees) {
+        // There are 3 coordinate systems: surface, dispatch and output. Surface is where
+        // the original crop rect is defined. We need to figure out what HAL
+        // has done to the buffer (the surface->dispatch mapping) and apply the same
+        // transformation to the crop rect.
+        // The surface->dispatch mapping is calculated by inverting a dispatch->surface mapping.
+
+        Matrix matrix = new Matrix();
+        // Apply the dispatch->surface rotation.
+        matrix.setRotate(dispatchToOutputDegrees - surfaceToOutputDegrees);
+        // Apply the dispatch->surface translation. The translation is calculated by
+        // compensating for the offset caused by the dispatch->surface rotation.
+        float[] vertexes = sizeToVertexes(dispatchResolution);
+        matrix.mapPoints(vertexes);
+        float left = min(vertexes[0], vertexes[2], vertexes[4], vertexes[6]);
+        float top = min(vertexes[1], vertexes[3], vertexes[5], vertexes[7]);
+        matrix.postTranslate(-left, -top);
+        // Inverting the dispatch->surface mapping to get the surface->dispatch mapping.
+        matrix.invert(matrix);
+
+        // Apply the surface->dispatch mapping to surface crop rect.
+        RectF dispatchCropRectF = new RectF();
+        matrix.mapRect(dispatchCropRectF, new RectF(surfaceCropRect));
+        dispatchCropRectF.sort();
+        Rect dispatchCropRect = new Rect();
+        dispatchCropRectF.round(dispatchCropRect);
+        return dispatchCropRect;
+    }
+
     private static byte[] nv21ToJpeg(@NonNull byte[] nv21, int width, int height,
             @Nullable Rect cropRect, @IntRange(from = 1, to = 100) int jpegQuality)
             throws CodecFailedException {
@@ -309,13 +356,19 @@ public final class ImageUtil {
     }
 
     /**
-     * Checks whether the image's crop rectangle is the same as the image size.
+     * Checks whether the image's crop rectangle is the same as the source image size.
      */
     public static boolean shouldCropImage(@NonNull ImageProxy image) {
-        Size sourceSize = new Size(image.getWidth(), image.getHeight());
-        Size targetSize = new Size(image.getCropRect().width(), image.getCropRect().height());
+        return shouldCropImage(image.getWidth(), image.getHeight(), image.getCropRect().width(),
+                image.getCropRect().height());
+    }
 
-        return !targetSize.equals(sourceSize);
+    /**
+     * Checks whether the image's crop rectangle is the same as the source image size.
+     */
+    public static boolean shouldCropImage(int sourceWidth, int sourceHeight, int cropRectWidth,
+            int cropRectHeight) {
+        return sourceWidth != cropRectWidth || sourceHeight != cropRectHeight;
     }
 
     /** Exception for error during transcoding image. */
