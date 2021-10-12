@@ -299,6 +299,11 @@ object Shell {
         }
         throw IllegalStateException("Failed to stop $runningProcesses")
     }
+
+    @RequiresApi(21)
+    fun pathExists(absoluteFilePath: String): Boolean {
+        return executeCommand("ls $absoluteFilePath").trim() == absoluteFilePath
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)

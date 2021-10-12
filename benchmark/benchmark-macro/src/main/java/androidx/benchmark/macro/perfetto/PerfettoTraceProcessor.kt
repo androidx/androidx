@@ -72,6 +72,8 @@ internal object PerfettoTraceProcessor {
 
     /**
      * Query a trace for a list of slices - name, timestamp, and duration.
+     *
+     * Note that sliceNames may include wildcard matches, such as `foo%`
      */
     fun querySlices(
         absoluteTracePath: String,
@@ -79,7 +81,7 @@ internal object PerfettoTraceProcessor {
     ): List<Slice> {
         val whereClause = sliceNames
             .joinToString(separator = " OR ") {
-                "slice.name = '$it'"
+                "slice.name LIKE \"$it\""
             }
 
         return Slice.parseListFromQueryResult(
