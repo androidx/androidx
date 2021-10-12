@@ -39,6 +39,7 @@ import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceService
 import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
+import android.view.Choreographer
 import android.view.SurfaceHolder
 import android.view.WindowInsets
 import androidx.annotation.Px
@@ -129,6 +130,7 @@ public class WatchFaceServiceTest {
     private val iWatchFaceService = mock<IWatchFaceService>()
     private val surfaceHolder = mock<SurfaceHolder>()
     private val tapListener = mock<WatchFace.TapListener>()
+    private val choreographer = mock<Choreographer>()
     private val watchState = MutableWatchState()
 
     init {
@@ -349,12 +351,19 @@ public class WatchFaceServiceTest {
     private val pendingTasks = PriorityQueue<Task>()
 
     private fun runPostedTasksFor(durationMillis: Long) {
-        looperTimeMillis += durationMillis
+        val stopTime = looperTimeMillis + durationMillis
+
         while (pendingTasks.isNotEmpty() &&
-            pendingTasks.peek()!!.runTimeMillis <= looperTimeMillis
+            pendingTasks.peek()!!.runTimeMillis <= stopTime
         ) {
-            pendingTasks.remove().runnable.run()
+            val task = pendingTasks.remove()
+            testWatchFaceService.mockSystemTimeMillis = task.runTimeMillis
+            looperTimeMillis = task.runTimeMillis
+            task.runnable.run()
         }
+
+        looperTimeMillis = stopTime
+        testWatchFaceService.mockSystemTimeMillis = stopTime
     }
 
     private fun initEngine(
@@ -414,7 +423,8 @@ public class WatchFaceServiceTest {
             handler,
             tapListener,
             true,
-            null
+            null,
+            choreographer
         )
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
@@ -470,7 +480,8 @@ public class WatchFaceServiceTest {
             handler,
             null,
             false,
-            null
+            null,
+            choreographer
         )
 
         InteractiveInstanceManager
@@ -576,6 +587,13 @@ public class WatchFaceServiceTest {
                 Task(looperTimeMillis + it.arguments[1] as Long, it.arguments[0] as Runnable)
             )
         }.`when`(handler).postDelayed(any(), anyLong())
+
+        doAnswer {
+            // Simulate waiting for the next frame.
+            val nextFrameTimeMillis = looperTimeMillis + (16 - looperTimeMillis % 16)
+            val callback = it.arguments[0] as Choreographer.FrameCallback
+            pendingTasks.add(Task(nextFrameTimeMillis, { callback.doFrame(0) }))
+        }.`when`(choreographer).postFrameCallback(any())
 
         doAnswer {
             // Remove task from the priority queue.  There's no good way of doing this quickly.
@@ -1061,7 +1079,7 @@ public class WatchFaceServiceTest {
 
         assertThat(
             watchFaceImpl.computeDelayTillNextFrame(
-                beginFrameTimeMillis = 0,
+                startTimeMillis = 0,
                 currentTimeMillis = 2
             )
         )
@@ -1069,38 +1087,20 @@ public class WatchFaceServiceTest {
     }
 
     @Test
-    public fun computeDelayTillNextFrame_dropsFramesForVerySlowDraw() {
+    public fun computeDelayTillNextFrame_verySlowDraw() {
         initEngine(
             WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication),
             UserStyleSchema(emptyList())
         )
 
+        // If the frame is very slow we'll want to post a choreographer frame immediately.
         assertThat(
             watchFaceImpl.computeDelayTillNextFrame(
-                beginFrameTimeMillis = 0,
-                currentTimeMillis = INTERACTIVE_UPDATE_RATE_MS
-            )
-        ).isEqualTo(INTERACTIVE_UPDATE_RATE_MS)
-    }
-
-    @Test
-    public fun computeDelayTillNextFrame_perservesPhaseForVerySlowDraw() {
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication),
-            UserStyleSchema(emptyList())
-        )
-
-        // The phase of beginFrameTimeMillis % INTERACTIVE_UPDATE_RATE_MS is 2, but the phase of
-        // currentTimeMillis % INTERACTIVE_UPDATE_RATE_MS is 3, so we expect to delay
-        // INTERACTIVE_UPDATE_RATE_MS - 1 to preserve the phase while dropping a frame.
-        assertThat(
-            watchFaceImpl.computeDelayTillNextFrame(
-                beginFrameTimeMillis = 2,
+                startTimeMillis = 2,
                 currentTimeMillis = INTERACTIVE_UPDATE_RATE_MS + 3
             )
-        ).isEqualTo(INTERACTIVE_UPDATE_RATE_MS - 1)
+        ).isEqualTo(- 1)
     }
 
     @Test
@@ -1111,12 +1111,35 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
+        watchFaceImpl.nextDrawTimeMillis = 1000
+
+        // Simulate time going backwards between renders.
         assertThat(
             watchFaceImpl.computeDelayTillNextFrame(
-                beginFrameTimeMillis = 100,
-                currentTimeMillis = 10
+                startTimeMillis = 20,
+                currentTimeMillis = 24
             )
-        ).isEqualTo(INTERACTIVE_UPDATE_RATE_MS)
+        ).isEqualTo(INTERACTIVE_UPDATE_RATE_MS - 4)
+    }
+
+    @Test
+    public fun computeDelayTillNextFrame_1000ms_update_atTopOfSecond() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        renderer.interactiveDrawModeUpdateDelayMillis = 1000
+
+        // Simulate rendering 0.74s into a second, after which we expect a short delay.
+        watchFaceImpl.nextDrawTimeMillis = 100740
+        assertThat(
+            watchFaceImpl.computeDelayTillNextFrame(
+                startTimeMillis = 100740,
+                currentTimeMillis = 100750
+            )
+        ).isEqualTo(250)
     }
 
     @Test
@@ -1203,7 +1226,8 @@ public class WatchFaceServiceTest {
             handler,
             null,
             true,
-            null
+            null,
+            choreographer
         )
 
         // Trigger watch face creation.
@@ -1644,7 +1668,8 @@ public class WatchFaceServiceTest {
             handler,
             null,
             true,
-            null
+            null,
+            choreographer
         )
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
@@ -1869,7 +1894,8 @@ public class WatchFaceServiceTest {
             handler,
             null,
             true,
-            null
+            null,
+            choreographer
         )
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
@@ -2237,7 +2263,8 @@ public class WatchFaceServiceTest {
                     )
                 ).toWireFormat(),
                 null
-            )
+            ),
+            choreographer
         )
 
         engineWrapper =
@@ -2476,7 +2503,8 @@ public class WatchFaceServiceTest {
             handler,
             null,
             true,
-            null
+            null,
+            choreographer
         )
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
@@ -2487,6 +2515,87 @@ public class WatchFaceServiceTest {
         // At this stage we haven't sent properties such as isAmbient, we expect it to be
         // initialized to false (as opposed to null).
         assertThat(watchState.isAmbient.value).isFalse()
+    }
+
+    @Test
+    public fun ambientToInteractiveTransition() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "interactiveInstanceId",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(true, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null
+            )
+        )
+
+        // We get an initial renderer when watch face init completes.
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(0L)
+        runPostedTasksFor(1000L)
+
+        // But no subsequent renders are scheduled.
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(0L)
+
+        // An ambientTickUpdate should trigger a render immediately.
+        engineWrapper.ambientTickUpdate()
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(1000L)
+
+        // But not trigger any subsequent rendering.
+        runPostedTasksFor(1000L)
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(1000L)
+
+        // When going interactive a frame should be rendered immediately.
+        engineWrapper.setWatchUiState(WatchUiState(false, 0))
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(2000L)
+
+        // And we should be producing frames.
+        runPostedTasksFor(100L)
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(2096L)
+    }
+
+    @Test
+    public fun interactiveToAmbientTransition() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "interactiveInstanceId",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null
+            )
+        )
+
+        // We get an initial renderer when watch face init completes.
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(0L)
+        runPostedTasksFor(1000L)
+
+        // There's a number of subsequent renders every 16ms.
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(992L)
+
+        // After going ambient we should render immediately and then stop.
+        engineWrapper.setWatchUiState(WatchUiState(true, 0))
+        runPostedTasksFor(5000L)
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(1000L)
+
+        // An ambientTickUpdate should trigger a render immediately.
+        engineWrapper.ambientTickUpdate()
+        assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(6000L)
     }
 
     @Test
@@ -2622,7 +2731,8 @@ public class WatchFaceServiceTest {
                     )
                 ).toWireFormat(),
                 null
-            )
+            ),
+            choreographer
         )
 
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
@@ -2673,7 +2783,8 @@ public class WatchFaceServiceTest {
                     )
                 ).toWireFormat(),
                 null
-            )
+            ),
+            choreographer
         )
 
         testWatchFaceService.createHeadlessEngine()
@@ -2917,7 +3028,8 @@ public class WatchFaceServiceTest {
             handler,
             null,
             false,
-            null
+            null,
+            choreographer
         )
 
         InteractiveInstanceManager
