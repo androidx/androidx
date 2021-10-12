@@ -148,7 +148,7 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version = "2.7.2" }
 robolectric = { module = "org.robolectric:robolectric", version = "4.6.1" }
 rxjava2 = { module = "io.reactivex.rxjava2:rxjava", version = "2.2.9" }
 rxjava3 = { module = "io.reactivex.rxjava3:rxjava", version = "3.0.0" }
-shadow = { module = "com.github.jengelman.gradle.plugins:shadow", version = "6.1.0" }
+shadow = { module = "gradle.plugin.com.github.johnrengelman:shadow", version = "7.1.0" }
 skiko = { module = "org.jetbrains.skiko:skiko-jvm", version.ref = "skiko" }
 skikoCommon = { module = "org.jetbrains.skiko:skiko", version.ref = "skiko" }
 skikoMacOsArm64 = { module = "org.jetbrains.skiko:skiko-jvm-runtime-macos-arm64", version.ref = "skiko" }
