@@ -183,7 +183,8 @@ public class SignInTemplateDemoScreen extends Screen {
 
         return new SignInTemplate.Builder(signInMethod)
                 .addAction(mProviderSignInAction)
-                .addAction(mQRCodeSignInAction)
+                .addAction(getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_3
+                        ? mQRCodeSignInAction : mPinSignInAction)
                 .setTitle("Sign in")
                 .setInstructions("Enter your credentials")
                 .setHeaderAction(Action.BACK)
@@ -251,7 +252,8 @@ public class SignInTemplateDemoScreen extends Screen {
 
         return new SignInTemplate.Builder(signInMethod)
                 .addAction(mProviderSignInAction)
-                .addAction(mQRCodeSignInAction)
+                .addAction(getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_3
+                        ? mQRCodeSignInAction : mPinSignInAction)
                 .setTitle("Sign in")
                 .setInstructions("Username: " + mUsername)
                 .setHeaderAction(Action.BACK)
