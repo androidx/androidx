@@ -94,12 +94,14 @@ import androidx.compose.ui.unit.dp
  * @param modifier Modifier to be applied to the chip
  * @param toggleIcon A slot for providing the chip's toggle icon(s). The contents are expected to be
  * a horizontally and vertically centre aligned icon of size [ToggleChipDefaults.IconSize]. Three
- * types of toggle icon are supported and can be obtained from
+ * built-in types of toggle icon are supported and can be obtained from
  * [ToggleChipDefaults.SwitchIcon], [ToggleChipDefaults.RadioIcon] and
- * [ToggleChipDefaults.CheckboxIcon]
+ * [ToggleChipDefaults.CheckboxIcon]. In order to correctly render when the Chip is not enabled the
+ * icon must set its alpha value to [LocalContentAlpha].
  * @param appIcon An optional slot for providing an icon to indicate the purpose of the chip. The
  * contents are expected to be a horizontally and vertically centre aligned icon of size
- * [ToggleChipDefaults.IconSize].
+ * [ToggleChipDefaults.IconSize]. In order to correctly render when the Chip is not enabled the
+ * icon must set its alpha value to [LocalContentAlpha].
  * @param secondaryLabel A slot for providing the chip's secondary label. The contents are expected
  * to be text which is "start" aligned if there is an icon preset and "start" or "center" aligned if
  * not. label and secondaryLabel contents should be consistently aligned.
@@ -268,9 +270,10 @@ public fun ToggleChip(
  * @param modifier Modifier to be applied to the chip
  * @param toggleIcon A slot for providing the chip's toggle icon(s). The contents are expected to be
  * a horizontally and vertically centre aligned icon of size [ToggleChipDefaults.IconSize]. Three
- * types of toggle icon are supported and can be obtained from
+ * built-in types of toggle icon are supported and can be obtained from
  * [ToggleChipDefaults.SwitchIcon], [ToggleChipDefaults.RadioIcon] and
- * [ToggleChipDefaults.CheckboxIcon]
+ * [ToggleChipDefaults.CheckboxIcon]. In order to correctly render when the Chip is not enabled the
+ * icon must set its alpha value to [LocalContentAlpha].
  * @param secondaryLabel A slot for providing the chip's secondary label. The contents are expected
  * to be "start" or "center" aligned. label and secondaryLabel contents should be consistently
  * aligned.

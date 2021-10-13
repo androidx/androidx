@@ -187,7 +187,9 @@ public fun Chip(
  * to be text which is "start" aligned if there is an icon preset and "start" or "center" aligned if
  * not. label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the chip's icon. The contents are expected to be a horizontally
- * and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize].
+ * and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize]. In
+ * order to correctly render when the Chip is not enabled the icon must set its alpha value to
+ * [LocalContentAlpha].
  * @param colors [ChipColors] that will be used to resolve the background and content color for
  * this chip in different states. See [ChipDefaults.chipColors]. Defaults to
  * [ChipDefaults.primaryChipColors]
@@ -304,7 +306,9 @@ public fun Chip(
  * @param label A slot for providing the chip's main label. The contents are expected to be text
  * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
  * @param icon A slot for providing the chip's icon. The contents are expected to be a horizontally
- * and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize].
+ * and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize]. In
+ * order to correctly render when the Chip is not enabled the icon must set its alpha value to
+ * [LocalContentAlpha].
  * @param colors [ChipColors] that will be used to resolve the background and content color for
  * this chip in different states. See [ChipDefaults.chipColors]. Defaults to
  * [ChipDefaults.primaryChipColors]
