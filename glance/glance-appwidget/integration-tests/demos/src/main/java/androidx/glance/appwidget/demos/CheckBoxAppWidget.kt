@@ -49,5 +49,5 @@ class CheckBoxAppWidget : GlanceAppWidget() {
 }
 
 class CheckBoxAppWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget by lazy { CheckBoxAppWidget() }
+    override val glanceAppWidget: GlanceAppWidget = CheckBoxAppWidget()
 }
