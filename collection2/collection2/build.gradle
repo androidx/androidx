@@ -30,6 +30,7 @@ buildscript {
 
 plugins {
     id("AndroidXPlugin")
+    id("java") // https://github.com/gradle/gradle/issues/18622
     id("org.jetbrains.kotlin.multiplatform")
     id("me.champeau.gradle.japicmp")
 }
