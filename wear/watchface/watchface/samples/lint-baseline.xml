@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="true" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="true" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
 
     <issue
         id="MissingClass"
@@ -63,7 +63,7 @@
         errorLine2="        ^">
         <location
             file="src/test/java/androidx/wear/watchface/TestCommon.kt"
-            line="91"
+            line="92"
             column="9"/>
     </issue>
 
@@ -74,44 +74,11 @@
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/watchface/WatchFace.kt"
-            line="606"
+            line="593"
             column="44"/>
     </issue>
 
     <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 26 from the `minSdkVersion`"
-        errorLine1="@RequiresApi(Build.VERSION_CODES.N)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/ComplicationHelperActivity.java"
-            line="62"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 26 from the `minSdkVersion`"
-        errorLine1="@RequiresApi(VERSION_CODES.KITKAT)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/wearable/watchface/accessibility/ContentDescriptionLabel.java"
-            line="46"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 30 here from outer annotations"
-        errorLine1="    @RequiresApi(Build.VERSION_CODES.R)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/editor/WatchFaceEditorContract.kt"
-            line="107"
-            column="5"/>
-    </issue>
-
-    <issue
         id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantities should also be defined: `many`"
         errorLine1="    &lt;plurals name=&quot;time_difference_short_days&quot; formatted=&quot;false&quot; msgid=&quot;3878057769320887026&quot;>"
@@ -241,193 +208,6 @@
             file="src/main/res/values-fr/complication_strings.xml"
             line="26"
             column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ConfigViewHolder("
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/editor/sample/ConfigFragment.kt"
-            line="243"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="    override fun parseResult(resultCode: Int, intent: Intent?) = intent?.let {"
-        errorLine2="                 ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/editor/EditorSession.kt"
-            line="1022"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="    override val previewReferenceInstant: Instant"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/client/HeadlessWatchFaceClient.kt"
-            line="174"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="    override fun toBundle() = Bundle().apply {"
-        errorLine2="                 ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/client/HeadlessWatchFaceClient.kt"
-            line="253"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="    internal fun addToWireComplicationData(builder: WireComplicationDataBuilder) = builder.apply {"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/complications/data/Image.kt"
-            line="57"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="    internal fun addToWireComplicationData(builder: WireComplicationDataBuilder) = builder.apply {"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/complications/data/Image.kt"
-            line="125"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="    override val previewReferenceInstant: Instant"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/client/InteractiveWatchFaceClient.kt"
-            line="315"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="    override val instanceId: String"
-        errorLine2="                 ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/client/InteractiveWatchFaceClient.kt"
-            line="336"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="        internal suspend fun initBackgroundThreadOpenGlContext() ="
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/Renderer.kt"
-            line="756"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="        internal override suspend fun uiThreadInitInternal(uiThreadCoroutineScope: CoroutineScope) ="
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/Renderer.kt"
-            line="831"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="        fun newInstance("
-        errorLine2="            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/editor/sample/StyleConfigFragment.kt"
-            line="67"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = StyleSettingViewHolder("
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/editor/sample/StyleConfigFragment.kt"
-            line="248"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = StyleSettingViewHolder("
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/editor/sample/StyleConfigFragment.kt"
-            line="290"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="        override var userStyle: UserStyle"
-        errorLine2="                     ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/WatchFace.kt"
-            line="685"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="    override fun getInteractiveWatchFaceClientInstance("
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/client/WatchFaceControlClient.kt"
-            line="243"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="        internal fun getComplicationSlotMetadataWireFormats() ="
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"
-            line="1207"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="internal fun Handler.runOnHandlerWithTracing("
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"
-            line="1925"
-            column="22"/>
     </issue>
 
 </issues>

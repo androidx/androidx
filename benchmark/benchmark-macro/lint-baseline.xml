@@ -1,15 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
 
     <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="internal fun List&lt;IterationResult>.mergeIterationMeasurements() = BenchmarkResult.Measurements("
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="MissingTestSizeAnnotation"
+        message="Missing test size annotation"
+        errorLine1="    fun fixedApi24Cold() = validateFixedTrace("
+        errorLine2="        ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/benchmark/macro/IterationResult.kt"
-            line="63"
-            column="36"/>
+            file="src/androidTest/java/androidx/benchmark/macro/perfetto/StartupTimingQueryTest.kt"
+            line="54"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="MissingTestSizeAnnotation"
+        message="Missing test size annotation"
+        errorLine1="    fun fixedApi24Warm() = validateFixedTrace("
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/benchmark/macro/perfetto/StartupTimingQueryTest.kt"
+            line="65"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="MissingTestSizeAnnotation"
+        message="Missing test size annotation"
+        errorLine1="    fun fixedApi24Hot() = validateFixedTrace("
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/benchmark/macro/perfetto/StartupTimingQueryTest.kt"
+            line="76"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="MissingTestSizeAnnotation"
+        message="Missing test size annotation"
+        errorLine1="    fun fixedApi31Cold() = validateFixedTrace("
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/benchmark/macro/perfetto/StartupTimingQueryTest.kt"
+            line="87"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="MissingTestSizeAnnotation"
+        message="Missing test size annotation"
+        errorLine1="    fun fixedApi31Warm() = validateFixedTrace("
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/benchmark/macro/perfetto/StartupTimingQueryTest.kt"
+            line="98"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="MissingTestSizeAnnotation"
+        message="Missing test size annotation"
+        errorLine1="    fun fixedApi31Hot() = validateFixedTrace("
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/benchmark/macro/perfetto/StartupTimingQueryTest.kt"
+            line="109"
+            column="9"/>
     </issue>
 
 </issues>

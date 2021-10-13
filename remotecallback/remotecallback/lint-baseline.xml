@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: RemoteCallback.TYPE_RECEIVER, RemoteCallback.TYPE_PROVIDER"
-        errorLine1="    public static final RemoteCallback LOCAL = new RemoteCallback(null, -1, null, null, null) {"
-        errorLine2="                                                                        ~~">
-        <location
-            file="src/main/java/androidx/remotecallback/RemoteCallback.java"
-            line="151"
-            column="73"/>
-    </issue>
+<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
 
     <issue
         id="LambdaLast"

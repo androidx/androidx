@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="true" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="true" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
 
     <issue
         id="WrongConstant"
@@ -19,7 +19,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4755"
+            line="4801"
             column="47"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6375"
+            line="6443"
             column="31"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7408"
+            line="7476"
             column="35"/>
     </issue>
 
@@ -494,127 +494,6 @@
             file="src/main/java/androidx/core/app/NotificationCompat.java"
             line="82"
             column="14"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 18 here from outer annotations"
-        errorLine1="        @RequiresApi(18)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.kt"
-            line="435"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 16 here from outer annotations"
-        errorLine1="            @RequiresApi(16)"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3195"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 16 here from outer annotations"
-        errorLine1="            @RequiresApi(16)"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3203"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 23 here from outer annotations"
-        errorLine1="            @RequiresApi(23)"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3222"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 31 here from outer annotations"
-        errorLine1="            @RequiresApi(31)"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3241"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 29 here from outer annotations"
-        errorLine1="            @RequiresApi(29)"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7142"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 29 here from outer annotations"
-        errorLine1="            @RequiresApi(29)"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7181"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 30 here from outer annotations"
-        errorLine1="            @RequiresApi(30)"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7225"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 30 here from outer annotations"
-        errorLine1="            @RequiresApi(30)"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7266"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="        @RequiresApi(21)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsAnimationCompat.java"
-            line="689"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 30 here from outer annotations"
-        errorLine1="        @RequiresApi(30)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/WindowInsetsAnimationCompat.java"
-            line="962"
-            column="9"/>
     </issue>
 
     <issue
@@ -5592,7 +5471,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="892"
+            line="901"
             column="16"/>
     </issue>
 
@@ -5603,7 +5482,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="896"
+            line="905"
             column="16"/>
     </issue>
 
@@ -5614,7 +5493,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="958"
+            line="967"
             column="16"/>
     </issue>
 
@@ -5625,7 +5504,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2445"
+            line="2454"
             column="16"/>
     </issue>
 
@@ -5636,7 +5515,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2453"
+            line="2462"
             column="16"/>
     </issue>
 
@@ -5647,7 +5526,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2461"
+            line="2470"
             column="16"/>
     </issue>
 
@@ -5658,7 +5537,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2529"
+            line="2538"
             column="19"/>
     </issue>
 
@@ -5669,7 +5548,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2575"
+            line="2584"
             column="27"/>
     </issue>
 
@@ -5680,7 +5559,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2591"
+            line="2600"
             column="16"/>
     </issue>
 
@@ -5691,7 +5570,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2591"
+            line="2600"
             column="44"/>
     </issue>
 
@@ -5702,7 +5581,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2599"
+            line="2608"
             column="16"/>
     </issue>
 
@@ -5713,7 +5592,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2599"
+            line="2608"
             column="47"/>
     </issue>
 
@@ -5724,7 +5603,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2607"
+            line="2616"
             column="16"/>
     </issue>
 
@@ -5735,7 +5614,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2607"
+            line="2616"
             column="51"/>
     </issue>
 
@@ -5746,7 +5625,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2918"
+            line="2927"
             column="16"/>
     </issue>
 
@@ -5757,7 +5636,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2968"
+            line="2977"
             column="42"/>
     </issue>
 
@@ -5768,7 +5647,7 @@
         errorLine2="                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2969"
+            line="2978"
             column="17"/>
     </issue>
 
@@ -5779,7 +5658,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3106"
+            line="3127"
             column="27"/>
     </issue>
 
@@ -5790,7 +5669,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3326"
+            line="3357"
             column="27"/>
     </issue>
 
@@ -5801,7 +5680,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3670"
+            line="3701"
             column="27"/>
     </issue>
 
@@ -5812,7 +5691,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4230"
+            line="4261"
             column="27"/>
     </issue>
 
@@ -5823,7 +5702,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4331"
+            line="4362"
             column="27"/>
     </issue>
 
@@ -5834,7 +5713,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4342"
+            line="4373"
             column="16"/>
     </issue>
 
@@ -5845,7 +5724,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4342"
+            line="4373"
             column="44"/>
     </issue>
 
@@ -5856,7 +5735,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4359"
+            line="4390"
             column="16"/>
     </issue>
 
@@ -5867,7 +5746,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4359"
+            line="4390"
             column="47"/>
     </issue>
 
@@ -5878,7 +5757,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4380"
+            line="4411"
             column="16"/>
     </issue>
 
@@ -5889,7 +5768,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4380"
+            line="4411"
             column="51"/>
     </issue>
 
@@ -5900,7 +5779,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4564"
+            line="4595"
             column="16"/>
     </issue>
 
@@ -5911,7 +5790,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4569"
+            line="4600"
             column="16"/>
     </issue>
 
