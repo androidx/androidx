@@ -3153,8 +3153,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     void dispatchOnHiddenChanged() {
         for (Fragment fragment : mFragmentStore.getActiveFragments()) {
-            fragment.mChildFragmentManager.dispatchOnHiddenChanged();
-            fragment.onHiddenChanged(fragment.isHidden());
+            if (fragment != null) {
+                fragment.onHiddenChanged(fragment.isHidden());
+                fragment.mChildFragmentManager.dispatchOnHiddenChanged();
+            }
         }
     }
 
