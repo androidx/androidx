@@ -20,8 +20,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.BatteryManager
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
+import androidx.wear.watchface.BroadcastsReceiver.BroadcastEventObserver
 
 /**
  * This class decouples [BroadcastEventObserver]s from the actual broadcast event receivers to make
@@ -59,9 +61,21 @@ public class BroadcastsReceiver constructor(
         @UiThread
         public fun onActionPowerConnected()
 
+        /** Called when we receive [Intent.ACTION_POWER_DISCONNECTED]. */
+        @UiThread
+        public fun onActionPowerDisconnected()
+
         /** Called when we receive [WatchFaceImpl.MOCK_TIME_INTENT]. */
         @UiThread
         public fun onMockTime(intent: Intent)
+    }
+
+    companion object {
+        // The threshold used to judge whether the battery is low during initialization.  Ideally
+        // we would use the threshold for Intent.ACTION_BATTERY_LOW but it's not documented or
+        // available programmatically. The value below is the default but it could be overridden
+        // by OEMs.
+        internal const val INITIAL_LOW_BATTERY_THRESHOLD = 15f
     }
 
     internal val actionTimeTickReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -104,6 +118,13 @@ public class BroadcastsReceiver constructor(
         }
     }
 
+    internal val actionPowerDisconnectedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        @SuppressWarnings("SyntheticAccessor")
+        override fun onReceive(context: Context, intent: Intent) {
+            observer.onActionPowerDisconnected()
+        }
+    }
+
     internal val mockTimeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         @SuppressWarnings("SyntheticAccessor")
         override fun onReceive(context: Context, intent: Intent) {
@@ -127,7 +148,33 @@ public class BroadcastsReceiver constructor(
             actionPowerConnectedReceiver,
             IntentFilter(Intent.ACTION_POWER_CONNECTED)
         )
+        context.registerReceiver(
+            actionPowerDisconnectedReceiver,
+            IntentFilter(Intent.ACTION_POWER_DISCONNECTED)
+        )
         context.registerReceiver(mockTimeReceiver, IntentFilter(WatchFaceImpl.MOCK_TIME_INTENT))
+    }
+
+    /** Called to send observers initial battery state in advance of receiving any broadcasts. */
+    internal fun processBatteryStatus(batteryStatus: Intent?) {
+        val status = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+        if (status == BatteryManager.BATTERY_STATUS_CHARGING ||
+            status == BatteryManager.BATTERY_STATUS_FULL) {
+            observer.onActionPowerConnected()
+        } else {
+            observer.onActionPowerDisconnected()
+        }
+
+        val batteryPercent: Float = batteryStatus?.let { intent ->
+            val level: Int = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+            val scale: Int = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+            level * 100 / scale.toFloat()
+        } ?: 100.0f
+        if (batteryPercent < INITIAL_LOW_BATTERY_THRESHOLD) {
+            observer.onActionBatteryLow()
+        } else {
+            observer.onActionBatteryOkay()
+        }
     }
 
     public fun onDestroy() {
