@@ -61,7 +61,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
@@ -221,9 +220,8 @@ public final class LocationManagerCompat {
     }
 
     @GuardedBy("sLocationListeners")
-    static final WeakHashMap<LocationListener,
-            List<WeakReference<LocationListenerTransport>>> sLocationListeners =
-            new WeakHashMap<>();
+    static final WeakHashMap<LocationListenerKey, WeakReference<LocationListenerTransport>>
+            sLocationListeners = new WeakHashMap<>();
 
     /**
      * Register for location updates from the specified provider, using a
@@ -268,7 +266,8 @@ public final class LocationManagerCompat {
             }
         }
 
-        LocationListenerTransport transport = new LocationListenerTransport(listener, executor);
+        LocationListenerTransport transport = new LocationListenerTransport(
+                new LocationListenerKey(provider, listener), executor);
 
         if (VERSION.SDK_INT >= 19) {
             try {
@@ -284,7 +283,7 @@ public final class LocationManagerCompat {
                     synchronized (sLocationListeners) {
                         sRequestLocationUpdatesLooperMethod.invoke(locationManager, request,
                                 transport, Looper.getMainLooper());
-                        transport.register();
+                        registerLocationListenerTransport(locationManager, transport);
                         return;
                     }
                 }
@@ -299,7 +298,20 @@ public final class LocationManagerCompat {
             locationManager.requestLocationUpdates(provider, locationRequest.getIntervalMillis(),
                     locationRequest.getMinUpdateDistanceMeters(), transport,
                     Looper.getMainLooper());
-            transport.register();
+            registerLocationListenerTransport(locationManager, transport);
+        }
+    }
+
+    @GuardedBy("sLocationListeners")
+    @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
+    private static void registerLocationListenerTransport(LocationManager locationManager,
+            LocationListenerTransport transport) {
+        WeakReference<LocationListenerTransport> oldRef =
+                sLocationListeners.put(transport.getKey(), new WeakReference<>(transport));
+        LocationListenerTransport oldTransport = oldRef != null ? oldRef.get() : null;
+        if (oldTransport != null) {
+            oldTransport.unregister();
+            locationManager.removeUpdates(oldTransport);
         }
     }
 
@@ -360,14 +372,26 @@ public final class LocationManagerCompat {
     public static void removeUpdates(@NonNull LocationManager locationManager,
             @NonNull LocationListenerCompat listener) {
         synchronized (sLocationListeners) {
-            List<WeakReference<LocationListenerTransport>> transports =
-                    sLocationListeners.remove(listener);
-            if (transports != null) {
-                for (WeakReference<LocationListenerTransport> reference : transports) {
-                    LocationListenerTransport transport = reference.get();
-                    if (transport != null && transport.unregister()) {
-                        locationManager.removeUpdates(transport);
+            ArrayList<LocationListenerKey> cleanup = null;
+            for (WeakReference<LocationListenerTransport> transportRef :
+                    sLocationListeners.values()) {
+                LocationListenerTransport transport = transportRef.get();
+                if (transport == null) {
+                    continue;
+                }
+                LocationListenerKey key = transport.getKey();
+                if (key.mListener == listener) {
+                    if (cleanup == null) {
+                        cleanup = new ArrayList<>();
                     }
+                    cleanup.add(key);
+                    transport.unregister();
+                    locationManager.removeUpdates(transport);
+                }
+            }
+            if (cleanup != null) {
+                for (LocationListenerKey key : cleanup) {
+                    sLocationListeners.remove(key);
                 }
             }
         }
@@ -599,157 +623,137 @@ public final class LocationManagerCompat {
 
     private LocationManagerCompat() {}
 
+    private static class LocationListenerKey {
+        final String mProvider;
+        final LocationListenerCompat mListener;
+
+        LocationListenerKey(String provider,
+                LocationListenerCompat listener) {
+            mProvider = ObjectsCompat.requireNonNull(provider, "invalid null provider");
+            mListener = ObjectsCompat.requireNonNull(listener, "invalid null listener");
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof LocationListenerKey)) {
+                return false;
+            }
+
+            LocationListenerKey that = (LocationListenerKey) o;
+            return mProvider.equals(that.mProvider) && mListener.equals(that.mListener);
+        }
+
+        @Override
+        public int hashCode() {
+            return ObjectsCompat.hash(mProvider, mListener);
+        }
+    }
+
     private static class LocationListenerTransport implements LocationListener {
 
-        @Nullable volatile LocationListenerCompat mListener;
+        @Nullable volatile LocationListenerKey mKey;
         final Executor mExecutor;
 
-        LocationListenerTransport(@Nullable LocationListenerCompat listener, Executor executor) {
-            mListener = ObjectsCompat.requireNonNull(listener, "invalid null listener");
+        LocationListenerTransport(LocationListenerKey key, Executor executor) {
+            mKey = key;
             mExecutor = executor;
         }
 
-        @GuardedBy("sLocationListeners")
-        public void register() {
-            List<WeakReference<LocationListenerTransport>> transports =
-                    sLocationListeners.get(mListener);
-            if (transports == null) {
-                transports = new ArrayList<>(1);
-                sLocationListeners.put(mListener, transports);
-            } else {
-                // clean unreferenced transports
-                if (VERSION.SDK_INT >= VERSION_CODES.N) {
-                    transports.removeIf(reference -> reference.get() == null);
-                } else {
-                    Iterator<WeakReference<LocationListenerTransport>> it = transports.iterator();
-                    while (it.hasNext()) {
-                        if (it.next().get() == null) {
-                            it.remove();
-                        }
-                    }
-                }
-            }
-
-            transports.add(new WeakReference<>(this));
+        public LocationListenerKey getKey() {
+            return ObjectsCompat.requireNonNull(mKey);
         }
 
-        @GuardedBy("sLocationListeners")
-        public boolean unregister() {
-            LocationListenerCompat listener = mListener;
-            if (listener == null) {
-                return false;
-            }
-            mListener = null;
-
-            List<WeakReference<LocationListenerTransport>> transports =
-                    sLocationListeners.get(listener);
-            if (transports != null) {
-                // clean unreferenced transports
-                if (VERSION.SDK_INT >= VERSION_CODES.N) {
-                    transports.removeIf(reference -> reference.get() == null);
-                } else {
-                    Iterator<WeakReference<LocationListenerTransport>> it = transports.iterator();
-                    while (it.hasNext()) {
-                        if (it.next().get() == null) {
-                            it.remove();
-                        }
-                    }
-                }
-                if (transports.isEmpty()) {
-                    sLocationListeners.remove(listener);
-                }
-            }
-
-            return true;
+        public void unregister() {
+            mKey = null;
         }
 
         @Override
         public void onLocationChanged(@NonNull Location location) {
-            final LocationListenerCompat listener = mListener;
-            if (listener == null) {
+            if (mKey == null) {
                 return;
             }
 
             mExecutor.execute(() -> {
-                if (mListener != listener) {
+                LocationListenerKey key = mKey;
+                if (key == null) {
                     return;
                 }
-                listener.onLocationChanged(location);
+                key.mListener.onLocationChanged(location);
             });
         }
 
         @Override
         public void onLocationChanged(@NonNull List<Location> locations) {
-            final LocationListenerCompat listener = mListener;
-            if (listener == null) {
+            if (mKey == null) {
                 return;
             }
 
             mExecutor.execute(() -> {
-                if (mListener != listener) {
+                LocationListenerKey key = mKey;
+                if (key == null) {
                     return;
                 }
-                listener.onLocationChanged(locations);
+                key.mListener.onLocationChanged(locations);
             });
         }
 
         @Override
         public void onFlushComplete(int requestCode) {
-            final LocationListenerCompat listener = mListener;
-            if (listener == null) {
+            if (mKey == null) {
                 return;
             }
 
             mExecutor.execute(() -> {
-                if (mListener != listener) {
+                LocationListenerKey key = mKey;
+                if (key == null) {
                     return;
                 }
-                listener.onFlushComplete(requestCode);
+                key.mListener.onFlushComplete(requestCode);
             });
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
-            final LocationListenerCompat listener = mListener;
-            if (listener == null) {
+            if (mKey == null) {
                 return;
             }
 
             mExecutor.execute(() -> {
-                if (mListener != listener) {
+                LocationListenerKey key = mKey;
+                if (key == null) {
                     return;
                 }
-                listener.onStatusChanged(provider, status, extras);
+                key.mListener.onStatusChanged(provider, status, extras);
             });
         }
 
         @Override
         public void onProviderEnabled(@NonNull String provider) {
-            final LocationListenerCompat listener = mListener;
-            if (listener == null) {
+            if (mKey == null) {
                 return;
             }
 
             mExecutor.execute(() -> {
-                if (mListener != listener) {
+                LocationListenerKey key = mKey;
+                if (key == null) {
                     return;
                 }
-                listener.onProviderEnabled(provider);
+                key.mListener.onProviderEnabled(provider);
             });
         }
 
         @Override
         public void onProviderDisabled(@NonNull String provider) {
-            final LocationListenerCompat listener = mListener;
-            if (listener == null) {
+            if (mKey == null) {
                 return;
             }
 
             mExecutor.execute(() -> {
-                if (mListener != listener) {
+                LocationListenerKey key = mKey;
+                if (key == null) {
                     return;
                 }
-                listener.onProviderDisabled(provider);
+                key.mListener.onProviderDisabled(provider);
             });
         }
     }
