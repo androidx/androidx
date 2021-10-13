@@ -21,6 +21,7 @@ import androidx.glance.Modifier
 import androidx.glance.background
 import androidx.glance.appwidget.layout.CheckBox
 import androidx.glance.appwidget.layout.Switch
+import androidx.glance.appwidget.test.R
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
@@ -53,6 +54,7 @@ class GlanceAppWidgetReceiverScreenshotTest {
     @JvmField
     val mRule: TestRule = RuleChain.outerRule(mHostRule).around(mScreenshotRule)
         .around(WithRtlRule)
+        .around(WithNightModeRule)
 
     @Test
     fun createSimpleAppWidget() {
@@ -171,37 +173,22 @@ class GlanceAppWidgetReceiverScreenshotTest {
     }
 
     @Test
-    fun checkBackgroundColor() {
-        TestGlanceAppWidget.uiDefinition = {
-            Column(modifier = Modifier.background(Color.White)) {
-                Text(
-                    "100x50 and cyan",
-                    modifier = Modifier.width(100.dp).height(50.dp).background(Color.Cyan)
-                )
-                Text(
-                    "Transparent background",
-                    modifier = Modifier.height(50.dp).background(Color.Transparent)
-                )
-                Text(
-                    "wrapx50 and red",
-                    modifier = Modifier.height(50.dp).background(Color.Red)
-                )
-                Text("Below this should be 4 color boxes")
-                Row(modifier = Modifier.padding(8.dp)) {
-                    val colors = listOf(Color.Black, Color.Red, Color.Green, Color.Blue)
-                    repeat(4) {
-                        Box(
-                            modifier = Modifier.width(32.dp).height(32.dp).background(colors[it])
-                        ) {}
-                        Box(modifier = Modifier.width(8.dp).height(1.dp)) {}
-                    }
-                }
-            }
-        }
+    fun checkBackgroundColor_light() {
+        TestGlanceAppWidget.uiDefinition = { BackgroundTest() }
 
         mHostRule.startHost()
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "backgroundColor")
+    }
+
+    @Test
+    @WithNightMode
+    fun checkBackgroundColor_dark() {
+        TestGlanceAppWidget.uiDefinition = { BackgroundTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "backgroundColor_dark")
     }
 }
 
@@ -254,5 +241,40 @@ private fun RowTest() {
             style = TextStyle(textAlign = TextAlign.End),
             modifier = Modifier.defaultWeight()
         )
+    }
+}
+
+@Composable
+private fun BackgroundTest() {
+    Column(modifier = Modifier.background(R.color.background_color)) {
+        Text(
+            "100x50 and cyan",
+            modifier = Modifier.width(100.dp).height(50.dp).background(Color.Cyan)
+        )
+        Text(
+            "Transparent background",
+            modifier = Modifier.height(50.dp).background(Color.Transparent)
+        )
+        Text(
+            "wrapx30 and red (light), yellow (dark)",
+            modifier = Modifier.height(30.dp).background(day = Color.Red, night = Color.Yellow)
+        )
+        Text("Below this should be 4 color boxes")
+        Row(modifier = Modifier.padding(8.dp)) {
+            Box(
+                modifier =
+                Modifier
+                    .width(32.dp)
+                    .height(32.dp)
+                    .background(day = Color.Black, night = Color.White)
+            ) {}
+            val colors = listOf(Color.Red, Color.Green, Color.Blue)
+            repeat(3) {
+                Box(modifier = Modifier.width(8.dp).height(1.dp)) {}
+                Box(
+                    modifier = Modifier.width(32.dp).height(32.dp).background(colors[it])
+                ) {}
+            }
+        }
     }
 }

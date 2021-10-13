@@ -15,8 +15,5 @@
   -->
 
 <resources>
-    <color name="light_gray">#FFCCCCCC</color>
-    <color name="dark_gray">#FF444444</color>
-    <color name="responsive_widget_background">#FFCCCCCC</color>
-    <color name="exact_widget_background">@color/light_gray</color>
+    <color name="my_color">#EEEEEE</color>
 </resources>

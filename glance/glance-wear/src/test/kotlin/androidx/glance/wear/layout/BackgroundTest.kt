@@ -21,8 +21,12 @@ import androidx.glance.Modifier
 import androidx.glance.background
 import androidx.glance.findModifier
 import androidx.glance.unit.Color
+import androidx.glance.unit.FixedColorProvider
+import androidx.glance.unit.ResourceColorProvider
+import androidx.glance.wear.test.R
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
+import kotlin.test.assertIs
 
 class BackgroundTest {
     @Test
@@ -31,6 +35,19 @@ class BackgroundTest {
 
         val addedModifier = requireNotNull(modifier.findModifier<BackgroundModifier>())
 
-        assertThat(addedModifier.color.value).isEqualTo(0xFF223344u)
+        val modifierColors = addedModifier.colorProvider
+        assertIs<FixedColorProvider>(modifierColors)
+        assertThat(modifierColors.color.value).isEqualTo(0xFF223344u)
+    }
+
+    @Test
+    fun canUseBackgroundModifier_resId() {
+        val modifier = Modifier.background(color = R.color.color1)
+
+        val addedModifier = requireNotNull(modifier.findModifier<BackgroundModifier>())
+
+        val modifierColors = addedModifier.colorProvider
+        assertIs<ResourceColorProvider>(modifierColors)
+        assertThat(modifierColors.resId).isEqualTo(R.color.color1)
     }
 }

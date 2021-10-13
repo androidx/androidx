@@ -23,7 +23,7 @@ import androidx.glance.Modifier
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.background
+import androidx.glance.appwidget.background
 import androidx.glance.layout.Column
 import androidx.glance.layout.Text
 import androidx.glance.layout.fillMaxSize
@@ -41,13 +41,18 @@ class ExactAppWidget : GlanceAppWidget() {
     @Composable
     override fun Content() {
         val context = LocalContext.current
-        Column(modifier = Modifier.fillMaxSize().background(Color.LightGray).padding(8.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(day = Color.LightGray, night = Color.DarkGray)
+                .padding(8.dp)
+        ) {
             Text(
                 context.getString(R.string.exact_widget_title),
                 style = TextStyle(
                     fontWeight = FontWeight.Bold,
                     textDecoration = TextDecoration.Underline
-                )
+                ),
             )
             val size = LocalSize.current
             val dec = DecimalFormat("#.##")

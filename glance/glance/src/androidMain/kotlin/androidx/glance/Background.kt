@@ -16,13 +16,15 @@
 
 package androidx.glance
 
+import androidx.annotation.ColorRes
 import androidx.annotation.RestrictTo
 import androidx.glance.unit.Color
+import androidx.glance.unit.ColorProvider
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class BackgroundModifier(public val color: Color) : Modifier.Element {
-    override fun toString(): String = "BackgroundModifier(color=$color)"
+public class BackgroundModifier(public val colorProvider: ColorProvider) : Modifier.Element {
+    override fun toString(): String = "BackgroundModifier(colorProvider=$colorProvider)"
 }
 
 /**
@@ -30,4 +32,19 @@ public class BackgroundModifier(public val color: Color) : Modifier.Element {
  * element to paint the specified [Color] as its background, which will fill the bounds of the
  * element.
  */
-public fun Modifier.background(color: Color): Modifier = this.then(BackgroundModifier(color))
+public fun Modifier.background(color: Color): Modifier = background(ColorProvider(color))
+
+/**
+ * Apply a background color to the element this modifier is attached to. This will cause the
+ * element to paint the specified color resource as its background, which will fill the bounds of
+ * the element.
+ */
+public fun Modifier.background(@ColorRes color: Int): Modifier = background(ColorProvider(color))
+
+/**
+ * Apply a background color to the element this modifier is attached to. This will cause the
+ * element to paint the specified [ColorProvider] as its background, which will fill the bounds of
+ * the element.
+ */
+public fun Modifier.background(colorProvider: ColorProvider): Modifier =
+    this.then(BackgroundModifier(colorProvider))

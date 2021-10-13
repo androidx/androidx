@@ -17,6 +17,7 @@
 package androidx.glance.appwidget
 
 import android.appwidget.AppWidgetManager
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -26,6 +27,9 @@ import androidx.glance.unit.DpSize
 import androidx.glance.unit.max
 import androidx.glance.unit.min
 import androidx.glance.unit.toSizeF
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.platform.app.InstrumentationRegistry
+import java.io.FileInputStream
 
 inline fun <reified T : View> View.findChild(noinline pred: (T) -> Boolean) =
     findChild(pred, T::class.java)
@@ -69,3 +73,14 @@ internal fun optionsBundleOf(sizes: List<DpSize>): Bundle {
         }
     }
 }
+
+/** Run a command and retrieve the output as a string. */
+internal fun runShellCommand(command: String): String {
+    return InstrumentationRegistry.getInstrumentation()
+        .uiAutomation
+        .executeShellCommand(command)
+        .use { FileInputStream(it.fileDescriptor).reader().readText() }
+}
+
+internal val context: Context
+    get() = ApplicationProvider.getApplicationContext()

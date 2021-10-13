@@ -3,6 +3,8 @@ package androidx.glance {
 
   public final class BackgroundKt {
     method public static androidx.glance.Modifier background(androidx.glance.Modifier, int color);
+    method public static androidx.glance.Modifier background(androidx.glance.Modifier, @ColorRes int color);
+    method public static androidx.glance.Modifier background(androidx.glance.Modifier, androidx.glance.unit.ColorProvider colorProvider);
   }
 
   public final class CombinedModifier implements androidx.glance.Modifier {
@@ -314,6 +316,14 @@ package androidx.glance.unit {
 
   public final class ColorKt {
     method @androidx.compose.runtime.Stable public static int Color(float red, float green, float blue, optional float alpha);
+  }
+
+  public interface ColorProvider {
+  }
+
+  public final class ColorProviderKt {
+    method public static androidx.glance.unit.ColorProvider ColorProvider(int color);
+    method public static androidx.glance.unit.ColorProvider ColorProvider(@ColorRes int resId);
   }
 
   public final inline class Dp implements java.lang.Comparable<androidx.glance.unit.Dp> {
