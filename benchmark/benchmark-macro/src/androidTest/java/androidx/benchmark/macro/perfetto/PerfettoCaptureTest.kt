@@ -38,6 +38,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 /**
  * Tests for PerfettoCapture
@@ -90,38 +91,42 @@ class PerfettoCaptureTest {
 
         perfettoCapture.start(listOf(Packages.TEST))
 
-        verifyTraceEnable(true)
+        assertTrue(
+            Trace.isEnabled(),
+            "In-process tracing should be enabled immediately after trace capture is started"
+        )
 
-        // TODO: figure out why this sleep (200ms+) is needed - possibly related to b/194105203
-        Thread.sleep(500)
-
-        // Tracing non-trivial duration for manual debugging/verification
-        trace(CUSTOM_TRACE_SECTION_LABEL_1) { Thread.sleep(20) }
-        trace(CUSTOM_TRACE_SECTION_LABEL_2) { Thread.sleep(20) }
+        /**
+         * Trace section labels, in order
+         *
+         * We trace for non-trivial duration both to enable easier manual debugging, but also to
+         * help clarify problems in front/back trace truncation, with indication of severity.
+         *
+         * We use unique, app tag names to avoid conflicting with other legitimate platform tracing.
+         */
+        val traceSectionLabels = List(20) {
+            "PerfettoCaptureTest_$it".also { label ->
+                trace(label) { Thread.sleep(50) }
+            }
+        }
 
         perfettoCapture.stop(traceFilePath)
 
         val matchingSlices = PerfettoTraceProcessor.querySlices(
             absoluteTracePath = traceFilePath,
-            CUSTOM_TRACE_SECTION_LABEL_1,
-            CUSTOM_TRACE_SECTION_LABEL_2
+            "PerfettoCaptureTest_%"
         )
 
         // Note: this test avoids validating platform-triggered trace sections, to avoid flakes
         // from legitimate (and coincidental) platform use during test.
         assertEquals(
-            listOf(CUSTOM_TRACE_SECTION_LABEL_1, CUSTOM_TRACE_SECTION_LABEL_2),
+            traceSectionLabels,
             matchingSlices.sortedBy { it.ts }.map { it.name }
         )
         matchingSlices
             .forEach {
-                assertTrue(it.dur > 15_000_000) // should be at least 15ms
+                assertTrue(it.dur > 30_000_000) // should be at least 30ms
             }
-    }
-
-    companion object {
-        const val CUSTOM_TRACE_SECTION_LABEL_1 = "PerfettoCaptureTest_1"
-        const val CUSTOM_TRACE_SECTION_LABEL_2 = "PerfettoCaptureTest_2"
     }
 }
 
