@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.input.pointer
+package androidx.compose.ui.platform
 
-import java.awt.event.MouseEvent
+import androidx.compose.ui.geometry.Rect
 
-internal actual class PointerInputEvent(
-    val eventType: PointerEventType,
-    actual val uptime: Long,
-    actual val pointers: List<PointerInputEventData>,
-    val mouseEvent: MouseEvent? = null
-)
+// TODO(demin): implement TextToolbar
+internal class PlatformTextToolbar : TextToolbar {
+    override val status: TextToolbarStatus
+        get() = TextToolbarStatus.Hidden
+
+    override fun hide() {
+    }
+
+    override fun showMenu(
+        rect: Rect,
+        onCopyRequested: ActionCallback?,
+        onPasteRequested: ActionCallback?,
+        onCutRequested: ActionCallback?,
+        onSelectAllRequested: ActionCallback?
+    ) {
+    }
+}

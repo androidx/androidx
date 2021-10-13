@@ -16,11 +16,11 @@
 
 package androidx.compose.ui.platform
 
-import java.awt.Desktop
-import java.net.URI
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 
-internal class DesktopUriHandler : UriHandler {
-    override fun openUri(uri: String) {
-        Desktop.getDesktop().browse(URI(uri))
+// TODO(demin): implement HapticFeedback
+internal class PlatformHapticFeedback : HapticFeedback {
+    override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {
     }
 }

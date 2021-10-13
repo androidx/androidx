@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.compose.ui.platform
 
-internal class DesktopAccessibilityManager : AccessibilityManager {
-    override fun calculateRecommendedTimeoutMillis(
-        originalTimeoutMillis: Long,
-        containsIcons: Boolean,
-        containsText: Boolean,
-        containsControls: Boolean
-    ): Long {
-        return originalTimeoutMillis
-    }
-}
+import androidx.compose.ui.text.input.PlatformTextInputService
+
+internal expect interface PlatformInputComponent
+
+internal expect class PlatformInput(component: PlatformComponent) :
+    PlatformTextInputService

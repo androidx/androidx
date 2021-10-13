@@ -32,6 +32,7 @@ import org.jetbrains.skia.SamplingMode
 import org.jetbrains.skia.ClipMode as SkClipMode
 import org.jetbrains.skia.RRect as SkRRect
 import org.jetbrains.skia.Rect as SkRect
+import org.jetbrains.skia.impl.use
 
 actual typealias NativeCanvas = org.jetbrains.skia.Canvas
 

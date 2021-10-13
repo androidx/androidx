@@ -13,24 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.InternalComposeUiApi
-import androidx.compose.ui.input.pointer.TestPointerInputEventData
-import androidx.compose.ui.node.RootForTest
+internal expect interface PlatformComponent
 
-/**
- * The marker interface to be implemented by the desktop root backing the composition.
- * To be used in tests.
- */
-@InternalComposeUiApi
-interface DesktopRootForTest : RootForTest {
-    /**
-     * Process pointer event
-     *
-     * [timeMillis] time when the pointer event occurred
-     * [pointers] state of all pointers
-     */
-    fun processPointerInput(timeMillis: Long, pointers: List<TestPointerInputEventData>)
-}
+internal expect object DummyPlatformComponent : PlatformComponent

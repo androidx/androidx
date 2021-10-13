@@ -24,7 +24,7 @@ import androidx.compose.ui.input.mouse.MouseScrollOrientation
 import androidx.compose.ui.input.mouse.MouseScrollUnit
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.platform.DesktopComponent
+import androidx.compose.ui.platform.PlatformComponent
 import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -69,7 +69,7 @@ internal class ComposeLayer {
 
     private val density get() = _component.density.density
 
-    private inner class ComponentImpl : SkiaLayer(), DesktopComponent {
+    private inner class ComponentImpl : SkiaLayer(), PlatformComponent {
         var currentInputMethodRequests: InputMethodRequests? = null
 
         override fun addNotify() {
@@ -257,7 +257,7 @@ private fun ComposeScene.onMouseEvent(
         position = Offset(event.x.toFloat(), event.y.toFloat()) * density,
         timeMillis = event.`when`,
         type = PointerType.Mouse,
-        mouseEvent = event
+        nativeEvent = event
     )
 }
 
@@ -282,7 +282,7 @@ private fun ComposeScene.onMouseWheelEvent(
         },
         timeMillis = event.`when`,
         type = PointerType.Mouse,
-        mouseEvent = event
+        nativeEvent = event
     )
 }
 
