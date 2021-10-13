@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="cli" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
 
     <issue
         id="NewApi"
@@ -10,17 +10,6 @@
             file="src/androidTest/java/androidx/camera/core/ProcessingSurfaceTest.java"
             line="158"
             column="9"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="63"
-            column="5"/>
     </issue>
 
     <issue
@@ -41,7 +30,7 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="74"
+            line="73"
             column="5"/>
     </issue>
 
@@ -92,12 +81,12 @@
     <issue
         id="BanSynchronizedMethods"
         message="Use of synchronized methods is not recommended"
-        errorLine1="        @Override"
-        errorLine2="        ^">
+        errorLine1="    @Override"
+        errorLine2="    ^">
         <location
             file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="110"
-            column="9"/>
+            line="99"
+            column="5"/>
     </issue>
 
     <issue
@@ -125,11 +114,22 @@
     <issue
         id="BanSynchronizedMethods"
         message="Use of synchronized methods is not recommended"
+        errorLine1="        @Override"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="125"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="133"
+            line="138"
             column="5"/>
     </issue>
 
@@ -427,336 +427,6 @@
         <location
             file="src/main/java/androidx/camera/core/SingleCloseImageProxy.java"
             line="38"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="101"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/CameraControl.java"
-            line="192"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/CameraSelector.java"
-            line="194"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/CameraState.java"
-            line="261"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/CameraState.java"
-            line="283"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/CameraState.java"
-            line="445"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/CameraXConfig.java"
-            line="74"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/CameraXConfig.java"
-            line="208"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/FocusMeteringAction.java"
-            line="159"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageAnalysis.java"
-            line="677"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageAnalysis.java"
-            line="725"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageAnalysis.java"
-            line="752"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageCapture.java"
-            line="1793"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageCapture.java"
-            line="1810"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageCapture.java"
-            line="1892"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="        @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageCapture.java"
-            line="1963"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageCapture.java"
-            line="2054"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageCapture.java"
-            line="2077"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageCapture.java"
-            line="2319"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageCapture.java"
-            line="2508"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImageProxy.java"
-            line="89"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/Preview.java"
-            line="564"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/Preview.java"
-            line="654"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/StateObservable.java"
-            line="185"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/SurfaceRequest.java"
-            line="479"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/SurfaceRequest.java"
-            line="504"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/SurfaceRequest.java"
-            line="658"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCaseGroup.java"
-            line="69"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/VideoCapture.java"
-            line="1315"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="The API level is already known to be at least 21 here from outer annotations"
-        errorLine1="    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ViewPort.java"
-            line="204"
             column="5"/>
     </issue>
 

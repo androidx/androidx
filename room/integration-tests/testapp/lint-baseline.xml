@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
 
     <issue
         id="NewApi"
@@ -197,6 +197,28 @@
             file="src/androidTest/java/androidx/room/integration/testapp/test/TypeConverterPriorityTest.java"
             line="114"
             column="27"/>
+    </issue>
+
+    <issue
+        id="MissingTestSizeAnnotation"
+        message="Missing test size annotation"
+        errorLine1="    public void abstractDao() {"
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/DefaultDaoMethodsTest.java"
+            line="117"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="MissingTestSizeAnnotation"
+        message="Missing test size annotation"
+        errorLine1="    public void interfaceDao() {"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/DefaultDaoMethodsTest.java"
+            line="133"
+            column="17"/>
     </issue>
 
     <issue
