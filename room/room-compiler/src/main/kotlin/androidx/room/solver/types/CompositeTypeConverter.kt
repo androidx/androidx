@@ -22,7 +22,9 @@ import androidx.room.solver.CodeGenScope
  * combines 2 type converters
  */
 class CompositeTypeConverter(val conv1: TypeConverter, val conv2: TypeConverter) : TypeConverter(
-    conv1.from, conv2.to
+    from = conv1.from,
+    to = conv2.to,
+    cost = conv1.cost + conv2.cost
 ) {
     override fun doConvert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
