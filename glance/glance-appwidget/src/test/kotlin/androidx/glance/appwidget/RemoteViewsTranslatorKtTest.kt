@@ -19,7 +19,7 @@ package androidx.glance.appwidget
 import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
-import android.graphics.drawable.ColorDrawable
+import android.content.res.Configuration
 import android.os.Build
 import android.text.SpannedString
 import android.text.style.StrikethroughSpan
@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.core.view.children
 import androidx.glance.Modifier
 import androidx.glance.action.actionLaunchActivity
+import androidx.glance.appwidget.ViewSubject.Companion.assertThat
 import androidx.glance.appwidget.layout.AndroidRemoteViews
 import androidx.glance.appwidget.layout.CheckBox
 import androidx.glance.appwidget.layout.LazyColumn
@@ -77,6 +78,8 @@ class RemoteViewsTranslatorKtTest {
 
     private lateinit var fakeCoroutineScope: TestCoroutineScope
     private val context = ApplicationProvider.getApplicationContext<Context>()
+    private val lightContext = configurationContext { uiMode = Configuration.UI_MODE_NIGHT_NO }
+    private val darkContext = configurationContext { uiMode = Configuration.UI_MODE_NIGHT_YES }
     private val displayMetrics = context.resources.displayMetrics
 
     @Before
@@ -718,9 +721,8 @@ class RemoteViewsTranslatorKtTest {
         }
 
         val view = context.applyRemoteViews(rv)
-        val background = view.background
-        assertIs<ColorDrawable>(background)
-        assertThat(background.color).isEqualTo(android.graphics.Color.RED)
+
+        assertThat(view).hasBackgroundColor(android.graphics.Color.RED)
     }
 
     @Test
@@ -730,9 +732,8 @@ class RemoteViewsTranslatorKtTest {
         }
 
         val view = context.applyRemoteViews(rv)
-        val background = view.background
-        assertIs<ColorDrawable>(background)
-        assertThat(background.color).isEqualTo(android.graphics.Color.argb(255, 102, 128, 153))
+
+        assertThat(view).hasBackgroundColor(android.graphics.Color.argb(255, 102, 128, 153))
     }
 
     @Test
@@ -742,9 +743,43 @@ class RemoteViewsTranslatorKtTest {
         }
 
         val view = context.applyRemoteViews(rv)
-        val background = view.background
-        assertIs<ColorDrawable>(background)
-        assertThat(background.color).isEqualTo(android.graphics.Color.TRANSPARENT)
+
+        assertThat(view).hasBackgroundColor(android.graphics.Color.TRANSPARENT)
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun canTranslateBackground_resId() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate {
+            Box(modifier = Modifier.background(R.color.my_color)) {}
+        }
+
+        assertThat(lightContext.applyRemoteViews(rv)).hasBackgroundColor("#EEEEEE")
+        assertThat(darkContext.applyRemoteViews(rv)).hasBackgroundColor("#111111")
+    }
+
+    @Config(sdk = [30])
+    @Test
+    fun canTranslateBackground_dayNight_light() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate(context = lightContext) {
+            Box(modifier = Modifier.background(day = Color.Red, night = Color.Blue)) {}
+        }
+
+        val view = lightContext.applyRemoteViews(rv)
+
+        assertThat(view).hasBackgroundColor(android.graphics.Color.RED)
+    }
+
+    @Config(sdk = [30])
+    @Test
+    fun canTranslateBackground_dayNight_dark() = fakeCoroutineScope.runBlockingTest {
+        val rv = runAndTranslate(context = darkContext) {
+            Box(modifier = Modifier.background(day = Color.Red, night = Color.Blue)) {}
+        }
+
+        val view = darkContext.applyRemoteViews(rv)
+
+        assertThat(view).hasBackgroundColor(android.graphics.Color.BLUE)
     }
 
     // Check there is a single span, that it's of the correct type and passes the [check].
@@ -773,6 +808,12 @@ class RemoteViewsTranslatorKtTest {
     ): RemoteViews {
         val root = runTestingComposition(content)
         return translateComposition(context, appWidgetId, root)
+    }
+
+    private fun configurationContext(modifier: Configuration.() -> Unit): Context {
+        val configuration = Configuration()
+        modifier(configuration)
+        return context.createConfigurationContext(configuration)
     }
 
     private fun Dp.toPixels() = toPixels(displayMetrics)
