@@ -41,7 +41,7 @@ class AppWidgetLaunchActionTest {
     fun testLaunchIntent() {
         val intentActionString = "test_action"
         val intent = Intent(context, TestActivity::class.java).setAction(intentActionString)
-        val modifiers = Modifier.clickable(launchActivityAction(intent))
+        val modifiers = Modifier.clickable(actionLaunchActivity(intent))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
         val action = assertIs<LaunchActivityIntentAction>(modifier.action)
         assertThat(action.intent).isEqualTo(intent)

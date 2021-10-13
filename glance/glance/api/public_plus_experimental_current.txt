@@ -57,8 +57,31 @@ package androidx.glance.action {
     method public static androidx.glance.Modifier clickable(androidx.glance.Modifier, androidx.glance.action.Action onClick);
   }
 
+  public abstract class ActionParameters {
+    method public abstract java.util.Map<androidx.glance.action.ActionParameters.Key<?>,java.lang.Object> asMap();
+    method public abstract operator <T> boolean contains(androidx.glance.action.ActionParameters.Key<T> key);
+    method public abstract operator <T> T? get(androidx.glance.action.ActionParameters.Key<T> key);
+  }
+
+  public static final class ActionParameters.Key<T> {
+    ctor public ActionParameters.Key(String name);
+    method public String getName();
+    method public infix androidx.glance.action.ActionParameters.Pair<T> to(T value);
+    property public final String name;
+  }
+
+  public static final class ActionParameters.Pair<T> {
+  }
+
+  public final class ActionParametersKt {
+    method public static androidx.glance.action.ActionParameters actionParametersOf(androidx.glance.action.ActionParameters.Pair<?>... pairs);
+    method public static androidx.glance.action.MutableActionParameters mutableActionParametersOf(androidx.glance.action.ActionParameters.Pair<?>... pairs);
+    method public static androidx.glance.action.MutableActionParameters toMutableParameters(androidx.glance.action.ActionParameters);
+    method public static androidx.glance.action.ActionParameters toParameters(androidx.glance.action.ActionParameters);
+  }
+
   public interface ActionRunnable {
-    method public suspend Object? run(android.content.Context context, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method public suspend Object? run(android.content.Context context, optional androidx.glance.action.ActionParameters parameters, optional kotlin.coroutines.Continuation<? super kotlin.Unit> p);
   }
 
   public final class LaunchActivityActionKt {
@@ -67,9 +90,18 @@ package androidx.glance.action {
     method public static inline <reified T extends android.app.Activity> androidx.glance.action.Action! actionLaunchActivity();
   }
 
+  public final class MutableActionParameters extends androidx.glance.action.ActionParameters {
+    method public java.util.Map<androidx.glance.action.ActionParameters.Key<?>,java.lang.Object> asMap();
+    method public void clear();
+    method public operator <T> boolean contains(androidx.glance.action.ActionParameters.Key<T> key);
+    method public operator <T> T? get(androidx.glance.action.ActionParameters.Key<T> key);
+    method public <T> T? remove(androidx.glance.action.ActionParameters.Key<T> key);
+    method public operator <T> T? set(androidx.glance.action.ActionParameters.Key<T> key, T? value);
+  }
+
   public final class UpdateContentActionKt {
-    method public static <T extends androidx.glance.action.ActionRunnable> androidx.glance.action.Action actionUpdateContent(Class<T> runnable);
-    method public static inline <reified T extends androidx.glance.action.ActionRunnable> androidx.glance.action.Action! actionUpdateContent();
+    method public static <T extends androidx.glance.action.ActionRunnable> androidx.glance.action.Action actionUpdateContent(Class<T> runnable, optional androidx.glance.action.ActionParameters parameters);
+    method public static inline <reified T extends androidx.glance.action.ActionRunnable> androidx.glance.action.Action! actionUpdateContent(optional androidx.glance.action.ActionParameters parameters);
   }
 
 }
