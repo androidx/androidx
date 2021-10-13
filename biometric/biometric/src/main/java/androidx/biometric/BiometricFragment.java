@@ -975,11 +975,21 @@ public class BiometricFragment extends Fragment {
      */
     private void handleConfirmCredentialResult(int resultCode) {
         if (resultCode == Activity.RESULT_OK) {
+            final BiometricViewModel viewModel = getViewModel();
+            @BiometricPrompt.AuthenticationResultType final int authenticationType;
+            if (viewModel != null && viewModel.isUsingKeyguardManagerForBiometricAndCredential()) {
+                // If using KeyguardManager for biometric and credential auth, we don't know which
+                // actual authentication type was used.
+                authenticationType = BiometricPrompt.AUTHENTICATION_RESULT_TYPE_UNKNOWN;
+                viewModel.setUsingKeyguardManagerForBiometricAndCredential(false);
+            } else {
+                authenticationType = BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL;
+            }
+
             // Device credential auth succeeded. This is incompatible with crypto for API <30.
             sendSuccessAndDismiss(
                     new BiometricPrompt.AuthenticationResult(
-                            null /* crypto */,
-                            BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL));
+                            null /* crypto */, authenticationType));
         } else {
             // Device credential auth failed. Assume this is due to the user canceling.
             sendErrorAndDismiss(
@@ -1204,9 +1214,28 @@ public class BiometricFragment extends Fragment {
      * @return Whether this fragment should use {@link KeyguardManager} directly.
      */
     private boolean isKeyguardManagerNeededForAuthentication() {
+        final Context context = getContext();
+
+        // Devices from some vendors should use KeyguardManager for authentication if both biometric
+        // and credential authenticator types are allowed (on API 29).
+        if (context != null && DeviceUtils.shouldUseKeyguardManagerForBiometricAndCredential(
+                context, Build.MANUFACTURER)) {
+
+            final BiometricViewModel viewModel = getViewModel();
+            @BiometricManager.AuthenticatorTypes int allowedAuthenticators = viewModel != null
+                    ? viewModel.getAllowedAuthenticators()
+                    : 0;
+
+            if (viewModel != null
+                    && AuthenticatorUtils.isWeakBiometricAllowed(allowedAuthenticators)
+                    && AuthenticatorUtils.isDeviceCredentialAllowed(allowedAuthenticators)) {
+                viewModel.setUsingKeyguardManagerForBiometricAndCredential(true);
+                return true;
+            }
+        }
+
         // On API 29, BiometricPrompt fails to launch the confirm device credential Settings
         // activity if no biometric hardware is present.
-        final Context context = getContext();
         return Build.VERSION.SDK_INT == Build.VERSION_CODES.Q
                 && !mInjector.isFingerprintHardwarePresent(context)
                 && !mInjector.isFaceHardwarePresent(context)

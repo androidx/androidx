@@ -20,6 +20,7 @@ import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Utility class for specifying custom behavior based on the vendor and model of the device.
@@ -97,6 +98,27 @@ class DeviceUtils {
             return false;
         }
         return isModelInList(context, model, R.array.assume_strong_biometrics_models);
+    }
+
+    /**
+     * Checks if the current device should directly invoke
+     * {@link android.app.KeyguardManager#createConfirmDeviceCredentialIntent(CharSequence,
+     * CharSequence)} for authentication when both <strong>Class 2</strong> (formerly
+     * <strong>Weak</strong>) biometrics and device credentials (i.e. PIN, pattern, or password) are
+     * allowed.
+     *
+     * @param context The application or activity context.
+     * @param vendor Name of the device vendor/manufacturer.
+     * @return Whether the device should use {@link android.app.KeyguardManager} for authentication
+     * if both <strong>Class 2</strong> biometrics and device credentials are allowed.
+     */
+    static boolean shouldUseKeyguardManagerForBiometricAndCredential(
+            @NonNull Context context, @Nullable String vendor) {
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q) {
+            // This workaround is only needed for API 29.
+            return false;
+        }
+        return isVendorInList(context, vendor, R.array.keyguard_biometric_and_credential_vendors);
     }
 
     /**
