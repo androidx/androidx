@@ -20,7 +20,7 @@
     android:minResizeWidth="40dp"
     android:minResizeHeight="40dp"
     android:initialLayout="@layout/empty_layout"
-    android:previewImage="@drawable/check_box_preview_image"
+    android:previewImage="@drawable/compound_button_preview_image"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen">
 </appwidget-provider>
