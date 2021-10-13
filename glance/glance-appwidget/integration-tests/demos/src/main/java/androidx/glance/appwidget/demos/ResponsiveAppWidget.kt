@@ -75,5 +75,5 @@ class ResponsiveAppWidget : GlanceAppWidget() {
 }
 
 class ResponsiveAppWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget by lazy { ResponsiveAppWidget() }
+    override val glanceAppWidget: GlanceAppWidget = ResponsiveAppWidget()
 }

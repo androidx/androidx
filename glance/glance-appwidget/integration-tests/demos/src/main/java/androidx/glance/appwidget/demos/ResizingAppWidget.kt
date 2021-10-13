@@ -88,5 +88,5 @@ class ResizingAppWidget : GlanceAppWidget() {
 }
 
 class ResizingAppWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget by lazy { ResizingAppWidget() }
+    override val glanceAppWidget: GlanceAppWidget = ResizingAppWidget()
 }
