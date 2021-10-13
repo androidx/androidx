@@ -1361,7 +1361,7 @@ public final class Recorder implements VideoOutput {
                 contentValues.put(MediaStore.Video.Media.IS_PENDING, PENDING);
             }
             Uri outputUri = mediaStoreOutputOptions.getContentResolver().insert(
-                    mediaStoreOutputOptions.getCollection(), contentValues);
+                    mediaStoreOutputOptions.getCollectionUri(), contentValues);
             if (outputUri == null) {
                 throw new IOException("Unable to create MediaStore entry.");
             }

@@ -42,7 +42,7 @@ package androidx.camera.video {
   }
 
   @RequiresApi(21) public final class MediaStoreOutputOptions extends androidx.camera.video.OutputOptions {
-    method public android.net.Uri getCollection();
+    method public android.net.Uri getCollectionUri();
     method public android.content.ContentResolver getContentResolver();
     method public android.content.ContentValues getContentValues();
     method public long getFileSizeLimit();
