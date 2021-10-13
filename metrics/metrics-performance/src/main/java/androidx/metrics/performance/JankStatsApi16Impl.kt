@@ -53,11 +53,11 @@ internal open class JankStatsApi16Impl(
             @SuppressLint("ClassVerificationFailure")
             override fun onPreDraw(): Boolean {
                 val decorView = decorViewRef.get()
+                val frameStart = getFrameStartTime()
                 decorView?.let {
                     decorView.handler.sendMessageAtFrontOfQueue(
                         Message.obtain(decorView.handler) {
                             val now = System.nanoTime()
-                            val frameStart = getFrameStartTime()
                             val expectedDuration = getExpectedFrameDuration(decorView) *
                                 JankStats.jankHeuristicMultiplier
                             jankStats.logFrameData(
