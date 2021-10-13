@@ -172,11 +172,14 @@ class TypeAdapterStore private constructor(
             ByteArrayColumnTypeAdapter.create(context.processingEnv).forEach(::addColumnAdapter)
             ByteBufferColumnTypeAdapter.create(context.processingEnv).forEach(::addColumnAdapter)
             PrimitiveBooleanToIntConverter.create(context.processingEnv).forEach(::addTypeConverter)
+            // null aware converter is able to automatically null wrap converters so we don't
+            // need this as long as we are running in KSP
             BoxedBooleanToBoxedIntConverter.create(context.processingEnv)
                 .forEach(::addTypeConverter)
             return TypeAdapterStore(
                 context = context, columnTypeAdapters = adapters,
-                typeConverterStore = TypeConverterStore(
+                typeConverterStore = TypeConverterStore.create(
+                    context = context,
                     typeConverters = converters,
                     knownColumnTypes = adapters.map { it.out }
                 ),
