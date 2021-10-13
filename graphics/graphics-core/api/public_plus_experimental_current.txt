@@ -1,6 +1,25 @@
 // Signature format: 4.0
 package androidx.graphics.opengl.egl {
 
+  public final inline class EglConfigAttributes {
+    ctor public EglConfigAttributes();
+  }
+
+  public static final class EglConfigAttributes.Builder {
+    method public void include(int[] attributes);
+    method public infix void to(int, int that);
+  }
+
+  public final class EglConfigAttributesKt {
+    method public static inline int[] EglConfigAttributes(kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EglConfigAttributes.Builder,kotlin.Unit> block);
+    method public static int[] getEglConfigAttributes1010102();
+    method public static int[] getEglConfigAttributes8888();
+    method public static int[] getEglConfigAttributesF16();
+    field public static final int EglColorComponentTypeExt = 13113; // 0x3339
+    field public static final int EglColorComponentTypeFixedExt = 13114; // 0x333a
+    field public static final int EglColorComponentTypeFloatExt = 13115; // 0x333b
+  }
+
   public final class EglException extends java.lang.RuntimeException {
     ctor public EglException(int error, optional String msg);
     method public int getError();
@@ -37,17 +56,27 @@ package androidx.graphics.opengl.egl {
 
   public final class EglManager {
     ctor public EglManager(optional androidx.graphics.opengl.egl.EglSpec eglSpec);
+    method public android.opengl.EGLContext? createContext(android.opengl.EGLConfig config);
+    method public android.opengl.EGLConfig? getEglConfig();
+    method public android.opengl.EGLContext? getEglContext();
     method public androidx.graphics.opengl.egl.EglSpec getEglSpec();
     method public androidx.graphics.opengl.egl.EglVersion getEglVersion();
     method public void initialize();
+    method public android.opengl.EGLConfig? loadConfig(int[] configAttributes);
+    method public void release();
+    property public final android.opengl.EGLConfig? eglConfig;
+    property public final android.opengl.EGLContext? eglContext;
     property public final androidx.graphics.opengl.egl.EglSpec eglSpec;
     property public final androidx.graphics.opengl.egl.EglVersion eglVersion;
   }
 
   public interface EglSpec {
+    method public android.opengl.EGLContext? createContext(android.opengl.EGLConfig config);
+    method public void destroyContext(android.opengl.EGLContext eglContext);
     method public String eglQueryString(int nameId);
     method public default static String getStatusString(int error);
     method public androidx.graphics.opengl.egl.EglVersion initialize();
+    method public android.opengl.EGLConfig? loadConfig(int[] configAttributes);
     field public static final androidx.graphics.opengl.egl.EglSpec.Companion Companion;
     field public static final androidx.graphics.opengl.egl.EglSpec Egl14;
   }
