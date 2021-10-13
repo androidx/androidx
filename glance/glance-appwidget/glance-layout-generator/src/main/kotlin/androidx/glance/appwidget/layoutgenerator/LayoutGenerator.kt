@@ -125,7 +125,6 @@ internal class LayoutGenerator {
     ): Document {
         val generated = documentBuilder.newDocument()
         val root = generated.importNode(document.documentElement, true)
-        generated.appendChild(generated.createComment(LicenseComment))
         generated.appendChild(root)
         root.attributes.apply {
             setNamedItem(generated.androidNamespace)
@@ -195,7 +194,6 @@ internal class LayoutGenerator {
     ): Document {
         val generated = documentBuilder.newDocument()
         val root = generated.createElement("RelativeLayout")
-        generated.appendChild(generated.createComment(LicenseComment))
         generated.appendChild(root)
         root.attributes.apply {
             setNamedItemNS(generated.androidId("@id/relativeLayout"))
