@@ -46,6 +46,7 @@ import androidx.compose.runtime.mock.validate
 import androidx.compose.runtime.snapshots.Snapshot
 import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
+import kotlin.reflect.KProperty
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -3714,6 +3715,23 @@ class CompositionTests {
         expectChanges()
         revalidate()
     }
+
+    @Test
+    fun composableDelegates() = compositionTest {
+        val local = compositionLocalOf { "Default" }
+        val delegatedLocal by local
+        compose {
+            Text(delegatedLocal)
+
+            CompositionLocalProvider(local provides "Scoped") {
+                Text(delegatedLocal)
+            }
+        }
+        validate {
+            Text("Default")
+            Text("Scoped")
+        }
+    }
 }
 
 class SomeUnstableClass(val a: Any = "abc")
@@ -3966,3 +3984,6 @@ private inline fun MockViewValidator.simulatedIf(condition: Boolean, block: () -
 private inline fun InlineSubcomposition(
     crossinline content: @Composable () -> Unit
 ) = TestSubcomposition { content() }
+
+@Composable
+operator fun <T> CompositionLocal<T>.getValue(thisRef: Any?, property: KProperty<*>) = current
