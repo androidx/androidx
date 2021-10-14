@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.os.Build
@@ -1496,7 +1497,13 @@ public abstract class WatchFaceService : WallpaperService() {
                 if (watchState.isHeadless) {
                     null
                 } else {
-                    BroadcastsReceiver(_context, broadcastsObserver)
+                    BroadcastsReceiver(_context, broadcastsObserver).apply {
+                        processBatteryStatus(
+                            IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { iFilter ->
+                                _context.registerReceiver(null, iFilter)
+                            }
+                        )
+                    }
                 }
             }
 
