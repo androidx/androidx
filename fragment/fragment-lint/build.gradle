@@ -25,6 +25,7 @@ plugins {
 dependencies {
     compileOnly(libs.androidLintMinApi)
     compileOnly(libs.kotlinStdlib)
+    compileOnly(libs.androidLintChecks)
 
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.kotlinReflect)

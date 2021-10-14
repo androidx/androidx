@@ -267,22 +267,30 @@ internal fun calculateScaleAndAlpha(
     var scaleToApply = 1.0f
     var alphaToApply = 1.0f
 
-    val viewPortHeightPx = (viewPortEndPx - viewPortStartPx).toFloat()
+    val viewPortEdgeToCenterPx = (viewPortEndPx - viewPortStartPx).toFloat() / 2f
     val itemHeightPx = (itemBottomPx - itemTopPx).toFloat()
+
+    val viewPortCenterPx = viewPortStartPx + viewPortEdgeToCenterPx
+
+    if ((itemTopPx..itemBottomPx).contains(viewPortCenterPx.roundToInt())) {
+        // No scaling of the centerItem
+        return ScaleAndAlpha.noScaling
+    }
 
     /*
      * Calculate the position of the edge of the item closest to the center line of the viewport as
-     * a fraction of the viewport. The [itemEdgePx] and [scrollPositionPx] values are in pixels.
+     * a fraction. The [itemEdgePx] and [scrollPositionPx] values are in pixels.
      */
-    val itemEdgeAsFractionOfViewport =
-        min(itemBottomPx - viewPortStartPx, viewPortEndPx - itemTopPx) / viewPortHeightPx
+    val itemEdgeAsFractionOfHalfViewport =
+        min(itemBottomPx - viewPortStartPx, viewPortEndPx - itemTopPx) / viewPortEdgeToCenterPx
 
-    val heightAsFractionOfViewPort = itemHeightPx / viewPortHeightPx
-    if (itemEdgeAsFractionOfViewport > 0.0f && itemEdgeAsFractionOfViewport < 1.0f) {
+    // TODO(b/202164558) - double check the height calculations with UX
+    val heightAsFractionOfHalfViewPort = itemHeightPx / viewPortEdgeToCenterPx
+    if (itemEdgeAsFractionOfHalfViewport > 0.0f && itemEdgeAsFractionOfHalfViewport < 1.0f) {
         // Work out the scaling line based on size, this is a value between 0.0..1.0
         val sizeRatio: Float =
             (
-                (heightAsFractionOfViewPort - scalingParams.minElementHeight) /
+                (heightAsFractionOfHalfViewPort - scalingParams.minElementHeight) /
                     (scalingParams.maxElementHeight - scalingParams.minElementHeight)
                 ).coerceIn(0f, 1f)
 
@@ -291,10 +299,10 @@ internal fun calculateScaleAndAlpha(
                 (scalingParams.maxTransitionArea - scalingParams.minTransitionArea) *
                 sizeRatio
 
-        if (itemEdgeAsFractionOfViewport < scalingLineAsFractionOfViewPort) {
+        if (itemEdgeAsFractionOfHalfViewport < scalingLineAsFractionOfViewPort) {
             // We are scaling
             val fractionOfDiffToApplyRaw =
-                (scalingLineAsFractionOfViewPort - itemEdgeAsFractionOfViewport) /
+                (scalingLineAsFractionOfViewPort - itemEdgeAsFractionOfHalfViewport) /
                     scalingLineAsFractionOfViewPort
             val fractionOfDiffToApplyInterpolated =
                 scalingParams.scaleInterpolator.transform(fractionOfDiffToApplyRaw)
@@ -317,7 +325,7 @@ internal fun calculateScaleAndAlpha(
 }
 
 /**
- * Create a [ScalingLazyColumnItemInfo] given an unscaled start and end position for an item.
+ * Create a [ScalingLazyListItemInfo] given an unscaled start and end position for an item.
  *
  * @param itemStart the x-axis position of a list item. The x-axis position takes into account
  * any adjustment to the original position based on the scaling of other list items.
@@ -335,7 +343,7 @@ internal fun createItemInfo(
     verticalAdjustment: Int,
     viewportHeightPx: Int,
     scalingParams: ScalingParams,
-): ScalingLazyColumnItemInfo {
+): ScalingLazyListItemInfo {
     val adjustedItemStart = itemStart - verticalAdjustment
     val adjustedItemEnd = itemStart + item.size - verticalAdjustment
 
@@ -352,7 +360,7 @@ internal fun createItemInfo(
         itemStart + item.size - scaledHeight
     }
 
-    return DefaultScalingLazyColumnItemInfo(
+    return DefaultScalingLazyListItemInfo(
         index = item.index,
         unadjustedOffset = item.offset,
         offset = scaledItemTop,
@@ -362,24 +370,29 @@ internal fun createItemInfo(
     )
 }
 
-internal class DefaultScalingLazyColumnLayoutInfo(
-    override val visibleItemsInfo: List<ScalingLazyColumnItemInfo>,
+internal class DefaultScalingLazyListLayoutInfo(
+    override val visibleItemsInfo: List<ScalingLazyListItemInfo>,
     override val viewportStartOffset: Int,
     override val viewportEndOffset: Int,
     override val totalItemsCount: Int
-) : ScalingLazyColumnLayoutInfo
+) : ScalingLazyListLayoutInfo
 
-internal class DefaultScalingLazyColumnItemInfo(
+internal class DefaultScalingLazyListItemInfo(
     override val index: Int,
     override val unadjustedOffset: Int,
     override val offset: Int,
     override val size: Int,
     override val scale: Float,
     override val alpha: Float
-) : ScalingLazyColumnItemInfo
+) : ScalingLazyListItemInfo
 
 @Immutable
 internal data class ScaleAndAlpha(
     val scale: Float,
     val alpha: Float
-)
+
+) {
+    companion object {
+        internal val noScaling = ScaleAndAlpha(1.0f, 1.0f)
+    }
+}

@@ -81,11 +81,8 @@ public class PerfettoRule : TestRule {
 internal fun PerfettoCapture.recordAndReportFile(traceName: String, block: () -> Unit) {
     try {
         Log.d(PerfettoRule.TAG, "Recording perfetto trace $traceName")
-        val targetPackage = InstrumentationRegistry
-            .getInstrumentation()
-            .targetContext
-            .packageName
-        start(packages = listOf(targetPackage))
+        val inst = InstrumentationRegistry.getInstrumentation()
+        start(packages = listOf(inst.targetContext.packageName, inst.context.packageName))
         block()
         Outputs.writeFile(fileName = traceName, reportKey = "perfetto_trace") {
             val destinationPath = it.absolutePath

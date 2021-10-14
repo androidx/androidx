@@ -1380,6 +1380,28 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
     @SdkSuppress(minSdkVersion = 31)
     @Test
+    public void testBigPictureStyle_encodesAndRecoversSetContentDescription() {
+        String contentDesc = "content!";
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_bg_low_pressed);
+        Notification n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setStyle(new NotificationCompat.BigPictureStyle()
+                        .bigPicture(bitmap)
+                        .bigLargeIcon(bitmap)
+                        .setContentDescription(contentDesc)
+                        .setBigContentTitle("Big Content Title")
+                        .setSummaryText("Summary Text"))
+                .build();
+        assertEquals(contentDesc,
+                n.extras.getCharSequence(Notification.EXTRA_PICTURE_CONTENT_DESCRIPTION));
+        Notification recovered = Notification.Builder.recoverBuilder(mContext, n).build();
+        assertEquals(contentDesc,
+                recovered.extras.getCharSequence(Notification.EXTRA_PICTURE_CONTENT_DESCRIPTION));
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
     public void testBigPictureStyle_encodesAndRecoversShowBigPictureWhenCollapsed() {
         Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
                 R.drawable.notification_bg_low_pressed);
@@ -1936,7 +1958,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     public void action_builder_setContextual() {
         // Without a PendingIntent the Action.Builder class throws an NPE when building a contextual
         // action.
-        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Action action =
                 new NotificationCompat.Action.Builder(0, "Test Title", pendingIntent)
                         .setContextual(true)
@@ -1962,7 +1985,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         if (Build.VERSION.SDK_INT < 29) return;
         // Without a PendingIntent the Action.Builder class throws an NPE when building a contextual
         // action.
-        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Action action = new NotificationCompat.Action.Builder(
                 R.drawable.notification_bg, "Test Title", pendingIntent)
                 .setContextual(true)
@@ -1999,10 +2023,10 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 R.drawable.notification_bg_normal));
 
         PendingIntent intent =
-                PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+                PendingIntent.getActivity(mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
 
         PendingIntent deleteIntent =
-                PendingIntent.getActivity(mContext, 1, new Intent(), 0);
+                PendingIntent.getActivity(mContext, 1, new Intent(), PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.BubbleMetadata originalBubble =
                 new NotificationCompat.BubbleMetadata.Builder(intent, icon)
@@ -2042,7 +2066,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     public void setBubbleMetadataShortcut() {
         String shortcutId = "someShortcut";
         PendingIntent deleteIntent =
-                PendingIntent.getActivity(mContext, 1, new Intent(), 0);
+                PendingIntent.getActivity(mContext, 1, new Intent(), PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.BubbleMetadata originalBubble =
                 new NotificationCompat.BubbleMetadata.Builder(shortcutId)
@@ -2087,7 +2111,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 R.drawable.notification_bg_normal));
 
         PendingIntent intent =
-                PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+                PendingIntent.getActivity(mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.BubbleMetadata originalBubble =
                 new NotificationCompat.BubbleMetadata.Builder()

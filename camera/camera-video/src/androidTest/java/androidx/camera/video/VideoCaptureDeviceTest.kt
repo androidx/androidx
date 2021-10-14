@@ -31,12 +31,12 @@ import androidx.camera.core.impl.Observable
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.GLUtil
-import androidx.camera.video.QualitySelector.QUALITY_HIGHEST
 import androidx.camera.video.QualitySelector.QUALITY_LOWEST
 import androidx.camera.video.VideoOutput.StreamState
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -57,6 +57,7 @@ import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 class VideoCaptureDeviceTest {
 
     @get:Rule
@@ -137,10 +138,7 @@ class VideoCaptureDeviceTest {
         assumeFalse(Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29)
 
         // Arrange.
-        val qualityList = QualitySelector.getSupportedQualities(cameraInfo) + arrayOf(
-            QUALITY_HIGHEST,
-            QUALITY_LOWEST
-        )
+        val qualityList = QualitySelector.getSupportedQualities(cameraInfo)
         qualityList.forEach loop@{ quality ->
             val targetResolution = QualitySelector.getResolution(cameraInfo, quality)
             val videoOutput = TestVideoOutput(

@@ -16,23 +16,34 @@
 
 package androidx.car.app;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.car.app.managers.Manager;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.lifecycle.Lifecycle;
 
 /** Manages the communication between the app and the host. */
 public class AppManager implements Manager {
+    private static final int LOCATION_UPDATE_MIN_INTERVAL_MILLIS = 1000;
+    private static final int LOCATION_UPDATE_MIN_DISTANCE_METER = 1;
+
     @NonNull
     private final CarContext mCarContext;
     @NonNull
@@ -41,6 +52,17 @@ public class AppManager implements Manager {
     private final HostDispatcher mHostDispatcher;
     @NonNull
     private final Lifecycle mLifecycle;
+
+    /**
+     * {@link LocationListener} for getting location updates within the app and sends them over to
+     * the car host.
+     *
+     * <p>This should only be enabled when the car host explicitly calls {@code IAppManager
+     * .startLocationUpdates}.
+     */
+    private final LocationListener mLocationListener;
+    @VisibleForTesting
+    final HandlerThread mLocationUpdateHandlerThread;
 
     /**
      * Sets the {@link SurfaceCallback} to get changes and updates to the surface on which the
@@ -112,6 +134,37 @@ public class AppManager implements Manager {
         return mAppManager;
     }
 
+    @NonNull
+    Lifecycle getLifecycle() {
+        return mLifecycle;
+    }
+
+    /**
+     * Start requesting location updates from the app.
+     *
+     * <p>This is only called from the host. If location permission(s) have not been granted, we
+     * return a {@link FailureResponse} back to the host and would not call this method.
+     */
+    // Location permissions should be granted by the app if they need this API.
+    @SuppressLint("MissingPermission")
+    void startLocationUpdates() {
+        stopLocationUpdates();
+        LocationManager locationManager = mCarContext.getSystemService(LocationManager.class);
+        locationManager.requestLocationUpdates(LocationManager.FUSED_PROVIDER,
+                LOCATION_UPDATE_MIN_INTERVAL_MILLIS,
+                LOCATION_UPDATE_MIN_DISTANCE_METER,
+                mLocationListener,
+                mLocationUpdateHandlerThread.getLooper());
+    }
+
+    /**
+     * Stops requesting location updates from the app.
+     */
+    void stopLocationUpdates() {
+        LocationManager locationManager = mCarContext.getSystemService(LocationManager.class);
+        locationManager.removeUpdates(mLocationListener);
+    }
+
     /** Creates an instance of {@link AppManager}. */
     static AppManager create(@NonNull CarContext carContext,
             @NonNull HostDispatcher hostDispatcher, @NonNull Lifecycle lifecycle) {
@@ -120,17 +173,6 @@ public class AppManager implements Manager {
         requireNonNull(lifecycle);
 
         return new AppManager(carContext, hostDispatcher, lifecycle);
-    }
-
-    // Strictly to avoid synthetic accessor.
-    @NonNull
-    CarContext getCarContext() {
-        return mCarContext;
-    }
-
-    @NonNull
-    Lifecycle getLifecycle() {
-        return mLifecycle;
     }
 
     /** @hide */
@@ -144,8 +186,7 @@ public class AppManager implements Manager {
             @Override
             public void getTemplate(IOnDoneCallback callback) {
                 RemoteUtils.dispatchCallFromHost(getLifecycle(), callback, "getTemplate",
-                        getCarContext().getCarService(
-                                ScreenManager.class)::getTopTemplate);
+                        carContext.getCarService(ScreenManager.class)::getTopTemplate);
             }
 
             @Override
@@ -157,6 +198,46 @@ public class AppManager implements Manager {
                             return null;
                         });
             }
+
+            @Override
+            public void startLocationUpdates(IOnDoneCallback callback) {
+                if (carContext.checkSelfPermission(ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_DENIED && carContext.checkSelfPermission(
+                        ACCESS_COARSE_LOCATION)
+                        == PackageManager.PERMISSION_DENIED) {
+                    RemoteUtils.sendFailureResponseToHost(callback, "startLocationUpdates",
+                            new SecurityException("Location permission(s) not granted."));
+                }
+
+
+                RemoteUtils.dispatchCallFromHost(getLifecycle(), callback,
+                        "startLocationUpdates",
+                        () -> {
+                            carContext.getCarService(AppManager.class).startLocationUpdates();
+                            return null;
+                        });
+            }
+
+            @Override
+            public void stopLocationUpdates(IOnDoneCallback callback) {
+                RemoteUtils.dispatchCallFromHost(getLifecycle(), callback,
+                        "stopLocationUpdates",
+                        () -> {
+                            carContext.getCarService(AppManager.class).stopLocationUpdates();
+                            return null;
+                        });
+            }
+        };
+
+        mLocationUpdateHandlerThread = new HandlerThread("LocationUpdateThread");
+        mLocationListener = location -> {
+            mHostDispatcher.dispatch(
+                    CarContext.APP_SERVICE,
+                    "sendLocation", (IAppHost host) -> {
+                        host.sendLocation(location);
+                        return null;
+                    }
+            );
         };
     }
 }

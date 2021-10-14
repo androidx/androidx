@@ -20,12 +20,12 @@ import kotlin.jvm.JvmStatic
 
 public data class MainFragmentArgs(
   public val main: String,
+  public val floatArrayArg: FloatArray,
+  public val objectArrayArg: Array<ActivityInfo>,
   public val optional: Int = -1,
   public val reference: Int = R.drawable.background,
   public val referenceZeroDefaultValue: Int = 0,
   public val floatArg: Float = 1F,
-  public val floatArrayArg: FloatArray,
-  public val objectArrayArg: Array<ActivityInfo>,
   public val boolArg: Boolean = true,
   public val optionalParcelable: ActivityInfo? = null,
   public val enumArg: AccessMode = AccessMode.READ
@@ -168,8 +168,8 @@ public data class MainFragmentArgs(
       } else {
         __enumArg = AccessMode.READ
       }
-      return MainFragmentArgs(__main, __optional, __reference, __referenceZeroDefaultValue,
-          __floatArg, __floatArrayArg, __objectArrayArg, __boolArg, __optionalParcelable, __enumArg)
+      return MainFragmentArgs(__main, __floatArrayArg, __objectArrayArg, __optional, __reference,
+          __referenceZeroDefaultValue, __floatArg, __boolArg, __optionalParcelable, __enumArg)
     }
 
     @JvmStatic
@@ -261,8 +261,8 @@ public data class MainFragmentArgs(
       } else {
         __enumArg = AccessMode.READ
       }
-      return MainFragmentArgs(__main, __optional, __reference, __referenceZeroDefaultValue,
-          __floatArg, __floatArrayArg, __objectArrayArg, __boolArg, __optionalParcelable, __enumArg)
+      return MainFragmentArgs(__main, __floatArrayArg, __objectArrayArg, __optional, __reference,
+          __referenceZeroDefaultValue, __floatArg, __boolArg, __optionalParcelable, __enumArg)
     }
   }
 }

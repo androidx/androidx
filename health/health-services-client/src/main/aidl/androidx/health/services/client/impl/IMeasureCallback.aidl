@@ -16,8 +16,7 @@
 
 package androidx.health.services.client.impl;
 
-import androidx.health.services.client.impl.response.AvailabilityResponse;
-import androidx.health.services.client.impl.response.DataPointsResponse;
+import androidx.health.services.client.impl.event.MeasureCallbackEvent;
 
 /**
  * Interface to get callback for measure api.
@@ -25,7 +24,5 @@ import androidx.health.services.client.impl.response.DataPointsResponse;
  * @hide
  */
 oneway interface IMeasureCallback {
-    void onAvailabilityChanged(in AvailabilityResponse response) = 0;
-
-    void onData(in DataPointsResponse response) = 1;
+    void onMeasureCallbackEvent(in MeasureCallbackEvent event) = 0;
 }

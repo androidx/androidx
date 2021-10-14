@@ -24,6 +24,6 @@ import java.lang.annotation.Target;
 /**
  * APIs marked with ExperimentalRoomApi are experimental and may change.
  */
-@Target({ElementType.METHOD})
+@Target({ElementType.TYPE, ElementType.METHOD})
 @RequiresOptIn()
 public @interface ExperimentalRoomApi {}

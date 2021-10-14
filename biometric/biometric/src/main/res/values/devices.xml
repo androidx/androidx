@@ -82,4 +82,14 @@
         <item>Pixel 4</item>
         <item>Pixel 4 XL</item>
     </string-array>
+
+    <!--
+    List of known device vendors for which authentication with both Class 2 (Weak) biometrics
+    and device credential (PIN/pattern/password) as allowed authenticator types should use
+    KeyguardManager#createConfirmDeviceCredentialIntent(CharSequence, CharSequence) on API 29.
+    -->
+    <string-array name="keyguard_biometric_and_credential_vendors">
+        <item>google</item>
+        <item>samsung</item>
+    </string-array>
 </resources>

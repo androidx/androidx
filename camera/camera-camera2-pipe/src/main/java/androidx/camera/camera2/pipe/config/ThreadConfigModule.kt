@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.config
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Process
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Threads
 import dagger.Module
@@ -33,6 +34,7 @@ import javax.inject.Singleton
 /**
  * Configure and provide a single [Threads] object to other parts of the library.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Module
 internal class ThreadConfigModule(private val threadConfig: CameraPipe.ThreadConfig) {
     @Singleton

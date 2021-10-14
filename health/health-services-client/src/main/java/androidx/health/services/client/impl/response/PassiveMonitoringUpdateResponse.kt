@@ -16,40 +16,37 @@
 
 package androidx.health.services.client.impl.response
 
-import android.os.Parcel
 import android.os.Parcelable
 import androidx.health.services.client.data.PassiveMonitoringUpdate
+import androidx.health.services.client.data.ProtoParcelable
+import androidx.health.services.client.proto.ResponsesProto
 
 /**
  * Response containing [PassiveMonitoringUpdate].
  *
  * @hide
  */
-public data class PassiveMonitoringUpdateResponse(
-    val passiveMonitoringUpdate: PassiveMonitoringUpdate
-) : Parcelable {
-    override fun describeContents(): Int = 0
+public class PassiveMonitoringUpdateResponse(
+    public val passiveMonitoringUpdate: PassiveMonitoringUpdate
+) : ProtoParcelable<ResponsesProto.PassiveMonitoringUpdateResponse>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(passiveMonitoringUpdate, flags)
+    /** @hide */
+    public constructor(
+        proto: ResponsesProto.PassiveMonitoringUpdateResponse
+    ) : this(PassiveMonitoringUpdate(proto.update))
+
+    override val proto: ResponsesProto.PassiveMonitoringUpdateResponse by lazy {
+        ResponsesProto.PassiveMonitoringUpdateResponse.newBuilder()
+            .setUpdate(passiveMonitoringUpdate.proto)
+            .build()
     }
 
     public companion object {
         @JvmField
         public val CREATOR: Parcelable.Creator<PassiveMonitoringUpdateResponse> =
-            object : Parcelable.Creator<PassiveMonitoringUpdateResponse> {
-                override fun createFromParcel(source: Parcel): PassiveMonitoringUpdateResponse? {
-                    val parcelable =
-                        source.readParcelable<PassiveMonitoringUpdate>(
-                            PassiveMonitoringUpdate::class.java.classLoader
-                        )
-                            ?: return null
-                    return PassiveMonitoringUpdateResponse(parcelable)
-                }
-
-                override fun newArray(size: Int): Array<PassiveMonitoringUpdateResponse?> {
-                    return arrayOfNulls(size)
-                }
+            newCreator { bytes ->
+                val proto = ResponsesProto.PassiveMonitoringUpdateResponse.parseFrom(bytes)
+                PassiveMonitoringUpdateResponse(proto)
             }
     }
 }

@@ -86,6 +86,10 @@ import java.util.zip.CRC32;
  * Supported for reading: JPEG, PNG, WebP, HEIF, DNG, CR2, NEF, NRW, ARW, RW2, ORF, PEF, SRW, RAF.
  * <p>
  * Supported for writing: JPEG, PNG, WebP, DNG.
+ * <p>
+ * Note: JPEG and HEIF files may contain XMP data either inside the Exif data chunk or outside of
+ * it. This class will search both locations for XMP data, but if XMP data exist both inside and
+ * outside Exif, will favor the XMP data inside Exif over the one outside.
  */
 public class ExifInterface {
     private static final String TAG = "ExifInterface";
@@ -2989,7 +2993,7 @@ public class ExifInterface {
     // 3.1. PNG file signature
     private static final byte[] PNG_SIGNATURE = new byte[] {(byte) 0x89, (byte) 0x50, (byte) 0x4e,
             (byte) 0x47, (byte) 0x0d, (byte) 0x0a, (byte) 0x1a, (byte) 0x0a};
-    // See PNG (Portable Network Graphics) Specification, Version 1.2,
+    // See "Extensions to the PNG 1.2 Specification, Version 1.5.0",
     // 3.7. eXIf Exchangeable Image File (Exif) Profile
     private static final byte[] PNG_CHUNK_TYPE_EXIF = new byte[]{(byte) 0x65, (byte) 0x58,
             (byte) 0x49, (byte) 0x66};
@@ -4673,7 +4677,9 @@ public class ExifInterface {
      * <p>
      * For WebP format, the Exif data will be stored as an Extended File Format, and it may not be
      * supported for older readers.
-     * </p>
+     * <p>
+     * For PNG format, the Exif data will be stored as an "eXIf" chunk as per
+     * "Extensions to the PNG 1.2 Specification, Version 1.5.0".
      */
     public void saveAttributes() throws IOException {
         if (!isSupportedFormatForSavingAttributes(mMimeType)) {
@@ -5961,6 +5967,24 @@ public class ExifInterface {
                     // Save offset to EXIF data for handling thumbnail and attribute offsets.
                     mOffsetToExifData = offset;
                     readExifSegment(bytes, IFD_TYPE_PRIMARY);
+                }
+
+                String xmpOffsetStr = retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_XMP_OFFSET);
+                String xmpLengthStr = retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_XMP_LENGTH);
+                if (xmpOffsetStr != null && xmpLengthStr != null) {
+                    int offset = Integer.parseInt(xmpOffsetStr);
+                    int length = Integer.parseInt(xmpLengthStr);
+                    in.seek(offset);
+                    byte[] xmpBytes = new byte[length];
+                    if (in.read(xmpBytes) != length) {
+                        throw new IOException("Failed to read XMP from HEIF");
+                    }
+                    if (getAttribute(TAG_XMP) == null) {
+                        mAttributes[IFD_TYPE_PRIMARY].put(TAG_XMP, new ExifAttribute(
+                                IFD_FORMAT_BYTE, xmpBytes.length, offset, xmpBytes));
+                    }
                 }
 
                 if (DEBUG) {

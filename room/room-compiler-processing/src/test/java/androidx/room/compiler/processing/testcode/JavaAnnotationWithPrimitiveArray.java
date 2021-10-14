@@ -22,4 +22,18 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface JavaAnnotationWithPrimitiveArray {
     int[] intArray() default {};
+
+    double[] doubleArray() default {};
+
+    float[] floatArray() default {};
+
+    char[] charArray() default {};
+
+    byte[] byteArray() default {};
+
+    short[] shortArray() default {};
+
+    long[] longArray() default {};
+
+    boolean[] booleanArray() default {};
 }

@@ -44,9 +44,6 @@ class AutoMigrationProcessorTest {
 
         runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
-                element = invocation.processingEnv.requireTypeElement(
-                    "foo.bar.MyAutoMigration"
-                ),
                 context = invocation.context,
                 spec = invocation.processingEnv.requireType(
                     "foo.bar.MyAutoMigration"
@@ -73,7 +70,6 @@ class AutoMigrationProcessorTest {
 
         runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
-                element = invocation.processingEnv.requireTypeElement("foo.bar.MyAutoMigration"),
                 context = invocation.context,
                 spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
                 fromSchemaBundle = fromSchemaBundle.database,
@@ -100,9 +96,6 @@ class AutoMigrationProcessorTest {
 
         runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
-                element = invocation.processingEnv.requireTypeElement(
-                    "foo.bar.MyAutoMigrationDb.MyAutoMigration"
-                ),
                 context = invocation.context,
                 spec = invocation.processingEnv.requireType(
                     "foo.bar.MyAutoMigrationDb.MyAutoMigration"
@@ -131,7 +124,6 @@ class AutoMigrationProcessorTest {
 
         runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
-                element = invocation.processingEnv.requireTypeElement("foo.bar.MyAutoMigration"),
                 context = invocation.context,
                 spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
                 fromSchemaBundle = fromSchemaBundle.database,

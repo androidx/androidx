@@ -44,6 +44,7 @@ import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
@@ -72,6 +73,10 @@ import androidx.compose.ui.unit.dp
  * [Colors.onPrimary].
  *
  * Chips can be enabled or disabled. A disabled chip will not respond to click events.
+ *
+ * For more information, see the
+ * [Chips](https://developer.android.com/training/wearables/components/chips)
+ * guide.
  *
  * @param onClick Will be called when the user clicks the chip
  * @param colors [ChipColors] that will be used to resolve the background and content color for
@@ -167,6 +172,13 @@ public fun Chip(
  *
  * Chips can be enabled or disabled. A disabled chip will not respond to click events.
  *
+ * Example of a [Chip] with icon, label and secondary label:
+ * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabels
+ *
+ * For more information, see the
+ * [Chips](https://developer.android.com/training/wearables/components/chips)
+ * guide.
+ *
  * @param label A slot for providing the chip's main label. The contents are expected to be text
  * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
  * @param onClick Will be called when the user clicks the chip
@@ -175,7 +187,9 @@ public fun Chip(
  * to be text which is "start" aligned if there is an icon preset and "start" or "center" aligned if
  * not. label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the chip's icon. The contents are expected to be a horizontally
- * and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize].
+ * and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize]. In
+ * order to correctly render when the Chip is not enabled the icon must set its alpha value to
+ * [LocalContentAlpha].
  * @param colors [ChipColors] that will be used to resolve the background and content color for
  * this chip in different states. See [ChipDefaults.chipColors]. Defaults to
  * [ChipDefaults.primaryChipColors]
@@ -267,6 +281,9 @@ public fun Chip(
  * default height of [ChipDefaults.CompactChipHeight] and the default width of
  * [ChipDefaults.IconOnlyCompactChipWidth]
  *
+ * If neither icon nor label is provided then the chip will displayed like an icon only chip but
+ * with no contents and [ChipColors.background()] color.
+ *
  * The [CompactChip] can have different styles with configurable content colors, background colors
  * including gradients, these are provided by [ChipColors] implementations.
  *
@@ -277,12 +294,21 @@ public fun Chip(
  *
  * Chips can be enabled or disabled. A disabled chip will not respond to click events.
  *
+ * Example of a [CompactChip] with icon and single line of label text:
+ * @sample androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
+ *
+ * For more information, see the
+ * [Chips](https://developer.android.com/training/wearables/components/chips)
+ * guide.
+ *
  * @param onClick Will be called when the user clicks the chip
  * @param modifier Modifier to be applied to the chip
  * @param label A slot for providing the chip's main label. The contents are expected to be text
  * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
  * @param icon A slot for providing the chip's icon. The contents are expected to be a horizontally
- * and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize].
+ * and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize]. In
+ * order to correctly render when the Chip is not enabled the icon must set its alpha value to
+ * [LocalContentAlpha].
  * @param colors [ChipColors] that will be used to resolve the background and content color for
  * this chip in different states. See [ChipDefaults.chipColors]. Defaults to
  * [ChipDefaults.primaryChipColors]
@@ -431,8 +457,10 @@ public object ChipDefaults {
      */
     @Composable
     public fun gradientBackgroundChipColors(
-        startBackgroundColor: Color = MaterialTheme.colors.primary.copy(alpha = 0.5f),
-        endBackgroundColor: Color = MaterialTheme.colors.surface,
+        startBackgroundColor: Color = MaterialTheme.colors.primary.copy(alpha = 0.325f)
+            .compositeOver(MaterialTheme.colors.surface.copy(alpha = 0.75f)),
+        endBackgroundColor: Color = MaterialTheme.colors.surface.copy(alpha = 0f)
+            .compositeOver(MaterialTheme.colors.surface.copy(alpha = 0.75f)),
         contentColor: Color = contentColorFor(endBackgroundColor),
         secondaryContentColor: Color = contentColor,
         iconTintColor: Color = contentColor,

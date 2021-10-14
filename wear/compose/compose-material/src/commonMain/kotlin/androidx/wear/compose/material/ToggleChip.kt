@@ -80,6 +80,13 @@ import androidx.compose.ui.unit.dp
  *
  * Chips can be enabled or disabled. A disabled chip will not respond to click events.
  *
+ * Example of a [ToggleChip] with an icon, label and secondary label (defaults to switch toggle):
+ * @sample androidx.wear.compose.material.samples.ToggleChipWithIcon
+ *
+ * For more information, see the
+ * [Toggle Chips](https://developer.android.com/training/wearables/components/toggle-chips)
+ * guide.
+ *
  * @param checked Boolean flag indicating whether this button is currently checked.
  * @param onCheckedChange Callback to be invoked when this buttons checked/selected status is
  * @param label A slot for providing the chip's main label. The contents are expected to be text
@@ -87,12 +94,14 @@ import androidx.compose.ui.unit.dp
  * @param modifier Modifier to be applied to the chip
  * @param toggleIcon A slot for providing the chip's toggle icon(s). The contents are expected to be
  * a horizontally and vertically centre aligned icon of size [ToggleChipDefaults.IconSize]. Three
- * types of toggle icon are supported and can be obtained from
+ * built-in types of toggle icon are supported and can be obtained from
  * [ToggleChipDefaults.SwitchIcon], [ToggleChipDefaults.RadioIcon] and
- * [ToggleChipDefaults.CheckboxIcon]
+ * [ToggleChipDefaults.CheckboxIcon]. In order to correctly render when the Chip is not enabled the
+ * icon must set its alpha value to [LocalContentAlpha].
  * @param appIcon An optional slot for providing an icon to indicate the purpose of the chip. The
  * contents are expected to be a horizontally and vertically centre aligned icon of size
- * [ToggleChipDefaults.IconSize].
+ * [ToggleChipDefaults.IconSize]. In order to correctly render when the Chip is not enabled the
+ * icon must set its alpha value to [LocalContentAlpha].
  * @param secondaryLabel A slot for providing the chip's secondary label. The contents are expected
  * to be text which is "start" aligned if there is an icon preset and "start" or "center" aligned if
  * not. label and secondaryLabel contents should be consistently aligned.
@@ -244,6 +253,13 @@ public fun ToggleChip(
  *
  * Chips can be enabled or disabled. A disabled chip will not respond to click events.
  *
+ * Example of a [SplitToggleChip] with a label and the toggle icon changed to checkbox:
+ * @sample androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
+ *
+ * For more information, see the
+ * [Toggle Chips](https://developer.android.com/training/wearables/components/toggle-chips)
+ * guide.
+ *
  * @param checked Boolean flag indicating whether this button is currently checked.
  * @param onCheckedChange Callback to be invoked when this buttons checked/selected status is
  * changed.
@@ -254,9 +270,10 @@ public fun ToggleChip(
  * @param modifier Modifier to be applied to the chip
  * @param toggleIcon A slot for providing the chip's toggle icon(s). The contents are expected to be
  * a horizontally and vertically centre aligned icon of size [ToggleChipDefaults.IconSize]. Three
- * types of toggle icon are supported and can be obtained from
+ * built-in types of toggle icon are supported and can be obtained from
  * [ToggleChipDefaults.SwitchIcon], [ToggleChipDefaults.RadioIcon] and
- * [ToggleChipDefaults.CheckboxIcon]
+ * [ToggleChipDefaults.CheckboxIcon]. In order to correctly render when the Chip is not enabled the
+ * icon must set its alpha value to [LocalContentAlpha].
  * @param secondaryLabel A slot for providing the chip's secondary label. The contents are expected
  * to be "start" or "center" aligned. label and secondaryLabel contents should be consistently
  * aligned.
@@ -547,20 +564,18 @@ public object ToggleChipDefaults {
      */
     @Composable
     public fun toggleChipColors(
-        checkedStartBackgroundColor: Color = MaterialTheme.colors.secondary.copy(alpha = 0.5f),
-        checkedEndBackgroundColor: Color = MaterialTheme.colors.surface,
-        checkedContentColor: Color = contentColorFor(checkedEndBackgroundColor),
+        checkedStartBackgroundColor: Color = MaterialTheme.colors.surface.copy(alpha = 0.75f),
+        checkedEndBackgroundColor: Color = MaterialTheme.colors.primary.copy(alpha = 0.325f),
+        checkedContentColor: Color = MaterialTheme.colors.onSurface,
         checkedSecondaryContentColor: Color = MaterialTheme.colors.onSurfaceVariant,
-        checkedToggleIconTintColor: Color = checkedContentColor,
+        checkedToggleIconTintColor: Color = MaterialTheme.colors.secondary,
         uncheckedStartBackgroundColor: Color = MaterialTheme.colors.surface,
         uncheckedEndBackgroundColor: Color = MaterialTheme.colors.surface,
         uncheckedContentColor: Color = contentColorFor(checkedEndBackgroundColor),
         uncheckedSecondaryContentColor: Color = uncheckedContentColor,
         uncheckedToggleIconTintColor: Color = uncheckedContentColor,
         splitBackgroundOverlayColor: Color = Color.White.copy(alpha = 0.05f),
-        gradientDirection: LayoutDirection =
-            if (LocalLayoutDirection.current == LayoutDirection.Ltr) LayoutDirection.Rtl
-            else LayoutDirection.Ltr
+        gradientDirection: LayoutDirection = LocalLayoutDirection.current
     ): ToggleChipColors {
         val checkedBackgroundColors: List<Color>
         val disabledCheckedBackgroundColors: List<Color>
@@ -666,12 +681,23 @@ public object ToggleChipDefaults {
      * or 'off' (unchecked/false)
      */
     @Composable
-    public fun SwitchIcon(checked: Boolean) {
-        Icon(
-            imageVector = if (checked) SwitchOn else SwitchOff,
-            contentDescription = "Switch selector",
-            modifier = Modifier.size(24.dp)
-        )
+    public fun SwitchIcon(
+        checked: Boolean,
+    ) {
+        if (checked) {
+            Icon(
+                imageVector = SwitchOn,
+                contentDescription = "Switch selector",
+                modifier = Modifier.size(24.dp),
+            )
+        } else {
+            Icon(
+                imageVector = SwitchOff,
+                contentDescription = "Switch selector",
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colors.onSurface.copy(0.6f)
+            )
+        }
     }
 
     /**

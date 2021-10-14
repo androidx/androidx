@@ -309,8 +309,7 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
         ): Int = minOf(totalCount - initialLoadPosition, params.requestedLoadSize)
     }
 
-    @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
-    internal final override suspend fun load(params: Params<Int>): BaseResult<T> {
+    final override suspend fun load(params: Params<Int>): BaseResult<T> {
         if (params.type == LoadType.REFRESH) {
             var initialPosition = 0
             var initialLoadSize = params.initialLoadSize

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="BanSynchronizedMethods"
@@ -35,6 +35,17 @@
     </issue>
 
     <issue
+        id="SupportAnnotationUsage"
+        message="The API level is already known to be at least 14 from the `minSdkVersion`"
+        errorLine1="    @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"
+            line="51"
+            column="5"/>
+    </issue>
+
+    <issue
         id="SyntheticAccessor"
         message="Access to `private` method `read` of class `EmojiRepo` requires synthetic accessor"
         errorLine1="                    read(context);"
@@ -63,19 +74,8 @@
         errorLine2="            ~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"
-            line="59"
+            line="75"
             column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRegularTextView` of class `MainFragment` requires synthetic accessor"
-        errorLine1="                    mRegularTextView.setText("
-        errorLine2="                    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"
-            line="140"
-            column="21"/>
     </issue>
 
     <issue
@@ -261,7 +261,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"
-            line="69"
+            line="85"
             column="12"/>
     </issue>
 
@@ -272,7 +272,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"
-            line="69"
+            line="85"
             column="30"/>
     </issue>
 
@@ -283,7 +283,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"
-            line="69"
+            line="85"
             column="55"/>
     </issue>
 
@@ -294,7 +294,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"
-            line="70"
+            line="86"
             column="13"/>
     </issue>
 

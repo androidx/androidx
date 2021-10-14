@@ -21,9 +21,11 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.FlashMode;
 import androidx.camera.core.impl.utils.futures.Futures;
 
@@ -38,6 +40,7 @@ import java.util.List;
  * triggering
  * AF/AE.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraControlInternal extends CameraControl {
 
     /** Returns the current flash mode. */
@@ -63,11 +66,12 @@ public interface CameraControlInternal extends CameraControl {
     /**
      * Starts a flash sequence.
      *
+     * @param flashType Uses one shot flash or use torch as flash when taking a picture.
      * @return a {@link ListenableFuture} which completes when the request is completed.
      * Cancelling the ListenableFuture is a no-op.
      */
     @NonNull
-    ListenableFuture<Void> startFlashSequence();
+    ListenableFuture<Void> startFlashSequence(@ImageCapture.FlashType int flashType);
 
     /** Cancels AF trigger AND/OR finishes flash sequence.* */
     void cancelAfAndFinishFlashSequence(boolean cancelAfTrigger, boolean finishFlashSequence);
@@ -145,7 +149,7 @@ public interface CameraControlInternal extends CameraControl {
 
         @Override
         @NonNull
-        public ListenableFuture<Void> startFlashSequence() {
+        public ListenableFuture<Void> startFlashSequence(@ImageCapture.FlashType int flashType) {
             return Futures.immediateFuture(null);
         }
 

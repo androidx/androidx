@@ -22,6 +22,7 @@ import android.util.Size;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraProvider;
@@ -82,6 +83,7 @@ import java.util.concurrent.ExecutionException;
  * }
  * </pre>
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ExtensionsManager {
     private static final String TAG = "ExtensionsManager";
 
@@ -173,7 +175,7 @@ public final class ExtensionsManager {
                                     }
                                 },
                                 CameraXExecutors.directExecutor());
-                    } catch (NoSuchMethodError | NoClassDefFoundError e) {
+                    } catch (NoSuchMethodError | NoClassDefFoundError | AbstractMethodError e) {
                         Logger.e(TAG, "Failed to initialize extensions. Some classes or methods "
                                 + "are missed in the vendor library. " + e);
                         completer.set(getOrCreateExtensionsManager(

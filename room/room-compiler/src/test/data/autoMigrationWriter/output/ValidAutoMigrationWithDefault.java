@@ -10,10 +10,10 @@ import javax.annotation.processing.Generated;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation"})
-class ValidAutoMigrationWithDefault_AutoMigration_1_2_Impl extends Migration {
+class MyDatabase_AutoMigration_1_2_Impl extends Migration {
     private final AutoMigrationSpec callback = new ValidAutoMigrationWithDefault();
 
-    public ValidAutoMigrationWithDefault_AutoMigration_1_2_Impl() {
+    public MyDatabase_AutoMigration_1_2_Impl() {
         super(1, 2);
     }
 

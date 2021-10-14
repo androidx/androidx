@@ -25,7 +25,7 @@ import static androidx.camera.video.QualitySelector.QUALITY_NONE;
 import static androidx.camera.video.QualitySelector.QUALITY_SD;
 import static androidx.camera.video.QualitySelector.QUALITY_UHD;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
-import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_DISK;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE;
 
@@ -94,6 +94,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.video.ActiveRecording;
 import androidx.camera.video.MediaStoreOutputOptions;
+import androidx.camera.video.OutputOptions;
 import androidx.camera.video.QualitySelector;
 import androidx.camera.video.Recorder;
 import androidx.camera.video.RecordingStats;
@@ -186,6 +187,7 @@ public class CameraXActivity extends AppCompatActivity {
     private SeekBar mZoomSeekBar;
     private Button mZoomIn2XToggle;
     private Button mZoomResetToggle;
+    private Toast mEvToast = null;
 
     private OpenGLRenderer mPreviewRenderer;
     private DisplayManager.DisplayListener mDisplayListener;
@@ -223,15 +225,14 @@ public class CameraXActivity extends AppCompatActivity {
                 ExposureState exposureState = cameraInfo.getExposureState();
                 float ev = result * exposureState.getExposureCompensationStep().floatValue();
                 Log.d(TAG, "success new EV: " + ev);
-                Toast.makeText(getApplicationContext(), String.format("EV: %.2f", ev),
-                        Toast.LENGTH_SHORT).show();
+                showEVToast(String.format("EV: %.2f", ev));
             }
         }
 
         @Override
         public void onFailure(@NonNull Throwable t) {
             Log.d(TAG, "failed " + t);
-            Toast.makeText(getApplicationContext(), "Fail to set EV", Toast.LENGTH_SHORT).show();
+            showEVToast("Fail to set EV");
         }
     };
 
@@ -372,8 +373,9 @@ public class CameraXActivity extends AppCompatActivity {
             switch (state) {
                 case IDLE:
                     createDefaultVideoFolderIfNotExist();
+                    // Use MediaStoreOutputOptions for public share media storage.
                     mActiveRecording = getVideoCapture().getOutput()
-                            .prepareRecording(getNewVideoOutputFileOptions())
+                            .prepareRecording(this, getNewVideoOutputMediaStoreOptions())
                             .withAudioEnabled()
                             .withEventListener(ContextCompat.getMainExecutor(CameraXActivity.this),
                                     mVideoRecordEventListener)
@@ -460,47 +462,49 @@ public class CameraXActivity extends AppCompatActivity {
     private final Consumer<VideoRecordEvent> mVideoRecordEventListener = event -> {
         updateRecordingStats(event.getRecordingStats());
 
-        switch (event.getEventType()) {
-            case VideoRecordEvent.EVENT_TYPE_FINALIZE:
-                VideoRecordEvent.Finalize finalize = (VideoRecordEvent.Finalize) event;
+        if (event instanceof VideoRecordEvent.Finalize) {
+            VideoRecordEvent.Finalize finalize = (VideoRecordEvent.Finalize) event;
 
-                switch (finalize.getError()) {
-                    case ERROR_NONE:
-                    case ERROR_FILE_SIZE_LIMIT_REACHED:
-                    case ERROR_INSUFFICIENT_DISK:
-                    case ERROR_SOURCE_INACTIVE:
-                        Uri uri = finalize.getOutputResults().getOutputUri();
-                        String msg = "Saved uri " + uri;
-                        if (finalize.getError() != ERROR_NONE) {
-                            msg += " with error (" + finalize.getError() + ")";
-                        }
-                        // The video file path is used in tracing e2e test log. Don't remove it.
-                        String videoFile = getAbsolutePathFromUri(
+            switch (finalize.getError()) {
+                case ERROR_NONE:
+                case ERROR_FILE_SIZE_LIMIT_REACHED:
+                case ERROR_INSUFFICIENT_STORAGE:
+                case ERROR_SOURCE_INACTIVE:
+                    Uri uri = finalize.getOutputResults().getOutputUri();
+                    OutputOptions outputOptions = finalize.getOutputOptions();
+                    String msg;
+                    String videoFilePath;
+                    if (outputOptions instanceof MediaStoreOutputOptions) {
+                        msg = "Saved uri " + uri;
+                        videoFilePath = getAbsolutePathFromUri(
                                 getApplicationContext().getContentResolver(),
                                 uri
                         );
-                        Log.d(TAG, "Saved video file: " + videoFile);
+                    } else {
+                        throw new AssertionError("Unknown or unsupported OutputOptions type: "
+                                + outputOptions.getClass().getSimpleName());
+                    }
+                    // The video file path is used in tracing e2e test log. Don't remove it.
+                    Log.d(TAG, "Saved video file: " + videoFilePath);
 
-                        Log.d(TAG, msg, finalize.getCause());
-                        Toast.makeText(CameraXActivity.this, msg, Toast.LENGTH_LONG).show();
-                        break;
-                    default:
-                        String errMsg = "Video capture failed by (" + finalize.getError() + "): "
-                                + finalize.getCause();
-                        Log.e(TAG, errMsg, finalize.getCause());
-                        Toast.makeText(CameraXActivity.this, errMsg, Toast.LENGTH_LONG).show();
-                }
-                mRecordUi.setState(RecordUi.State.IDLE);
-                break;
-
-            default:
-                // No-op
-                break;
+                    if (finalize.getError() != ERROR_NONE) {
+                        msg += " with code (" + finalize.getError() + ")";
+                    }
+                    Log.d(TAG, msg, finalize.getCause());
+                    Toast.makeText(CameraXActivity.this, msg, Toast.LENGTH_LONG).show();
+                    break;
+                default:
+                    String errMsg = "Video capture failed by (" + finalize.getError() + "): "
+                            + finalize.getCause();
+                    Log.e(TAG, errMsg, finalize.getCause());
+                    Toast.makeText(CameraXActivity.this, errMsg, Toast.LENGTH_LONG).show();
+            }
+            mRecordUi.setState(RecordUi.State.IDLE);
         }
     };
 
     @NonNull
-    private MediaStoreOutputOptions getNewVideoOutputFileOptions() {
+    private MediaStoreOutputOptions getNewVideoOutputMediaStoreOptions() {
         String videoFileName = "video_" + System.currentTimeMillis();
         ContentValues contentValues = new ContentValues();
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
@@ -508,9 +512,8 @@ public class CameraXActivity extends AppCompatActivity {
         contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, videoFileName);
         contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
         contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
-        return MediaStoreOutputOptions.builder()
-                .setContentResolver(getContentResolver())
-                .setCollection(MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+        return new MediaStoreOutputOptions.Builder(getContentResolver(),
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
                 .setContentValues(contentValues)
                 .build();
     }
@@ -634,10 +637,8 @@ public class CameraXActivity extends AppCompatActivity {
                 Futures.addCallback(future, mEVFutureCallback,
                         CameraXExecutors.mainThreadExecutor());
             } else {
-                Toast.makeText(getApplicationContext(), String.format("EV: %.2f",
-                        range.getUpper()
-                                * exposureState.getExposureCompensationStep().floatValue()),
-                        Toast.LENGTH_LONG).show();
+                showEVToast(String.format("EV: %.2f", range.getUpper()
+                        * exposureState.getExposureCompensationStep().floatValue()));
             }
         });
 
@@ -655,12 +656,18 @@ public class CameraXActivity extends AppCompatActivity {
                 Futures.addCallback(future, mEVFutureCallback,
                         CameraXExecutors.mainThreadExecutor());
             } else {
-                Toast.makeText(getApplicationContext(), String.format("EV: %.2f",
-                        range.getLower()
-                                * exposureState.getExposureCompensationStep().floatValue()),
-                        Toast.LENGTH_LONG).show();
+                showEVToast(String.format("EV: %.2f", range.getLower()
+                        * exposureState.getExposureCompensationStep().floatValue()));
             }
         });
+    }
+
+    void showEVToast(String message) {
+        if (mEvToast != null) {
+            mEvToast.cancel();
+        }
+        mEvToast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        mEvToast.show();
     }
 
     private void updateButtonsUi() {

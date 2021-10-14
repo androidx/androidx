@@ -16,19 +16,26 @@
 package androidx.window.layout
 
 import android.graphics.Rect
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.TESTS
 import androidx.window.core.Bounds
 
 /**
  * Metrics about a [android.view.Window], consisting of its bounds.
  *
  *
- * This is usually obtained from [WindowInfoRepository.currentWindowMetrics] or
+ * This is obtained from [WindowMetricsCalculator.computeCurrentWindowMetrics] or
  * [WindowMetricsCalculator.computeMaximumWindowMetrics].
  *
- * @see WindowInfoRepository.currentWindowMetrics
+ * @see WindowMetricsCalculator
  */
 public class WindowMetrics internal constructor(private val _bounds: Bounds) {
 
+    /**
+     * An internal constructor for [WindowMetrics]
+     * @suppress
+     */
+    @RestrictTo(TESTS)
     public constructor(bounds: Rect) : this(Bounds(bounds))
 
     /**
@@ -44,6 +51,10 @@ public class WindowMetrics internal constructor(private val _bounds: Bounds) {
      */
     public val bounds: Rect
         get() = _bounds.toRect()
+
+    override fun toString(): String {
+        return "WindowMetrics { bounds: $bounds }"
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

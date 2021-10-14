@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="NewApi"
@@ -195,7 +195,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="690"
+            line="698"
             column="35"/>
     </issue>
 
@@ -206,7 +206,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="692"
+            line="700"
             column="35"/>
     </issue>
 
@@ -217,7 +217,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="696"
+            line="704"
             column="31"/>
     </issue>
 
@@ -228,7 +228,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="711"
+            line="719"
             column="41"/>
     </issue>
 
@@ -239,7 +239,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="713"
+            line="721"
             column="41"/>
     </issue>
 
@@ -250,7 +250,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="717"
+            line="725"
             column="31"/>
     </issue>
 
@@ -261,7 +261,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="562"
+            line="569"
             column="20"/>
     </issue>
 
@@ -272,7 +272,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="903"
+            line="910"
             column="17"/>
     </issue>
 
@@ -283,19 +283,8 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="912"
+            line="919"
             column="17"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    setEnterTransition((android.transition.Transition) enterTransition);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="925"
-            column="21"/>
     </issue>
 
     <issue
@@ -312,11 +301,22 @@
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    setEnterTransition((android.transition.Transition) enterTransition);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
+            line="939"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.leanback.app.GuidedStepFragment is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                setSharedElementEnterTransition(null);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="935"
+            line="942"
             column="17"/>
     </issue>
 
@@ -327,7 +327,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="938"
+            line="945"
             column="17"/>
     </issue>
 
@@ -338,7 +338,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="940"
+            line="947"
             column="17"/>
     </issue>
 
@@ -349,7 +349,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="947"
+            line="954"
             column="13"/>
     </issue>
 
@@ -2240,7 +2240,7 @@
         errorLine2="              ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BaseFragment.java"
-            line="235"
+            line="237"
             column="15"/>
     </issue>
 
@@ -2251,7 +2251,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BaseFragment.java"
-            line="244"
+            line="246"
             column="42"/>
     </issue>
 
@@ -2262,7 +2262,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BaseFragment.java"
-            line="328"
+            line="332"
             column="18"/>
     </issue>
 
@@ -2581,7 +2581,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseOnItemViewSelectedListener.java"
-            line="47"
+            line="49"
             column="32"/>
     </issue>
 
@@ -2592,7 +2592,7 @@
         errorLine2="                                                                    ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseOnItemViewSelectedListener.java"
-            line="47"
+            line="49"
             column="69"/>
     </issue>
 
@@ -2603,7 +2603,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseOnItemViewSelectedListener.java"
-            line="48"
+            line="50"
             column="32"/>
     </issue>
 
@@ -2625,7 +2625,7 @@
         errorLine2="              ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BaseSupportFragment.java"
-            line="230"
+            line="232"
             column="15"/>
     </issue>
 
@@ -2636,7 +2636,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BaseSupportFragment.java"
-            line="239"
+            line="241"
             column="42"/>
     </issue>
 
@@ -2647,7 +2647,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/BaseSupportFragment.java"
-            line="323"
+            line="327"
             column="18"/>
     </issue>
 
@@ -5177,7 +5177,7 @@
         errorLine2="                           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="406"
+            line="410"
             column="28"/>
     </issue>
 
@@ -5188,7 +5188,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="424"
+            line="428"
             column="12"/>
     </issue>
 
@@ -5199,7 +5199,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="431"
+            line="435"
             column="47"/>
     </issue>
 
@@ -5210,7 +5210,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="438"
+            line="442"
             column="46"/>
     </issue>
 
@@ -5221,7 +5221,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="450"
+            line="454"
             column="12"/>
     </issue>
 
@@ -5232,7 +5232,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="455"
+            line="459"
             column="26"/>
     </issue>
 
@@ -5243,7 +5243,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="476"
+            line="480"
             column="12"/>
     </issue>
 
@@ -5254,7 +5254,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="476"
+            line="480"
             column="30"/>
     </issue>
 
@@ -5265,7 +5265,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="476"
+            line="480"
             column="55"/>
     </issue>
 
@@ -5276,7 +5276,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="477"
+            line="481"
             column="13"/>
     </issue>
 
@@ -5287,7 +5287,7 @@
         errorLine2="              ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="541"
+            line="545"
             column="15"/>
     </issue>
 
@@ -5298,7 +5298,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="541"
+            line="545"
             column="33"/>
     </issue>
 
@@ -5309,7 +5309,7 @@
         errorLine2="                                                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="541"
+            line="545"
             column="58"/>
     </issue>
 
@@ -5320,7 +5320,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="542"
+            line="546"
             column="13"/>
     </issue>
 
@@ -5331,7 +5331,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="547"
+            line="551"
             column="12"/>
     </issue>
 
@@ -5342,7 +5342,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="547"
+            line="551"
             column="36"/>
     </issue>
 
@@ -5353,7 +5353,7 @@
         errorLine2="                                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="547"
+            line="551"
             column="61"/>
     </issue>
 
@@ -5364,7 +5364,7 @@
         errorLine2="                                   ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="548"
+            line="552"
             column="36"/>
     </issue>
 
@@ -5375,7 +5375,7 @@
         errorLine2="                                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="568"
+            line="572"
             column="35"/>
     </issue>
 
@@ -5386,7 +5386,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="579"
+            line="583"
             column="53"/>
     </issue>
 
@@ -5397,7 +5397,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="609"
+            line="613"
             column="12"/>
     </issue>
 
@@ -5408,7 +5408,7 @@
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="771"
+            line="775"
             column="35"/>
     </issue>
 
@@ -5419,7 +5419,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="771"
+            line="775"
             column="59"/>
     </issue>
 
@@ -5430,7 +5430,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="796"
+            line="800"
             column="50"/>
     </issue>
 
@@ -5441,7 +5441,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="797"
+            line="801"
             column="13"/>
     </issue>
 
@@ -5452,7 +5452,7 @@
         errorLine2="              ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="828"
+            line="832"
             column="15"/>
     </issue>
 
@@ -5463,7 +5463,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="834"
+            line="838"
             column="42"/>
     </issue>
 
@@ -5474,7 +5474,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsFragment.java"
-            line="861"
+            line="865"
             column="12"/>
     </issue>
 
@@ -6321,7 +6321,7 @@
         errorLine2="                           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="401"
+            line="405"
             column="28"/>
     </issue>
 
@@ -6332,7 +6332,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="419"
+            line="423"
             column="12"/>
     </issue>
 
@@ -6343,7 +6343,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="426"
+            line="430"
             column="47"/>
     </issue>
 
@@ -6354,7 +6354,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="433"
+            line="437"
             column="46"/>
     </issue>
 
@@ -6365,7 +6365,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="445"
+            line="449"
             column="12"/>
     </issue>
 
@@ -6376,7 +6376,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="450"
+            line="454"
             column="26"/>
     </issue>
 
@@ -6387,7 +6387,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="471"
+            line="475"
             column="12"/>
     </issue>
 
@@ -6398,7 +6398,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="471"
+            line="475"
             column="30"/>
     </issue>
 
@@ -6409,7 +6409,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="471"
+            line="475"
             column="55"/>
     </issue>
 
@@ -6420,7 +6420,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="472"
+            line="476"
             column="13"/>
     </issue>
 
@@ -6431,7 +6431,7 @@
         errorLine2="              ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="536"
+            line="540"
             column="15"/>
     </issue>
 
@@ -6442,7 +6442,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="536"
+            line="540"
             column="33"/>
     </issue>
 
@@ -6453,7 +6453,7 @@
         errorLine2="                                                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="536"
+            line="540"
             column="58"/>
     </issue>
 
@@ -6464,7 +6464,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="537"
+            line="541"
             column="13"/>
     </issue>
 
@@ -6475,7 +6475,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="542"
+            line="546"
             column="12"/>
     </issue>
 
@@ -6486,7 +6486,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="542"
+            line="546"
             column="36"/>
     </issue>
 
@@ -6497,7 +6497,7 @@
         errorLine2="                                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="542"
+            line="546"
             column="61"/>
     </issue>
 
@@ -6508,7 +6508,7 @@
         errorLine2="                                   ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="543"
+            line="547"
             column="36"/>
     </issue>
 
@@ -6519,7 +6519,7 @@
         errorLine2="                                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="563"
+            line="567"
             column="35"/>
     </issue>
 
@@ -6530,7 +6530,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="574"
+            line="578"
             column="53"/>
     </issue>
 
@@ -6541,7 +6541,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="604"
+            line="608"
             column="12"/>
     </issue>
 
@@ -6552,7 +6552,7 @@
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="766"
+            line="770"
             column="35"/>
     </issue>
 
@@ -6563,7 +6563,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="766"
+            line="770"
             column="59"/>
     </issue>
 
@@ -6574,7 +6574,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="791"
+            line="795"
             column="50"/>
     </issue>
 
@@ -6585,7 +6585,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="792"
+            line="796"
             column="13"/>
     </issue>
 
@@ -6596,7 +6596,7 @@
         errorLine2="              ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="823"
+            line="827"
             column="15"/>
     </issue>
 
@@ -6607,7 +6607,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="829"
+            line="833"
             column="42"/>
     </issue>
 
@@ -6618,7 +6618,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/DetailsSupportFragment.java"
-            line="856"
+            line="860"
             column="12"/>
     </issue>
 
@@ -7102,7 +7102,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/FacetProvider.java"
-            line="65"
+            line="67"
             column="12"/>
     </issue>
 
@@ -7113,7 +7113,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/FacetProvider.java"
-            line="65"
+            line="67"
             column="28"/>
     </issue>
 
@@ -8411,7 +8411,7 @@
         errorLine2="                                    ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="928"
+            line="932"
             column="37"/>
     </issue>
 
@@ -8422,7 +8422,7 @@
         errorLine2="                                                   ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="928"
+            line="932"
             column="52"/>
     </issue>
 
@@ -8433,7 +8433,7 @@
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="948"
+            line="954"
             column="40"/>
     </issue>
 
@@ -8444,7 +8444,7 @@
         errorLine2="                                                      ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedAction.java"
-            line="948"
+            line="954"
             column="55"/>
     </issue>
 
@@ -9005,7 +9005,7 @@
         errorLine2="                          ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="209"
+            line="215"
             column="27"/>
     </issue>
 
@@ -9016,7 +9016,7 @@
         errorLine2="                          ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="216"
+            line="222"
             column="27"/>
     </issue>
 
@@ -9027,7 +9027,7 @@
         errorLine2="               ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="235"
+            line="241"
             column="16"/>
     </issue>
 
@@ -9038,7 +9038,7 @@
         errorLine2="               ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="242"
+            line="248"
             column="16"/>
     </issue>
 
@@ -9049,7 +9049,7 @@
         errorLine2="               ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="250"
+            line="256"
             column="16"/>
     </issue>
 
@@ -9060,7 +9060,7 @@
         errorLine2="               ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="257"
+            line="263"
             column="16"/>
     </issue>
 
@@ -9071,7 +9071,7 @@
         errorLine2="               ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="265"
+            line="271"
             column="16"/>
     </issue>
 
@@ -9082,7 +9082,7 @@
         errorLine2="               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="272"
+            line="278"
             column="16"/>
     </issue>
 
@@ -9093,7 +9093,7 @@
         errorLine2="               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="279"
+            line="285"
             column="16"/>
     </issue>
 
@@ -9104,7 +9104,7 @@
         errorLine2="               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="286"
+            line="292"
             column="16"/>
     </issue>
 
@@ -9115,7 +9115,7 @@
         errorLine2="               ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="331"
+            line="337"
             column="16"/>
     </issue>
 
@@ -9126,7 +9126,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="356"
+            line="362"
             column="16"/>
     </issue>
 
@@ -9137,7 +9137,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="368"
+            line="374"
             column="16"/>
     </issue>
 
@@ -9148,7 +9148,7 @@
         errorLine2="                               ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="368"
+            line="374"
             column="32"/>
     </issue>
 
@@ -9159,7 +9159,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="442"
+            line="448"
             column="12"/>
     </issue>
 
@@ -9170,7 +9170,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="442"
+            line="448"
             column="30"/>
     </issue>
 
@@ -9181,7 +9181,7 @@
         errorLine2="                                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="442"
+            line="448"
             column="61"/>
     </issue>
 
@@ -9192,7 +9192,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="552"
+            line="558"
             column="12"/>
     </issue>
 
@@ -9203,7 +9203,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="560"
+            line="566"
             column="12"/>
     </issue>
 
@@ -9214,7 +9214,7 @@
         errorLine2="                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="586"
+            line="592"
             column="32"/>
     </issue>
 
@@ -9225,7 +9225,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="648"
+            line="656"
             column="12"/>
     </issue>
 
@@ -9236,7 +9236,7 @@
         errorLine2="                                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="648"
+            line="656"
             column="42"/>
     </issue>
 
@@ -9247,7 +9247,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="664"
+            line="672"
             column="12"/>
     </issue>
 
@@ -9258,7 +9258,7 @@
         errorLine2="                                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="664"
+            line="672"
             column="42"/>
     </issue>
 
@@ -9269,7 +9269,7 @@
         errorLine2="                                 ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="679"
+            line="687"
             column="34"/>
     </issue>
 
@@ -9280,7 +9280,7 @@
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="679"
+            line="687"
             column="49"/>
     </issue>
 
@@ -9291,7 +9291,7 @@
         errorLine2="                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="764"
+            line="772"
             column="32"/>
     </issue>
 
@@ -9302,7 +9302,7 @@
         errorLine2="                                   ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="798"
+            line="806"
             column="36"/>
     </issue>
 
@@ -9313,7 +9313,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="798"
+            line="806"
             column="51"/>
     </issue>
 
@@ -9324,7 +9324,7 @@
         errorLine2="                               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="814"
+            line="822"
             column="32"/>
     </issue>
 
@@ -9335,7 +9335,7 @@
         errorLine2="                                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="814"
+            line="822"
             column="47"/>
     </issue>
 
@@ -9346,7 +9346,7 @@
         errorLine2="                                       ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="834"
+            line="842"
             column="40"/>
     </issue>
 
@@ -9357,7 +9357,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="834"
+            line="842"
             column="55"/>
     </issue>
 
@@ -9368,7 +9368,7 @@
         errorLine2="                                       ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="846"
+            line="854"
             column="40"/>
     </issue>
 
@@ -9379,7 +9379,7 @@
         errorLine2="                                     ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="910"
+            line="918"
             column="38"/>
     </issue>
 
@@ -9390,7 +9390,7 @@
         errorLine2="                                     ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="921"
+            line="929"
             column="38"/>
     </issue>
 
@@ -9401,7 +9401,7 @@
         errorLine2="                                              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="929"
+            line="937"
             column="47"/>
     </issue>
 
@@ -9412,7 +9412,7 @@
         errorLine2="                                     ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="942"
+            line="950"
             column="38"/>
     </issue>
 
@@ -9423,7 +9423,7 @@
         errorLine2="                                    ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="963"
+            line="971"
             column="37"/>
     </issue>
 
@@ -9434,7 +9434,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="963"
+            line="971"
             column="52"/>
     </issue>
 
@@ -9445,7 +9445,7 @@
         errorLine2="                                    ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="990"
+            line="998"
             column="37"/>
     </issue>
 
@@ -9456,7 +9456,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="990"
+            line="998"
             column="52"/>
     </issue>
 
@@ -9467,7 +9467,7 @@
         errorLine2="                                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="1015"
+            line="1023"
             column="42"/>
     </issue>
 
@@ -9478,7 +9478,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="1015"
+            line="1023"
             column="57"/>
     </issue>
 
@@ -9489,7 +9489,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="1032"
+            line="1040"
             column="33"/>
     </issue>
 
@@ -9500,7 +9500,7 @@
         errorLine2="                                  ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="1071"
+            line="1079"
             column="35"/>
     </issue>
 
@@ -9511,7 +9511,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="1071"
+            line="1079"
             column="50"/>
     </issue>
 
@@ -9522,7 +9522,7 @@
         errorLine2="                                      ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="1101"
+            line="1109"
             column="39"/>
     </issue>
 
@@ -9533,7 +9533,7 @@
         errorLine2="                                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="1131"
+            line="1139"
             column="41"/>
     </issue>
 
@@ -9544,7 +9544,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="1186"
+            line="1194"
             column="30"/>
     </issue>
 
@@ -9555,7 +9555,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="1383"
+            line="1391"
             column="12"/>
     </issue>
 
@@ -9566,7 +9566,7 @@
         errorLine2="                                           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="1392"
+            line="1400"
             column="44"/>
     </issue>
 
@@ -9687,7 +9687,7 @@
         errorLine2="               ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="253"
+            line="254"
             column="16"/>
     </issue>
 
@@ -9698,7 +9698,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="253"
+            line="254"
             column="34"/>
     </issue>
 
@@ -9709,7 +9709,7 @@
         errorLine2="                                                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="253"
+            line="254"
             column="59"/>
     </issue>
 
@@ -9720,7 +9720,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="254"
+            line="255"
             column="17"/>
     </issue>
 
@@ -9731,7 +9731,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="282"
+            line="283"
             column="12"/>
     </issue>
 
@@ -9742,7 +9742,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="291"
+            line="292"
             column="12"/>
     </issue>
 
@@ -9753,7 +9753,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="300"
+            line="301"
             column="12"/>
     </issue>
 
@@ -9764,7 +9764,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="324"
+            line="325"
             column="47"/>
     </issue>
 
@@ -9775,7 +9775,7 @@
         errorLine2="                                                                     ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="334"
+            line="335"
             column="70"/>
     </issue>
 
@@ -9786,7 +9786,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="344"
+            line="345"
             column="13"/>
     </issue>
 
@@ -9797,7 +9797,7 @@
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="352"
+            line="353"
             column="39"/>
     </issue>
 
@@ -9808,7 +9808,7 @@
         errorLine2="                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="362"
+            line="363"
             column="45"/>
     </issue>
 
@@ -9819,7 +9819,7 @@
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="386"
+            line="387"
             column="34"/>
     </issue>
 
@@ -9830,7 +9830,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="401"
+            line="402"
             column="30"/>
     </issue>
 
@@ -9841,7 +9841,7 @@
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="429"
+            line="430"
             column="39"/>
     </issue>
 
@@ -9852,7 +9852,7 @@
         errorLine2="                                     ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="439"
+            line="440"
             column="38"/>
     </issue>
 
@@ -9863,7 +9863,7 @@
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="448"
+            line="449"
             column="44"/>
     </issue>
 
@@ -9874,7 +9874,7 @@
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="461"
+            line="462"
             column="48"/>
     </issue>
 
@@ -9885,7 +9885,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="480"
+            line="484"
             column="27"/>
     </issue>
 
@@ -9896,7 +9896,7 @@
         errorLine2="                                                           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="480"
+            line="484"
             column="60"/>
     </issue>
 
@@ -9907,7 +9907,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="501"
+            line="508"
             column="27"/>
     </issue>
 
@@ -9918,7 +9918,7 @@
         errorLine2="                                                           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="501"
+            line="508"
             column="60"/>
     </issue>
 
@@ -9929,7 +9929,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="534"
+            line="541"
             column="49"/>
     </issue>
 
@@ -9940,7 +9940,7 @@
         errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="534"
+            line="541"
             column="73"/>
     </issue>
 
@@ -9951,7 +9951,7 @@
         errorLine2="                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="641"
+            line="648"
             column="33"/>
     </issue>
 
@@ -9962,7 +9962,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="641"
+            line="648"
             column="52"/>
     </issue>
 
@@ -9973,7 +9973,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="659"
+            line="666"
             column="19"/>
     </issue>
 
@@ -9984,7 +9984,7 @@
         errorLine2="                                                                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="659"
+            line="666"
             column="67"/>
     </issue>
 
@@ -9995,7 +9995,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="671"
+            line="678"
             column="12"/>
     </issue>
 
@@ -10006,7 +10006,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="679"
+            line="686"
             column="12"/>
     </issue>
 
@@ -10017,7 +10017,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="687"
+            line="694"
             column="12"/>
     </issue>
 
@@ -10028,7 +10028,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="696"
+            line="703"
             column="12"/>
     </issue>
 
@@ -10039,7 +10039,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="721"
+            line="728"
             column="12"/>
     </issue>
 
@@ -10050,7 +10050,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="729"
+            line="736"
             column="34"/>
     </issue>
 
@@ -10061,7 +10061,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="753"
+            line="760"
             column="12"/>
     </issue>
 
@@ -10072,7 +10072,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="779"
+            line="786"
             column="12"/>
     </issue>
 
@@ -10083,7 +10083,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="788"
+            line="795"
             column="12"/>
     </issue>
 
@@ -10094,7 +10094,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="815"
+            line="822"
             column="28"/>
     </issue>
 
@@ -10105,7 +10105,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="830"
+            line="837"
             column="40"/>
     </issue>
 
@@ -10116,7 +10116,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="851"
+            line="858"
             column="12"/>
     </issue>
 
@@ -10127,7 +10127,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="960"
+            line="967"
             column="12"/>
     </issue>
 
@@ -10138,7 +10138,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="960"
+            line="967"
             column="40"/>
     </issue>
 
@@ -10149,7 +10149,7 @@
         errorLine2="                                                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="960"
+            line="967"
             column="65"/>
     </issue>
 
@@ -10160,7 +10160,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="961"
+            line="968"
             column="13"/>
     </issue>
 
@@ -10171,7 +10171,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="1014"
+            line="1021"
             column="26"/>
     </issue>
 
@@ -10182,7 +10182,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="1059"
+            line="1066"
             column="12"/>
     </issue>
 
@@ -10193,7 +10193,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="1059"
+            line="1066"
             column="30"/>
     </issue>
 
@@ -10204,7 +10204,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="1059"
+            line="1066"
             column="55"/>
     </issue>
 
@@ -10215,7 +10215,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="1060"
+            line="1067"
             column="13"/>
     </issue>
 
@@ -10226,7 +10226,7 @@
         errorLine2="                                    ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="1251"
+            line="1258"
             column="37"/>
     </issue>
 
@@ -10237,7 +10237,7 @@
         errorLine2="                                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="1297"
+            line="1304"
             column="50"/>
     </issue>
 
@@ -10248,7 +10248,7 @@
         errorLine2="                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepFragment.java"
-            line="1360"
+            line="1367"
             column="32"/>
     </issue>
 
@@ -10259,7 +10259,7 @@
         errorLine2="               ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="248"
+            line="249"
             column="16"/>
     </issue>
 
@@ -10270,7 +10270,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="248"
+            line="249"
             column="34"/>
     </issue>
 
@@ -10281,7 +10281,7 @@
         errorLine2="                                                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="248"
+            line="249"
             column="59"/>
     </issue>
 
@@ -10292,7 +10292,7 @@
         errorLine2="                ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="249"
+            line="250"
             column="17"/>
     </issue>
 
@@ -10303,7 +10303,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="277"
+            line="278"
             column="12"/>
     </issue>
 
@@ -10314,7 +10314,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="286"
+            line="287"
             column="12"/>
     </issue>
 
@@ -10325,7 +10325,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="295"
+            line="296"
             column="12"/>
     </issue>
 
@@ -10336,7 +10336,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="319"
+            line="320"
             column="47"/>
     </issue>
 
@@ -10347,7 +10347,7 @@
         errorLine2="                                                                     ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="329"
+            line="330"
             column="70"/>
     </issue>
 
@@ -10358,7 +10358,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="339"
+            line="340"
             column="13"/>
     </issue>
 
@@ -10369,7 +10369,7 @@
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="347"
+            line="348"
             column="39"/>
     </issue>
 
@@ -10380,7 +10380,7 @@
         errorLine2="                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="357"
+            line="358"
             column="45"/>
     </issue>
 
@@ -10391,7 +10391,7 @@
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="381"
+            line="382"
             column="34"/>
     </issue>
 
@@ -10402,7 +10402,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="396"
+            line="397"
             column="30"/>
     </issue>
 
@@ -10413,7 +10413,7 @@
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="424"
+            line="425"
             column="39"/>
     </issue>
 
@@ -10424,7 +10424,7 @@
         errorLine2="                                     ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="434"
+            line="435"
             column="38"/>
     </issue>
 
@@ -10435,7 +10435,7 @@
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="443"
+            line="444"
             column="44"/>
     </issue>
 
@@ -10446,7 +10446,7 @@
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="456"
+            line="457"
             column="48"/>
     </issue>
 
@@ -10457,7 +10457,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="475"
+            line="484"
             column="27"/>
     </issue>
 
@@ -10468,7 +10468,7 @@
         errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="475"
+            line="484"
             column="60"/>
     </issue>
 
@@ -10479,7 +10479,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="496"
+            line="513"
             column="27"/>
     </issue>
 
@@ -10490,7 +10490,7 @@
         errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="496"
+            line="513"
             column="60"/>
     </issue>
 
@@ -10501,7 +10501,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="529"
+            line="546"
             column="49"/>
     </issue>
 
@@ -10512,7 +10512,7 @@
         errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="529"
+            line="546"
             column="73"/>
     </issue>
 
@@ -10523,7 +10523,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="636"
+            line="653"
             column="33"/>
     </issue>
 
@@ -10534,7 +10534,7 @@
         errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="636"
+            line="653"
             column="60"/>
     </issue>
 
@@ -10545,7 +10545,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="654"
+            line="671"
             column="19"/>
     </issue>
 
@@ -10556,7 +10556,7 @@
         errorLine2="                                                                                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="654"
+            line="671"
             column="81"/>
     </issue>
 
@@ -10567,7 +10567,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="666"
+            line="683"
             column="12"/>
     </issue>
 
@@ -10578,7 +10578,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="674"
+            line="691"
             column="12"/>
     </issue>
 
@@ -10589,7 +10589,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="682"
+            line="699"
             column="12"/>
     </issue>
 
@@ -10600,7 +10600,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="691"
+            line="708"
             column="12"/>
     </issue>
 
@@ -10611,7 +10611,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="716"
+            line="733"
             column="12"/>
     </issue>
 
@@ -10622,7 +10622,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="724"
+            line="741"
             column="34"/>
     </issue>
 
@@ -10633,7 +10633,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="748"
+            line="765"
             column="12"/>
     </issue>
 
@@ -10644,7 +10644,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="774"
+            line="791"
             column="12"/>
     </issue>
 
@@ -10655,7 +10655,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="783"
+            line="800"
             column="12"/>
     </issue>
 
@@ -10666,7 +10666,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="810"
+            line="827"
             column="28"/>
     </issue>
 
@@ -10677,7 +10677,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="825"
+            line="842"
             column="40"/>
     </issue>
 
@@ -10688,7 +10688,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="846"
+            line="863"
             column="12"/>
     </issue>
 
@@ -10699,7 +10699,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="955"
+            line="972"
             column="12"/>
     </issue>
 
@@ -10710,7 +10710,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="955"
+            line="972"
             column="40"/>
     </issue>
 
@@ -10721,7 +10721,7 @@
         errorLine2="                                                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="955"
+            line="972"
             column="65"/>
     </issue>
 
@@ -10732,7 +10732,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="956"
+            line="973"
             column="13"/>
     </issue>
 
@@ -10743,7 +10743,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="1009"
+            line="1026"
             column="26"/>
     </issue>
 
@@ -10754,7 +10754,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="1054"
+            line="1071"
             column="12"/>
     </issue>
 
@@ -10765,7 +10765,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="1054"
+            line="1071"
             column="30"/>
     </issue>
 
@@ -10776,7 +10776,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="1054"
+            line="1071"
             column="55"/>
     </issue>
 
@@ -10787,7 +10787,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="1055"
+            line="1072"
             column="13"/>
     </issue>
 
@@ -10798,7 +10798,7 @@
         errorLine2="                                    ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="1246"
+            line="1263"
             column="37"/>
     </issue>
 
@@ -10809,7 +10809,7 @@
         errorLine2="                                                        ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="1292"
+            line="1309"
             column="57"/>
     </issue>
 
@@ -10820,7 +10820,7 @@
         errorLine2="                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/GuidedStepSupportFragment.java"
-            line="1355"
+            line="1372"
             column="32"/>
     </issue>
 
@@ -13449,7 +13449,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/OnChildViewHolderSelectedListener.java"
-            line="48"
+            line="50"
             column="43"/>
     </issue>
 
@@ -13460,7 +13460,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/OnChildViewHolderSelectedListener.java"
-            line="48"
+            line="50"
             column="64"/>
     </issue>
 
@@ -13471,7 +13471,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/OnChildViewHolderSelectedListener.java"
-            line="64"
+            line="66"
             column="56"/>
     </issue>
 
@@ -13482,7 +13482,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/OnChildViewHolderSelectedListener.java"
-            line="65"
+            line="67"
             column="13"/>
     </issue>
 
@@ -13922,7 +13922,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="126"
+            line="127"
             column="28"/>
     </issue>
 
@@ -13933,7 +13933,7 @@
         errorLine2="                     ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="132"
+            line="133"
             column="22"/>
     </issue>
 
@@ -13944,7 +13944,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="132"
+            line="133"
             column="34"/>
     </issue>
 
@@ -13955,7 +13955,7 @@
         errorLine2="                              ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="137"
+            line="138"
             column="31"/>
     </issue>
 
@@ -13966,7 +13966,7 @@
         errorLine2="                                               ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="137"
+            line="138"
             column="48"/>
     </issue>
 
@@ -13977,7 +13977,7 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="153"
+            line="154"
             column="35"/>
     </issue>
 
@@ -13988,7 +13988,7 @@
         errorLine2="                                   ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="163"
+            line="164"
             column="36"/>
     </issue>
 
@@ -13999,7 +13999,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="173"
+            line="174"
             column="22"/>
     </issue>
 
@@ -14010,7 +14010,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="183"
+            line="184"
             column="22"/>
     </issue>
 
@@ -14021,7 +14021,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="192"
+            line="193"
             column="22"/>
     </issue>
 
@@ -14032,7 +14032,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="205"
+            line="206"
             column="22"/>
     </issue>
 
@@ -14043,7 +14043,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="220"
+            line="221"
             column="22"/>
     </issue>
 
@@ -14054,7 +14054,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="279"
+            line="280"
             column="30"/>
     </issue>
 
@@ -14065,7 +14065,7 @@
         errorLine2="                     ~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="285"
+            line="286"
             column="22"/>
     </issue>
 
@@ -14076,7 +14076,7 @@
         errorLine2="                               ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="285"
+            line="286"
             column="32"/>
     </issue>
 
@@ -14087,7 +14087,7 @@
         errorLine2="                              ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="290"
+            line="291"
             column="31"/>
     </issue>
 
@@ -14098,7 +14098,7 @@
         errorLine2="                                               ~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="290"
+            line="291"
             column="48"/>
     </issue>
 
@@ -14109,7 +14109,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="306"
+            line="307"
             column="37"/>
     </issue>
 
@@ -14120,7 +14120,7 @@
         errorLine2="                                   ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="316"
+            line="317"
             column="36"/>
     </issue>
 
@@ -14131,7 +14131,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="326"
+            line="327"
             column="22"/>
     </issue>
 
@@ -14142,7 +14142,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="336"
+            line="337"
             column="22"/>
     </issue>
 
@@ -14153,7 +14153,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="345"
+            line="346"
             column="22"/>
     </issue>
 
@@ -14164,7 +14164,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="358"
+            line="359"
             column="22"/>
     </issue>
 
@@ -14175,7 +14175,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="372"
+            line="373"
             column="22"/>
     </issue>
 
@@ -14186,7 +14186,7 @@
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="452"
+            line="453"
             column="40"/>
     </issue>
 
@@ -14197,7 +14197,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="558"
+            line="559"
             column="18"/>
     </issue>
 
@@ -14208,7 +14208,7 @@
         errorLine2="                                             ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="569"
+            line="570"
             column="46"/>
     </issue>
 
@@ -14219,7 +14219,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="588"
+            line="589"
             column="12"/>
     </issue>
 
@@ -14230,7 +14230,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="597"
+            line="598"
             column="30"/>
     </issue>
 
@@ -14241,7 +14241,7 @@
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="615"
+            line="616"
             column="12"/>
     </issue>
 
@@ -14252,7 +14252,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/Parallax.java"
-            line="615"
+            line="616"
             column="37"/>
     </issue>
 
@@ -14670,7 +14670,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="74"
+            line="76"
             column="29"/>
     </issue>
 
@@ -14681,7 +14681,7 @@
         errorLine2="                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="103"
+            line="105"
             column="18"/>
     </issue>
 
@@ -14692,7 +14692,7 @@
         errorLine2="                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="112"
+            line="114"
             column="36"/>
     </issue>
 
@@ -14703,7 +14703,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="121"
+            line="123"
             column="18"/>
     </issue>
 
@@ -14714,7 +14714,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="137"
+            line="139"
             column="37"/>
     </issue>
 
@@ -14725,7 +14725,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="187"
+            line="189"
             column="19"/>
     </issue>
 
@@ -14736,7 +14736,7 @@
         errorLine2="                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="187"
+            line="189"
             column="36"/>
     </issue>
 
@@ -14747,7 +14747,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="195"
+            line="197"
             column="19"/>
     </issue>
 
@@ -14758,7 +14758,7 @@
         errorLine2="                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="195"
+            line="197"
             column="36"/>
     </issue>
 
@@ -14769,7 +14769,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="230"
+            line="232"
             column="12"/>
     </issue>
 
@@ -14780,7 +14780,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="256"
+            line="258"
             column="28"/>
     </issue>
 
@@ -14791,7 +14791,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="331"
+            line="333"
             column="46"/>
     </issue>
 
@@ -14802,7 +14802,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="378"
+            line="380"
             column="43"/>
     </issue>
 
@@ -14813,7 +14813,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="390"
+            line="392"
             column="46"/>
     </issue>
 
@@ -14824,7 +14824,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="543"
+            line="545"
             column="37"/>
     </issue>
 
@@ -14835,7 +14835,7 @@
         errorLine2="                                                                 ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="562"
+            line="564"
             column="66"/>
     </issue>
 
@@ -14846,7 +14846,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="698"
+            line="700"
             column="35"/>
     </issue>
 
@@ -14857,7 +14857,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="698"
+            line="700"
             column="47"/>
     </issue>
 
@@ -16243,7 +16243,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="207"
+            line="208"
             column="12"/>
     </issue>
 
@@ -16254,7 +16254,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="417"
+            line="418"
             column="41"/>
     </issue>
 
@@ -16265,7 +16265,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="426"
+            line="427"
             column="12"/>
     </issue>
 
@@ -16276,7 +16276,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="433"
+            line="434"
             column="49"/>
     </issue>
 
@@ -16287,7 +16287,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="814"
+            line="815"
             column="26"/>
     </issue>
 
@@ -16298,7 +16298,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="921"
+            line="922"
             column="12"/>
     </issue>
 
@@ -16309,7 +16309,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="921"
+            line="922"
             column="30"/>
     </issue>
 
@@ -16320,7 +16320,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="921"
+            line="922"
             column="55"/>
     </issue>
 
@@ -16331,7 +16331,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="922"
+            line="923"
             column="30"/>
     </issue>
 
@@ -16342,7 +16342,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="955"
+            line="956"
             column="33"/>
     </issue>
 
@@ -16353,7 +16353,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="995"
+            line="996"
             column="53"/>
     </issue>
 
@@ -16364,7 +16364,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="1003"
+            line="1004"
             column="52"/>
     </issue>
 
@@ -16375,7 +16375,7 @@
         errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="1011"
+            line="1012"
             column="60"/>
     </issue>
 
@@ -16386,7 +16386,7 @@
         errorLine2="                               ~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="1035"
+            line="1036"
             column="32"/>
     </issue>
 
@@ -16397,7 +16397,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="1049"
+            line="1050"
             column="41"/>
     </issue>
 
@@ -16408,7 +16408,7 @@
         errorLine2="                           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="1094"
+            line="1095"
             column="28"/>
     </issue>
 
@@ -16419,7 +16419,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="1170"
+            line="1171"
             column="41"/>
     </issue>
 
@@ -16430,7 +16430,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="1227"
+            line="1228"
             column="43"/>
     </issue>
 
@@ -16441,7 +16441,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
-            line="1236"
+            line="1237"
             column="12"/>
     </issue>
 
@@ -16661,7 +16661,7 @@
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/PlaybackGlueHost.java"
-            line="112"
+            line="116"
             column="44"/>
     </issue>
 
@@ -16672,7 +16672,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/PlaybackGlueHost.java"
-            line="182"
+            line="186"
             column="43"/>
     </issue>
 
@@ -16683,7 +16683,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/PlaybackGlueHost.java"
-            line="188"
+            line="192"
             column="44"/>
     </issue>
 
@@ -16694,7 +16694,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/PlaybackGlueHost.java"
-            line="195"
+            line="199"
             column="33"/>
     </issue>
 
@@ -16705,7 +16705,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/PlaybackGlueHost.java"
-            line="206"
+            line="210"
             column="41"/>
     </issue>
 
@@ -16716,7 +16716,7 @@
         errorLine2="                               ~~~">
         <location
             file="src/main/java/androidx/leanback/media/PlaybackGlueHost.java"
-            line="212"
+            line="216"
             column="32"/>
     </issue>
 
@@ -16727,7 +16727,7 @@
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/media/PlaybackGlueHost.java"
-            line="229"
+            line="233"
             column="12"/>
     </issue>
 
@@ -16815,7 +16815,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="202"
+            line="203"
             column="12"/>
     </issue>
 
@@ -16826,7 +16826,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="412"
+            line="413"
             column="41"/>
     </issue>
 
@@ -16837,7 +16837,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="421"
+            line="422"
             column="12"/>
     </issue>
 
@@ -16848,7 +16848,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="428"
+            line="429"
             column="49"/>
     </issue>
 
@@ -16859,7 +16859,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="809"
+            line="810"
             column="26"/>
     </issue>
 
@@ -16870,7 +16870,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="916"
+            line="917"
             column="12"/>
     </issue>
 
@@ -16881,7 +16881,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="916"
+            line="917"
             column="30"/>
     </issue>
 
@@ -16892,7 +16892,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="916"
+            line="917"
             column="55"/>
     </issue>
 
@@ -16903,7 +16903,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="917"
+            line="918"
             column="30"/>
     </issue>
 
@@ -16914,7 +16914,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="950"
+            line="951"
             column="33"/>
     </issue>
 
@@ -16925,7 +16925,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="990"
+            line="991"
             column="53"/>
     </issue>
 
@@ -16936,7 +16936,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="998"
+            line="999"
             column="52"/>
     </issue>
 
@@ -16947,7 +16947,7 @@
         errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="1006"
+            line="1007"
             column="60"/>
     </issue>
 
@@ -16958,7 +16958,7 @@
         errorLine2="                               ~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="1030"
+            line="1031"
             column="32"/>
     </issue>
 
@@ -16969,7 +16969,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="1044"
+            line="1045"
             column="41"/>
     </issue>
 
@@ -16980,7 +16980,7 @@
         errorLine2="                           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="1089"
+            line="1090"
             column="28"/>
     </issue>
 
@@ -16991,7 +16991,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="1165"
+            line="1166"
             column="41"/>
     </issue>
 
@@ -17002,7 +17002,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="1222"
+            line="1223"
             column="43"/>
     </issue>
 
@@ -17013,7 +17013,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
-            line="1231"
+            line="1232"
             column="12"/>
     </issue>
 
@@ -18674,7 +18674,7 @@
         errorLine2="                                                ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/RowPresenter.java"
-            line="498"
+            line="502"
             column="49"/>
     </issue>
 
@@ -18685,7 +18685,7 @@
         errorLine2="                                     ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/RowPresenter.java"
-            line="511"
+            line="515"
             column="38"/>
     </issue>
 
@@ -18696,7 +18696,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/RowPresenter.java"
-            line="529"
+            line="533"
             column="38"/>
     </issue>
 
@@ -18707,7 +18707,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/RowPresenter.java"
-            line="539"
+            line="543"
             column="39"/>
     </issue>
 
@@ -18718,7 +18718,7 @@
         errorLine2="                                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/RowPresenter.java"
-            line="551"
+            line="555"
             column="41"/>
     </issue>
 
@@ -18729,7 +18729,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/RowPresenter.java"
-            line="600"
+            line="604"
             column="40"/>
     </issue>
 
@@ -18740,7 +18740,7 @@
         errorLine2="                                                                        ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/RowPresenter.java"
-            line="600"
+            line="604"
             column="73"/>
     </issue>
 
@@ -18751,7 +18751,7 @@
         errorLine2="                                       ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/RowPresenter.java"
-            line="610"
+            line="614"
             column="40"/>
     </issue>
 
@@ -18762,7 +18762,7 @@
         errorLine2="                                                      ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/RowPresenter.java"
-            line="610"
+            line="614"
             column="55"/>
     </issue>
 
@@ -18773,7 +18773,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/RowPresenter.java"
-            line="619"
+            line="623"
             column="42"/>
     </issue>
 
@@ -18784,7 +18784,7 @@
         errorLine2="                                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/RowPresenter.java"
-            line="628"
+            line="632"
             column="42"/>
     </issue>
 
@@ -18795,7 +18795,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/RowPresenter.java"
-            line="637"
+            line="641"
             column="46"/>
     </issue>
 
@@ -18806,7 +18806,7 @@
         errorLine2="                                             ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/RowPresenter.java"
-            line="644"
+            line="648"
             column="46"/>
     </issue>
 
@@ -18817,7 +18817,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/RowPresenter.java"
-            line="651"
+            line="655"
             column="48"/>
     </issue>
 
@@ -18828,7 +18828,7 @@
         errorLine2="                                               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/RowPresenter.java"
-            line="658"
+            line="662"
             column="48"/>
     </issue>
 
@@ -18839,7 +18839,7 @@
         errorLine2="                       ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/RowPresenter.java"
-            line="669"
+            line="673"
             column="24"/>
     </issue>
 
@@ -18850,7 +18850,7 @@
         errorLine2="                                           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/RowPresenter.java"
-            line="682"
+            line="686"
             column="44"/>
     </issue>
 
@@ -20841,7 +20841,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="86"
+            line="88"
             column="16"/>
     </issue>
 
@@ -20852,7 +20852,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="96"
+            line="98"
             column="16"/>
     </issue>
 
@@ -20863,7 +20863,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="106"
+            line="108"
             column="16"/>
     </issue>
 
@@ -20874,7 +20874,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="119"
+            line="121"
             column="16"/>
     </issue>
 
@@ -20885,7 +20885,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="132"
+            line="134"
             column="16"/>
     </issue>
 
@@ -20896,7 +20896,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="142"
+            line="144"
             column="16"/>
     </issue>
 
@@ -20907,7 +20907,7 @@
         errorLine2="                               ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="142"
+            line="144"
             column="32"/>
     </issue>
 
@@ -20918,7 +20918,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="152"
+            line="154"
             column="16"/>
     </issue>
 
@@ -20929,7 +20929,7 @@
         errorLine2="                                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="152"
+            line="154"
             column="42"/>
     </issue>
 
@@ -20940,7 +20940,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="208"
+            line="210"
             column="16"/>
     </issue>
 
@@ -20951,7 +20951,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="220"
+            line="222"
             column="16"/>
     </issue>
 
@@ -20962,7 +20962,7 @@
         errorLine2="                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="317"
+            line="319"
             column="40"/>
     </issue>
 
@@ -20973,7 +20973,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="349"
+            line="351"
             column="12"/>
     </issue>
 
@@ -20984,7 +20984,7 @@
         errorLine2="                                                               ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="349"
+            line="351"
             column="64"/>
     </issue>
 
@@ -20995,7 +20995,7 @@
         errorLine2="                                                  ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="361"
+            line="363"
             column="51"/>
     </issue>
 
@@ -21006,7 +21006,7 @@
         errorLine2="                                ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="374"
+            line="376"
             column="33"/>
     </issue>
 
@@ -21017,7 +21017,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="386"
+            line="388"
             column="31"/>
     </issue>
 
@@ -21028,7 +21028,7 @@
         errorLine2="                                                      ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="409"
+            line="411"
             column="55"/>
     </issue>
 
@@ -21039,7 +21039,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ShadowOverlayHelper.java"
-            line="416"
+            line="418"
             column="37"/>
     </issue>
 

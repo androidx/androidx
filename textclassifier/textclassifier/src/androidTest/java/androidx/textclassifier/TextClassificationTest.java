@@ -308,7 +308,7 @@ public final class TextClassificationTest {
     private RemoteActionCompat createRemoteActionCompat(
             Intent intent, IconCompat icon, String label, String contentDescription) {
         final PendingIntent primaryPendingIntent =
-                PendingIntent.getActivity(mContext, 0, intent, 0);
+                PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_IMMUTABLE);
         return new RemoteActionCompat(icon, label, contentDescription, primaryPendingIntent);
     }
 

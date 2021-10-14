@@ -79,7 +79,9 @@
     <!-- ConfirmationOverlay sizes which have corresponding entries in:
         values-round, values-sw180dp-notround, values-sw210dp-round. -->
     <dimen name="confirmation_overlay_image_size">64dp</dimen>
-    <item name="confirmation_overlay_margin_side" type="fraction">4.167%</item>
+
+    <!-- The spacing around the left/right/bottom of the text on ConfirmationOverlay. -->
+    <item name="confirmation_overlay_text_inset_margin" type="fraction">4.167%</item>
     <item name="confirmation_overlay_margin_above_text" type="fraction">5%</item>
     <dimen name="confirmation_overlay_text_size">14sp</dimen>
   </resources>

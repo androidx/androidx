@@ -24,6 +24,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.tracing.trace
 import java.io.File
 import java.io.InputStream
 import java.nio.charset.Charset
@@ -298,6 +299,11 @@ object Shell {
         }
         throw IllegalStateException("Failed to stop $runningProcesses")
     }
+
+    @RequiresApi(21)
+    fun pathExists(absoluteFilePath: String): Boolean {
+        return executeCommand("ls $absoluteFilePath").trim() == absoluteFilePath
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -362,7 +368,7 @@ private object ShellImpl {
             executeCommand("cp ${writableScriptFile.absolutePath} $runnableScriptPath")
             Shell.chmodExecutable(runnableScriptPath)
 
-            val stdout = executeCommand(runnableScriptPath)
+            val stdout = trace("executeCommand") { executeCommand(runnableScriptPath) }
             val stderr = stderrPath?.run { executeCommand("cat $stderrPath") }
 
             return Pair(stdout, stderr)

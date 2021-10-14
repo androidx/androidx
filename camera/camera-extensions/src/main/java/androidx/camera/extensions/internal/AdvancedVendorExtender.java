@@ -26,6 +26,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
@@ -37,6 +38,7 @@ import androidx.camera.extensions.impl.advanced.BeautyAdvancedExtenderImpl;
 import androidx.camera.extensions.impl.advanced.BokehAdvancedExtenderImpl;
 import androidx.camera.extensions.impl.advanced.HdrAdvancedExtenderImpl;
 import androidx.camera.extensions.impl.advanced.NightAdvancedExtenderImpl;
+import androidx.camera.extensions.internal.sessionprocessor.AdvancedSessionProcessor;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -47,6 +49,7 @@ import java.util.Map;
 /**
  * Advanced vendor interface implementation
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AdvancedVendorExtender implements VendorExtender {
     private final AdvancedExtenderImpl mAdvancedExtenderImpl;
     private String mCameraId;
@@ -63,7 +66,7 @@ public class AdvancedVendorExtender implements VendorExtender {
                 case ExtensionMode.NIGHT:
                     mAdvancedExtenderImpl = new NightAdvancedExtenderImpl();
                     break;
-                case ExtensionMode.BEAUTY:
+                case ExtensionMode.FACE_RETOUCH:
                     mAdvancedExtenderImpl = new BeautyAdvancedExtenderImpl();
                     break;
                 case ExtensionMode.AUTO:
@@ -144,7 +147,7 @@ public class AdvancedVendorExtender implements VendorExtender {
     @Override
     public SessionProcessor createSessionProcessor(@NonNull Context context) {
         Preconditions.checkNotNull(mCameraId, "VendorExtender#init() must be called first");
-        //TODO: To be implemented in later CLs.
-        return null;
+        return new AdvancedSessionProcessor(
+                mAdvancedExtenderImpl.createSessionProcessor(), context);
     }
 }

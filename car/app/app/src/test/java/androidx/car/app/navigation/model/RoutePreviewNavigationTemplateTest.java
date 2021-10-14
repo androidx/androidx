@@ -51,6 +51,13 @@ public class RoutePreviewNavigationTemplateTest {
             DistanceSpan.create(
                     Distance.create(/* displayDistance= */ 1, Distance.UNIT_KILOMETERS_P1));
     private final Context mContext = ApplicationProvider.getApplicationContext();
+    private final ActionStrip mActionStrip =
+            new ActionStrip.Builder().addAction(TestUtils.createAction("test", null)).build();
+    private final ActionStrip mMapActionStrip =
+            new ActionStrip.Builder().addAction(
+                    TestUtils.createAction(null, TestUtils.getTestCarIcon(
+                            ApplicationProvider.getApplicationContext(),
+                            "ic_test_1"))).build();
 
     @Test
     public void createInstance_emptyList_notLoading_Throws() {
@@ -135,6 +142,12 @@ public class RoutePreviewNavigationTemplateTest {
     }
 
     @Test
+    public void textButtonInMapActionStrip_throws() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new RoutePreviewNavigationTemplate.Builder().setMapActionStrip(mActionStrip));
+    }
+
+    @Test
     public void createInstance() {
         ItemList itemList = TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE);
         String title = "title";
@@ -145,6 +158,7 @@ public class RoutePreviewNavigationTemplateTest {
                         .setNavigateAction(
                                 new Action.Builder().setTitle("Navigate").setOnClickListener(() -> {
                                 }).build())
+                        .setMapActionStrip(mMapActionStrip)
                         .build();
         assertThat(template.getItemList()).isEqualTo(itemList);
         assertThat(template.getTitle().toString()).isEqualTo(title);
@@ -364,6 +378,9 @@ public class RoutePreviewNavigationTemplateTest {
                         .setNavigateAction(
                                 new Action.Builder().setTitle("drive").setOnClickListener(() -> {
                                 }).build())
+                        .setMapActionStrip(mMapActionStrip)
+                        .setPanModeListener((panModechanged) -> {
+                        })
                         .build();
 
         assertThat(template)
@@ -379,6 +396,9 @@ public class RoutePreviewNavigationTemplateTest {
                                         new Action.Builder().setTitle("drive").setOnClickListener(
                                                 () -> {
                                                 }).build())
+                                .setMapActionStrip(mMapActionStrip)
+                                .setPanModeListener((panModechanged) -> {
+                                })
                                 .build());
     }
 
@@ -455,6 +475,70 @@ public class RoutePreviewNavigationTemplateTest {
                                         new Action.Builder().setTitle("drive").setOnClickListener(
                                                 () -> {
                                                 }).build())
+                                .build());
+    }
+
+    @Test
+    public void notEquals_differentMapActionStrip() {
+        RoutePreviewNavigationTemplate template =
+                new RoutePreviewNavigationTemplate.Builder()
+                        .setTitle("Title")
+                        .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
+                        .setActionStrip(new ActionStrip.Builder().addAction(Action.BACK).build())
+                        .setNavigateAction(
+                                new Action.Builder().setTitle("drive").setOnClickListener(() -> {
+                                }).build())
+                        .setMapActionStrip(mMapActionStrip)
+                        .build();
+
+        assertThat(template)
+                .isNotEqualTo(
+                        new RoutePreviewNavigationTemplate.Builder()
+                                .setTitle("Title")
+                                .setItemList(
+                                        TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
+                                .setActionStrip(
+                                        new ActionStrip.Builder().addAction(
+                                                Action.APP_ICON).build())
+                                .setNavigateAction(
+                                        new Action.Builder().setTitle("drive").setOnClickListener(
+                                                () -> {
+                                                }).build())
+                                .setMapActionStrip(new ActionStrip.Builder().addAction(
+                                        TestUtils.createAction(null, TestUtils.getTestCarIcon(
+                                                ApplicationProvider.getApplicationContext(),
+                                                "ic_test_2"))).build())
+                                .build());
+    }
+
+    @Test
+    public void notEquals_panModeListenerChange() {
+        RoutePreviewNavigationTemplate template =
+                new RoutePreviewNavigationTemplate.Builder()
+                        .setTitle("Title")
+                        .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
+                        .setActionStrip(new ActionStrip.Builder().addAction(Action.BACK).build())
+                        .setNavigateAction(
+                                new Action.Builder().setTitle("drive").setOnClickListener(() -> {
+                                }).build())
+                        .setMapActionStrip(mMapActionStrip)
+                        .setPanModeListener((panModechanged) -> {
+                        })
+                        .build();
+
+        assertThat(template)
+                .isNotEqualTo(
+                        new RoutePreviewNavigationTemplate.Builder()
+                                .setTitle("Title")
+                                .setItemList(
+                                        TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
+                                .setActionStrip(
+                                        new ActionStrip.Builder().addAction(Action.BACK).build())
+                                .setNavigateAction(
+                                        new Action.Builder().setTitle("drive").setOnClickListener(
+                                                () -> {
+                                                }).build())
+                                .setMapActionStrip(mMapActionStrip)
                                 .build());
     }
 

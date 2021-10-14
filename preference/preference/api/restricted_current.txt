@@ -439,6 +439,16 @@ package androidx.preference {
     method public void onPreferenceVisibilityChange(androidx.preference.Preference!);
   }
 
+  public abstract class PreferenceHeaderFragmentCompat extends androidx.fragment.app.Fragment implements androidx.preference.PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
+    ctor public PreferenceHeaderFragmentCompat();
+    method public final androidx.slidingpanelayout.widget.SlidingPaneLayout getSlidingPaneLayout();
+    method public androidx.fragment.app.Fragment? onCreateInitialDetailFragment();
+    method public abstract androidx.preference.PreferenceFragmentCompat onCreatePreferenceHeader();
+    method @CallSuper public boolean onPreferenceStartFragment(androidx.preference.PreferenceFragmentCompat caller, androidx.preference.Preference pref);
+    method public final void openPreference(androidx.preference.Preference header);
+    property public final androidx.slidingpanelayout.widget.SlidingPaneLayout slidingPaneLayout;
+  }
+
   public class PreferenceManager {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public PreferenceManager(android.content.Context!);
     method public androidx.preference.PreferenceScreen! createPreferenceScreen(android.content.Context!);

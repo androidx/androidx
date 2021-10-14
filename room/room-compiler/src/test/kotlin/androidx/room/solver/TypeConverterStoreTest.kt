@@ -23,6 +23,7 @@ import androidx.room.solver.types.CompositeTypeConverter
 import androidx.room.solver.types.CustomTypeConverterWrapper
 import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.context
+import androidx.room.vo.BuiltInConverterFlags
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,8 +68,9 @@ class TypeConverterStoreTest {
                 .process()
             val store = TypeAdapterStore.create(
                 invocation.context,
+                BuiltInConverterFlags.DEFAULT,
                 converters.map(::CustomTypeConverterWrapper)
-            )
+            ).typeConverterStore
 
             fun findConverter(from: String, to: String): String? {
                 val input = invocation.processingEnv.requireType(from)
@@ -96,6 +98,14 @@ class TypeConverterStoreTest {
                 findConverter("Type1_Super", "Type2_Super")
             ).isEqualTo(
                 "Type1_Super -> JumpType_2 : JumpType_2 -> JumpType_3 : JumpType_3 -> Type2_Sub"
+                    .let { tillSub ->
+                        if (invocation.context.useNullAwareConverter) {
+                            // new type converter will have a step for upcasts too
+                            "$tillSub : Type2_Sub -> Type2_Super"
+                        } else {
+                            tillSub
+                        }
+                    }
             )
             assertThat(
                 findConverter("Type1", "Type2_Sub")
@@ -105,7 +115,14 @@ class TypeConverterStoreTest {
             assertThat(
                 findConverter("Type1_Sub", "Type2_Sub")
             ).isEqualTo(
-                "Type1 -> JumpType_1 : JumpType_1 -> Type2_Sub"
+                "Type1 -> JumpType_1 : JumpType_1 -> Type2_Sub".let { end ->
+                    if (invocation.context.useNullAwareConverter) {
+                        // new type converter will have a step for upcasts too
+                        "Type1_Sub -> Type1 : $end"
+                    } else {
+                        end
+                    }
+                }
             )
             assertThat(
                 findConverter("Type2", "Type2_Sub")

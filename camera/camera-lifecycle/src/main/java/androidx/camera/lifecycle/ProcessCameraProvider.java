@@ -23,6 +23,7 @@ import android.os.Handler;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Camera;
@@ -76,6 +77,7 @@ import java.util.concurrent.Executor;
  *
  * <p>This is the standard provider for applications to use.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ProcessCameraProvider implements LifecycleCameraProvider {
 
     private static final ProcessCameraProvider sAppInstance = new ProcessCameraProvider();

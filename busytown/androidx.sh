@@ -9,6 +9,7 @@ cd "$(dirname $0)"
 EXIT_VALUE=0
 if impl/build.sh buildOnServer checkExternalLicenses listTaskOutputs validateAllProperties \
     -Pandroidx.enableComposeCompilerMetrics=true \
+    -Pandroidx.enableComposeCompilerReports=true \
     --profile "$@"; then
   EXIT_VALUE=0
 else

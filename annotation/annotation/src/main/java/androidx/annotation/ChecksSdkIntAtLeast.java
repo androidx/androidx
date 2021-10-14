@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Examples:
- * <pre><code>
+ * <pre>
  *  // Simple version check
  *  &#64;ChecksSdkIntAtLeast(api = Build.VERSION_CODES.O)
  *  public static boolean isAtLeastO() {
@@ -63,7 +63,7 @@ import java.lang.annotation.Target;
  *  public static final boolean SUPPORTS_LETTER_SPACING =
  *         Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
  *
- * </code></pre>
+ * </pre>
  */
 @Documented
 @Retention(CLASS)

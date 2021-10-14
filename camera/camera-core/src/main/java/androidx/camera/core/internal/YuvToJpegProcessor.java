@@ -56,7 +56,7 @@ public class YuvToJpegProcessor implements CaptureProcessor {
     private static final Rect UNINITIALIZED_RECT = new Rect(0, 0, 0, 0);
 
     @IntRange(from = 0, to = 100)
-    private final int mQuality;
+    private int mQuality;
     private final int mMaxImages;
 
     private final Object mLock = new Object();
@@ -73,6 +73,13 @@ public class YuvToJpegProcessor implements CaptureProcessor {
     public YuvToJpegProcessor(@IntRange(from = 0, to = 100) int quality, int maxImages) {
         mQuality = quality;
         mMaxImages = maxImages;
+    }
+
+    /**
+     * Sets the compression quality for the output JPEG image.
+     */
+    public void setJpegQuality(@IntRange(from = 0, to = 100) int quality) {
+        mQuality = quality;
     }
 
     @Override

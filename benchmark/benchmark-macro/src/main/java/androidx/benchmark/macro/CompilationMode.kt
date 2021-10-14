@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro
 
+import android.os.Build
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.DeviceInfo
@@ -95,11 +96,15 @@ public sealed class CompilationMode(
  * For more information: https://source.android.com/devices/tech/dalvik/jit-compiler
  */
 internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
+    if (Build.VERSION.SDK_INT < 24) {
+        // All supported versions prior to 24 were full AOT
+        // TODO: clarify this with CompilationMode errors on these versions
+        return
+    }
+
     // Clear profile between runs.
     Log.d(TAG, "Clearing profiles for $packageName")
     Shell.executeCommand("cmd package compile --reset $packageName")
-    // Wait for the --reset to take affect.
-    Thread.sleep(1000)
     if (this == CompilationMode.None || this == CompilationMode.Interpreted) {
         return // nothing to do
     } else if (this == CompilationMode.BaselineProfile) {
@@ -228,5 +233,4 @@ internal fun CompilationMode.compilePackage(packageName: String) {
         Log.d(TAG, "Received compile cmd response: $response")
         throw RuntimeException("Failed to compile $packageName ($response)")
     }
-    Thread.sleep(5000)
 }

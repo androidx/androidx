@@ -116,6 +116,7 @@ class FragmentAnim {
         return null;
     }
 
+    @AnimRes
     private static int getNextAnim(Fragment fragment, boolean enter, boolean isPop) {
         if (isPop) {
             if (enter) {

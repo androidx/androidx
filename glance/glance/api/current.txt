@@ -1,6 +1,12 @@
 // Signature format: 4.0
 package androidx.glance {
 
+  public final class BackgroundKt {
+    method public static androidx.glance.Modifier background(androidx.glance.Modifier, int color);
+    method public static androidx.glance.Modifier background(androidx.glance.Modifier, @ColorRes int color);
+    method public static androidx.glance.Modifier background(androidx.glance.Modifier, androidx.glance.unit.ColorProvider colorProvider);
+  }
+
   public final class CombinedModifier implements androidx.glance.Modifier {
     ctor public CombinedModifier(androidx.glance.Modifier outer, androidx.glance.Modifier inner);
     method public boolean all(kotlin.jvm.functions.Function1<? super androidx.glance.Modifier.Element,java.lang.Boolean> predicate);
@@ -38,6 +44,32 @@ package androidx.glance {
   }
 
   public final class UtilsKt {
+  }
+
+}
+
+package androidx.glance.action {
+
+  public interface Action {
+  }
+
+  public final class ActionKt {
+    method public static androidx.glance.Modifier clickable(androidx.glance.Modifier, androidx.glance.action.Action onClick);
+  }
+
+  public interface ActionRunnable {
+    method public suspend Object? run(android.content.Context context, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+  }
+
+  public final class LaunchActivityActionKt {
+    method public static androidx.glance.action.Action actionLaunchActivity(android.content.ComponentName componentName);
+    method public static <T extends android.app.Activity> androidx.glance.action.Action actionLaunchActivity(Class<T> activity);
+    method public static inline <reified T extends android.app.Activity> androidx.glance.action.Action! actionLaunchActivity();
+  }
+
+  public final class UpdateContentActionKt {
+    method public static <T extends androidx.glance.action.ActionRunnable> androidx.glance.action.Action actionUpdateContent(Class<T> runnable);
+    method public static inline <reified T extends androidx.glance.action.ActionRunnable> androidx.glance.action.Action! actionUpdateContent();
   }
 
 }
@@ -116,20 +148,61 @@ package androidx.glance.layout {
     method @androidx.compose.runtime.Composable public static void Box(optional androidx.glance.Modifier modifier, optional androidx.glance.layout.Alignment contentAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
+  public final class ButtonKt {
+    method @androidx.compose.runtime.Composable public static void Button(String text, androidx.glance.action.Action onClick, optional androidx.glance.Modifier modifier, optional boolean enabled, optional androidx.glance.text.TextStyle? style);
+  }
+
   public final class ColumnKt {
-    method @androidx.compose.runtime.Composable public static void Column(optional androidx.glance.Modifier modifier, optional int verticalAlignment, optional int horizontalAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void Column(optional androidx.glance.Modifier modifier, optional int verticalAlignment, optional int horizontalAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.layout.ColumnScope,kotlin.Unit> content);
+  }
+
+  public interface ColumnScope {
+    method public androidx.glance.Modifier defaultWeight(androidx.glance.Modifier);
   }
 
   public final class DimensionKt {
-    method public static androidx.glance.Modifier expandHeight(androidx.glance.Modifier);
-    method public static androidx.glance.Modifier expandWidth(androidx.glance.Modifier);
+    method public static androidx.glance.Modifier fillMaxHeight(androidx.glance.Modifier);
+    method public static androidx.glance.Modifier fillMaxSize(androidx.glance.Modifier);
+    method public static androidx.glance.Modifier fillMaxWidth(androidx.glance.Modifier);
     method public static androidx.glance.Modifier height(androidx.glance.Modifier, float height);
+    method public static androidx.glance.Modifier height(androidx.glance.Modifier, @DimenRes int height);
     method public static androidx.glance.Modifier size(androidx.glance.Modifier, float size);
+    method public static androidx.glance.Modifier size(androidx.glance.Modifier, @DimenRes int size);
     method public static androidx.glance.Modifier size(androidx.glance.Modifier, float width, float height);
+    method public static androidx.glance.Modifier size(androidx.glance.Modifier, @DimenRes int width, @DimenRes int height);
     method public static androidx.glance.Modifier width(androidx.glance.Modifier, float width);
-    method public static androidx.glance.Modifier wrapHeight(androidx.glance.Modifier);
-    method public static androidx.glance.Modifier wrapWidth(androidx.glance.Modifier);
+    method public static androidx.glance.Modifier width(androidx.glance.Modifier, @DimenRes int width);
+    method public static androidx.glance.Modifier wrapContentHeight(androidx.glance.Modifier);
+    method public static androidx.glance.Modifier wrapContentSize(androidx.glance.Modifier);
+    method public static androidx.glance.Modifier wrapContentWidth(androidx.glance.Modifier);
   }
+
+  public final class PaddingKt {
+    method public static androidx.glance.Modifier absolutePadding(androidx.glance.Modifier, optional float left, optional float top, optional float right, optional float bottom);
+    method public static androidx.glance.Modifier absolutePadding(androidx.glance.Modifier, optional @DimenRes int left, optional @DimenRes int top, optional @DimenRes int right, optional @DimenRes int bottom);
+    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional float start, optional float top, optional float end, optional float bottom);
+    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional @DimenRes int start, optional @DimenRes int top, optional @DimenRes int end, optional @DimenRes int bottom);
+    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional float horizontal, optional float vertical);
+    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional @DimenRes int horizontal, optional @DimenRes int vertical);
+    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, float all);
+    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, @DimenRes int all);
+  }
+
+  public final class RowKt {
+    method @androidx.compose.runtime.Composable public static void Row(optional androidx.glance.Modifier modifier, optional int horizontalAlignment, optional int verticalAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.layout.RowScope,kotlin.Unit> content);
+  }
+
+  public interface RowScope {
+    method public androidx.glance.Modifier defaultWeight(androidx.glance.Modifier);
+  }
+
+  public final class TextKt {
+    method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.glance.Modifier modifier, optional androidx.glance.text.TextStyle? style);
+  }
+
+}
+
+package androidx.glance.text {
 
   public final inline class FontStyle {
     ctor public FontStyle();
@@ -138,7 +211,7 @@ package androidx.glance.layout {
   public static final class FontStyle.Companion {
     method public int getItalic();
     method public int getNormal();
-    method public java.util.List<androidx.glance.layout.FontStyle> values();
+    method public java.util.List<androidx.glance.text.FontStyle> values();
     property public final int Italic;
     property public final int Normal;
   }
@@ -158,15 +231,22 @@ package androidx.glance.layout {
     property public final int Normal;
   }
 
-  public final class PaddingKt {
-    method public static androidx.glance.Modifier absolutePadding(androidx.glance.Modifier, optional float left, optional float top, optional float right, optional float bottom);
-    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional float start, optional float top, optional float end, optional float bottom);
-    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, optional float horizontal, optional float vertical);
-    method public static androidx.glance.Modifier padding(androidx.glance.Modifier, float all);
+  public final inline class TextAlign {
+    ctor public TextAlign();
   }
 
-  public final class RowKt {
-    method @androidx.compose.runtime.Composable public static void Row(optional androidx.glance.Modifier modifier, optional int horizontalAlignment, optional int verticalAlignment, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  public static final class TextAlign.Companion {
+    method public int getCenter();
+    method public int getEnd();
+    method public int getLeft();
+    method public int getRight();
+    method public int getStart();
+    method public java.util.List<androidx.glance.text.TextAlign> values();
+    property public final int Center;
+    property public final int End;
+    property public final int Left;
+    property public final int Right;
+    property public final int Start;
   }
 
   public final inline class TextDecoration {
@@ -174,7 +254,7 @@ package androidx.glance.layout {
   }
 
   public static final class TextDecoration.Companion {
-    method public int combine(java.util.List<androidx.glance.layout.TextDecoration> decorations);
+    method public int combine(java.util.List<androidx.glance.text.TextDecoration> decorations);
     method public int getLineThrough();
     method public int getNone();
     method public int getUnderline();
@@ -183,20 +263,18 @@ package androidx.glance.layout {
     property public final int Underline;
   }
 
-  public final class TextKt {
-    method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.glance.Modifier modifier, optional androidx.glance.layout.TextStyle? style);
-  }
-
   @androidx.compose.runtime.Immutable public final class TextStyle {
-    ctor public TextStyle(optional androidx.glance.unit.Sp? size, optional androidx.glance.layout.FontWeight? fontWeight, optional androidx.glance.layout.FontStyle? fontStyle, optional androidx.glance.layout.TextDecoration? textDecoration);
-    method public androidx.glance.layout.FontStyle? getFontStyle();
-    method public androidx.glance.layout.FontWeight? getFontWeight();
-    method public androidx.glance.unit.Sp? getSize();
-    method public androidx.glance.layout.TextDecoration? getTextDecoration();
-    property public final androidx.glance.layout.FontStyle? fontStyle;
-    property public final androidx.glance.layout.FontWeight? fontWeight;
-    property public final androidx.glance.unit.Sp? size;
-    property public final androidx.glance.layout.TextDecoration? textDecoration;
+    ctor public TextStyle(optional androidx.glance.unit.Sp? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration);
+    method public androidx.glance.unit.Sp? getFontSize();
+    method public androidx.glance.text.FontStyle? getFontStyle();
+    method public androidx.glance.text.FontWeight? getFontWeight();
+    method public androidx.glance.text.TextAlign? getTextAlign();
+    method public androidx.glance.text.TextDecoration? getTextDecoration();
+    property public final androidx.glance.unit.Sp? fontSize;
+    property public final androidx.glance.text.FontStyle? fontStyle;
+    property public final androidx.glance.text.FontWeight? fontWeight;
+    property public final androidx.glance.text.TextAlign? textAlign;
+    property public final androidx.glance.text.TextDecoration? textDecoration;
   }
 
 }
@@ -238,6 +316,14 @@ package androidx.glance.unit {
 
   public final class ColorKt {
     method @androidx.compose.runtime.Stable public static int Color(float red, float green, float blue, optional float alpha);
+  }
+
+  public interface ColorProvider {
+  }
+
+  public final class ColorProviderKt {
+    method public static androidx.glance.unit.ColorProvider ColorProvider(int color);
+    method public static androidx.glance.unit.ColorProvider ColorProvider(@ColorRes int resId);
   }
 
   public final inline class Dp implements java.lang.Comparable<androidx.glance.unit.Dp> {
@@ -284,6 +370,7 @@ package androidx.glance.unit {
   public final class DpSizeKt {
     method @androidx.compose.runtime.Stable public static operator androidx.glance.unit.DpSize times(int, androidx.glance.unit.DpSize size);
     method @androidx.compose.runtime.Stable public static operator androidx.glance.unit.DpSize times(float, androidx.glance.unit.DpSize size);
+    method @androidx.compose.runtime.Stable public static android.util.SizeF toSizeF(androidx.glance.unit.DpSize);
   }
 
   public final inline class Sp implements java.lang.Comparable<androidx.glance.unit.Sp> {

@@ -18,6 +18,7 @@ package androidx.camera.view.internal.compat.quirk;
 
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -26,6 +27,7 @@ import androidx.camera.core.impl.Quirk;
  * <p> On Samsung Galaxy Z Fold2, transform APIs (e.g. View#setScaleX) do not work as intended.
  * b/129403806
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SurfaceViewStretchedQuirk implements Quirk {
 
     // Samsung Galaxy Z Fold2 b/129403806

@@ -20,6 +20,7 @@ import android.graphics.Matrix;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
@@ -31,6 +32,7 @@ import androidx.camera.view.TransformExperimental;
  * <p> Represents the rotation, cropping and/or mirroring applied to the raw buffer of a
  * {@link UseCase} output.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @TransformExperimental
 public final class OutputTransform {
 

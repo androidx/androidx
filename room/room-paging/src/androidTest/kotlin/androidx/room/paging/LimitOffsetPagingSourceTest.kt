@@ -33,15 +33,20 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.FilteringExecutor
+import androidx.testutils.TestExecutor
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -74,6 +79,30 @@ class LimitOffsetPagingSourceTest {
         // At the end of all tests, query executor should be idle (transaction thread released).
         countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
         assertThat(countingTaskExecutorRule.isIdle).isTrue()
+    }
+
+    @Test
+    fun load_usesQueryExecutor() {
+        val queryExecutor = TestExecutor()
+        database = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(),
+            LimitOffsetTestDb::class.java,
+        ).setQueryExecutor(queryExecutor)
+            .setTransactionExecutor(queryExecutor)
+            .build()
+
+        val job = CoroutineScope(EmptyCoroutineContext).launch {
+            LimitOffsetPagingSourceImpl(database).load(
+                PagingSource.LoadParams.Refresh(
+                    key = null,
+                    loadSize = 1,
+                    placeholdersEnabled = true
+                )
+            )
+        }
+
+        queryExecutor.executeAll()
+        assertThat(job.isCompleted)
     }
 
     @Test
@@ -744,7 +773,9 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
 
     private lateinit var db: LimitOffsetTestDb
     private lateinit var dao: TestItemDao
-    private val queryExecutor = FilteringExecutor()
+    // Multiple threads are necessary to prevent deadlock, since Room will acquire a thread to
+    // dispatch on, when using the query / transaction dispatchers.
+    private val queryExecutor = FilteringExecutor(delegate = Executors.newFixedThreadPool(2))
     private val mainThreadQueries = mutableListOf<Pair<String, String>>()
 
     @Before

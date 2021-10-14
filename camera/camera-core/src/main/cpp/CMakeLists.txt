@@ -18,12 +18,12 @@ cmake_minimum_required(VERSION 2.8)
 project(camera_core_jni)
 
 add_library(
-        yuv_to_rgb_jni
+        image_processing_util_jni
         SHARED
-        yuv_to_rgb_jni.cc)
+        image_processing_util_jni.cc)
 
 find_library(log-lib log)
 find_library(android-lib android)
 find_package(libyuv REQUIRED)
 
-target_link_libraries(yuv_to_rgb_jni PRIVATE ${log-lib} ${android-lib} libyuv::yuv)
+target_link_libraries(image_processing_util_jni PRIVATE ${log-lib} ${android-lib} libyuv::yuv)

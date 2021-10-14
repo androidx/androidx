@@ -265,6 +265,78 @@ class XRoundEnvTest {
         }
     }
 
+    @Test
+    fun getAnnotatedParamElements() {
+        runProcessorTest(
+            listOf(
+                Source.kotlin(
+                    "Baz.kt",
+                    """
+                    import androidx.room.compiler.processing.XRoundEnvTest.TopLevelAnnotation
+                    class Baz constructor(
+                        @param:TopLevelAnnotation val ctorProperty: String,
+                        @TopLevelAnnotation ctorParam: String
+                    ) {
+                        @setparam:TopLevelAnnotation
+                        var property: String = ""
+                        fun method(@TopLevelAnnotation methodParam: String) {}
+                    }
+                    """.trimIndent()
+                )
+            )
+        ) { testInvocation ->
+            val typeElement = testInvocation.processingEnv.requireTypeElement("Baz")
+            val annotatedElements =
+                testInvocation.roundEnv.getElementsAnnotatedWith(TopLevelAnnotation::class)
+            val annotatedParams = annotatedElements.filterIsInstance<XExecutableParameterElement>()
+            if (!testInvocation.isKsp) {
+                // TODO: https://github.com/google/ksp/issues/636
+                // KSP can't find ctor param annotated elements from property
+                val ctorProperty = annotatedParams.first { it.name == "ctorProperty" }
+                assertThat(ctorProperty.enclosingMethodElement).isEqualTo(
+                    typeElement.findPrimaryConstructor()
+                )
+            }
+            val ctorParam = annotatedParams.first { it.name == "ctorParam" }
+            assertThat(ctorParam.enclosingMethodElement).isEqualTo(
+                typeElement.findPrimaryConstructor()
+            )
+            if (!testInvocation.isKsp) {
+                // TODO: https://github.com/google/ksp/issues/636
+                // KSP can't find setter param annotated elements
+                val setterParam = annotatedParams.first { it.name == "p0" }
+                assertThat(setterParam.enclosingMethodElement).isEqualTo(
+                    typeElement.getDeclaredMethod("setProperty")
+                )
+            }
+            val methodParam = annotatedParams.first { it.name == "methodParam" }
+            assertThat(methodParam.enclosingMethodElement).isEqualTo(
+                typeElement.getDeclaredMethod("method")
+            )
+        }
+    }
+
+    @Test
+    fun getElementsAnnotatedWithMissingTypeAnnotation() {
+        runProcessorTest(
+            listOf(
+                Source.kotlin(
+                    "Baz.kt",
+                    """
+                    class Foo {}
+                    """.trimIndent()
+                )
+            )
+        ) { testInvocation ->
+            // Expect zero elements to be returned from the round for an annotation whose type is
+            // missing. This is allowed since there are processors whose capabilities might be
+            // dynamic based on user classpath.
+            val annotatedElements =
+                testInvocation.roundEnv.getElementsAnnotatedWith("MissingTypeAnnotation")
+            assertThat(annotatedElements).hasSize(0)
+        }
+    }
+
     annotation class TopLevelAnnotation
 
     @Suppress("unused") // used in tests

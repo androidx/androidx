@@ -16,38 +16,30 @@
 
 package androidx.health.services.client.impl.response
 
-import android.os.Parcel
 import android.os.Parcelable
 import androidx.health.services.client.data.ExerciseUpdate
+import androidx.health.services.client.data.ProtoParcelable
+import androidx.health.services.client.proto.ResponsesProto
 
 /**
  * Response containing [ExerciseUpdate] when it's updated.
  *
  * @hide
  */
-public data class ExerciseUpdateResponse(val exerciseUpdate: ExerciseUpdate) : Parcelable {
-    override fun describeContents(): Int = 0
+public class ExerciseUpdateResponse(public val exerciseUpdate: ExerciseUpdate) :
+    ProtoParcelable<ResponsesProto.ExerciseUpdateResponse>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(exerciseUpdate, flags)
+    override val proto: ResponsesProto.ExerciseUpdateResponse by lazy {
+        ResponsesProto.ExerciseUpdateResponse.newBuilder()
+            .setExerciseUpdate(exerciseUpdate.proto)
+            .build()
     }
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseUpdateResponse> =
-            object : Parcelable.Creator<ExerciseUpdateResponse> {
-                override fun createFromParcel(source: Parcel): ExerciseUpdateResponse? {
-                    val parcelable =
-                        source.readParcelable<ExerciseUpdate>(
-                            ExerciseUpdate::class.java.classLoader
-                        )
-                            ?: return null
-                    return ExerciseUpdateResponse(parcelable)
-                }
-
-                override fun newArray(size: Int): Array<ExerciseUpdateResponse?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<ExerciseUpdateResponse> = newCreator { bytes ->
+            val proto = ResponsesProto.ExerciseUpdateResponse.parseFrom(bytes)
+            ExerciseUpdateResponse(ExerciseUpdate(proto.exerciseUpdate))
+        }
     }
 }

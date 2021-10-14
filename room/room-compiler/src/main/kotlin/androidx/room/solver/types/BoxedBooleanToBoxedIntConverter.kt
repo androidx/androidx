@@ -19,6 +19,7 @@ package androidx.room.solver.types
 import androidx.room.ext.L
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.solver.CodeGenScope
+import com.squareup.javapoet.CodeBlock
 
 /**
  * int to boolean adapter.
@@ -28,27 +29,19 @@ object BoxedBooleanToBoxedIntConverter {
         val tBoolean = processingEnvironment.requireType("java.lang.Boolean").makeNullable()
         val tInt = processingEnvironment.requireType("java.lang.Integer").makeNullable()
         return listOf(
-            object : TypeConverter(tBoolean, tInt) {
-                override fun convert(
-                    inputVarName: String,
-                    outputVarName: String,
-                    scope: CodeGenScope
-                ) {
-                    scope.builder().addStatement(
-                        "$L = $L == null ? null : ($L ? 1 : 0)",
-                        outputVarName, inputVarName, inputVarName
+            object : SingleStatementTypeConverter(tBoolean, tInt) {
+                override fun buildStatement(inputVarName: String, scope: CodeGenScope): CodeBlock {
+                    return CodeBlock.of(
+                        "$L == null ? null : ($L ? 1 : 0)",
+                        inputVarName, inputVarName
                     )
                 }
             },
-            object : TypeConverter(tInt, tBoolean) {
-                override fun convert(
-                    inputVarName: String,
-                    outputVarName: String,
-                    scope: CodeGenScope
-                ) {
-                    scope.builder().addStatement(
-                        "$L = $L == null ? null : $L != 0",
-                        outputVarName, inputVarName, inputVarName
+            object : SingleStatementTypeConverter(tInt, tBoolean) {
+                override fun buildStatement(inputVarName: String, scope: CodeGenScope): CodeBlock {
+                    return CodeBlock.of(
+                        "$L == null ? null : $L != 0",
+                        inputVarName, inputVarName
                     )
                 }
             }

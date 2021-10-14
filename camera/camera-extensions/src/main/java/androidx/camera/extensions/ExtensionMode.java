@@ -17,6 +17,7 @@
 package androidx.camera.extensions;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraProvider;
@@ -28,30 +29,19 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * The available modes for the extensions.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ExtensionMode {
     /** Normal mode without any specific effect applied. */
     public static final int NONE = 0;
-    /** Bokeh mode that is often applied as portrait mode for people pictures. */
+    /** Makes foreground people sharper when photos are taken in portrait mode. */
     public static final int BOKEH = 1;
-    /**
-     * HDR mode that may get source pictures with different AE settings to generate a best
-     * result.
-     */
+    /** Takes photos with different AE settings to generate the best result. */
     public static final int HDR = 2;
-    /**
-     * Night mode is used for taking better still capture images under low-light situations,
-     * typically at night time.
-     */
+    /** Gets the best still images under low-light situations, typically at night time. */
     public static final int NIGHT = 3;
-    /**
-     * Beauty mode is used for taking still capture images that incorporate facial changes
-     * like skin tone, geometry, or retouching.
-     */
-    public static final int BEAUTY = 4;
-    /**
-     * Auto mode is used for taking still capture images that automatically adjust to the
-     * surrounding scenery.
-     */
+    /** Retouches face skin tone, geometry and so on when taking still images. */
+    public static final int FACE_RETOUCH = 4;
+    /** Automatically adjusts the final image with the surrounding scenery. */
     public static final int AUTO = 5;
 
     /**
@@ -63,7 +53,7 @@ public final class ExtensionMode {
      *
      * @hide
      */
-    @IntDef({NONE, BOKEH, HDR, NIGHT, BEAUTY, AUTO})
+    @IntDef({NONE, BOKEH, HDR, NIGHT, FACE_RETOUCH, AUTO})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface Mode {

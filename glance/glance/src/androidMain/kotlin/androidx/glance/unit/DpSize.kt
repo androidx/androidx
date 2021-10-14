@@ -16,6 +16,7 @@
 
 package androidx.glance.unit
 
+import android.util.SizeF
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 
@@ -122,3 +123,9 @@ public operator fun Int.times(size: DpSize) = size * this
  */
 @Stable
 public operator fun Float.times(size: DpSize) = size * this
+
+/**
+ * Creates a SizeF with the same values.
+ */
+@Stable
+public fun DpSize.toSizeF(): SizeF = SizeF(width.value, height.value)

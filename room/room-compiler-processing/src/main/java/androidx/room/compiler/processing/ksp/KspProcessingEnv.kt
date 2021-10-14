@@ -241,7 +241,6 @@ internal class KspProcessingEnv(
     }
 
     internal fun clearCache() {
-        _resolver = null
         typeElementStore.clear()
     }
 

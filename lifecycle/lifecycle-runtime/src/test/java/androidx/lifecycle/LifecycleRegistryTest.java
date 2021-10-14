@@ -611,6 +611,8 @@ public class LifecycleRegistryTest {
         dispatchEvent(ON_RESUME);
     }
 
+    // TODO(b/198264598)
+    @SuppressWarnings("deprecation")
     private abstract class TestObserver implements LifecycleObserver {
         @OnLifecycleEvent(ON_CREATE)
         void onCreate() {

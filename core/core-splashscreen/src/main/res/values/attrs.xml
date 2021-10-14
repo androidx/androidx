@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright 2021 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +21,9 @@
      directory Defaults to @drawable/ic_launcher. -->
     <attr name="windowSplashScreenAnimatedIcon" format="reference" />
 
+    <!-- Optional color to be displayed below the icon -->
+    <attr name="windowSplashScreenIconBackgroundColor" format="color" />
+
     <!-- Background color of the splash screen. Defaults to the theme's windowBackground-->
     <attr name="windowSplashScreenBackground" format="color" />
 
@@ -30,4 +32,8 @@
 
     <!-- Theme to apply to the Activity once the splash screen is dismissed-->
     <attr name="postSplashScreenTheme" format="reference" />
+
+    <!-- The size of the splash screen icon. It varies depending on the
+     presence or not of an icon background-->
+    <attr name="splashScreenIconSize" format="dimension" />
 </resources>

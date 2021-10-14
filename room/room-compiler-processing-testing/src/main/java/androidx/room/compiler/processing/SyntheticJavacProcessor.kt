@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.compat.XConverters.toJavac
 import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
 import androidx.room.compiler.processing.util.XTestInvocation
 import javax.lang.model.SourceVersion
@@ -31,7 +30,7 @@ class SyntheticJavacProcessor private constructor(
     override fun processingSteps(): Iterable<XProcessingStep> = impl.processingSteps()
 
     override fun postRound(env: XProcessingEnv, round: XRoundEnv) {
-        if (!round.toJavac().processingOver()) {
+        if (!round.isProcessingOver) {
             impl.postRound(env, round)
         }
     }

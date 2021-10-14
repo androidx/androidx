@@ -56,7 +56,7 @@ public class NavDeepLink internal constructor(
 
     /** Arguments present in the deep link, including both path and query arguments. */
     internal val argumentsNames: List<String>
-        get() = arguments + paramArgMap.keys
+        get() = arguments + paramArgMap.values.flatMap { it.arguments }
 
     public var isExactDeepLink: Boolean = false
         /** @suppress */
@@ -199,7 +199,8 @@ public class NavDeepLink internal constructor(
 
         // Check that all required arguments are present in bundle
         for ((argName, argument) in arguments.entries) {
-            val argumentIsRequired = argument != null && !argument.isDefaultValuePresent
+            val argumentIsRequired = argument != null && !argument.isNullable &&
+                !argument.isDefaultValuePresent
             if (argumentIsRequired && !bundle.containsKey(argName)) return null
         }
 
@@ -233,7 +234,7 @@ public class NavDeepLink internal constructor(
      */
     private class ParamQuery {
         var paramRegex: String? = null
-        private val arguments = mutableListOf<String>()
+        val arguments = mutableListOf<String>()
 
         fun addArgumentName(name: String) {
             arguments.add(name)

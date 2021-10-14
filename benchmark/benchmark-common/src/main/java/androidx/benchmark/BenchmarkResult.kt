@@ -19,21 +19,6 @@ package androidx.benchmark
 import androidx.annotation.RestrictTo
 
 /**
- * Data for a single metric from a single benchmark test method run.
- * @suppress
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class MetricResult(
-    val data: List<Long>,
-    val stats: Stats
-) {
-    public constructor(
-        name: String,
-        data: LongArray
-    ) : this(data.toList(), Stats(data, name))
-}
-
-/**
  * Data capture from a single benchmark test method run.
  *
  * Each field directly corresponds to JSON output, though not every JSON object may be
@@ -44,22 +29,46 @@ public data class MetricResult(
 public data class BenchmarkResult(
     val className: String,
     val testName: String,
-    @JvmField // Suppress API lint (using JvmField instead of @Suppress to workaround b/175063229))
     val totalRunTimeNs: Long,
-    val metrics: List<MetricResult>,
+    val metrics: Measurements,
     val repeatIterations: Int,
-    @JvmField // Suppress API lint (using JvmField instead of @Suppress to workaround b/175063229))
     val thermalThrottleSleepSeconds: Long,
     val warmupIterations: Int
 ) {
-    public fun getStats(which: String): Stats {
-        return metrics.first { it.stats.name == which }.stats
+    /**
+     * Simplified constructor, without sampled metrics, for micro benchmarks.
+     */
+    constructor(
+        className: String,
+        testName: String,
+        totalRunTimeNs: Long,
+        metrics: List<MetricResult>,
+        repeatIterations: Int,
+        thermalThrottleSleepSeconds: Long,
+        warmupIterations: Int
+    ) : this(
+        className = className,
+        testName = testName,
+        totalRunTimeNs = totalRunTimeNs,
+        metrics = Measurements(
+            singleMetrics = metrics,
+            sampledMetrics = emptyList()
+        ),
+        repeatIterations = repeatIterations,
+        thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
+        warmupIterations = warmupIterations
+    )
+    public fun getMetricResult(which: String): MetricResult {
+        return metrics.singleMetrics.first { it.name == which }
     }
-}
 
-internal fun metricResultList(stats: List<Stats>, data: List<LongArray>): List<MetricResult> {
-    require(stats.size == data.size)
-    return stats.mapIndexed { index, currentStats ->
-        MetricResult(data[index].toList(), currentStats)
+    /**
+     * Final metric results from a full benchmark test, merged across multiple iterations.
+     */
+    data class Measurements(
+        val singleMetrics: List<MetricResult>,
+        val sampledMetrics: List<MetricResult>
+    ) {
+        fun isNotEmpty() = singleMetrics.isNotEmpty() || sampledMetrics.isNotEmpty()
     }
 }

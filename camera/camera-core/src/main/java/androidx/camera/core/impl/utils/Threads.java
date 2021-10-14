@@ -18,11 +18,13 @@ package androidx.camera.core.impl.utils;
 
 import android.os.Looper;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 
 /**
  * Helpers for {@link Thread}s.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Threads {
 
     // Prevent instantiation.

@@ -16,40 +16,33 @@
 
 package androidx.health.services.client.impl.request
 
-import android.os.Parcel
 import android.os.Parcelable
 import androidx.health.services.client.data.DataType
+import androidx.health.services.client.data.ProtoParcelable
+import androidx.health.services.client.proto.RequestsProto
 
 /**
  * Request for measure registration.
  *
  * @hide
  */
-public data class MeasureRegistrationRequest(
-    val packageName: String,
-    val dataType: DataType,
-) : Parcelable {
-    override fun describeContents(): Int = 0
+public class MeasureRegistrationRequest(
+    public val packageName: String,
+    public val dataType: DataType,
+) : ProtoParcelable<RequestsProto.MeasureRegistrationRequest>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeString(packageName)
-        dest.writeParcelable(dataType, flags)
+    override val proto: RequestsProto.MeasureRegistrationRequest by lazy {
+        RequestsProto.MeasureRegistrationRequest.newBuilder()
+            .setPackageName(packageName)
+            .setDataType(dataType.proto)
+            .build()
     }
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<MeasureRegistrationRequest> =
-            object : Parcelable.Creator<MeasureRegistrationRequest> {
-                override fun createFromParcel(source: Parcel): MeasureRegistrationRequest? {
-                    return MeasureRegistrationRequest(
-                        source.readString() ?: return null,
-                        source.readParcelable(DataType::class.java.classLoader) ?: return null
-                    )
-                }
-
-                override fun newArray(size: Int): Array<MeasureRegistrationRequest?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<MeasureRegistrationRequest> = newCreator { bytes ->
+            val proto = RequestsProto.MeasureRegistrationRequest.parseFrom(bytes)
+            MeasureRegistrationRequest(proto.packageName, DataType(proto.dataType))
+        }
     }
 }

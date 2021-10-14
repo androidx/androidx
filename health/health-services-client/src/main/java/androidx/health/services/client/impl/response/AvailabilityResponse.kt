@@ -16,44 +16,50 @@
 
 package androidx.health.services.client.impl.response
 
-import android.os.Parcel
 import android.os.Parcelable
 import androidx.health.services.client.data.Availability
 import androidx.health.services.client.data.DataType
+import androidx.health.services.client.data.DataTypeAvailability
+import androidx.health.services.client.data.LocationAvailability
+import androidx.health.services.client.data.ProtoParcelable
+import androidx.health.services.client.proto.DataProto.Availability.AvailabilityCase.AVAILABILITY_NOT_SET
+import androidx.health.services.client.proto.DataProto.Availability.AvailabilityCase.DATA_TYPE_AVAILABILITY
+import androidx.health.services.client.proto.DataProto.Availability.AvailabilityCase.LOCATION_AVAILABILITY
+import androidx.health.services.client.proto.ResponsesProto
 
 /**
- * Response sent on MeasureCallback with a [DataType] and its associated [Availability] status.
+ * Response sent on MeasureCallback and ExerciseUpdateListener with a [DataType] and its associated
+ * [Availability] status.
  *
  * @hide
  */
-public data class AvailabilityResponse(
+public class AvailabilityResponse(
     /** [DataType] of the [AvailabilityResponse]. */
-    val dataType: DataType,
+    public val dataType: DataType,
     /** [Availability] of the [AvailabilityResponse]. */
-    val availability: Availability,
-) : Parcelable {
-    override fun describeContents(): Int = 0
+    public val availability: Availability,
+) : ProtoParcelable<ResponsesProto.AvailabilityResponse>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(dataType, flags)
-        dest.writeInt(availability.id)
+    override val proto: ResponsesProto.AvailabilityResponse by lazy {
+        ResponsesProto.AvailabilityResponse.newBuilder()
+            .setDataType(dataType.proto)
+            .setAvailability(availability.toProto())
+            .build()
     }
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<AvailabilityResponse> =
-            object : Parcelable.Creator<AvailabilityResponse> {
-                override fun createFromParcel(source: Parcel): AvailabilityResponse? {
-                    val parcelable =
-                        source.readParcelable<DataType>(DataType::class.java.classLoader)
-                            ?: return null
-                    val availability = Availability.fromId(source.readInt()) ?: return null
-                    return AvailabilityResponse(parcelable, availability)
+        public val CREATOR: Parcelable.Creator<AvailabilityResponse> = newCreator { bytes ->
+            val proto = ResponsesProto.AvailabilityResponse.parseFrom(bytes)
+            val availability: Availability =
+                when (proto.availability.availabilityCase) {
+                    DATA_TYPE_AVAILABILITY ->
+                        DataTypeAvailability.fromProto(proto.availability.dataTypeAvailability)
+                    LOCATION_AVAILABILITY ->
+                        LocationAvailability.fromProto(proto.availability.locationAvailability)
+                    null, AVAILABILITY_NOT_SET -> DataTypeAvailability.UNKNOWN
                 }
-
-                override fun newArray(size: Int): Array<AvailabilityResponse?> {
-                    return arrayOfNulls(size)
-                }
-            }
+            AvailabilityResponse(DataType(proto.dataType), availability)
+        }
     }
 }

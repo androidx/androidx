@@ -25,6 +25,7 @@ import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.testing.CameraUtil
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assume.assumeTrue
@@ -36,6 +37,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SmallTest
 @Suppress("DEPRECATION")
+@SdkSuppress(minSdkVersion = 21)
 public class Camera2CamcorderProfileProviderTest(private val quality: Int) {
     public companion object {
         @JvmStatic

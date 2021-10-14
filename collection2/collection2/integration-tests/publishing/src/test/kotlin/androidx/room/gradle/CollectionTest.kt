@@ -31,7 +31,7 @@ class CollectionTest {
         val c1metadata = getPublishedFile("androidx/collection/collection/maven-metadata.xml")
         val c2metadata = getPublishedFile("androidx/collection2/collection2/maven-metadata.xml")
         c1metadata.readLines().zip(c2metadata.readLines()).forEach { (c1, c2) ->
-            if (!c1.contains("lastUpdated")) {
+            if (!c1.contains("lastUpdated") && !c1.contains("beta")) {
                 Assert.assertEquals(c1.replace("collection", "collection2"), c2)
             }
         }

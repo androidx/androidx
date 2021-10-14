@@ -16,14 +16,18 @@
 
 package androidx.media2.test.service;
 
-import androidx.concurrent.ListenableFuture;
+import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.session.RemoteSessionPlayer;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 
 /**
  * Mock implementation of {@link RemoteSessionPlayer}.
@@ -46,6 +50,7 @@ public class MockRemotePlayer extends RemoteSessionPlayer {
         mCurrentVolume = currentVolume;
     }
 
+    @NonNull
     @Override
     public ListenableFuture<PlayerResult> setVolume(int volume) {
         mSetVolumeToCalled = true;
@@ -54,6 +59,7 @@ public class MockRemotePlayer extends RemoteSessionPlayer {
         return new SyncListenableFuture(null);
     }
 
+    @NonNull
     @Override
     public ListenableFuture<PlayerResult> adjustVolume(int direction) {
         mAdjustVolumeCalled = true;
@@ -78,32 +84,39 @@ public class MockRemotePlayer extends RemoteSessionPlayer {
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> play() {
         return null;
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> pause() {
         return null;
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> prepare() {
         return null;
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> seekTo(long position) {
         return null;
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> setPlaybackSpeed(float playbackSpeed) {
         return null;
     }
 
     @Override
-    public ListenableFuture<PlayerResult> setAudioAttributes(AudioAttributesCompat attributes) {
+    @NonNull
+    public ListenableFuture<PlayerResult> setAudioAttributes(
+            @NonNull AudioAttributesCompat attributes) {
         mAttributes = attributes;
         return new SyncListenableFuture(null);
     }
@@ -139,7 +152,8 @@ public class MockRemotePlayer extends RemoteSessionPlayer {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> setPlaylist(List<MediaItem> list,
+    @NonNull
+    public ListenableFuture<PlayerResult> setPlaylist(@NonNull List<MediaItem> list,
             MediaMetadata metadata) {
         return null;
     }
@@ -150,51 +164,61 @@ public class MockRemotePlayer extends RemoteSessionPlayer {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> setMediaItem(MediaItem item) {
+    @NonNull
+    public ListenableFuture<PlayerResult> setMediaItem(@NonNull MediaItem item) {
         return null;
     }
 
     @Override
-    public ListenableFuture<PlayerResult> addPlaylistItem(int index, MediaItem item) {
+    @NonNull
+    public ListenableFuture<PlayerResult> addPlaylistItem(int index, @NonNull MediaItem item) {
         return null;
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> removePlaylistItem(int index) {
         return null;
     }
 
     @Override
-    public ListenableFuture<PlayerResult> replacePlaylistItem(int index, MediaItem item) {
+    @NonNull
+    public ListenableFuture<PlayerResult> replacePlaylistItem(int index, @NonNull MediaItem item) {
         return null;
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> skipToPreviousPlaylistItem() {
         return null;
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> skipToNextPlaylistItem() {
         return null;
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> skipToPlaylistItem(int index) {
         return null;
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> updatePlaylistMetadata(MediaMetadata metadata) {
         return null;
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> setRepeatMode(int repeatMode) {
         return null;
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> setShuffleMode(int shuffleMode) {
         return null;
     }
@@ -239,7 +263,15 @@ public class MockRemotePlayer extends RemoteSessionPlayer {
         return ITEM_NONE;
     }
 
-    @Override
-    public void close() throws Exception {
+    public void notifyVolumeChanged() {
+        int volume = mCurrentVolume;
+        for (Pair<PlayerCallback, Executor> pair : getCallbacks()) {
+            if (!(pair.first instanceof RemoteSessionPlayer.Callback)) {
+                continue;
+            }
+            RemoteSessionPlayer.Callback callback = (RemoteSessionPlayer.Callback) pair.first;
+            Executor executor = pair.second;
+            executor.execute(() -> callback.onVolumeChanged(this, volume));
+        }
     }
 }

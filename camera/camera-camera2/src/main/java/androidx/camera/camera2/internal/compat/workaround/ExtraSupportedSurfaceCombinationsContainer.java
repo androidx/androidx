@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal.compat.workaround;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.ExtraSupportedSurfaceCombinationsQuirk;
 import androidx.camera.core.impl.SurfaceCombination;
@@ -28,6 +29,7 @@ import java.util.List;
  * Gets the extra supported surface combinations which are additional to the guaranteed supported
  * configurations.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExtraSupportedSurfaceCombinationsContainer {
     private final ExtraSupportedSurfaceCombinationsQuirk mQuirk;
 

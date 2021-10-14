@@ -19,6 +19,7 @@ package androidx.camera.lifecycle;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
@@ -42,6 +43,7 @@ import java.util.List;
  * A {@link CameraUseCaseAdapter} whose starting and stopping is controlled by a
  *  {@link Lifecycle}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class LifecycleCamera implements LifecycleObserver, Camera {
     private final Object mLock = new Object();
 

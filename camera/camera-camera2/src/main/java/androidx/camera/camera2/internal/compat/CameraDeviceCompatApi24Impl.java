@@ -48,7 +48,7 @@ class CameraDeviceCompatApi24Impl extends CameraDeviceCompatApi23Impl {
 
     @Override
     public void createCaptureSession(@NonNull SessionConfigurationCompat config)
-            throws CameraAccessException {
+            throws CameraAccessExceptionCompat {
         checkPreconditions(mCameraDevice, config);
 
         // Wrap the executor in the callback
@@ -63,22 +63,26 @@ class CameraDeviceCompatApi24Impl extends CameraDeviceCompatApi23Impl {
         Handler handler = Preconditions.checkNotNull(params).mCompatHandler;
 
         InputConfigurationCompat inputConfigCompat = config.getInputConfiguration();
-        if (inputConfigCompat != null) {
-            // Client is requesting a reprocessable capture session
-            InputConfiguration inputConfig = (InputConfiguration) inputConfigCompat.unwrap();
+        try {
+            if (inputConfigCompat != null) {
+                // Client is requesting a reprocessable capture session
+                InputConfiguration inputConfig = (InputConfiguration) inputConfigCompat.unwrap();
 
-            Preconditions.checkNotNull(inputConfig);
-            // Use OutputConfigurations on this API level
-            mCameraDevice.createReprocessableCaptureSessionByConfigurations(inputConfig,
-                    SessionConfigurationCompat.transformFromCompat(outputs), cb, handler);
-        } else if (config.getSessionType() == SessionConfigurationCompat.SESSION_HIGH_SPEED) {
-            // Client is requesting a high speed capture session
-            mCameraDevice.createConstrainedHighSpeedCaptureSession(unpackSurfaces(outputs), cb,
-                    handler);
-        } else {
-            // Fall back to a normal capture session (created from OutputConfigurations)
-            mCameraDevice.createCaptureSessionByOutputConfigurations(
-                    SessionConfigurationCompat.transformFromCompat(outputs), cb, handler);
+                Preconditions.checkNotNull(inputConfig);
+                // Use OutputConfigurations on this API level
+                mCameraDevice.createReprocessableCaptureSessionByConfigurations(inputConfig,
+                        SessionConfigurationCompat.transformFromCompat(outputs), cb, handler);
+            } else if (config.getSessionType() == SessionConfigurationCompat.SESSION_HIGH_SPEED) {
+                // Client is requesting a high speed capture session
+                mCameraDevice.createConstrainedHighSpeedCaptureSession(unpackSurfaces(outputs), cb,
+                        handler);
+            } else {
+                // Fall back to a normal capture session (created from OutputConfigurations)
+                mCameraDevice.createCaptureSessionByOutputConfigurations(
+                        SessionConfigurationCompat.transformFromCompat(outputs), cb, handler);
+            }
+        } catch (CameraAccessException e) {
+            throw CameraAccessExceptionCompat.toCameraAccessExceptionCompat(e);
         }
     }
 }

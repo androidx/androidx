@@ -78,6 +78,27 @@ class MenuHostHelperTest {
     }
 
     @Test
+    fun addRemoveReAddMenuProviderWithLifecycle() {
+        with(ActivityScenario.launch(TestActivityWithLifecycle::class.java)) {
+            val toolbar = Toolbar(context)
+            val menuHost = TestMenuHost(toolbar.menu, withActivity { menuInflater })
+            val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.STARTED)
+
+            menuHost.addMenuProvider(menuProvider, lifecycleOwner)
+            assertThat(toolbar.menu.findItem(R.id.item1)).isNotNull()
+            assertThat(toolbar.menu.findItem(R.id.item2)).isNotNull()
+
+            menuHost.removeMenuProvider(menuProvider)
+
+            menuHost.addMenuProvider(menuProvider, lifecycleOwner)
+
+            lifecycleOwner.currentState = Lifecycle.State.DESTROYED
+            assertThat(toolbar.menu.findItem(R.id.item1)).isNull()
+            assertThat(toolbar.menu.findItem(R.id.item2)).isNull()
+        }
+    }
+
+    @Test
     fun addMenuProviderWithLifecycleAndState() {
         with(ActivityScenario.launch(TestActivityWithLifecycle::class.java)) {
             val toolbar = Toolbar(context)
@@ -99,6 +120,35 @@ class MenuHostHelperTest {
     }
 
     @Test
+    fun addMenuProviderWithLifecycleAndStateSTOPPEDAndSTARTED() {
+        with(ActivityScenario.launch(TestActivityWithLifecycle::class.java)) {
+            val toolbar = Toolbar(context)
+            val menuHost = TestMenuHost(toolbar.menu, withActivity { menuInflater })
+            val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.CREATED)
+
+            menuHost.addMenuProvider(menuProvider, lifecycleOwner, Lifecycle.State.STARTED)
+            assertThat(toolbar.menu.findItem(R.id.item1)).isNull()
+            assertThat(toolbar.menu.findItem(R.id.item2)).isNull()
+
+            lifecycleOwner.currentState = Lifecycle.State.STARTED
+            assertThat(toolbar.menu.findItem(R.id.item1)).isNotNull()
+            assertThat(toolbar.menu.findItem(R.id.item2)).isNotNull()
+
+            lifecycleOwner.currentState = Lifecycle.State.CREATED
+            assertThat(toolbar.menu.findItem(R.id.item1)).isNull()
+            assertThat(toolbar.menu.findItem(R.id.item2)).isNull()
+
+            lifecycleOwner.currentState = Lifecycle.State.STARTED
+            assertThat(toolbar.menu.findItem(R.id.item1)).isNotNull()
+            assertThat(toolbar.menu.findItem(R.id.item2)).isNotNull()
+
+            lifecycleOwner.currentState = Lifecycle.State.DESTROYED
+            assertThat(toolbar.menu.findItem(R.id.item1)).isNull()
+            assertThat(toolbar.menu.findItem(R.id.item2)).isNull()
+        }
+    }
+
+    @Test
     fun removeMenuProvider() {
         with(ActivityScenario.launch(TestActivityWithLifecycle::class.java)) {
             val toolbar = Toolbar(context)
@@ -111,6 +161,27 @@ class MenuHostHelperTest {
             menuHost.removeMenuProvider(menuProvider)
             assertThat(toolbar.menu.findItem(R.id.item1)).isNull()
             assertThat(toolbar.menu.findItem(R.id.item2)).isNull()
+        }
+    }
+
+    @Test
+    fun removeMenuProviderWithLifecycle() {
+        with(ActivityScenario.launch(TestActivityWithLifecycle::class.java)) {
+            val toolbar = Toolbar(context)
+            val menuHost = TestMenuHost(toolbar.menu, withActivity { menuInflater })
+            val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.STARTED)
+
+            menuHost.addMenuProvider(menuProvider, lifecycleOwner)
+            assertThat(toolbar.menu.findItem(R.id.item1)).isNotNull()
+            assertThat(toolbar.menu.findItem(R.id.item2)).isNotNull()
+
+            menuHost.removeMenuProvider(menuProvider)
+            assertThat(menuHost.invalidateCount).isEqualTo(2)
+
+            lifecycleOwner.currentState = Lifecycle.State.DESTROYED
+            assertThat(toolbar.menu.findItem(R.id.item1)).isNull()
+            assertThat(toolbar.menu.findItem(R.id.item2)).isNull()
+            assertThat(menuHost.invalidateCount).isEqualTo(2)
         }
     }
 

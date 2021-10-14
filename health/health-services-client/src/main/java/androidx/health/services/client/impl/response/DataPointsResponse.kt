@@ -16,35 +16,35 @@
 
 package androidx.health.services.client.impl.response
 
-import android.os.Parcel
 import android.os.Parcelable
 import androidx.health.services.client.data.DataPoint
+import androidx.health.services.client.data.ProtoParcelable
+import androidx.health.services.client.proto.ResponsesProto
 
 /**
  * Response sent on MeasureCallback when new [DataPoints] [DataPoint] are available.
  *
  * @hide
  */
-public data class DataPointsResponse(val dataPoints: List<DataPoint>) : Parcelable {
-    override fun describeContents(): Int = 0
+public class DataPointsResponse(public val dataPoints: List<DataPoint>) :
+    ProtoParcelable<ResponsesProto.DataPointsResponse>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeTypedList(dataPoints)
+    /** @hide */
+    public constructor(
+        proto: ResponsesProto.DataPointsResponse
+    ) : this(proto.dataPointsList.map { DataPoint(it) })
+
+    override val proto: ResponsesProto.DataPointsResponse by lazy {
+        ResponsesProto.DataPointsResponse.newBuilder()
+            .addAllDataPoints(dataPoints.map { it.proto })
+            .build()
     }
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<DataPointsResponse> =
-            object : Parcelable.Creator<DataPointsResponse> {
-                override fun createFromParcel(source: Parcel): DataPointsResponse? {
-                    val list = ArrayList<DataPoint>()
-                    source.readTypedList(list, DataPoint.CREATOR)
-                    return DataPointsResponse(list)
-                }
-
-                override fun newArray(size: Int): Array<DataPointsResponse?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<DataPointsResponse> = newCreator { bytes ->
+            val proto = ResponsesProto.DataPointsResponse.parseFrom(bytes)
+            DataPointsResponse(proto)
+        }
     }
 }

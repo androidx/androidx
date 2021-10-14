@@ -27,8 +27,8 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.6.0")
+    api("androidx.wear:wear:1.2.0")
     api(libs.kotlinStdlib)
-    api(project(':wear:wear'))
 
     // Needed for Assert.assertThrows
     testImplementation("junit:junit:4.13")

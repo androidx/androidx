@@ -111,7 +111,8 @@ class NavBackStackEntryTest {
             restoredNavController.restoreState(savedState)
             withActivity { restoredNavController.graph = navGraph }
 
-            assertThat(restoredNavController.currentBackStackEntry).isEqualTo(entry)
+            assertThat(restoredNavController.currentBackStackEntry?.id).isEqualTo(entry?.id)
+            assertThat(restoredNavController.currentBackStackEntry).isNotEqualTo(entry)
         }
     }
 

@@ -16,9 +16,13 @@
 
 package androidx.glance.layout
 
-import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 import androidx.glance.findModifier
+import androidx.glance.text.FontStyle
+import androidx.glance.text.FontWeight
+import androidx.glance.text.TextAlign
+import androidx.glance.text.TextDecoration
+import androidx.glance.text.TextStyle
 import androidx.glance.unit.sp
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,8 +30,9 @@ import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
+import kotlin.test.assertIs
 
-@OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class TextTest {
     private lateinit var fakeCoroutineScope: TestCoroutineScope
 
@@ -43,8 +48,8 @@ class TextTest {
         }
 
         assertThat(root.children).hasSize(1)
-        assertThat(root.children[0]).isInstanceOf(EmittableText::class.java)
-        assertThat((root.children[0] as EmittableText).text).isEqualTo("text")
+        val text = assertIs<EmittableText>(root.children[0])
+        assertThat(text.text).isEqualTo("text")
     }
 
     @Test
@@ -61,8 +66,7 @@ class TextTest {
         }
 
         assertThat(root.children).hasSize(1)
-        assertThat(root.children[0]).isInstanceOf(EmittableText::class.java)
-        val text = root.children[0] as EmittableText
+        val text = assertIs<EmittableText>(root.children[0])
         assertThat(text.text).isEqualTo("text")
         assertThat(text.style)
             .isEqualTo(
@@ -77,13 +81,13 @@ class TextTest {
     @Test
     fun createComposableTextWithModifiers() = fakeCoroutineScope.runBlockingTest {
         val root = runTestingComposition {
-            Text("text", modifier = Modifier.expandWidth())
+            Text("text", modifier = Modifier.fillMaxWidth())
         }
 
         assertThat(root.children).hasSize(1)
-        assertThat(root.children[0]).isInstanceOf(EmittableText::class.java)
-        assertThat(root.children[0].modifier.findModifier<WidthModifier>()?.width)
-            .isEqualTo(Dimension.Expand)
+        val text = assertIs<EmittableText>(root.children[0])
+        assertThat(text.modifier.findModifier<WidthModifier>()?.width)
+            .isEqualTo(Dimension.Fill)
     }
 
     @Test
@@ -99,5 +103,16 @@ class TextTest {
             TextDecoration.combine(listOf(TextDecoration.LineThrough, TextDecoration.Underline))
         assertThat(TextDecoration.LineThrough in combined).isTrue()
         assertThat(TextDecoration.Underline in combined).isTrue()
+    }
+
+    @Test
+    fun textAlign() = fakeCoroutineScope.runBlockingTest {
+        val root = runTestingComposition {
+            Text("text", style = TextStyle(textAlign = TextAlign.Center))
+        }
+
+        assertThat(root.children).hasSize(1)
+        val child = assertIs<EmittableText>(root.children[0])
+        assertThat(child.style?.textAlign).isEqualTo(TextAlign.Center)
     }
 }

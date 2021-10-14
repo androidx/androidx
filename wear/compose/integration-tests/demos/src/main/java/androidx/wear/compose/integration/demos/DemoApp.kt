@@ -16,25 +16,24 @@
 
 package androidx.wear.compose.integration.demos
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.SwipeDismissTarget
 import androidx.wear.compose.material.SwipeToDismissBox
+import androidx.wear.compose.material.SwipeToDismissBoxDefaults
 import androidx.wear.compose.material.SwipeToDismissBoxState
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.rememberSwipeToDismissBoxState
@@ -65,13 +64,17 @@ private fun DisplayDemo(
         is ComposableDemo -> {
             SwipeToDismissBox(
                 state = swipeDismissStateWithNavigation(onNavigateBack),
-                background = {
+                hasBackground = parentDemo != null,
+                backgroundKey = parentDemo?.title ?: SwipeToDismissBoxDefaults.BackgroundKey,
+                contentKey = demo.title,
+            ) { isBackground ->
+                if (isBackground) {
                     if (parentDemo != null) {
                         DisplayDemo(parentDemo, null, onNavigateTo, onNavigateBack)
                     }
+                } else {
+                    demo.content(onNavigateBack)
                 }
-            ) {
-                demo.content(onNavigateBack)
             }
         }
         is DemoCategory -> {
@@ -90,41 +93,47 @@ internal fun DisplayDemoList(
 ) {
     SwipeToDismissBox(
         state = swipeDismissStateWithNavigation(onNavigateBack),
-        background = {
+        hasBackground = parentDemo != null,
+        backgroundKey = parentDemo?.title ?: SwipeToDismissBoxDefaults.BackgroundKey,
+        contentKey = category.title,
+    ) { isBackground ->
+        if (isBackground) {
             if (parentDemo != null) {
                 DisplayDemo(parentDemo, null, onNavigateTo, onNavigateBack)
             }
-        }
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
-        ) {
-            Spacer(modifier = Modifier.size(16.dp))
-            Text(
-                text = category.title,
-                style = MaterialTheme.typography.caption1,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.size(4.dp))
-            category.demos.forEach { demo ->
-                CompactChip(
-                    onClick = { onNavigateTo(demo) },
-                    colors = ChipDefaults.secondaryChipColors(),
-                    label = {
-                        Text(
-                            text = demo.title,
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth().padding(
-                        start = 10.dp,
-                        end = 10.dp,
-                        bottom = 4.dp
+        } else {
+            ScalingLazyColumn(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                contentPadding = PaddingValues(vertical = 16.dp),
+                modifier = Modifier.fillMaxWidth().testTag(DemoListTag),
+            ) {
+                item {
+                    Text(
+                        text = category.title,
+                        style = MaterialTheme.typography.caption1,
+                        color = Color.White
                     )
-                )
+                }
+                category.demos.forEach { demo ->
+                    item {
+                        CompactChip(
+                            onClick = { onNavigateTo(demo) },
+                            colors = ChipDefaults.secondaryChipColors(),
+                            label = {
+                                Text(
+                                    text = demo.title,
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth().padding(
+                                start = 10.dp,
+                                end = 10.dp,
+                                bottom = 4.dp
+                            )
+                        )
+                    }
+                }
             }
-            Spacer(modifier = Modifier.size(16.dp))
         }
     }
 }

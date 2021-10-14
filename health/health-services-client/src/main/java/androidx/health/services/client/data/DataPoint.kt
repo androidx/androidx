@@ -17,21 +17,20 @@
 package androidx.health.services.client.data
 
 import android.os.Bundle
-import android.os.Parcel
 import android.os.Parcelable
+import androidx.health.services.client.proto.DataProto
 import java.time.Duration
 import java.time.Instant
-import java.util.Objects
 
 /**
  * A data point containing a [value] of type [dataType] from either a single point in time:
  * [DataType.TimeType.SAMPLE], or a range in time: [DataType.TimeType.INTERVAL].
  */
-@Suppress("DataClassPrivateConstructor")
-public data class DataPoint
+@Suppress("DataClassPrivateConstructor", "ParcelCreator")
+public class DataPoint
 internal constructor(
-    val dataType: DataType,
-    val value: Value,
+    public val dataType: DataType,
+    public val value: Value,
 
     /**
      * Elapsed start time of this [DataPoint].
@@ -41,7 +40,7 @@ internal constructor(
      * generated and when it is read out. Use [getStartInstant] to get the start time of this
      * [DataPoint] as an [Instant].
      */
-    val startDurationFromBoot: Duration,
+    public val startDurationFromBoot: Duration,
 
     /**
      * Elapsed end time of this [DataPoint].
@@ -53,11 +52,47 @@ internal constructor(
      *
      * For instantaneous data points, this is equal to [startDurationFromBoot].
      */
-    val endDurationFromBoot: Duration = startDurationFromBoot,
+    public val endDurationFromBoot: Duration = startDurationFromBoot,
 
     /** Returns any provided metadata of this [DataPoint]. */
-    val metadata: Bundle = Bundle(),
-) : Parcelable {
+    public val metadata: Bundle = Bundle(),
+
+    /**
+     * Returns the accuracy of this [DataPoint].
+     *
+     * The specific [DataPointAccuracy] implementation this refers to depends on the [DataType] of
+     * the data point. For example, accuracy of [DataType.LOCATION] data points is represented by
+     * [LocationAccuracy]. If there is no associated [DataPointAccuracy] for the [DataType], this
+     * will return `null`.
+     */
+    public val accuracy: DataPointAccuracy? = null,
+) : ProtoParcelable<DataProto.DataPoint>() {
+
+    internal constructor(
+        proto: DataProto.DataPoint
+    ) : this(
+        DataType(proto.dataType),
+        Value(proto.value),
+        Duration.ofMillis(proto.startDurationFromBootMs),
+        Duration.ofMillis(proto.endDurationFromBootMs),
+        BundlesUtil.fromProto(proto.metaData),
+        if (proto.hasAccuracy()) DataPointAccuracy.fromProto(proto.accuracy) else null
+    )
+
+    /** @hide */
+    override val proto: DataProto.DataPoint by lazy {
+        val builder =
+            DataProto.DataPoint.newBuilder()
+                .setDataType(dataType.proto)
+                .setValue(value.proto)
+                .setStartDurationFromBootMs(startDurationFromBoot.toMillis())
+                .setEndDurationFromBootMs(endDurationFromBoot.toMillis())
+                .setMetaData(BundlesUtil.toProto(metadata))
+
+        accuracy?.let { builder.setAccuracy(it.proto) }
+
+        builder.build()
+    }
 
     init {
         require(dataType.format == value.format) {
@@ -85,85 +120,20 @@ internal constructor(
         return bootInstant.plus(endDurationFromBoot)
     }
 
-    // TODO(b/180612514): Bundle doesn't have equals, so we need to override the data class default.
-    override fun equals(other: Any?): Boolean {
-        if (other === this) {
-            return true
-        }
-        if (other is DataPoint) {
-            return dataType == other.dataType &&
-                value == other.value &&
-                startDurationFromBoot == other.startDurationFromBoot &&
-                endDurationFromBoot == other.endDurationFromBoot &&
-                BundlesUtil.equals(metadata, other.metadata)
-        }
-        return false
-    }
-
-    // TODO(b/180612514): Bundle doesn't have hashCode, so we need to override the data class
-    // default.
-    override fun hashCode(): Int {
-        return Objects.hash(
-            dataType,
-            value,
-            startDurationFromBoot,
-            endDurationFromBoot,
-            BundlesUtil.hashCode(metadata)
-        )
-    }
-
-    override fun describeContents(): Int = 0
-
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(dataType, flags)
-        dest.writeParcelable(value, flags)
-        dest.writeLong(startDurationFromBoot.toNanos())
-        dest.writeLong(endDurationFromBoot.toNanos())
-        dest.writeBundle(metadata)
-    }
+    override fun toString(): String =
+        "DataPoint(" +
+            "dataType=$dataType, " +
+            "value=$value, " +
+            "startDurationFromBoot=$startDurationFromBoot, " +
+            "endDurationFromBoot=$endDurationFromBoot, " +
+            "accuracy=$accuracy)"
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<DataPoint> =
-            object : Parcelable.Creator<DataPoint> {
-                override fun createFromParcel(parcel: Parcel): DataPoint? {
-                    val dataType: DataType =
-                        parcel.readParcelable(DataType::class.java.classLoader) ?: return null
-                    val value: Value =
-                        parcel.readParcelable(Value::class.java.classLoader) ?: return null
-                    val startDurationFromBoot = Duration.ofNanos(parcel.readLong())
-                    val endDurationFromBoot = Duration.ofNanos(parcel.readLong())
-                    val metadata: Bundle? = parcel.readBundle(Bundle::class.java.classLoader)
-
-                    return when (dataType.timeType) {
-                        DataType.TimeType.INTERVAL ->
-                            createInterval(
-                                dataType,
-                                value,
-                                startDurationFromBoot,
-                                endDurationFromBoot,
-                                metadata ?: Bundle()
-                            )
-                        DataType.TimeType.SAMPLE -> {
-                            require(endDurationFromBoot.compareTo(startDurationFromBoot) == 0) {
-                                "DataType [$dataType] has SAMPLE type, but" +
-                                    " start[$startDurationFromBoot]/end[$endDurationFromBoot]" +
-                                    " duration from boot are not the same"
-                            }
-                            createSample(
-                                dataType,
-                                value,
-                                startDurationFromBoot,
-                                metadata ?: Bundle()
-                            )
-                        }
-                    }
-                }
-
-                override fun newArray(size: Int): Array<DataPoint?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<DataPoint> = newCreator {
+            val proto = DataProto.DataPoint.parseFrom(it)
+            DataPoint(proto)
+        }
 
         /**
          * Returns a [DataPoint] representing the [value] of type [dataType] from
@@ -179,18 +149,26 @@ internal constructor(
             value: Value,
             startDurationFromBoot: Duration,
             endDurationFromBoot: Duration,
-            metadata: Bundle = Bundle()
+            metadata: Bundle = Bundle(),
+            accuracy: DataPointAccuracy? = null
         ): DataPoint {
             require(DataType.TimeType.INTERVAL == dataType.timeType) {
                 "DataType $dataType must be of interval type to be created with an interval"
             }
 
             require(endDurationFromBoot >= startDurationFromBoot) {
-                "End timestamp mustn't be earlier than start timestamp, but got" +
-                    " $startDurationFromBoot and $endDurationFromBoot"
+                "End timestamp mustn't be earlier than start timestamp, but got " +
+                    "$startDurationFromBoot and $endDurationFromBoot"
             }
 
-            return DataPoint(dataType, value, startDurationFromBoot, endDurationFromBoot, metadata)
+            return DataPoint(
+                dataType,
+                value,
+                startDurationFromBoot,
+                endDurationFromBoot,
+                metadata,
+                accuracy
+            )
         }
 
         /**
@@ -205,7 +183,8 @@ internal constructor(
             dataType: DataType,
             value: Value,
             durationFromBoot: Duration,
-            metadata: Bundle = Bundle()
+            metadata: Bundle = Bundle(),
+            accuracy: DataPointAccuracy? = null
         ): DataPoint {
             require(DataType.TimeType.SAMPLE == dataType.timeType) {
                 "DataType $dataType must be of sample type to be created with a single timestamp"
@@ -216,7 +195,8 @@ internal constructor(
                 value,
                 durationFromBoot,
                 endDurationFromBoot = durationFromBoot,
-                metadata
+                metadata,
+                accuracy
             )
         }
     }

@@ -142,8 +142,7 @@ public abstract class NavigatorState {
     public open fun onLaunchSingleTop(backStackEntry: NavBackStackEntry) {
         // We update the back stack here because we don't want to leave it to the navigator since
         // it might be using transitions.
-        _backStack.value = _backStack.value - _backStack.value.last()
-        _backStack.value = _backStack.value + backStackEntry
+        _backStack.value = _backStack.value - _backStack.value.last() + backStackEntry
     }
 
     /**
@@ -159,6 +158,6 @@ public abstract class NavigatorState {
      * @see popWithTransition
      */
     public open fun markTransitionComplete(entry: NavBackStackEntry) {
-        _transitionsInProgress.value = _transitionsInProgress.value.filter { it != entry }
+        _transitionsInProgress.value = _transitionsInProgress.value - entry
     }
 }

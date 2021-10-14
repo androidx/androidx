@@ -40,6 +40,7 @@ import java.util.Map;
  * <p>Note this class is not thread-safe and its methods should only be invoked from the single
  * thread.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraBurstCaptureCallback extends CameraCaptureSession.CaptureCallback {
 
     final Map<CaptureRequest, List<CameraCaptureSession.CaptureCallback>> mCallbackMap;
@@ -48,7 +49,6 @@ class CameraBurstCaptureCallback extends CameraCaptureSession.CaptureCallback {
     CameraBurstCaptureCallback() {
         mCallbackMap = new HashMap<>();
     }
-
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -100,6 +100,11 @@ class CameraBurstCaptureCallback extends CameraCaptureSession.CaptureCallback {
     @Override
     public void onCaptureSequenceAborted(
             @NonNull CameraCaptureSession session, int sequenceId) {
+        for (List<CameraCaptureSession.CaptureCallback> callbackList : mCallbackMap.values()) {
+            for (CameraCaptureSession.CaptureCallback callback : callbackList) {
+                callback.onCaptureSequenceAborted(session, sequenceId);
+            }
+        }
         if (mCaptureSequenceCallback != null) {
             mCaptureSequenceCallback.onCaptureSequenceCompletedOrAborted(session, sequenceId, true);
         }
@@ -108,9 +113,14 @@ class CameraBurstCaptureCallback extends CameraCaptureSession.CaptureCallback {
     @Override
     public void onCaptureSequenceCompleted(
             @NonNull CameraCaptureSession session, int sequenceId, long frameNumber) {
+        for (List<CameraCaptureSession.CaptureCallback> callbackList : mCallbackMap.values()) {
+            for (CameraCaptureSession.CaptureCallback callback : callbackList) {
+                callback.onCaptureSequenceCompleted(session, sequenceId, frameNumber);
+            }
+        }
         if (mCaptureSequenceCallback != null) {
-            mCaptureSequenceCallback.onCaptureSequenceCompletedOrAborted(session, sequenceId,
-                    false);
+            mCaptureSequenceCallback
+                    .onCaptureSequenceCompletedOrAborted(session, sequenceId, false);
         }
     }
 

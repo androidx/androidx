@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="ClassVerificationFailure"
@@ -8,7 +8,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/ForegroundWorker.kt"
-            line="81"
+            line="91"
             column="23"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/ForegroundWorker.kt"
-            line="82"
+            line="92"
             column="17"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/ForegroundWorker.kt"
-            line="83"
+            line="93"
             column="17"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/ForegroundWorker.kt"
-            line="84"
+            line="94"
             column="29"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="558"
+            line="560"
             column="34"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="560"
+            line="562"
             column="38"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="561"
+            line="563"
             column="33"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="564"
+            line="566"
             column="42"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                                         ~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="565"
+            line="567"
             column="42"/>
     </issue>
 
@@ -404,7 +404,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="81"
+            line="82"
             column="29"/>
     </issue>
 

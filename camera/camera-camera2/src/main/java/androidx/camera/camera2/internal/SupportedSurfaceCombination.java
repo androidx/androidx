@@ -22,6 +22,7 @@ import android.graphics.Point;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.hardware.display.DisplayManager;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Build;
@@ -29,10 +30,10 @@ import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
-import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
@@ -71,6 +72,7 @@ import java.util.Map;
  * devices. This structure is used to store a list of surface combinations that are guaranteed to
  * support for this camera device.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class SupportedSurfaceCombination {
     private static final String TAG = "SupportedSurfaceCombination";
     private static final Size MAX_PREVIEW_SIZE = new Size(1920, 1080);
@@ -105,8 +107,6 @@ final class SupportedSurfaceCombination {
             throws CameraUnavailableException {
         mCameraId = Preconditions.checkNotNull(cameraId);
         mCamcorderProfileHelper = Preconditions.checkNotNull(camcorderProfileHelper);
-        WindowManager windowManager =
-                (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         mExcludedSupportedSizesContainer = new ExcludedSupportedSizesContainer(cameraId);
         mExtraSupportedSurfaceCombinationsContainer =
                 new ExtraSupportedSurfaceCombinationsContainer();
@@ -122,7 +122,7 @@ final class SupportedSurfaceCombination {
             throw CameraUnavailableExceptionHelper.createFrom(e);
         }
         generateSupportedCombinationList();
-        generateSurfaceSizeDefinition(windowManager);
+        generateSurfaceSizeDefinition(DisplayUtil.getDisplayManager(context));
         checkCustomization();
     }
 
@@ -1190,9 +1190,9 @@ final class SupportedSurfaceCombination {
     // Utility classes and methods:
     // *********************************************************************************************
 
-    private void generateSurfaceSizeDefinition(WindowManager windowManager) {
+    private void generateSurfaceSizeDefinition(@NonNull DisplayManager displayManager) {
         Size analysisSize = new Size(640, 480);
-        Size previewSize = getPreviewSize(windowManager);
+        Size previewSize = getPreviewSize(displayManager);
         Size recordSize = getRecordSize();
         mSurfaceSizeDefinition =
                 SurfaceSizeDefinition.create(analysisSize, previewSize, recordSize);
@@ -1202,11 +1202,11 @@ final class SupportedSurfaceCombination {
      * PREVIEW refers to the best size match to the device's screen resolution, or to 1080p
      * (1920x1080), whichever is smaller.
      */
-    @SuppressWarnings("deprecation") /* defaultDisplay */
+    @SuppressWarnings("deprecation") /* getRealSize */
     @NonNull
-    public static Size getPreviewSize(@NonNull WindowManager windowManager) {
+    static Size getPreviewSize(@NonNull DisplayManager displayManager) {
         Point displaySize = new Point();
-        windowManager.getDefaultDisplay().getRealSize(displaySize);
+        DisplayUtil.getMaxSizeDisplay(displayManager).getRealSize(displaySize);
 
         Size displayViewSize;
         if (displaySize.x > displaySize.y) {
@@ -1336,6 +1336,7 @@ final class SupportedSurfaceCombination {
     }
 
     /** Comparator based on area of the given {@link Size} objects. */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     static final class CompareSizesByArea implements Comparator<Size> {
         private boolean mReverse = false;
 
@@ -1363,6 +1364,7 @@ final class SupportedSurfaceCombination {
     }
 
     /** Comparator based on how close they are to the target aspect ratio. */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     static final class CompareAspectRatiosByDistanceToTargetRatio implements Comparator<Rational> {
         private Rational mTargetRatio;
 

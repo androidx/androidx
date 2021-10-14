@@ -39,6 +39,7 @@ import androidx.camera.testing.CameraAvailabilityUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -66,6 +67,7 @@ import java.util.concurrent.TimeoutException;
  */
 @LargeTest
 @RunWith(Parameterized.class)
+@SdkSuppress(minSdkVersion = 21)
 public class CameraControlDeviceTest {
     @Parameterized.Parameter(0)
     public CameraSelector mCameraSelector;

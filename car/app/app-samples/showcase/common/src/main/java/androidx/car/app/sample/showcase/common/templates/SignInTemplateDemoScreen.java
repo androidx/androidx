@@ -19,14 +19,16 @@ package androidx.car.app.sample.showcase.common.templates;
 import static androidx.car.app.CarToast.LENGTH_LONG;
 
 import android.graphics.Color;
+import android.net.Uri;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
-import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.InputCallback;
@@ -36,6 +38,7 @@ import androidx.car.app.model.Template;
 import androidx.car.app.model.signin.InputSignInMethod;
 import androidx.car.app.model.signin.PinSignInMethod;
 import androidx.car.app.model.signin.ProviderSignInMethod;
+import androidx.car.app.model.signin.QRCodeSignInMethod;
 import androidx.car.app.model.signin.SignInTemplate;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.common.Utils;
@@ -49,6 +52,7 @@ public class SignInTemplateDemoScreen extends Screen {
         PASSWORD,
         PIN,
         PROVIDER,
+        QR_CODE,
         SIGNED_IN,
     }
 
@@ -78,6 +82,14 @@ public class SignInTemplateDemoScreen extends Screen {
             .setTitle("Use PIN")
             .setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
                 mState = State.PIN;
+                invalidate();
+            }))
+            .build();
+
+    private final Action mQRCodeSignInAction = new Action.Builder()
+            .setTitle("QR Code")
+            .setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
+                mState = State.QR_CODE;
                 invalidate();
             }))
             .build();
@@ -120,6 +132,8 @@ public class SignInTemplateDemoScreen extends Screen {
                 return getPinSignInTemplate();
             case PROVIDER:
                 return getProviderSignInTemplate();
+            case QR_CODE:
+                return getQRCodeSignInTemplate();
             case SIGNED_IN:
                 return getSignInCompletedMessageTemplate();
         }
@@ -169,19 +183,12 @@ public class SignInTemplateDemoScreen extends Screen {
 
         return new SignInTemplate.Builder(signInMethod)
                 .addAction(mProviderSignInAction)
-                .addAction(mPinSignInAction)
-                .setTitle("Sign in with username and password")
+                .addAction(getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_3
+                        ? mQRCodeSignInAction : mPinSignInAction)
+                .setTitle("Sign in")
                 .setInstructions("Enter your credentials")
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
-                .setActionStrip(
-                        new ActionStrip.Builder()
-                                .addAction(
-                                        new Action.Builder()
-                                                .setTitle("Next")
-                                                .setOnClickListener(this::submitUsername)
-                                                .build())
-                                .build())
                 .build();
     }
 
@@ -245,8 +252,9 @@ public class SignInTemplateDemoScreen extends Screen {
 
         return new SignInTemplate.Builder(signInMethod)
                 .addAction(mProviderSignInAction)
-                .addAction(mPinSignInAction)
-                .setTitle("Sign in with username and password")
+                .addAction(getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_3
+                        ? mQRCodeSignInAction : mPinSignInAction)
+                .setTitle("Sign in")
                 .setInstructions("Username: " + mUsername)
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
@@ -256,10 +264,23 @@ public class SignInTemplateDemoScreen extends Screen {
     private Template getPinSignInTemplate() {
         PinSignInMethod pinSignInMethod = new PinSignInMethod("123456789ABC");
         return new SignInTemplate.Builder(pinSignInMethod)
-                .setTitle("Sign in with PIN")
+                .setTitle("Sign in")
                 .setInstructions("Type this PIN in your phone")
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
+                .build();
+    }
+
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    private Template getQRCodeSignInTemplate() {
+        QRCodeSignInMethod qrCodeSignInMethod = new QRCodeSignInMethod(Uri.parse("https://www"
+                + ".youtube.com/watch?v=dQw4w9WgXcQ"));
+        return new SignInTemplate.Builder(qrCodeSignInMethod)
+                .setTitle("Scan QR Code to sign in")
+                .setHeaderAction(Action.BACK)
+                .setAdditionalText(mAdditionalText)
+                .addAction(mPinSignInAction)
+                .addAction(mProviderSignInAction)
                 .build();
     }
 
@@ -280,7 +301,7 @@ public class SignInTemplateDemoScreen extends Screen {
                                 this::performSignInWithGoogleFlow)).build());
 
         return new SignInTemplate.Builder(providerSignInMethod)
-                .setTitle("Sign in with Google")
+                .setTitle("Sign in")
                 .setInstructions("Use this button to complete your Google sign-in")
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)

@@ -28,6 +28,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
@@ -36,6 +37,7 @@ import androidx.camera.core.impl.Config;
 
 /** Utilities related to interoperability with the {@link android.hardware.camera2} APIs. */
 @ExperimentalCamera2Interop
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2Interop {
 
     /**
@@ -43,6 +45,7 @@ public final class Camera2Interop {
      *
      * @param <T> the type being built by the extendable builder.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Extender<T> {
 
         ExtendableBuilder<T> mBaseBuilder;

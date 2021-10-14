@@ -114,6 +114,58 @@ public class PerfettoHelper(
             throw perfettoStartupException("Perfetto tracing failed to start.", null)
         }
         Log.i(LOG_TAG, "Perfetto tracing started successfully with pid $perfettoPid.")
+
+        checkTracingOn()
+    }
+
+    /**
+     * Poll for tracing_on to be set to 1.
+     *
+     * This is a good indicator that tracing is actually enabled (including the app atrace tag), and
+     * that content will be captured in the trace buffer
+     */
+    private fun checkTracingOn(): Unit = userspaceTrace("poll tracing_on") {
+        val path: String = when {
+            Shell.pathExists(TRACING_ON_PATH) -> {
+                TRACING_ON_PATH
+            }
+            Shell.pathExists(TRACING_ON_FALLBACK_PATH) -> {
+                TRACING_ON_FALLBACK_PATH
+            }
+            else -> {
+                throw perfettoStartupException(
+                    "Unable to find path to tracing_on (e.g. $TRACING_ON_PATH)",
+                    null
+                )
+            }
+        }
+
+        val pollTracingOnMaxCount = 50
+        val pollTracingOnMs = 100L
+
+        repeat(pollTracingOnMaxCount) {
+            when (val output = Shell.executeCommand("cat $path").trim()) {
+                "0" -> {
+                    userspaceTrace("wait for trace to start (tracing_on == 1)") {
+                        SystemClock.sleep(pollTracingOnMs)
+                    }
+                }
+                "1" -> {
+                    // success!
+                    Log.i(LOG_TAG, "$path = 1, polled $it times, capture fully started")
+                    return@checkTracingOn
+                }
+                else -> {
+                    throw perfettoStartupException(
+                        "Saw unexpected tracing_on contents: $output",
+                        null
+                    )
+                }
+            }
+        }
+
+        val duration = pollTracingOnMs * pollTracingOnMaxCount
+        throw perfettoStartupException("Error: did not detect tracing on after $duration ms", null)
     }
 
     /**
@@ -293,6 +345,10 @@ public class PerfettoHelper(
         // A set of supported ABIs
         private val SUPPORTED_64_ABIS = setOf("arm64-v8a", "x86_64")
         private val SUPPORTED_32_ABIS = setOf("armeabi")
+
+        // potential paths that tracing_on may reside in
+        private const val TRACING_ON_PATH = "/sys/kernel/tracing/tracing_on"
+        private const val TRACING_ON_FALLBACK_PATH = "/sys/kernel/debug/tracing/tracing_on"
 
         @TestOnly
         fun isAbiSupported(): Boolean {

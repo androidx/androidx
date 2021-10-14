@@ -16,6 +16,8 @@
 
 package androidx.car.app.model;
 
+import static androidx.car.app.model.Action.FLAG_PRIMARY;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -77,6 +79,20 @@ public class LongMessageTemplateTest {
                         .addAction(mAction)
                         .addAction(mAction)
                         .addAction(mAction));
+    }
+    @Test
+    public void twoPrimaryActions_throws() {
+        Action primaryAction = new Action.Builder().setTitle("primaryAction")
+                .setOnClickListener(
+                        ParkedOnlyOnClickListener.create(() -> {})
+                )
+                .setFlags(FLAG_PRIMARY).build();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new LongMessageTemplate.Builder(mMessage)
+                        .addAction(primaryAction)
+                        .addAction(primaryAction)
+                        .build());
     }
 
     @Test

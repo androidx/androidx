@@ -23,8 +23,10 @@ import androidx.room.ext.S
 import androidx.room.ext.T
 import androidx.room.ext.capitalize
 import androidx.room.ext.stripNonJava
+import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
+import androidx.room.processor.ProcessorErrors.ISSUE_TRACKER_LINK
 import androidx.room.solver.CodeGenScope
 import androidx.room.verifier.QueryResultInfo
 import androidx.room.vo.Field
@@ -44,6 +46,7 @@ import java.util.Locale
 class PojoRowAdapter(
     context: Context,
     private val info: QueryResultInfo?,
+    private val query: ParsedQuery?,
     val pojo: Pojo,
     out: XType
 ) : RowAdapter(out), QueryMappedRowAdapter {
@@ -116,16 +119,34 @@ class PojoRowAdapter(
             val indexVar = scope.getTmpVar(
                 "_cursorIndexOf${it.name.stripNonJava().capitalize(Locale.US)}"
             )
-            val indexMethod = if (info == null) {
-                "getColumnIndex"
+            if (info != null && query != null && query.hasTopStarProjection == false) {
+                // When result info is available and query does not have a top-level star
+                // projection we can generate column to field index since the column result order
+                // is deterministic.
+                val infoIndex = info.columns.indexOfFirst { columnInfo ->
+                    columnInfo.name == it.columnName
+                }
+                check(infoIndex != -1) {
+                    "Result column index not found for field '$it' with column name " +
+                        "'${it.columnName}'. Query: ${query.original}. Please file a bug at " +
+                        ISSUE_TRACKER_LINK
+                }
+                scope.builder().addStatement(
+                    "final $T $L = $L",
+                    TypeName.INT, indexVar, infoIndex
+                )
             } else {
-                "getColumnIndexOrThrow"
+                val indexMethod = if (info == null) {
+                    "getColumnIndex"
+                } else {
+                    "getColumnIndexOrThrow"
+                }
+                scope.builder().addStatement(
+                    "final $T $L = $T.$L($L, $S)",
+                    TypeName.INT, indexVar, RoomTypeNames.CURSOR_UTIL, indexMethod, cursorVarName,
+                    it.columnName
+                )
             }
-            scope.builder().addStatement(
-                "final $T $L = $T.$L($L, $S)",
-                TypeName.INT, indexVar, RoomTypeNames.CURSOR_UTIL, indexMethod, cursorVarName,
-                it.columnName
-            )
             FieldWithIndex(field = it, indexVar = indexVar, alwaysExists = info != null)
         }
         if (relationCollectors.isNotEmpty()) {

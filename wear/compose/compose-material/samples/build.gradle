@@ -37,6 +37,7 @@ dependencies {
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-text"))
     implementation(project(":wear:compose:compose-material"))
+    implementation(project(":wear:compose:compose-foundation"))
 }
 
 android {

@@ -44,6 +44,7 @@ import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -67,6 +68,7 @@ import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(Parameterized::class)
+@SdkSuppress(minSdkVersion = 21)
 class VideoRecordingTest(
     private var cameraSelector: CameraSelector
 ) {
@@ -101,22 +103,22 @@ class VideoRecordingTest(
     private lateinit var finalize: VideoRecordEvent.Finalize
 
     private val videoRecordEventListener = Consumer<VideoRecordEvent> {
-        when (it.eventType) {
-            VideoRecordEvent.EVENT_TYPE_START -> {
+        when (it) {
+            is VideoRecordEvent.Start -> {
                 // Recording start.
                 Log.d(TAG, "Recording start")
             }
-            VideoRecordEvent.EVENT_TYPE_FINALIZE -> {
+            is VideoRecordEvent.Finalize -> {
                 // Recording stop.
                 Log.d(TAG, "Recording finalize")
-                finalize = it as VideoRecordEvent.Finalize
+                finalize = it
                 latchForVideoSaved.countDown()
             }
-            VideoRecordEvent.EVENT_TYPE_STATUS -> {
+            is VideoRecordEvent.Status -> {
                 // Make sure the recording proceed for a while.
                 latchForVideoRecording.countDown()
             }
-            VideoRecordEvent.EVENT_TYPE_PAUSE, VideoRecordEvent.EVENT_TYPE_RESUME -> {
+            is VideoRecordEvent.Pause, is VideoRecordEvent.Resume -> {
                 // no op for this test, skip these event now.
             }
             else -> {
@@ -275,7 +277,7 @@ class VideoRecordingTest(
         latchForVideoRecording = CountDownLatch(5)
 
         instrumentation.runOnMainSync {
-            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, videoCapture)
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
         }
 
         // Act.
@@ -297,17 +299,16 @@ class VideoRecordingTest(
         // Arrange.
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val outputOptions = FileOutputOptions.builder().setFile(file).build()
         @Suppress("UNCHECKED_CAST")
         val mockListener = mock(Consumer::class.java) as Consumer<VideoRecordEvent>
         instrumentation.runOnMainSync {
-            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, videoCapture)
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
         }
         lifecycleOwner.pauseAndStop()
 
         // Act.
         videoCapture.output
-            .prepareRecording(outputOptions)
+            .prepareRecording(context, FileOutputOptions.Builder(file).build())
             .withEventListener(
                 CameraXExecutors.directExecutor(),
                 mockListener
@@ -403,10 +404,8 @@ class VideoRecordingTest(
 
     private fun startVideoRecording(videoCapture: VideoCapture<Recorder>, file: File):
         ActiveRecording {
-            val outputOptions = FileOutputOptions.builder().setFile(file).build()
-
             val activeRecording = videoCapture.output
-                .prepareRecording(outputOptions)
+                .prepareRecording(context, FileOutputOptions.Builder(file).build())
                 .withEventListener(
                     CameraXExecutors.directExecutor(),
                     videoRecordEventListener

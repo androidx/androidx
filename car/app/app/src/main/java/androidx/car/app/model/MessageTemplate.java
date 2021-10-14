@@ -16,7 +16,7 @@
 
 package androidx.car.app.model;
 
-import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY;
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 
@@ -385,7 +385,7 @@ public final class MessageTemplate implements Template {
         @NonNull
         public Builder addAction(@NonNull Action action) {
             mActionList.add(requireNonNull(action));
-            ACTIONS_CONSTRAINTS_BODY.validateOrThrow(mActionList);
+            ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION.validateOrThrow(mActionList);
             return this;
         }
 

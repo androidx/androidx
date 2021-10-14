@@ -20,6 +20,7 @@ import android.os.Bundle
 import androidx.navigation.test.floatArgument
 import androidx.navigation.test.intArgument
 import androidx.navigation.test.longArgument
+import androidx.navigation.test.nullableStringArgument
 import androidx.navigation.test.referenceArgument
 import androidx.navigation.test.stringArgument
 import androidx.navigation.test.stringArrayArgument
@@ -30,7 +31,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-private val stringArgumentWithoutDefault = "stringArg" to stringArgument(true)
+private val stringArgumentWithoutDefault = "stringArg" to nullableStringArgument()
 private val stringArgumentWithDefault = "stringArg" to stringArgument("aaa")
 private val intArgumentWithDefault = "intArg" to intArgument(123)
 private val longArgumentWithDefault = "longArg" to longArgument(123L)

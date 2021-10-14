@@ -19,6 +19,7 @@ package androidx.camera.video;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
@@ -26,6 +27,7 @@ import com.google.auto.value.AutoValue;
 /**
  * Class to provide the information of the output.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class OutputResults {
 
@@ -38,8 +40,8 @@ public abstract class OutputResults {
     /**
      * Gets the {@link Uri} of the output.
      *
-     * <p>Returns the actual {@link Uri} of the output destination if the
-     * {@link OutputOptions} is implemented by {@link MediaStoreOutputOptions}, otherwise
+     * <p>Returns the actual {@link Uri} of the output destination if the {@link OutputOptions}
+     * is implemented by {@link MediaStoreOutputOptions} or {@link FileOutputOptions}, otherwise
      * returns {@link Uri#EMPTY}.
      */
     @NonNull

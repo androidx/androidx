@@ -36,11 +36,42 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.ceil
+
+/**
+ * Apply additional space along each edge of the content in [Dp].
+ * See the [ArcPaddingValues] factories for convenient ways to
+ * build [ArcPaddingValues].
+ */
+@Stable
+interface ArcPaddingValues {
+    /**
+     * Padding in the outward direction from the center of the [CurvedRow]
+     */
+    fun calculateOuterPadding(): Dp
+
+    /**
+     * Padding in the inwards direction towards the center of the [CurvedRow]
+     */
+    fun calculateInnerPadding(): Dp
+
+    /**
+     * Padding added at the start of the component.
+     */
+    fun calculateStartPadding(): Dp
+
+    /**
+     * Padding added at the end of the component.
+     */
+    fun calculateEndPadding(): Dp
+}
 
 /**
  * Apply additional space along each edge of the content in [Dp]. Note that the start and end
@@ -52,10 +83,31 @@ import kotlin.math.ceil
  * @param start Padding added at the start of the component.
  * @param end Padding added at the end of the component.
  */
+fun ArcPaddingValues(
+    outer: Dp = 0.dp,
+    inner: Dp = 0.dp,
+    start: Dp = 0.dp,
+    end: Dp = 0.dp
+): ArcPaddingValues =
+    ArcPaddingValuesImpl(outer, inner, start, end)
+
+/**
+ * Apply [all] dp of additional space along each edge of the content.
+ */
+fun ArcPaddingValues(all: Dp): ArcPaddingValues = ArcPaddingValuesImpl(all, all, all, all)
+
+/**
+ * Apply [radial] dp of additional space on the edges towards and away from the center, and
+ * [angular] dp before and after the component.
+ */
+fun ArcPaddingValues(radial: Dp = 0.dp, angular: Dp = 0.dp): ArcPaddingValues =
+    ArcPaddingValuesImpl(radial, radial, angular, angular)
+
 @Stable
-class ArcPaddingValues(val outer: Dp, val inner: Dp, val start: Dp, val end: Dp) {
+internal class ArcPaddingValuesImpl(val outer: Dp, val inner: Dp, val start: Dp, val end: Dp) :
+    ArcPaddingValues {
     override fun equals(other: Any?): Boolean {
-        return other is ArcPaddingValues &&
+        return other is ArcPaddingValuesImpl &&
             outer == other.outer &&
             inner == other.inner &&
             start == other.start &&
@@ -66,29 +118,14 @@ class ArcPaddingValues(val outer: Dp, val inner: Dp, val start: Dp, val end: Dp)
         31 + end.hashCode()
 
     override fun toString(): String {
-        return "ArcPaddingValues(outer=$outer, inner=$inner, start=$start, end=$end)"
+        return "ArcPaddingValuesImpl(outer=$outer, inner=$inner, start=$start, end=$end)"
     }
 
-    companion object {
-        /**
-         * An arc padding value with zero magnitude.
-         */
-        @Stable
-        val Zero = ArcPaddingValues(0.dp, 0.dp, 0.dp, 0.dp)
-    }
+    override fun calculateOuterPadding() = outer
+    override fun calculateInnerPadding() = inner
+    override fun calculateStartPadding() = start
+    override fun calculateEndPadding() = end
 }
-
-/**
- * Apply [all] dp of additional space along each edge of the content.
- */
-fun ArcPaddingValues(all: Dp) = ArcPaddingValues(all, all, all, all)
-
-/**
- * Apply [radial] dp of additional space on the edges towards and away from the center, and
- * [angular] dp before and after the component.
- */
-fun ArcPaddingValues(radial: Dp = 0.dp, angular: Dp = 0.dp) =
-    ArcPaddingValues(radial, radial, angular, angular)
 
 /**
  * CurvedText is a component allowing developers to easily write curved text following
@@ -123,10 +160,10 @@ fun CurvedRowScope.BasicCurvedText(
     val arcPaddingPx = with(LocalDensity.current) {
         remember(contentArcPadding) {
             ArcPaddingPx(
-                contentArcPadding.outer.toPx(),
-                contentArcPadding.inner.toPx(),
-                contentArcPadding.start.toPx(),
-                contentArcPadding.end.toPx()
+                contentArcPadding.calculateOuterPadding().toPx(),
+                contentArcPadding.calculateInnerPadding().toPx(),
+                contentArcPadding.calculateStartPadding().toPx(),
+                contentArcPadding.calculateEndPadding().toPx()
             )
         }
     }
@@ -134,6 +171,7 @@ fun CurvedRowScope.BasicCurvedText(
 
     Layout(
         modifier = modifier
+            .semantics { this.text = AnnotatedString(text) }
             .then(CurvedTextModifier())
             .graphicsLayer()
             .drawBehind {

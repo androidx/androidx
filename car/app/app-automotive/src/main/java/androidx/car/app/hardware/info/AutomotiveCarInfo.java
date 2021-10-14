@@ -287,8 +287,8 @@ public class AutomotiveCarInfo implements CarInfo {
                         yearValue = getCarValue(value, (Integer) value.getValue());
                     }
                 }
-                Model model = new Model.Builder().setName(makeValue)
-                        .setManufacturer(modelValue)
+                Model model = new Model.Builder().setName(modelValue)
+                        .setManufacturer(makeValue)
                         .setYear(yearValue)
                         .build();
                 listener.onCarDataAvailable(model);

@@ -42,14 +42,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 @RequiresApi(19)
 class ProfileTranscoder {
@@ -62,11 +61,12 @@ class ProfileTranscoder {
     private static final int INLINE_CACHE_MISSING_TYPES_ENCODING = 6;
     private static final int INLINE_CACHE_MEGAMORPHIC_ENCODING = 7;
 
-    static final byte[] MAGIC = new byte[]{'p', 'r', 'o', '\u0000'};
+    static final byte[] MAGIC_PROF = new byte[]{'p', 'r', 'o', '\u0000'};
+    static final byte[] MAGIC_PROFM = new byte[]{'p', 'r', 'm', '\u0000'};
 
-    static byte[] readHeader(@NonNull InputStream is) throws IOException {
-        byte[] fileMagic = read(is, MAGIC.length);
-        if (!Arrays.equals(MAGIC, fileMagic)) {
+    static byte[] readHeader(@NonNull InputStream is, @NonNull byte[] magic) throws IOException {
+        byte[] fileMagic = read(is, magic.length);
+        if (!Arrays.equals(magic, fileMagic)) {
             // If we find a file that doesn't claim to be a profile, something really unexpected
             // has happened. Fail.
             throw error("Invalid magic");
@@ -75,7 +75,7 @@ class ProfileTranscoder {
     }
 
     static void writeHeader(@NonNull OutputStream os, byte[] version) throws IOException {
-        os.write(MAGIC);
+        os.write(MAGIC_PROF);
         os.write(version);
     }
 
@@ -91,7 +91,7 @@ class ProfileTranscoder {
     static boolean transcodeAndWriteBody(
             @NonNull OutputStream os,
             @NonNull byte[] desiredVersion,
-            @NonNull Map<String, DexProfileData> data
+            @NonNull DexProfileData[] data
     ) throws IOException {
         if (Arrays.equals(desiredVersion, ProfileVersion.V010_P)) {
             writeProfileForP(os, data);
@@ -103,10 +103,16 @@ class ProfileTranscoder {
             return true;
         }
 
+        if (Arrays.equals(desiredVersion, ProfileVersion.V009_O_MR1)) {
+            writeProfileForO_MR1(os, data);
+            return true;
+        }
+
         if (Arrays.equals(desiredVersion, ProfileVersion.V001_N)) {
             writeProfileForN(os, data);
             return true;
         }
+
 
         return false;
     }
@@ -127,15 +133,14 @@ class ProfileTranscoder {
      */
     private static void writeProfileForN(
             @NonNull OutputStream os,
-            @NonNull Map<String, DexProfileData> lines
+            @NonNull DexProfileData[] lines
     ) throws IOException {
-        writeUInt16(os, lines.size()); // number of dex files
-        for (Map.Entry<String, DexProfileData> entry : lines.entrySet()) {
-            String profileKey = entry.getKey();
-            DexProfileData data = entry.getValue();
+        writeUInt16(os, lines.length); // number of dex files
+        for (DexProfileData data : lines) {
+            String profileKey = generateDexKey(data.apkName, data.dexName, ProfileVersion.V001_N);
             writeUInt16(os, utf8Length(profileKey));
             writeUInt16(os, data.methods.size());
-            writeUInt16(os, data.classes.size());
+            writeUInt16(os, data.classes.length);
             writeUInt32(os, data.dexChecksum);
             writeString(os, profileKey);
 
@@ -186,10 +191,19 @@ class ProfileTranscoder {
      */
     private static void writeProfileForP(
             @NonNull OutputStream os,
-            @NonNull Map<String, DexProfileData> lines
+            @NonNull DexProfileData[] lines
     ) throws IOException {
-        byte[] profileBytes = createCompressibleBody(new ArrayList<>(lines.values()));
-        writeUInt8(os, lines.size()); // number of dex files
+        byte[] profileBytes = createCompressibleBody(lines, ProfileVersion.V010_P);
+        writeUInt8(os, lines.length); // number of dex files
+        writeCompressed(os, profileBytes);
+    }
+
+    private static void writeProfileForO_MR1(
+            @NonNull OutputStream os,
+            @NonNull DexProfileData[] lines
+    ) throws IOException {
+        byte[] profileBytes = createCompressibleBody(lines, ProfileVersion.V009_O_MR1);
+        writeUInt8(os, lines.length); // number of dex files
         writeCompressed(os, profileBytes);
     }
 
@@ -225,20 +239,19 @@ class ProfileTranscoder {
      */
     private static void writeProfileForO(
             @NonNull OutputStream os,
-            @NonNull Map<String, DexProfileData> lines
+            @NonNull DexProfileData[] lines
     ) throws IOException {
-        writeUInt8(os, lines.size()); // number of dex files
-        for (Map.Entry<String, DexProfileData> entry : lines.entrySet()) {
-            String key = entry.getKey();
-            DexProfileData data = entry.getValue();
+        writeUInt8(os, lines.length); // number of dex files
+        for (DexProfileData data : lines) {
             int hotMethodRegionSize = data.methods.size() * (
                     UINT_16_SIZE + // method id
                             UINT_16_SIZE);// inline cache size (should always be 0 for us)
-            writeUInt16(os, utf8Length(key));
-            writeUInt16(os, data.classes.size());
+            String dexKey = generateDexKey(data.apkName, data.dexName, ProfileVersion.V005_O);
+            writeUInt16(os, utf8Length(dexKey));
+            writeUInt16(os, data.classes.length);
             writeUInt32(os, hotMethodRegionSize);
             writeUInt32(os, data.dexChecksum);
-            writeString(os, key);
+            writeString(os, dexKey);
 
             for (int id : data.methods.keySet()) {
                 writeUInt16(os, id);
@@ -252,8 +265,15 @@ class ProfileTranscoder {
         }
     }
 
+    /**
+     * Create compressable body only for V0.1.0 v0.0.9.
+     *
+     * For 0.1.0 this will write header/header/header/body/body/body
+     * For 0.0.9 this will write header/body/header/body/header/body
+     */
     private static @NonNull byte[] createCompressibleBody(
-            @NonNull List<DexProfileData> lines
+            @NonNull DexProfileData[] lines,
+            @NonNull byte[] version
     ) throws IOException {
         // Start by creating a couple of caches for the data we re-use during serialization.
 
@@ -262,16 +282,16 @@ class ProfileTranscoder {
         // Maps dex file to the size their method region will occupy. We need this when computing
         // the overall size requirements and for serializing the dex file data. The computation is
         // expensive as it walks all methods recorded in the profile.
-        for (int i = 0; i < lines.size(); i++) {
-            DexProfileData data = lines.get(i);
+        for (DexProfileData data : lines) {
             int lineHeaderSize =
-                    ( UINT_16_SIZE // classes set size
+                    (UINT_16_SIZE // classes set size
                             + UINT_16_SIZE // dex location size
                             + UINT_32_SIZE // method map size
                             + UINT_32_SIZE // checksum
                             + UINT_32_SIZE); // number of method ids
+            String dexKey = generateDexKey(data.apkName, data.dexName, version);
             requiredCapacity += lineHeaderSize
-                    + utf8Length(data.key)
+                    + utf8Length(dexKey)
                     + data.classSetSize * UINT_16_SIZE + data.hotMethodRegionSize
                     + getMethodBitmapStorageSize(data.numMethodIds);
         }
@@ -283,14 +303,25 @@ class ProfileTranscoder {
         // avoids writing the index in the output file and simplifies the parsing logic.
         // Write profile line headers.
 
-        // Write dex file line headers.
-        for (int i = 0; i < lines.size(); i++) {
-            writeLineHeader(dataBos, lines.get(i));
-        }
+        if (Arrays.equals(version, ProfileVersion.V009_O_MR1)) {
+            // interleave header/body/header/body on V009
+            for (DexProfileData data : lines) {
+                String dexKey = generateDexKey(data.apkName, data.dexName, version);
+                writeLineHeader(dataBos, data, dexKey);
+                writeLineData(dataBos, data);
+            }
+        } else {
+            // after V010 format is always header/header/header/body/body/body
+            // Write dex file line headers.
+            for (DexProfileData data : lines) {
+                String dexKey = generateDexKey(data.apkName, data.dexName, version);
+                writeLineHeader(dataBos, data, dexKey);
+            }
 
-        // Write dex file data.
-        for (int i = 0; i < lines.size(); i++) {
-            writeLineData(dataBos, lines.get(i));
+            // Write dex file data.
+            for (DexProfileData data : lines) {
+                writeLineData(dataBos, data);
+            }
         }
 
         if (dataBos.size() != requiredCapacity) {
@@ -337,14 +368,15 @@ class ProfileTranscoder {
      */
     private static void writeLineHeader(
             @NonNull OutputStream os,
-            @NonNull DexProfileData dexData
+            @NonNull DexProfileData dexData,
+            @NonNull String dexKey
     ) throws IOException {
-        writeUInt16(os, utf8Length(dexData.key));
+        writeUInt16(os, utf8Length(dexKey));
         writeUInt16(os, dexData.classSetSize);
         writeUInt32(os, dexData.hotMethodRegionSize);
         writeUInt32(os, dexData.dexChecksum);
         writeUInt32(os, dexData.numMethodIds);
-        writeString(os, dexData.key);
+        writeString(os, dexKey);
     }
 
     /**
@@ -437,7 +469,6 @@ class ProfileTranscoder {
         os.write(bitmap);
     }
 
-
     /**
      * Reads and parses data from the InputStream into an in-memory representation, to later be
      * written to disk using [writeProfileForO] or [writeProfileForN]. This method expects that
@@ -475,7 +506,7 @@ class ProfileTranscoder {
      * @param is The InputStream for the P+ binary profile
      * @return A map of keys (dex names) to the parsed [DexProfileData] for that dex.
      */
-    static @NonNull Map<String, DexProfileData> readProfile(
+    static @NonNull DexProfileData[] readProfile(
             @NonNull InputStream is,
             @NonNull byte[] version,
             @NonNull String apkName
@@ -502,19 +533,47 @@ class ProfileTranscoder {
     }
 
     /**
-     * ART expects the profile encoding to have the "profile key" be a string of the form:
-     *      APK_NAME [ '!' DEX_NAME ]?
-     * where the DEX_NAME and ! are only present on the non-primary dex. Since we don't have the
-     * apk name at the time of profile generation, we update this key to use the apk name during
-     * transcoding right here.
-     * @param apkName The apk name the profile is targeting
-     * @param dexName The dex name. This is usually the profile key the baseline profile used.
+     *
+     *
+     * [profile_header, zipped[[dex_data_header1, dex_data_header2...],[dex_data1,
+     *    dex_data2...], global_aggregation_count]]
+     * profile_header:
+     *   magic,version,number_of_dex_files,uncompressed_size_of_zipped_data,compressed_data_size
+     * dex_data_header:
+     *   dex_location,number_of_classes
+     * dex_data:
+     *   class_id1,class_id2...
+     *
+     * @param is
+     * @param version
+     * @param profile
+     * @return
+     * @throws IOException
      */
-    private static @NonNull String profileKey(@NonNull String apkName, @NonNull String dexName) {
-        if ("classes.dex".equals(dexName)) return apkName;
-        if (dexName.contains("!")) return dexName;
-        if (dexName.endsWith(".apk")) return dexName;
-        return apkName + '!' + dexName;
+    static @NonNull DexProfileData[] readMeta(
+            @NonNull InputStream is,
+            @NonNull byte[] version,
+            DexProfileData[] profile
+    ) throws IOException {
+        if (!Arrays.equals(version, ProfileVersion.METADATA_V001_N)) {
+            throw error("Unsupported meta version");
+        }
+        int numberOfDexFiles = readUInt8(is);
+        long uncompressedDataSize = readUInt32(is);
+        long compressedDataSize = readUInt32(is);
+
+        // We are done with the header, so everything that follows is the compressed blob. We
+        // uncompress it all and load it into memory
+        byte[] uncompressedData = readCompressed(
+                is,
+                (int) compressedDataSize,
+                (int) uncompressedDataSize
+        );
+        if (is.read() > 0) throw error("Content found after the end of file");
+
+        try (InputStream dataStream = new ByteArrayInputStream(uncompressedData)) {
+            return readMetadataForNBody(dataStream, numberOfDexFiles, profile);
+        }
     }
 
     /**
@@ -524,14 +583,79 @@ class ProfileTranscoder {
      *
      * @return A map of keys (dex names) to the parsed [DexProfileData] for that dex.
      */
-    private static @NonNull Map<String, DexProfileData> readUncompressedBody(
+    private static @NonNull DexProfileData[] readMetadataForNBody(
+            @NonNull InputStream is,
+            int numberOfDexFiles,
+            DexProfileData[] profile
+    ) throws IOException {
+        // If the uncompressed profile data stream is empty then we have nothing more to do.
+        if (is.available() == 0) {
+            return new DexProfileData[0];
+        }
+        if (numberOfDexFiles != profile.length) {
+            throw error("Mismatched number of dex files found in metadata");
+        }
+        // Read the dex file line headers.
+        String[] names = new String[numberOfDexFiles];
+        int[] sizes = new int[numberOfDexFiles];
+        for (int i = 0; i < numberOfDexFiles; i++) {
+            int dexNameSize = readUInt16(is);
+            sizes[i] = readUInt16(is);
+            names[i] = readString(is, dexNameSize);
+        }
+
+        // Load data for each discovered dex file.
+        for (int i = 0; i < numberOfDexFiles; i++) {
+            DexProfileData data = profile[i];
+            if (!data.dexName.equals(names[i])) {
+                throw error("Order of dexfiles in metadata did not match baseline");
+            }
+            data.classSetSize = sizes[i];
+            data.classes = new int[data.classSetSize];
+            // Then the startup classes are stored
+            readClasses(is, data);
+        }
+
+        return profile;
+    }
+
+    /**
+     * Return a correctly formatted dex key in the format
+     *       APK_NAME SEPARATOR DEX_NAME
+     *
+     * This returns one of:
+     * 1. If dexName is "classes.dex" -> apkName
+     * 2. If dexName ends with ".apk" -> dexName
+     * 3. else -> $apkName$separator$deXName
+     *
+     * @param apkName name of APK to generate key for
+     * @param dexName name of dex file, or input string if original profile dex key matched ".*\
+     *                .apk"
+     * @param version version array from {@see ProfileVersion}
+     * @return correctly formatted dex key for this API version
+     */
+    @NonNull
+    private static String generateDexKey(@NonNull String apkName, @NonNull String dexName,
+            @NonNull byte[] version) {
+        if (dexName.equals("classes.dex")) return apkName;
+        return apkName + ProfileVersion.dexKeySeparator(version) + dexName;
+    }
+
+    /**
+     * Parses the un-zipped blob of data in the P+ profile format. It is assumed that no data has
+     * been read from this blob, and that the InputStream that this method is passed was just
+     * decompressed from the original file.
+     *
+     * @return A map of keys (dex names) to the parsed [DexProfileData] for that dex.
+     */
+    private static @NonNull DexProfileData[] readUncompressedBody(
             @NonNull InputStream is,
             @NonNull String apkName,
             int numberOfDexFiles
     ) throws IOException {
         // If the uncompressed profile data stream is empty then we have nothing more to do.
         if (is.available() == 0) {
-            return new HashMap<>();
+            return new DexProfileData[0];
         }
         // Read the dex file line headers.
         DexProfileData[] lines = new DexProfileData[numberOfDexFiles];
@@ -541,21 +665,20 @@ class ProfileTranscoder {
             long hotMethodRegionSize = readUInt32(is);
             long dexChecksum = readUInt32(is);
             long numMethodIds = readUInt32(is);
-            String dexName = readString(is, dexNameSize);
+
             lines[i] = new DexProfileData(
-                    profileKey(apkName, dexName),
+                    apkName,
+                    readString(is, dexNameSize), /* req: only dex name no separater from profgen */
                     dexChecksum,
                     classSetSize,
                     (int) hotMethodRegionSize,
                     (int) numMethodIds,
                     // NOTE: It is important to use LinkedHashSet/LinkedHashMap here to
                     // ensure that iteration order matches insertion order
-                    new LinkedHashSet<>(),
-                    new LinkedHashMap<>()
+                    new int[classSetSize],
+                    new TreeMap<>()
             );
         }
-
-        HashMap<String, DexProfileData> result = new HashMap<>(numberOfDexFiles);
 
         // Load data for each discovered dex file.
         for (DexProfileData data : lines) {
@@ -569,12 +692,9 @@ class ProfileTranscoder {
             // To compress this information better, this information is stored as a bitmap, with
             // 2-bits per method in the entire dex.
             readMethodBitmap(is, data);
-
-            // save the parsed data for each dex
-            result.put(data.key, data);
         }
 
-        return result;
+        return lines;
     }
 
     private static void readHotMethodRegion(
@@ -645,7 +765,7 @@ class ProfileTranscoder {
         for (int k = 0; k < data.classSetSize; k++) {
             int diffWithTheLastClassIndex = readUInt16(is);
             int classDexIndex = lastClassIndex + diffWithTheLastClassIndex;
-            data.classes.add(classDexIndex);
+            data.classes[k] = classDexIndex;
             lastClassIndex = classDexIndex;
         }
     }

@@ -16,10 +16,9 @@
 
 package androidx.benchmark.macro
 
+import androidx.benchmark.BenchmarkResult
+import androidx.benchmark.MetricResult
 import androidx.benchmark.Outputs
-import androidx.benchmark.Stats
-import java.util.Collections
-import kotlin.math.max
 
 /**
  * Returns a pair of ideSummaryStrings - v1 (pre Arctic-fox) and v2 (Arctic-fox+)
@@ -34,46 +33,67 @@ import kotlin.math.max
 internal fun ideSummaryStrings(
     warningLines: String,
     benchmarkName: String,
-    statsList: List<Stats>,
+    measurements: BenchmarkResult.Measurements,
     absoluteTracePaths: List<String>
 ): Pair<String, String> {
-    require(statsList.isNotEmpty()) { "Require non-empty list of stats." }
+    require(measurements.isNotEmpty()) { "Require non-empty list of metric results." }
+    val allMetrics = measurements.singleMetrics + measurements.sampledMetrics
 
-    val maxLabelLength = Collections.max(statsList.map { it.name.length })
+    val maxLabelLength = allMetrics.maxOf { it.name.length }
+
+    fun Double.toDisplayString() = "%,.1f".format(this)
 
     // max string length of any printed min/median/max is the largest max value seen. used to pad.
-    val maxValueLength = statsList
-        .map { it.max }
-        .reduce { acc, maxValue -> max(acc, maxValue) }
-        .toString().length
+    val maxValueLength = allMetrics
+        .maxOf { it.max }
+        .toDisplayString().length
 
     fun ideSummaryString(
-        transform: (name: String, min: String, median: String, max: String, stats: Stats) -> String
-    ): String {
-        return warningLines + benchmarkName + "\n" + statsList.joinToString("\n") {
-            transform(
-                it.name.padStart(maxLabelLength),
-                it.min.toString().padStart(maxValueLength),
-                it.median.toString().padStart(maxValueLength),
-                it.max.toString().padStart(maxValueLength),
-                it
-            )
-        } + "\n"
-    }
+        singleTransform: (
+            name: String,
+            min: String,
+            median: String,
+            max: String,
+            metricResult: MetricResult
+        ) -> String
+    ) = (
+        listOf(warningLines + benchmarkName) +
+            measurements.singleMetrics.map {
+                singleTransform(
+                    it.name.padStart(maxLabelLength),
+                    it.min.toDisplayString().padStart(maxValueLength),
+                    it.median.toDisplayString().padStart(maxValueLength),
+                    it.max.toDisplayString().padStart(maxValueLength),
+                    it
+                )
+            } +
+            measurements.sampledMetrics.map {
+                val name = it.name.padStart(maxLabelLength)
+                val p50 = it.p50.toDisplayString().padStart(maxValueLength)
+                val p90 = it.p90.toDisplayString().padStart(maxValueLength)
+                val p95 = it.p95.toDisplayString().padStart(maxValueLength)
+                val p99 = it.p99.toDisplayString().padStart(maxValueLength)
+                // we don't try and link percentiles, since they're grouped across multiple iters
+                "  $name   P50  $p50,   P90  $p90,   P95  $p95,   P99  $p99"
+            }
+        ).joinToString("\n") + "\n"
+
     val relativeTracePaths = absoluteTracePaths.map { absolutePath ->
         Outputs.relativePathFor(absolutePath)
             .replace("(", "\\(")
             .replace(")", "\\)")
     }
     return Pair(
-        first = ideSummaryString { name, min, median, max, _ ->
-            "  $name   min $min,   median $median,   max $max"
-        },
-        second = ideSummaryString { name, min, median, max, stats ->
+        first = ideSummaryString(
+            singleTransform = { name, min, median, max, _ ->
+                "  $name   min $min,   median $median,   max $max"
+            }
+        ),
+        second = ideSummaryString { name, min, median, max, metricResult ->
             "  $name" +
-                "   [min $min](file://${relativeTracePaths[stats.minIndex]})," +
-                "   [median $median](file://${relativeTracePaths[stats.medianIndex]})," +
-                "   [max $max](file://${relativeTracePaths[stats.maxIndex]})"
+                "   [min $min](file://${relativeTracePaths[metricResult.minIndex]})," +
+                "   [median $median](file://${relativeTracePaths[metricResult.medianIndex]})," +
+                "   [max $max](file://${relativeTracePaths[metricResult.maxIndex]})"
         } + "    Traces: Iteration " + relativeTracePaths.mapIndexed { index, path ->
             "[$index](file://$path)"
         }.joinToString(separator = " ") + "\n"

@@ -77,7 +77,6 @@ public final class CameraManagerCompatTest {
         mShadowCameraManager.addCallback(mInteractionCallback);
     }
 
-
     @Test
     public void getCameraCharacteristicsCompat_callUnderlyingMethod()
             throws CameraAccessExceptionCompat {
@@ -212,6 +211,16 @@ public final class CameraManagerCompatTest {
         verify(mInteractionCallback).unregisterAvailabilityCallback(unregisterCaptor.capture());
 
         assertThat(unregisterCaptor.getValue()).isSameInstanceAs(originalCallback);
+    }
+
+    @Test(expected = CameraAccessExceptionCompat.class)
+    public void throwCameraAccessExceptionCompat_whenCallingGetCharacteristicsThrowAssertionError()
+            throws CameraAccessExceptionCompat {
+        when(mInteractionCallback.getCameraCharacteristics(any(String.class))).thenThrow(
+                new AssertionError("CameraManager#getCameraCharacteristics AssertionError!"));
+
+        CameraManagerCompat manager = CameraManagerCompat.from(mContext);
+        manager.getCameraCharacteristicsCompat(CAMERA_ID);
     }
 
     /**

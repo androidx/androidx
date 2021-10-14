@@ -23,6 +23,7 @@ import android.util.Pair;
 import android.util.Size;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.List;
 
@@ -31,6 +32,7 @@ import java.util.List;
  *
  * @since 1.0
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface PreviewExtenderImpl extends ExtenderStateListener {
     /** The different types of the preview processing. */
     enum ProcessorType {

@@ -25,6 +25,7 @@ import static androidx.recyclerview.widget.RecyclerView.Adapter.StateRestoration
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
 import android.util.Log;
+import android.util.Pair;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -323,6 +324,15 @@ class ConcatAdapterController implements NestedAdapterWrapper.Callback {
     public ViewHolder onCreateViewHolder(ViewGroup parent, int globalViewType) {
         NestedAdapterWrapper wrapper = mViewTypeStorage.getWrapperForGlobalType(globalViewType);
         return wrapper.onCreateViewHolder(parent, globalViewType);
+    }
+
+    public Pair<Adapter<? extends ViewHolder>, Integer> getWrappedAdapterAndPosition(
+            int globalPosition) {
+        WrapperAndLocalPosition wrapper = findWrapperAndLocalPosition(globalPosition);
+        Pair<Adapter<? extends ViewHolder>, Integer> pair = new Pair<>(wrapper.mWrapper.adapter,
+                wrapper.mLocalPosition);
+        releaseWrapperAndLocalPosition(wrapper);
+        return pair;
     }
 
     /**

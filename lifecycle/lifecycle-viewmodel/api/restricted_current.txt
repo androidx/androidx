@@ -41,13 +41,14 @@ package androidx.lifecycle {
   }
 
   public static interface ViewModelProvider.Factory {
-    method public <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass);
+    method public default <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass);
+    method public default <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass, androidx.lifecycle.viewmodel.CreationExtras extras);
   }
 
   public static class ViewModelProvider.NewInstanceFactory implements androidx.lifecycle.ViewModelProvider.Factory {
     ctor public ViewModelProvider.NewInstanceFactory();
-    method public <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass);
     field public static final androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion Companion;
+    field public static final androidx.lifecycle.viewmodel.CreationExtras.Key<java.lang.String> VIEW_MODEL_KEY;
   }
 
   public static final class ViewModelProvider.NewInstanceFactory.Companion {
@@ -73,6 +74,23 @@ package androidx.lifecycle {
   public class ViewTreeViewModelStoreOwner {
     method public static androidx.lifecycle.ViewModelStoreOwner? get(android.view.View);
     method public static void set(android.view.View, androidx.lifecycle.ViewModelStoreOwner?);
+  }
+
+}
+
+package androidx.lifecycle.viewmodel {
+
+  public interface CreationExtras {
+    method public operator <T> T? get(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key);
+  }
+
+  public static interface CreationExtras.Key<T> {
+  }
+
+  public final class MutableCreationExtras implements androidx.lifecycle.viewmodel.CreationExtras {
+    ctor public MutableCreationExtras();
+    method public <T> T? get(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key);
+    method public operator <T> void set(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key, T? t);
   }
 
 }

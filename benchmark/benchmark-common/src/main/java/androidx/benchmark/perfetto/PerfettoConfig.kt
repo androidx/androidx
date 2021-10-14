@@ -95,7 +95,8 @@ private val PROCESS_STATS_DATASOURCE = TraceConfig.DataSource(
         name = "linux.process_stats",
         target_buffer = 1,
         process_stats_config = ProcessStatsConfig(
-            proc_stats_poll_ms = 10000
+            proc_stats_poll_ms = 10000,
+            scan_all_processes_on_start = true
         )
     )
 )
@@ -133,7 +134,7 @@ private val LINUX_SYS_STATS_DATASOURCE = TraceConfig.DataSource(
 )
 
 /**
- * Global config for perfetto.
+ * Config for perfetto.
  *
  * Eventually, this should be more configurable.
  *
@@ -151,6 +152,7 @@ fun perfettoConfig(
         ftraceDataSource(atraceApps),
         PROCESS_STATS_DATASOURCE,
         LINUX_SYS_STATS_DATASOURCE,
+        TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frametimeline"))
     ),
 )
 
@@ -174,6 +176,14 @@ internal fun TraceConfig.validateAndEncode(): ByteArray {
     if (Build.VERSION.SDK_INT < 28) {
         check(!ftraceConfig.atrace_apps.contains("*")) {
             "Support for wildcard (*) app matching in atrace added in API 28"
+        }
+    }
+
+    if (Build.VERSION.SDK_INT < 24) {
+        val packageList = ftraceConfig.atrace_apps.joinToString(",")
+        check(packageList.length <= 91) {
+            "Unable to trace package list (\"$packageList\").length = " +
+                "${packageList.length} > 91 chars, which is the limit before API 24"
         }
     }
     return encode()

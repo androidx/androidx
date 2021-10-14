@@ -451,7 +451,7 @@ public class OAuthRequestResponseTest {
         // Building should always be successful and it's already tested in the previous tests, so
         // no need for try-catch block as in #checkBuildFailure.
         val request = builder.build()
-        assertThat(request.redirectUrl()).isEqualTo(redirectUrlWithPackageName)
+        assertThat(request.redirectUrl).isEqualTo(redirectUrlWithPackageName)
     }
 
     @Test
@@ -466,7 +466,7 @@ public class OAuthRequestResponseTest {
         // Building should always be successful and it's already tested in the previous tests, so
         // no need for try-catch block as in #checkBuildFailure.
         val request = builder.build()
-        assertThat(request.redirectUrl()).isEqualTo(redirectUrlWithPackageName_cn)
+        assertThat(request.redirectUrl).isEqualTo(redirectUrlWithPackageName_cn)
     }
 
     @Test
@@ -482,7 +482,7 @@ public class OAuthRequestResponseTest {
         // Building should always be successful and it's already tested in the previous tests, so
         // no need for try-catch block as in #checkBuildFailure.
         val request = builder.build()
-        assertThat(request.redirectUrl()).isEqualTo(customRedirectUrlWithPackageName)
+        assertThat(request.redirectUrl).isEqualTo(customRedirectUrlWithPackageName)
     }
 
     @Test
@@ -491,16 +491,15 @@ public class OAuthRequestResponseTest {
             .appendQueryParameter(OAuthRequest.REDIRECT_URI_KEY, customRedirectUrl).build()
         val request = OAuthRequest(appPackageName, requestUrl)
 
-        assertThat(request.redirectUrl()).isEqualTo(customRedirectUrl)
+        assertThat(request.redirectUrl).isEqualTo(customRedirectUrl)
     }
 
     @Test
     public fun testGetRedirectUrl_builtWithConstructor_failure() {
         val requestUrl = Uri.parse(authProviderUrl)
-        val request = OAuthRequest(appPackageName, requestUrl)
 
         Assert.assertThrows(
             NullPointerException::class.java
-        ) { request.redirectUrl() }
+        ) { OAuthRequest(appPackageName, requestUrl) }
     }
 }

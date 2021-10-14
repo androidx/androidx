@@ -33,6 +33,8 @@ import androidx.work.impl.utils.IdGenerator;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The Configuration object used to customize {@link WorkManager} upon initialization.
@@ -79,7 +81,7 @@ public final class Configuration {
 
     Configuration(@NonNull Configuration.Builder builder) {
         if (builder.mExecutor == null) {
-            mExecutor = createDefaultExecutor();
+            mExecutor = createDefaultExecutor(false /* isTaskExecutor */);
         } else {
             mExecutor = builder.mExecutor;
         }
@@ -89,7 +91,7 @@ public final class Configuration {
             // This executor is used for *both* WorkManager's tasks and Room's query executor.
             // So this should not be a single threaded executor. Writes will still be serialized
             // as this will be wrapped with an SerialExecutor.
-            mTaskExecutor = createDefaultExecutor();
+            mTaskExecutor = createDefaultExecutor(true /* isTaskExecutor */);
         } else {
             mIsUsingDefaultTaskExecutor = false;
             mTaskExecutor = builder.mTaskExecutor;
@@ -255,10 +257,25 @@ public final class Configuration {
         return mExceptionHandler;
     }
 
-    private @NonNull Executor createDefaultExecutor() {
+    private @NonNull Executor createDefaultExecutor(boolean isTaskExecutor) {
         return Executors.newFixedThreadPool(
                 // This value is the same as the core pool size for AsyncTask#THREAD_POOL_EXECUTOR.
-                Math.max(2, Math.min(Runtime.getRuntime().availableProcessors() - 1, 4)));
+                Math.max(2, Math.min(Runtime.getRuntime().availableProcessors() - 1, 4)),
+                createDefaultThreadFactory(isTaskExecutor));
+    }
+
+    @NonNull
+    private ThreadFactory createDefaultThreadFactory(boolean isTaskExecutor) {
+        return new ThreadFactory() {
+            private final AtomicInteger mThreadCount = new AtomicInteger(0);
+
+            @Override
+            public Thread newThread(Runnable runnable) {
+                // Thread names are constrained to a max of 15 characters by the Linux Kernel.
+                String prefix = isTaskExecutor ? "WM.task-" : "androidx.work-";
+                return new Thread(runnable, prefix + mThreadCount.incrementAndGet());
+            }
+        };
     }
 
     /**

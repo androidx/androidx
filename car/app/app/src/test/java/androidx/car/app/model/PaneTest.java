@@ -87,6 +87,23 @@ public class PaneTest {
     }
 
     @Test
+    public void setImage() {
+        Pane pane =
+                new Pane.Builder()
+                        .addRow(new Row.Builder().setTitle("Title").build())
+                        .setImage(CarIcon.APP_ICON)
+                        .build();
+        assertThat(pane.getImage()).isEqualTo(CarIcon.APP_ICON);
+    }
+
+    @Test
+    public void setImage_throwsIfNull() {
+        assertThrows(
+                NullPointerException.class,
+                () -> new Pane.Builder().setImage(null));
+    }
+
+    @Test
     public void equals() {
         Pane pane =
                 new Pane.Builder()
@@ -94,6 +111,7 @@ public class PaneTest {
                         .addAction(Action.APP_ICON)
                         .addAction(Action.BACK)
                         .addRow(new Row.Builder().setTitle("Title").build())
+                        .setImage(CarIcon.APP_ICON)
                         .build();
 
         assertThat(pane)
@@ -103,6 +121,7 @@ public class PaneTest {
                                 .addAction(Action.APP_ICON)
                                 .addAction(Action.BACK)
                                 .addRow(new Row.Builder().setTitle("Title").build())
+                                .setImage(CarIcon.APP_ICON)
                                 .build());
     }
 
@@ -141,6 +160,20 @@ public class PaneTest {
                                         () -> {
                                         }).build())
                                 .build());
+    }
+
+    @Test
+    public void notEquals_differentImage() {
+        Row row = new Row.Builder().setTitle("Title").build();
+        Pane pane =
+                new Pane.Builder()
+                        .addRow(row)
+                        .setImage(CarIcon.APP_ICON)
+                        .build();
+
+        assertThat(pane)
+                .isNotEqualTo(
+                        new Pane.Builder().addRow(row).setImage(CarIcon.BACK).build());
     }
 
     private static Row createRow(int suffix) {

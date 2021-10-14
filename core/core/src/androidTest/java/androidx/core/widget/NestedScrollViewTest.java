@@ -29,7 +29,6 @@ import android.os.Parcelable;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.EdgeEffect;
 
 import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
@@ -312,6 +311,7 @@ public class NestedScrollViewTest {
     @Test
     public void testTopEdgeEffectReversal() {
         setup(200);
+        mNestedScrollView.mEdgeGlowTop = new EdgeEffectSubstitute(mNestedScrollView.getContext());
         setChildMargins(0, 0);
         measureAndLayout(100);
         swipeDown(false);
@@ -329,6 +329,8 @@ public class NestedScrollViewTest {
     @Test
     public void testBottomEdgeEffectReversal() {
         setup(200);
+        mNestedScrollView.mEdgeGlowBottom =
+                new EdgeEffectSubstitute(mNestedScrollView.getContext());
         setChildMargins(0, 0);
         measureAndLayout(100);
         int scrollRange = mNestedScrollView.getScrollRange();
@@ -351,16 +353,15 @@ public class NestedScrollViewTest {
         setup(200);
         setChildMargins(0, 0);
         measureAndLayout(100);
-        CaptureOnAbsorbEdgeEffect edgeEffect =
-                new CaptureOnAbsorbEdgeEffect(mNestedScrollView.getContext());
+        EdgeEffectSubstitute edgeEffect = new EdgeEffectSubstitute(mNestedScrollView.getContext());
         mNestedScrollView.mEdgeGlowTop = edgeEffect;
         flingDown();
-        assertTrue(edgeEffect.pullDistance > 0);
+        assertTrue(edgeEffect.getDistance() > 0);
 
         if (BuildCompat.isAtLeastS()) {
-            assertTrue(edgeEffect.absorbVelocity > 0);
+            assertTrue(edgeEffect.getAbsorbed() > 0);
         } else {
-            assertEquals(0, edgeEffect.absorbVelocity);
+            assertEquals(0, edgeEffect.getAbsorbed());
             flingUp();
             assertNotEquals(0, mNestedScrollView.getScrollY());
         }
@@ -371,21 +372,20 @@ public class NestedScrollViewTest {
         setup(200);
         setChildMargins(0, 0);
         measureAndLayout(100);
-        CaptureOnAbsorbEdgeEffect edgeEffect =
-                new CaptureOnAbsorbEdgeEffect(mNestedScrollView.getContext());
+        EdgeEffectSubstitute edgeEffect = new EdgeEffectSubstitute(mNestedScrollView.getContext());
         mNestedScrollView.mEdgeGlowBottom = edgeEffect;
 
         int scrollRange = mNestedScrollView.getScrollRange();
         mNestedScrollView.scrollTo(0, scrollRange);
         assertEquals(scrollRange, mNestedScrollView.getScrollY());
         flingUp();
-        assertTrue(edgeEffect.pullDistance > 0);
+        assertTrue(edgeEffect.getDistance() > 0);
         assertEquals(scrollRange, mNestedScrollView.getScrollY());
 
         if (BuildCompat.isAtLeastS()) {
-            assertTrue(edgeEffect.absorbVelocity > 0);
+            assertTrue(edgeEffect.getAbsorbed() > 0);
         } else {
-            assertEquals(0, edgeEffect.absorbVelocity);
+            assertEquals(0, edgeEffect.getAbsorbed());
             flingDown();
             assertNotEquals(scrollRange, mNestedScrollView.getScrollY());
         }
@@ -465,37 +465,5 @@ public class NestedScrollViewTest {
     private void measureAndLayout(int height) {
         measure(height);
         mNestedScrollView.layout(0, 0, 100, height);
-    }
-
-    private static class CaptureOnAbsorbEdgeEffect extends EdgeEffect {
-        public int absorbVelocity;
-        public float pullDistance;
-
-        CaptureOnAbsorbEdgeEffect(Context context) {
-            super(context);
-        }
-
-        @Override
-        public void onPull(float deltaDistance) {
-            pullDistance += deltaDistance;
-            super.onPull(deltaDistance);
-        }
-
-        @Override
-        public void onPull(float deltaDistance, float displacement) {
-            pullDistance += deltaDistance;
-            super.onPull(deltaDistance, displacement);
-        }
-
-        @Override
-        public void onAbsorb(int velocity) {
-            absorbVelocity = velocity;
-            super.onAbsorb(velocity);
-        }
-
-        @Override
-        public void onRelease() {
-            super.onRelease();
-        }
     }
 }

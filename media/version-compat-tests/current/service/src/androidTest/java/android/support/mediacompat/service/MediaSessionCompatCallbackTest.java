@@ -101,6 +101,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import androidx.core.os.BuildCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media.VolumeProviderCompat;
 import androidx.media.test.lib.CustomParcelable;
@@ -744,7 +745,7 @@ public class MediaSessionCompatCallbackTest {
                 .setComponent(new ComponentName(getApplicationContext(),
                         getApplicationContext().getClass()));
         PendingIntent pi = PendingIntent.getBroadcast(getApplicationContext(), 0, mediaButtonIntent,
-                Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0);
+                BuildCompat.isAtLeastS() ? PendingIntent.FLAG_MUTABLE : 0);
         mSession.setMediaButtonReceiver(pi);
 
         // Set state to STATE_PLAYING to get higher priority.

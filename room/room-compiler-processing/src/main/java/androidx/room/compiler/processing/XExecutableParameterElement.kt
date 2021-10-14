@@ -20,6 +20,12 @@ package androidx.room.compiler.processing
  * Parameter of a method.
  */
 interface XExecutableParameterElement : XVariableElement {
+
+    /**
+     * The enclosing [XExecutableElement] this parameter belongs to.
+     */
+    val enclosingMethodElement: XExecutableElement
+
     /**
      * `true` if the parameter has a default value, `false` otherwise.
      *

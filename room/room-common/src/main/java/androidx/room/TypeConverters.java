@@ -51,5 +51,11 @@ public @interface TypeConverters {
      *
      * @return The list of classes that contains the converter methods.
      */
-    Class<?>[] value();
+    Class<?>[] value() default {};
+
+    /**
+     * Configure whether Room can use various built in converters for common types.
+     * See {@link BuiltInTypeConverters} for details.
+     */
+    BuiltInTypeConverters builtInTypeConverters() default @BuiltInTypeConverters;
 }

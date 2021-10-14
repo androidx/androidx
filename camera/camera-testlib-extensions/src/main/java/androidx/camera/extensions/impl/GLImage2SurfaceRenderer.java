@@ -54,6 +54,8 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.RequiresApi;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -68,6 +70,7 @@ import java.util.Objects;
  * take as input a {@link Image} and write to a {@link android.graphics.SurfaceTexture}. It has only
  * been tested on a Pixel 2XL.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class GLImage2SurfaceRenderer {
     private static final String TAG = "GLImage2SurfaceRenderer";
 

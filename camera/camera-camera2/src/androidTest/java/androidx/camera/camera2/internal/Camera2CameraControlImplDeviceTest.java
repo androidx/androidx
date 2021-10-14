@@ -103,6 +103,7 @@ import java.util.concurrent.TimeoutException;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public final class Camera2CameraControlImplDeviceTest {
     @Rule
     public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
@@ -352,7 +353,8 @@ public final class Camera2CameraControlImplDeviceTest {
     public void startFlashSequence_futureSucceeds() throws Exception {
         Camera2CameraControlImpl camera2CameraControlImpl =
                 createCamera2CameraControlWithPhysicalCamera();
-        ListenableFuture<Void> future = camera2CameraControlImpl.startFlashSequence();
+        ListenableFuture<Void> future = camera2CameraControlImpl.startFlashSequence(
+                ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH);
         future.get(5, TimeUnit.SECONDS);
     }
 
@@ -362,7 +364,8 @@ public final class Camera2CameraControlImplDeviceTest {
         Camera2CameraControlImpl camera2CameraControlImpl =
                 createCamera2CameraControlWithPhysicalCamera();
         camera2CameraControlImpl.setFlashMode(ImageCapture.FLASH_MODE_ON);
-        ListenableFuture<Void> future = camera2CameraControlImpl.startFlashSequence();
+        ListenableFuture<Void> future = camera2CameraControlImpl.startFlashSequence(
+                ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH);
         future.get(5, TimeUnit.SECONDS);
     }
 

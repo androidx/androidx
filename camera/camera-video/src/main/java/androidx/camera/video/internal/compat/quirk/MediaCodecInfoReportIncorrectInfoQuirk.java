@@ -23,6 +23,7 @@ import android.media.MediaFormat;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -41,6 +42,7 @@ import androidx.camera.core.impl.Quirk;
  * resolution 174x174 is probably incorrect for "video/mp4v-es" and doesn't make sense.
  * See b/192431846#comment3.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
 
     private static final String BUILD_BRAND = "Nokia";

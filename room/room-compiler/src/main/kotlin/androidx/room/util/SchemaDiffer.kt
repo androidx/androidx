@@ -44,7 +44,7 @@ class DiffException(val errorMessage: String) : RuntimeException(errorMessage)
  * Contains the changes detected between the two schema versions provided.
  */
 data class SchemaDiffResult(
-    val addedColumns: LinkedHashMap<String, AutoMigration.AddedColumn>,
+    val addedColumns: List<AutoMigration.AddedColumn>,
     val deletedColumns: List<AutoMigration.DeletedColumn>,
     val addedTables: Set<AutoMigration.AddedTable>,
     val renamedTables: Map<String, String>,
@@ -93,9 +93,9 @@ class SchemaDiffer(
         mutableMapOf<String, AutoMigration.ComplexChangedTable>()
     private val deletedTables = deleteTableEntries.map { it.deletedTableName }.toSet()
 
-    // Map of columns that have been added in the database, keyed by the column name, note that
-    // the table these columns have been added to will not contain any complex schema changes.
-    private val addedColumns = linkedMapOf<String, AutoMigration.AddedColumn>()
+    // Map of columns that have been added in the database, note that the table these columns
+    // have been added to will not contain any complex schema changes.
+    private val addedColumns = mutableListOf<AutoMigration.AddedColumn>()
     private val deletedColumns = deleteColumnEntries
 
     /**
@@ -375,8 +375,8 @@ class SchemaDiffer(
             return true
         }
         // Check if the to table or the from table is an FTS table while the other is not.
-        if (fromTable is FtsEntityBundle && !(toTable is FtsEntityBundle) ||
-            toTable is FtsEntityBundle && !(fromTable is FtsEntityBundle)
+        if (fromTable is FtsEntityBundle && toTable !is FtsEntityBundle ||
+            toTable is FtsEntityBundle && fromTable !is FtsEntityBundle
         ) {
             return true
         }
@@ -557,11 +557,12 @@ class SchemaDiffer(
                 // need to account for it as the table will be recreated already with the new
                 // table.
                 if (!complexChangedTables.containsKey(fromTable.tableName)) {
-                    addedColumns[toColumn.columnName] =
+                    addedColumns.add(
                         AutoMigration.AddedColumn(
                             toTable.tableName,
                             toColumn
                         )
+                    )
                 }
             }
         }

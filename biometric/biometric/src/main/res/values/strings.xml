@@ -48,4 +48,50 @@
     <!-- Content description for the icon shown on the fingerprint dialog during authentication.
     This is not shown but may be read aloud to the user for accessibility. [CHAR LIMIT=NONE] -->
     <string name="fingerprint_dialog_icon_description">Fingerprint icon</string>
+
+    <!-- Label for a button or in-app setting that allows the user to authenticate with their
+    fingerprint. [CHAR LIMIT=70] -->
+    <string name="use_fingerprint_label">Use fingerprint</string>
+    <!-- Label for a button or in-app setting that allows the user to authenticate with their
+    face. [CHAR LIMIT=70] -->
+    <string name="use_face_label">Use face</string>
+    <!-- Label for a button or in-app setting that allows the user to authenticate with their
+    biometric credentials (e.g. face or fingerprint). [CHAR LIMIT=70] -->
+    <string name="use_biometric_label">Use biometrics</string>
+    <!-- Label for a button or in-app setting that allows the user to authenticate with their
+    device screen lock (i.e. PIN, pattern, or password). [CHAR LIMIT=70] -->
+    <string name="use_screen_lock_label">Use screen lock</string>
+    <!-- Label for a button or in-app setting that allows the user to authenticate with their
+    fingerprint or device screen lock (i.e. PIN, pattern, or password). [CHAR LIMIT=70] -->
+    <string name="use_fingerprint_or_screen_lock_label">Use fingerprint or screen lock</string>
+    <!-- Label for a button or in-app setting that allows the user to authenticate with their
+    face or device screen lock (i.e. PIN, pattern, or password). [CHAR LIMIT=70] -->
+    <string name="use_face_or_screen_lock_label">Use face or screen lock</string>
+    <!-- Label for a button or in-app setting that allows the user to authenticate with their
+    biometric credentials (e.g. face or fingerprint) or their device screen lock (i.e. PIN, pattern,
+    or password). [CHAR LIMIT=70] -->
+    <string name="use_biometric_or_screen_lock_label">Use biometrics or screen lock</string>
+
+    <!-- Message shown on the biometric authentication dialog, asking the user to authenticate with
+    their fingerprint. [CHAR LIMIT=90] -->
+    <string name="fingerprint_prompt_message">Use your fingerprint to continue</string>
+    <!-- Message shown on the biometric authentication dialog, asking the user to authenticate with
+    their face. [CHAR LIMIT=90] -->
+    <string name="face_prompt_message">Use your face to continue</string>
+    <!-- Message shown on the biometric authentication dialog, asking the user to authenticate with
+    their biometric credential (e.g. face or fingerprint). [CHAR LIMIT=90] -->
+    <string name="biometric_prompt_message">Use your biometric to continue</string>
+    <!-- Message shown on the biometric authentication dialog, asking the user to authenticate with
+    their device screen lock (i.e. PIN, pattern, or password). [CHAR LIMIT=90] -->
+    <string name="screen_lock_prompt_message">Enter your screen lock to continue</string>
+    <!-- Message shown on the biometric authentication dialog, asking the user to authenticate with
+    their fingerprint or device screen lock (i.e. PIN, pattern, or password). [CHAR LIMIT=90] -->
+    <string name="fingerprint_or_screen_lock_prompt_message">Use your fingerprint or screen lock to continue</string>
+    <!-- Message shown on the biometric authentication dialog, asking the user to authenticate with
+    their fingerprint or device screen lock (i.e. PIN, pattern, or password). [CHAR LIMIT=90] -->
+    <string name="face_or_screen_lock_prompt_message">Use your face or screen lock to continue</string>
+    <!-- Message shown on the biometric authentication dialog, asking the user to authenticate with
+    their biometric credential (e.g. face or fingerprint) or their device screen lock (i.e. PIN,
+    pattern, or password). [CHAR LIMIT=90] -->
+    <string name="biometric_or_screen_lock_prompt_message">Use your biometric or screen lock to continue</string>
 </resources>

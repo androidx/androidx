@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal.compat.quirk;
 
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 import java.util.Locale;
@@ -30,6 +31,7 @@ import java.util.Locale;
  * when taking photos in dark environment with flash on/auto. Calling stopRepeating ahead of
  * still capture and setRepeating again after capture is done can fix the issue. See b/172036589.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class StillCaptureFlashStopRepeatingQuirk implements Quirk {
     static boolean load() {
         return "SAMSUNG".equals(Build.MANUFACTURER.toUpperCase(Locale.US))

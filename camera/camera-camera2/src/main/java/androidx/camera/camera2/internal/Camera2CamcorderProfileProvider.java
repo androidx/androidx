@@ -20,6 +20,7 @@ import android.media.CamcorderProfile;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.quirk.CamcorderProfileResolutionQuirk;
 import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
@@ -29,6 +30,7 @@ import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.CamcorderProfileProxy;
 
 /** An implementation that provides the {@link CamcorderProfileProxy}. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class Camera2CamcorderProfileProvider implements CamcorderProfileProvider {
     private static final String TAG = "Camera2CamcorderProfileProvider";
 

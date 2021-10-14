@@ -36,36 +36,33 @@ import javax.lang.model.element.Modifier
  * Wraps a type converter specified by the developer and forwards calls to it.
  */
 class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
-    TypeConverter(custom.from, custom.to) {
-
-    override fun convert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
-        scope.builder().apply {
-            if (custom.isEnclosingClassKotlinObject) {
-                addStatement(
-                    "$L = $T.INSTANCE.$L($L)",
-                    outputVarName, custom.typeName,
-                    custom.methodName, inputVarName
-                )
-            } else if (custom.isStatic) {
-                addStatement(
-                    "$L = $T.$L($L)",
-                    outputVarName, custom.typeName,
+    SingleStatementTypeConverter(custom.from, custom.to) {
+    override fun buildStatement(inputVarName: String, scope: CodeGenScope): CodeBlock {
+        return if (custom.isEnclosingClassKotlinObject) {
+            CodeBlock.of(
+                "$T.INSTANCE.$L($L)",
+                custom.typeName,
+                custom.methodName, inputVarName
+            )
+        } else if (custom.isStatic) {
+            CodeBlock.of(
+                "$T.$L($L)",
+                custom.typeName,
+                custom.methodName, inputVarName
+            )
+        } else {
+            if (custom.isProvidedConverter) {
+                CodeBlock.of(
+                    "$N().$L($L)",
+                    providedTypeConverter(scope),
                     custom.methodName, inputVarName
                 )
             } else {
-                if (custom.isProvidedConverter) {
-                    addStatement(
-                        "$L = $N().$L($L)",
-                        outputVarName, providedTypeConverter(scope),
-                        custom.methodName, inputVarName
-                    )
-                } else {
-                    addStatement(
-                        "$L = $N.$L($L)",
-                        outputVarName, typeConverter(scope),
-                        custom.methodName, inputVarName
-                    )
-                }
+                CodeBlock.of(
+                    "$N.$L($L)",
+                    typeConverter(scope),
+                    custom.methodName, inputVarName
+                )
             }
         }
     }

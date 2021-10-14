@@ -18,9 +18,11 @@ package androidx.camera.video;
 
 import android.annotation.SuppressLint;
 import android.media.MediaFormat;
+import android.media.MediaMuxer;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.core.util.Consumer;
@@ -35,12 +37,13 @@ import java.lang.annotation.RetentionPolicy;
  * video and audio inputs to the VideoOutput.
  * @hide
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY)
 @AutoValue
 public abstract class MediaSpec {
 
     private static final String AUDIO_FORMAT_MPEG4 = MediaFormat.MIMETYPE_AUDIO_AAC;
-    private static final String AUDIO_FORMAT_WEBM = "audio/webm";
+    private static final String AUDIO_FORMAT_WEBM = MediaFormat.MIMETYPE_AUDIO_VORBIS;
     private static final String VIDEO_FORMAT_MPEG4 = MediaFormat.MIMETYPE_VIDEO_AVC;
     private static final String VIDEO_FORMAT_WEBM = MediaFormat.MIMETYPE_VIDEO_VP8;
 
@@ -65,6 +68,8 @@ public abstract class MediaSpec {
                 return AUDIO_FORMAT_WEBM;
             case MediaSpec.OUTPUT_FORMAT_MPEG_4:
                 // Fall-through
+            case MediaSpec.OUTPUT_FORMAT_AUTO:
+                // Fall-through
             default:
                 return AUDIO_FORMAT_MPEG4;
         }
@@ -77,8 +82,23 @@ public abstract class MediaSpec {
                 return VIDEO_FORMAT_WEBM;
             case MediaSpec.OUTPUT_FORMAT_MPEG_4:
                 // Fall-through
+            case MediaSpec.OUTPUT_FORMAT_AUTO:
+                // Fall-through
             default:
                 return VIDEO_FORMAT_MPEG4;
+        }
+    }
+
+    static int outputFormatToMuxerFormat(@OutputFormat int outputFormat) {
+        switch (outputFormat) {
+            case MediaSpec.OUTPUT_FORMAT_WEBM:
+                return MediaMuxer.OutputFormat.MUXER_OUTPUT_WEBM;
+            case MediaSpec.OUTPUT_FORMAT_MPEG_4:
+                // Fall-through
+            case MediaSpec.OUTPUT_FORMAT_AUTO:
+                // Fall-through
+            default:
+                return MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4;
         }
     }
 

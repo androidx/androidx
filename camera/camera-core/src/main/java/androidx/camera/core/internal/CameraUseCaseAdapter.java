@@ -24,6 +24,7 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
@@ -44,7 +45,6 @@ import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -64,6 +64,7 @@ import java.util.Map;
  * extensions in order to select the correct CameraInternal instance which has the required
  * camera id.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraUseCaseAdapter implements Camera {
     @NonNull
     private CameraInternal mCameraInternal;
@@ -259,7 +260,6 @@ public final class CameraUseCaseAdapter implements Camera {
             // use cases.
             mUseCases.addAll(newUseCases);
             if (mAttached) {
-                notifyAttachedUseCasesChange(mUseCases);
                 mCameraInternal.attachUseCases(newUseCases);
             }
 
@@ -323,7 +323,6 @@ public final class CameraUseCaseAdapter implements Camera {
         synchronized (mLock) {
             if (!mAttached) {
                 mCameraInternal.attachUseCases(mUseCases);
-                notifyAttachedUseCasesChange(mUseCases);
                 restoreInteropConfig();
 
                 // Notify to update the use case's active state because it may be cleared if the
@@ -563,22 +562,6 @@ public final class CameraUseCaseAdapter implements Camera {
             //Configure the CameraInternal as well so that it can get SessionProcessor.
             mCameraInternal.setExtendedConfig(mCameraConfig);
         }
-    }
-
-    /**
-     * Notify the attached use cases change to the listener
-     */
-    private void notifyAttachedUseCasesChange(@NonNull List<UseCase> useCases) {
-        CameraXExecutors.mainThreadExecutor().execute(() -> {
-            for (UseCase useCase : useCases) {
-                Consumer<Collection<UseCase>> attachedUseCasesUpdateListener =
-                        useCase.getCurrentConfig().getAttachedUseCasesUpdateListener(null);
-
-                if (attachedUseCasesUpdateListener != null) {
-                    attachedUseCasesUpdateListener.accept(Collections.unmodifiableList(useCases));
-                }
-            }
-        });
     }
 
     /**

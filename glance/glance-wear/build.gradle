@@ -33,24 +33,36 @@ dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
     api(project(":glance:glance"))
-    api(project(":wear:tiles:tiles"))
-    
-    implementation(libs.kotlinStdlib)
-    implementation(project(":compose:runtime:runtime"))
+    api("androidx.compose.runtime:runtime:1.0.1")
+    api("androidx.wear.tiles:tiles:1.0.0-alpha12")
 
+    implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinCoroutinesGuava)
+    implementation "androidx.lifecycle:lifecycle-runtime:2.3.1"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.1"
+    implementation "androidx.lifecycle:lifecycle-service:2.3.1"
+
+    testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinReflect)
+    // TODO(b/197638718): Remove when tiles-testing dependencies are fixed.
+    testImplementation("androidx.wear.tiles:tiles-renderer:1.0.0-alpha12")
+    testImplementation("androidx.wear.tiles:tiles-testing:1.0.0-alpha12")
 
     androidTestImplementation(project(":core:core"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
-    androidTestImplementation(project(":wear:tiles:tiles-renderer"))
+    androidTestImplementation("androidx.wear.tiles:tiles-renderer:1.0.0-alpha12")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.kotlinCoroutinesTest)
 }
 
@@ -74,7 +86,7 @@ android {
 androidx {
     name = "Glance for Wear Tiles"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_ONLY
     mavenGroup = LibraryGroups.GLANCE
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for Wear Tiles using a Jetpack " +

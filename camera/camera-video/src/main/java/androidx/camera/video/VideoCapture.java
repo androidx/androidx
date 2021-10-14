@@ -21,7 +21,6 @@ import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
-import static androidx.camera.core.impl.UseCaseConfig.OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
@@ -35,6 +34,7 @@ import static androidx.camera.core.internal.UseCaseEventConfig.OPTION_USE_CASE_E
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_OUTPUT;
 
 import android.graphics.Rect;
+import android.media.MediaCodec;
 import android.util.Pair;
 import android.util.Size;
 import android.view.Display;
@@ -42,6 +42,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
@@ -72,7 +73,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.video.VideoOutput.StreamState;
 import androidx.camera.video.impl.VideoCaptureConfig;
-import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -80,7 +80,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -90,8 +89,9 @@ import java.util.concurrent.Executor;
 /**
  * A use case that provides camera stream suitable for video application.
  *
- * <p>VideoCapture is used to create a camera stream suitable for video application. The camera
- * stream is used by the extended classes of {@link VideoOutput}.
+ * <p>VideoCapture is used to create a camera stream suitable for a video application such as
+ * recording a high-quality video to a file. The camera stream is used by the extended classes of
+ * {@link VideoOutput}.
  * {@link #withOutput(VideoOutput)} can be used to create a VideoCapture instance associated with
  * the given VideoOutput. Take {@link Recorder} as an example,
  * <pre>{@code
@@ -102,6 +102,7 @@ import java.util.concurrent.Executor;
  *
  * @param <T> the type of VideoOutput
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static final String TAG = "VideoCapture";
     private static final Defaults DEFAULT_CONFIG = new Defaults();
@@ -387,6 +388,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         config.getVideoOutput().onSurfaceRequested(mSurfaceRequest);
         sendTransformationInfoIfReady(resolution);
         mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
+        // Since VideoCapture is in video module and can't be recognized by core module, use
+        // MediaCodec class instead.
+        mDeferrableSurface.setContainerClass(MediaCodec.class);
 
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         if (fetchObservableValue(getOutput().getStreamState(), StreamState.INACTIVE)
@@ -573,6 +577,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * @param <T> the type of VideoOutput
      * @hide
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @RestrictTo(Scope.LIBRARY_GROUP)
     @SuppressWarnings("ObjectToString")
     public static final class Builder<T extends VideoOutput> implements
@@ -886,17 +891,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         public Builder<T> setUseCaseEventCallback(
                 @NonNull EventCallback useCaseEventCallback) {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
-            return this;
-        }
-
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @NonNull
-        public Builder<T> setAttachedUseCasesUpdateListener(
-                @NonNull Consumer<Collection<UseCase>> attachedUseCasesUpdateListener) {
-            getMutableConfig().insertOption(OPTION_ATTACHED_USE_CASES_UPDATE_LISTENER,
-                    attachedUseCasesUpdateListener);
             return this;
         }
     }

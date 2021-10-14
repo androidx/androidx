@@ -25,6 +25,7 @@ import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileCollection
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
@@ -68,11 +69,14 @@ abstract class GenerateInspectionPlatformVersionTask : DefaultTask() {
         }?.version
 
         return if (projectDep) {
-            "${project.project(":inspection:inspection").version}"
+            inspectionProjectVersion.get()
         } else prebuiltVersion ?: throw GradleException(
             "Inspector must have a dependency on androidx.inspection"
         )
     }
+
+    @get:Internal
+    abstract val inspectionProjectVersion: Property<String>
 
     @TaskAction
     fun exec() {
@@ -95,5 +99,10 @@ fun Project.registerGenerateInspectionPlatformVersionTask(
             }
         }.artifacts
         it.outputDir.set(taskWorkingDir(variant, "inspectionVersion"))
+        it.inspectionProjectVersion.set(
+            project.provider({
+                project.project(":inspection:inspection").version.toString()
+            })
+        )
     }
 }

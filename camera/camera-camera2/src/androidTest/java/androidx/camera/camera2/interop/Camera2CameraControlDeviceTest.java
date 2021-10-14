@@ -49,6 +49,7 @@ import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -69,6 +70,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 @OptIn(markerClass = ExperimentalCamera2Interop.class)
+@SdkSuppress(minSdkVersion = 21)
 public final class Camera2CameraControlDeviceTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private CameraSelector mCameraSelector;
@@ -162,7 +164,7 @@ public final class Camera2CameraControlDeviceTest {
                         CaptureRequest.CONTROL_CAPTURE_INTENT,
                         CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL)
                 .setCaptureRequestOption(CaptureRequest.COLOR_CORRECTION_MODE,
-                        CameraMetadata.COLOR_CORRECTION_ABERRATION_MODE_OFF);
+                        CaptureRequest.COLOR_CORRECTION_MODE_FAST);
 
         ListenableFuture<Void> future =
                 mCamera2CameraControl.setCaptureRequestOptions(builder.build());
@@ -180,17 +182,6 @@ public final class Camera2CameraControlDeviceTest {
                 CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
         assertThat(mCamera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
                 CaptureRequest.COLOR_CORRECTION_MODE, null)).isEqualTo(null);
-
-        ArgumentCaptor<CaptureRequest> captureRequest =
-                ArgumentCaptor.forClass(CaptureRequest.class);
-        verify(mMockCaptureCallback, timeout(5000).atLeastOnce()).onCaptureCompleted(
-                any(CameraCaptureSession.class),
-                captureRequest.capture(), any(TotalCaptureResult.class));
-        CaptureRequest request = captureRequest.getValue();
-        assertThat(request.get(CaptureRequest.CONTROL_CAPTURE_INTENT)).isEqualTo(
-                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
-        assertThat(request.get(CaptureRequest.COLOR_CORRECTION_MODE)).isNotEqualTo(
-                CameraMetadata.COLOR_CORRECTION_ABERRATION_MODE_OFF);
     }
 
     @Test

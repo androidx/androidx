@@ -23,7 +23,7 @@ import static androidx.core.appdigest.Checksum.TYPE_WHOLE_SHA256;
 import static androidx.core.appdigest.Checksum.TYPE_WHOLE_SHA512;
 
 import android.content.Context;
-import android.content.pm.ApkChecksum;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -31,15 +31,14 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 
-import androidx.annotation.ChecksSdkIntAtLeast;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -77,7 +76,7 @@ public final class Checksums {
     private static final String ALGO_SHA256 = "SHA256";
     private static final String ALGO_SHA512 = "SHA512";
 
-    private static final int READ_CHUNK_SIZE = 64 * 1024;
+    private static final int READ_CHUNK_SIZE = 128 * 1024;
 
     private Checksums() {
     }
@@ -108,7 +107,6 @@ public final class Checksums {
      * @throws PackageManager.NameNotFoundException if a package with the given name cannot be
      *                                              found on the system.
      */
-    @SuppressWarnings("SyntheticAccessor") /* getChecksumsSync */
     public static @NonNull ListenableFuture<Checksum[]> getChecksums(@NonNull Context context,
             @NonNull String packageName, boolean includeSplits, final @Checksum.Type int required,
             @NonNull List<Certificate> trustedInstallers, @NonNull Executor executor)
@@ -119,7 +117,7 @@ public final class Checksums {
         Preconditions.checkNotNull(executor);
 
         if (BuildCompat.isAtLeastS()) {
-            return ApiSImpl.getChecksums(context, packageName, includeSplits, required,
+            return ChecksumsApiSImpl.getChecksums(context, packageName, includeSplits, required,
                     trustedInstallers, executor);
         }
 
@@ -157,73 +155,99 @@ public final class Checksums {
             }
         }
 
+        final String installerPackageName;
+        if (BuildCompat.isAtLeastS()) {
+            installerPackageName = ChecksumsApiSImpl.getInstallerPackageName(context, packageName);
+        } else {
+            installerPackageName = null;
+        }
+
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                getChecksumsSync(filesToChecksum, required, result);
+                getChecksumsSync(context, filesToChecksum, required, installerPackageName,
+                        trustedInstallers, result);
             }
         });
         return result;
     }
 
-    private static class ApiSImpl {
-        private ApiSImpl() {}
+    /**
+     * Returns the checksums for an APK. Use {@link #getChecksums} unless the package has
+     * not yet been installed on the device.
+     * A possible use case is replying to {@link Intent#ACTION_PACKAGE_NEEDS_VERIFICATION}
+     * broadcast.
+     *
+     * By default returns all readily available checksums:
+     * - enforced by platform,
+     * - enforced by installer.
+     * If caller needs a specific checksum type, they can specify it as required.
+     *
+     * <b>Caution: Android can not verify installer-provided checksums. Make sure you specify
+     * trusted installers.</b>
+     *
+     * @param context The application or activity context.
+     * @param filePath whose checksums to return.
+     * @param required explicitly request the checksum types. Will incur significant
+     *                 CPU/memory/disk usage.
+     * @param installerPackageName package name of the installer of the file
+     * @param trustedInstallers for checksums enforced by installer, which installers are to be
+     *                          trusted.
+     *                          {@link #TRUST_ALL} will return checksums from any installer,
+     *                          {@link #TRUST_NONE} disables optimized installer-enforced checksums,
+     *                          otherwise the list has to be non-empty list of certificates.
+     * @param executor for calculating checksums.
+     * @throws IllegalArgumentException if the list of trusted installer certificates is empty.
+     */
+    public static @NonNull ListenableFuture<Checksum[]> getFileChecksums(@NonNull Context context,
+            @NonNull String filePath, final @Checksum.Type int required,
+            @Nullable String installerPackageName, @NonNull List<Certificate> trustedInstallers,
+            @NonNull Executor executor) {
+        Preconditions.checkNotNull(context);
+        Preconditions.checkNotNull(filePath);
+        Preconditions.checkNotNull(trustedInstallers);
+        Preconditions.checkNotNull(executor);
 
-        @ChecksSdkIntAtLeast(codename = "S") static
-        @NonNull ListenableFuture<Checksum[]> getChecksums(@NonNull Context context,
-                @NonNull String packageName, boolean includeSplits, @Checksum.Type int required,
-                @NonNull List<Certificate> trustedInstallers, @NonNull Executor executor)
-                throws CertificateEncodingException, PackageManager.NameNotFoundException {
-            final ResolvableFuture<Checksum[]> result = ResolvableFuture.create();
+        final ResolvableFuture<Checksum[]> result = ResolvableFuture.create();
 
-            if (trustedInstallers == TRUST_ALL) {
-                trustedInstallers = PackageManager.TRUST_ALL;
-            } else if (trustedInstallers == TRUST_NONE) {
-                trustedInstallers = PackageManager.TRUST_NONE;
-            } else if (trustedInstallers.isEmpty()) {
-                throw new IllegalArgumentException(
-                        "trustedInstallers has to be one of TRUST_ALL/TRUST_NONE or a non-empty "
-                                + "list of certificates.");
+        final List<Pair<String, File>> filesToChecksum = new ArrayList<>();
+
+        final String splitName = null;
+        filesToChecksum.add(Pair.create(splitName, new File(filePath)));
+
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                getChecksumsSync(context, filesToChecksum, required, installerPackageName,
+                        trustedInstallers, result);
             }
-
-            context.getPackageManager().requestChecksums(packageName, includeSplits, required,
-                    trustedInstallers, new PackageManager.OnChecksumsReadyListener() {
-                        @Override
-                        public void onChecksumsReady(List<ApkChecksum> apkChecksums) {
-                            if (apkChecksums == null) {
-                                result.setException(
-                                        new IllegalStateException("Checksums missing."));
-                                return;
-                            }
-
-                            try {
-                                Checksum[] checksums = new Checksum[apkChecksums.size()];
-                                for (int i = 0, size = apkChecksums.size(); i < size; ++i) {
-                                    ApkChecksum apkChecksum = apkChecksums.get(i);
-                                    checksums[i] = new Checksum(apkChecksum.getSplitName(),
-                                            apkChecksum.getType(), apkChecksum.getValue(),
-                                            apkChecksum.getInstallerPackageName(),
-                                            apkChecksum.getInstallerCertificate());
-                                }
-                                result.set(checksums);
-                            } catch (Throwable e) {
-                                result.setException(e);
-                            }
-                        }
-                    });
-
-            return result;
-        }
+        });
+        return result;
     }
 
-    private static void getChecksumsSync(@NonNull List<Pair<String, File>> filesToChecksum,
-            @Checksum.Type int required, ResolvableFuture<Checksum[]> result) {
+    static void getChecksumsSync(
+            @NonNull Context context,
+            @NonNull List<Pair<String, File>> filesToChecksum,
+            @Checksum.Type int required,
+            @Nullable String installerPackageName,
+            @Nullable List<Certificate> trustedInstallers,
+            ResolvableFuture<Checksum[]> result) {
         List<Checksum> allChecksums = new ArrayList<>();
         for (int i = 0, isize = filesToChecksum.size(); i < isize; ++i) {
             final String split = filesToChecksum.get(i).first;
             final File file = filesToChecksum.get(i).second;
             try {
                 final SparseArray<Checksum> checksums = new SparseArray<>();
+
+                if (BuildCompat.isAtLeastS()) {
+                    try {
+                        ChecksumsApiSImpl.getInstallerChecksums(context, split, file, required,
+                                installerPackageName, trustedInstallers, checksums);
+                    } catch (Throwable e) {
+                        Log.e(TAG, "Installer checksum calculation error", e);
+                    }
+                }
+
                 getRequiredApkChecksums(split, file, required, checksums);
 
                 for (int j = 0, jsize = checksums.size(); j < jsize; ++j) {
@@ -277,7 +301,7 @@ public final class Checksums {
         }
     }
 
-    private static boolean isRequired(@Checksum.Type int type,
+    static boolean isRequired(@Checksum.Type int type,
             @Checksum.Type int required, SparseArray<Checksum> checksums) {
         if ((required & type) == 0) {
             return false;
@@ -301,20 +325,18 @@ public final class Checksums {
     private static byte[] getApkChecksum(File file, int type) {
         try {
             FileInputStream fis = new FileInputStream(file);
-            BufferedInputStream bis = new BufferedInputStream(fis);
             try {
                 byte[] dataBytes = new byte[READ_CHUNK_SIZE];
                 int nread = 0;
 
                 final String algo = getMessageDigestAlgoForChecksumType(type);
                 MessageDigest md = MessageDigest.getInstance(algo);
-                while ((nread = bis.read(dataBytes)) != -1) {
+                while ((nread = fis.read(dataBytes)) != -1) {
                     md.update(dataBytes, 0, nread);
                 }
 
                 return md.digest();
             } finally {
-                bis.close();
                 fis.close();
             }
         } catch (IOException e) {

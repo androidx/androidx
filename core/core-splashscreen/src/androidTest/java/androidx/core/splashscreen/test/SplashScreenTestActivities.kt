@@ -19,7 +19,7 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
-public class SplashScreenTestActivity : Activity(), SplashScreenTestControllerHolder {
+open class SplashScreenTestActivity : Activity(), SplashScreenTestControllerHolder {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +30,9 @@ public class SplashScreenTestActivity : Activity(), SplashScreenTestControllerHo
     override lateinit var controller: SplashScreenTestController
 }
 
-public class SplashScreenAppCompatTestActivity :
+class SplashScreenWithIconBgTestActivity : SplashScreenTestActivity()
+
+class SplashScreenAppCompatTestActivity :
     AppCompatActivity(), SplashScreenTestControllerHolder {
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -116,6 +116,10 @@ private fun File.extractPackageNames(): Set<String> = JarFile(this)
 class RenameServicesTransformer : Transformer {
     private val renamed = mutableMapOf<String, String>()
 
+    override fun getName(): String {
+        return "RenameServicesTransformer"
+    }
+
     override fun canTransformResource(element: FileTreeElement?): Boolean {
         return element?.relativePath?.startsWith("META-INF/services") ?: false
     }

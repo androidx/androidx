@@ -60,7 +60,7 @@ public class CoroutinesRoom private constructor() {
             // Use the transaction dispatcher if we are on a transaction coroutine, otherwise
             // use the database dispatchers.
             val context = coroutineContext[TransactionElement]?.transactionDispatcher
-                ?: if (inTransaction) db.transactionDispatcher else db.queryDispatcher
+                ?: if (inTransaction) db.transactionDispatcher else db.getQueryDispatcher()
             return withContext(context) {
                 callable.call()
             }
@@ -81,7 +81,7 @@ public class CoroutinesRoom private constructor() {
             // Use the transaction dispatcher if we are on a transaction coroutine, otherwise
             // use the database dispatchers.
             val context = coroutineContext[TransactionElement]?.transactionDispatcher
-                ?: if (inTransaction) db.transactionDispatcher else db.queryDispatcher
+                ?: if (inTransaction) db.transactionDispatcher else db.getQueryDispatcher()
             return suspendCancellableCoroutine<R> { continuation ->
                 val job = GlobalScope.launch(context) {
                     try {
@@ -117,7 +117,7 @@ public class CoroutinesRoom private constructor() {
                 }
                 observerChannel.trySend(Unit) // Initial signal to perform first query.
                 val queryContext = coroutineContext[TransactionElement]?.transactionDispatcher
-                    ?: if (inTransaction) db.transactionDispatcher else db.queryDispatcher
+                    ?: if (inTransaction) db.transactionDispatcher else db.getQueryDispatcher()
                 val resultChannel = Channel<R>()
                 launch(queryContext) {
                     db.invalidationTracker.addObserver(observer)
@@ -144,10 +144,12 @@ public class CoroutinesRoom private constructor() {
  *
  * @hide
  */
-internal val RoomDatabase.queryDispatcher: CoroutineDispatcher
-    get() = backingFieldMap.getOrPut("QueryDispatcher") {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RoomDatabase.getQueryDispatcher(): CoroutineDispatcher {
+    return backingFieldMap.getOrPut("QueryDispatcher") {
         queryExecutor.asCoroutineDispatcher()
     } as CoroutineDispatcher
+}
 
 /**
  * Gets the transaction coroutine dispatcher.

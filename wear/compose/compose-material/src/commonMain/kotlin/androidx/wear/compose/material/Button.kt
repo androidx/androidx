@@ -54,6 +54,16 @@ import androidx.compose.ui.unit.dp
  *
  * [Button]s can be enabled or disabled. A disabled button will not respond to click events.
  *
+ * Example of a [Button] displaying an icon:
+ * @sample androidx.wear.compose.material.samples.ButtonWithIcon
+ *
+ * Example of a [Button] with text content and size modified to LargeButtonSize:
+ * @sample androidx.wear.compose.material.samples.ButtonWithText
+ *
+ * For more information, see the
+ * [Buttons](https://developer.android.com/training/wearables/components/buttons)
+ * guide.
+ *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
@@ -120,6 +130,13 @@ fun Button(
  * [Colors.onPrimary].
  *
  * [CompactButton]s can be enabled or disabled. A disabled button will not respond to click events.
+ *
+ * Example usage:
+ * @sample androidx.wear.compose.material.samples.CompactButtonWithIcon
+ *
+ * For more information, see the
+ * [Buttons](https://developer.android.com/training/wearables/components/buttons)
+ * guide.
  *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.

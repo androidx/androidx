@@ -48,6 +48,7 @@ import androidx.exifinterface.media.ExifInterface;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -76,6 +77,7 @@ import java.util.concurrent.Semaphore;
  */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class ImageSaverTest {
 
     private static final int WIDTH = 160;
@@ -86,6 +88,7 @@ public class ImageSaverTest {
     private static final int Y_ROW_STRIDE = WIDTH;
     private static final int UV_PIXEL_STRIDE = 1;
     private static final int UV_ROW_STRIDE = WIDTH / 2;
+    private static final int DEFAULT_JPEG_QUALITY = 100;
     private static final String JPEG_IMAGE_DATA_BASE_64 =
             "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB"
                     + "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEB"
@@ -274,6 +277,7 @@ public class ImageSaverTest {
                 image,
                 outputFileOptions,
                 /*orientation=*/ 0,
+                DEFAULT_JPEG_QUALITY,
                 mBackgroundExecutor,
                 mBackgroundExecutor,
                 mSyncCallback);

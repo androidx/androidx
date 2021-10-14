@@ -130,7 +130,7 @@ MissingNullability: androidx.preference.DropDownPreference#DropDownPreference(an
 MissingNullability: androidx.preference.DropDownPreference#createAdapter():
     Missing nullability on method `createAdapter` return
 MissingNullability: androidx.preference.DropDownPreference#onBindViewHolder(androidx.preference.PreferenceViewHolder) parameter #0:
-    Missing nullability on parameter `view` in method `onBindViewHolder`
+    Missing nullability on parameter `holder` in method `onBindViewHolder`
 MissingNullability: androidx.preference.EditTextPreference#EditTextPreference(android.content.Context) parameter #0:
     Missing nullability on parameter `context` in method `EditTextPreference`
 MissingNullability: androidx.preference.EditTextPreference#EditTextPreference(android.content.Context, android.util.AttributeSet) parameter #0:
@@ -658,7 +658,7 @@ MissingNullability: androidx.preference.SeekBarPreference#SeekBarPreference(andr
 MissingNullability: androidx.preference.SeekBarPreference#SeekBarPreference(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
     Missing nullability on parameter `attrs` in method `SeekBarPreference`
 MissingNullability: androidx.preference.SeekBarPreference#onBindViewHolder(androidx.preference.PreferenceViewHolder) parameter #0:
-    Missing nullability on parameter `view` in method `onBindViewHolder`
+    Missing nullability on parameter `holder` in method `onBindViewHolder`
 MissingNullability: androidx.preference.SeekBarPreference#onGetDefaultValue(android.content.res.TypedArray, int):
     Missing nullability on method `onGetDefaultValue` return
 MissingNullability: androidx.preference.SeekBarPreference#onGetDefaultValue(android.content.res.TypedArray, int) parameter #0:

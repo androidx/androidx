@@ -18,6 +18,7 @@ package androidx.camera.camera2.interop;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
@@ -47,6 +48,7 @@ import java.util.concurrent.Executor;
  * unexpected behavior depends on the options being applied.
  */
 @ExperimentalCamera2Interop
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2CameraControl {
 
     /** @hide */
@@ -149,6 +151,7 @@ public final class Camera2CameraControl {
      * options are set or camera is closed before the current request completes.
      * Cancelling the ListenableFuture is a no-op.
      */
+    @SuppressWarnings("AsyncSuffixFuture")
     @NonNull
     public ListenableFuture<Void> setCaptureRequestOptions(
             @NonNull CaptureRequestOptions bundle) {
@@ -181,6 +184,7 @@ public final class Camera2CameraControl {
      * completely. The future fails with {@link CameraControl.OperationCanceledException} if newer
      * options are set or camera is closed before the current request completes.
      */
+    @SuppressWarnings("AsyncSuffixFuture")
     @NonNull
     public ListenableFuture<Void> addCaptureRequestOptions(
             @NonNull CaptureRequestOptions bundle) {

@@ -23,6 +23,7 @@ import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -31,6 +32,7 @@ import java.io.File
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 class OutputOptionsTest {
 
     companion object {
@@ -42,13 +44,11 @@ class OutputOptionsTest {
         val savedFile = File.createTempFile("CameraX", ".tmp")
         savedFile.deleteOnExit()
 
-        val fileOutputOptions = FileOutputOptions.builder()
-            .setFile(savedFile)
+        val fileOutputOptions = FileOutputOptions.Builder(savedFile)
             .setFileSizeLimit(FILE_SIZE_LIMIT)
             .build()
 
         assertThat(fileOutputOptions).isNotNull()
-        assertThat(fileOutputOptions.type).isEqualTo(OutputOptions.OPTIONS_TYPE_FILE)
         assertThat(fileOutputOptions.file).isNotNull()
         assertThat(fileOutputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
         savedFile.delete()
@@ -65,19 +65,16 @@ class OutputOptionsTest {
             put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
         }
 
-        val mediaStoreOutputOptions = MediaStoreOutputOptions.builder()
-            .setContentResolver(contentResolver)
-            .setFileSizeLimit(FILE_SIZE_LIMIT)
-            .setCollection(MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
-            .setContentValues(contentValues)
-            .build()
+        val mediaStoreOutputOptions = MediaStoreOutputOptions.Builder(
+            contentResolver,
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        ).setContentValues(contentValues).setFileSizeLimit(FILE_SIZE_LIMIT).build()
 
         assertThat(mediaStoreOutputOptions.contentResolver).isEqualTo(contentResolver)
-        assertThat(mediaStoreOutputOptions.collection).isEqualTo(
+        assertThat(mediaStoreOutputOptions.collectionUri).isEqualTo(
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         )
         assertThat(mediaStoreOutputOptions.contentValues).isEqualTo(contentValues)
-        assertThat(mediaStoreOutputOptions.type).isEqualTo(OutputOptions.OPTIONS_TYPE_MEDIA_STORE)
         assertThat(mediaStoreOutputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
     }
 
@@ -89,13 +86,11 @@ class OutputOptionsTest {
             savedFile,
             ParcelFileDescriptor.MODE_READ_WRITE
         ).use { pfd ->
-            val fdOutputOptions = FileDescriptorOutputOptions.builder()
-                .setParcelFileDescriptor(pfd)
+            val fdOutputOptions = FileDescriptorOutputOptions.Builder(pfd)
                 .setFileSizeLimit(FILE_SIZE_LIMIT)
                 .build()
 
             assertThat(fdOutputOptions).isNotNull()
-            assertThat(fdOutputOptions.type).isEqualTo(OutputOptions.OPTIONS_TYPE_FILE_DESCRIPTOR)
             assertThat(fdOutputOptions.parcelFileDescriptor).isNotNull()
             assertThat(fdOutputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
         }
@@ -106,9 +101,7 @@ class OutputOptionsTest {
     fun file_builderContainsCorrectDefaults() {
         val savedFile = File.createTempFile("CameraX", ".tmp")
         savedFile.deleteOnExit()
-        val fileOutputOptions = FileOutputOptions.builder()
-            .setFile(savedFile)
-            .build()
+        val fileOutputOptions = FileOutputOptions.Builder(savedFile).build()
 
         assertThat(fileOutputOptions.fileSizeLimit).isEqualTo(OutputOptions.FILE_SIZE_UNLIMITED)
         savedFile.delete()
@@ -118,19 +111,14 @@ class OutputOptionsTest {
     fun mediaStore_builderContainsCorrectDefaults() {
         val context: Context = ApplicationProvider.getApplicationContext()
         val contentResolver: ContentResolver = context.contentResolver
-        val fileName = "OutputOptionTest"
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
-            put(MediaStore.Video.Media.TITLE, fileName)
-            put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
-        }
 
-        val mediaStoreOutputOptions = MediaStoreOutputOptions.builder()
-            .setContentResolver(contentResolver)
-            .setCollection(MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
-            .setContentValues(contentValues)
-            .build()
+        val mediaStoreOutputOptions = MediaStoreOutputOptions.Builder(
+            contentResolver,
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        ).build()
 
+        assertThat(mediaStoreOutputOptions.contentValues)
+            .isEqualTo(MediaStoreOutputOptions.EMPTY_CONTENT_VALUES)
         assertThat(mediaStoreOutputOptions.fileSizeLimit)
             .isEqualTo(OutputOptions.FILE_SIZE_UNLIMITED)
     }
@@ -142,9 +130,7 @@ class OutputOptionsTest {
             savedFile,
             ParcelFileDescriptor.MODE_READ_WRITE
         ).use { pfd ->
-            val fdOutputOptions = FileDescriptorOutputOptions.builder()
-                .setParcelFileDescriptor(pfd)
-                .build()
+            val fdOutputOptions = FileDescriptorOutputOptions.Builder(pfd).build()
 
             assertThat(fdOutputOptions.fileSizeLimit).isEqualTo(OutputOptions.FILE_SIZE_UNLIMITED)
         }

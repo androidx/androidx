@@ -17,6 +17,7 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
 
@@ -25,6 +26,7 @@ import com.google.auto.value.AutoValue;
  * The caller should make the input value object unique when calling the {@link #create(Object)}
  * function. So that the {@link Identifier} can be recognized and used for specific purposes.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class Identifier {
     /**

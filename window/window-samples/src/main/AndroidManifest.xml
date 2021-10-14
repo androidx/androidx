@@ -23,7 +23,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".WindowDemosActivity"
+        <activity android:name=".demos.WindowDemosActivity"
             android:exported="true"
             android:label="@string/windowManagerDemos">
             <intent-filter>
@@ -37,11 +37,17 @@
         <activity
             android:name=".DisplayFeaturesActivity"
             android:exported="false"
+            android:configChanges=
+                "orientation|screenSize|screenLayout|screenSize|layoutDirection|smallestScreenSize"
             android:label="@string/display_features" />
         <activity
             android:name=".SplitLayoutActivity"
             android:exported="false"
             android:label="@string/split_layout" />
+        <activity android:name=".WindowMetricsActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|screenSize"
+            android:label="@string/window_metrics"/>
     </application>
 
 </manifest>

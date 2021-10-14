@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
+import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.platformstorage.converter.SearchResultToPlatformConverter;
 import androidx.concurrent.futures.ResolvableFuture;
@@ -30,6 +31,7 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -42,12 +44,15 @@ import java.util.concurrent.Executor;
 @RequiresApi(Build.VERSION_CODES.S)
 class SearchResultsImpl implements SearchResults {
     private final android.app.appsearch.SearchResults mPlatformResults;
+    private final SearchSpec mSearchSpec;
     private final Executor mExecutor;
 
     SearchResultsImpl(
             @NonNull android.app.appsearch.SearchResults platformResults,
+            @NonNull SearchSpec searchSpec,
             @NonNull Executor executor) {
         mPlatformResults = Preconditions.checkNotNull(platformResults);
+        mSearchSpec = Preconditions.checkNotNull(searchSpec);
         mExecutor = Preconditions.checkNotNull(executor);
     }
 
@@ -60,6 +65,20 @@ class SearchResultsImpl implements SearchResults {
                 List<android.app.appsearch.SearchResult> frameworkResults = result.getResultValue();
                 List<SearchResult> jetpackResults = new ArrayList<>(frameworkResults.size());
                 for (int i = 0; i < frameworkResults.size(); i++) {
+                    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.S) {
+                        // This is a patch for b/197361770, framework-appsearch in Android S will
+                        // disable the whole namespace filter if none of given namespaces exist.
+                        // And that will result in Icing return all documents this query is able
+                        // to access.
+                        if (i == 0 && !mSearchSpec.getFilterNamespaces().isEmpty()
+                                && !mSearchSpec.getFilterNamespaces().contains(
+                                frameworkResults.get(i).getGenericDocument().getNamespace())) {
+                            // And in the meantime, since none of the namespace and document that
+                            // use query for exists, we should just return an empty result.
+                            future.set(Collections.emptyList());
+                            return;
+                        }
+                    }
                     SearchResult jetpackResult =
                             SearchResultToPlatformConverter.toJetpackSearchResult(
                                     frameworkResults.get(i));

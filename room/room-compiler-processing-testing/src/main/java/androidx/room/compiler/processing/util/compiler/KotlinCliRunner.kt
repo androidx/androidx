@@ -95,6 +95,7 @@ internal object KotlinCliRunner {
         destinationDir.mkdirs()
         cliArguments.destination = destinationDir.absolutePath
         arguments.copyToCliArguments(cliArguments)
+        compiler.parseArguments(arguments.kotlincArguments.toTypedArray(), cliArguments)
 
         val diagnosticsMessageCollector = DiagnosticsMessageCollector()
         val exitCode = DelegatingTestRegistrar.runCompilation(
@@ -103,10 +104,12 @@ internal object KotlinCliRunner {
             arguments = cliArguments,
             pluginRegistrars = pluginRegistrars
         )
+
         return KotlinCliResult(
             exitCode = exitCode,
             diagnostics = diagnosticsMessageCollector.getDiagnostics(),
-            compiledClasspath = destinationDir
+            compiledClasspath = destinationDir,
+            kotlinCliArguments = cliArguments
         )
     }
 
@@ -125,7 +128,11 @@ internal object KotlinCliRunner {
         /**
          * The output classpath for the compiled files.
          */
-        val compiledClasspath: File
+        val compiledClasspath: File,
+        /**
+         * Compiler arguments that were passed into Kotlin CLI
+         */
+        val kotlinCliArguments: K2JVMCompilerArguments
     )
 
     private val inheritedClasspath by lazy(LazyThreadSafetyMode.NONE) {

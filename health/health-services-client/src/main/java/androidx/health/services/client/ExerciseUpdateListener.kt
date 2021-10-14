@@ -16,6 +16,8 @@
 
 package androidx.health.services.client
 
+import androidx.health.services.client.data.Availability
+import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.ExerciseLapSummary
 import androidx.health.services.client.data.ExerciseState
 import androidx.health.services.client.data.ExerciseUpdate
@@ -28,4 +30,7 @@ public interface ExerciseUpdateListener {
 
     /** Called during an ACTIVE exercise once a lap has been marked. */
     public fun onLapSummary(lapSummary: ExerciseLapSummary)
+
+    /** Called during an ACTIVE exercise when the availability of a [DataType] changes. */
+    public fun onAvailabilityChanged(dataType: DataType, availability: Availability)
 }

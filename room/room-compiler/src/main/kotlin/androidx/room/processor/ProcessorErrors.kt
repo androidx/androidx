@@ -36,6 +36,8 @@ object ProcessorErrors {
         return this.trimIndent().replace("\n", " ")
     }
 
+    val ISSUE_TRACKER_LINK = "https://issuetracker.google.com/issues/new?component=413107"
+
     val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"
     val MISSING_INSERT_ANNOTATION = "Insertion methods must be annotated with ${Insert::class.java}"
     val MISSING_DELETE_ANNOTATION = "Deletion methods must be annotated with ${Delete::class.java}"
@@ -451,8 +453,6 @@ object ProcessorErrors {
             "create an index that covers this column."
 
     val RELATION_IN_ENTITY = "Entities cannot have relations."
-
-    val CANNOT_FIND_TYPE = "Cannot find type."
 
     fun relationAffinityMismatch(
         parentColumn: String,

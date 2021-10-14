@@ -20,6 +20,7 @@ import android.content.Context
 import android.hardware.camera2.CameraManager
 import android.util.ArrayMap
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.Debug
@@ -39,6 +40,7 @@ import javax.inject.Singleton
  * This class is designed to be thread safe and provides suspend functions for querying and
  * accessing CameraMetadata.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
 internal class Camera2MetadataCache @Inject constructor(
     private val context: Context,

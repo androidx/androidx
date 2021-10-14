@@ -19,4 +19,6 @@
     <public name="windowSplashScreenAnimationDuration" type="attr" />
     <public name="postSplashScreenTheme" type="attr" />
     <public name="Theme.SplashScreen" type="style" />
+    <public name="Theme.SplashScreen.IconBackground" type="style" />
+    <public name="splashscreen_icon_size" type="dimen" />
 </resources>

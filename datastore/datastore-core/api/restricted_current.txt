@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.datastore.core {
 
-  public final class CorruptionException extends java.io.IOException {
+  public final class CorruptionException extends androidx.datastore.core.StorageException {
     ctor public CorruptionException(String message, optional Throwable? cause);
   }
 
@@ -30,6 +30,10 @@ package androidx.datastore.core {
     method public suspend Object? readFrom(java.io.InputStream input, kotlin.coroutines.Continuation<? super T> p);
     method public suspend Object? writeTo(T? t, java.io.OutputStream output, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     property public abstract T! defaultValue;
+  }
+
+  public class StorageException extends java.io.IOException {
+    ctor public StorageException(String message, optional Throwable? cause);
   }
 
 }

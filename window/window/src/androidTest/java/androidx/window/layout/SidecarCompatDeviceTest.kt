@@ -61,7 +61,7 @@ public class SidecarCompatDeviceTest : WindowTestBase(), CompatDeviceTestInterfa
 
     @Before
     public fun setUp() {
-        assumeExtensionV01()
+        assumeValidSidecar()
         sidecarCompat = SidecarCompat(ApplicationProvider.getApplicationContext() as Context)
     }
 
@@ -124,9 +124,9 @@ public class SidecarCompatDeviceTest : WindowTestBase(), CompatDeviceTestInterfa
         }
     }
 
-    private fun assumeExtensionV01() {
+    private fun assumeValidSidecar() {
         val sidecarVersion = SidecarCompat.sidecarVersion
-        assumeTrue(Version.VERSION_0_1 == sidecarVersion)
+        assumeTrue(Version.VERSION_0_1 == sidecarVersion || Version.VERSION_1_0 == sidecarVersion)
     }
 
     private class SidecarMatcher(

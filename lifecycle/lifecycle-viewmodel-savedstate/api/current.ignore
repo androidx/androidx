@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.lifecycle.SavedStateViewModelFactory#create(Class<T>):
+    Removed method androidx.lifecycle.SavedStateViewModelFactory.create(Class<T>)

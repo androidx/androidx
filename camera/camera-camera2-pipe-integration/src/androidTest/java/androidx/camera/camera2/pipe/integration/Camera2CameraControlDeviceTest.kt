@@ -43,6 +43,7 @@ import androidx.camera.testing.CameraUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
 import com.google.common.util.concurrent.ListenableFuture
@@ -64,6 +65,7 @@ import java.util.concurrent.TimeUnit
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalCamera2Interop::class)
+@SdkSuppress(minSdkVersion = 21)
 class Camera2CameraControlDeviceTest {
     private lateinit var cameraSelector: CameraSelector
     private lateinit var context: Context
@@ -187,7 +189,7 @@ class Camera2CameraControlDeviceTest {
                 )
                 .setCaptureRequestOption<Int>(
                     CaptureRequest.COLOR_CORRECTION_MODE,
-                    CameraMetadata.COLOR_CORRECTION_ABERRATION_MODE_OFF
+                    CameraMetadata.COLOR_CORRECTION_MODE_FAST
                 )
         assertFutureCompletes(camera2CameraControl.setCaptureRequestOptions(builder.build()))
 
@@ -213,7 +215,7 @@ class Camera2CameraControlDeviceTest {
             Truth.assertThat(it.last().request[CaptureRequest.CONTROL_CAPTURE_INTENT])
                 .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL)
             Truth.assertThat(it.last().request[CaptureRequest.COLOR_CORRECTION_MODE])
-                .isNotEqualTo(CaptureRequest.COLOR_CORRECTION_ABERRATION_MODE_OFF)
+                .isNotEqualTo(CaptureRequest.COLOR_CORRECTION_MODE_FAST)
         })
     }
 

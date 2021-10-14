@@ -1,4 +1,3 @@
-@file:OptIn(GlanceInternalApi::class)
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -17,7 +16,8 @@
 
 package androidx.glance.layout
 
-import androidx.glance.GlanceInternalApi
+import androidx.annotation.DimenRes
+import androidx.annotation.RestrictTo
 import androidx.glance.Modifier
 import androidx.glance.unit.Dp
 
@@ -26,50 +26,83 @@ import androidx.glance.unit.Dp
  *
  * These should only be used internally; developers should be using the width/height Modifiers
  * below rather than this class directly.
+ *
+ * @suppress
  */
-@GlanceInternalApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public sealed class Dimension {
     public class Dp(public val dp: androidx.glance.unit.Dp) : Dimension()
     public object Wrap : Dimension()
+    public object Fill : Dimension()
     public object Expand : Dimension()
+    public class Resource(@DimenRes public val res: Int) : Dimension()
 }
 
-/** Modifier to represent the width of an element. */
-@GlanceInternalApi
+/**
+ * Modifier to represent the width of an element.
+ *
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WidthModifier(public val width: Dimension) : Modifier.Element
 
 /** Sets the absolute width of an element, in [Dp]. */
 public fun Modifier.width(width: Dp): Modifier = this.then(WidthModifier(Dimension.Dp(width)))
 
+/** Set the width of a view from the value of a resource. */
+public fun Modifier.width(@DimenRes width: Int): Modifier =
+    this.then(WidthModifier(Dimension.Resource(width)))
+
 /** Specifies that the width of the element should wrap its contents. */
-public fun Modifier.wrapWidth(): Modifier = this.then(WidthModifier(Dimension.Wrap))
+public fun Modifier.wrapContentWidth(): Modifier = this.then(WidthModifier(Dimension.Wrap))
 
 /**
  * Specifies that the width of the element should expand to the size of its parent. Note that if
- * multiple elements within a linear container (e.g. Row or Column) have their width as expandWidth,
- * then they will all share the remaining space.
+ * multiple elements within a linear container (e.g. Row or Column) have their width as
+ * [fillMaxWidth], then they will all share the remaining space.
  */
-public fun Modifier.expandWidth(): Modifier = this.then(WidthModifier(Dimension.Expand))
+public fun Modifier.fillMaxWidth(): Modifier = this.then(WidthModifier(Dimension.Fill))
 
-/** Modifier to represent the height of an element. */
-@GlanceInternalApi
+/**
+ * Modifier to represent the height of an element.
+ *
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HeightModifier(public val height: Dimension) : Modifier.Element
 
 /** Sets the absolute height of an element, in [Dp]. */
 public fun Modifier.height(height: Dp): Modifier = this.then(HeightModifier(Dimension.Dp(height)))
 
+/** Set the height of the view from a resource. */
+public fun Modifier.height(@DimenRes height: Int): Modifier =
+    this.then(HeightModifier(Dimension.Resource(height)))
+
 /** Specifies that the height of the element should wrap its contents. */
-public fun Modifier.wrapHeight(): Modifier = this.then(HeightModifier(Dimension.Wrap))
+public fun Modifier.wrapContentHeight(): Modifier = this.then(HeightModifier(Dimension.Wrap))
 
 /**
  * Specifies that the height of the element should expand to the size of its parent. Note that if
  * multiple elements within a linear container (e.g. Row or Column) have their height as
  * expandHeight, then they will all share the remaining space.
  */
-public fun Modifier.expandHeight(): Modifier = this.then(HeightModifier(Dimension.Expand))
+public fun Modifier.fillMaxHeight(): Modifier = this.then(HeightModifier(Dimension.Fill))
 
 /** Sets both the width and height of an element, in [Dp]. */
 public fun Modifier.size(size: Dp): Modifier = this.width(size).height(size)
 
+/** Sets both width and height of an element from a resource. */
+public fun Modifier.size(@DimenRes size: Int): Modifier = this.width(size).height(size)
+
 /** Sets both the width and height of an element, in [Dp]. */
 public fun Modifier.size(width: Dp, height: Dp): Modifier = this.width(width).height(height)
+
+/** Sets both the width and height of an element from resources. */
+public fun Modifier.size(@DimenRes width: Int, @DimenRes height: Int): Modifier =
+    this.width(width).height(height)
+
+/** Wrap both the width and height's content. */
+public fun Modifier.wrapContentSize(): Modifier = this.wrapContentHeight().wrapContentWidth()
+
+/** Set both the width and height to the maximum available space. */
+public fun Modifier.fillMaxSize(): Modifier = this.fillMaxWidth().fillMaxHeight()

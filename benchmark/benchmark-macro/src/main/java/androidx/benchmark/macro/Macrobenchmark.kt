@@ -116,8 +116,8 @@ private fun macrobenchmark(
     require(metrics.isNotEmpty()) {
         "Empty list of metrics passed to metrics param, must pass at least one Metric"
     }
-    require(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        "Macrobenchmark currently requires Android 10 (API 29) or greater."
+    require(Build.VERSION.SDK_INT >= 23) {
+        "Macrobenchmark currently requires Android 6 (API 23) or greater."
     }
 
     // skip benchmark if not supported by vm settings
@@ -139,6 +139,9 @@ private fun macrobenchmark(
         }
     }
 
+    // package name for macrobench process, so it's captured as well
+    val macrobenchPackageName = InstrumentationRegistry.getInstrumentation().context.packageName
+
     // Perfetto collector is separate from metrics, so we can control file
     // output, and give it different (test-wide) lifecycle
     val perfettoCollector = PerfettoCaptureWrapper()
@@ -148,7 +151,7 @@ private fun macrobenchmark(
             it.configure(packageName)
         }
         var isFirstRun = true
-        val metricResults = List(iterations) { iteration ->
+        val measurements = List(iterations) { iteration ->
             userspaceTrace("setupBlock") {
                 setupBlock(scope, isFirstRun)
             }
@@ -157,7 +160,21 @@ private fun macrobenchmark(
             val tracePath = perfettoCollector.record(
                 benchmarkName = uniqueName,
                 iteration = iteration,
-                packages = listOf(packageName)
+
+                /**
+                 * Prior to API 24, every package name was joined into a single setprop which can
+                 * overflow, and disable *ALL* app level tracing.
+                 *
+                 * For safety here, we only trace the macrobench package on newer platforms, and use
+                 * reflection in the macrobench test process to trace important sections
+                 *
+                 * @see androidx.benchmark.macro.perfetto.ForceTracing
+                 */
+                packages = if (Build.VERSION.SDK_INT >= 24) {
+                    listOf(packageName, macrobenchPackageName)
+                } else {
+                    listOf(packageName)
+                }
             ) {
                 try {
                     userspaceTrace("start metrics") {
@@ -179,7 +196,7 @@ private fun macrobenchmark(
 
             tracePaths.add(tracePath)
 
-            val metricsWithUiState = userspaceTrace("extract metrics") {
+            val iterationResult = userspaceTrace("extract metrics") {
                 metrics
                     // capture list of Map<String,Long> per metric
                     .map { it.getMetrics(packageName, tracePath) }
@@ -188,8 +205,8 @@ private fun macrobenchmark(
             }
             // append UI state to trace, so tools opening trace will highlight relevant part in UI
             val uiState = UiState(
-                timelineStart = metricsWithUiState.timelineStart,
-                timelineEnd = metricsWithUiState.timelineEnd,
+                timelineStart = iterationResult.timelineRangeNs?.first,
+                timelineEnd = iterationResult.timelineRangeNs?.last,
                 highlightPackage = packageName
             )
             File(tracePath).apply {
@@ -202,10 +219,10 @@ private fun macrobenchmark(
             Log.d(TAG, "Iteration $iteration captured $uiState")
 
             // report just the metrics
-            metricsWithUiState.metrics
-        }.mergeToMetricResults(tracePaths)
+            iterationResult
+        }.mergeIterationMeasurements()
 
-        require(metricResults.isNotEmpty()) {
+        require(measurements.isNotEmpty()) {
             """
                 Unable to read any metrics during benchmark (metric list: $metrics).
                 Check that you're performing the operations to be measured. For example, if
@@ -214,16 +231,20 @@ private fun macrobenchmark(
             """.trimIndent()
         }
         InstrumentationResults.instrumentationReport {
-            val statsList = metricResults.map { it.stats }
             val (summaryV1, summaryV2) = ideSummaryStrings(
                 warningMessage,
                 uniqueName,
-                statsList,
+                measurements,
                 tracePaths
             )
             ideSummaryRecord(summaryV1 = summaryV1, summaryV2 = summaryV2)
             warningMessage = "" // warning only printed once
-            statsList.forEach { it.putInBundle(bundle, suppressionState?.prefix ?: "") }
+            measurements.singleMetrics.forEach {
+                it.putInBundle(bundle, suppressionState?.prefix ?: "")
+            }
+            measurements.sampledMetrics.forEach {
+                it.putPercentilesInBundle(bundle, suppressionState?.prefix ?: "")
+            }
         }
 
         val warmupIterations = if (compilationMode is CompilationMode.SpeedProfile) {
@@ -237,7 +258,7 @@ private fun macrobenchmark(
                 className = className,
                 testName = testName,
                 totalRunTimeNs = System.nanoTime() - startTime,
-                metrics = metricResults,
+                metrics = measurements,
                 repeatIterations = iterations,
                 thermalThrottleSleepSeconds = 0,
                 warmupIterations = warmupIterations

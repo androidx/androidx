@@ -17,20 +17,18 @@
 package androidx.camera.extensions.util;
 
 import static androidx.camera.extensions.ExtensionMode.AUTO;
-import static androidx.camera.extensions.ExtensionMode.BEAUTY;
 import static androidx.camera.extensions.ExtensionMode.BOKEH;
+import static androidx.camera.extensions.ExtensionMode.FACE_RETOUCH;
 import static androidx.camera.extensions.ExtensionMode.HDR;
 import static androidx.camera.extensions.ExtensionMode.NIGHT;
 
 import static junit.framework.TestCase.assertNotNull;
 
-import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
@@ -44,7 +42,6 @@ import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
-import androidx.camera.testing.CameraUtil;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,6 +49,7 @@ import java.util.Collection;
 /**
  * Extension test util functions.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExtensionsTestUtil {
     @NonNull
     public static Collection<Object[]> getAllExtensionsLensFacingCombinations() {
@@ -60,8 +58,8 @@ public class ExtensionsTestUtil {
                 {BOKEH, CameraSelector.LENS_FACING_BACK},
                 {HDR, CameraSelector.LENS_FACING_FRONT},
                 {HDR, CameraSelector.LENS_FACING_BACK},
-                {BEAUTY, CameraSelector.LENS_FACING_FRONT},
-                {BEAUTY, CameraSelector.LENS_FACING_BACK},
+                {FACE_RETOUCH, CameraSelector.LENS_FACING_FRONT},
+                {FACE_RETOUCH, CameraSelector.LENS_FACING_BACK},
                 {NIGHT, CameraSelector.LENS_FACING_FRONT},
                 {NIGHT, CameraSelector.LENS_FACING_BACK},
                 {AUTO, CameraSelector.LENS_FACING_FRONT},
@@ -71,16 +69,17 @@ public class ExtensionsTestUtil {
 
     /**
      * Creates an {@link ImageCaptureExtenderImpl} object for specific {@link ExtensionMode} and
-     * {@link CameraSelector.LensFacing}.
+     * camera id.
      *
      * @param extensionMode The extension mode for the created object.
-     * @param lensFacing The lens facing for the created object.
+     * @param cameraId The target camera id.
+     * @param cameraCharacteristics The camera characteristics of the target camera.
      * @return An {@link ImageCaptureExtenderImpl} object.
      */
     @NonNull
     public static ImageCaptureExtenderImpl createImageCaptureExtenderImpl(
-            @ExtensionMode.Mode int extensionMode, @CameraSelector.LensFacing int lensFacing)
-            throws CameraAccessException {
+            @ExtensionMode.Mode int extensionMode, @NonNull String cameraId,
+            @NonNull CameraCharacteristics cameraCharacteristics) {
         ImageCaptureExtenderImpl impl = null;
 
         switch (extensionMode) {
@@ -90,7 +89,7 @@ public class ExtensionsTestUtil {
             case BOKEH:
                 impl = new BokehImageCaptureExtenderImpl();
                 break;
-            case BEAUTY:
+            case FACE_RETOUCH:
                 impl = new BeautyImageCaptureExtenderImpl();
                 break;
             case NIGHT:
@@ -102,13 +101,6 @@ public class ExtensionsTestUtil {
         }
         assertNotNull(impl);
 
-        CameraSelector cameraSelector =
-                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
-
-        String cameraId = getCameraIdUnchecked(cameraSelector);
-        CameraCharacteristics cameraCharacteristics =
-                CameraUtil.getCameraManager().getCameraCharacteristics(cameraId);
-
         impl.init(cameraId, cameraCharacteristics);
 
         return impl;
@@ -116,16 +108,17 @@ public class ExtensionsTestUtil {
 
     /**
      * Creates a {@link PreviewExtenderImpl} object for specific {@link ExtensionMode} and
-     * {@link CameraSelector.LensFacing}.
+     * camera id.
      *
      * @param extensionMode The extension mode for the created object.
-     * @param lensFacing The lens facing for the created object.
+     * @param cameraId The target camera id.
+     * @param cameraCharacteristics The camera characteristics of the target camera.
      * @return A {@link PreviewExtenderImpl} object.
      */
     @NonNull
     public static PreviewExtenderImpl createPreviewExtenderImpl(
-            @ExtensionMode.Mode int extensionMode, @CameraSelector.LensFacing int lensFacing)
-            throws CameraAccessException {
+            @ExtensionMode.Mode int extensionMode, @NonNull String cameraId,
+            @NonNull CameraCharacteristics cameraCharacteristics) {
         PreviewExtenderImpl impl = null;
 
         switch (extensionMode) {
@@ -135,7 +128,7 @@ public class ExtensionsTestUtil {
             case BOKEH:
                 impl = new BokehPreviewExtenderImpl();
                 break;
-            case BEAUTY:
+            case FACE_RETOUCH:
                 impl = new BeautyPreviewExtenderImpl();
                 break;
             case NIGHT:
@@ -147,26 +140,8 @@ public class ExtensionsTestUtil {
         }
         assertNotNull(impl);
 
-        CameraSelector cameraSelector =
-                new CameraSelector.Builder().requireLensFacing(lensFacing).build();
-
-        String cameraId = getCameraIdUnchecked(cameraSelector);
-        CameraCharacteristics cameraCharacteristics =
-                CameraUtil.getCameraManager().getCameraCharacteristics(cameraId);
-
         impl.init(cameraId, cameraCharacteristics);
 
         return impl;
-    }
-
-    @Nullable
-    private static String getCameraIdUnchecked(@NonNull CameraSelector cameraSelector) {
-        try {
-            return CameraX.getCameraWithCameraSelector(
-                    cameraSelector).getCameraInfoInternal().getCameraId();
-        } catch (IllegalArgumentException e) {
-            // Returns null if there's no camera id can be found.
-            return null;
-        }
     }
 }

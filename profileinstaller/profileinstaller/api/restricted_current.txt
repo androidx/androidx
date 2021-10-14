@@ -19,6 +19,7 @@ package androidx.profileinstaller {
     field public static final int RESULT_DESIRED_FORMAT_UNSUPPORTED = 5; // 0x5
     field public static final int RESULT_INSTALL_SUCCESS = 1; // 0x1
     field public static final int RESULT_IO_EXCEPTION = 7; // 0x7
+    field public static final int RESULT_META_FILE_REQUIRED_BUT_NOT_FOUND = 9; // 0x9
     field public static final int RESULT_NOT_WRITABLE = 4; // 0x4
     field public static final int RESULT_PARSE_EXCEPTION = 8; // 0x8
     field public static final int RESULT_UNSUPPORTED_ART_VERSION = 3; // 0x3

@@ -20,6 +20,7 @@ import android.content.Context;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.InitializationException;
 import androidx.camera.core.Logger;
@@ -39,6 +40,7 @@ import java.util.Set;
 /**
  * A collection of {@link CameraInternal} instances.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraRepository {
     private static final String TAG = "CameraRepository";
     private final Object mCamerasLock = new Object();

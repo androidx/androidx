@@ -16,41 +16,44 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcel
 import android.os.Parcelable
+import androidx.health.services.client.proto.DataProto
+import java.lang.IllegalStateException
 
 /** High-level info about the exercise. */
-public data class ExerciseInfo(
+@Suppress("ParcelCreator")
+public class ExerciseInfo(
     /** Returns the [ExerciseTrackedStatus]. */
-    val exerciseTrackedStatus: ExerciseTrackedStatus,
+    public val exerciseTrackedStatus: ExerciseTrackedStatus,
 
     /**
      * Returns the [ExerciseType] of the active exercise, or [ExerciseType.UNKNOWN] if there is no
      * active exercise.
      */
-    val exerciseType: ExerciseType,
-) : Parcelable {
-    override fun describeContents(): Int = 0
+    public val exerciseType: ExerciseType,
+) : ProtoParcelable<DataProto.ExerciseInfo>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(exerciseTrackedStatus.id)
-        dest.writeInt(exerciseType.id)
+    internal constructor(
+        proto: DataProto.ExerciseInfo
+    ) : this(
+        ExerciseTrackedStatus.fromProto(proto.exerciseTrackedStatus)
+            ?: throw IllegalStateException("Invalid status ${proto.exerciseTrackedStatus}"),
+        ExerciseType.fromProto(proto.exerciseType)
+    )
+
+    /** @hide */
+    override val proto: DataProto.ExerciseInfo by lazy {
+        DataProto.ExerciseInfo.newBuilder()
+            .setExerciseTrackedStatus(exerciseTrackedStatus.toProto())
+            .setExerciseType(exerciseType.toProto())
+            .build()
     }
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseInfo> =
-            object : Parcelable.Creator<ExerciseInfo> {
-                override fun createFromParcel(source: Parcel): ExerciseInfo? {
-                    return ExerciseInfo(
-                        ExerciseTrackedStatus.fromId(source.readInt()) ?: return null,
-                        ExerciseType.fromId(source.readInt())
-                    )
-                }
-
-                override fun newArray(size: Int): Array<ExerciseInfo?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<ExerciseInfo> = newCreator { bytes ->
+            val proto = DataProto.ExerciseInfo.parseFrom(bytes)
+            ExerciseInfo(proto)
+        }
     }
 }

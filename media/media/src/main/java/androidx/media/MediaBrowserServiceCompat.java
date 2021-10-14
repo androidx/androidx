@@ -408,7 +408,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
                         void onResultSent(@Nullable List<MediaBrowserCompat.MediaItem> list) {
                             List<Parcel> parcelList = null;
                             if (list != null) {
-                                parcelList = new ArrayList<>();
+                                parcelList = new ArrayList<>(list.size());
                                 for (MediaBrowserCompat.MediaItem item : list) {
                                     Parcel parcel = Parcel.obtain();
                                     item.writeToParcel(parcel, 0);
@@ -591,7 +591,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
                                 // the list. In other words, we need to apply options here.
                                 list = applyOptions(list, options);
                             }
-                            List<Parcel> parcelList = new ArrayList<>();
+                            List<Parcel> parcelList = new ArrayList<>(list.size());
                             for (MediaBrowserCompat.MediaItem item : list) {
                                 Parcel parcel = Parcel.obtain();
                                 item.writeToParcel(parcel, 0);
@@ -1287,7 +1287,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
             if (parcelList == null) {
                 return null;
             }
-            List<MediaBrowser.MediaItem> items = new ArrayList<>();
+            List<MediaBrowser.MediaItem> items = new ArrayList<>(parcelList.size());
             for (Parcel parcel : parcelList) {
                 parcel.setDataPosition(0);
                 items.add(MediaBrowser.MediaItem.CREATOR.createFromParcel(parcel));

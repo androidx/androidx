@@ -33,6 +33,7 @@ import android.os.Bundle;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 
+import androidx.mediarouter.testing.MediaRouterTestHelper;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -88,7 +89,7 @@ public class MediaRouterTest {
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                MediaRouter.reset();
+                MediaRouterTestHelper.resetMediaRouter();
             }
         });
     }
@@ -277,7 +278,7 @@ public class MediaRouterTest {
         assertNotNull(mRouter);
         assertNotNull(MediaRouter.getGlobalRouter());
 
-        MediaRouter.reset();
+        MediaRouterTestHelper.resetMediaRouter();
         assertNull(MediaRouter.getGlobalRouter());
 
         MediaRouter newInstance = MediaRouter.getInstance(mContext);

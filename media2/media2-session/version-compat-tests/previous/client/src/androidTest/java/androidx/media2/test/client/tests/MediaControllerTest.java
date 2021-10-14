@@ -42,6 +42,7 @@ import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.VideoSize;
@@ -49,9 +50,13 @@ import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaController.ControllerCallback;
 import androidx.media2.session.MediaController.ControllerCallbackRunnable;
 import androidx.media2.session.MediaController.PlaybackInfo;
+import androidx.media2.session.SessionCommand;
+import androidx.media2.session.SessionCommandGroup;
+import androidx.media2.session.SessionResult;
 import androidx.media2.session.SessionToken;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSession;
+import androidx.media2.test.common.CustomParcelable;
 import androidx.media2.test.common.PollingCheck;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -106,7 +111,6 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void builder() {
-        prepareLooper();
         MediaController.Builder builder;
 
         try {
@@ -140,6 +144,16 @@ public class MediaControllerTest extends MediaSessionTestBase {
             // expected. pass-through
         }
 
+        try {
+            Bundle connectionHints = new Bundle();
+            connectionHints.putParcelable("key", new CustomParcelable(1));
+            builder = new MediaController.Builder(mContext);
+            builder.setConnectionHints(connectionHints);
+            fail("custom parcelables shouldn't be allowed for connectionHints");
+        } catch (IllegalArgumentException e) {
+            // expected. pass-through
+        }
+
         MediaController controller = new MediaController.Builder(mContext)
                 .setSessionToken(mRemoteSession.getToken())
                 .setControllerCallback(sHandlerExecutor, new ControllerCallback() {})
@@ -149,7 +163,6 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void getSessionActivity() throws InterruptedException {
-        prepareLooper();
         RemoteMediaSession session = createRemoteMediaSession(TEST_GET_SESSION_ACTIVITY, null);
 
         MediaController controller = createController(session.getToken());
@@ -167,7 +180,6 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void setVolumeWithLocalVolume() throws Exception {
-        prepareLooper();
         if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
             // This test is not eligible for this device.
             return;
@@ -188,9 +200,9 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
         AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(stream).build();
-        Bundle playerConfig = RemoteMediaSession.createMockPlayerConnectorConfig(
-                0 /* state */, 0 /* buffState */, 0 /* position */, 0 /* buffPosition */,
-                0f /* speed */, attrs);
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setAudioAttributes(attrs)
+                .build();
         mRemoteSession.updatePlayer(playerConfig);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
@@ -211,8 +223,65 @@ public class MediaControllerTest extends MediaSessionTestBase {
     }
 
     @Test
+    public void setVolumeWithLocalVolume_afterStreamTypeChanged() throws Exception {
+        if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
+            // This test is not eligible for this device.
+            return;
+        }
+
+        int oldStream = AudioManager.STREAM_MUSIC;
+        int volumeForOldStream = mAudioManager.getStreamVolume(oldStream);
+
+        int stream = AudioManager.STREAM_ALARM;
+        int maxVolume = mAudioManager.getStreamMaxVolume(stream);
+        int minVolume =
+                Build.VERSION.SDK_INT >= 28 ? mAudioManager.getStreamMinVolume(stream) : 0;
+        Log.d(TAG, "maxVolume=" + maxVolume + ", minVolume=" + minVolume);
+        if (maxVolume <= minVolume) {
+            return;
+        }
+
+        CountDownLatch latch = new CountDownLatch(1);
+        MediaController controller = createController(mRemoteSession.getToken(),
+                true /* waitForConnect */, null /* connectionHints */, new ControllerCallback() {
+                    @Override
+                    public void onPlaybackInfoChanged(@NonNull MediaController controller,
+                            @NonNull PlaybackInfo info) {
+                        AudioAttributesCompat attrs = info.getAudioAttributes();
+                        if (attrs != null && attrs.getLegacyStreamType() == stream) {
+                            latch.countDown();
+                        }
+                    }
+                });
+
+        AudioAttributesCompat oldAttrs = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(oldStream).build();
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setAudioAttributes(oldAttrs)
+                .build();
+        mRemoteSession.updatePlayer(playerConfig);
+
+        AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(stream).build();
+        mRemoteSession.getMockPlayer().notifyAudioAttributesChanged(attrs);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+
+        int originalVolume = mAudioManager.getStreamVolume(stream);
+        int targetVolume = originalVolume == minVolume ? originalVolume + 1 : originalVolume - 1;
+        Log.d(TAG, "originalVolume=" + originalVolume + ", targetVolume=" + targetVolume);
+
+        controller.setVolumeTo(targetVolume, AudioManager.FLAG_SHOW_UI);
+        PollingCheck.waitFor(VOLUME_CHANGE_TIMEOUT_MS,
+                () -> targetVolume == mAudioManager.getStreamVolume(stream));
+
+        // Set back to original volume.
+        mAudioManager.setStreamVolume(stream, originalVolume, 0 /* flags */);
+
+        assertEquals(volumeForOldStream, mAudioManager.getStreamVolume(oldStream));
+    }
+
+    @Test
     public void adjustVolumeWithLocalVolume() throws Exception {
-        prepareLooper();
         if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
             // This test is not eligible for this device.
             return;
@@ -233,9 +302,9 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
         AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(stream).build();
-        Bundle playerConfig = RemoteMediaSession.createMockPlayerConnectorConfig(
-                0 /* state */, 0 /* buffState */, 0 /* position */, 0 /* buffPosition */,
-                0f /* speed */, attrs);
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setAudioAttributes(attrs)
+                .build();
         mRemoteSession.updatePlayer(playerConfig);
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
@@ -258,14 +327,12 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void getPackageName() throws Exception {
-        prepareLooper();
         MediaController controller = createController(mRemoteSession.getToken());
         assertEquals(SERVICE_PACKAGE_NAME, controller.getConnectedToken().getPackageName());
     }
 
     @Test
     public void getTokenExtras() throws Exception {
-        prepareLooper();
         Bundle testTokenExtras = TestUtils.createTestBundle();
         RemoteMediaSession session = createRemoteMediaSession("testGetExtras", testTokenExtras);
 
@@ -277,7 +344,6 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void isConnected() throws InterruptedException {
-        prepareLooper();
         MediaController controller = createController(mRemoteSession.getToken());
         assertTrue(controller.isConnected());
 
@@ -288,7 +354,6 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void close_beforeConnected() throws InterruptedException {
-        prepareLooper();
         MediaController controller = createController(mRemoteSession.getToken(),
                 false /* waitForConnect */, null, null /* callback */);
         controller.close();
@@ -296,7 +361,6 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void close_twice() throws InterruptedException {
-        prepareLooper();
         MediaController controller = createController(mRemoteSession.getToken());
         controller.close();
         controller.close();
@@ -304,7 +368,6 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void gettersAfterConnected() throws InterruptedException {
-        prepareLooper();
         final int state = SessionPlayer.PLAYER_STATE_PLAYING;
         final int bufferingState = SessionPlayer.BUFFERING_STATE_COMPLETE;
         final long position = 150000;
@@ -313,10 +376,15 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final long timeDiff = 102;
         final MediaItem currentMediaItem = MediaTestUtils.createFileMediaItemWithMetadata();
 
-        Bundle config = RemoteMediaSession.createMockPlayerConnectorConfig(
-                state, bufferingState, position, bufferedPosition, speed, null /* audioAttrs */,
-                null /* playlist */, currentMediaItem, null /* metadata */);
-        mRemoteSession.updatePlayer(config);
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setPlayerState(state)
+                .setBufferingState(bufferingState)
+                .setCurrentPosition(position)
+                .setBufferedPosition(bufferedPosition)
+                .setPlaybackSpeed(speed)
+                .setCurrentMediaItem(currentMediaItem)
+                .build();
+        mRemoteSession.updatePlayer(playerConfig);
 
         MediaController controller = createController(mRemoteSession.getToken());
         controller.setTimeDiff(timeDiff);
@@ -330,14 +398,13 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void getPlaybackInfo() throws Exception {
-        prepareLooper();
         final AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
                 .setContentType(CONTENT_TYPE_MUSIC)
                 .build();
 
-        Bundle playerConfig = RemoteMediaSession.createMockPlayerConnectorConfig(
-                0 /* state */, 0 /* buffState */, 0 /* position */, 0 /* buffPosition */,
-                0f /* speed */, attrs);
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setAudioAttributes(attrs)
+                .build();
         mRemoteSession.updatePlayer(playerConfig);
 
         final MediaController controller = createController(mRemoteSession.getToken());
@@ -359,46 +426,41 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void getVideoSize() throws InterruptedException {
-        prepareLooper();
-
         VideoSize testSize = new VideoSize(100, 42);
-        Bundle playerConfig = RemoteMediaSession.createMockPlayerConnectorConfigForVideoSize(
-                testSize);
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setVideoSize(testSize)
+                .build();
         mRemoteSession.updatePlayer(playerConfig);
         MediaController controller = createController(mRemoteSession.getToken());
         assertEquals(testSize, controller.getVideoSize());
     }
 
     @Test
-    public void getTrackInfo() throws Exception {
-        prepareLooper();
-
+    public void getTracks() throws Exception {
         List<SessionPlayer.TrackInfo> testTracks = MediaTestUtils.createTrackInfoList();
-        Bundle playerConfig =
-                RemoteMediaSession.createMockPlayerConnectorConfigForTrackInfo(testTracks);
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setTrackInfo(testTracks)
+                .build();
         mRemoteSession.updatePlayer(playerConfig);
 
         MediaController controller = createController(mRemoteSession.getToken());
-        List<SessionPlayer.TrackInfo> testTracksFromController = controller.getTrackInfo();
-        assertEquals(testTracks.size(), testTracksFromController.size());
-        for (int i = 0; i < testTracks.size(); i++) {
-            assertEquals(testTracks.get(i).getId(), testTracksFromController.get(i).getId());
-        }
+        List<SessionPlayer.TrackInfo> testTracksFromController = controller.getTracks();
+        assertEquals(testTracks, testTracksFromController);
     }
 
     @Test
     public void selectDeselectTrackAndGetSelectedTrack() throws Exception {
-        prepareLooper();
         CountDownLatch selectTrackLatch = new CountDownLatch(1);
         CountDownLatch deselectTrackLatch = new CountDownLatch(1);
-        AtomicReference<TrackInfo> selectedTrackRef = new AtomicReference<>();
+        AtomicReference<SessionPlayer.TrackInfo> selectedTrackRef = new AtomicReference<>();
         AtomicReference<SessionPlayer.TrackInfo> deselectedTrackRef = new AtomicReference<>();
 
         List<TrackInfo> testTracks = MediaTestUtils.createTrackInfoList();
         TrackInfo testTrack = testTracks.get(2);
         int testTrackType = testTrack.getTrackType();
-        Bundle playerConfig =
-                RemoteMediaSession.createMockPlayerConnectorConfigForTrackInfo(testTracks);
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setTrackInfo(testTracks)
+                .build();
         mRemoteSession.updatePlayer(playerConfig);
         MediaController controller = createController(mRemoteSession.getToken(), true, null,
                 new MediaController.ControllerCallback() {
@@ -420,12 +482,12 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
         controller.selectTrack(testTrack);
         assertTrue(selectTrackLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertEquals(testTrack.getId(), selectedTrackRef.get().getId());
-        assertEquals(testTrack.getId(), controller.getSelectedTrack(testTrackType).getId());
+        assertEquals(testTrack, selectedTrackRef.get());
+        assertEquals(testTrack, controller.getSelectedTrack(testTrackType));
 
         controller.deselectTrack(testTrack);
         assertTrue(deselectTrackLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertEquals(testTrack.getId(), deselectedTrackRef.get().getId());
+        assertEquals(testTrack, deselectedTrackRef.get());
         assertNull(controller.getSelectedTrack(testTrackType));
     }
 
@@ -435,36 +497,35 @@ public class MediaControllerTest extends MediaSessionTestBase {
      */
     @Test
     public void registerExtraCallback() throws InterruptedException {
-        prepareLooper();
-
         MediaController controller = createController(mRemoteSession.getToken(),
                 false /* waitForConnect */, null, null);
         ControllerCallback testCallback1 = new ControllerCallback() {};
         ControllerCallback testCallback2 = new ControllerCallback() {};
 
-        List<Pair<ControllerCallback, Executor>> callbacks = controller.getExtraCallbacks();
+        List<Pair<ControllerCallback, Executor>> callbacks =
+                controller.getExtraControllerCallbacks();
         assertNotNull(callbacks);
         assertEquals(0, callbacks.size());
 
         controller.registerExtraCallback(sHandlerExecutor, testCallback1);
-        callbacks = controller.getExtraCallbacks();
+        callbacks = controller.getExtraControllerCallbacks();
         assertNotNull(callbacks);
         assertEquals(1, callbacks.size());
         assertNotNull(callbacks.get(0));
         assertSame(testCallback1, callbacks.get(0).first);
 
         controller.registerExtraCallback(sHandlerExecutor, testCallback1);
-        callbacks = controller.getExtraCallbacks();
+        callbacks = controller.getExtraControllerCallbacks();
         assertNotNull(callbacks);
         assertEquals(1, callbacks.size());
 
         controller.unregisterExtraCallback(testCallback2);
-        callbacks = controller.getExtraCallbacks();
+        callbacks = controller.getExtraControllerCallbacks();
         assertNotNull(callbacks);
         assertEquals(1, callbacks.size());
 
         controller.registerExtraCallback(sHandlerExecutor, testCallback2);
-        callbacks = controller.getExtraCallbacks();
+        callbacks = controller.getExtraControllerCallbacks();
         assertNotNull(callbacks);
         assertEquals(2, callbacks.size());
         assertNotNull(callbacks.get(0));
@@ -473,7 +534,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         assertSame(testCallback2, callbacks.get(1).first);
 
         controller.unregisterExtraCallback(testCallback1);
-        callbacks = controller.getExtraCallbacks();
+        callbacks = controller.getExtraControllerCallbacks();
         assertNotNull(callbacks);
         assertEquals(1, callbacks.size());
         assertNotNull(callbacks.get(0));
@@ -482,8 +543,6 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void notifyControllerCallback() throws InterruptedException {
-        prepareLooper();
-
         final CountDownLatch primaryLatch = new CountDownLatch(1);
         ControllerCallback primaryCallback = new ControllerCallback() {
             @Override
@@ -509,7 +568,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
                 false /* waitForConnect */, null, primaryCallback);
         controller.registerExtraCallback(sHandlerExecutor, extraCallback1);
         controller.registerExtraCallback(sHandlerExecutor, extraCallback2);
-        controller.notifyControllerCallback(new ControllerCallbackRunnable() {
+        controller.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
                 callback.onPlaybackCompleted(controller);
@@ -518,6 +577,76 @@ public class MediaControllerTest extends MediaSessionTestBase {
         assertTrue(primaryLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(extraLatch1.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(extraLatch2.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void futuresCompleted_AllowedCommandsChange() throws Exception {
+        RemoteMediaSession session = mRemoteSession;
+        MediaController controller = createController(session.getToken());
+
+        SessionCommandGroup.Builder builder = new SessionCommandGroup.Builder();
+        SessionCommand fastForwardCommand = new SessionCommand(
+                SessionCommand.COMMAND_CODE_SESSION_FAST_FORWARD);
+        SessionCommand customCommand = new SessionCommand("custom", null);
+
+        int trials = 100;
+        CountDownLatch latch = new CountDownLatch(trials * 2);
+
+        for (int trial = 0; trial < trials; trial++) {
+            if (trial % 2 == 0) {
+                builder.addCommand(fastForwardCommand);
+                builder.addCommand(customCommand);
+            } else {
+                builder.removeCommand(fastForwardCommand);
+                builder.removeCommand(customCommand);
+            }
+            session.setAllowedCommands(builder.build());
+
+            controller.fastForward()
+                    .addListener(latch::countDown, Runnable::run);
+            controller.sendCustomCommand(customCommand, null)
+                    .addListener(latch::countDown, Runnable::run);
+        }
+
+        assertTrue("All futures should be completed", latch.await(10, TimeUnit.SECONDS));
+    }
+
+    @Test
+    public void play_returnsSessionResultWithMediaItem() throws Exception {
+        RemoteMediaSession session = mRemoteSession;
+        session.getMockPlayer().createAndSetFakePlaylist(/* size= */ 1);
+        session.getMockPlayer().setCurrentMediaItem(/* index= */ 0);
+
+        MediaController controller = createController(session.getToken());
+        SessionResult result = controller.play().get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        assertNotNull(result.getMediaItem());
+    }
+
+    @Test
+    public void getPlaylistMetadata_returnsPlaylistMetadataOfPlayerInSession() throws Exception {
+        MediaMetadata testMetadata = MediaTestUtils.createMetadata();
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setPlaylistMetadata(testMetadata)
+                .build();
+        mRemoteSession.updatePlayer(playerConfig);
+
+        MediaController controller = createController(mRemoteSession.getToken());
+        MediaMetadata metadata = controller.getPlaylistMetadata();
+        assertEquals(testMetadata.getString(MediaMetadata.METADATA_KEY_MEDIA_ID),
+                metadata.getString(MediaMetadata.METADATA_KEY_MEDIA_ID));
+    }
+
+    @Test
+    public void getBufferingState_returnsBufferingStateOfPlayerInSession() throws Exception {
+        int testBufferingState = SessionPlayer.BUFFERING_STATE_COMPLETE;
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setBufferingState(testBufferingState)
+                .build();
+        mRemoteSession.updatePlayer(playerConfig);
+
+        MediaController controller = createController(mRemoteSession.getToken());
+        int bufferingState = controller.getBufferingState();
+        assertEquals(testBufferingState, bufferingState);
     }
 
     RemoteMediaSession createRemoteMediaSession(String id, Bundle tokenExtras) {

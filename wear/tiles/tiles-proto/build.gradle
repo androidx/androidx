@@ -19,7 +19,7 @@ import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 import androidx.build.dependencies.DependenciesKt
-import androidx.build.shadow.AndroidXDontIncludeResourceTransformer
+import com.github.jengelman.gradle.plugins.shadow.transformers.DontIncludeResourceTransformer
 
 plugins {
     id("AndroidXPlugin")
@@ -60,8 +60,7 @@ shadowJar {
     // library is included from two different downstream libraries. exclude("*.proto") (or
     // **/*.proto etc etc) doesn't exclude the ones from libs.protobufLite, so take a more heavy handed
     // approach and use a transformer to strip those files.
-    // TODO: move back to DontIncludeResourceTransformer.class once Shadow plugin version >6.1.0
-    transform(AndroidXDontIncludeResourceTransformer.class) {
+    transform(DontIncludeResourceTransformer.class) {
         resource = ".proto"
     }
 }

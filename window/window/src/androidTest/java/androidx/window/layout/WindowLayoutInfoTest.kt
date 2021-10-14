@@ -21,7 +21,6 @@ import androidx.window.core.Bounds
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
 import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
-import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
@@ -33,21 +32,12 @@ import org.junit.runner.RunWith
 public class WindowLayoutInfoTest {
 
     @Test
-    public fun testBuilder_empty() {
-        val builder = WindowLayoutInfo.Builder()
-        val windowLayoutInfo = builder.build()
-        assertThat(windowLayoutInfo.displayFeatures).isEmpty()
-    }
-
-    @Test
     public fun testBuilder_setDisplayFeatures() {
         val feature1: DisplayFeature = HardwareFoldingFeature(Bounds(1, 0, 3, 4), HINGE, FLAT)
         val feature2: DisplayFeature =
             HardwareFoldingFeature(Bounds(1, 0, 1, 4), HINGE, HALF_OPENED)
         val displayFeatures = listOf(feature1, feature2)
-        val builder = WindowLayoutInfo.Builder()
-        builder.setDisplayFeatures(displayFeatures)
-        val windowLayoutInfo = builder.build()
+        val windowLayoutInfo = WindowLayoutInfo(displayFeatures)
         assertEquals(displayFeatures, windowLayoutInfo.displayFeatures)
     }
 

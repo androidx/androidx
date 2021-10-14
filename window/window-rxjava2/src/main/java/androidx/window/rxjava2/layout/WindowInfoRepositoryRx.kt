@@ -19,27 +19,10 @@ package androidx.window.rxjava2.layout
 
 import androidx.window.layout.WindowInfoRepository
 import androidx.window.layout.WindowLayoutInfo
-import androidx.window.layout.WindowMetrics
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.coroutines.rx2.asObservable
-
-/**
- * Return an [Observable] stream of [WindowMetrics].
- * @see WindowInfoRepository.currentWindowMetrics
- */
-fun WindowInfoRepository.currentWindowMetricsObservable(): Observable<WindowMetrics> {
-    return currentWindowMetrics.asObservable()
-}
-
-/**
- * Return a [Flowable] stream of [WindowMetrics].
- * @see WindowInfoRepository.currentWindowMetrics
- */
-fun WindowInfoRepository.currentWindowMetricsFlowable(): Flowable<WindowMetrics> {
-    return currentWindowMetrics.asFlowable()
-}
 
 /**
  * Return an [Observable] stream of [WindowLayoutInfo].

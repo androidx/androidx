@@ -17,12 +17,13 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,13 +35,14 @@ import java.util.Map;
  * the camera capture, but not currently capturing. Active means the use case is either currently
  * issuing a capture request or one has already been issued.
  */
-
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class UseCaseAttachState {
     private static final String TAG = "UseCaseAttachState";
     /** The name of the camera the use cases are attached to. */
     private final String mCameraId;
     /** A map of the use cases to the corresponding state information. */
-    private final Map<String, UseCaseAttachInfo> mAttachedUseCasesToInfoMap = new HashMap<>();
+    // Use LinkedHashMap to retain the attached order for bug fixing and unit testing.
+    private final Map<String, UseCaseAttachInfo> mAttachedUseCasesToInfoMap = new LinkedHashMap<>();
 
     /** Constructs an instance of the attach state which corresponds to the named camera. */
     public UseCaseAttachState(@NonNull String cameraId) {

@@ -56,6 +56,7 @@ public class ProfileInstaller {
     private static final String PROFILE_BASE_DIR = "/data/misc/profiles/cur/0";
     private static final String PROFILE_FILE = "primary.prof";
     private static final String PROFILE_SOURCE_LOCATION = "dexopt/baseline.prof";
+    private static final String PROFILE_META_LOCATION = "dexopt/baseline.profm";
     private static final String PROFILE_INSTALLER_SKIP_FILE_NAME =
             "profileinstaller_profileWrittenFor_lastUpdateTime.dat";
 
@@ -225,7 +226,8 @@ public class ProfileInstaller {
             RESULT_DESIRED_FORMAT_UNSUPPORTED,
             RESULT_BASELINE_PROFILE_NOT_FOUND,
             RESULT_IO_EXCEPTION,
-            RESULT_PARSE_EXCEPTION
+            RESULT_PARSE_EXCEPTION,
+            RESULT_META_FILE_REQUIRED_BUT_NOT_FOUND
     })
     public @interface ResultCode {}
 
@@ -278,6 +280,12 @@ public class ProfileInstaller {
      * this result is the exception.
      */
     @ResultCode public static final int RESULT_PARSE_EXCEPTION = 8;
+
+    /**
+     * Indicates that the device requires a metadata file in order to install the profile
+     * successfully, but there was not one included in the APK.
+     */
+    @ResultCode public static final int RESULT_META_FILE_REQUIRED_BUT_NOT_FOUND = 9;
 
     /**
      * Check if we've already installed a profile for this app installation.
@@ -352,7 +360,7 @@ public class ProfileInstaller {
         File curProfile = new File(new File(PROFILE_BASE_DIR, packageName), PROFILE_FILE);
 
         DeviceProfileWriter deviceProfileWriter = new DeviceProfileWriter(assets, executor,
-                diagnostics, apkName, PROFILE_SOURCE_LOCATION, curProfile);
+                diagnostics, apkName, PROFILE_SOURCE_LOCATION, PROFILE_META_LOCATION, curProfile);
 
         if (!deviceProfileWriter.deviceAllowsProfileInstallerAotWrites()) {
             return; /* nothing else to do here */

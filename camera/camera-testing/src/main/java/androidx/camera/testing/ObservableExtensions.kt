@@ -15,9 +15,11 @@
  */
 
 @file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 
 package androidx.camera.testing
 
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Observable
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineStart

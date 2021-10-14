@@ -111,7 +111,7 @@ fun ComposeContentTestRule.textStyleOf(text: String): TextStyle {
     return textLayoutResults[0].layoutInput.style
 }
 
-fun assertTextStyleEquals(expectedStyle: TextStyle, actualStyle: TextStyle) {
+fun assertTextTypographyEquals(expectedStyle: TextStyle, actualStyle: TextStyle) {
     Assert.assertEquals(expectedStyle.fontSize, actualStyle.fontSize)
     Assert.assertEquals(expectedStyle.fontFamily, actualStyle.fontFamily)
     Assert.assertEquals(expectedStyle.letterSpacing, actualStyle.letterSpacing)
@@ -187,12 +187,11 @@ fun ImageBitmap.printHistogramToLog(expectedColor: Color): ImageBitmap {
 internal fun SemanticsNodeInteraction.assertHeightIsEqualTo(
     expectedHeight: Dp,
     tolerance: Dp = Dp(0.5f)
-):
-    SemanticsNodeInteraction {
-        return withUnclippedBoundsInRoot {
-            it.height.assertIsEqualTo(expectedHeight, "height", tolerance)
-        }
+): SemanticsNodeInteraction {
+    return withUnclippedBoundsInRoot {
+        it.height.assertIsEqualTo(expectedHeight, "height", tolerance)
     }
+}
 
 private fun SemanticsNodeInteraction.withUnclippedBoundsInRoot(
     assertion: (DpRect) -> Unit

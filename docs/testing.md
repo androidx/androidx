@@ -39,7 +39,7 @@ We use the
 to determine what projects have changed since the last merge.
 
 In presubmit, "affected" modules will run all host and device tests regardless
-of size. Modules that _depend_ on affected modules will run all host tests, but
+of size. Modules that *depend* on affected modules will run all host tests, but
 will only run device tests annotated with `@SmallTest` or `@MediumTest`.
 
 When changes are made that can't be associated with a module, are in the root of
@@ -60,7 +60,7 @@ All device tests *should* be given a size annotation, which is one of:
 *   [`@MediumTest`](https://developer.android.com/reference/androidx/test/filters/MediumTest)
 *   [`@LargeTest`](https://developer.android.com/reference/androidx/test/filters/LargeTest)
 
-If a device test is _not_ annotated with its size, it will be run as if it were
+If a device test is *not* annotated with its size, it will be run as if it were
 `@LargeTest` by default. Host tests do not need to be annotated with their size,
 as all host tests are run regardless of size.
 
@@ -120,6 +120,27 @@ timing and also makes tests faster.
 In rare cases, like testing the animations themselves, you may want to enable
 animations for a particular test or test class. For those cases, you can use the
 [`AnimationDurationScaleRule`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:testutils/testutils-runtime/src/main/java/androidx/testutils/AnimationDurationScaleRule.kt).
+
+### Robolectric
+
+Robolectric tests are supported in AndroidX; however, if you targeting a
+pre-release version of the Android SDK then you may see an error like
+
+```
+java.lang.IllegalArgumentException: Package targetSdkVersion=31 > maxSdkVersion=30
+at org.robolectric.plugins.DefaultSdkPicker.configuredSdks(DefaultSdkPicker.java:118)
+at org.robolectric.plugins.DefaultSdkPicker.selectSdks(DefaultSdkPicker.java:69)
+```
+
+You can force Robolectric to run using an earlier version of the platform SDK by
+creating a `<project>/src/test/resources/robolectric.properties` file with the
+following contents:
+
+```
+# Robolectric currently doesn't support API 31, so we have to explicitly specify 30 as the target
+# sdk for now. Remove when no longer necessary.
+sdk=30
+```
 
 ## Using the emulator {#emulator}
 

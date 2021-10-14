@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.annotation.SuppressLint
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.EvCompControl
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
@@ -32,6 +33,7 @@ import javax.inject.Inject
  * [CameraStateAdapter] caches and updates based on callbacks from the active CameraGraph.
  */
 @SuppressLint("UnsafeOptInUsageError")
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
 class CameraStateAdapter @Inject constructor(
     private val zoomControl: ZoomControl,

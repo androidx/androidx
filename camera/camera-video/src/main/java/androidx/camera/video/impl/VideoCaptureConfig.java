@@ -17,6 +17,7 @@
 package androidx.camera.video.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
@@ -33,6 +34,7 @@ import androidx.camera.video.VideoOutput;
  *
  * @param <T> the type of VideoOutput
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class VideoCaptureConfig<T extends VideoOutput>
         implements UseCaseConfig<VideoCapture<T>>,
         ImageOutputConfig,

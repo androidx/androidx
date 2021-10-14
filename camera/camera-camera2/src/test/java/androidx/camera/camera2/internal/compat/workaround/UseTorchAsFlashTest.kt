@@ -48,11 +48,13 @@ class UseTorchAsFlashTest {
 
     @Test
     fun shouldUseTorchAsFlash_withCameraNoResponseWhenEnablingFlashQuirk_isTrue() {
-        ShadowBuild.setBrand(CameraNoResponseWhenEnablingFlashQuirk.BUILD_BRAND)
-        ShadowBuild.setModel(CameraNoResponseWhenEnablingFlashQuirk.BUILD_MODEL)
-        val useTorchAsFlash = createUseTorchAsFlash()
+        CameraNoResponseWhenEnablingFlashQuirk.AFFECTED_MODELS.forEach { model ->
+            ShadowBuild.setBrand(ImageCaptureWashedOutImageQuirk.BUILD_BRAND)
+            ShadowBuild.setModel(model)
+            val useTorchAsFlash = createUseTorchAsFlash()
 
-        assertThat(useTorchAsFlash.shouldUseTorchAsFlash()).isTrue()
+            assertThat(useTorchAsFlash.shouldUseTorchAsFlash()).isTrue()
+        }
     }
 
     @Test
@@ -68,12 +70,14 @@ class UseTorchAsFlashTest {
 
     @Test
     fun shouldUseTorchAsFlash_lensFacingFront_isFalse() {
-        ShadowBuild.setBrand(CameraNoResponseWhenEnablingFlashQuirk.BUILD_BRAND)
-        ShadowBuild.setModel(CameraNoResponseWhenEnablingFlashQuirk.BUILD_MODEL)
-        val useTorchAsFlash =
-            createUseTorchAsFlash(lensFacing = CameraCharacteristics.LENS_FACING_FRONT)
+        CameraNoResponseWhenEnablingFlashQuirk.AFFECTED_MODELS.forEach { model ->
+            ShadowBuild.setBrand(ImageCaptureWashedOutImageQuirk.BUILD_BRAND)
+            ShadowBuild.setModel(model)
+            val useTorchAsFlash =
+                createUseTorchAsFlash(lensFacing = CameraCharacteristics.LENS_FACING_FRONT)
 
-        assertThat(useTorchAsFlash.shouldUseTorchAsFlash()).isFalse()
+            assertThat(useTorchAsFlash.shouldUseTorchAsFlash()).isFalse()
+        }
     }
 
     private fun createUseTorchAsFlash(

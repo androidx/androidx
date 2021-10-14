@@ -64,7 +64,7 @@ public @interface Index {
      * Note that there is no value in providing a sort order on a single-column index. Column sort
      * order of an index are relevant on multi-column indices and specifically in those that are
      * considered 'covering indices', for such indices specifying an order can have performance
-     * improvements on queries containing ORDER BY clauses.SchemaDifferTest See
+     * improvements on queries containing ORDER BY clauses. See
      * <a href="https://www.sqlite.org/queryplanner.html#_sorting_by_index">SQLite documentation</a>
      * for details on sorting by index and the usage of the sort order by the query optimizer.
      * <p>

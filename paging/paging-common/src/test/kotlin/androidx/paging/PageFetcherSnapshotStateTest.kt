@@ -16,11 +16,11 @@
 
 package androidx.paging
 
+import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadState.NotLoading
-import androidx.paging.LoadState.Loading
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import com.google.common.truth.Truth.assertThat
@@ -463,26 +463,26 @@ class PageFetcherSnapshotStateTest {
         val config = PagingConfig(pageSize = 2)
         val state = PageFetcherSnapshotState.Holder<Int, Int>(config = config).withLock { it }
 
-        // assert initial IDLE state
-        assertThat(state.sourceLoadStates.snapshot()).isEqualTo(LoadStates.IDLE)
-
-        state.sourceLoadStates.set(APPEND, NotLoading.Complete)
+        // assert initial state
+        assertThat(state.sourceLoadStates.snapshot()).isEqualTo(loadStates(refresh = Loading))
 
         // assert APPEND state is updated
-        assertThat(state.sourceLoadStates.snapshot()).isEqualTo(
-            loadStates(append = NotLoading.Complete)
-        )
-
-        state.sourceLoadStates.set(REFRESH, Loading)
-
-        // assert REFRESH state is incrementally updated
+        state.sourceLoadStates.set(APPEND, NotLoading.Complete)
         assertThat(state.sourceLoadStates.snapshot()).isEqualTo(
             loadStates(
                 refresh = Loading,
-                append = NotLoading.Complete,
+                append = NotLoading.Complete
             )
         )
 
+        // assert REFRESH state is incrementally updated
+        state.sourceLoadStates.set(REFRESH, NotLoading.Incomplete)
+        assertThat(state.sourceLoadStates.snapshot()).isEqualTo(
+            loadStates(
+                refresh = NotLoading.Incomplete,
+                append = NotLoading.Complete,
+            )
+        )
         assertThat(state.sourceLoadStates.get(APPEND)).isEqualTo(NotLoading.Complete)
     }
 

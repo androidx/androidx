@@ -16,39 +16,32 @@
 
 package androidx.health.services.client.impl.request
 
-import android.os.Parcel
 import android.os.Parcelable
+import androidx.health.services.client.data.ProtoParcelable
+import androidx.health.services.client.proto.RequestsProto
 
 /**
  * Request for enabling/disabling auto pause/resume.
  *
  * @hide
  */
-public data class AutoPauseAndResumeConfigRequest(
-    val packageName: String,
-    val shouldEnable: Boolean,
-) : Parcelable {
-    override fun describeContents(): Int = 0
+public class AutoPauseAndResumeConfigRequest(
+    public val packageName: String,
+    public val shouldEnable: Boolean,
+) : ProtoParcelable<RequestsProto.AutoPauseAndResumeConfigRequest>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeString(packageName)
-        dest.writeInt(if (shouldEnable) 1 else 0)
+    override val proto: RequestsProto.AutoPauseAndResumeConfigRequest by lazy {
+        RequestsProto.AutoPauseAndResumeConfigRequest.newBuilder()
+            .setPackageName(packageName)
+            .setShouldEnable(shouldEnable)
+            .build()
     }
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<AutoPauseAndResumeConfigRequest> =
-            object : Parcelable.Creator<AutoPauseAndResumeConfigRequest> {
-                override fun createFromParcel(source: Parcel): AutoPauseAndResumeConfigRequest? {
-                    return AutoPauseAndResumeConfigRequest(
-                        source.readString() ?: return null,
-                        source.readInt() == 1,
-                    )
-                }
-
-                override fun newArray(size: Int): Array<AutoPauseAndResumeConfigRequest?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<AutoPauseAndResumeConfigRequest> = newCreator {
+            val request = RequestsProto.AutoPauseAndResumeConfigRequest.parseFrom(it)
+            AutoPauseAndResumeConfigRequest(request.packageName, request.shouldEnable)
+        }
     }
 }

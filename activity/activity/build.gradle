@@ -17,12 +17,13 @@ android {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     implementation("androidx.collection:collection:1.0.0")
-    api(project(":core:core"))
+    api(projectOrArtifact(":core:core"))
     api("androidx.lifecycle:lifecycle-runtime:2.3.1")
     api("androidx.lifecycle:lifecycle-viewmodel:2.3.1")
     api("androidx.savedstate:savedstate:1.1.0")
     api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.1")
     implementation("androidx.tracing:tracing:1.0.0")
+    api(libs.kotlinStdlib)
 
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     androidTestImplementation(libs.kotlinStdlib)

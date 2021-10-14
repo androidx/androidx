@@ -1,4 +1,6 @@
 // Baseline format: 1.0
+CallbackName: androidx.lifecycle.DefaultLifecycleObserver:
+    Class should be named DefaultLifecycleCallback
 CallbackName: androidx.lifecycle.LifecycleEventObserver:
     Class should be named LifecycleEventCallback
 CallbackName: androidx.lifecycle.LifecycleObserver:

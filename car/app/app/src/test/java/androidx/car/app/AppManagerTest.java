@@ -25,8 +25,12 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
 
+import android.Manifest;
+import android.app.Application;
 import android.graphics.Rect;
+import android.location.Location;
 import android.os.RemoteException;
 
 import androidx.activity.OnBackPressedCallback;
@@ -49,6 +53,7 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
+import org.robolectric.shadows.ShadowApplication;
 
 /** Tests for {@link AppManager}. */
 @RunWith(RobolectricTestRunner.class)
@@ -69,6 +74,7 @@ public final class AppManagerTest {
     @Captor
     private ArgumentCaptor<ISurfaceCallback> mSurfaceCallbackCaptor;
 
+    private Application mApplication;
     private TestCarContext mTestCarContext;
     private final HostDispatcher mHostDispatcher = new HostDispatcher();
 
@@ -78,8 +84,8 @@ public final class AppManagerTest {
     public void setUp() throws RemoteException {
         MockitoAnnotations.initMocks(this);
 
-        mTestCarContext =
-                TestCarContext.createCarContext(ApplicationProvider.getApplicationContext());
+        mApplication = ApplicationProvider.getApplicationContext();
+        mTestCarContext = TestCarContext.createCarContext(mApplication);
 
         IAppHost appHost =
                 new IAppHost.Stub() {
@@ -98,6 +104,11 @@ public final class AppManagerTest {
                     public void setSurfaceCallback(@Nullable ISurfaceCallback surfaceCallback)
                             throws RemoteException {
                         mMockAppHost.setSurfaceCallback(surfaceCallback);
+                    }
+
+                    @Override
+                    public void sendLocation(Location location) throws RemoteException {
+                        mMockAppHost.sendLocation(location);
                     }
                 };
         when(mMockCarHost.getHost(any())).thenReturn(appHost.asBinder());
@@ -444,6 +455,50 @@ public final class AppManagerTest {
         mSurfaceCallbackCaptor.getValue().onScale(1, 2, 3);
 
         verify(mSurfaceCallback, never()).onScale(anyFloat(), anyFloat(), anyFloat());
+    }
+
+    @Test
+    public void startLocationUpdates_permissionNotGranted_failure() throws RemoteException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        mAppManager.getIInterface().startLocationUpdates(mMockOnDoneCallback);
+
+        verify(mMockOnDoneCallback).onFailure(any());
+    }
+
+    @Test
+    public void startLocationUpdates_lifecycleCreated_sendsToApp() throws RemoteException {
+        ShadowApplication app = shadowOf(mApplication);
+        app.grantPermissions(Manifest.permission.ACCESS_FINE_LOCATION);
+
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        mAppManager.getIInterface().startLocationUpdates(mMockOnDoneCallback);
+
+        verify(mMockOnDoneCallback).onSuccess(any());
+    }
+
+    @Test
+    public void startLocationUpdates_lifecycleNotCreated_doesNotSendToApp() throws RemoteException {
+        ShadowApplication app = shadowOf(mApplication);
+        app.grantPermissions(Manifest.permission.ACCESS_FINE_LOCATION);
+
+        mAppManager.getIInterface().startLocationUpdates(mMockOnDoneCallback);
+
+        verify(mMockOnDoneCallback).onFailure(any());
+    }
+
+    @Test
+    public void stopLocationUpdates_lifecycleCreated_sendsToApp() throws RemoteException {
+        mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
+        mAppManager.getIInterface().stopLocationUpdates(mMockOnDoneCallback);
+
+        verify(mMockOnDoneCallback).onSuccess(any());
+    }
+
+    @Test
+    public void stopLocationUpdates_lifecycleNotCreated_doesNotSendToApp() throws RemoteException {
+        mAppManager.getIInterface().stopLocationUpdates(mMockOnDoneCallback);
+
+        verify(mMockOnDoneCallback).onFailure(any());
     }
 
     private static class NonBundleableTemplate implements Template {

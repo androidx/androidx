@@ -126,19 +126,22 @@ public object ResultWriter {
             .name("params").paramsObject(benchmarkResult)
             .name("className").value(benchmarkResult.className)
             .name("totalRunTimeNs").value(benchmarkResult.totalRunTimeNs)
-            .name("metrics").metricsContainerObject(benchmarkResult.metrics)
+            .name("metrics").metricsContainerObject(benchmarkResult.metrics.singleMetrics)
+            .name("sampledMetrics").sampledMetricsContainerObject(
+                benchmarkResult.metrics.sampledMetrics
+            )
             .name("warmupIterations").value(benchmarkResult.warmupIterations)
             .name("repeatIterations").value(benchmarkResult.repeatIterations)
             .name("thermalThrottleSleepSeconds").value(benchmarkResult.thermalThrottleSleepSeconds)
         return endObject()
     }
 
-    private fun JsonWriter.statsObject(
-        stats: Stats
+    private fun JsonWriter.metricResultObject(
+        metricResult: MetricResult
     ): JsonWriter {
-        name("minimum").value(stats.min)
-        name("maximum").value(stats.max)
-        name("median").value(stats.median)
+        name("minimum").value(metricResult.min)
+        name("maximum").value(metricResult.max)
+        name("median").value(metricResult.median)
         return this
     }
 
@@ -146,11 +149,40 @@ public object ResultWriter {
         metricResults: List<MetricResult>
     ): JsonWriter {
         beginObject()
-        metricResults.forEach {
-            name(it.stats.name).beginObject()
-            statsObject(it.stats)
+        metricResults.forEach { metricResult ->
+            name(metricResult.name).beginObject()
+            metricResultObject(metricResult)
             name("runs").beginArray()
-            it.data.forEach { value(it) }
+            metricResult.data.forEach { value(it) }
+            endArray()
+            endObject()
+        }
+        return endObject()
+    }
+
+    private fun JsonWriter.sampledMetricResultObject(
+        metricResult: MetricResult
+    ): JsonWriter {
+        name("P50").value(metricResult.p50)
+        name("P90").value(metricResult.p90)
+        name("P95").value(metricResult.p95)
+        name("P99").value(metricResult.p99)
+        return this
+    }
+
+    private fun JsonWriter.sampledMetricsContainerObject(
+        metricResults: List<MetricResult>
+    ): JsonWriter {
+        beginObject()
+        metricResults.forEach { metricResult ->
+            name(metricResult.name).beginObject()
+            sampledMetricResultObject(metricResult)
+            name("runs").beginArray()
+            metricResult.iterationData!!.forEach { iterationValues ->
+                beginArray()
+                iterationValues.forEach { value(it) }
+                endArray()
+            }
             endArray()
             endObject()
         }
