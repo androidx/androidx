@@ -31,6 +31,8 @@ public class BroadcastsObserver(
     private val deferredWatchFaceImpl: Deferred<WatchFaceImpl>,
     private val uiThreadCoroutineScope: CoroutineScope
 ) : BroadcastsReceiver.BroadcastEventObserver {
+    private var batteryLow: Boolean? = null
+    private var charging: Boolean? = null
 
     override fun onActionTimeTick() {
         if (!watchState.isAmbient.value!!) {
@@ -51,15 +53,27 @@ public class BroadcastsObserver(
     }
 
     override fun onActionBatteryLow() {
-        updateBatteryLowAndNotChargingStatus(true)
+        batteryLow = true
+        if (charging == false) {
+            updateBatteryLowAndNotChargingStatus(true)
+        }
     }
 
     override fun onActionBatteryOkay() {
+        batteryLow = false
         updateBatteryLowAndNotChargingStatus(false)
     }
 
     override fun onActionPowerConnected() {
+        charging = true
         updateBatteryLowAndNotChargingStatus(false)
+    }
+
+    override fun onActionPowerDisconnected() {
+        charging = false
+        if (batteryLow == true) {
+            updateBatteryLowAndNotChargingStatus(true)
+        }
     }
 
     override fun onMockTime(intent: Intent) {
