@@ -18,8 +18,9 @@ package androidx.car.app.versioning;
 
 import static java.util.Objects.requireNonNull;
 
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.CarContext;
+import androidx.car.app.annotations.ExperimentalCarApi;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,9 +33,16 @@ import java.io.InputStreamReader;
  * <p>Each level denotes a set of elements (classes, fields and methods) known to both clients and
  * hosts.
  *
- * @see CarContext#getCarAppApiLevel()
+ * @see androidx.car.app.CarContext#getCarAppApiLevel()
  */
 public final class CarAppApiLevels {
+    /**
+     * API level 4.
+     */
+    @CarAppApiLevel
+    @ExperimentalCarApi
+    public static final int LEVEL_4 = 4;
+
     /**
      * API level 3.
      *
@@ -88,6 +96,7 @@ public final class CarAppApiLevels {
      * Returns the highest API level implemented by this library.
      */
     @CarAppApiLevel
+    @OptIn(markerClass = ExperimentalCarApi.class) // experimental LEVEL_4
     public static int getLatest() {
         // The latest Car API level is defined as java resource, generated via build.gradle. This
         // has to be read through the class loader because we do not have access to the context
@@ -105,18 +114,12 @@ public final class CarAppApiLevels {
             BufferedReader reader = new BufferedReader(streamReader);
             String line = reader.readLine();
 
-            switch (Integer.parseInt(line)) {
-                case 0:
-                    return UNKNOWN;
-                case 1:
-                    return LEVEL_1;
-                case 2:
-                    return LEVEL_2;
-                case 3:
-                    return LEVEL_3;
-                default:
-                    throw new IllegalStateException("Undefined Car API level: " + line);
+
+            int apiLevel = Integer.parseInt(line);
+            if (apiLevel < LEVEL_1 || apiLevel > LEVEL_4) {
+                throw new IllegalStateException("Unrecognized Car API level: " + line);
             }
+            return apiLevel;
         } catch (IOException e) {
             throw new IllegalStateException("Unable to read Car API level file");
         }

@@ -1436,6 +1436,7 @@ package androidx.car.app.versioning {
     field public static final int LEVEL_1 = 1; // 0x1
     field public static final int LEVEL_2 = 2; // 0x2
     field public static final int LEVEL_3 = 3; // 0x3
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final int LEVEL_4 = 4; // 0x4
   }
 
 }

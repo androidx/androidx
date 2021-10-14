@@ -17,7 +17,9 @@
 package androidx.car.app.versioning;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.ExperimentalCarApi;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -25,7 +27,8 @@ import java.lang.annotation.RetentionPolicy;
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @IntDef(value = {CarAppApiLevels.UNKNOWN, CarAppApiLevels.LEVEL_1, CarAppApiLevels.LEVEL_2,
-        CarAppApiLevels.LEVEL_3})
+        CarAppApiLevels.LEVEL_3, CarAppApiLevels.LEVEL_4})
 @Retention(RetentionPolicy.SOURCE)
+@OptIn(markerClass = ExperimentalCarApi.class) // experimental LEVEL_4
 public @interface CarAppApiLevel {
 }
