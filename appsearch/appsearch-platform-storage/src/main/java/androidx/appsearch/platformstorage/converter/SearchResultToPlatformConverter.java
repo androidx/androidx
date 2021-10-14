@@ -43,8 +43,8 @@ public class SearchResultToPlatformConverter {
         Preconditions.checkNotNull(platformResult);
         GenericDocument document = GenericDocumentToPlatformConverter.toJetpackGenericDocument(
                 platformResult.getGenericDocument());
-        SearchResult.Builder builder = new SearchResult.Builder(
-                platformResult.getPackageName(), platformResult.getDatabaseName())
+        SearchResult.Builder builder = new SearchResult.Builder(platformResult.getPackageName(),
+                platformResult.getDatabaseName())
                 .setGenericDocument(document)
                 .setRankingSignal(platformResult.getRankingSignal());
         List<android.app.appsearch.SearchResult.MatchInfo> platformMatches =
@@ -60,6 +60,8 @@ public class SearchResultToPlatformConverter {
     private static SearchResult.MatchInfo toJetpackMatchInfo(
             @NonNull android.app.appsearch.SearchResult.MatchInfo platformMatchInfo) {
         Preconditions.checkNotNull(platformMatchInfo);
+        // TODO(b/201316758) : Copy over submatch range info once it is added to
+        //  framework-appsearch.
         return new SearchResult.MatchInfo.Builder(platformMatchInfo.getPropertyPath())
                 .setExactMatchRange(
                         new SearchResult.MatchRange(

@@ -221,7 +221,8 @@ public final class PlatformStorage {
                 result -> {
                     if (result.isSuccess()) {
                         future.set(
-                                new SearchSessionImpl(result.getResultValue(), context.mExecutor));
+                                new SearchSessionImpl(result.getResultValue(), context.mExecutor,
+                                new CapabilitiesImpl()));
                     } else {
                         future.setException(
                                 new AppSearchException(
@@ -246,7 +247,8 @@ public final class PlatformStorage {
                 result -> {
                     if (result.isSuccess()) {
                         future.set(new GlobalSearchSessionImpl(
-                                result.getResultValue(), context.mExecutor));
+                                result.getResultValue(), context.mExecutor,
+                                new CapabilitiesImpl()));
                     } else {
                         future.setException(
                                 new AppSearchException(
