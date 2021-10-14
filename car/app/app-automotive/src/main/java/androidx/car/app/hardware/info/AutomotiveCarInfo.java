@@ -19,6 +19,7 @@ import static android.car.VehiclePropertyIds.DISTANCE_DISPLAY_UNITS;
 import static android.car.VehiclePropertyIds.EV_BATTERY_LEVEL;
 import static android.car.VehiclePropertyIds.FUEL_LEVEL;
 import static android.car.VehiclePropertyIds.FUEL_LEVEL_LOW;
+import static android.car.VehiclePropertyIds.FUEL_VOLUME_DISPLAY_UNITS;
 import static android.car.VehiclePropertyIds.INFO_EV_BATTERY_CAPACITY;
 import static android.car.VehiclePropertyIds.INFO_EV_CONNECTOR_TYPE;
 import static android.car.VehiclePropertyIds.INFO_FUEL_CAPACITY;
@@ -40,9 +41,11 @@ import android.util.Log;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.common.CarPropertyResponse;
 import androidx.car.app.hardware.common.CarValue;
 import androidx.car.app.hardware.common.GetPropertyRequest;
@@ -223,7 +226,8 @@ public class AutomotiveCarInfo implements CarInfo {
 
         // This future will get EV battery capacity and fuel capacity for calculating the
         // percentage of battery level and fuel level. Without those values, we still can provide
-        // fuel_level_low, distance_units and range_remaining information in EnergyLevelListener.
+        // fuel_level_low, distance_units, fuel_volume_display_units and range_remaining information
+        // in EnergyLevelListener.
         capacityFuture.addListener(() -> {
             try {
                 float evBatteryCapacity = UNKNOWN_CAPACITY;
@@ -532,68 +536,91 @@ public class AutomotiveCarInfo implements CarInfo {
         }
 
         @Override
+        // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
+        @OptIn(markerClass = ExperimentalCarApi.class)
         public void onCarPropertyResponses(
                 @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
-            if (carPropertyResponses.size() == 5) {
-                mExecutor.execute(() -> {
-                    CarValue<Float> batteryPercentValue = CarValue.UNIMPLEMENTED_FLOAT;
-                    CarValue<Float> fuelPercentValue = CarValue.UNIMPLEMENTED_FLOAT;
-                    CarValue<Boolean> energyIsLowValue = CarValue.UNIMPLEMENTED_BOOLEAN;
-                    CarValue<Float> rangeRemainingValue = CarValue.UNIMPLEMENTED_FLOAT;
-                    CarValue<Integer> distanceDisplayUnitValue =
-                            CarValue.UNIMPLEMENTED_INTEGER;
-                    for (CarPropertyResponse<?> response : carPropertyResponses) {
-                        if (response.getValue() == null) {
-                            Log.w(LogTags.TAG_CAR_HARDWARE,
-                                    "Failed to retrieve CarPropertyResponse value for property id "
-                                            + response.getPropertyId());
-                            continue;
-                        }
-                        switch (response.getPropertyId()) {
-                            case EV_BATTERY_LEVEL:
-                                if (mEvBatteryCapacity != Float.NEGATIVE_INFINITY) {
-                                    batteryPercentValue = new CarValue<>(
-                                            (Float) response.getValue() / mEvBatteryCapacity * 100,
-                                            response.getTimestampMillis(), response.getStatus());
-                                }
-                                break;
-                            case FUEL_LEVEL:
-                                if (mFuelCapacity != Float.NEGATIVE_INFINITY) {
-                                    fuelPercentValue = new CarValue<>(
-                                            (Float) response.getValue() / mFuelCapacity * 100,
-                                            response.getTimestampMillis(), response.getStatus());
-                                }
-                                break;
-                            case FUEL_LEVEL_LOW:
-                                energyIsLowValue = new CarValue<>(
-                                        (Boolean) response.getValue(),
-                                        response.getTimestampMillis(), response.getStatus());
-                                break;
-                            case RANGE_REMAINING:
-                                rangeRemainingValue = new CarValue<>(
-                                        (Float) response.getValue(),
-                                        response.getTimestampMillis(), response.getStatus());
-                                break;
-                            case DISTANCE_DISPLAY_UNITS:
-                                distanceDisplayUnitValue = new CarValue<>(
-                                        (Integer) response.getValue(),
-                                        response.getTimestampMillis(), response.getStatus());
-                                break;
-                            default:
-                                Log.e(LogTags.TAG_CAR_HARDWARE,
-                                        "Invalid response callback in EnergyLevelListener");
-                        }
-                    }
-                    EnergyLevel energyLevel =
-                            new EnergyLevel.Builder().setBatteryPercent(
-                                    batteryPercentValue).setFuelPercent(
-                                    fuelPercentValue).setEnergyIsLow(
-                                    energyIsLowValue).setRangeRemainingMeters(
-                                    rangeRemainingValue).setDistanceDisplayUnit(
-                                    distanceDisplayUnitValue).build();
-                    mEnergyLevelOnCarDataAvailableListener.onCarDataAvailable(energyLevel);
-                });
+            if (carPropertyResponses.size() != 6) {
+                Log.e(LogTags.TAG_CAR_HARDWARE,
+                        "Invalid response callback in EnergyLevelListener.");
+                return;
             }
+            mExecutor.execute(() -> {
+                CarValue<Float> batteryPercentValue = CarValue.UNIMPLEMENTED_FLOAT;
+                CarValue<Float> fuelPercentValue = CarValue.UNIMPLEMENTED_FLOAT;
+                CarValue<Boolean> energyIsLowValue = CarValue.UNIMPLEMENTED_BOOLEAN;
+                CarValue<Float> rangeRemainingValue = CarValue.UNIMPLEMENTED_FLOAT;
+                CarValue<Integer> distanceDisplayUnitValue =
+                        CarValue.UNIMPLEMENTED_INTEGER;
+                CarValue<Integer> fuelVolumeDisplayUnitValue =
+                        CarValue.UNIMPLEMENTED_INTEGER;
+                for (CarPropertyResponse<?> response : carPropertyResponses) {
+                    if (response.getValue() == null) {
+                        Log.w(LogTags.TAG_CAR_HARDWARE,
+                                "Failed to retrieve CarPropertyResponse value for property id "
+                                        + response.getPropertyId());
+                        continue;
+                    }
+                    switch (response.getPropertyId()) {
+                        case EV_BATTERY_LEVEL:
+                            if (mEvBatteryCapacity != Float.NEGATIVE_INFINITY) {
+                                batteryPercentValue = new CarValue<>(
+                                        (Float) response.getValue() / mEvBatteryCapacity * 100,
+                                        response.getTimestampMillis(), response.getStatus());
+                            }
+                            break;
+                        case FUEL_LEVEL:
+                            if (mFuelCapacity != Float.NEGATIVE_INFINITY) {
+                                fuelPercentValue = new CarValue<>(
+                                        (Float) response.getValue() / mFuelCapacity * 100,
+                                        response.getTimestampMillis(), response.getStatus());
+                            }
+                            break;
+                        case FUEL_LEVEL_LOW:
+                            energyIsLowValue = new CarValue<>(
+                                    (Boolean) response.getValue(),
+                                    response.getTimestampMillis(), response.getStatus());
+                            break;
+                        case RANGE_REMAINING:
+                            rangeRemainingValue = new CarValue<>(
+                                    (Float) response.getValue(),
+                                    response.getTimestampMillis(), response.getStatus());
+                            break;
+                        case DISTANCE_DISPLAY_UNITS:
+                            Integer displayUnit = null;
+                            if (response.getValue() != null) {
+                                displayUnit = PropertyUtils.covertDistanceUnit(
+                                        (Integer) response.getValue());
+                            }
+                            distanceDisplayUnitValue = new CarValue<>(displayUnit,
+                                    response.getTimestampMillis(), response.getStatus());
+                            break;
+                        case FUEL_VOLUME_DISPLAY_UNITS:
+                            Integer volumeUnit = null;
+                            if (response.getValue() != null) {
+                                volumeUnit = PropertyUtils.covertVolumeUnit(
+                                        (Integer) response.getValue());
+                            }
+                            fuelVolumeDisplayUnitValue =
+                                    new CarValue<>(volumeUnit,
+                                            response.getTimestampMillis(),
+                                            response.getStatus());
+                            break;
+                        default:
+                            Log.e(LogTags.TAG_CAR_HARDWARE,
+                                    "Invalid response callback in EnergyLevelListener");
+                    }
+                }
+                EnergyLevel energyLevel =
+                        new EnergyLevel.Builder().setBatteryPercent(
+                                batteryPercentValue).setFuelPercent(
+                                fuelPercentValue).setEnergyIsLow(
+                                energyIsLowValue).setRangeRemainingMeters(
+                                rangeRemainingValue).setDistanceDisplayUnit(
+                                distanceDisplayUnitValue).setFuelVolumeDisplayUnit(
+                                fuelVolumeDisplayUnitValue).build();
+                mEnergyLevelOnCarDataAvailableListener.onCarDataAvailable(energyLevel);
+            });
         }
     }
 }
