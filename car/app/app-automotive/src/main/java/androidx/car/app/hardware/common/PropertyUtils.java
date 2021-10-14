@@ -17,6 +17,10 @@
 package androidx.car.app.hardware.common;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.car.app.hardware.common.CarUnit.IMPERIAL_GALLON;
+import static androidx.car.app.hardware.common.CarUnit.LITER;
+import static androidx.car.app.hardware.common.CarUnit.MILLILITER;
+import static androidx.car.app.hardware.common.CarUnit.US_GALLON;
 
 import android.car.Car;
 import android.car.VehiclePropertyIds;
@@ -24,7 +28,9 @@ import android.car.hardware.CarPropertyValue;
 import android.util.Pair;
 import android.util.SparseArray;
 
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.info.AutomotiveCarInfo;
 import androidx.car.app.hardware.info.EnergyProfile;
 
@@ -132,6 +138,18 @@ public final class PropertyUtils {
     // VehicleUnit.MILE in car service
     private static final int VEHICLE_UNIT_MILE = 0x24;
 
+    // VehicleUnit.MILLIMETER in car service
+    private static final int VEHICLE_UNIT_MILLILITER = 0x40;
+
+    // VehicleUnit.LITER in car service
+    private static final int VEHICLE_UNIT_VOLUME_LITER = 0x41;
+
+    // VehicleUnit.US_GALLON in car service
+    private static final int VEHICLE_UNIT_VOLUME_US_GALLON = 0x42;
+
+    // VehicleUnit.IMPERIAL_GALLON in car service
+    private static final int VEHICLE_UNIT_VOLUME_IMPERIAL_GALLON = 0x43;
+
     /**
      * Maps speed units in car service to speed units in {@link CarUnit}.
      */
@@ -163,6 +181,25 @@ public final class PropertyUtils {
                 return CarUnit.KILOMETER;
             default:
                 throw new IllegalArgumentException("Invalid display unit: " + vehicleUnit);
+        }
+    }
+
+    /**
+     * Maps volume units in car service to volume units in {@link CarUnit}.
+     */
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    public static @CarUnit.CarVolumeUnit int covertVolumeUnit(int vehicleUnit) {
+        switch (vehicleUnit) {
+            case VEHICLE_UNIT_MILLILITER:
+                return MILLILITER;
+            case VEHICLE_UNIT_VOLUME_LITER:
+                return LITER;
+            case VEHICLE_UNIT_VOLUME_US_GALLON:
+                return US_GALLON;
+            case VEHICLE_UNIT_VOLUME_IMPERIAL_GALLON:
+                return IMPERIAL_GALLON;
+            default:
+                throw new IllegalArgumentException("Invalid volume unit: " + vehicleUnit);
         }
     }
 
