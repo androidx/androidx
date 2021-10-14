@@ -93,6 +93,21 @@ class NavDestinationAndroidTest {
     }
 
     @Test
+    fun addDeepLinkNullableArgumentNotRequired() {
+        val destination = NoOpNavigator().createDestination()
+        destination.addArgument("myArg", nullableStringArgument())
+        destination.addDeepLink("www.example.com/users?myArg={myArg}")
+
+        val match = destination.matchDeepLink(
+            Uri.parse("https://www.example.com/users?")
+        )
+
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+    }
+
+    @Test
     fun matchDeepLink() {
         val destination = NoOpNavigator().createDestination()
         destination.addArgument("id", intArgument())
