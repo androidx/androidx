@@ -41,6 +41,7 @@ dependencies {
     androidTestImplementation project(path: ':compose:test-utils')
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(project(":wear:compose:compose-material"))
+    androidTestImplementation(libs.truth)
 }
 
 android {
