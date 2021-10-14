@@ -30,6 +30,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-common-java8:2.2.0")
     implementation("androidx.annotation:annotation:1.1.0")
     implementation(libs.autoValueAnnotations)
+    implementation("androidx.annotation:annotation-experimental:1.1.0")
+    implementation libs.kotlinStdlib // Due to :annotation-experimental
 
     annotationProcessor(libs.nullaway)
     annotationProcessor(libs.autoValue)
