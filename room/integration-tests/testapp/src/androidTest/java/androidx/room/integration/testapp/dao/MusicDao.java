@@ -17,6 +17,8 @@
 package androidx.room.integration.testapp.dao;
 
 import androidx.collection.ArrayMap;
+import androidx.collection.LongSparseArray;
+import androidx.collection.SparseArrayCompat;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -204,6 +206,16 @@ public interface MusicDao {
     @MapInfo(keyColumn = "mReleasedYear", valueColumn = "mReleasedYear")
     @Query("SELECT * FROM Album JOIN Song ON Song.mReleasedYear = Album.mAlbumReleaseYear")
     Map<Integer, List<Song>> getReleaseYearToAlbums();
+
+    @RewriteQueriesToDropUnusedColumns
+    @MapInfo(keyColumn = "mArtistId")
+    @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
+    LongSparseArray<Artist> getAllAlbumCoverYearToArtistsWithLongSparseArray();
+
+    @RewriteQueriesToDropUnusedColumns
+    @MapInfo(keyColumn = "mArtistId")
+    @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
+    SparseArrayCompat<Artist> getAllAlbumCoverYearToArtistsWithIntSparseArray();
 
     @RewriteQueriesToDropUnusedColumns
     @MapInfo(keyColumn = "mReleasedYear", valueColumn = "mTitle")
