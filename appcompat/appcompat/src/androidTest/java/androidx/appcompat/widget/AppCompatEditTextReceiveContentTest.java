@@ -378,11 +378,15 @@ public class AppCompatEditTextReceiveContentTest {
         // Setup: Configure the receiver to a custom impl.
         ViewCompat.setOnReceiveContentListener(mEditText, MIME_TYPES_IMAGES, mMockReceiver);
 
-        // Trigger the IME's commitContent() call and assert that the custom receiver was not
-        // executed. This is because InputConnectionCompat.commitContent() checks the supported MIME
-        // types before proceeding.
+        // Trigger the IME's commitContent() call via the support lib and assert that the custom
+        // receiver was executed. This confirms that the receiver is invoked (give a chance to
+        // handle the content via some fallback) even if the MIME type of the content is not one
+        // of the receiver's declared MIME types.
         triggerImeCommitContentViaCompat("video/mp4");
-        verifyZeroInteractions(mMockReceiver);
+        ClipData clip = ClipData.newRawUri("", SAMPLE_CONTENT_URI);
+        verify(mMockReceiver, times(1)).onReceiveContent(
+                eq(mEditText), payloadEq(clip, SOURCE_INPUT_METHOD, 0));
+        verifyNoMoreInteractions(mMockReceiver);
     }
 
     @SdkSuppress(minSdkVersion = 25) // InputConnection.commitContent() was added in SDK 25.

@@ -141,18 +141,6 @@ public final class InputConnectionCompat {
     public static boolean commitContent(@NonNull InputConnection inputConnection,
             @NonNull EditorInfo editorInfo, @NonNull InputContentInfoCompat inputContentInfo,
             int flags, @Nullable Bundle opts) {
-        final ClipDescription description = inputContentInfo.getDescription();
-        boolean supported = false;
-        for (String mimeType : EditorInfoCompat.getContentMimeTypes(editorInfo)) {
-            if (description.hasMimeType(mimeType)) {
-                supported = true;
-                break;
-            }
-        }
-        if (!supported) {
-            return false;
-        }
-
         if (Build.VERSION.SDK_INT >= 25) {
             return inputConnection.commitContent(
                     (InputContentInfo) inputContentInfo.unwrap(), flags, opts);
