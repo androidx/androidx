@@ -17,14 +17,26 @@
 package androidx.testutils
 
 import android.content.Intent
+import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
+import androidx.benchmark.macro.StartupTimingLegacyMetric
 import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.isSupportedWithVmSettings
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 
-@RequiresApi(29)
+/**
+ * Temporary, while transitioning to new metrics
+ */
+@RequiresApi(23)
+fun getStartupMetrics() = if (Build.VERSION.SDK_INT >= 29) {
+    listOf(StartupTimingMetric(), StartupTimingLegacyMetric())
+} else {
+    listOf(StartupTimingMetric())
+}
+
+@RequiresApi(23)
 fun MacrobenchmarkRule.measureStartup(
     compilationMode: CompilationMode,
     startupMode: StartupMode,
@@ -33,7 +45,7 @@ fun MacrobenchmarkRule.measureStartup(
     setupIntent: Intent.() -> Unit = {}
 ) = measureRepeated(
     packageName = packageName,
-    metrics = listOf(StartupTimingMetric()),
+    metrics = getStartupMetrics(),
     compilationMode = compilationMode,
     iterations = iterations,
     startupMode = startupMode

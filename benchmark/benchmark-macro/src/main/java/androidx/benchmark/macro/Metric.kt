@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -24,6 +25,7 @@ import androidx.benchmark.macro.perfetto.FrameTimingQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric
 import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseStartupResult
 import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.macro.perfetto.StartupTimingQuery
 import androidx.test.platform.app.InstrumentationRegistry
 
 /**
@@ -41,8 +43,17 @@ public sealed class Metric {
      * TODO: takes package for package level filtering, but probably want a
      *  general config object coming into [start].
      */
-    internal abstract fun getMetrics(packageName: String, tracePath: String): IterationResult
+    internal abstract fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult
+
+    internal data class CaptureInfo(
+        val apiLevel: Int,
+        val targetPackageName: String,
+        val testPackageName: String,
+        val startupMode: StartupMode?
+    )
 }
+
+private fun Long.nsToDoubleMs(): Double = this / 1_000_000.0
 
 /**
  * Legacy version of FrameTimingMetric, based on 'dumpsys gfxinfo' instead of trace data.
@@ -125,7 +136,7 @@ public class FrameTimingGfxInfoMetric : Metric() {
         "totalFrameCount"
     )
 
-    internal override fun getMetrics(packageName: String, tracePath: String) = IterationResult(
+    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String) = IterationResult(
         singleMetrics = helper.metrics
             .map {
                 val prefix = "gfxinfo_${packageName}_"
@@ -154,20 +165,19 @@ public class FrameTimingMetric : Metric() {
     internal override fun start() {}
     internal override fun stop() {}
 
-    internal override fun getMetrics(packageName: String, tracePath: String): IterationResult {
+    @SuppressLint("SyntheticAccessor")
+    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
         val subMetricsMsMap = FrameTimingQuery.getFrameSubMetrics(
             absoluteTracePath = tracePath,
             captureApiLevel = Build.VERSION.SDK_INT,
-            packageName = packageName
+            packageName = captureInfo.targetPackageName
         )
             .filterKeys { it == SubMetric.FrameCpuTime || it == SubMetric.FrameNegativeSlackTime }
             .mapKeys {
                 if (it.key == SubMetric.FrameCpuTime) "frameCpuTimeMs" else "frameNegativeSlackMs"
             }
             .mapValues { entry ->
-                entry.value.map { timeNs ->
-                    timeNs / 1_000_000.0 // Convert to ms
-                }
+                entry.value.map { timeNs -> timeNs.nsToDoubleMs() }
             }
         return IterationResult(
             singleMetrics = emptyMap(),
@@ -181,7 +191,7 @@ public class FrameTimingMetric : Metric() {
  * Captures app startup timing metrics.
  */
 @Suppress("CanSealedSubClassBeObject")
-@RequiresApi(29)
+@RequiresApi(23)
 public class StartupTimingMetric : Metric() {
     internal override fun configure(packageName: String) {
     }
@@ -192,8 +202,49 @@ public class StartupTimingMetric : Metric() {
     internal override fun stop() {
     }
 
-    internal override fun getMetrics(packageName: String, tracePath: String): IterationResult {
+    @SuppressLint("SyntheticAccessor")
+    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
+        return StartupTimingQuery.getFrameSubMetrics(
+            absoluteTracePath = tracePath,
+            captureApiLevel = captureInfo.apiLevel,
+            targetPackageName = captureInfo.targetPackageName,
+            testPackageName = captureInfo.testPackageName,
+
+            // Pick an arbitrary startup mode if unspecified. In the future, consider throwing an
+            // error if startup mode not defined
+            startupMode = captureInfo.startupMode ?: StartupMode.COLD
+        )?.run {
+            @Suppress("UNCHECKED_CAST")
+            IterationResult(
+                singleMetrics = mapOf(
+                    "timeToInitialDisplayMs" to timeToInitialDisplayNs.nsToDoubleMs(),
+                    "timeToFullDisplayMs" to timeToFullDisplayNs?.nsToDoubleMs()
+                ).filterValues { it != null } as Map<String, Double>,
+                sampledMetrics = emptyMap(),
+                timelineRangeNs = timelineRangeNs
+            )
+        } ?: IterationResult.EMPTY
+    }
+}
+
+/**
+ * Captures app startup timing metrics.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@Suppress("CanSealedSubClassBeObject")
+@RequiresApi(29)
+public class StartupTimingLegacyMetric : Metric() {
+    internal override fun configure(packageName: String) {
+    }
+
+    internal override fun start() {
+    }
+
+    internal override fun stop() {
+    }
+
+    internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
         val json = PerfettoTraceProcessor.getJsonMetrics(tracePath, "android_startup")
-        return parseStartupResult(json, packageName)
+        return parseStartupResult(json, captureInfo.targetPackageName)
     }
 }

@@ -17,6 +17,7 @@
 package androidx.benchmark.macro.perfetto
 
 import androidx.benchmark.macro.StartupMode
+import kotlin.math.max
 
 internal object StartupTimingQuery {
 
@@ -52,6 +53,11 @@ internal object StartupTimingQuery {
                     (slice.name LIKE "reportFullyDrawn() for %" AND process.pid LIKE thread.tid) OR
                     (slice.name LIKE "DrawFrame%" AND thread.name LIKE "RenderThread")
                 )
+            ) OR
+            (
+                -- Signals beginning of launch event, only present in API 29+
+                process.name LIKE "system_server" AND
+                slice.name LIKE "MetricsLogger:launchObserverNotifyIntentStarted"
             )
         )
         ------ Add in async slices
@@ -73,6 +79,7 @@ internal object StartupTimingQuery {
 
     enum class StartupSliceType {
         StartActivityAndWait,
+        NotifyStarted,
         Launching,
         ReportFullyDrawn,
         FrameUiThread,
@@ -83,7 +90,7 @@ internal object StartupTimingQuery {
     data class SubMetrics(
         val timeToInitialDisplayNs: Long,
         val timeToFullDisplayNs: Long?,
-        val timelineRange: LongRange
+        val timelineRangeNs: LongRange
     ) {
         constructor(
             startTs: Long,
@@ -92,7 +99,7 @@ internal object StartupTimingQuery {
         ) : this(
             timeToInitialDisplayNs = initialDisplayTs - startTs,
             timeToFullDisplayNs = fullDisplayTs?.let { it - startTs },
-            timelineRange = startTs..(fullDisplayTs ?: initialDisplayTs),
+            timelineRangeNs = startTs..(fullDisplayTs ?: initialDisplayTs),
         )
     }
 
@@ -137,6 +144,8 @@ internal object StartupTimingQuery {
                     it.name.startsWith("DrawFrame") -> StartupSliceType.FrameRenderThread
                     it.name.startsWith("launching") -> StartupSliceType.Launching
                     it.name.startsWith("reportFullyDrawn") -> StartupSliceType.ReportFullyDrawn
+                    it.name == "MetricsLogger:launchObserverNotifyIntentStarted" ->
+                        StartupSliceType.NotifyStarted
                     it.name == "activityResume" -> StartupSliceType.ActivityResume
                     it.name == "startActivityAndWait" -> StartupSliceType.StartActivityAndWait
                     else -> throw IllegalStateException("Unexpected slice $it")
@@ -158,8 +167,28 @@ internal object StartupTimingQuery {
                 startActivityAndWaitSlice.contains(it.ts) &&
                     (captureApiLevel < 23 || it.name == "launching: $targetPackageName")
             } ?: return null
-            startTs = launchingSlice.ts
-            initialDisplayTs = launchingSlice.endTs
+
+            startTs = if (captureApiLevel >= 29) {
+                // Starting on API 29, expect to see 'notify started' system_server slice
+                val notifyStartedSlice = groupedData[StartupSliceType.NotifyStarted]?.lastOrNull {
+                    it.ts < launchingSlice.ts
+                } ?: return null
+                notifyStartedSlice.ts
+            } else {
+                launchingSlice.ts
+            }
+
+            initialDisplayTs = max(
+                // conservative end - end of launching slice
+                launchingSlice.endTs,
+                // in some cases, 'launching' slice doesn't account for rendering response,
+                // so we do that manually - look for first frame starting within launch slice
+                // TODO: investigate where this happens (e.g. which APIs/StartupModes)
+                // TODO: would last frame that starts during launch be better?
+                findEndRenderTimeForUiFrame(uiSlices, rtSlices) { uiSlice ->
+                    uiSlice.ts > launchingSlice.ts
+                }
+            )
         } else {
             // Prior to API 29, hot starts weren't traced with the launching slice, so we do a best
             // guess - the time taken to Activity#onResume, and then produce the next frame.

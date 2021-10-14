@@ -107,6 +107,7 @@ private fun macrobenchmark(
     compilationMode: CompilationMode = CompilationMode.SpeedProfile(),
     iterations: Int,
     launchWithClearTask: Boolean,
+    startupModeMetricHint: StartupMode?,
     setupBlock: MacrobenchmarkScope.(Boolean) -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) {
@@ -199,7 +200,12 @@ private fun macrobenchmark(
             val iterationResult = userspaceTrace("extract metrics") {
                 metrics
                     // capture list of Map<String,Long> per metric
-                    .map { it.getMetrics(packageName, tracePath) }
+                    .map { it.getMetrics(Metric.CaptureInfo(
+                        targetPackageName = packageName,
+                        testPackageName = macrobenchPackageName,
+                        startupMode = startupModeMetricHint,
+                        apiLevel = Build.VERSION.SDK_INT
+                    ), tracePath) }
                     // merge into one map
                     .reduce { sum, element -> sum + element }
             }
@@ -295,6 +301,7 @@ public fun macrobenchmarkWithStartupMode(
         metrics = metrics,
         compilationMode = compilationMode,
         iterations = iterations,
+        startupModeMetricHint = startupMode,
         setupBlock = { firstIterationAfterCompile ->
             if (startupMode == StartupMode.COLD) {
                 killProcess()
