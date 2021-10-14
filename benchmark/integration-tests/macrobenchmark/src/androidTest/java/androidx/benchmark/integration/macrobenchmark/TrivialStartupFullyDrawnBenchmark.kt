@@ -19,15 +19,14 @@ package androidx.benchmark.integration.macrobenchmark
 import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
-import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import androidx.testutils.getStartupMetrics
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,7 +40,6 @@ import org.junit.runner.RunWith
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 29)
 class TrivialStartupFullyDrawnBenchmark {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
@@ -49,7 +47,7 @@ class TrivialStartupFullyDrawnBenchmark {
     fun startup(startupMode: StartupMode) = benchmarkRule.measureRepeated(
         compilationMode = CompilationMode.None,
         packageName = TARGET_PACKAGE_NAME,
-        metrics = listOf(StartupTimingMetric()),
+        metrics = getStartupMetrics(),
         startupMode = startupMode,
         iterations = 1
     ) {
