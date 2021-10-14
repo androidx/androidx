@@ -24,6 +24,7 @@ import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.Metric
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.macrobenchmarkWithStartupMode
+import androidx.core.util.Consumer
 import androidx.test.rule.GrantPermissionRule
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
@@ -36,6 +37,47 @@ import org.junit.runners.model.Statement
 @RequiresApi(23)
 public class MacrobenchmarkRule : TestRule {
     private lateinit var currentDescription: Description
+
+    /**
+     * Measure behavior of the specified [packageName] given a set of [metrics].
+     * Kotlin developers should use an overload of [measureRepeated] which uses a
+     * `MacrobenchmarkScope.() -> Unit` instead.
+     *
+     * @param packageName Package name of the app being measured.
+     * @param metrics List of metrics to measure.
+     * @param compilationMode Mode of compilation used before capturing measurement, such as
+     * [CompilationMode.SpeedProfile].
+     * @param startupMode Optional mode to force app launches performed with
+     * [MacrobenchmarkScope.startActivityAndWait] (and similar variants) to be of the assigned
+     * type. For example, `COLD` launches kill the process before the measureBlock, to ensure
+     * startups will go through full process creation. Generally, leave as null for non-startup
+     * benchmarks.
+     * @param iterations Number of times the [measureFn] will be run during measurement.
+     * @param setupFn The function performing app actions prior to the benchmark, for example,
+     * navigating to a UI where scrolling will be measured.
+     * @param measureFn The function performing app actions to benchmark.
+     */
+    @JvmOverloads
+    public fun measureRepeated(
+        packageName: String,
+        metrics: List<Metric>,
+        compilationMode: CompilationMode = CompilationMode.SpeedProfile(),
+        startupMode: StartupMode? = null,
+        @IntRange(from = 1)
+        iterations: Int,
+        setupFn: Consumer<MacrobenchmarkScope> = Consumer { },
+        measureFn: Consumer<MacrobenchmarkScope>
+    ) {
+        measureRepeated(
+            packageName,
+            metrics,
+            compilationMode,
+            startupMode,
+            iterations,
+            setupFn.toScopedFunction(),
+            measureFn.toScopedFunction()
+        )
+    }
 
     /**
      * Measure behavior of the specified [packageName] given a set of [metrics].
@@ -54,7 +96,7 @@ public class MacrobenchmarkRule : TestRule {
      * navigating to a UI where scrolling will be measured.
      * @param measureBlock The block performing app actions to benchmark.
      */
-    @JvmOverloads
+    @JvmSynthetic
     public fun measureRepeated(
         packageName: String,
         metrics: List<Metric>,
@@ -95,4 +137,10 @@ public class MacrobenchmarkRule : TestRule {
     }
 
     private fun Description.toUniqueName() = testClass.simpleName + "_" + methodName
+
+    private fun Consumer<MacrobenchmarkScope>.toScopedFunction(): MacrobenchmarkScope.() -> Unit {
+        return {
+            accept(this)
+        }
+    }
 }

@@ -55,6 +55,7 @@ public class MacrobenchmarkScope(
      *
      * @param block Allows customization of the intent used to launch the activity.
      */
+    @JvmOverloads
     public fun startActivityAndWait(
         block: (Intent) -> Unit = {}
     ) {
@@ -115,6 +116,7 @@ public class MacrobenchmarkScope(
      * Useful for resetting the test to a base condition in cases where the app isn't killed in
      * each iteration.
      */
+    @JvmOverloads
     public fun pressHome(delayDurationMs: Long = 300) {
         device.pressHome()
         Thread.sleep(delayDurationMs)
