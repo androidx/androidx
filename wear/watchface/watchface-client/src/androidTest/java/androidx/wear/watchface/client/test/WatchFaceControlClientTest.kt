@@ -1251,6 +1251,28 @@ class WatchFaceControlClientTest {
             interactiveInstance.close()
         }
     }
+
+    @Test
+    fun isConnectionAlive_false_after_close() {
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+
+        // Create the engine which triggers creation of InteractiveWatchFaceClient.
+        createEngine()
+
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+        assertThat(interactiveInstance.isConnectionAlive()).isTrue()
+
+        interactiveInstance.close()
+        assertThat(interactiveInstance.isConnectionAlive()).isFalse()
+    }
 }
 
 internal class TestExampleCanvasAnalogWatchFaceService(
