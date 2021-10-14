@@ -21,6 +21,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.app.Capabilities;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.ReportSystemUsageRequest;
 import androidx.appsearch.app.SearchResults;
@@ -43,6 +44,7 @@ import java.util.concurrent.Executor;
 class GlobalSearchSessionImpl implements GlobalSearchSession {
     private final AppSearchImpl mAppSearchImpl;
     private final Executor mExecutor;
+    private final Capabilities mCapabilities;
     private final Context mContext;
 
     private boolean mIsClosed = false;
@@ -53,10 +55,12 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     GlobalSearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
             @NonNull Executor executor,
+            @NonNull Capabilities capabilities,
             @NonNull Context context,
             @Nullable AppSearchLogger logger) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutor = Preconditions.checkNotNull(executor);
+        mCapabilities = Preconditions.checkNotNull(capabilities);
         mContext = Preconditions.checkNotNull(context);
         mLogger = logger;
     }
@@ -94,6 +98,12 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                     AppSearchResult.RESULT_SECURITY_ERROR,
                     mContext.getPackageName() + " does not have access to report system usage");
         });
+    }
+
+    @NonNull
+    @Override
+    public Capabilities getCapabilities() {
+        return mCapabilities;
     }
 
     @Override

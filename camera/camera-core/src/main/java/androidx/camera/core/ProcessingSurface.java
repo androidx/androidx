@@ -28,6 +28,7 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
@@ -45,6 +46,7 @@ import java.util.concurrent.Executor;
 /**
  * A {@link DeferrableSurface} that does processing and outputs a {@link SurfaceTexture}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class ProcessingSurface extends DeferrableSurface {
     private static final String TAG = "ProcessingSurfaceTextur";
 

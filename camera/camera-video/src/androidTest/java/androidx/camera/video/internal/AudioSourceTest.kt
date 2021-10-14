@@ -24,6 +24,7 @@ import androidx.camera.video.internal.encoder.FakeInputBuffer
 import androidx.camera.video.internal.encoder.noInvocation
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import org.junit.After
 import org.junit.Assume.assumeTrue
@@ -38,6 +39,7 @@ import java.util.concurrent.Callable
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 class AudioSourceTest {
 
     companion object {

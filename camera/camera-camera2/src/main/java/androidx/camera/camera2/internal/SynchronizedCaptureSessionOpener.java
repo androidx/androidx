@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
@@ -65,6 +66,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * @see #startWithDeferrableSurface
  * @see #stop()
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class SynchronizedCaptureSessionOpener {
 
     /**

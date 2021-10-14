@@ -31,6 +31,7 @@ import javax.inject.Singleton
  * This class assumes that permissions are one way - They can be granted, but not un-granted
  * without restarting the application process.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
 internal class Permissions @Inject constructor(private val context: Context) {
     @Volatile

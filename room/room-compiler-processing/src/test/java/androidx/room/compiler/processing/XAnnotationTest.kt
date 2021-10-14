@@ -163,10 +163,10 @@ class XAnnotationTest(
             val element = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
             val annotation = element.requireAnnotation<TestSuppressWarnings>()
 
-            val argument = annotation.annotationValues.single()
+            val argument = annotation.getAnnotationValue("value")
             assertThat(argument.name).isEqualTo("value")
             assertThat(
-                argument.value
+                argument.asStringList()
             ).isEqualTo(
                 listOf("warning1", "warning 2")
             )
@@ -192,10 +192,10 @@ class XAnnotationTest(
             val annotation =
                 element.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
 
-            val argument = annotation.annotationValues.single()
+            val argument = annotation.getAnnotationValue("value")
             assertThat(argument.name).isEqualTo("value")
             assertThat(
-                argument.value
+                argument.asStringList()
             ).isEqualTo(
                 listOf("warning1", "warning 2")
             )
@@ -696,6 +696,44 @@ class XAnnotationTest(
     }
 
     @Test
+    fun javaEnumArrayWithDefaultNameAndValue() {
+        val annotationSource = Source.java(
+            "foo.bar.MyAnnotation",
+            """
+            package foo.bar;
+            public @interface MyAnnotation {
+                MyEnum[] value() default {};
+            }
+            """.trimIndent()
+        )
+        val enumSource = Source.java(
+            "foo.bar.MyEnum",
+            """
+            package foo.bar;
+            enum MyEnum {
+                 Bar
+            }
+            """.trimIndent()
+        )
+        val classSource = Source.java(
+            "foo.bar.Subject",
+            """
+            package foo.bar;
+            @MyAnnotation
+            class Subject {}
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(annotationSource, enumSource, classSource)
+        ) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("foo.bar.Subject")
+
+            val annotations = subject.getAllAnnotations().filter { it.name == "MyAnnotation" }
+            assertThat(annotations).hasSize(1)
+        }
+    }
+
+    @Test
     fun javaRepeatableAnnotation() {
         val javaSrc = Source.java(
             "JavaSubject",
@@ -797,6 +835,34 @@ class XAnnotationTest(
             val annotation2 = subject.getAnnotation(OtherAnnotationTypeAlias::class)
             assertThat(annotation2).isNotNull()
             assertThat(annotation2?.value?.value).isEqualTo("x")
+        }
+    }
+
+    @Test
+    fun readPrimitiveAnnotationValueUsingClass() {
+        val source = Source.java(
+            "foo.bar.Baz",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.JavaAnnotationWithDefaults;
+            @JavaAnnotationWithDefaults(stringVal = "test")
+            public class Baz {
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(source)
+        ) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
+            val annotation =
+                element.requireAnnotation(ClassName.get(JavaAnnotationWithDefaults::class.java))
+
+            assertThat(annotation.get<String>("stringVal")).isEqualTo("test")
+            assertThat(annotation.get<Int>("intVal")).isEqualTo(3)
+
+            // Also test reading theses values through getAs*() methods
+            assertThat(annotation.getAsString("stringVal")).isEqualTo("test")
+            assertThat(annotation.getAsInt("intVal")).isEqualTo(3)
         }
     }
 

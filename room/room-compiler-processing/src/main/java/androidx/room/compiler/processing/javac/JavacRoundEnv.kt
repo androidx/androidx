@@ -35,17 +35,21 @@ internal class JavacRoundEnv(
         }.toSet()
     }
 
+    override val isProcessingOver: Boolean
+        get() = delegate.processingOver()
+
     override fun getElementsAnnotatedWith(klass: KClass<out Annotation>): Set<XElement> {
         val elements = delegate.getElementsAnnotatedWith(klass.java)
         return wrapAnnotatedElements(elements, klass.java.canonicalName)
     }
 
     override fun getElementsAnnotatedWith(annotationQualifiedName: String): Set<XElement> {
-        val element = env.elementUtils.getTypeElement(annotationQualifiedName)
-            ?: error("Cannot find TypeElement: $annotationQualifiedName")
-
-        val elements = delegate.getElementsAnnotatedWith(element)
-
+        if (annotationQualifiedName == "*") {
+            return emptySet()
+        }
+        val annotationTypeElement =
+            env.elementUtils.getTypeElement(annotationQualifiedName) ?: return emptySet()
+        val elements = delegate.getElementsAnnotatedWith(annotationTypeElement)
         return wrapAnnotatedElements(elements, annotationQualifiedName)
     }
 

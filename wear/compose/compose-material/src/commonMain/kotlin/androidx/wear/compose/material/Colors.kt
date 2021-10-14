@@ -32,9 +32,15 @@ public class Colors(
     primaryVariant: Color = Color(0xFF669DF6),
     secondary: Color = Color(0xFFFDE293),
     secondaryVariant: Color = Color(0xFF594F33),
+    background: Color = Color.Black,
+    surface: Color = Color(0xFF202124),
     error: Color = Color(0xFFEE675C),
     onPrimary: Color = Color(0xFF202124),
     onSecondary: Color = Color(0xFF202124),
+    onBackground: Color = Color.White,
+    onSurface: Color = Color.White,
+    onSurfaceVariant: Color = Color(0xFFDADCE0),
+    onSurfaceVariant2: Color = Color(0xFFBDC1C6),
     onError: Color = Color(0xFF202124)
 ) {
     public var primary: Color by mutableStateOf(primary, structuralEqualityPolicy())
@@ -48,18 +54,30 @@ public class Colors(
         structuralEqualityPolicy()
     )
         internal set
-    public val background: Color = Color.Black
-    public val surface: Color = Color(0xFF202124)
+    public var background: Color by mutableStateOf(background, structuralEqualityPolicy())
+        internal set
+    public var surface: Color by mutableStateOf(surface, structuralEqualityPolicy())
+        internal set
     public var error: Color by mutableStateOf(error, structuralEqualityPolicy())
         internal set
     public var onPrimary: Color by mutableStateOf(onPrimary, structuralEqualityPolicy())
         internal set
     public var onSecondary: Color by mutableStateOf(onSecondary, structuralEqualityPolicy())
         internal set
-    public val onBackground: Color = Color.White
-    public val onSurface: Color = Color.White
-    public val onSurfaceVariant: Color = Color(0xFFDADCE0)
-    public val onSurfaceVariant2: Color = Color(0xFFBDC1C6)
+    public var onBackground: Color by mutableStateOf(onBackground, structuralEqualityPolicy())
+        internal set
+    public var onSurface: Color by mutableStateOf(onSurface, structuralEqualityPolicy())
+        internal set
+    public var onSurfaceVariant: Color by mutableStateOf(
+        onSurfaceVariant,
+        structuralEqualityPolicy()
+    )
+        internal set
+    public var onSurfaceVariant2: Color by mutableStateOf(
+        onSurfaceVariant2,
+        structuralEqualityPolicy()
+    )
+        internal set
     public var onError: Color by mutableStateOf(onError, structuralEqualityPolicy())
         internal set
 
@@ -71,18 +89,30 @@ public class Colors(
         primaryVariant: Color = this.primaryVariant,
         secondary: Color = this.secondary,
         secondaryVariant: Color = this.secondaryVariant,
+        background: Color = this.background,
+        surface: Color = this.surface,
         error: Color = this.error,
         onPrimary: Color = this.onPrimary,
         onSecondary: Color = this.onSecondary,
+        onBackground: Color = this.onBackground,
+        onSurface: Color = this.onSurface,
+        onSurfaceVariant: Color = this.onSurfaceVariant,
+        onSurfaceVariant2: Color = this.onSurfaceVariant2,
         onError: Color = this.onError
     ): Colors = Colors(
         primary = primary,
         primaryVariant = primaryVariant,
         secondary = secondary,
         secondaryVariant = secondaryVariant,
+        background = background,
+        surface = surface,
         error = error,
         onPrimary = onPrimary,
         onSecondary = onSecondary,
+        onBackground = onBackground,
+        onSurface = onSurface,
+        onSurfaceVariant = onSurfaceVariant,
+        onSurfaceVariant2 = onSurfaceVariant2,
         onError = onError
     )
 
@@ -176,9 +206,15 @@ internal fun Colors.updateColorsFrom(other: Colors) {
     primaryVariant = other.primaryVariant
     secondary = other.secondary
     secondaryVariant = other.secondaryVariant
+    background = other.background
+    surface = other.surface
     error = other.error
     onPrimary = other.onPrimary
     onSecondary = other.onSecondary
+    onBackground = other.onBackground
+    onSurface = other.onSurface
+    onSurfaceVariant = other.onSurfaceVariant
+    onSurfaceVariant2 = other.onSurfaceVariant2
     onError = other.onError
 }
 

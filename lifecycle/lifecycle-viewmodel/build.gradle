@@ -17,6 +17,7 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -37,6 +38,10 @@ dependencies {
     testImplementation(libs.mockitoCore)
     testImplementation(libs.truth)
 
+    constraints {
+        implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+    }
+
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.junit)
@@ -51,4 +56,12 @@ androidx {
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle ViewModel"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
+    }
 }

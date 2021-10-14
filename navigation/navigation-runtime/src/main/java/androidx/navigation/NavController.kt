@@ -40,12 +40,14 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavDestination.Companion.createRoute
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -109,6 +111,31 @@ public open class NavController(
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open val backQueue: ArrayDeque<NavBackStackEntry> = ArrayDeque()
+
+    private val _visibleEntries: MutableStateFlow<List<NavBackStackEntry>> =
+        MutableStateFlow(emptyList())
+
+    /**
+     * A [StateFlow] that will emit the currently visible [NavBackStackEntries][NavBackStackEntry]
+     * whenever they change. If there is no visible [NavBackStackEntry], this will be set to an
+     * empty list.
+     *
+     * - `CREATED` entries are listed first and include all entries that have been popped from
+     * the back stack and are in the process of completing their exit transition
+     * - `STARTED` entries on the back stack are next and include all entries that are running
+     * their enter transition and entries whose destination is partially covered by a
+     * `FloatingWindow` destination
+     * - The last entry in the list is the topmost entry in the back stack and is in the `RESUMED`
+     * state only if its enter transition has completed. Otherwise it too will be `STARTED`.
+     *
+     * Note that the `Lifecycle` of any entry cannot be higher than the containing
+     * Activity/Fragment - if the Activity is not `RESUMED`, no entry will be `RESUMED`, no matter
+     * what the transition state is.
+     */
+    @NavControllerVisibleEntries
+    public val visibleEntries: StateFlow<List<NavBackStackEntry>> =
+        _visibleEntries.asStateFlow()
+
     private val childToParentEntries = mutableMapOf<NavBackStackEntry, NavBackStackEntry>()
     private val parentToChildCount = mutableMapOf<NavBackStackEntry, AtomicInteger>()
 
@@ -311,12 +338,14 @@ public open class NavController(
                 if (entry.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
                     entry.maxLifecycle = Lifecycle.State.DESTROYED
                 }
-                if (!savedState) {
+                if (backQueue.none { it.id == entry.id } && !savedState) {
                     viewModel?.clear(entry.id)
                 }
                 updateBackStackLifecycle()
+                _visibleEntries.tryEmit(populateVisibleEntries())
             } else if (!this@NavControllerNavigatorState.isNavigating) {
                 updateBackStackLifecycle()
+                _visibleEntries.tryEmit(populateVisibleEntries())
             }
             // else, updateBackStackLifecycle() will be called after any ongoing navigate() call
             // completes
@@ -644,6 +673,49 @@ public open class NavController(
     }
 
     /**
+     * Clears any saved state associated with [route] that was previously saved
+     * via [popBackStack] when using a `saveState` value of `true`.
+     *
+     * @param route The route of the destination previously used with [popBackStack] with a
+     * `saveState` value of `true`
+     *
+     * @return true if the saved state of the stack associated with [route] was cleared.
+     */
+    @MainThread
+    public fun clearBackStack(
+        route: String
+    ): Boolean = clearBackStack(createRoute(route).hashCode())
+
+    /**
+     * Clears any saved state associated with [destinationId] that was previously saved
+     * via [popBackStack] when using a `saveState` value of `true`.
+     *
+     * @param destinationId The ID of the destination previously used with [popBackStack] with a
+     * `saveState`value of `true`
+     *
+     * @return true if the saved state of the stack associated with [destinationId] was cleared.
+     */
+    @MainThread
+    public fun clearBackStack(@IdRes destinationId: Int): Boolean {
+        val cleared = clearBackStackInternal(destinationId)
+        // Only return true if the clear succeeded and we've dispatched
+        // the change to a new destination
+        return cleared && dispatchOnDestinationChanged()
+    }
+
+    @MainThread
+    private fun clearBackStackInternal(@IdRes destinationId: Int): Boolean {
+        navigatorState.values.forEach { state ->
+            state.isNavigating = true
+        }
+        val restored = restoreStateInternal(destinationId, null, null, null)
+        navigatorState.values.forEach { state ->
+            state.isNavigating = false
+        }
+        return restored && popBackStackInternal(destinationId, inclusive = true, saveState = false)
+    }
+
+    /**
      * Attempts to navigate up in the navigation hierarchy. Suitable for when the
      * user presses the "Up" button marked with a left (or start)-facing arrow in the upper left
      * (or starting) corner of the app UI.
@@ -823,6 +895,7 @@ public open class NavController(
                 }
                 _currentBackStackEntryFlow.tryEmit(backStackEntry)
             }
+            _visibleEntries.tryEmit(populateVisibleEntries())
         }
         return lastBackStackEntry != null
     }
@@ -907,6 +980,26 @@ public open class NavController(
         }
     }
 
+    internal fun populateVisibleEntries(): List<NavBackStackEntry> {
+        val entries = mutableListOf<NavBackStackEntry>()
+        // Add any transitioning entries that are not at least STARTED
+        navigatorState.values.forEach { state ->
+            entries += state.transitionsInProgress.value.filter { entry ->
+                !entries.contains(entry) &&
+                    !entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+            }
+        }
+        // Add any STARTED entries from the backQueue. This will include the topmost
+        // non-FloatingWindow destination plus every FloatingWindow destination above it.
+        entries += backQueue.filter { entry ->
+            !entries.contains(entry) &&
+                entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        }
+        return entries.filter {
+            it.destination !is NavGraph
+        }
+    }
+
     /**
      * The [inflater][NavInflater] for this controller.
      *
@@ -968,6 +1061,12 @@ public open class NavController(
     public open fun setGraph(graph: NavGraph, startDestinationArgs: Bundle?) {
         if (_graph != graph) {
             _graph?.let { previousGraph ->
+                // Clear all saved back stacks by iterating through a copy of the saved keys,
+                // thus avoiding any concurrent modification exceptions
+                val savedBackStackIds = ArrayList(backStackMap.keys)
+                savedBackStackIds.forEach { id ->
+                    clearBackStackInternal(id)
+                }
                 // Pop everything from the old graph off the back stack
                 popBackStackInternal(previousGraph.id, true)
             }
@@ -988,6 +1087,20 @@ public open class NavController(
 
     @MainThread
     private fun onGraphCreated(startDestinationArgs: Bundle?) {
+        navigatorStateToRestore?.let { navigatorStateToRestore ->
+            val navigatorNames = navigatorStateToRestore.getStringArrayList(
+                KEY_NAVIGATOR_STATE_NAMES
+            )
+            if (navigatorNames != null) {
+                for (name in navigatorNames) {
+                    val navigator = _navigatorProvider.getNavigator<Navigator<*>>(name)
+                    val bundle = navigatorStateToRestore.getBundle(name)
+                    if (bundle != null) {
+                        navigator.onRestoreState(bundle)
+                    }
+                }
+            }
+        }
         backStackToRestore?.let { backStackToRestore ->
             for (parcelable in backStackToRestore) {
                 val state = parcelable as NavBackStackEntryState
@@ -1013,25 +1126,7 @@ public open class NavController(
             updateOnBackPressedCallbackEnabled()
             this.backStackToRestore = null
         }
-        navigatorStateToRestore?.let { navigatorStateToRestore ->
-            val navigatorNames = navigatorStateToRestore.getStringArrayList(
-                KEY_NAVIGATOR_STATE_NAMES
-            )
-            if (navigatorNames != null) {
-                for (name in navigatorNames) {
-                    val navigator = _navigatorProvider.getNavigator<Navigator<*>>(name)
-                    val navigatorBackStack = navigatorState.getOrPut(navigator) {
-                        NavControllerNavigatorState(navigator)
-                    }
-                    navigator.onAttach(navigatorBackStack)
-                    val bundle = navigatorStateToRestore.getBundle(name)
-                    if (bundle != null) {
-                        navigator.onRestoreState(bundle)
-                    }
-                }
-            }
-        }
-        // Mark all other Navigators as attached
+        // Mark all Navigators as attached
         _navigatorProvider.navigators.values.filterNot { it.isAttached }.forEach { navigator ->
             val navigatorBackStack = navigatorState.getOrPut(navigator) {
                 NavControllerNavigatorState(navigator)
@@ -1559,52 +1654,7 @@ public open class NavController(
         val finalArgs = node.addInDefaultArgs(args)
         // Now determine what new destinations we need to add to the back stack
         if (navOptions?.shouldRestoreState() == true && backStackMap.containsKey(node.id)) {
-            val backStackId = backStackMap[node.id]
-            // Clear out the state we're going to restore so that it isn't restored a second time
-            backStackMap.values.removeAll { it == backStackId }
-            val backStackState = backStackStates.remove(backStackId)
-            // Now restore the back stack from its saved state
-            val entries = instantiateBackStack(backStackState)
-            // Split up the entries by Navigator so we can restore them as an atomic operation
-            val entriesGroupedByNavigator = mutableListOf<MutableList<NavBackStackEntry>>()
-            entries.filterNot { entry ->
-                // Skip navigation graphs - they'll be added by addEntryToBackStack()
-                entry.destination is NavGraph
-            }.forEach { entry ->
-                val previousEntryList = entriesGroupedByNavigator.lastOrNull()
-                val previousNavigatorName = previousEntryList?.last()?.destination?.navigatorName
-                if (previousNavigatorName == entry.destination.navigatorName) {
-                    // Group back to back entries associated with the same Navigator together
-                    previousEntryList += entry
-                } else {
-                    // Create a new group for the new Navigator
-                    entriesGroupedByNavigator += mutableListOf(entry)
-                }
-            }
-            // Now actually navigate to each set of entries
-            for (entryList in entriesGroupedByNavigator) {
-                val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
-                    entryList.first().destination.navigatorName
-                )
-                var lastNavigatedIndex = 0
-                var lastDestination = node
-                navigator.navigateInternal(entryList, navOptions, navigatorExtras) { entry ->
-                    navigated = true
-                    // If this destination is part of the restored back stack,
-                    // pass all destinations between the last navigated entry and this one
-                    // to ensure that any navigation graphs are properly restored as well
-                    val entryIndex = entries.indexOf(entry)
-                    val restoredEntries = if (entryIndex != -1) {
-                        entries.subList(lastNavigatedIndex, entryIndex + 1).also {
-                            lastNavigatedIndex = entryIndex + 1
-                            lastDestination = entry.destination
-                        }
-                    } else {
-                        emptyList()
-                    }
-                    addEntryToBackStack(lastDestination, finalArgs, entry, restoredEntries)
-                }
-            }
+            navigated = restoreStateInternal(node.id, finalArgs, navOptions, navigatorExtras)
         } else {
             val currentBackStackEntry = currentBackStackEntry
             val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
@@ -1613,10 +1663,15 @@ public open class NavController(
             if (navOptions?.shouldLaunchSingleTop() == true &&
                 node.id == currentBackStackEntry?.destination?.id
             ) {
-                backQueue.removeLast()
+                unlinkChildFromParent(backQueue.removeLast())
                 val newEntry = NavBackStackEntry(currentBackStackEntry, finalArgs)
                 backQueue.addLast(newEntry)
+                val parent = newEntry.destination.parent
+                if (parent != null) {
+                    linkChildToParent(newEntry, getBackStackEntry(parent.id))
+                }
                 navigator.onLaunchSingleTop(newEntry)
+                launchSingleTop = true
             } else {
                 // Not a single top operation, so we're looking to add the node to the back stack
                 val backStackEntry = NavBackStackEntry.create(
@@ -1637,6 +1692,63 @@ public open class NavController(
         } else {
             updateBackStackLifecycle()
         }
+    }
+
+    private fun restoreStateInternal(
+        id: Int,
+        args: Bundle?,
+        navOptions: NavOptions?,
+        navigatorExtras: Navigator.Extras?
+    ): Boolean {
+        if (!backStackMap.containsKey(id)) {
+            return false
+        }
+        val backStackId = backStackMap[id]
+        // Clear out the state we're going to restore so that it isn't restored a second time
+        backStackMap.values.removeAll { it == backStackId }
+        val backStackState = backStackStates.remove(backStackId)
+        // Now restore the back stack from its saved state
+        val entries = instantiateBackStack(backStackState)
+        // Split up the entries by Navigator so we can restore them as an atomic operation
+        val entriesGroupedByNavigator = mutableListOf<MutableList<NavBackStackEntry>>()
+        entries.filterNot { entry ->
+            // Skip navigation graphs - they'll be added by addEntryToBackStack()
+            entry.destination is NavGraph
+        }.forEach { entry ->
+            val previousEntryList = entriesGroupedByNavigator.lastOrNull()
+            val previousNavigatorName = previousEntryList?.last()?.destination?.navigatorName
+            if (previousNavigatorName == entry.destination.navigatorName) {
+                // Group back to back entries associated with the same Navigator together
+                previousEntryList += entry
+            } else {
+                // Create a new group for the new Navigator
+                entriesGroupedByNavigator += mutableListOf(entry)
+            }
+        }
+        var navigated = false
+        // Now actually navigate to each set of entries
+        for (entryList in entriesGroupedByNavigator) {
+            val navigator = _navigatorProvider.getNavigator<Navigator<NavDestination>>(
+                entryList.first().destination.navigatorName
+            )
+            var lastNavigatedIndex = 0
+            navigator.navigateInternal(entryList, navOptions, navigatorExtras) { entry ->
+                navigated = true
+                // If this destination is part of the restored back stack,
+                // pass all destinations between the last navigated entry and this one
+                // to ensure that any navigation graphs are properly restored as well
+                val entryIndex = entries.indexOf(entry)
+                val restoredEntries = if (entryIndex != -1) {
+                    entries.subList(lastNavigatedIndex, entryIndex + 1).also {
+                        lastNavigatedIndex = entryIndex + 1
+                    }
+                } else {
+                    emptyList()
+                }
+                addEntryToBackStack(entry.destination, args, entry, restoredEntries)
+            }
+        }
+        return navigated
     }
 
     private fun instantiateBackStack(

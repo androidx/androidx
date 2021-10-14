@@ -256,6 +256,7 @@ public class DialogFragment extends Fragment
         mDismissed = false;
         mShownByMe = true;
         FragmentTransaction ft = manager.beginTransaction();
+        ft.setReorderingAllowed(true);
         ft.add(this, tag);
         ft.commit();
     }
@@ -293,6 +294,7 @@ public class DialogFragment extends Fragment
         mDismissed = false;
         mShownByMe = true;
         FragmentTransaction ft = manager.beginTransaction();
+        ft.setReorderingAllowed(true);
         ft.add(this, tag);
         ft.commitNow();
     }
@@ -348,6 +350,7 @@ public class DialogFragment extends Fragment
             mBackStackId = -1;
         } else {
             FragmentTransaction ft = getParentFragmentManager().beginTransaction();
+            ft.setReorderingAllowed(true);
             ft.remove(this);
             if (allowStateLoss) {
                 ft.commitAllowingStateLoss();
@@ -675,6 +678,26 @@ public class DialogFragment extends Fragment
                 mDialog.onRestoreInstanceState(dialogState);
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated use {@link #onCreateDialog} for code touching the dialog created by
+     * {@link #onCreateDialog}, {@link #onViewCreated(View, Bundle)} for code touching the
+     * view created by {@link #onCreateView} and {@link #onCreate(Bundle)} for other initialization.
+     * To get a callback specifically when a Fragment activity's
+     * {@link Activity#onCreate(Bundle)} is called, register a
+     * {@link androidx.lifecycle.LifecycleObserver} on the Activity's
+     * {@link Lifecycle} in {@link #onAttach(Context)}, removing it when it receives the
+     * {@link Lifecycle.State#CREATED} callback.
+     */
+    @SuppressWarnings("deprecation")
+    @MainThread
+    @Override
+    @Deprecated
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
     }
 
     @MainThread

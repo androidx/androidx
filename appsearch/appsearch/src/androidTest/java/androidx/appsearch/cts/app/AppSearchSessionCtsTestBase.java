@@ -16,8 +16,6 @@
 
 package androidx.appsearch.cts.app;
 
-import static android.os.Build.VERSION_CODES;
-
 import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_SCHEMA;
 import static androidx.appsearch.app.AppSearchResult.RESULT_NOT_FOUND;
 import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
@@ -82,9 +80,6 @@ public abstract class AppSearchSessionCtsTestBase {
 
     protected abstract ListenableFuture<AppSearchSession> createSearchSession(
             @NonNull String dbName, @NonNull ExecutorService executor);
-
-    // Returns the Android version that the current instance of AppSearchSession is based on.
-    protected abstract int getAppSearchApiTarget();
 
     @Before
     public void setUp() throws Exception {
@@ -1237,6 +1232,14 @@ public abstract class AppSearchSessionCtsTestBase {
         documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).hasSize(1);
         assertThat(documents).containsExactly(inDoc);
+
+        // Query only for non-exist type
+        searchResults = mDb1.search("body", new SearchSpec.Builder()
+                .addFilterSchemas("nonExistType")
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).isEmpty();
     }
 
     @Test
@@ -1315,6 +1318,15 @@ public abstract class AppSearchSessionCtsTestBase {
         documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).hasSize(1);
         assertThat(documents).containsExactly(expectedEmail);
+
+        // Query only for non-exist namespace
+        searchResults = mDb1.search("body",
+                new SearchSpec.Builder()
+                        .addFilterNamespaces("nonExistNamespace")
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).isEmpty();
     }
 
     @Test
@@ -1889,13 +1901,14 @@ public abstract class AppSearchSessionCtsTestBase {
                 new SearchResult.MatchRange(/*lower=*/26,  /*upper=*/33));
         assertThat(matchInfo.getSnippet()).isEqualTo("is foo.");
 
-        if (getAppSearchApiTarget() <= VERSION_CODES.S) {
-            // Submatch is not support on any backend that targets a platform S or lower.
-            assertThat(matchInfo.getSubmatchRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/0,  /*upper=*/0));
-            assertThat(matchInfo.getSubmatch().length()).isEqualTo(0);
+        if (!mDb1.getCapabilities().isSubmatchSupported()) {
+            assertThrows(
+                    UnsupportedOperationException.class,
+                    () -> matchInfo.getSubmatchRange());
+            assertThrows(
+                    UnsupportedOperationException.class,
+                    () -> matchInfo.getSubmatch());
         } else {
-            // Submatch is enabled on any backend that targets a platform beyond S.
             assertThat(matchInfo.getSubmatchRange()).isEqualTo(
                     new SearchResult.MatchRange(/*lower=*/29,  /*upper=*/31));
             assertThat(matchInfo.getSubmatch()).isEqualTo("fo");
@@ -2023,13 +2036,14 @@ public abstract class AppSearchSessionCtsTestBase {
                 new SearchResult.MatchRange(/*lower=*/44,  /*upper=*/45));
         assertThat(matchInfo.getExactMatch()).isEqualTo("は");
 
-        if (getAppSearchApiTarget() <= VERSION_CODES.S) {
-            // Submatch is not support on any backend that targets a platform S or lower.
-            assertThat(matchInfo.getSubmatchRange()).isEqualTo(
-                    new SearchResult.MatchRange(/*lower=*/0,  /*upper=*/0));
-            assertThat(matchInfo.getSubmatch().length()).isEqualTo(0);
+        if (!mDb1.getCapabilities().isSubmatchSupported()) {
+            assertThrows(
+                    UnsupportedOperationException.class,
+                    () -> matchInfo.getSubmatchRange());
+            assertThrows(
+                    UnsupportedOperationException.class,
+                    () -> matchInfo.getSubmatch());
         } else {
-            // Submatch is enabled on any backend that targets a platform beyond S.
             assertThat(matchInfo.getSubmatchRange()).isEqualTo(
                     new SearchResult.MatchRange(/*lower=*/44,  /*upper=*/45));
             assertThat(matchInfo.getSubmatch()).isEqualTo("は");

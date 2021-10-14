@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 
@@ -34,6 +35,7 @@ import java.util.Locale;
  *
  * <p>See b/176399765 and b/181966663.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCaptureWashedOutImageQuirk implements UseTorchAsFlashQuirk {
 
     @VisibleForTesting

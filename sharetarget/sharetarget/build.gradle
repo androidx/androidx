@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.core:core:1.3.2")
+    api("androidx.core:core:1.6.0")
     api("androidx.collection:collection:1.1.0")
     api(libs.guavaListenableFuture)
     implementation("androidx.concurrent:concurrent-futures:1.0.0")

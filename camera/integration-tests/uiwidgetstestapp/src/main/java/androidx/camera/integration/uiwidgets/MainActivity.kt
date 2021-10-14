@@ -20,6 +20,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.integration.uiwidgets.databinding.ActivityMainBinding
+import androidx.camera.integration.uiwidgets.foldable.FoldableCameraActivity
 import androidx.camera.integration.uiwidgets.rotations.LockedOrientationActivity
 import androidx.camera.integration.uiwidgets.rotations.OrientationConfigChangesOverriddenActivity
 import androidx.camera.integration.uiwidgets.rotations.UnlockedOrientationActivity
@@ -48,6 +49,9 @@ class MainActivity : AppCompatActivity() {
         }
         binding.viewpager2.setOnClickListener {
             launch(ViewPager2Activity::class.java)
+        }
+        binding.foldable.setOnClickListener {
+            launch(FoldableCameraActivity::class.java)
         }
     }
 

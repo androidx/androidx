@@ -16,22 +16,37 @@
 
 package androidx.room.solver.types
 
-import androidx.room.ext.L
-import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
 
 /**
  * combines 2 type converters
  */
 class CompositeTypeConverter(val conv1: TypeConverter, val conv2: TypeConverter) : TypeConverter(
-    conv1.from, conv2.to
+    from = conv1.from,
+    to = conv2.to,
+    cost = conv1.cost + conv2.cost
 ) {
-    override fun convert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
+    override fun doConvert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
-            val tmp = scope.getTmpVar()
-            addStatement("final $T $L", conv1.to.typeName, tmp)
-            conv1.convert(inputVarName, tmp, scope)
-            conv2.convert(tmp, outputVarName, scope)
+            val conv1Output = conv1.convert(inputVarName, scope)
+            conv2.convert(
+                inputVarName = conv1Output,
+                outputVarName = outputVarName,
+                scope = scope
+            )
+        }
+    }
+
+    override fun doConvert(inputVarName: String, scope: CodeGenScope): String {
+        scope.builder().apply {
+            val conv1Output = conv1.convert(
+                inputVarName = inputVarName,
+                scope = scope
+            )
+            return conv2.convert(
+                inputVarName = conv1Output,
+                scope = scope
+            )
         }
     }
 }

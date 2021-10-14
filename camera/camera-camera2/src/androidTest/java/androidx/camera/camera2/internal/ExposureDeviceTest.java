@@ -65,6 +65,7 @@ import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -92,6 +93,7 @@ import java.util.concurrent.TimeoutException;
  */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class ExposureDeviceTest {
 
     @CameraSelector.LensFacing
@@ -303,7 +305,8 @@ public class ExposureDeviceTest {
         // Set the exposure compensation
         int upper = exposureState.getExposureCompensationRange().getUpper();
         mCameraControlInternal.setExposureCompensationIndex(upper).get(3000, TimeUnit.MILLISECONDS);
-        mCameraControlInternal.startFlashSequence().get(3000, TimeUnit.MILLISECONDS);
+        mCameraControlInternal.startFlashSequence(ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH).get(3000,
+                TimeUnit.MILLISECONDS);
 
         // Verify the exposure compensation target result is in the capture result.
         verify(callback, timeout(3000).atLeastOnce()).onCaptureCompleted(

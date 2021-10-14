@@ -657,4 +657,105 @@ class SaveRestoreBackStackTest {
             assertThat(fm.backStackEntryCount).isEqualTo(1)
         }
     }
+
+    @Test
+    fun clearBackStack() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictViewFragment()
+            val fragmentReplacement = StateSaveFragment()
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, fragmentReplacement)
+                .addToBackStack("replacement")
+                .commit()
+            executePendingTransactions()
+
+            val originalViewModel = fragmentReplacement.viewModel
+            assertWithMessage("ViewModel should not be cleared after commit()")
+                .that(originalViewModel.cleared)
+                .isFalse()
+
+            fm.saveBackStack("replacement")
+            executePendingTransactions()
+
+            assertWithMessage("Saved Fragments should have their state saved")
+                .that(fragmentReplacement.calledOnSaveInstanceState)
+                .isTrue()
+
+            // Saved Fragments should be destroyed
+            assertWithMessage("Saved Fragments should be destroyed")
+                .that(fragmentReplacement.calledOnDestroy)
+                .isTrue()
+            // But any ViewModels should not be cleared so that they're available
+            // for later restoration
+            assertWithMessage("ViewModel should not be cleared after saveBackStack()")
+                .that(originalViewModel.cleared)
+                .isFalse()
+
+            fm.clearBackStack("replacement")
+            executePendingTransactions()
+
+            assertWithMessage("ViewModel should be cleared after the back stack is cleared")
+                .that(originalViewModel.cleared)
+                .isTrue()
+        }
+    }
+
+    @Test
+    fun clearBackStackWithoutExecutePendingTransactions() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragmentBase = StrictViewFragment()
+            val fragmentReplacement = StateSaveFragment("saved", "unsaved")
+
+            fm.beginTransaction()
+                .add(R.id.content, fragmentBase)
+                .commit()
+            executePendingTransactions()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.content, fragmentReplacement)
+                .addToBackStack("replacement")
+                .commit()
+            executePendingTransactions()
+
+            val originalViewModel = fragmentReplacement.viewModel
+            assertWithMessage("ViewModel should not be cleared after commit()")
+                .that(originalViewModel.cleared)
+                .isFalse()
+            assertThat(fm.backStackEntryCount).isEqualTo(1)
+
+            withActivity {
+                fm.saveBackStack("replacement")
+                // Immediately clear the back stack without calling executePendingTransactions
+                fm.clearBackStack("replacement")
+            }
+            executePendingTransactions()
+
+            assertWithMessage("Saved Fragments should not go through onSaveInstanceState")
+                .that(fragmentReplacement.calledOnSaveInstanceState)
+                .isFalse()
+            assertWithMessage("Saved Fragments should have been destroyed when cleared")
+                .that(fragmentReplacement.calledOnDestroy)
+                .isTrue()
+            assertWithMessage("ViewModel should be cleared after the back stack is cleared")
+                .that(fragmentReplacement.viewModel.cleared)
+                .isTrue()
+
+            // Assert that cleared fragment has been removed
+            assertThat(fm.backStackEntryCount).isEqualTo(0)
+        }
+    }
 }

@@ -17,9 +17,9 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="appsearch_no_documents_error" msgid="2371906054857961621">"Não foram encontrados documentos da AppSearch na base de dados. Valide o nome da base de dados e confirme se foi selecionado o tipo de armazenamento correto."</string>
-    <string name="appsearch_no_schema_types_error" msgid="6040453370924007774">"Não foram encontrados tipos de esquemas da AppSearch. Valide o nome da base de dados e confirme se foi selecionado o tipo de armazenamento correto."</string>
-    <string name="appsearch_documents_loading" msgid="3079225167662255666">"A carregar os documentos da AppSearch…"</string>
-    <string name="appsearch_schema_types_loading" msgid="5223743742396711620">"A carregar os tipos de esquemas da AppSearch…"</string>
-    <string name="appsearch_schema_version" msgid="5289450345246068014">"Versão do esquema: %d"</string>
+    <string name="appsearch_no_documents_error" msgid="7957333381856121779">"Não foram encontrados documentos da AppSearch na base de dados. Valide o nome da base de dados e confirme se foi selecionado o tipo de armazenamento correto."</string>
+    <string name="appsearch_no_schema_types_error" msgid="5825283982305113887">"Não foram encontrados tipos de esquemas da AppSearch. Valide o nome da base de dados e confirme se foi selecionado o tipo de armazenamento correto."</string>
+    <string name="appsearch_documents_loading" msgid="1689893533003672860">"A carregar os documentos da AppSearch…"</string>
+    <string name="appsearch_schema_types_loading" msgid="4961123108404531766">"A carregar os tipos de esquemas da AppSearch…"</string>
+    <string name="appsearch_schema_version" msgid="7000254633719373917">"Versão do esquema: %d"</string>
 </resources>

@@ -20,7 +20,6 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.annotation.CallSuper;
@@ -42,9 +41,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Base class for session test.
- * <p>
- * For all subclasses, all individual tests should begin with the {@link #prepareLooper()}. See
- * {@link #prepareLooper} for details.
  */
 abstract class MediaSessionTestBase {
     static final int TIMEOUT_MS = 1000;
@@ -62,30 +58,12 @@ abstract class MediaSessionTestBase {
         void setRunnableForOnCustomCommand(Runnable runnable);
     }
 
-    /**
-     * All tests methods should start with this.
-     * <p>
-     * MediaControllerCompat, which is wrapped by the MediaSession, can be only created by the
-     * thread whose Looper is prepared. However, when the presubmit tests runs on the server,
-     * test runs with the {@link org.junit.internal.runners.statements.FailOnTimeout} which creates
-     * dedicated thread for running test methods while methods annotated with @After or @Before
-     * runs on the different thread. This ensures that the current Looper is prepared.
-     * <p>
-     * To address the issue .
-     */
-    public static void prepareLooper() {
-        if (Looper.myLooper() == null) {
-            Looper.prepare();
-        }
-    }
-
     @BeforeClass
     public static void setUpThread() {
         synchronized (MediaSessionTestBase.class) {
             if (sHandler != null) {
                 return;
             }
-            prepareLooper();
             HandlerThread handlerThread = new HandlerThread("MediaSessionTestBase");
             handlerThread.start();
             sHandler = new SyncHandler(handlerThread.getLooper());

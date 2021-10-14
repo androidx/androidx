@@ -17,6 +17,7 @@
 package androidx.activity
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.ActivityResult
@@ -84,6 +85,25 @@ class ComponentActivityResultTest {
 
             scenario.withActivity {
                 assertThat(launchCount).isEqualTo(1)
+            }
+        }
+    }
+
+    @Test
+    fun noActivityAvailableTest() {
+        ActivityScenario.launch(RegisterInInitActivity::class.java).use { scenario ->
+            var exceptionThrown = false
+            scenario.withActivity {
+                try {
+                    launcher.launch(Intent("no action"))
+                } catch (e: ActivityNotFoundException) {
+                    exceptionThrown = true
+                }
+            }
+
+            scenario.withActivity {
+                assertThat(exceptionThrown).isTrue()
+                assertThat(launchCount).isEqualTo(0)
             }
         }
     }

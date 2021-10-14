@@ -64,7 +64,7 @@ import androidx.core.util.Preconditions;
  * </ul>
  *
  * NOTE: The LocusId is only used by a on-device intelligence service provided by the Android
- * System, see {@link ContentCaptureManager} for more details.
+ * System, see {@link android.view.contentcapture.ContentCaptureManager} for more details.
  */
 public final class LocusIdCompat {
 

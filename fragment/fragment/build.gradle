@@ -1,5 +1,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -24,7 +25,7 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.core:core:1.2.0")
+    api("androidx.core:core-ktx:1.2.0")
     api("androidx.collection:collection:1.1.0")
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.loader:loader:1.0.0")
@@ -34,6 +35,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.3.1")
     api("androidx.savedstate:savedstate:1.1.0")
     api("androidx.annotation:annotation-experimental:1.0.0")
+    api(libs.kotlinStdlib)
 
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0", {
         exclude group: "androidx.fragment", module: "fragment"
@@ -70,4 +72,16 @@ androidx {
     mavenGroup = LibraryGroups.FRAGMENT
     inceptionYear = "2011"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
+}
+
+// needed only while https://youtrack.jetbrains.com/issue/KT-47000 isn't resolved which is
+// targeted to 1.6
+if (project.hasProperty("androidx.useMaxDepVersions")){
+    tasks.withType(KotlinCompile).configureEach {
+        kotlinOptions {
+            freeCompilerArgs += [
+                    "-Xjvm-default=enable",
+            ]
+        }
+    }
 }

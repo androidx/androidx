@@ -50,6 +50,8 @@ public class SplashScreenViewProvider internal constructor(ctx: Activity) {
         Build.VERSION.SDK_INT >= 31 -> ViewImpl31(ctx)
         Build.VERSION.SDK_INT == 30 && Build.VERSION.PREVIEW_SDK_INT > 0 -> ViewImpl31(ctx)
         else -> ViewImpl(ctx)
+    }.apply {
+        createSplashScreenView()
     }
 
     /**
@@ -98,22 +100,27 @@ public class SplashScreenViewProvider internal constructor(ctx: Activity) {
             ) as ViewGroup
         }
 
-        init {
+        open fun createSplashScreenView() {
             val content = activity.findViewById<ViewGroup>(android.R.id.content)
-            content.addView(_splashScreenView)
+            (content.rootView as? ViewGroup)?.addView(_splashScreenView)
         }
 
         open val splashScreenView: ViewGroup get() = _splashScreenView
         open val iconView: View get() = splashScreenView.findViewById(R.id.splashscreen_icon_view)
         open val iconAnimationStartMillis: Long get() = 0
         open val iconAnimationDurationMillis: Long get() = 0
-        open fun remove() =
-            activity.findViewById<ViewGroup>(android.R.id.content).removeView(splashScreenView)
+        open fun remove() {
+            (splashScreenView.parent as? ViewGroup)?.removeView(splashScreenView)
+        }
     }
 
     @RequiresApi(31)
     private class ViewImpl31(activity: Activity) : ViewImpl(activity) {
         lateinit var platformView: SplashScreenView
+
+        override fun createSplashScreenView() {
+            // Do nothing
+        }
 
         override val splashScreenView get() = platformView
 

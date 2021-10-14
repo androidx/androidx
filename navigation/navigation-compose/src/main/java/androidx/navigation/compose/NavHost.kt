@@ -107,6 +107,14 @@ public fun NavHost(
     if (onBackPressedDispatcher != null) {
         navController.setOnBackPressedDispatcher(onBackPressedDispatcher)
     }
+    // Ensure that the NavController only receives back events while
+    // the NavHost is in composition
+    DisposableEffect(navController) {
+        navController.enableOnBackPressed(true)
+        onDispose {
+            navController.enableOnBackPressed(false)
+        }
+    }
 
     // Then set the graph
     navController.graph = graph

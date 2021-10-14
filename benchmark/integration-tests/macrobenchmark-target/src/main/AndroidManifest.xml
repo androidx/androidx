@@ -29,8 +29,7 @@
         <profileable android:shell="true"/>
 
         <!--
-        Activities need to be exported so the macrobenchmark can discover them
-        under the new package visibility changes for Android 11.
+        Activities need to be exported so the macrobenchmark can discover them.
          -->
         <activity
             android:name=".TrivialStartupActivity"
@@ -46,6 +45,15 @@
         </activity>
 
         <activity
+            android:name=".TrivialStartupFullyDrawnActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.benchmark.integration.macrobenchmark.target.TRIVIAL_STARTUP_FULLY_DRAWN_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".RecyclerViewActivity"
             android:exported="true">
             <intent-filter>
@@ -54,10 +62,8 @@
             </intent-filter>
         </activity>
 
-
         <!--
         Activities need to be exported so the macrobenchmark can discover them
-        under the new package visibility changes for Android 11.
          -->
         <activity
             android:name=".NotExportedActivity"

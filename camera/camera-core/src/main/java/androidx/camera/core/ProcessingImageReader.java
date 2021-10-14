@@ -24,6 +24,7 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureProcessor;
@@ -52,6 +53,7 @@ import java.util.concurrent.Executors;
  * the {@link CaptureProcessor} set, then returns a single output ImageProxy to
  * OnImageAvailableListener.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ProcessingImageReader implements ImageReaderProxy {
     private static final String TAG = "ProcessingImageReader";
 

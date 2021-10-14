@@ -24,6 +24,7 @@ import android.os.Build;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.ImageFormatConstants;
@@ -53,6 +54,7 @@ import java.util.List;
  *
  * @see CamcorderProfile#hasProfile
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CamcorderProfileResolutionQuirk implements Quirk {
     private static final String TAG = "CamcorderProfileResolutionQuirk";
 

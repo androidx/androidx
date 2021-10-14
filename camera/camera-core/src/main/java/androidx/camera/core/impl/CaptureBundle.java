@@ -17,12 +17,14 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.List;
 
 /**
  * A interface to return an ordered collection of {@link CaptureStage}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CaptureBundle {
     /**
      * Returns a list of {@link CaptureStage} in order of how they are to be issued.

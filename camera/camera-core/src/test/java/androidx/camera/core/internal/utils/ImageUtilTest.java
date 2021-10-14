@@ -59,6 +59,7 @@ public class ImageUtilTest {
     private static final Rational ASPECT_RATIO = new Rational(WIDTH, HEIGHT);
     private static final int CROP_WIDTH = 100;
     private static final int CROP_HEIGHT = 100;
+    private static final int DEFAULT_JPEG_QUALITY = 100;
     private static final String JPEG_IMAGE_DATA_BASE_64 =
             "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB"
                     + "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEB"
@@ -117,15 +118,15 @@ public class ImageUtilTest {
     }
 
     @Test
-    public void canTransformImageToByteArray() throws ImageUtil.CodecFailedException {
-        byte[] byteArray = ImageUtil.imageToJpegByteArray(mImage);
+    public void canTransformJpegImageToByteArray() {
+        byte[] byteArray = ImageUtil.jpegImageToJpegByteArray(mImage);
         assertThat(byteArray).isEqualTo(mDataByteArray);
     }
 
     @Test
-    public void canCropByteArray() throws ImageUtil.CodecFailedException {
-        byte[] byteArray = ImageUtil.cropByteArray(mDataByteArray,
-                new Rect(0, 0, CROP_WIDTH, CROP_HEIGHT));
+    public void canCropJpegByteArray() throws ImageUtil.CodecFailedException {
+        byte[] byteArray = ImageUtil.jpegImageToJpegByteArray(mImage,
+                new Rect(0, 0, CROP_WIDTH, CROP_HEIGHT), DEFAULT_JPEG_QUALITY);
         Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
         assertEquals(CROP_WIDTH, bitmap.getWidth());
         assertEquals(CROP_HEIGHT, bitmap.getHeight());
@@ -161,5 +162,41 @@ public class ImageUtilTest {
         } else {
             assertEquals(HEIGHT, resultRect.height());
         }
+    }
+
+    @Test
+    public void computeCropRectFromDispatchInfo_dispatchBufferRotated90() {
+        assertComputeCropRectFromDispatchInfo(90, new Size(4, 6), new Rect(3, 0, 4, 1));
+    }
+
+    @Test
+    public void computeCropRectFromDispatchInfo_dispatchBufferRotated180() {
+        assertComputeCropRectFromDispatchInfo(180, new Size(6, 4), new Rect(5, 3, 6, 4));
+    }
+
+    @Test
+    public void computeCropRectFromDispatchInfo_dispatchBufferRotated270() {
+        assertComputeCropRectFromDispatchInfo(270, new Size(4, 6), new Rect(0, 5, 1, 6));
+    }
+
+    @Test
+    public void computeCropRectFromDispatchInfo_dispatchBufferRotated0() {
+        assertComputeCropRectFromDispatchInfo(0, new Size(6, 4), new Rect(0, 0, 1, 1));
+    }
+
+    private void assertComputeCropRectFromDispatchInfo(int outputDegrees, Size dispatchResolution,
+            Rect dispatchRect) {
+        // Arrange:
+        // Surface crop rect stays the same regardless of HAL rotations.
+        Rect surfaceCropRect = new Rect(0, 0, 1, 1);
+        // Exif degrees being 0 means HAL consumed the target rotation.
+        int exifRotationDegrees = 0;
+
+        // Act.
+        Rect dispatchCropRect = ImageUtil.computeCropRectFromDispatchInfo(
+                surfaceCropRect, outputDegrees, dispatchResolution, exifRotationDegrees);
+
+        // Assert.
+        assertThat(dispatchCropRect).isEqualTo(dispatchRect);
     }
 }

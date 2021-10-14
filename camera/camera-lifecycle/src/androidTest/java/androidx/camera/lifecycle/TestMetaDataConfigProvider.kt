@@ -18,8 +18,10 @@ package androidx.camera.lifecycle
 
 import androidx.camera.core.CameraXConfig
 import androidx.camera.testing.fakes.FakeAppConfig
+import androidx.test.filters.SdkSuppress
 import kotlinx.atomicfu.atomic
 
+@SdkSuppress(minSdkVersion = 21)
 public class TestMetaDataConfigProvider : CameraXConfig.Provider {
 
     public companion object {

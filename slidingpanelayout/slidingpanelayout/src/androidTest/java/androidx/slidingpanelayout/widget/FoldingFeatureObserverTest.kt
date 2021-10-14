@@ -41,7 +41,7 @@ class FoldingFeatureObserverTest {
         activityScenarioRule.scenario.onActivity { activity ->
             val observer = FoldingFeatureObserver(activity.windowInfoRepository(), Runnable::run)
             val expected = FoldingFeature(activity = activity)
-            val info = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(expected)).build()
+            val info = WindowLayoutInfo(listOf(expected))
 
             observer.setOnFoldingFeatureChangeListener(listener)
             windowInfoPublisherRule.overrideWindowLayoutInfo(info)
@@ -56,7 +56,7 @@ class FoldingFeatureObserverTest {
         activityScenarioRule.scenario.onActivity { activity ->
             val observer = FoldingFeatureObserver(activity.windowInfoRepository(), Runnable::run)
             val expected = FoldingFeature(activity = activity)
-            val info = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(expected)).build()
+            val info = WindowLayoutInfo(listOf(expected))
 
             observer.setOnFoldingFeatureChangeListener(listener)
             observer.registerLayoutStateChangeCallback()
@@ -72,7 +72,7 @@ class FoldingFeatureObserverTest {
         activityScenarioRule.scenario.onActivity { activity ->
             val observer = FoldingFeatureObserver(activity.windowInfoRepository(), Runnable::run)
             val expected = FoldingFeature(activity = activity)
-            val info = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(expected)).build()
+            val info = WindowLayoutInfo(listOf(expected))
 
             observer.setOnFoldingFeatureChangeListener(listener)
             observer.registerLayoutStateChangeCallback()

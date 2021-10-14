@@ -19,6 +19,7 @@ package androidx.camera.core.impl;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.core.util.Preconditions;
 
@@ -55,6 +56,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @param <T> The state type.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class StateObservable<T> implements Observable<T> {
     private static final int INITIAL_VERSION = 0;
 
@@ -180,6 +182,7 @@ public abstract class StateObservable<T> implements Observable<T> {
         }
     }
 
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     private static final class ObserverWrapper<T> implements Runnable {
         private static final Object NOT_SET = new Object();
         private static final int NO_VERSION = -1;

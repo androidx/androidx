@@ -33,6 +33,7 @@ dependencies {
 
     annotationProcessor(libs.autoValue)
 
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -49,9 +50,8 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 21
+        multiDexEnabled = true
     }
-
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
 }

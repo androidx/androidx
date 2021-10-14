@@ -17,9 +17,9 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="appsearch_no_documents_error" msgid="2371906054857961621">"Нема документи за AppSearch во базата на податоци. Потврдете дека името на базата на податоци е точно и дека е избран точниот вид меморија."</string>
-    <string name="appsearch_no_schema_types_error" msgid="6040453370924007774">"Не се пронајдени видови шема за AppSearch. Потврдете дека името на базата на податоци е точно и дека е избран точниот вид меморија."</string>
-    <string name="appsearch_documents_loading" msgid="3079225167662255666">"Се вчитуваат документи за AppSearch…"</string>
-    <string name="appsearch_schema_types_loading" msgid="5223743742396711620">"Се вчитуваат видови шема за AppSearch…"</string>
-    <string name="appsearch_schema_version" msgid="5289450345246068014">"Верзија на шема: %d"</string>
+    <string name="appsearch_no_documents_error" msgid="7957333381856121779">"Нема документи за AppSearch во базата на податоци. Потврдете дека името на базата на податоци е точно и дека е избран точниот тип капацитет."</string>
+    <string name="appsearch_no_schema_types_error" msgid="5825283982305113887">"Не се пронајдени типови шеми за AppSearch. Потврдете дека името на базата на податоци е точно и дека е избран точниот тип капацитет."</string>
+    <string name="appsearch_documents_loading" msgid="1689893533003672860">"Се вчитуваат документи за AppSearch…"</string>
+    <string name="appsearch_schema_types_loading" msgid="4961123108404531766">"Се вчитуваат типови шеми за AppSearch…"</string>
+    <string name="appsearch_schema_version" msgid="7000254633719373917">"Верзија на шема: %d"</string>
 </resources>

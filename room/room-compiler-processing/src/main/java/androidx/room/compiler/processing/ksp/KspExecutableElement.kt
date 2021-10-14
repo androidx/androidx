@@ -56,7 +56,7 @@ internal abstract class KspExecutableElement(
         declaration.parameters.map {
             KspExecutableParameterElement(
                 env = env,
-                method = this,
+                enclosingMethodElement = this,
                 parameter = it
             )
         }

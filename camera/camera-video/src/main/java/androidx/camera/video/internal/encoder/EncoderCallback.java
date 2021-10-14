@@ -17,10 +17,12 @@
 package androidx.camera.video.internal.encoder;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * The encoder callback event.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface EncoderCallback {
 
     /** The method called before the first encoded data. */
@@ -28,6 +30,16 @@ public interface EncoderCallback {
 
     /** The method called after the last encoded data. */
     void onEncodeStop();
+
+    /**
+     * The method called when encoder is currently started and {@link Encoder#pause()} is invoked.
+     *
+     * <p>The callback is only triggered when the encoder is completely paused. Successive calls
+     * to {@link Encoder#pause()} and {@link Encoder#start()} may not trigger the callback.
+     * {@link #onEncodedData} will not be triggered after this callback.
+     */
+    default void onEncodePaused() {
+    }
 
     /**
      * The method called when error occurs while encoding.

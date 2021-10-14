@@ -2290,9 +2290,9 @@ public class ViewPager extends ViewGroup {
 
                     needsInvalidate = resetTouch();
                     if (nextPage == currentPage && needsInvalidate) {
-                        if (!mRightEdge.isFinished()) {
+                        if (EdgeEffectCompat.getDistance(mRightEdge) != 0) {
                             mRightEdge.onAbsorb(-initialVelocity);
-                        } else if (!mLeftEdge.isFinished()) {
+                        } else if (EdgeEffectCompat.getDistance(mLeftEdge) != 0) {
                             mLeftEdge.onAbsorb(initialVelocity);
                         }
                     }

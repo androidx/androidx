@@ -48,7 +48,7 @@ class CameraDeviceCompatApi23Impl extends CameraDeviceCompatBaseImpl {
 
     @Override
     public void createCaptureSession(@NonNull SessionConfigurationCompat config)
-            throws CameraAccessException {
+            throws CameraAccessExceptionCompat {
         checkPreconditions(mCameraDevice, config);
 
         // Wrap the executor in the callback
@@ -63,18 +63,22 @@ class CameraDeviceCompatApi23Impl extends CameraDeviceCompatBaseImpl {
         Handler handler = Preconditions.checkNotNull(params).mCompatHandler;
 
         InputConfigurationCompat inputConfigCompat = config.getInputConfiguration();
-        if (inputConfigCompat != null) {
-            // Client is requesting a reprocessable capture session
-            InputConfiguration inputConfig = (InputConfiguration) inputConfigCompat.unwrap();
+        try {
+            if (inputConfigCompat != null) {
+                // Client is requesting a reprocessable capture session
+                InputConfiguration inputConfig = (InputConfiguration) inputConfigCompat.unwrap();
 
-            Preconditions.checkNotNull(inputConfig);
-            mCameraDevice.createReprocessableCaptureSession(inputConfig, surfaces, cb, handler);
-        } else if (config.getSessionType() == SessionConfigurationCompat.SESSION_HIGH_SPEED) {
-            // Client is requesting a high speed capture session
-            mCameraDevice.createConstrainedHighSpeedCaptureSession(surfaces, cb, handler);
-        } else {
-            // Fall back to a normal capture session
-            createBaseCaptureSession(mCameraDevice, surfaces, cb, handler);
+                Preconditions.checkNotNull(inputConfig);
+                mCameraDevice.createReprocessableCaptureSession(inputConfig, surfaces, cb, handler);
+            } else if (config.getSessionType() == SessionConfigurationCompat.SESSION_HIGH_SPEED) {
+                // Client is requesting a high speed capture session
+                mCameraDevice.createConstrainedHighSpeedCaptureSession(surfaces, cb, handler);
+            } else {
+                // Fall back to a normal capture session
+                createBaseCaptureSession(mCameraDevice, surfaces, cb, handler);
+            }
+        } catch (CameraAccessException e) {
+            throw CameraAccessExceptionCompat.toCameraAccessExceptionCompat(e);
         }
     }
 }

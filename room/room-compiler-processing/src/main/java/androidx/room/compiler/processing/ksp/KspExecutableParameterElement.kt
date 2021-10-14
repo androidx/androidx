@@ -20,18 +20,19 @@ import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_METHOD_PARAMETER
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 
 internal class KspExecutableParameterElement(
     env: KspProcessingEnv,
-    val method: KspExecutableElement,
+    override val enclosingMethodElement: KspExecutableElement,
     val parameter: KSValueParameter
 ) : KspElement(env, parameter),
     XExecutableParameterElement,
     XAnnotated by KspAnnotated.create(env, parameter, NO_USE_SITE_OR_METHOD_PARAMETER) {
 
     override val equalityItems: Array<out Any?>
-        get() = arrayOf(method, parameter)
+        get() = arrayOf(enclosingMethodElement, parameter)
 
     override val name: String
         get() = parameter.name?.asString() ?: "_no_param_name"
@@ -41,8 +42,8 @@ internal class KspExecutableParameterElement(
 
     override val type: KspType by lazy {
         parameter.typeAsMemberOf(
-            functionDeclaration = method.declaration,
-            ksType = method.containing.type?.ksType
+            functionDeclaration = enclosingMethodElement.declaration,
+            ksType = enclosingMethodElement.containing.type?.ksType
         ).let {
             env.wrap(
                 originatingReference = parameter.type,
@@ -52,15 +53,15 @@ internal class KspExecutableParameterElement(
     }
 
     override val fallbackLocationText: String
-        get() = "$name in ${method.fallbackLocationText}"
+        get() = "$name in ${enclosingMethodElement.fallbackLocationText}"
 
     override fun asMemberOf(other: XType): KspType {
-        if (method.containing.type?.isSameType(other) != false) {
+        if (enclosingMethodElement.containing.type?.isSameType(other) != false) {
             return type
         }
         check(other is KspType)
         return parameter.typeAsMemberOf(
-            functionDeclaration = method.declaration,
+            functionDeclaration = enclosingMethodElement.declaration,
             ksType = other.ksType
         ).let {
             env.wrap(
@@ -72,5 +73,27 @@ internal class KspExecutableParameterElement(
 
     override fun kindName(): String {
         return "function parameter"
+    }
+
+    companion object {
+        fun create(
+            env: KspProcessingEnv,
+            parameter: KSValueParameter
+        ): KspExecutableParameterElement {
+            val parent = checkNotNull(parameter.parent) {
+                "Expected value parameter '$parameter' to contain a parent node."
+            }
+            if (parent !is KSFunctionDeclaration) {
+                error(
+                    "Don't know how to create a parameter element whose parent is a " +
+                        "'${parent::class}'"
+                )
+            }
+            return KspExecutableParameterElement(
+                env = env,
+                enclosingMethodElement = KspExecutableElement.create(env, parent),
+                parameter = parameter
+            )
+        }
     }
 }

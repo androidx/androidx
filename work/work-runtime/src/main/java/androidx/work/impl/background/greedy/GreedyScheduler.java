@@ -129,19 +129,17 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
                     if (SDK_INT >= 23 && workSpec.constraints.requiresDeviceIdle()) {
                         // Ignore requests that have an idle mode constraint.
                         Logger.get().debug(TAG,
-                                String.format("Ignoring WorkSpec %s, Requires device idle.",
-                                        workSpec));
+                                "Ignoring " + workSpec + ". Requires device idle.");
                     } else if (SDK_INT >= 24 && workSpec.constraints.hasContentUriTriggers()) {
                         // Ignore requests that have content uri triggers.
                         Logger.get().debug(TAG,
-                                String.format("Ignoring WorkSpec %s, Requires ContentUri triggers.",
-                                        workSpec));
+                                "Ignoring " + workSpec + ". Requires ContentUri triggers.");
                     } else {
                         constrainedWorkSpecs.add(workSpec);
                         constrainedWorkSpecIds.add(workSpec.id);
                     }
                 } else {
-                    Logger.get().debug(TAG, String.format("Starting work for %s", workSpec.id));
+                    Logger.get().debug(TAG, "Starting work for " + workSpec.id);
                     mWorkManagerImpl.startWork(workSpec.id);
                 }
             }
@@ -151,8 +149,8 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
         // WorkSpecs. Therefore we need to lock here.
         synchronized (mLock) {
             if (!constrainedWorkSpecs.isEmpty()) {
-                Logger.get().debug(TAG, String.format("Starting tracking for [%s]",
-                        TextUtils.join(",", constrainedWorkSpecIds)));
+                String formattedIds = TextUtils.join(",", constrainedWorkSpecIds);
+                Logger.get().debug(TAG, "Starting tracking for " + formattedIds);
                 mConstrainedWorkSpecs.addAll(constrainedWorkSpecs);
                 mWorkConstraintsTracker.replace(mConstrainedWorkSpecs);
             }
@@ -176,7 +174,7 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
         }
 
         registerExecutionListenerIfNeeded();
-        Logger.get().debug(TAG, String.format("Cancelling work ID %s", workSpecId));
+        Logger.get().debug(TAG, "Cancelling work ID " + workSpecId);
         if (mDelayedWorkTracker != null) {
             mDelayedWorkTracker.unschedule(workSpecId);
         }
@@ -187,9 +185,7 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
     @Override
     public void onAllConstraintsMet(@NonNull List<String> workSpecIds) {
         for (String workSpecId : workSpecIds) {
-            Logger.get().debug(
-                    TAG,
-                    String.format("Constraints met: Scheduling work ID %s", workSpecId));
+            Logger.get().debug(TAG, "Constraints met: Scheduling work ID " + workSpecId);
             mWorkManagerImpl.startWork(workSpecId);
         }
     }
@@ -197,8 +193,7 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
     @Override
     public void onAllConstraintsNotMet(@NonNull List<String> workSpecIds) {
         for (String workSpecId : workSpecIds) {
-            Logger.get().debug(TAG,
-                    String.format("Constraints not met: Cancelling work ID %s", workSpecId));
+            Logger.get().debug(TAG, "Constraints not met: Cancelling work ID " + workSpecId);
             mWorkManagerImpl.stopWork(workSpecId);
         }
     }
@@ -217,7 +212,7 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
             // executor thread.
             for (WorkSpec constrainedWorkSpec : mConstrainedWorkSpecs) {
                 if (constrainedWorkSpec.id.equals(workSpecId)) {
-                    Logger.get().debug(TAG, String.format("Stopping tracking for %s", workSpecId));
+                    Logger.get().debug(TAG, "Stopping tracking for " + workSpecId);
                     mConstrainedWorkSpecs.remove(constrainedWorkSpec);
                     mWorkConstraintsTracker.replace(mConstrainedWorkSpecs);
                     break;

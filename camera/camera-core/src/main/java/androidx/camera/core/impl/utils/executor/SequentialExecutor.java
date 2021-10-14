@@ -22,6 +22,7 @@ import static androidx.camera.core.impl.utils.executor.SequentialExecutor.Worker
 import static androidx.camera.core.impl.utils.executor.SequentialExecutor.WorkerRunningState.RUNNING;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.core.util.Preconditions;
 
@@ -46,6 +47,7 @@ import java.util.concurrent.RejectedExecutionException;
  *
  * <p>Copied and adapted from Guava.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class SequentialExecutor implements Executor {
     private static final String TAG = "SequentialExecutor";
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */

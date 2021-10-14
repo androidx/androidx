@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="NewApi"
@@ -30,7 +30,7 @@
         errorLine2="                                                                 ~~~~~~~~~~">
         <location
             file="src/test/java/androidx/car/app/CarAppServiceTest.java"
-            line="212"
+            line="231"
             column="66"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                                                              ~~~">
         <location
             file="src/test/java/androidx/car/app/CarAppServiceTest.java"
-            line="212"
+            line="231"
             column="79"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                                                 ~~~~~~~~~~">
         <location
             file="src/test/java/androidx/car/app/CarAppServiceTest.java"
-            line="275"
+            line="294"
             column="66"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                                                                              ~~~">
         <location
             file="src/test/java/androidx/car/app/CarAppServiceTest.java"
-            line="275"
+            line="294"
             column="79"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                                                                 ~~~~~~~~~~">
         <location
             file="src/test/java/androidx/car/app/CarContextTest.java"
-            line="224"
+            line="245"
             column="66"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                                                                              ~~~">
         <location
             file="src/test/java/androidx/car/app/CarContextTest.java"
-            line="224"
+            line="245"
             column="79"/>
     </issue>
 
@@ -459,7 +459,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/CarContext.java"
-            line="583"
+            line="645"
             column="27"/>
     </issue>
 

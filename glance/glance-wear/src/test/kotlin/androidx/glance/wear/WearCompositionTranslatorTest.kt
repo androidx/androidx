@@ -16,30 +16,43 @@
 
 package androidx.glance.wear
 
+import android.app.Activity
+import android.content.Context
 import androidx.compose.runtime.Composable
-import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
+import androidx.glance.background
+import androidx.glance.action.clickable
+import androidx.glance.action.actionLaunchActivity
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
+import androidx.glance.layout.Button
 import androidx.glance.layout.Column
-import androidx.glance.layout.FontStyle
-import androidx.glance.layout.FontWeight
 import androidx.glance.layout.Row
 import androidx.glance.layout.Text
-import androidx.glance.layout.TextDecoration
-import androidx.glance.layout.TextStyle
-import androidx.glance.layout.expandHeight
-import androidx.glance.layout.expandWidth
+import androidx.glance.layout.fillMaxHeight
+import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.width
+import androidx.glance.text.FontStyle
+import androidx.glance.text.FontWeight
+import androidx.glance.text.TextDecoration
+import androidx.glance.text.TextStyle
 import androidx.glance.unit.Color
 import androidx.glance.unit.dp
 import androidx.glance.unit.sp
-import androidx.glance.wear.layout.background
+import androidx.glance.wear.layout.AnchorType
+import androidx.glance.wear.layout.AndroidLayoutElement
+import androidx.glance.wear.layout.CurvedRow
+import androidx.glance.wear.layout.CurvedTextStyle
+import androidx.glance.wear.layout.RadialAlignment
+import androidx.glance.wear.test.R
+import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.wear.tiles.ActionBuilders
 import androidx.wear.tiles.DimensionBuilders
 import androidx.wear.tiles.LayoutElementBuilders
+import androidx.wear.tiles.LayoutElementBuilders.ARC_ANCHOR_END
 import androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_BOLD
 import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER
 import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_END
@@ -52,8 +65,12 @@ import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import kotlin.test.assertIs
 
-@OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(RobolectricTestRunner::class)
 class WearCompositionTranslatorTest {
     private lateinit var fakeCoroutineScope: TestCoroutineScope
 
@@ -72,7 +89,7 @@ class WearCompositionTranslatorTest {
         val outerBox = content as LayoutElementBuilders.Box
         assertThat(outerBox.contents).hasSize(1)
 
-        assertThat(outerBox.contents[0]).isInstanceOf(LayoutElementBuilders.Box::class.java)
+        assertIs<LayoutElementBuilders.Box>(outerBox.contents[0])
     }
 
     @Test
@@ -139,6 +156,19 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
+    fun canTranslateBackgroundModifier_resId() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            Box(modifier = Modifier.background(R.color.color1)) {}
+        }
+
+        val innerBox =
+            (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Box
+        val background = requireNotNull(innerBox.modifiers!!.background)
+
+        assertThat(background.color!!.argb).isEqualTo(android.graphics.Color.rgb(0xC0, 0xFF, 0xEE))
+    }
+
+    @Test
     fun canTranslateRow() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             Row(verticalAlignment = Alignment.Vertical.CenterVertically) {
@@ -168,7 +198,7 @@ class WearCompositionTranslatorTest {
             Row(
                 verticalAlignment = Alignment.Vertical.CenterVertically,
                 horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
-                modifier = Modifier.expandWidth().height(100.dp).background(Color(0x11223344))
+                modifier = Modifier.fillMaxWidth().height(100.dp).background(Color(0x11223344))
             ) {}
         }
 
@@ -179,18 +209,14 @@ class WearCompositionTranslatorTest {
         assertThat(innerColumn.horizontalAlignment!!.value).isEqualTo(HORIZONTAL_ALIGN_CENTER)
 
         // Column should inherit the size of the inner Row
-        assertThat(innerColumn.width).isInstanceOf(
-            DimensionBuilders.ExpandedDimensionProp::class.java
-        )
+        assertIs<DimensionBuilders.ExpandedDimensionProp>(innerColumn.width)
         assertThat((innerColumn.height as DimensionBuilders.DpProp).value).isEqualTo(100f)
 
         // Column should also inherit the modifiers
         assertThat(innerColumn.modifiers!!.background!!.color!!.argb).isEqualTo(0x11223344)
 
         // The row should have a wrapped width, but still use the height
-        assertThat(innerRow.width).isInstanceOf(
-            DimensionBuilders.WrappedDimensionProp::class.java
-        )
+        assertIs<DimensionBuilders.WrappedDimensionProp>(innerRow.width)
         assertThat((innerRow.height as DimensionBuilders.DpProp).value).isEqualTo(100f)
 
         // And no modifiers.
@@ -230,7 +256,7 @@ class WearCompositionTranslatorTest {
             Column(
                 verticalAlignment = Alignment.Vertical.CenterVertically,
                 horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
-                modifier = Modifier.expandHeight().width(100.dp).background(Color(0x11223344))
+                modifier = Modifier.fillMaxHeight().width(100.dp).background(Color(0x11223344))
             ) {}
         }
 
@@ -242,18 +268,14 @@ class WearCompositionTranslatorTest {
 
         // Row should inherit the size of the inner Row
         assertThat((innerRow.width as DimensionBuilders.DpProp).value).isEqualTo(100f)
-        assertThat(innerRow.height).isInstanceOf(
-            DimensionBuilders.ExpandedDimensionProp::class.java
-        )
+        assertIs<DimensionBuilders.ExpandedDimensionProp>(innerRow.height)
 
         // Row should also inherit the modifiers
         assertThat(innerRow.modifiers!!.background!!.color!!.argb).isEqualTo(0x11223344)
 
         // The Column should have a wrapped width, but still use the height
         assertThat((innerColumn.width as DimensionBuilders.DpProp).value).isEqualTo(100f)
-        assertThat(innerColumn.height).isInstanceOf(
-            DimensionBuilders.WrappedDimensionProp::class.java
-        )
+        assertIs<DimensionBuilders.WrappedDimensionProp>(innerColumn.height)
 
         // And no modifiers.
         assertThat(innerColumn.modifiers).isNull()
@@ -266,7 +288,7 @@ class WearCompositionTranslatorTest {
     fun canInflateText() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             val style = TextStyle(
-                size = 16.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic,
                 textDecoration = TextDecoration.Underline
@@ -306,11 +328,192 @@ class WearCompositionTranslatorTest {
         assertThat(innerText.modifiers?.padding).isNull()
     }
 
+    @Test
+    fun canTranslateCurvedRow() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            CurvedRow(
+                anchorDegrees = 20f,
+                radialAlignment = RadialAlignment.Inner,
+                anchorType = AnchorType.End,
+                modifier = Modifier.padding(20.dp)
+            ) {}
+        }
+
+        val innerArc = (content as LayoutElementBuilders.Box).contents[0]
+            as LayoutElementBuilders.Arc
+
+        // Remember, 0 degrees is handled differently in Glance (3 o clock) and Tiles (12 o clock).
+        assertThat(innerArc.anchorAngle!!.value).isEqualTo(110f)
+        assertThat(innerArc.anchorType!!.value).isEqualTo(ARC_ANCHOR_END)
+        assertThat(innerArc.modifiers!!.padding).isNotNull()
+        assertThat(innerArc.verticalAlign!!.value).isEqualTo(VERTICAL_ALIGN_BOTTOM)
+    }
+
+    @Test
+    fun curvedRowWithSizeInflatesInBox() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            CurvedRow(
+                anchorDegrees = 20f,
+                radialAlignment = RadialAlignment.Inner,
+                anchorType = AnchorType.End,
+                modifier = Modifier.padding(20.dp).size(10.dp)
+            ) {}
+        }
+
+        val innerBox = (content as LayoutElementBuilders.Box).contents[0]
+            as LayoutElementBuilders.Box
+        val innerArc = innerBox.contents[0] as LayoutElementBuilders.Arc
+
+        assertThat(innerBox.width is DimensionBuilders.DpProp)
+        assertThat((innerBox.width as DimensionBuilders.DpProp).value).isEqualTo(10f)
+        assertThat(innerBox.height is DimensionBuilders.DpProp)
+        assertThat((innerBox.height as DimensionBuilders.DpProp).value).isEqualTo(10f)
+
+        // Modifiers should apply to the Box
+        assertThat(innerBox.modifiers!!.padding).isNotNull()
+
+        // ... and not to the Arc
+        assertThat(innerArc.modifiers?.padding).isNull()
+    }
+
+    @Test
+    fun canTranslateCurvedText() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            val style = CurvedTextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Italic,
+            )
+
+            CurvedRow {
+                CurvedText(text = "Hello World", textStyle = style)
+            }
+        }
+
+        val innerArc = (content as LayoutElementBuilders.Box).contents[0]
+            as LayoutElementBuilders.Arc
+        val innerArcText = innerArc.contents[0] as LayoutElementBuilders.ArcText
+
+        assertThat(innerArcText.text!!.value).isEqualTo("Hello World")
+        assertThat(innerArcText.fontStyle!!.size!!.value).isEqualTo(16f)
+        assertThat(innerArcText.fontStyle!!.italic!!.value).isTrue()
+        assertThat(innerArcText.fontStyle!!.weight!!.value).isEqualTo(FONT_WEIGHT_BOLD)
+    }
+
+    @Test
+    fun canTranslateAndroidLayoutElement() = fakeCoroutineScope.runBlockingTest {
+        val providedLayoutElement =
+            LayoutElementBuilders.Text.Builder().setText("Android Layout Element").build()
+
+        val content = runAndTranslate {
+            AndroidLayoutElement(providedLayoutElement)
+        }
+
+        val box = assertIs<LayoutElementBuilders.Box>(content)
+        val textElement = assertIs<LayoutElementBuilders.Text>(box.contents[0])
+        assertThat(textElement.text!!.value).isEqualTo("Android Layout Element")
+    }
+
+    @Test
+    fun otherElementInArcInflatesInArcAdapter() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            CurvedRow {
+                Box {}
+            }
+        }
+
+        val innerArc = (content as LayoutElementBuilders.Box).contents[0]
+            as LayoutElementBuilders.Arc
+        val innerArcAdapter = innerArc.contents[0] as LayoutElementBuilders.ArcAdapter
+        assertIs<LayoutElementBuilders.Box>(innerArcAdapter.content)
+    }
+
+    @Test
+    fun canInflateLaunchAction() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            Text(
+                modifier = Modifier.clickable(actionLaunchActivity(TestActivity::class.java)),
+                text = "Hello World"
+            )
+        }
+
+        val innerText = (content as LayoutElementBuilders.Box).contents[0] as
+            LayoutElementBuilders.Text
+
+        assertThat(innerText.modifiers!!.clickable).isNotNull()
+        assertThat(innerText.modifiers!!.clickable!!.onClick)
+            .isInstanceOf(ActionBuilders.LaunchAction::class.java)
+
+        val launchAction = innerText.modifiers!!.clickable!!.onClick as ActionBuilders.LaunchAction
+        assertThat(launchAction.androidActivity).isNotNull()
+
+        val packageName = getApplicationContext<Context>().packageName
+        assertThat(launchAction.androidActivity!!.packageName).isEqualTo(packageName)
+        assertThat(launchAction.androidActivity!!.className)
+            .isEqualTo(TestActivity::class.qualifiedName)
+    }
+
+    @Test
+    fun canTranslateButton() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            val style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Italic,
+                textDecoration = TextDecoration.Underline
+            )
+            Button(
+                "Hello World",
+                onClick = actionLaunchActivity(TestActivity::class.java),
+                modifier = Modifier.padding(1.dp),
+                style = style
+            )
+        }
+
+        val box = assertIs<LayoutElementBuilders.Box>(content)
+        val innerText = assertIs<LayoutElementBuilders.Text>(box.contents[0])
+
+        assertThat(innerText.text!!.value).isEqualTo("Hello World")
+
+        assertThat(innerText.fontStyle!!.size!!.value).isEqualTo(16f)
+        assertThat(innerText.fontStyle!!.italic!!.value).isTrue()
+        assertThat(innerText.fontStyle!!.weight!!.value).isEqualTo(FONT_WEIGHT_BOLD)
+        assertThat(innerText.fontStyle!!.underline!!.value).isTrue()
+
+        assertThat(innerText.modifiers!!.clickable).isNotNull()
+        assertThat(innerText.modifiers!!.clickable!!.onClick)
+            .isInstanceOf(ActionBuilders.LaunchAction::class.java)
+    }
+
+    @Test
+    fun setSizeFromResource() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            Column(
+                modifier = Modifier.width(R.dimen.dimension1)
+                    .height(R.dimen.dimension2)
+            ) {}
+        }
+
+        val innerColumn =
+            (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Column
+        val context = getApplicationContext<Context>()
+
+        // Row should inherit the size of the inner Row
+        assertThat((innerColumn.width as DimensionBuilders.DpProp).value).isEqualTo(
+            context.resources.getDimension(R.dimen.dimension1)
+        )
+        assertThat((innerColumn.height as DimensionBuilders.DpProp).value).isEqualTo(
+            context.resources.getDimension(R.dimen.dimension2)
+        )
+    }
+
     private suspend fun runAndTranslate(
         content: @Composable () -> Unit
     ): LayoutElementBuilders.LayoutElement {
         val root = runTestingComposition(content)
 
-        return translateComposition(root)
+        return translateComposition(getApplicationContext(), root)
     }
 }
+
+private class TestActivity : Activity()

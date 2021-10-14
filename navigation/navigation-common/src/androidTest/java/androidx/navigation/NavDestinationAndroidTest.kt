@@ -93,6 +93,21 @@ class NavDestinationAndroidTest {
     }
 
     @Test
+    fun addDeepLinkNullableArgumentNotRequired() {
+        val destination = NoOpNavigator().createDestination()
+        destination.addArgument("myArg", nullableStringArgument())
+        destination.addDeepLink("www.example.com/users?myArg={myArg}")
+
+        val match = destination.matchDeepLink(
+            Uri.parse("https://www.example.com/users?")
+        )
+
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+    }
+
+    @Test
     fun matchDeepLink() {
         val destination = NoOpNavigator().createDestination()
         destination.addArgument("id", intArgument())
@@ -100,6 +115,44 @@ class NavDestinationAndroidTest {
 
         val match = destination.matchDeepLink(
             Uri.parse("https://www.example.com/users/43")
+        )
+
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+
+        assertWithMessage("Deep link should extract id argument correctly")
+            .that(match?.matchingArgs?.getInt("id"))
+            .isEqualTo(43)
+    }
+
+    @Test
+    fun matchDeepLinkWithQueryParams() {
+        val destination = NoOpNavigator().createDestination()
+        destination.addArgument("id", intArgument())
+        destination.addDeepLink("www.example.com/users?id={id}")
+
+        val match = destination.matchDeepLink(
+            Uri.parse("https://www.example.com/users?id=43")
+        )
+
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+
+        assertWithMessage("Deep link should extract id argument correctly")
+            .that(match?.matchingArgs?.getInt("id"))
+            .isEqualTo(43)
+    }
+
+    @Test
+    fun matchDeepLinkWithNonMatchingQueryParams() {
+        val destination = NoOpNavigator().createDestination()
+        destination.addArgument("id", intArgument())
+        destination.addDeepLink("www.example.com/users?userId={id}")
+
+        val match = destination.matchDeepLink(
+            Uri.parse("https://www.example.com/users?userId=43")
         )
 
         assertWithMessage("Deep link should match")

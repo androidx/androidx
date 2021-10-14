@@ -27,8 +27,8 @@ import org.junit.runner.RunWith
 public class InstrumentationResultsTest {
     @Test
     public fun ideSummary_alignment() {
-        val summary1 = InstrumentationResults.ideSummaryLine("foo", 1000, 100)
-        val summary2 = InstrumentationResults.ideSummaryLine("fooBarLongerKey", 10000, 0)
+        val summary1 = InstrumentationResults.ideSummaryLine("foo", 1000.0, 100.0)
+        val summary2 = InstrumentationResults.ideSummaryLine("fooBarLongerKey", 10000.0, 0.0)
 
         assertEquals(
             summary1.indexOf("foo"),
@@ -39,12 +39,32 @@ public class InstrumentationResultsTest {
     @Test
     public fun ideSummary_allocs() {
         assertEquals(
-            "        1,000 ns    foo",
-            InstrumentationResults.ideSummaryLine("foo", 1000, null)
+            "        1,000   ns    foo",
+            InstrumentationResults.ideSummaryLine("foo", 1000.0, null)
         )
         assertEquals(
-            "        1,000 ns          10 allocs    foo",
-            InstrumentationResults.ideSummaryLine("foo", 1000, 10)
+            "        1,000   ns          10 allocs    foo",
+            InstrumentationResults.ideSummaryLine("foo", 1000.0, 10.0)
+        )
+    }
+
+    @Test
+    public fun ideSummary_decimal() {
+        assertEquals(
+            "        1,000   ns    foo",
+            InstrumentationResults.ideSummaryLine("foo", 1000.0, null)
+        )
+        assertEquals(
+            "          100   ns    foo", // 10ths not shown ...
+            InstrumentationResults.ideSummaryLine("foo", 100.4, null)
+        )
+        assertEquals(
+            "           99.9 ns    foo", // ... until value is < 100
+            InstrumentationResults.ideSummaryLine("foo", 99.9, null)
+        )
+        assertEquals(
+            "            1.0 ns    foo",
+            InstrumentationResults.ideSummaryLine("foo", 1.0, null)
         )
     }
 }

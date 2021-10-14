@@ -38,7 +38,7 @@ gw="$TOOLS_DIR/gradlew -Dorg.gradle.jvmargs=-Xmx24g"
 
 function buildStudio() {
   STUDIO_BUILD_LOG="$OUT_DIR/studio.log"
-  if JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/jdk11/$STUDIO_JDK" $gw -p $TOOLS_DIR publishLocal --stacktrace > "$STUDIO_BUILD_LOG" 2>&1; then
+  if JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/jdk11/$STUDIO_JDK" $gw -p $TOOLS_DIR publishLocal --stacktrace --no-daemon > "$STUDIO_BUILD_LOG" 2>&1; then
     echo built studio successfully
   else
     cat "$STUDIO_BUILD_LOG" >&2
@@ -46,7 +46,15 @@ function buildStudio() {
     return 1
   fi
 }
+
+function zipStudio() {
+  cd "$STUDIO_DIR/out/"
+  zip -r "$DIST_DIR/tools.zip" repo
+  cd -
+}
+
 buildStudio
+zipStudio
 
 # Mac grep doesn't support -P, so use perl version of `grep -oP "(?<=buildVersion = ).*"`
 export LINT_VERSION=`perl -nle'print $& while m{(?<=baseVersion = ).*}g' $TOOLS_DIR/buildSrc/base/version.properties`
@@ -58,6 +66,7 @@ export LINT_PRINT_STACKTRACE=true
 
 function buildAndroidx() {
   LOG_PROCESSOR="$SCRIPTS_DIR/../development/build_log_processor.sh"
+  properties="-Pandroidx.summarizeStderr --no-daemon"
   "$LOG_PROCESSOR"                   $gw $properties -p frameworks/support    $androidxArguments --profile
   $SCRIPTS_DIR/impl/parse_profile_htmls.sh
 }

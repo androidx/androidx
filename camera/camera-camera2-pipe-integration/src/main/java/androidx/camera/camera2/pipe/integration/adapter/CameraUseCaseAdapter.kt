@@ -23,6 +23,7 @@ import android.hardware.camera2.CameraDevice
 import android.util.Size
 import android.view.Display
 import android.view.WindowManager
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Log.info
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
@@ -47,6 +48,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory
  * and aspect ratios for the display.
  */
 @Suppress("DEPRECATION")
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
 
     private val display: Display by lazy {

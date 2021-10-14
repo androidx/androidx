@@ -140,6 +140,11 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
      *  includes all instance/static methods in parent CLASS if they are accessible from this (e.g.
      *  not private).
      *  does not include static methods in parent interfaces
+     *
+     * The order is defined as:
+     *   1. All interfaces methods appear before all class methods,
+     *   2. All super class methods appear before all sub class methods,
+     *   3. Within a given class/interface methods appear in the order they're declared in source.
      */
     fun getAllMethods(): Sequence<XMethodElement> {
         return collectAllMethods(this)
@@ -171,4 +176,11 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
      * objects.
      */
     fun getEnclosedTypeElements(): List<XTypeElement>
+
+    fun getEnclosedElements(): List<XElement> = mutableListOf<XElement>().apply {
+        addAll(getEnclosedTypeElements())
+        addAll(getDeclaredFields())
+        addAll(getConstructors())
+        addAll(getDeclaredMethods())
+    }
 }

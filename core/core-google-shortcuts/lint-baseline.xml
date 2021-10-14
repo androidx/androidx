@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="NewApi"
@@ -8,7 +8,7 @@
         errorLine2="                        ~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/google/shortcuts/ShortcutInfoChangeListenerImplTest.java"
-            line="274"
+            line="272"
             column="25"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                                                          ~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/google/shortcuts/ShortcutInfoChangeListenerImplTest.java"
-            line="274"
+            line="272"
             column="75"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                                                       ~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/google/shortcuts/ShortcutInfoChangeListenerImplTest.java"
-            line="274"
+            line="272"
             column="56"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                 ~~~">
         <location
             file="src/androidTest/java/androidx/core/google/shortcuts/ShortcutInfoChangeListenerImplTest.java"
-            line="274"
+            line="272"
             column="34"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/google/shortcuts/ShortcutInfoChangeListenerImplTest.java"
-            line="274"
+            line="272"
             column="64"/>
     </issue>
 

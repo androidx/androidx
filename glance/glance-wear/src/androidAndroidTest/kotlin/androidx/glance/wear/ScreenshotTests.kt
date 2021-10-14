@@ -27,19 +27,28 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
 import androidx.core.content.ContextCompat
 import androidx.glance.Applier
-import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
+import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.Row
-import androidx.glance.layout.expandHeight
-import androidx.glance.layout.expandWidth
+import androidx.glance.layout.Text
+import androidx.glance.layout.fillMaxHeight
+import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.size
+import androidx.glance.text.FontStyle
+import androidx.glance.text.FontWeight
+import androidx.glance.text.TextDecoration
+import androidx.glance.text.TextStyle
 import androidx.glance.unit.Color
 import androidx.glance.unit.dp
-import androidx.glance.wear.layout.background
+import androidx.glance.unit.sp
+import androidx.glance.wear.layout.AnchorType
+import androidx.glance.wear.layout.CurvedRow
+import androidx.glance.wear.layout.CurvedTextStyle
+import androidx.glance.wear.layout.RadialAlignment
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.MSSIMMatcher
@@ -56,7 +65,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(GlanceInternalApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class ScreenshotTests {
     @get:Rule
     var screenshotRule = AndroidXScreenshotTestRule("glance/glance-wear")
@@ -87,9 +96,59 @@ class ScreenshotTests {
         }
     }
 
+    @Test
+    fun basicText() = runSingleGoldenTest("basic-text") {
+        Column {
+            Text(text = "Normal")
+            Text(text = "Bold", style = TextStyle(fontWeight = FontWeight.Bold))
+            Text(text = "Italic", style = TextStyle(fontStyle = FontStyle.Italic))
+            Text(text = "Underline", style = TextStyle(textDecoration = TextDecoration.Underline))
+            Text(
+                text = "Everything",
+                style = TextStyle(
+                    fontWeight = FontWeight.Bold,
+                    fontStyle = FontStyle.Italic,
+                    textDecoration = TextDecoration.Underline
+                )
+            )
+        }
+    }
+
+    @Test
+    fun textWithSize() = runSingleGoldenTest("text-with-size") {
+        Text(
+            text = "Hello World! This is a test",
+            modifier = Modifier.size(200.dp).background(Color.Red)
+        )
+    }
+
+    @Test
+    fun curvedText() = runSingleGoldenTest("curved-text") {
+        CurvedRow(
+            modifier = Modifier.background(Color.Blue),
+            radialAlignment = RadialAlignment.Center,
+            anchorDegrees = -90f,
+            anchorType = AnchorType.Center
+        ) {
+            CurvedText(text = "Hello World")
+            CurvedText(text = "This is a test!", textStyle = CurvedTextStyle(fontSize = 24.sp))
+        }
+    }
+
+    @Test
+    fun curvedRowWithNormalElements() = runSingleGoldenTest("curved-row-with-normal-elements") {
+        CurvedRow {
+            Box(modifier = Modifier.size(30.dp).background(Color.Red)) {}
+            Box(modifier = Modifier.size(30.dp).background(Color.Green)) {}
+            Box(modifier = Modifier.size(30.dp).background(Color.Blue)) {}
+            Box(modifier = Modifier.size(30.dp).background(Color.Cyan)) {}
+            Box(modifier = Modifier.size(30.dp).background(Color.Magenta)) {}
+        }
+    }
+
     private suspend fun runComposition(content: @Composable () -> Unit) = coroutineScope {
         val root = EmittableBox()
-        root.modifier = Modifier.expandWidth().expandHeight()
+        root.modifier = Modifier.fillMaxWidth().fillMaxHeight()
         root.contentAlignment = Alignment.Center
 
         val applier = Applier(root)
@@ -113,7 +172,7 @@ class ScreenshotTests {
     ) = fakeCoroutineScope.runBlockingTest {
         val context = getApplicationContext<Context>()
         val composition = runComposition(content)
-        val translatedComposition = translateComposition(composition)
+        val translatedComposition = translateComposition(context, composition)
 
         val renderer = TileRenderer(
             context,

@@ -22,6 +22,7 @@ import android.hardware.camera2.CaptureResult
 import android.os.Build
 import android.util.ArrayMap
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
@@ -32,6 +33,7 @@ import androidx.camera.camera2.pipe.core.Debug
  * that are either expensive to create and access, or that only exist on newer versions of the
  * OS. This allows all fields to be accessed and return reasonable values on all OS versions.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class Camera2CameraMetadata constructor(
     override val camera: CameraId,
     override val isRedacted: Boolean,

@@ -19,7 +19,6 @@ package androidx.window.java.layout
 import androidx.core.util.Consumer
 import androidx.window.layout.WindowInfoRepository
 import androidx.window.layout.WindowLayoutInfo
-import androidx.window.layout.WindowMetrics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -43,24 +42,6 @@ class WindowInfoRepositoryCallbackAdapter(
      */
     private val lock = ReentrantLock()
     private val consumerToJobMap = mutableMapOf<Consumer<*>, Job>()
-
-    /**
-     * Register a listener to consume [WindowMetrics] values. If the same consumer is registered
-     * twice then this method is a no-op.
-     * @see WindowInfoRepository.currentWindowMetrics
-     */
-    fun addCurrentWindowMetricsListener(executor: Executor, consumer: Consumer<WindowMetrics>) {
-        addListener(executor, consumer, repository.currentWindowMetrics)
-    }
-
-    /**
-     * Remove a listener to stop consuming [WindowMetrics] values. If the listener has already
-     * been removed then this is a no-op.
-     * @see WindowInfoRepository.currentWindowMetrics
-     */
-    fun removeCurrentWindowMetricsListener(consumer: Consumer<WindowMetrics>) {
-        removeListener(consumer)
-    }
 
     /**
      * Register a listener to consume [WindowLayoutInfo] values. If the same consumer is

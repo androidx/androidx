@@ -14,4 +14,16 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest package="androidx.glance.appwidget" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.glance.appwidget" >
+    <application>
+        <receiver
+            android:name="androidx.glance.appwidget.ActionRunnableBroadcastReceiver"
+            android:exported="false"
+            android:enabled="true">
+            <intent-filter>
+                <data android:scheme="remoteAction" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

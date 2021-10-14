@@ -16,8 +16,12 @@
 
 package androidx.benchmark.macro
 
+import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.benchmark.Shell
+import androidx.benchmark.macro.perfetto.FrameTimingQuery
+import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric
 import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseStartupResult
 import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.test.platform.app.InstrumentationRegistry
@@ -37,10 +41,16 @@ public sealed class Metric {
      * TODO: takes package for package level filtering, but probably want a
      *  general config object coming into [start].
      */
-    internal abstract fun getMetrics(packageName: String, tracePath: String): MetricsWithUiState
+    internal abstract fun getMetrics(packageName: String, tracePath: String): IterationResult
 }
 
-public class FrameTimingMetric : Metric() {
+/**
+ * Legacy version of FrameTimingMetric, based on 'dumpsys gfxinfo' instead of trace data.
+ *
+ * Temporary - to be removed after transition to FrameTimingMetric
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+public class FrameTimingGfxInfoMetric : Metric() {
     private lateinit var packageName: String
     private val helper = JankCollectionHelper()
 
@@ -79,7 +89,7 @@ public class FrameTimingMetric : Metric() {
      * This both converts `snake_case_format` to `camelCaseFormat`, and renames for clarity.
      *
      * Note that these will still output to inst results in snake_case, with `MetricNameUtils`
-     * via [androidx.benchmark.Stats.putInBundle].
+     * via [androidx.benchmark.MetricResult.putInBundle].
      */
     private val keyRenameMap = mapOf(
         "frame_render_time_percentile_50" to "frameTime50thPercentileMs",
@@ -115,24 +125,56 @@ public class FrameTimingMetric : Metric() {
         "totalFrameCount"
     )
 
-    internal override fun getMetrics(packageName: String, tracePath: String) = MetricsWithUiState(
-        metrics = helper.metrics
+    internal override fun getMetrics(packageName: String, tracePath: String) = IterationResult(
+        singleMetrics = helper.metrics
             .map {
                 val prefix = "gfxinfo_${packageName}_"
                 val keyWithoutPrefix = it.key.removePrefix(prefix)
 
                 if (keyWithoutPrefix != it.key && keyRenameMap.containsKey(keyWithoutPrefix)) {
-                    // note - this conversion truncates
-                    val newValue = it.value.toLong()
-                    @Suppress("MapGetWithNotNullAssertionOperator")
-                    keyRenameMap[keyWithoutPrefix]!! to newValue
+                    keyRenameMap[keyWithoutPrefix]!! to it.value
                 } else {
                     throw IllegalStateException("Unexpected key ${it.key}")
                 }
             }
             .toMap()
-            .filterKeys { keyAllowList.contains(it) }
+            .filterKeys { keyAllowList.contains(it) },
+        sampledMetrics = emptyMap(),
+        timelineRangeNs = null
     )
+}
+
+/**
+ * Metric which captures timing information from frames produced by a benchmark, such as
+ * a scrolling or animation benchmark.
+ */
+@Suppress("CanSealedSubClassBeObject")
+public class FrameTimingMetric : Metric() {
+    internal override fun configure(packageName: String) {}
+    internal override fun start() {}
+    internal override fun stop() {}
+
+    internal override fun getMetrics(packageName: String, tracePath: String): IterationResult {
+        val subMetricsMsMap = FrameTimingQuery.getFrameSubMetrics(
+            absoluteTracePath = tracePath,
+            captureApiLevel = Build.VERSION.SDK_INT,
+            packageName = packageName
+        )
+            .filterKeys { it == SubMetric.FrameCpuTime || it == SubMetric.FrameNegativeSlackTime }
+            .mapKeys {
+                if (it.key == SubMetric.FrameCpuTime) "frameCpuTimeMs" else "frameNegativeSlackMs"
+            }
+            .mapValues { entry ->
+                entry.value.map { timeNs ->
+                    timeNs / 1_000_000.0 // Convert to ms
+                }
+            }
+        return IterationResult(
+            singleMetrics = emptyMap(),
+            sampledMetrics = subMetricsMsMap,
+            timelineRangeNs = null
+        )
+    }
 }
 
 /**
@@ -150,36 +192,8 @@ public class StartupTimingMetric : Metric() {
     internal override fun stop() {
     }
 
-    internal override fun getMetrics(packageName: String, tracePath: String): MetricsWithUiState {
+    internal override fun getMetrics(packageName: String, tracePath: String): IterationResult {
         val json = PerfettoTraceProcessor.getJsonMetrics(tracePath, "android_startup")
         return parseStartupResult(json, packageName)
     }
-}
-
-internal data class MetricsWithUiState(
-    val metrics: Map<String, Long>,
-    val timelineStart: Long? = null,
-    val timelineEnd: Long? = null
-) {
-    operator fun plus(element: MetricsWithUiState) = MetricsWithUiState(
-        metrics = metrics + element.metrics,
-        timelineStart = minOfNullable(timelineStart, element.timelineStart),
-        timelineEnd = maxOfNullable(timelineEnd, element.timelineEnd)
-    )
-
-    companion object {
-        val EMPTY = MetricsWithUiState(mapOf())
-    }
-}
-
-internal fun minOfNullable(a: Long?, b: Long?): Long? {
-    if (a == null) return b
-    if (b == null) return a
-    return minOf(a, b)
-}
-
-internal fun maxOfNullable(a: Long?, b: Long?): Long? {
-    if (a == null) return b
-    if (b == null) return a
-    return maxOf(a, b)
 }

@@ -21,6 +21,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +31,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +47,7 @@ import androidx.compose.ui.test.performClick
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph
@@ -435,6 +440,7 @@ class NavHostTest {
         }
     }
 
+    @OptIn(androidx.navigation.NavControllerVisibleEntries::class)
     @Test
     fun testNavHostCrossFade() {
         lateinit var navController: NavHostController
@@ -479,6 +485,13 @@ class NavHostTest {
 
         composeTestRule.onNodeWithText(first).assertExists()
         composeTestRule.onNodeWithText(second).assertExists()
+
+        assertThat(navController.visibleEntries.value)
+            .containsExactly(
+                firstEntry,
+                navController.currentBackStackEntry
+            )
+            .inOrder()
 
         composeTestRule.mainClock.autoAdvance = true
 
@@ -641,6 +654,105 @@ class NavHostTest {
         composeTestRule.waitForIdle()
 
         assertThat(model.wasCleared).isTrue()
+    }
+
+    @Test
+    fun testGetGraphViewModelAfterRecompose() {
+        lateinit var navController: NavHostController
+        lateinit var model: TestViewModel
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            // this causes a recompose
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            // this causes the NavHost to be recomposed with different builder so the graph
+            // instance is different
+            navBackStackEntry?.destination
+            NavHost(navController, first) {
+                composable(first) { }
+                navigation(second, "subGraph") {
+                    composable(second) {
+                        model = viewModel(remember { navController.getBackStackEntry("subGraph") })
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(second)
+        }
+
+        composeTestRule.runOnIdle {
+            navController.popBackStack()
+        }
+
+        assertThat(model.wasCleared).isFalse()
+
+        composeTestRule.waitForIdle()
+
+        assertThat(model.wasCleared).isTrue()
+    }
+
+    @Test
+    fun testNestedNavHostOnBackPressed() {
+        val lifecycleOwner = TestLifecycleOwner()
+        val onBackPressedDispatcher = OnBackPressedDispatcher()
+        val dispatcherOwner = object : OnBackPressedDispatcherOwner {
+            override fun getLifecycle() = lifecycleOwner.lifecycle
+            override fun getOnBackPressedDispatcher() = onBackPressedDispatcher
+        }
+        lateinit var navController: NavHostController
+        lateinit var innerNavController: NavHostController
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalOnBackPressedDispatcherOwner provides dispatcherOwner) {
+                navController = rememberNavController()
+                NavHost(navController, first) {
+                    composable(first) {
+                        // Note: you should not ever do this. Use the state of the single
+                        // NavHost to control the visibility of global UI
+                        innerNavController = rememberNavController()
+                        NavHost(innerNavController, "innerFirst") {
+                            composable("innerFirst") {}
+                            composable("innerSecond") {}
+                        }
+                    }
+                    composable(second) {}
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            assertThat(onBackPressedDispatcher.hasEnabledCallbacks()).isFalse()
+            innerNavController.navigate("innerSecond")
+            assertThat(onBackPressedDispatcher.hasEnabledCallbacks()).isTrue()
+        }
+
+        // Now navigate to a second destination in the outer NavHost
+        composeTestRule.runOnIdle {
+            navController.navigate(second)
+        }
+
+        // Now trigger the back button
+        composeTestRule.runOnIdle {
+            onBackPressedDispatcher.onBackPressed()
+        }
+
+        composeTestRule.waitForIdle()
+        assertThat(navController.currentDestination?.route).isEqualTo(first)
+        assertThat(innerNavController.currentDestination?.route).isEqualTo("innerSecond")
+
+        // Now trigger the back button
+        composeTestRule.runOnIdle {
+            onBackPressedDispatcher.onBackPressed()
+        }
+
+        composeTestRule.waitForIdle()
+        assertThat(navController.currentDestination?.route).isEqualTo(first)
+        assertThat(innerNavController.currentDestination?.route).isEqualTo("innerFirst")
+        // Assert that there's no enabled callbacks left when all of the NavControllers
+        // are on their start destination
+        assertThat(onBackPressedDispatcher.hasEnabledCallbacks()).isFalse()
     }
 
     private fun createNavController(context: Context): TestNavHostController {

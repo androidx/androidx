@@ -46,6 +46,7 @@ import java.util.concurrent.Executors;
  */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public final class ImageReaderProxysTest {
 
     private ExecutorService mConsumerExecutor;

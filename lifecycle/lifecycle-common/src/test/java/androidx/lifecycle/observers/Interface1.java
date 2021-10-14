@@ -18,10 +18,10 @@ package androidx.lifecycle.observers;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.OnLifecycleEvent;
 
+@SuppressWarnings("deprecation")
 public interface Interface1 extends LifecycleObserver {
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     void onCreate();
 }

@@ -83,7 +83,8 @@ package androidx.emoji2.text {
 
   public class FontRequestEmojiCompatConfig extends androidx.emoji2.text.EmojiCompat.Config {
     ctor public FontRequestEmojiCompatConfig(android.content.Context, androidx.core.provider.FontRequest);
-    method public androidx.emoji2.text.FontRequestEmojiCompatConfig setHandler(android.os.Handler?);
+    method @Deprecated public androidx.emoji2.text.FontRequestEmojiCompatConfig setHandler(android.os.Handler?);
+    method public androidx.emoji2.text.FontRequestEmojiCompatConfig setLoadingExecutor(java.util.concurrent.Executor);
     method public androidx.emoji2.text.FontRequestEmojiCompatConfig setRetryPolicy(androidx.emoji2.text.FontRequestEmojiCompatConfig.RetryPolicy?);
   }
 

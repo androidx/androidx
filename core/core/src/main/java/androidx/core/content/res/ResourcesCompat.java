@@ -228,7 +228,7 @@ public final class ResourcesCompat {
         try {
             return ColorStateListInflaterCompat.createFromXml(resources, xml, theme);
         } catch (Exception e) {
-            Log.e(TAG, "Failed to inflate ColorStateList, leaving it to the framework", e);
+            Log.w(TAG, "Failed to inflate ColorStateList, leaving it to the framework", e);
         }
         return null;
     }

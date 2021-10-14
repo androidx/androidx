@@ -16,43 +16,43 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcel
 import android.os.Parcelable
+import androidx.health.services.client.proto.DataProto
 
 /**
  * A place holder class that represents the capabilities of the
  * [androidx.health.services.client.MeasureClient] on the device.
  */
-public data class MeasureCapabilities(
+@Suppress("ParcelCreator")
+public class MeasureCapabilities(
     /**
      * Set of supported [DataType] s for measure capture on this device.
      *
      * Some data types are not available for measurement; this is typically used to measure health
      * data (e.g. HR).
      */
-    val supportedDataTypesMeasure: Set<DataType>,
-) : Parcelable {
-    override fun describeContents(): Int = 0
+    public val supportedDataTypesMeasure: Set<DataType>,
+) : ProtoParcelable<DataProto.MeasureCapabilities>() {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeTypedList(supportedDataTypesMeasure.toList())
+    internal constructor(
+        proto: DataProto.MeasureCapabilities
+    ) : this(proto.supportedDataTypesList.map { DataType(it) }.toSet())
+
+    /** @hide */
+    override val proto: DataProto.MeasureCapabilities by lazy {
+        DataProto.MeasureCapabilities.newBuilder()
+            .addAllSupportedDataTypes(supportedDataTypesMeasure.map { it.proto })
+            .build()
     }
+
+    override fun toString(): String =
+        "MeasureCapabilities(supportedDataTypesMeasure=$supportedDataTypesMeasure)"
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<MeasureCapabilities> =
-            object : Parcelable.Creator<MeasureCapabilities> {
-                override fun createFromParcel(source: Parcel): MeasureCapabilities? {
-                    val measureDataTypes = ArrayList<DataType>()
-                    source.readTypedList(measureDataTypes, DataType.CREATOR)
-                    return MeasureCapabilities(
-                        measureDataTypes.toSet(),
-                    )
-                }
-
-                override fun newArray(size: Int): Array<MeasureCapabilities?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<MeasureCapabilities> = newCreator { bytes ->
+            val proto = DataProto.MeasureCapabilities.parseFrom(bytes)
+            MeasureCapabilities(proto)
+        }
     }
 }

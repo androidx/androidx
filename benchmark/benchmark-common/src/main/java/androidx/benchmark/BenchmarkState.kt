@@ -115,15 +115,14 @@ public class BenchmarkState {
     internal var simplifiedTimingOnlyMode = false
     private var throttleRemainingRetries = THROTTLE_MAX_RETRIES
 
-    private var stats = mutableListOf<Stats>()
-    private var allData = mutableListOf<LongArray>()
+    private var metricResults = mutableListOf<MetricResult>()
 
     /** @suppress */
     @SuppressLint("MethodNameUnits")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun getMinTimeNanos(): Long {
+    public fun getMinTimeNanos(): Double {
         checkState() // this method is not triggerable externally, but that could change
-        return stats.first { it.name == "timeNs" }.min
+        return metricResults.first { it.name == "timeNs" }.min
     }
 
     private fun checkState() {
@@ -258,8 +257,7 @@ public class BenchmarkState {
                     Arguments.profiler?.stop()
                 }
 
-                stats.addAll(metrics.captureFinished(maxIterations = iterationsPerRepeat))
-                allData.addAll(metrics.data)
+                metricResults.addAll(metrics.captureFinished(maxIterations = iterationsPerRepeat))
             }
         }
         state++
@@ -454,7 +452,7 @@ public class BenchmarkState {
         className = className,
         testName = testName,
         totalRunTimeNs = totalRunTimeNs,
-        metrics = metricResultList(stats, allData),
+        metrics = metricResults,
         repeatIterations = iterationsPerRepeat,
         thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
         warmupIterations = warmupRepeats
@@ -466,20 +464,20 @@ public class BenchmarkState {
      * Acquires a status report bundle
      *
      * @param key Run identifier, prepended to bundle properties.
-     * @param includeStats True if stats should be included in the output bundle.
+     * @param reportMetrics True if stats should be included in the output bundle.
      */
-    internal fun getFullStatusReport(key: String, includeStats: Boolean): Bundle {
-        Log.i(TAG, key + stats.map { it.getSummary() } + "count=$iterationsPerRepeat")
+    internal fun getFullStatusReport(key: String, reportMetrics: Boolean): Bundle {
+        Log.i(TAG, key + metricResults.map { it.getSummary() } + "count=$iterationsPerRepeat")
         val status = Bundle()
-        if (includeStats) {
-            // these 'legacy' CI output stats are considered output
-            stats.forEach { it.putInBundle(status, PREFIX) }
+        if (reportMetrics) {
+            // these 'legacy' CI output metrics are considered output
+            metricResults.forEach { it.putInBundle(status, PREFIX) }
         }
         InstrumentationResultScope(status).ideSummaryRecord(
             summaryV1 = ideSummaryLineWrapped(
                 key,
                 getMinTimeNanos(),
-                stats.firstOrNull { it.name == "allocationCount" }?.median
+                metricResults.firstOrNull { it.name == "allocationCount" }?.median
             )
         )
         return status
@@ -514,7 +512,7 @@ public class BenchmarkState {
         val fullTestName = "$PREFIX$simpleClassName.$methodName"
         val bundle = getFullStatusReport(
             key = fullTestName,
-            includeStats = !Arguments.dryRunMode
+            reportMetrics = !Arguments.dryRunMode
         )
         reportBundle(bundle)
         ResultWriter.appendReport(
@@ -608,10 +606,7 @@ public class BenchmarkState {
                 className = className,
                 testName = testName,
                 totalRunTimeNs = totalRunTimeNs,
-                metrics = metricResultList(
-                    stats = metricsContainer.captureFinished(maxIterations = 1),
-                    data = metricsContainer.data.toList()
-                ),
+                metrics = metricsContainer.captureFinished(maxIterations = 1),
                 repeatIterations = repeatIterations,
                 thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
                 warmupIterations = warmupIterations
@@ -624,7 +619,7 @@ public class BenchmarkState {
                 ideSummaryRecord(
                     summaryV1 = ideSummaryLineWrapped(
                         key = fullTestName,
-                        nanos = report.getStats("timeNs").min,
+                        nanos = report.getMetricResult("timeNs").min,
                         allocations = null
                     )
                 )

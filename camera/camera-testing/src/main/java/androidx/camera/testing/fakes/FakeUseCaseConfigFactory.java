@@ -21,6 +21,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPA
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -31,6 +32,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
  * A fake implementation of {@link UseCaseConfigFactory}.
  * @hide
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class FakeUseCaseConfigFactory implements UseCaseConfigFactory {
     /**

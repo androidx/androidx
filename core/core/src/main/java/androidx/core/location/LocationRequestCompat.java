@@ -27,6 +27,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
@@ -218,13 +219,13 @@ public final class LocationRequestCompat {
     @RequiresApi(31)
     @NonNull
     public LocationRequest toLocationRequest() {
-        return new LocationRequest.Builder(mIntervalMillis)
-                .setQuality(mQuality)
-                .setMinUpdateIntervalMillis(mMinUpdateIntervalMillis)
-                .setDurationMillis(mDurationMillis)
-                .setMaxUpdates(mMaxUpdates)
-                .setMinUpdateDistanceMeters(mMinUpdateDistanceMeters)
-                .setMaxUpdateDelayMillis(mMaxUpdateDelayMillis)
+        return new LocationRequest.Builder(getIntervalMillis())
+                .setQuality(getQuality())
+                .setMinUpdateIntervalMillis(getMinUpdateIntervalMillis())
+                .setDurationMillis(getDurationMillis())
+                .setMaxUpdates(getMaxUpdates())
+                .setMinUpdateDistanceMeters(getMinUpdateDistanceMeters())
+                .setMaxUpdateDelayMillis(getMaxUpdateDelayMillis())
                 .build();
     }
 
@@ -232,16 +233,15 @@ public final class LocationRequestCompat {
      * Converts an instance to an equivalent {@link LocationRequest}, with the provider field of
      * the resulting LocationRequest set to the provider argument provided to this method.
      *
-     * <p>May throw an {@link UnsupportedOperationException} on some SDKs if various reflective
-     * operations fail. This should only occur on non-standard Android devices, and thus should
-     * be rare.
+     * <p>May return null on some SDKs if various reflective operations fail. This should only
+     * occur on non-standard Android devices, and thus should be rare.
      *
      * @return platform class object
      * @see LocationRequest
      */
     @SuppressWarnings("JavaReflectionMemberAccess")
     @RequiresApi(19)
-    @NonNull
+    @Nullable
     public LocationRequest toLocationRequest(@NonNull String provider) {
         if (VERSION.SDK_INT >= 31) {
             return toLocationRequest();
@@ -256,10 +256,10 @@ public final class LocationRequestCompat {
 
                 LocationRequest request =
                         (LocationRequest) sCreateFromDeprecatedProviderMethod.invoke(null, provider,
-                                mIntervalMillis,
-                                mMinUpdateDistanceMeters, false);
+                                getIntervalMillis(),
+                                getMinUpdateDistanceMeters(), false);
                 if (request == null) {
-                    throw new UnsupportedOperationException();
+                    return null;
                 }
 
                 if (sSetQualityMethod == null) {
@@ -267,41 +267,39 @@ public final class LocationRequestCompat {
                             "setQuality", int.class);
                     sSetQualityMethod.setAccessible(true);
                 }
-                sSetQualityMethod.invoke(request, mQuality);
+                sSetQualityMethod.invoke(request, getQuality());
 
-                if (getMinUpdateIntervalMillis() != mIntervalMillis) {
-                    if (sSetFastestIntervalMethod == null) {
-                        sSetFastestIntervalMethod = LocationRequest.class.getDeclaredMethod(
-                                "setFastestInterval", long.class);
-                        sSetFastestIntervalMethod.setAccessible(true);
-                    }
-
-                    sSetFastestIntervalMethod.invoke(request, mMinUpdateIntervalMillis);
+                if (sSetFastestIntervalMethod == null) {
+                    sSetFastestIntervalMethod = LocationRequest.class.getDeclaredMethod(
+                            "setFastestInterval", long.class);
+                    sSetFastestIntervalMethod.setAccessible(true);
                 }
 
-                if (mMaxUpdates < Integer.MAX_VALUE) {
+                sSetFastestIntervalMethod.invoke(request, getMinUpdateIntervalMillis());
+
+                if (getMaxUpdates() < Integer.MAX_VALUE) {
                     if (sSetNumUpdatesMethod == null) {
                         sSetNumUpdatesMethod = LocationRequest.class.getDeclaredMethod(
                                 "setNumUpdates", int.class);
                         sSetNumUpdatesMethod.setAccessible(true);
                     }
 
-                    sSetNumUpdatesMethod.invoke(request, mMaxUpdates);
+                    sSetNumUpdatesMethod.invoke(request, getMaxUpdates());
                 }
 
-                if (mDurationMillis < Long.MAX_VALUE) {
+                if (getDurationMillis() < Long.MAX_VALUE) {
                     if (sSetExpireInMethod == null) {
                         sSetExpireInMethod = LocationRequest.class.getDeclaredMethod(
                                 "setExpireIn", long.class);
                         sSetExpireInMethod.setAccessible(true);
                     }
 
-                    sSetExpireInMethod.invoke(request, mDurationMillis);
+                    sSetExpireInMethod.invoke(request, getDurationMillis());
                 }
 
                 return request;
             } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-                throw new UnsupportedOperationException(e);
+                return null;
             }
         }
     }

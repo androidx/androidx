@@ -17,6 +17,7 @@
 package androidx.camera.extensions;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Identifier;
@@ -27,6 +28,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 /**
  * Implementation of CameraConfig which provides the extensions capability.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ExtensionsConfig implements CameraConfig {
     // Option Declarations:
     // *********************************************************************************************

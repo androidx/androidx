@@ -373,9 +373,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
     @Test
     public void setMediaUri() throws InterruptedException {
-        if (!MediaTestUtils.isClientToT()) {
-            return;
-        }
         final Uri uri = Uri.parse("media://uri");
         createSessionWithAllowedActions(
                 createCommandGroupWith(COMMAND_CODE_SESSION_SET_MEDIA_URI));

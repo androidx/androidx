@@ -67,6 +67,7 @@ import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 21)
 public class VideoCaptureTest {
     public companion object {
         @ClassRule
@@ -131,7 +132,7 @@ public class VideoCaptureTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 25)
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 25)
     public fun buildFileOutputOptionsWithFileDescriptor_throwExceptionWhenAPILevelSmallerThan26() {
         val file = File.createTempFile("CameraX", ".tmp").apply {
             deleteOnExit()

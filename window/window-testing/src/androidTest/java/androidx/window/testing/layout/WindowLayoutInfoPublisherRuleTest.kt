@@ -61,7 +61,7 @@ public class WindowLayoutInfoPublisherRuleTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     public fun testWindowLayoutInfo_relayValue(): Unit = testScope.runBlockingTest {
-        val expected = WindowLayoutInfo.Builder().setDisplayFeatures(emptyList()).build()
+        val expected = WindowLayoutInfo(emptyList())
         activityRule.scenario.onActivity { activity ->
             val value = testScope.async {
                 activity.windowInfoRepository().windowLayoutInfo.first()
@@ -107,8 +107,8 @@ public class WindowLayoutInfoPublisherRuleTest {
             override val bounds: Rect
                 get() = Rect()
         }
-        val expected1 = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature1)).build()
-        val expected2 = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature2)).build()
+        val expected1 = WindowLayoutInfo(listOf(feature1))
+        val expected2 = WindowLayoutInfo(listOf(feature2))
         activityRule.scenario.onActivity { activity ->
             val values = mutableListOf<WindowLayoutInfo>()
             val value = testScope.async {

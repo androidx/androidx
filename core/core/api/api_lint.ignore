@@ -133,6 +133,10 @@ ArrayReturn: androidx.core.widget.TextViewCompat#getCompoundDrawablesRelative(an
     Method should return Collection<Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
 
 
+AsyncSuffixFuture: androidx.core.content.PackageManagerCompat#getUnusedAppRestrictionsStatus(android.content.Context):
+    Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
+
+
 BadFuture: androidx.core.text.PrecomputedTextCompat#getTextFuture(CharSequence, androidx.core.text.PrecomputedTextCompat.Params, java.util.concurrent.Executor):
     Use ListenableFuture (library), or a combination of Consumer<T>, Executor, and CancellationSignal (platform) instead of java.util.concurrent.Future (method androidx.core.text.PrecomputedTextCompat.getTextFuture(CharSequence,androidx.core.text.PrecomputedTextCompat.Params,java.util.concurrent.Executor))
 

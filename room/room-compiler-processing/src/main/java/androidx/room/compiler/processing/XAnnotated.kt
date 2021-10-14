@@ -97,6 +97,11 @@ interface XAnnotated {
     /**
      * Returns `true` if this element has one of the [annotations].
      */
+    fun hasAnyOf(vararg annotations: ClassName) = annotations.any(this::hasAnnotation)
+
+    /**
+     * Returns `true` if this element has one of the [annotations].
+     */
     fun hasAnyOf(vararg annotations: KClass<out Annotation>) = annotations.any(this::hasAnnotation)
 
     @Deprecated(
@@ -140,4 +145,16 @@ interface XAnnotated {
     fun requireAnnotation(annotationName: ClassName): XAnnotation {
         return getAnnotation(annotationName)!!
     }
+
+    /**
+     * Returns a boxed instance of the given [annotation] class where fields can be read.
+     *
+     * @see [hasAnnotation]
+     * @see [getAnnotations]
+     * @see [hasAnnotationWithPackage]
+     */
+    fun <T : Annotation> requireAnnotation(annotation: KClass<T>) =
+        checkNotNull(getAnnotation(annotation)) {
+            "Cannot find required annotation $annotation"
+        }
 }

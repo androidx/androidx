@@ -27,6 +27,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraControlInternal;
@@ -34,6 +35,7 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Config.Option;
+import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
@@ -55,6 +57,7 @@ import java.util.Set;
  * that are usable by a camera. UseCase also will communicate of the active/inactive state to
  * the Camera.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class UseCase {
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -318,6 +321,11 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected void updateSessionConfig(@NonNull SessionConfig sessionConfig) {
         mAttachedSessionConfig = sessionConfig;
+        for (DeferrableSurface surface : sessionConfig.getSurfaces()) {
+            if (surface.getContainerClass() == null) {
+                surface.setContainerClass(this.getClass());
+            }
+        }
     }
 
     /**

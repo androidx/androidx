@@ -156,6 +156,8 @@ public class TileUiClient(
                     .build()
 
                 tileResources = tilesConnection.requestResources(resourcesRequest).await()
+            } else {
+                tileResources = ResourceBuilders.Resources.Builder().build()
             }
 
             timelineManager?.apply {

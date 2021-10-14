@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSDeclaration
 
 private fun KSAnnotated.hasAnnotationWithQName(qName: String) = annotations.any {
     it.annotationType.resolve().declaration.qualifiedName?.asString() == qName
@@ -30,3 +31,13 @@ internal fun KSAnnotated.hasJvmTransientAnnotation() =
 internal fun KSAnnotated.hasJvmFieldAnnotation() = hasAnnotationWithQName("kotlin.jvm.JvmField")
 
 internal fun KSAnnotated.hasJvmDefaultAnnotation() = hasAnnotationWithQName("kotlin.jvm.JvmDefault")
+
+/**
+ * Return a reference to the containing file that implements the
+ * [javax.lang.model.element.Element] API so that we can report it to JavaPoet.
+ */
+internal fun KSAnnotated.containingFileAsOriginatingElement(): KSFileAsOriginatingElement? {
+    return (this as? KSDeclaration)?.containingFile?.let {
+        KSFileAsOriginatingElement(it)
+    }
+}

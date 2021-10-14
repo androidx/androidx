@@ -17,6 +17,7 @@
 package androidx.camera.core.impl.utils;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 import androidx.core.util.Supplier;
 
@@ -68,6 +69,7 @@ import java.io.Serializable;
  *            this type, so it is safe to cast an {@code Optional<T>} to {@code Optional<S>} for any
  *            supertype {@code S} of {@code T}.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class Optional<T> implements Serializable {
     /**
      * Returns an {@code Optional} instance with no contained reference.

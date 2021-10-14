@@ -56,6 +56,10 @@
             android:configChanges="orientation|screenSize"
             android:label="Rotation - ConfigChanges overridden" />
 
+        <activity
+            android:exported="false"
+            android:name=".foldable.FoldableCameraActivity"
+            android:label="Foldable Test" />
     </application>
 
     <uses-permission android:name="android.permission.CAMERA" />

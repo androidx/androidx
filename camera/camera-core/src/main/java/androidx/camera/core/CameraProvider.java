@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.util.List;
 
@@ -29,6 +30,7 @@ import java.util.List;
  * allows the applications to check whether any camera exists to fulfill the requirements or to
  * get {@link CameraInfo} instances of all cameras to retrieve the camera information.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraProvider {
 
     /**

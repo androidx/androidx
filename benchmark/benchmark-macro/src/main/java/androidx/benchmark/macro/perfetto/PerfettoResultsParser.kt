@@ -16,11 +16,11 @@
 
 package androidx.benchmark.macro.perfetto
 
-import androidx.benchmark.macro.MetricsWithUiState
+import androidx.benchmark.macro.IterationResult
 import org.json.JSONObject
 
 internal object PerfettoResultsParser {
-    fun parseStartupResult(jsonMetricResults: String, packageName: String): MetricsWithUiState {
+    fun parseStartupResult(jsonMetricResults: String, packageName: String): IterationResult {
         val json = JSONObject(jsonMetricResults)
         json.optJSONObject("android_startup")?.let { androidStartup ->
             androidStartup.optJSONArray("startup")?.let { startup ->
@@ -34,25 +34,30 @@ internal object PerfettoResultsParser {
             }
         }
 
-        return MetricsWithUiState.EMPTY
+        return IterationResult(emptyMap(), emptyMap(), null)
     }
 
-    private fun JSONObject.parseStartupMetricsWithUiState(): MetricsWithUiState {
+    private fun JSONObject.parseStartupMetricsWithUiState(): IterationResult {
         val durMs = getJSONObject("to_first_frame").getDouble("dur_ms")
         val fullyDrawnMs = optJSONObject("report_fully_drawn")?.getDouble("dur_ms")
 
-        val metricMap = mutableMapOf("startupMs" to durMs.toLong())
+        val metricMap = mutableMapOf("startupMs" to durMs)
         if (fullyDrawnMs != null) {
-            metricMap["fullyDrawnMs"] = fullyDrawnMs.toLong()
+            metricMap["fullyDrawnMs"] = fullyDrawnMs
         }
 
         val eventTimestamps = optJSONObject("event_timestamps")
         val timelineStart = eventTimestamps?.optLong("intent_received")
         val timelineEnd = eventTimestamps?.optLong("first_frame")
-        return MetricsWithUiState(
-            metrics = metricMap,
-            timelineStart = timelineStart,
-            timelineEnd = timelineEnd
+
+        return IterationResult(
+            singleMetrics = metricMap,
+            sampledMetrics = emptyMap(),
+            timelineRangeNs = if (timelineStart != null && timelineEnd != null) {
+                timelineStart..timelineEnd
+            } else {
+                null
+            }
         )
     }
 }

@@ -16,12 +16,10 @@
 
 package androidx.window.java.layout
 
-import android.graphics.Rect
 import androidx.window.java.TestConsumer
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoRepository
 import androidx.window.layout.WindowLayoutInfo
-import androidx.window.layout.WindowMetrics
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.channels.Channel
@@ -38,54 +36,9 @@ import org.junit.Test
 public class WindowInfoRepositoryCallbackAdapterTest {
 
     @Test
-    public fun testCurrentWindowMetrics() {
-        val expected = WindowMetrics(Rect(0, 1, 2, 3))
-        val mockRepo = mock<WindowInfoRepository>()
-        whenever(mockRepo.currentWindowMetrics).thenReturn(flowOf(expected))
-        val unitUnderTest = WindowInfoRepositoryCallbackAdapter(mockRepo)
-        val testConsumer = TestConsumer<WindowMetrics>()
-
-        unitUnderTest.addCurrentWindowMetricsListener(Runnable::run, testConsumer)
-
-        testConsumer.assertValue(expected)
-    }
-
-    @Test
-    public fun testCurrentWindowMetrics_registerMultipleIsNoOp() {
-        val expected = WindowMetrics(Rect(0, 1, 2, 3))
-        val mockRepo = mock<WindowInfoRepository>()
-        whenever(mockRepo.currentWindowMetrics).thenReturn(flowOf(expected))
-        val unitUnderTest = WindowInfoRepositoryCallbackAdapter(mockRepo)
-        val testConsumer = TestConsumer<WindowMetrics>()
-
-        unitUnderTest.addCurrentWindowMetricsListener(Runnable::run, testConsumer)
-        unitUnderTest.addCurrentWindowMetricsListener(Runnable::run, testConsumer)
-
-        testConsumer.assertValue(expected)
-    }
-
-    @Test
-    public fun testCurrentWindowMetrics_unregister() {
-        val metrics = WindowMetrics(Rect(0, 1, 2, 3))
-        val mockRepo = mock<WindowInfoRepository>()
-        val channel = Channel<WindowMetrics>()
-        whenever(mockRepo.currentWindowMetrics).thenReturn(channel.receiveAsFlow())
-        val unitUnderTest = WindowInfoRepositoryCallbackAdapter(mockRepo)
-        val testConsumer = TestConsumer<WindowMetrics>()
-
-        unitUnderTest.addCurrentWindowMetricsListener(Runnable::run, testConsumer)
-        unitUnderTest.addCurrentWindowMetricsListener(Runnable::run, mock())
-        unitUnderTest.removeCurrentWindowMetricsListener(testConsumer)
-        val accepted = channel.trySend(metrics).isSuccess
-
-        assertTrue(accepted)
-        testConsumer.assertEmpty()
-    }
-
-    @Test
     public fun testRegisterListener() {
         val feature = mock<FoldingFeature>()
-        val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
+        val expected = WindowLayoutInfo(listOf(feature))
         val mockRepo = mock<WindowInfoRepository>()
         whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
         val unitUnderTest = WindowInfoRepositoryCallbackAdapter(mockRepo)
@@ -99,7 +52,7 @@ public class WindowInfoRepositoryCallbackAdapterTest {
     @Test
     public fun testWindowLayoutInfo_registerMultipleIsNoOp() {
         val feature = mock<FoldingFeature>()
-        val expected = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
+        val expected = WindowLayoutInfo(listOf(feature))
         val mockRepo = mock<WindowInfoRepository>()
         whenever(mockRepo.windowLayoutInfo).thenReturn(flowOf(expected))
         val unitUnderTest = WindowInfoRepositoryCallbackAdapter(mockRepo)
@@ -114,7 +67,7 @@ public class WindowInfoRepositoryCallbackAdapterTest {
     @Test
     public fun testWindowLayoutInfo_unregister() {
         val feature = mock<FoldingFeature>()
-        val info = WindowLayoutInfo.Builder().setDisplayFeatures(listOf(feature)).build()
+        val info = WindowLayoutInfo(listOf(feature))
         val mockRepo = mock<WindowInfoRepository>()
         val channel = Channel<WindowLayoutInfo>()
         whenever(mockRepo.windowLayoutInfo).thenReturn(channel.receiveAsFlow())

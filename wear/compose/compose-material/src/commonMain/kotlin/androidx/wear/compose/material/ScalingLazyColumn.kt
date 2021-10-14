@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.dp
 /**
  * Receiver scope which is used by [ScalingLazyColumn].
  */
-public interface ScalingLazyColumnScope {
+public interface ScalingLazyListScope {
     /**
      * Adds a single item.
      *
@@ -74,9 +74,15 @@ public interface ScalingLazyColumnScope {
  * Example usage:
  * @sample androidx.wear.compose.material.samples.SimpleScalingLazyColumn
  *
+ * For more information, see the
+ * [Lists](https://developer.android.com/training/wearables/components/lists)
+ * guide.
+ *
  * @param modifier The modifier to be applied to the component
  * @param scalingParams The parameters to configure the scaling and transparency effects for the
  * component
+ * @param reverseLayout reverse the direction of scrolling and layout, when `true` items will be
+ * composed from the bottom to the top
  * @param verticalArrangement The vertical arrangement of the layout's children. This allows us
  * to add spacing between items and specify the arrangement of the items when we have not enough
  * of them to fill the whole minimum size
@@ -88,11 +94,16 @@ public interface ScalingLazyColumnScope {
 public fun ScalingLazyColumn(
     modifier: Modifier = Modifier,
     scalingParams: ScalingParams = ScalingLazyColumnDefaults.scalingParams(),
-    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(4.dp),
+    reverseLayout: Boolean = false,
+    verticalArrangement: Arrangement.Vertical =
+        Arrangement.spacedBy(
+            space = 4.dp,
+            alignment = if (!reverseLayout) Alignment.Top else Alignment.Bottom
+        ),
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp),
-    state: ScalingLazyColumnState = rememberScalingLazyColumnState(),
-    content: ScalingLazyColumnScope.() -> Unit
+    state: ScalingLazyListState = rememberScalingLazyListState(),
+    content: ScalingLazyListScope.() -> Unit
 ) {
     BoxWithConstraints(modifier = modifier) {
         val extraPaddingInPixels = scalingParams.resolveViewportVerticalOffset(constraints)
@@ -105,36 +116,24 @@ public fun ScalingLazyColumn(
         state.gapBetweenItemsPx.value = with(LocalDensity.current) {
             verticalArrangement.spacing.roundToPx()
         }
+        state.reverseLayout.value = reverseLayout
 
         val combinedPaddingValues = CombinedPaddingValues(
             contentPadding = contentPadding,
             extraPadding = extraPadding
         )
         LazyColumn(
-            // TODO (b/194464849): Refactor by adding a Modifier.verticalNegativePadding fun
             Modifier
                 .fillMaxSize()
                 .clipToBounds()
-                .layout { measurable, constraints ->
-                    require(constraints.hasBoundedWidth)
-                    require(constraints.hasBoundedHeight)
-                    val placeable = measurable.measure(
-                        Constraints.fixed(
-                            width = constraints.maxWidth,
-                            height = constraints.maxHeight +
-                                (extraPadding * 2).roundToPx()
-                        )
-                    )
-                    layout(constraints.maxWidth, constraints.maxHeight) {
-                        placeable.place(0, -extraPadding.roundToPx())
-                    }
-                },
+                .verticalNegativePadding(extraPadding),
             horizontalAlignment = horizontalAlignment,
             contentPadding = combinedPaddingValues,
+            reverseLayout = reverseLayout,
             verticalArrangement = verticalArrangement,
             state = state.lazyListState
         ) {
-            val scope = ScalingLazyColumnScopeImpl(
+            val scope = ScalingLazyListScopeImpl(
                 state,
                 this,
             )
@@ -272,10 +271,10 @@ public object ScalingLazyColumnDefaults {
     )
 }
 
-private class ScalingLazyColumnScopeImpl(
-    private val state: ScalingLazyColumnState,
+private class ScalingLazyListScopeImpl(
+    private val state: ScalingLazyListState,
     private val scope: LazyListScope,
-) : ScalingLazyColumnScope {
+) : ScalingLazyListScope {
 
     private var currentStartIndex = 0
 
@@ -308,20 +307,24 @@ private class ScalingLazyColumnScopeImpl(
 @Composable
 private fun ScalingLazyColumnItemWrapper(
     index: Int,
-    state: ScalingLazyColumnState,
+    state: ScalingLazyListState,
     content: @Composable () -> Unit
 ) {
     Box(
         Modifier.graphicsLayer {
             val items = state.layoutInfo.visibleItemsInfo
+            val reverseLayout = state.reverseLayout.value!!
             val currentItem = items.find { it.index == index }
             if (currentItem != null) {
                 alpha = currentItem.alpha
                 scaleX = currentItem.scale
                 scaleY = currentItem.scale
-                translationY =
-                    (currentItem.offset - currentItem.unadjustedOffset).toFloat()
-                transformOrigin = TransformOrigin(0.5f, 0.0f)
+                val offsetAdjust = (currentItem.offset - currentItem.unadjustedOffset).toFloat()
+                translationY = if (reverseLayout) - offsetAdjust else offsetAdjust
+                transformOrigin = TransformOrigin(
+                    pivotFractionX = 0.5f,
+                    pivotFractionY = if (reverseLayout) 1.0f else 0.0f
+                )
             }
         }
     ) {
@@ -370,5 +373,22 @@ private class CombinedPaddingValues(
     override fun toString(): String {
         return "CombinedPaddingValuesImpl(contentPadding=$contentPadding, " +
             "extraPadding=$extraPadding)"
+    }
+}
+
+private fun Modifier.verticalNegativePadding(
+    extraPadding: Dp
+) = layout { measurable, constraints ->
+    require(constraints.hasBoundedWidth)
+    require(constraints.hasBoundedHeight)
+    val placeable = measurable.measure(
+        Constraints.fixed(
+            width = constraints.maxWidth,
+            height = constraints.maxHeight +
+                (extraPadding * 2).roundToPx()
+        )
+    )
+    layout(constraints.maxWidth, constraints.maxHeight) {
+        placeable.place(0, -extraPadding.roundToPx())
     }
 }

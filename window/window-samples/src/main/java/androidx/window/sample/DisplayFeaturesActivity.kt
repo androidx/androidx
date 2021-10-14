@@ -20,13 +20,14 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.RecyclerView
 import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
 import androidx.window.layout.WindowLayoutInfo
+import androidx.window.sample.infolog.InfoLogAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -37,13 +38,14 @@ import java.util.Locale
 /** Demo activity that shows all display features and current device state on the screen. */
 class DisplayFeaturesActivity : AppCompatActivity() {
 
-    private val stateLog: StringBuilder = StringBuilder()
-
+    private val infoLogAdapter = InfoLogAdapter()
     private val displayFeatureViews = ArrayList<View>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_display_features)
+        val recyclerView = findViewById<RecyclerView>(R.id.infoLogRecyclerView)
+        recyclerView.adapter = infoLogAdapter
 
         val windowInfoRepo = windowInfoRepository()
 
@@ -62,24 +64,16 @@ class DisplayFeaturesActivity : AppCompatActivity() {
                     }
             }
         }
-        stateLog.clear()
-        stateLog.append(getString(R.string.stateUpdateLog)).append("\n")
     }
 
     /** Updates the device state and display feature positions. */
-    internal fun updateCurrentState(windowLayoutInfo: WindowLayoutInfo) {
+    private fun updateCurrentState(windowLayoutInfo: WindowLayoutInfo) {
         // Cleanup previously added feature views
         val rootLayout = findViewById<FrameLayout>(R.id.featureContainerLayout)
         for (featureView in displayFeatureViews) {
             rootLayout.removeView(featureView)
         }
         displayFeatureViews.clear()
-
-        // Update the UI with the current state
-        val stateStringBuilder = StringBuilder()
-
-        stateStringBuilder.append(getString(R.string.windowLayout))
-            .append(": ")
 
         // Add views that represent display features
         for (displayFeature in windowLayoutInfo.displayFeatures) {
@@ -103,17 +97,12 @@ class DisplayFeaturesActivity : AppCompatActivity() {
 
             displayFeatureViews.add(featureView)
         }
-
-        findViewById<TextView>(R.id.currentState).text = stateStringBuilder.toString()
     }
 
     /** Adds the current state to the text log of changes on screen. */
-    internal fun updateStateLog(info: Any) {
-        stateLog.append(getCurrentTimeString())
-            .append(" ")
-            .append(info)
-            .append("\n")
-        findViewById<TextView>(R.id.stateUpdateLog).text = stateLog
+    private fun updateStateLog(info: Any) {
+        infoLogAdapter.append(getCurrentTimeString(), info.toString())
+        infoLogAdapter.notifyDataSetChanged()
     }
 
     private fun getCurrentTimeString(): String {

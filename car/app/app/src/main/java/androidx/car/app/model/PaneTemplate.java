@@ -16,7 +16,7 @@
 
 package androidx.car.app.model;
 
-import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY;
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_PANE;
@@ -243,7 +243,7 @@ public final class PaneTemplate implements Template {
         @NonNull
         public PaneTemplate build() {
             ROW_LIST_CONSTRAINTS_PANE.validateOrThrow(mPane);
-            ACTIONS_CONSTRAINTS_BODY.validateOrThrow(mPane.getActions());
+            ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION.validateOrThrow(mPane.getActions());
 
             if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {
                 throw new IllegalStateException("Either the title or header action must be set");

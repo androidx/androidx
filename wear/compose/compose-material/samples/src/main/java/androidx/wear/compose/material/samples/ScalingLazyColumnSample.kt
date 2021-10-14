@@ -56,9 +56,33 @@ fun SimpleScalingLazyColumnWithContentPadding() {
     }
 }
 
+@Sampled
 @Composable
 fun ScalingLazyColumnWithHeaders() {
     ScalingLazyColumn {
+        item { Spacer(modifier = Modifier.size(20.dp)) }
+        item { ListHeader { Text("Header1") } }
+        items(5) {
+            Chip(
+                onClick = { },
+                label = { Text("List item $it") },
+                colors = ChipDefaults.secondaryChipColors()
+            )
+        }
+        item { ListHeader { Text("Header2") } }
+        items(5) {
+            Chip(
+                onClick = { },
+                label = { Text("List item ${it + 5}") },
+                colors = ChipDefaults.secondaryChipColors()
+            )
+        }
+    }
+}
+
+@Composable
+fun ScalingLazyColumnWithHeadersReversed() {
+    ScalingLazyColumn(reverseLayout = true) {
         item { Spacer(modifier = Modifier.size(20.dp)) }
         item { ListHeader { Text("Header1") } }
         items(5) {

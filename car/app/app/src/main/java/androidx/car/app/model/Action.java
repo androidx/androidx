@@ -32,9 +32,11 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.lifecycle.LifecycleOwner;
@@ -80,7 +82,25 @@ public final class Action {
     public @interface ActionType {
     }
 
-    static final int FLAG_STANDARD = 1 << 16;
+    /**
+     * The flag of action represented by the {@link Action} instance.
+     *
+     * @hide
+     */
+    // TODO(b/201548973): Remove this annotation once set/getFlags are ready
+    @ExperimentalCarApi
+    @RequiresCarApi(4)
+    @RestrictTo(LIBRARY)
+    @IntDef(
+            flag = true,
+            value = {
+                    FLAG_PRIMARY,
+            })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ActionFlag {
+    }
+
+    static final int TYPE_STANDARD = 1 << 16;
 
     /**
      * An app-defined custom action type.
@@ -92,19 +112,32 @@ public final class Action {
      *
      * @see #APP_ICON
      */
-    public static final int TYPE_APP_ICON = 2 | FLAG_STANDARD;
+    public static final int TYPE_APP_ICON = 2 | TYPE_STANDARD;
 
     /**
      * An action to navigate back in the user interface.
      *
      * @see #BACK
      */
-    public static final int TYPE_BACK = 3 | FLAG_STANDARD;
+    public static final int TYPE_BACK = 3 | TYPE_STANDARD;
 
     /**
      * An action to toggle the pan mode in a map-based template.
      */
-    public static final int TYPE_PAN = 4 | FLAG_STANDARD;
+    public static final int TYPE_PAN = 4 | TYPE_STANDARD;
+
+    /**
+     * Indicates that this action is the most important one, out of a set of other actions.
+     *
+     * <p>The action with this flag may be treated differently by the host depending on where they
+     * are used. For example, it may be colored or ordered differently to align with the vehicle's
+     * look and feel. See the documentation on where the {@link Action} is added for more details on
+     * any restriction(s) that might apply.
+     */
+    // TODO(b/201548973): Remove this annotation once set/getFlags are ready
+    @ExperimentalCarApi
+    @RequiresCarApi(4)
+    public static final int FLAG_PRIMARY = 1 << 0;
 
     /**
      * A standard action to show the app's icon.
@@ -155,6 +188,9 @@ public final class Action {
     @Keep
     @ActionType
     private final int mType;
+    @Keep
+    @ActionFlag
+    private final int mFlags;
 
     /**
      * Returns the title displayed in the action or {@code null} if the action does not have a
@@ -192,6 +228,15 @@ public final class Action {
     @ActionType
     public int getType() {
         return mType;
+    }
+
+    /** Returns flags affecting how this action should be treated */
+    // TODO(b/201548973): Remove this annotation once set/getFlags are ready
+    @ExperimentalCarApi
+    @RequiresCarApi(4)
+    @ActionFlag
+    public int getFlags() {
+        return mFlags;
     }
 
     /** Returns whether the action is a standard action such as {@link #BACK}. */
@@ -234,6 +279,7 @@ public final class Action {
     }
 
     /** Convenience constructor for standard action singletons. */
+    @OptIn(markerClass = ExperimentalCarApi.class)
     private Action(@ActionType int type) {
         if (type == TYPE_CUSTOM) {
             throw new IllegalArgumentException(
@@ -245,6 +291,7 @@ public final class Action {
         mBackgroundColor = DEFAULT;
         mOnClickDelegate = null;
         mType = type;
+        mFlags = 0;
     }
 
     Action(Builder builder) {
@@ -253,15 +300,18 @@ public final class Action {
         mBackgroundColor = builder.mBackgroundColor;
         mOnClickDelegate = builder.mOnClickDelegate;
         mType = builder.mType;
+        mFlags = builder.mFlags;
     }
 
     /** Constructs an empty instance, used by serialization code. */
+    @OptIn(markerClass = ExperimentalCarApi.class)
     private Action() {
         mTitle = null;
         mIcon = null;
         mBackgroundColor = DEFAULT;
         mOnClickDelegate = null;
         mType = TYPE_CUSTOM;
+        mFlags = 0;
     }
 
     @Override
@@ -284,14 +334,16 @@ public final class Action {
         return Objects.equals(mTitle, otherAction.mTitle)
                 && mType == otherAction.mType
                 && Objects.equals(mIcon, otherAction.mIcon)
-                && Objects.equals(mOnClickDelegate == null, otherAction.mOnClickDelegate == null);
+                && Objects.equals(mOnClickDelegate == null, otherAction.mOnClickDelegate == null)
+                && Objects.equals(mFlags, otherAction.mFlags);
     }
 
     static boolean isStandardActionType(@ActionType int type) {
-        return 0 != (type & FLAG_STANDARD);
+        return 0 != (type & TYPE_STANDARD);
     }
 
     /** A builder of {@link Action}. */
+    @OptIn(markerClass = ExperimentalCarApi.class)
     public static final class Builder {
         @Nullable
         CarText mTitle;
@@ -302,6 +354,8 @@ public final class Action {
         CarColor mBackgroundColor = DEFAULT;
         @ActionType
         int mType = TYPE_CUSTOM;
+        @ActionFlag
+        int mFlags = 0;
 
         /**
          * Sets the title to display in the action.
@@ -395,6 +449,16 @@ public final class Action {
             return this;
         }
 
+        /** Sets flags affecting how this action should be treated. */
+        @NonNull
+        // TODO(b/201548973): Remove this annotation once set/getFlags are ready
+        @ExperimentalCarApi
+        @RequiresCarApi(4)
+        public Builder setFlags(@ActionFlag int flags) {
+            mFlags |= flags;
+            return this;
+        }
+
         /**
          * Constructs the {@link Action} defined by this builder.
          *
@@ -446,6 +510,8 @@ public final class Action {
          * @throws NullPointerException if {@code action} is {@code null}
          */
         @RequiresCarApi(2)
+        // TODO(b/201548973): Remove this annotation once set/getFlags are ready
+        @OptIn(markerClass = ExperimentalCarApi.class)
         public Builder(@NonNull Action action) {
             requireNonNull(action);
             mType = action.getType();
@@ -454,6 +520,7 @@ public final class Action {
             mOnClickDelegate = action.getOnClickDelegate();
             CarColor backgroundColor = action.getBackgroundColor();
             mBackgroundColor = backgroundColor == null ? DEFAULT : backgroundColor;
+            mFlags = action.getFlags();
         }
     }
 }

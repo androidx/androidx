@@ -20,6 +20,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
@@ -27,6 +28,7 @@ import androidx.camera.core.impl.utils.CameraOrientationUtil;
 /**
  * Contains utility methods related to UseCaseConfig.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class UseCaseConfigUtil {
     private UseCaseConfigUtil() {}
 

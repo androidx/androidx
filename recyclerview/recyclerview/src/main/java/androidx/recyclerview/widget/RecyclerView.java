@@ -2670,31 +2670,26 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         // Flinging while the edge effect is active should affect the edge effect,
         // not scrolling.
-        boolean flung = false;
         if (velocityX != 0) {
             if (mLeftGlow != null && EdgeEffectCompat.getDistance(mLeftGlow) != 0) {
                 mLeftGlow.onAbsorb(-velocityX);
                 velocityX = 0;
-                flung = true;
             } else if (mRightGlow != null && EdgeEffectCompat.getDistance(mRightGlow) != 0) {
                 mRightGlow.onAbsorb(velocityX);
                 velocityX = 0;
-                flung = true;
             }
         }
         if (velocityY != 0) {
             if (mTopGlow != null && EdgeEffectCompat.getDistance(mTopGlow) != 0) {
                 mTopGlow.onAbsorb(-velocityY);
                 velocityY = 0;
-                flung = true;
             } else if (mBottomGlow != null && EdgeEffectCompat.getDistance(mBottomGlow) != 0) {
                 mBottomGlow.onAbsorb(velocityY);
                 velocityY = 0;
-                flung = true;
             }
         }
         if (velocityX == 0 && velocityY == 0) {
-            return true; // consumed all the velocity in the overscroll fling
+            return false; // consumed all the velocity in the overscroll fling
         }
 
         if (!dispatchNestedPreFling(velocityX, velocityY)) {
@@ -2721,7 +2716,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 return true;
             }
         }
-        return flung;
+        return false;
     }
 
     /**
@@ -2843,18 +2838,26 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     void absorbGlows(int velocityX, int velocityY) {
         if (velocityX < 0) {
             ensureLeftGlow();
-            mLeftGlow.onAbsorb(-velocityX);
+            if (mLeftGlow.isFinished()) {
+                mLeftGlow.onAbsorb(-velocityX);
+            }
         } else if (velocityX > 0) {
             ensureRightGlow();
-            mRightGlow.onAbsorb(velocityX);
+            if (mRightGlow.isFinished()) {
+                mRightGlow.onAbsorb(velocityX);
+            }
         }
 
         if (velocityY < 0) {
             ensureTopGlow();
-            mTopGlow.onAbsorb(-velocityY);
+            if (mTopGlow.isFinished()) {
+                mTopGlow.onAbsorb(-velocityY);
+            }
         } else if (velocityY > 0) {
             ensureBottomGlow();
-            mBottomGlow.onAbsorb(velocityY);
+            if (mBottomGlow.isFinished()) {
+                mBottomGlow.onAbsorb(velocityY);
+            }
         }
 
         if (velocityX != 0 || velocityY != 0) {
@@ -10983,21 +10986,31 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 return false;
             }
             int vScroll = 0, hScroll = 0;
+            int height = getHeight();
+            int width = getWidth();
+            Rect rect = new Rect();
+            // Gets the visible rect on the screen except for the rotation or scale cases which
+            // might affect the result.
+            if (mRecyclerView.getMatrix().isIdentity() && mRecyclerView.getGlobalVisibleRect(
+                    rect)) {
+                height = rect.height();
+                width = rect.width();
+            }
             switch (action) {
                 case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
                     if (mRecyclerView.canScrollVertically(-1)) {
-                        vScroll = -(getHeight() - getPaddingTop() - getPaddingBottom());
+                        vScroll = -(height - getPaddingTop() - getPaddingBottom());
                     }
                     if (mRecyclerView.canScrollHorizontally(-1)) {
-                        hScroll = -(getWidth() - getPaddingLeft() - getPaddingRight());
+                        hScroll = -(width - getPaddingLeft() - getPaddingRight());
                     }
                     break;
                 case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD:
                     if (mRecyclerView.canScrollVertically(1)) {
-                        vScroll = getHeight() - getPaddingTop() - getPaddingBottom();
+                        vScroll = height - getPaddingTop() - getPaddingBottom();
                     }
                     if (mRecyclerView.canScrollHorizontally(1)) {
-                        hScroll = getWidth() - getPaddingLeft() - getPaddingRight();
+                        hScroll = width - getPaddingLeft() - getPaddingRight();
                     }
                     break;
             }

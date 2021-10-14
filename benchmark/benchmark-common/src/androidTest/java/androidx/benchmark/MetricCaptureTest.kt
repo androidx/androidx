@@ -53,9 +53,9 @@ private fun MetricCapture.verifyMedian(expected: IntRange, block: MetricCapture.
     val results = List(200) {
         captureStart()
         block()
-        captureStop()
-    }.toLongArray()
-    val median = Stats(results, name).median
+        captureStop() * 1.0
+    }
+    val median = MetricResult(name, results).median.toInt()
     if (median !in expected) {
         throw AssertionError(
             "observed median $median, expected $expected, saw: " + results.joinToString()

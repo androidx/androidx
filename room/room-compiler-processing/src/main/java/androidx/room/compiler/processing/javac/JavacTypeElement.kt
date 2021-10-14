@@ -20,7 +20,6 @@ import androidx.room.compiler.processing.XEnumEntry
 import androidx.room.compiler.processing.XEnumTypeElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
-import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.kotlin.KotlinMetadataElement
 import com.google.auto.common.MoreElements
@@ -111,7 +110,7 @@ internal sealed class JavacTypeElement(
         }
     }
 
-    override fun getDeclaredMethods(): List<XMethodElement> {
+    override fun getDeclaredMethods(): List<JavacMethodElement> {
         return _declaredMethods
     }
 

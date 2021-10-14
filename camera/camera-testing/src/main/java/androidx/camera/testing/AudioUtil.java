@@ -21,9 +21,11 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 
 /** Utility for audio related functions. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class AudioUtil {
     private static final String TAG = "AudioUtil";
 

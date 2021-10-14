@@ -14,25 +14,15 @@ package androidx.wear.compose.foundation {
     property public final float Start;
   }
 
-  @androidx.compose.runtime.Stable public final class ArcPaddingValues {
-    ctor public ArcPaddingValues(float outer, float inner, float start, float end);
-    method public float getEnd();
-    method public float getInner();
-    method public float getOuter();
-    method public float getStart();
-    property public final float end;
-    property public final float inner;
-    property public final float outer;
-    property public final float start;
-    field public static final androidx.wear.compose.foundation.ArcPaddingValues.Companion Companion;
-  }
-
-  public static final class ArcPaddingValues.Companion {
-    method public androidx.wear.compose.foundation.ArcPaddingValues getZero();
-    property public final androidx.wear.compose.foundation.ArcPaddingValues Zero;
+  @androidx.compose.runtime.Stable public interface ArcPaddingValues {
+    method public float calculateEndPadding();
+    method public float calculateInnerPadding();
+    method public float calculateOuterPadding();
+    method public float calculateStartPadding();
   }
 
   public final class BasicCurvedTextKt {
+    method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(optional float outer, optional float inner, optional float start, optional float end);
     method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(float all);
     method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(optional float radial, optional float angular);
     method @androidx.compose.runtime.Composable public static void BasicCurvedText(androidx.wear.compose.foundation.CurvedRowScope, String text, androidx.wear.compose.foundation.CurvedTextStyle style, optional androidx.compose.ui.Modifier modifier, optional boolean clockwise, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding);

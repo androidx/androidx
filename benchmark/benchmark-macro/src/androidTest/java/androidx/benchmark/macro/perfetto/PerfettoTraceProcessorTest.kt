@@ -79,7 +79,7 @@ class PerfettoTraceProcessorTest {
         val traceFile = createTempFileFromAsset("WarmStartup", ".trace")
         assertEquals(
             expected = listOf(
-                PerfettoTraceProcessor.Slice(
+                Slice(
                     name = "activityStart",
                     ts = 4131162160602,
                     dur = 17779012
@@ -89,12 +89,12 @@ class PerfettoTraceProcessorTest {
         )
         assertEquals(
             expected = listOf(
-                PerfettoTraceProcessor.Slice(
+                Slice(
                     name = "activityStart",
                     ts = 4131162160602,
                     dur = 17779012
                 ),
-                PerfettoTraceProcessor.Slice(
+                Slice(
                     name = "activityResume",
                     ts = 4131180586020,
                     dur = 3398750

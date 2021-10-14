@@ -47,13 +47,13 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
     implementation(project(":benchmark:benchmark-common"))
-    implementation(project(":profileinstaller:profileinstaller"))
+    implementation("androidx.profileinstaller:profileinstaller:1.0.3")
     implementation("androidx.tracing:tracing-ktx:1.0.0")
     implementation(libs.testCore)
     implementation(libs.testUiautomator)
 
     androidTestImplementation(project(":internal-testutils-ktx"))
-    androidTestImplementation(project(":activity:activity-ktx"))
+    androidTestImplementation("androidx.activity:activity-ktx:1.3.1")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)

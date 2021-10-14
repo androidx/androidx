@@ -17,6 +17,7 @@
 package androidx.car.app.sample.showcase.common.templates;
 
 import static androidx.car.app.CarToast.LENGTH_SHORT;
+import static androidx.car.app.model.Action.FLAG_PRIMARY;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -24,9 +25,11 @@ import android.graphics.BitmapFactory;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
@@ -66,6 +69,8 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
 
     @NonNull
     @Override
+    // TODO(b/201548973): Remove this annotation once set/getFlags are ready
+    @OptIn(markerClass = ExperimentalCarApi.class)
     public Template onGetTemplate() {
         Pane.Builder paneBuilder = new Pane.Builder();
 
@@ -90,10 +95,11 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
                         new Action.Builder()
                                 .setTitle("Search")
                                 .setBackgroundColor(CarColor.BLUE)
+                                .setFlags(FLAG_PRIMARY)
                                 .setOnClickListener(
                                         () -> CarToast.makeText(
                                                 getCarContext(),
-                                                "Search button pressed",
+                                                "Search/Primary button pressed",
                                                 LENGTH_SHORT)
                                                 .show())
                                 .build())

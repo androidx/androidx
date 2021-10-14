@@ -152,11 +152,6 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
 
     @Test
     public void getItem_nullResult() throws Exception {
-        if (!MediaTestUtils.isServiceToT()) {
-            // Previous service can't disable fatal crash because
-            // MediaLibrarySession.Builder.setThrowsWhenInvalidReturn() is missing.
-            return;
-        }
         final String mediaId = MediaBrowserConstants.MEDIA_ID_GET_NULL_ITEM;
 
         try {
@@ -170,11 +165,6 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
 
     @Test
     public void getItem_invalidResult() throws Exception {
-        if (!MediaTestUtils.isServiceToT()) {
-            // Previous service can't disable fatal crash because
-            // MediaLibrarySession.Builder.setThrowsWhenInvalidReturn() is missing.
-            return;
-        }
         final String mediaId = MediaBrowserConstants.MEDIA_ID_GET_INVALID_ITEM;
 
         try {

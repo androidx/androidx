@@ -67,7 +67,11 @@ class MenuHostTest {
 }
 
 class TestMenuHost(private val menu: Menu, private val menuInflater: MenuInflater) : MenuHost {
-    private val menuHostHelper = MenuHostHelper { invalidateMenu() }
+    var invalidateCount = 0
+    private val menuHostHelper = MenuHostHelper {
+        invalidateMenu()
+        invalidateCount++
+    }
 
     private fun onCreateMenu() {
         menuHostHelper.onCreateMenu(menu, menuInflater)

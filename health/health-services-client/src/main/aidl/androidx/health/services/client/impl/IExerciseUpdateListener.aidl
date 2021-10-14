@@ -16,6 +16,8 @@
 
 package androidx.health.services.client.impl;
 
+import androidx.health.services.client.impl.event.ExerciseUpdateListenerEvent;
+import androidx.health.services.client.impl.response.AvailabilityResponse;
 import androidx.health.services.client.impl.response.ExerciseLapSummaryResponse;
 import androidx.health.services.client.impl.response.ExerciseUpdateResponse;
 
@@ -25,9 +27,6 @@ import androidx.health.services.client.impl.response.ExerciseUpdateResponse;
  * @hide
  */
 oneway interface IExerciseUpdateListener {
-    /** Called when there is an update of exercise state or metrics. */
-    void onExerciseUpdate(in ExerciseUpdateResponse update) = 0;
-
-    /** Called when a lap has been marked. */
-    void onLapSummary(in ExerciseLapSummaryResponse summaryResponse) = 1;
+    /** Called when there is an exercise update event. */
+    void onExerciseUpdateListenerEvent(in ExerciseUpdateListenerEvent event) = 0;
 }

@@ -26,6 +26,8 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -35,6 +37,8 @@ public class MenuHostHelper {
 
     private final Runnable mOnInvalidateMenuCallback;
     private final CopyOnWriteArrayList<MenuProvider> mMenuProviders = new CopyOnWriteArrayList<>();
+    private final Map<MenuProvider, LifecycleContainer> mProviderToLifecycleContainers =
+            new HashMap<>();
 
     /**
      * Construct a new MenuHostHelper.
@@ -98,11 +102,16 @@ public class MenuHostHelper {
     public void addMenuProvider(@NonNull MenuProvider provider, @NonNull LifecycleOwner owner) {
         addMenuProvider(provider);
         Lifecycle lifecycle = owner.getLifecycle();
-        lifecycle.addObserver((LifecycleEventObserver) (source, event) -> {
+        LifecycleContainer lifecycleContainer = mProviderToLifecycleContainers.remove(provider);
+        if (lifecycleContainer != null) {
+            lifecycleContainer.clearObservers();
+        }
+        LifecycleEventObserver observer = (source, event) -> {
             if (event == Lifecycle.Event.ON_DESTROY) {
                 removeMenuProvider(provider);
             }
-        });
+        };
+        mProviderToLifecycleContainers.put(provider, new LifecycleContainer(lifecycle, observer));
     }
 
     /**
@@ -121,15 +130,21 @@ public class MenuHostHelper {
     public void addMenuProvider(@NonNull MenuProvider provider, @NonNull LifecycleOwner owner,
             @NonNull Lifecycle.State state) {
         Lifecycle lifecycle = owner.getLifecycle();
-        lifecycle.addObserver((LifecycleEventObserver) (source, event) -> {
+        LifecycleContainer lifecycleContainer = mProviderToLifecycleContainers.remove(provider);
+        if (lifecycleContainer != null) {
+            lifecycleContainer.clearObservers();
+        }
+        LifecycleEventObserver observer = (source, event) -> {
             if (event == Lifecycle.Event.upTo(state)) {
                 addMenuProvider(provider);
             } else if (event == Lifecycle.Event.ON_DESTROY) {
                 removeMenuProvider(provider);
             } else if (event == Lifecycle.Event.downFrom(state)) {
-                removeMenuProvider(provider);
+                mMenuProviders.remove(provider);
+                mOnInvalidateMenuCallback.run();
             }
-        });
+        };
+        mProviderToLifecycleContainers.put(provider, new LifecycleContainer(lifecycle, observer));
     }
 
     /**
@@ -139,6 +154,26 @@ public class MenuHostHelper {
      */
     public void removeMenuProvider(@NonNull MenuProvider provider) {
         mMenuProviders.remove(provider);
+        LifecycleContainer lifecycleContainer = mProviderToLifecycleContainers.remove(provider);
+        if (lifecycleContainer != null) {
+            lifecycleContainer.clearObservers();
+        }
         mOnInvalidateMenuCallback.run();
+    }
+
+    private static class LifecycleContainer {
+        final Lifecycle mLifecycle;
+        private LifecycleEventObserver mObserver;
+
+        LifecycleContainer(@NonNull Lifecycle lifecycle, @NonNull LifecycleEventObserver observer) {
+            mLifecycle = lifecycle;
+            mObserver = observer;
+            mLifecycle.addObserver(observer);
+        }
+
+        void clearObservers() {
+            mLifecycle.removeObserver(mObserver);
+            mObserver = null;
+        }
     }
 }

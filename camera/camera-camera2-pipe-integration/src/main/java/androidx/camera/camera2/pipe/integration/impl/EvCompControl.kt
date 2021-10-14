@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.integration.impl
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.EvCompValue
 import androidx.camera.camera2.pipe.integration.compat.EvCompCompat
 import androidx.camera.camera2.pipe.integration.config.CameraScope
@@ -38,6 +41,7 @@ private const val DEFAULT_EXPOSURE_COMPENSATION = 0
  * The task will fail with [CameraControl.OperationCanceledException] if the camera is
  * closed.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
 class EvCompControl @Inject constructor(
     private val compat: EvCompCompat,
@@ -54,7 +58,13 @@ class EvCompControl @Inject constructor(
         compat.step,
     )
 
-    override var useCaseCamera: UseCaseCamera? = null
+    private var _useCaseCamera: UseCaseCamera? = null
+    override var useCaseCamera: UseCaseCamera?
+        get() = _useCaseCamera
+        set(value) {
+            _useCaseCamera = value
+            updateAsync(evCompIndex)
+        }
 
     override fun reset() {
         evCompIndex = 0

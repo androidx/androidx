@@ -23,6 +23,7 @@ import android.view.View;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.core.util.Preconditions;
@@ -54,6 +55,7 @@ import java.util.concurrent.Executor;
  * a way that only the area defined by the crop rect is visible to end users. Once the crop rect
  * is applied, all the use cases will produce the same image with possibly different resolutions.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ViewPort {
 
     /**
@@ -199,6 +201,7 @@ public final class ViewPort {
     /**
      * Builder for {@link ViewPort}.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder {
 
         private static final int DEFAULT_LAYOUT_DIRECTION = android.util.LayoutDirection.LTR;

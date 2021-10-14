@@ -27,6 +27,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
@@ -54,6 +55,7 @@ import java.util.Map;
 /**
  * Basic vendor interface implementation
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class BasicVendorExtender implements VendorExtender {
     private static final String TAG = "BasicVendorExtender";
     private final @ExtensionMode.Mode int mMode;
@@ -77,7 +79,7 @@ public class BasicVendorExtender implements VendorExtender {
                     mPreviewExtenderImpl = new NightPreviewExtenderImpl();
                     mImageCaptureExtenderImpl = new NightImageCaptureExtenderImpl();
                     break;
-                case ExtensionMode.BEAUTY:
+                case ExtensionMode.FACE_RETOUCH:
                     mPreviewExtenderImpl = new BeautyPreviewExtenderImpl();
                     mImageCaptureExtenderImpl = new BeautyImageCaptureExtenderImpl();
                     break;

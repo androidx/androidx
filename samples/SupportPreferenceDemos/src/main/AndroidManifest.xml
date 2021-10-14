@@ -67,5 +67,15 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="TwoPanePreferences"
+            android:label="@string/twopane_preferences"
+            android:theme="@style/PreferenceTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="com.example.androidx.preference.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+
+import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 import androidx.build.Publish
-import androidx.build.RunApiTasks
-import androidx.build.AndroidXComposePlugin
+import androidx.glance.appwidget.layoutgenerator.gradle.LayoutGeneratorTask
 
 plugins {
     id("AndroidXPlugin")
@@ -27,44 +28,77 @@ plugins {
 }
 
 // Disable multi-platform; this will only be used on Android.
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */false)
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */ false)
 
 dependencies {
-    implementation project(path: ':annotation:annotation')
     kotlinPlugin(project(":compose:compiler:compiler"))
 
     api(project(":glance:glance"))
     api("androidx.annotation:annotation:1.1.0")
+    api("androidx.compose.runtime:runtime:1.0.1")
 
+    implementation project(path: ':annotation:annotation')
+    implementation project(path: ':core:core-remoteviews')
+    implementation project(path: ':core:core-ktx')
     implementation(libs.kotlinStdlib)
-    implementation(project(":compose:runtime:runtime"))
 
-    testImplementation(libs.testRules)
-    testImplementation(libs.testRunner)
+    testImplementation(project(":core:core-ktx"))
     testImplementation(libs.junit)
-    testImplementation(libs.testCore)
-    testImplementation(libs.truth)
-    testImplementation(libs.robolectric)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinTest)
-    testImplementation(project(":core:core-ktx"))
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRules)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinReflect)
+
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
+    androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation(project(":core:core-ktx"))
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.espressoIdlingResource)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testExtJunitKtx)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinReflect)
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 23
-    }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+
+    sourceSets {
+        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/glance/glance-appwidget"
+    }
+
+    buildTypes {
+        debug {
+            pseudoLocalesEnabled true
+        }
+    }
 }
 
 androidx {
     name = "Glance For App Widgets"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_ONLY
     mavenGroup = LibraryGroups.GLANCE
     inceptionYear = "2021"
     description = "Glance-appwidgets allows developers to build layouts for Android AppWidgets " +
             "using a Jetpack Compose-style API."
     targetsJavaConsumers = false
 }
+
+LayoutGeneratorTask.registerLayoutGenerator(
+        project,
+        android,
+        /* layoutDirectory= */ file("src/androidMain/layoutTemplates")
+)

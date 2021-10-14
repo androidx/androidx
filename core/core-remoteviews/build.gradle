@@ -39,12 +39,27 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
+
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.truth)
+}
+
+android {
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 
 androidx {
     name = "AndroidX RemoteViews Support"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenVersion = LibraryVersions.CORE
+    mavenVersion = LibraryVersions.CORE_REMOTEVIEWS
     mavenGroup = LibraryGroups.CORE
     inceptionYear = "2021"
     description = "AndroidX RemoteViews Support"

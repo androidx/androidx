@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal.compat.workaround;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.quirk.UseTorchAsFlashQuirk;
 import androidx.camera.core.impl.Quirks;
 
@@ -25,6 +26,7 @@ import androidx.camera.core.impl.Quirks;
  *
  * @see UseTorchAsFlashQuirk
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class UseTorchAsFlash {
 
     private final boolean mHasUseTorchAsFlashQuirk;

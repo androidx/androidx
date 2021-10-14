@@ -1836,7 +1836,10 @@ public final class AppSearchImpl implements Closeable {
                 }
             }
         }
-
+        if (searchSpecBuilder.getNamespaceFiltersCount() == 0) {
+            // None of the user wanted namespace exist, empty query.
+            return false;
+        }
         return true;
     }
 
@@ -1852,17 +1855,22 @@ public final class AppSearchImpl implements Closeable {
             @NonNull SearchSpec searchSpec) {
         Set<String> allowedPrefixedSchemas = new ArraySet<>();
 
-        // Add all the schema filters the client specified.
         List<String> schemaFilters = searchSpec.getFilterSchemas();
-        for (int i = 0; i < schemaFilters.size(); i++) {
-            allowedPrefixedSchemas.add(prefix + schemaFilters.get(i));
+        Map<String, SchemaTypeConfigProto> prefixedSchemaMap = mSchemaMapLocked.get(prefix);
+        if (prefixedSchemaMap == null) {
+            // The db is empty, return early;
+            return allowedPrefixedSchemas;
         }
-
-        if (allowedPrefixedSchemas.isEmpty()) {
+        if (schemaFilters.isEmpty()) {
             // If the client didn't specify any schema filters, search over all of their schemas
-            Map<String, SchemaTypeConfigProto> prefixedSchemaMap = mSchemaMapLocked.get(prefix);
-            if (prefixedSchemaMap != null) {
-                allowedPrefixedSchemas.addAll(prefixedSchemaMap.keySet());
+            allowedPrefixedSchemas.addAll(prefixedSchemaMap.keySet());
+        } else {
+            // Check all client specified schemas, add them if they exist in AppSearch.
+            for (int i = 0; i < schemaFilters.size(); i++) {
+                String prefixedSchemaType = prefix + schemaFilters.get(i);
+                if (prefixedSchemaMap.containsKey(prefixedSchemaType)) {
+                    allowedPrefixedSchemas.add(prefixedSchemaType);
+                }
             }
         }
         return allowedPrefixedSchemas;

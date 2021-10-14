@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="NewApi"
@@ -14,7 +14,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST"
+        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST, but could be Slice.HINT_SUMMARY, SliceHints.HINT_ACTIVITY, SliceHints.HINT_CACHED, SliceHints.HINT_END_OF_SECTION, SliceHints.HINT_SELECTION_OPTION, SliceHints.HINT_RAW, SliceHints.HINT_OVERLAY, SliceHints.HINT_SHOW_LABEL"
         errorLine1="        builder.addHints(slice.getHints());"
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
@@ -36,7 +36,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST"
+        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST, but could be Slice.HINT_SUMMARY, SliceHints.HINT_ACTIVITY, SliceHints.HINT_CACHED, SliceHints.HINT_END_OF_SECTION, SliceHints.HINT_SELECTION_OPTION, SliceHints.HINT_RAW, SliceHints.HINT_OVERLAY, SliceHints.HINT_SHOW_LABEL"
         errorLine1="                    builder.addIcon(item.getIcon().toIcon(), item.getSubType(), item.getHints());"
         errorLine2="                                                                                ~~~~~~~~~~~~~~~">
         <location
@@ -69,7 +69,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST"
+        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST, but could be Slice.HINT_SUMMARY, SliceHints.HINT_ACTIVITY, SliceHints.HINT_CACHED, SliceHints.HINT_END_OF_SECTION, SliceHints.HINT_SELECTION_OPTION, SliceHints.HINT_RAW, SliceHints.HINT_OVERLAY, SliceHints.HINT_SHOW_LABEL"
         errorLine1="                            item.getHints());"
         errorLine2="                            ~~~~~~~~~~~~~~~">
         <location
@@ -91,7 +91,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST"
+        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST, but could be Slice.HINT_SUMMARY, SliceHints.HINT_ACTIVITY, SliceHints.HINT_CACHED, SliceHints.HINT_END_OF_SECTION, SliceHints.HINT_SELECTION_OPTION, SliceHints.HINT_RAW, SliceHints.HINT_OVERLAY, SliceHints.HINT_SHOW_LABEL"
         errorLine1="                    builder.addText(item.getText(), item.getSubType(), item.getHints());"
         errorLine2="                                                                       ~~~~~~~~~~~~~~~">
         <location
@@ -113,7 +113,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST"
+        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST, but could be Slice.HINT_SUMMARY, SliceHints.HINT_ACTIVITY, SliceHints.HINT_CACHED, SliceHints.HINT_END_OF_SECTION, SliceHints.HINT_SELECTION_OPTION, SliceHints.HINT_RAW, SliceHints.HINT_OVERLAY, SliceHints.HINT_SHOW_LABEL"
         errorLine1="                    builder.addInt(item.getInt(), item.getSubType(), item.getHints());"
         errorLine2="                                                                     ~~~~~~~~~~~~~~~">
         <location
@@ -135,7 +135,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST"
+        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST, but could be Slice.HINT_SUMMARY, SliceHints.HINT_ACTIVITY, SliceHints.HINT_CACHED, SliceHints.HINT_END_OF_SECTION, SliceHints.HINT_SELECTION_OPTION, SliceHints.HINT_RAW, SliceHints.HINT_OVERLAY, SliceHints.HINT_SHOW_LABEL"
         errorLine1="                    builder.addLong(item.getLong(), item.getSubType(), item.getHints());"
         errorLine2="                                                                       ~~~~~~~~~~~~~~~">
         <location
@@ -157,7 +157,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST"
+        message="Must be one of: Slice.HINT_TITLE, Slice.HINT_LIST, Slice.HINT_LIST_ITEM, Slice.HINT_LARGE, Slice.HINT_ACTIONS, Slice.HINT_SELECTED, Slice.HINT_NO_TINT, Slice.HINT_SHORTCUT, Slice.HINT_HORIZONTAL, Slice.HINT_PARTIAL, Slice.HINT_SEE_MORE, Slice.HINT_KEYWORDS, Slice.HINT_ERROR, Slice.HINT_TTL, Slice.HINT_LAST_UPDATED, Slice.HINT_PERMISSION_REQUEST, but could be Slice.HINT_SUMMARY, SliceHints.HINT_ACTIVITY, SliceHints.HINT_CACHED, SliceHints.HINT_END_OF_SECTION, SliceHints.HINT_SELECTION_OPTION, SliceHints.HINT_RAW, SliceHints.HINT_OVERLAY, SliceHints.HINT_SHOW_LABEL"
         errorLine1="                    builder.addBundle((Bundle) item.mObj, item.getSubType(), item.getHints());"
         errorLine2="                                                                             ~~~~~~~~~~~~~~~">
         <location
@@ -179,7 +179,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: PermissionChecker.PERMISSION_GRANTED, PermissionChecker.PERMISSION_DENIED, PermissionChecker.PERMISSION_DENIED_APP_OP"
+        message="Must be one of: PermissionChecker.PERMISSION_GRANTED, PermissionChecker.PERMISSION_DENIED, PermissionChecker.PERMISSION_DENIED_APP_OP, but could be PackageManager.PERMISSION_GRANTED, PackageManager.PERMISSION_DENIED"
         errorLine1="        return mManager.checkSlicePermission(uri, pid, uid);"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -305,7 +305,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="169"
+            line="171"
             column="13"/>
     </issue>
 
@@ -1328,7 +1328,7 @@
         errorLine2="                               ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="113"
+            line="115"
             column="32"/>
     </issue>
 
@@ -1339,7 +1339,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="130"
+            line="132"
             column="22"/>
     </issue>
 
@@ -1350,7 +1350,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="130"
+            line="132"
             column="45"/>
     </issue>
 
@@ -1361,7 +1361,7 @@
         errorLine2="                                                           ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="130"
+            line="132"
             column="60"/>
     </issue>
 
@@ -1372,7 +1372,7 @@
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="131"
+            line="133"
             column="30"/>
     </issue>
 
@@ -1383,7 +1383,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="142"
+            line="144"
             column="22"/>
     </issue>
 
@@ -1394,7 +1394,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="142"
+            line="144"
             column="45"/>
     </issue>
 
@@ -1405,7 +1405,7 @@
         errorLine2="                                                           ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="142"
+            line="144"
             column="60"/>
     </issue>
 
@@ -1416,7 +1416,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="143"
+            line="145"
             column="30"/>
     </issue>
 
@@ -1427,7 +1427,7 @@
         errorLine2="                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="159"
+            line="161"
             column="22"/>
     </issue>
 
@@ -1438,7 +1438,7 @@
         errorLine2="                                           ~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="159"
+            line="161"
             column="44"/>
     </issue>
 
@@ -1449,7 +1449,7 @@
         errorLine2="                                                        ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="159"
+            line="161"
             column="57"/>
     </issue>
 
@@ -1460,7 +1460,7 @@
         errorLine2="                                                                       ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="159"
+            line="161"
             column="72"/>
     </issue>
 
@@ -1471,7 +1471,7 @@
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="160"
+            line="162"
             column="30"/>
     </issue>
 
@@ -1482,7 +1482,7 @@
         errorLine2="                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="168"
+            line="170"
             column="22"/>
     </issue>
 
@@ -1493,7 +1493,7 @@
         errorLine2="                                           ~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="168"
+            line="170"
             column="44"/>
     </issue>
 
@@ -1504,7 +1504,7 @@
         errorLine2="                                                        ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="168"
+            line="170"
             column="57"/>
     </issue>
 
@@ -1515,7 +1515,7 @@
         errorLine2="                                                                       ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="168"
+            line="170"
             column="72"/>
     </issue>
 
@@ -1526,7 +1526,7 @@
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="169"
+            line="171"
             column="30"/>
     </issue>
 
@@ -1537,7 +1537,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="194"
+            line="196"
             column="42"/>
     </issue>
 
@@ -1548,7 +1548,7 @@
         errorLine2="                      ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="211"
+            line="215"
             column="23"/>
     </issue>
 
@@ -1559,7 +1559,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="224"
+            line="228"
             column="12"/>
     </issue>
 
@@ -1570,7 +1570,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="231"
+            line="235"
             column="12"/>
     </issue>
 
@@ -1581,7 +1581,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="241"
+            line="245"
             column="12"/>
     </issue>
 
@@ -1592,7 +1592,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="260"
+            line="264"
             column="12"/>
     </issue>
 
@@ -1603,7 +1603,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="269"
+            line="273"
             column="12"/>
     </issue>
 
@@ -1614,7 +1614,7 @@
         errorLine2="           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="311"
+            line="315"
             column="12"/>
     </issue>
 
@@ -1625,7 +1625,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="327"
+            line="331"
             column="12"/>
     </issue>
 
@@ -1636,7 +1636,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="346"
+            line="350"
             column="45"/>
     </issue>
 
@@ -1647,7 +1647,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="354"
+            line="358"
             column="22"/>
     </issue>
 
@@ -1658,7 +1658,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="366"
+            line="370"
             column="12"/>
     </issue>
 
@@ -1669,7 +1669,7 @@
         errorLine2="                                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="379"
+            line="383"
             column="46"/>
     </issue>
 
@@ -1680,7 +1680,7 @@
         errorLine2="                                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="393"
+            line="397"
             column="49"/>
     </issue>
 
@@ -1691,7 +1691,7 @@
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="461"
+            line="465"
             column="19"/>
     </issue>
 
@@ -1702,7 +1702,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="461"
+            line="465"
             column="39"/>
     </issue>
 
@@ -1713,7 +1713,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="495"
+            line="499"
             column="12"/>
     </issue>
 
@@ -1724,7 +1724,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="495"
+            line="499"
             column="28"/>
     </issue>
 
@@ -1735,7 +1735,7 @@
         errorLine2="                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="710"
+            line="714"
             column="23"/>
     </issue>
 
@@ -1746,7 +1746,7 @@
         errorLine2="                                      ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="710"
+            line="714"
             column="39"/>
     </issue>
 
@@ -1757,7 +1757,7 @@
         errorLine2="                                                       ~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceItem.java"
-            line="710"
+            line="714"
             column="56"/>
     </issue>
 

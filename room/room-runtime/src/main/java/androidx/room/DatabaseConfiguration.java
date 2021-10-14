@@ -18,6 +18,7 @@ package androidx.room;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -103,6 +104,15 @@ public class DatabaseConfiguration {
     public final boolean multiInstanceInvalidation;
 
     /**
+     * Intent that should be bound to acquire the invalidation service or {@code null} if not used.
+     *
+     * @see {@link #multiInstanceInvalidation}
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public final Intent multiInstanceInvalidationServiceIntent;
+
+    /**
      * If true, Room should crash if a migration is missing.
      */
     public final boolean requireMigration;
@@ -142,8 +152,8 @@ public class DatabaseConfiguration {
      *
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
-     * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List<Object>, List<AutoMigrationSpec>)}
+     * RoomDatabase.JournalMode, Executor, Executor, Intent, boolean, boolean, Set, String, File,
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List, List)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -182,8 +192,8 @@ public class DatabaseConfiguration {
      *
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
-     * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List<Object>, List<AutoMigrationSpec>)}
+     * RoomDatabase.JournalMode, Executor, Executor, Intent, boolean, boolean, Set, String, File,
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List, List)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -228,8 +238,8 @@ public class DatabaseConfiguration {
      *
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
-     * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List<Object>, List<AutoMigrationSpec>)}
+     * RoomDatabase.JournalMode, Executor, Executor, Intent, boolean, boolean, Set, String, File,
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List, List)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -278,8 +288,8 @@ public class DatabaseConfiguration {
      *
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
-     * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List<Object>, List<AutoMigrationSpec>)}
+     * RoomDatabase.JournalMode, Executor, Executor, Intent, boolean, boolean, Set, String, File,
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List, List)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -332,8 +342,8 @@ public class DatabaseConfiguration {
      *
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
-     * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List<Object>, List<AutoMigrationSpec>)}
+     * RoomDatabase.JournalMode, Executor, Executor, Intent, boolean, boolean, Set, String, File,
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List, List)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -389,8 +399,8 @@ public class DatabaseConfiguration {
      *
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
-     * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List<Object>, List<AutoMigrationSpec>)}
+     * RoomDatabase.JournalMode, Executor, Executor, Intent, boolean, boolean, Set, String, File,
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List, List)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -446,6 +456,11 @@ public class DatabaseConfiguration {
     /**
      * Creates a database configuration with the given values.
      *
+     * @deprecated Use {@link #DatabaseConfiguration(Context, String,
+     * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
+     * RoomDatabase.JournalMode, Executor, Executor, Intent, boolean, boolean, Set, String, File,
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List, List)}
+     *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
      * @param sqliteOpenHelperFactory The open helper factory to use.
@@ -471,6 +486,7 @@ public class DatabaseConfiguration {
      *
      * @hide
      */
+    @Deprecated
     @SuppressLint("LambdaLast")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public DatabaseConfiguration(@NonNull Context context, @Nullable String name,
@@ -491,6 +507,65 @@ public class DatabaseConfiguration {
             @Nullable RoomDatabase.PrepackagedDatabaseCallback prepackagedDatabaseCallback,
             @Nullable List<Object> typeConverters,
             @Nullable List<AutoMigrationSpec> autoMigrationSpecs) {
+        this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks,
+                allowMainThreadQueries, journalMode, queryExecutor, transactionExecutor,
+                multiInstanceInvalidation ? new Intent(context,
+                MultiInstanceInvalidationService.class) : null,
+                requireMigration, allowDestructiveMigrationOnDowngrade, migrationNotRequiredFrom,
+                copyFromAssetPath, copyFromFile, copyFromInputStream, prepackagedDatabaseCallback,
+                typeConverters, autoMigrationSpecs);
+    }
+
+    /**
+     * Creates a database configuration with the given values.
+     *
+     * @param context The application context.
+     * @param name Name of the database, can be null if it is in memory.
+     * @param sqliteOpenHelperFactory The open helper factory to use.
+     * @param migrationContainer The migration container for migrations.
+     * @param callbacks The list of callbacks for database events.
+     * @param allowMainThreadQueries Whether to allow main thread reads/writes or not.
+     * @param journalMode The journal mode. This has to be either TRUNCATE or WRITE_AHEAD_LOGGING.
+     * @param queryExecutor The Executor used to execute asynchronous queries.
+     * @param transactionExecutor The Executor used to execute asynchronous transactions.
+     * @param multiInstanceInvalidationServiceIntent The intent to use to bind to the
+     *                                               invalidation service or {@code null} if not
+     *                                               used.
+     * @param requireMigration True if Room should require a valid migration if version changes,
+     * @param allowDestructiveMigrationOnDowngrade True if Room should recreate tables if no
+     *                                             migration is supplied during a downgrade.
+     * @param migrationNotRequiredFrom The collection of schema versions from which migrations
+     *                                 aren't required.
+     * @param copyFromAssetPath The assets path to the pre-packaged database.
+     * @param copyFromFile The pre-packaged database file.
+     * @param copyFromInputStream The callable to get the input stream from which a
+     *                            pre-package database file will be copied from.
+     * @param prepackagedDatabaseCallback The pre-packaged callback.
+     * @param typeConverters The type converters.
+     * @param autoMigrationSpecs The auto migration specs.
+     *
+     * @hide
+     */
+    @SuppressLint("LambdaLast")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public DatabaseConfiguration(@NonNull Context context, @Nullable String name,
+            @NonNull SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory,
+            @NonNull RoomDatabase.MigrationContainer migrationContainer,
+            @Nullable List<RoomDatabase.Callback> callbacks,
+            boolean allowMainThreadQueries,
+            @NonNull RoomDatabase.JournalMode journalMode,
+            @NonNull Executor queryExecutor,
+            @NonNull Executor transactionExecutor,
+            @Nullable Intent multiInstanceInvalidationServiceIntent,
+            boolean requireMigration,
+            boolean allowDestructiveMigrationOnDowngrade,
+            @Nullable Set<Integer> migrationNotRequiredFrom,
+            @Nullable String copyFromAssetPath,
+            @Nullable File copyFromFile,
+            @Nullable Callable<InputStream> copyFromInputStream,
+            @Nullable RoomDatabase.PrepackagedDatabaseCallback prepackagedDatabaseCallback,
+            @Nullable List<Object> typeConverters,
+            @Nullable List<AutoMigrationSpec> autoMigrationSpecs) {
         this.sqliteOpenHelperFactory = sqliteOpenHelperFactory;
         this.context = context;
         this.name = name;
@@ -500,7 +575,9 @@ public class DatabaseConfiguration {
         this.journalMode = journalMode;
         this.queryExecutor = queryExecutor;
         this.transactionExecutor = transactionExecutor;
-        this.multiInstanceInvalidation = multiInstanceInvalidation;
+        this.multiInstanceInvalidationServiceIntent =
+                multiInstanceInvalidationServiceIntent;
+        this.multiInstanceInvalidation = multiInstanceInvalidationServiceIntent != null;
         this.requireMigration = requireMigration;
         this.allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade;
         this.mMigrationNotRequiredFrom = migrationNotRequiredFrom;

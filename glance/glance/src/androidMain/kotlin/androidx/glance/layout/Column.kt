@@ -16,18 +16,35 @@
 
 package androidx.glance.layout
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
-import androidx.glance.GlanceInternalApi
 import androidx.glance.Modifier
 
-@GlanceInternalApi
+/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class EmittableColumn : EmittableWithChildren() {
     override var modifier: Modifier = Modifier
     public var verticalAlignment: Alignment.Vertical = Alignment.Top
     public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
+}
+
+/** Scope defining modifiers only available on rows. */
+public interface ColumnScope {
+    /**
+     * Size the element's height to split the available space with other weighted sibling elements
+     * in the [Column]. The parent will divide the vertical space remaining after measuring
+     * unweighted child elements and distribute it according to the weights, the default weight
+     * being 1.
+     */
+    fun Modifier.defaultWeight(): Modifier
+}
+
+private object ColumnScopeImplInstance : ColumnScope {
+    override fun Modifier.defaultWeight(): Modifier =
+        this.then(HeightModifier(Dimension.Expand))
 }
 
 /**
@@ -45,13 +62,12 @@ public class EmittableColumn : EmittableWithChildren() {
  *  than the width of the [Column]
  * @param content The content inside the [Column]
  */
-@OptIn(GlanceInternalApi::class)
 @Composable
 public fun Column(
     modifier: Modifier = Modifier,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    content: @Composable () -> Unit
+    content: @Composable ColumnScope.() -> Unit
 ) {
     ComposeNode<EmittableColumn, Applier>(
         factory = ::EmittableColumn,
@@ -60,6 +76,6 @@ public fun Column(
             this.set(horizontalAlignment) { this.horizontalAlignment = it }
             this.set(verticalAlignment) { this.verticalAlignment = it }
         },
-        content = content
+        content = { ColumnScopeImplInstance.content() }
     )
 }

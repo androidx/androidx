@@ -29,6 +29,7 @@ import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.camera.testing.fakes.FakeMultiValueSet;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.collect.Lists;
 
@@ -41,6 +42,7 @@ import java.util.List;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class SessionConfigTest {
     private static final Option<Integer> OPTION = Option.create(
             "camerax.test.option_0", Integer.class);

@@ -19,6 +19,7 @@ package androidx.camera.camera2.internal;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
+import static androidx.camera.core.ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH;
 
 import android.graphics.Rect;
 import android.hardware.camera2.CameraCaptureSession;
@@ -34,6 +35,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
@@ -106,6 +108,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * </ul>
  */
 @OptIn(markerClass = ExperimentalCamera2Interop.class)
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class Camera2CameraControlImpl implements CameraControlInternal {
     private static final String TAG = "Camera2CameraControlImp";
     private static final int DEFAULT_TEMPLATE = CameraDevice.TEMPLATE_PREVIEW;
@@ -443,12 +446,13 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
      * exposure scan. In some cases, torch flash will be used instead of issuing
      * {@code CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START}.
      *
+     * @param flashType Uses one shot flash or use torch as flash when taking a picture.
      * @return a {@link ListenableFuture} which completes when the request is completed.
      * Cancelling the ListenableFuture is a no-op.
      */
     @Override
     @NonNull
-    public ListenableFuture<Void> startFlashSequence() {
+    public ListenableFuture<Void> startFlashSequence(@ImageCapture.FlashType int flashType) {
         if (!isControlInUse()) {
             return Futures.immediateFailedFuture(
                     new OperationCanceledException("Camera is not active."));
@@ -462,6 +466,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
                     return CallbackToFutureAdapter.getFuture(
                             completer -> {
                                 if (mUseTorchAsFlash.shouldUseTorchAsFlash()
+                                        || flashType == FLASH_TYPE_USE_TORCH_AS_FLASH
                                         || mTemplate == CameraDevice.TEMPLATE_RECORD) {
                                     Logger.d(TAG, "startFlashSequence: Use torch");
                                     if (mIsTorchOn) {
@@ -491,7 +496,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
      *
      * <p>When torch is used instead of issuing
      * {@code CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START} in
-     * {@link #startFlashSequence()}, this method will close torch instead of issuing
+     * {@link #startFlashSequence(int)}, this method will close torch instead of issuing
      * {@code CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL}.
      */
     @Override
@@ -940,6 +945,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
      * A set of {@link CameraCaptureCallback}s which is capable of adding/removing callbacks
      * dynamically.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     static final class CameraCaptureCallbackSet extends CameraCaptureCallback {
         Set<CameraCaptureCallback> mCallbacks = new HashSet<>();
         Map<CameraCaptureCallback, Executor> mCallbackExecutors = new ArrayMap<>();

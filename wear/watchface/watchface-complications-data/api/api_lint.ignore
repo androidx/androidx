@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+MissingGetterMatchingBuilder: androidx.wear.watchface.complications.data.TimeDifferenceComplicationText.Builder#setDisplayAsNow(boolean):
+    androidx.wear.watchface.complications.data.TimeDifferenceComplicationText does not declare a `isDisplayAsNow()` method matching method androidx.wear.watchface.complications.data.TimeDifferenceComplicationText.Builder.setDisplayAsNow(boolean)
+MissingGetterMatchingBuilder: androidx.wear.watchface.complications.data.TimeDifferenceComplicationText.Builder#setText(CharSequence):
+    androidx.wear.watchface.complications.data.TimeDifferenceComplicationText does not declare a `getText()` method matching method androidx.wear.watchface.complications.data.TimeDifferenceComplicationText.Builder.setText(CharSequence)
+MissingGetterMatchingBuilder: androidx.wear.watchface.complications.data.TimeFormatComplicationText.Builder#setStyle(androidx.wear.watchface.complications.data.TimeFormatStyle):
+    androidx.wear.watchface.complications.data.TimeFormatComplicationText does not declare a `getStyle()` method matching method androidx.wear.watchface.complications.data.TimeFormatComplicationText.Builder.setStyle(androidx.wear.watchface.complications.data.TimeFormatStyle)
+MissingGetterMatchingBuilder: androidx.wear.watchface.complications.data.TimeFormatComplicationText.Builder#setText(CharSequence):
+    androidx.wear.watchface.complications.data.TimeFormatComplicationText does not declare a `getText()` method matching method androidx.wear.watchface.complications.data.TimeFormatComplicationText.Builder.setText(CharSequence)
+MissingGetterMatchingBuilder: androidx.wear.watchface.complications.data.TimeFormatComplicationText.Builder#setTimeZone(android.icu.util.TimeZone):
+    androidx.wear.watchface.complications.data.TimeFormatComplicationText does not declare a `getTimeZone()` method matching method androidx.wear.watchface.complications.data.TimeFormatComplicationText.Builder.setTimeZone(android.icu.util.TimeZone)

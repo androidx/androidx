@@ -25,7 +25,7 @@
     <!-- ConfirmationOverlay sizes which have corresponding entries in:
         values, values-round, values-sw210dp-round. -->
     <dimen name="confirmation_overlay_image_size">80dp</dimen>
-    <item name="confirmation_overlay_margin_side" type="fraction">4.167%</item>
+    <item name="confirmation_overlay_text_inset_margin" type="fraction">4.167%</item>
     <item name="confirmation_overlay_margin_above_text" type="fraction">4.396%</item>
 
 </resources>

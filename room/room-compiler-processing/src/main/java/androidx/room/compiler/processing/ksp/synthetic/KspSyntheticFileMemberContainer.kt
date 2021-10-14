@@ -72,6 +72,10 @@ internal class KspSyntheticFileMemberContainer(
     override val docComment: String?
         get() = null
 
+    override fun validate(): Boolean {
+        return true
+    }
+
     override fun <T : Annotation> getAnnotations(annotation: KClass<T>): List<XAnnotationBox<T>> {
         return emptyList()
     }

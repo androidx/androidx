@@ -16,12 +16,12 @@
 
 package androidx.activity
 
-import android.app.Application
+import androidx.multidex.MultiDexApplication
 import leakcanary.LeakCanary
 import shark.AndroidReferenceMatchers
 import shark.ReferenceMatcher
 
-class LeakCanaryApp : Application() {
+class LeakCanaryApp : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         @Suppress("UNCHECKED_CAST")

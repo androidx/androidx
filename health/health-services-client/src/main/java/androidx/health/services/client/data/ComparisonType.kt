@@ -16,6 +16,13 @@
 
 package androidx.health.services.client.data
 
+import androidx.health.services.client.proto.DataProto
+import androidx.health.services.client.proto.DataProto.ComparisonType.COMPARISON_TYPE_GREATER_THAN
+import androidx.health.services.client.proto.DataProto.ComparisonType.COMPARISON_TYPE_GREATER_THAN_OR_EQUAL
+import androidx.health.services.client.proto.DataProto.ComparisonType.COMPARISON_TYPE_LESS_THAN
+import androidx.health.services.client.proto.DataProto.ComparisonType.COMPARISON_TYPE_LESS_THAN_OR_EQUAL
+import androidx.health.services.client.proto.DataProto.ComparisonType.COMPARISON_TYPE_UNKNOWN
+
 /** For determining when a threshold has been met or exceeded in a [MetricCondition]. */
 public enum class ComparisonType(public val id: Int) {
     // TODO(b/175064823): investigate adding EQUAL comparison type
@@ -24,8 +31,28 @@ public enum class ComparisonType(public val id: Int) {
     LESS_THAN(3),
     LESS_THAN_OR_EQUAL(4);
 
+    /** @hide */
+    internal fun toProto(): DataProto.ComparisonType =
+        when (this) {
+            GREATER_THAN -> COMPARISON_TYPE_GREATER_THAN
+            GREATER_THAN_OR_EQUAL -> COMPARISON_TYPE_GREATER_THAN_OR_EQUAL
+            LESS_THAN -> COMPARISON_TYPE_LESS_THAN
+            LESS_THAN_OR_EQUAL -> COMPARISON_TYPE_LESS_THAN_OR_EQUAL
+        }
+
     public companion object {
         @JvmStatic
         public fun fromId(id: Int): ComparisonType? = values().firstOrNull { it.id == id }
+
+        /** @hide */
+        @JvmStatic
+        internal fun fromProto(proto: DataProto.ComparisonType): ComparisonType? =
+            when (proto) {
+                COMPARISON_TYPE_GREATER_THAN -> GREATER_THAN
+                COMPARISON_TYPE_GREATER_THAN_OR_EQUAL -> GREATER_THAN_OR_EQUAL
+                COMPARISON_TYPE_LESS_THAN -> LESS_THAN
+                COMPARISON_TYPE_LESS_THAN_OR_EQUAL -> LESS_THAN_OR_EQUAL
+                COMPARISON_TYPE_UNKNOWN -> null
+            }
     }
 }

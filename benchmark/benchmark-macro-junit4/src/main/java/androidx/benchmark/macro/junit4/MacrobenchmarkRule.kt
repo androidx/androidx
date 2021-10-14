@@ -33,7 +33,7 @@ import org.junit.runners.model.Statement
 /**
  * JUnit rule for benchmarking large app operations like startup.
  */
-@RequiresApi(29)
+@RequiresApi(23)
 public class MacrobenchmarkRule : TestRule {
     private lateinit var currentDescription: Description
 

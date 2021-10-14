@@ -18,11 +18,11 @@ limitations under the License.
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="lb_navigation_menu_contentDescription" msgid="8084428500709675515">"నావిగేషన్ మెనూ"</string>
-    <string name="orb_search_action" msgid="1301877238242752863">"శోధన చర్య"</string>
-    <string name="lb_search_bar_hint" msgid="5700349211583074131">"సెర్చ్"</string>
-    <string name="lb_search_bar_hint_speech" msgid="5926531297066387462">"శోధించడానికి మాటల ద్వారా చెప్పండి"</string>
+    <string name="orb_search_action" msgid="1301877238242752863">"సెర్చ్ చర్య"</string>
+    <string name="lb_search_bar_hint" msgid="5700349211583074131">"సెర్చ్ చేయండి"</string>
+    <string name="lb_search_bar_hint_speech" msgid="5926531297066387462">"మాటలతో సెర్చ్ చేయండి"</string>
     <string name="lb_search_bar_hint_with_title" msgid="4826526877249029043">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> కోసం వెతకండి"</string>
-    <string name="lb_search_bar_hint_with_title_speech" msgid="6032250334706920550">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>లో శోధించడానికి మాటల ద్వారా చెప్పండి"</string>
+    <string name="lb_search_bar_hint_with_title_speech" msgid="6032250334706920550">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g>‌లో సెర్చ్ చేయడానికి మాటల్లో చెప్పండి"</string>
     <string name="lb_control_display_fast_forward_multiplier" msgid="4657191930956702614">"%1$dX"</string>
     <string name="lb_control_display_rewind_multiplier" msgid="4597148235912710942">"%1$dX"</string>
     <string name="lb_playback_controls_play" msgid="7088090604803481121">"ప్లే చేయి"</string>

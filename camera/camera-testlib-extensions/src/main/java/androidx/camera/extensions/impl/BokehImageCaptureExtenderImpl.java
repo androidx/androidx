@@ -30,6 +30,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ import java.util.Map;
  *
  * @since 1.0
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtenderImpl {
     private static final String TAG = "BokehICExtender";
     private static final int DEFAULT_STAGE_ID = 0;
@@ -84,60 +86,11 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
 
     @Override
     public CaptureProcessorImpl getCaptureProcessor() {
-        CaptureProcessorImpl captureProcessor =
-                new CaptureProcessorImpl() {
-                    private ImageWriter mImageWriter;
-
-                    @Override
-                    public void onOutputSurface(Surface surface, int imageFormat) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            mImageWriter = ImageWriter.newInstance(surface, 1);
-                        }
-                    }
-
-                    @Override
-                    public void process(Map<Integer, Pair<Image, TotalCaptureResult>> results) {
-                        Log.d(TAG, "Started bokeh CaptureProcessor");
-
-                        Pair<Image, TotalCaptureResult> result = results.get(DEFAULT_STAGE_ID);
-
-                        if (result == null) {
-                            Log.w(TAG,
-                                    "Unable to process since images does not contain all stages.");
-                            return;
-                        } else {
-                            if (android.os.Build.VERSION.SDK_INT
-                                    >= android.os.Build.VERSION_CODES.M) {
-                                Image image = mImageWriter.dequeueInputImage();
-
-                                // Do processing here
-                                ByteBuffer yByteBuffer = image.getPlanes()[0].getBuffer();
-                                ByteBuffer uByteBuffer = image.getPlanes()[2].getBuffer();
-                                ByteBuffer vByteBuffer = image.getPlanes()[1].getBuffer();
-
-                                // Sample here just simply copy/paste the capture image result
-                                yByteBuffer.put(result.first.getPlanes()[0].getBuffer());
-                                uByteBuffer.put(result.first.getPlanes()[2].getBuffer());
-                                vByteBuffer.put(result.first.getPlanes()[1].getBuffer());
-
-                                mImageWriter.queueInputImage(image);
-                            }
-                        }
-
-                        Log.d(TAG, "Completed bokeh CaptureProcessor");
-                    }
-
-                    @Override
-                    public void onResolutionUpdate(Size size) {
-
-                    }
-
-                    @Override
-                    public void onImageFormatUpdate(int imageFormat) {
-
-                    }
-                };
-        return captureProcessor;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return new BokehImageCaptureExtenderCaptureProcessorImpl();
+        } else {
+            return new NoOpCaptureProcessorImpl();
+        }
     }
 
     @Override
@@ -201,5 +154,55 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
     @Override
     public Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size captureOutputSize) {
         return new Range<>(300L, 1000L);
+    }
+
+    @RequiresApi(23)
+    static final class BokehImageCaptureExtenderCaptureProcessorImpl implements
+            CaptureProcessorImpl {
+        private ImageWriter mImageWriter;
+
+        @Override
+        public void onOutputSurface(Surface surface, int imageFormat) {
+            mImageWriter = ImageWriter.newInstance(surface, 1);
+        }
+
+        @Override
+        public void process(Map<Integer, Pair<Image, TotalCaptureResult>> results) {
+            Log.d(TAG, "Started bokeh CaptureProcessor");
+
+            Pair<Image, TotalCaptureResult> result = results.get(DEFAULT_STAGE_ID);
+
+            if (result == null) {
+                Log.w(TAG,
+                        "Unable to process since images does not contain all stages.");
+                return;
+            } else {
+                Image image = mImageWriter.dequeueInputImage();
+
+                // Do processing here
+                ByteBuffer yByteBuffer = image.getPlanes()[0].getBuffer();
+                ByteBuffer uByteBuffer = image.getPlanes()[2].getBuffer();
+                ByteBuffer vByteBuffer = image.getPlanes()[1].getBuffer();
+
+                // Sample here just simply copy/paste the capture image result
+                yByteBuffer.put(result.first.getPlanes()[0].getBuffer());
+                uByteBuffer.put(result.first.getPlanes()[2].getBuffer());
+                vByteBuffer.put(result.first.getPlanes()[1].getBuffer());
+
+                mImageWriter.queueInputImage(image);
+            }
+
+            Log.d(TAG, "Completed bokeh CaptureProcessor");
+        }
+
+        @Override
+        public void onResolutionUpdate(Size size) {
+
+        }
+
+        @Override
+        public void onImageFormatUpdate(int imageFormat) {
+
+        }
     }
 }

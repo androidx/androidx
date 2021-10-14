@@ -68,6 +68,18 @@ android {
                 }
             }
         }
+        withNullAwareTypeConverter {
+            dimension "processorConfiguration"
+            javaCompileOptions {
+                annotationProcessorOptions {
+                    arguments = [
+                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
+                            "room.expandProjection"  : "false",
+                            "room.useNullAwareTypeAnalysis": "true"
+                    ]
+                }
+            }
+        }
     }
 }
 
@@ -121,4 +133,10 @@ dependencies {
 
 
     testImplementation(libs.junit)
+}
+
+// Enable parameter names to support Room incremental when its a project() dep.
+// See b/198431380
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-parameters"
 }

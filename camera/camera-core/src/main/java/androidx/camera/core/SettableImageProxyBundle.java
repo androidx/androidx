@@ -20,6 +20,7 @@ import android.util.SparseArray;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.ImageProxyBundle;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
@@ -33,6 +34,7 @@ import java.util.List;
  * A {@link ImageProxyBundle} with a predefined set of captured ids. The {@link ListenableFuture}
  * for the capture id becomes valid when the corresponding {@link ImageProxy} has been set.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class SettableImageProxyBundle implements ImageProxyBundle {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Object mLock = new Object();

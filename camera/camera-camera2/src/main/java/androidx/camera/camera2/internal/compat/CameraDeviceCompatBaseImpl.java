@@ -103,13 +103,17 @@ class CameraDeviceCompatBaseImpl implements CameraDeviceCompat.CameraDeviceCompa
     @SuppressWarnings("deprecation") /* createCaptureSession */
     void createBaseCaptureSession(@NonNull CameraDevice device, @NonNull List<Surface> surfaces,
             @NonNull CameraCaptureSession.StateCallback cb, @NonNull Handler handler)
-            throws CameraAccessException {
-        device.createCaptureSession(surfaces, cb, handler);
+            throws CameraAccessExceptionCompat {
+        try {
+            device.createCaptureSession(surfaces, cb, handler);
+        } catch (CameraAccessException e) {
+            throw CameraAccessExceptionCompat.toCameraAccessExceptionCompat(e);
+        }
     }
 
     @Override
     public void createCaptureSession(@NonNull SessionConfigurationCompat config)
-            throws CameraAccessException {
+            throws CameraAccessExceptionCompat {
         checkPreconditions(mCameraDevice, config);
 
         if (config.getInputConfiguration() != null) {

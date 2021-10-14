@@ -90,33 +90,44 @@ class RLog(
             annotation: XAnnotation?,
             annotationValue: XAnnotationValue?
         ) {
-            messages.getOrPut(
-                kind,
-                {
-                    arrayListOf()
-                }
-            ).add(DiagnosticMessage(msg, element, annotation, annotationValue))
+            messages.getOrPut(kind) { arrayListOf() }
+                .add(DiagnosticMessage(msg, element, annotation, annotationValue))
         }
 
         fun hasErrors() = messages.containsKey(ERROR)
 
-        fun writeTo(context: Context) {
-            messages.forEach { pair ->
-                pair.value.forEach { diagnosticMessage ->
-                    printToMessager(
-                        context.logger.messager,
-                        pair.key,
-                        diagnosticMessage.msg,
-                        diagnosticMessage.element,
-                        diagnosticMessage.annotation,
-                        diagnosticMessage.annotationValue
-                    )
-                }
+        fun hasMissingTypeErrors() = messages.getOrElse(ERROR) { emptyList() }
+            .any { it.msg.startsWith(MISSING_TYPE_PREFIX) }
+
+        fun writeTo(
+            context: Context,
+            filterPredicate: (Diagnostic.Kind, String) -> Boolean = { _, _ -> true }
+        ) {
+            messages.forEach { (kind, diagnosticMessages) ->
+                diagnosticMessages
+                    .filter { filterPredicate(kind, it.msg) }
+                    .forEach { diagnosticMessage ->
+                        printToMessager(
+                            context.logger.messager,
+                            kind,
+                            diagnosticMessage.msg,
+                            diagnosticMessage.element,
+                            diagnosticMessage.annotation,
+                            diagnosticMessage.annotationValue
+                        )
+                    }
             }
         }
     }
 
     companion object {
+
+        const val MISSING_TYPE_PREFIX = "[MissingType]"
+
+        val MissingTypeErrorFilter: (Diagnostic.Kind, String) -> Boolean = { kind, msg ->
+            kind == ERROR && msg.startsWith(MISSING_TYPE_PREFIX)
+        }
+
         private fun printToMessager(
             messager: XMessager,
             kind: Diagnostic.Kind,

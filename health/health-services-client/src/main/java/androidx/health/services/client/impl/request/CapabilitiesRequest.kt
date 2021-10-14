@@ -16,34 +16,27 @@
 
 package androidx.health.services.client.impl.request
 
-import android.os.Parcel
 import android.os.Parcelable
+import androidx.health.services.client.data.ProtoParcelable
+import androidx.health.services.client.proto.RequestsProto
 
 /**
  * Request for capabilities.
  *
  * @hide
  */
-public data class CapabilitiesRequest(val packageName: String) : Parcelable {
+public class CapabilitiesRequest(public val packageName: String) :
+    ProtoParcelable<RequestsProto.CapabilitiesRequest>() {
 
-    override fun describeContents(): Int = 0
-
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeString(packageName)
+    override val proto: RequestsProto.CapabilitiesRequest by lazy {
+        RequestsProto.CapabilitiesRequest.newBuilder().setPackageName(packageName).build()
     }
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<CapabilitiesRequest> =
-            object : Parcelable.Creator<CapabilitiesRequest> {
-                override fun createFromParcel(source: Parcel): CapabilitiesRequest? {
-                    val packageName = source.readString() ?: return null
-                    return CapabilitiesRequest(packageName)
-                }
-
-                override fun newArray(size: Int): Array<CapabilitiesRequest?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<CapabilitiesRequest> = newCreator {
+            val request = RequestsProto.CapabilitiesRequest.parseFrom(it)
+            CapabilitiesRequest(request.packageName)
+        }
     }
 }

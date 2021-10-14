@@ -285,22 +285,6 @@ class FragmentContainerViewTest {
     }
 
     @Test
-    fun addViewInLayoutNotAssociatedWithFragment() {
-        val view = View(context)
-
-        try {
-            FragmentContainerView(context).addViewInLayout(view, 0, null, false)
-            fail("View without a Fragment added to FragmentContainerView should throw an exception")
-        } catch (e: IllegalStateException) {
-            assertThat(e)
-                .hasMessageThat().contains(
-                    "Views added to a FragmentContainerView must be associated with a Fragment. " +
-                        "View " + view + " is not associated with a Fragment."
-                )
-        }
-    }
-
-    @Test
     fun removeViewAt() {
         val childView2 = FragmentContainerView(context)
 
@@ -376,20 +360,6 @@ class FragmentContainerViewTest {
         assertThat(removingView1.getAnimationCount).isEqualTo(1)
         assertThat(removingView2.getAnimationCount).isEqualTo(1)
         assertThat(view.childCount).isEqualTo(0)
-    }
-
-    // removeDetachedView should not actually remove the view
-    @Test
-    fun removeDetachedView() {
-        val childView1 = FragmentContainerView(context)
-        val childView2 = FragmentContainerView(context)
-
-        val view = setupRemoveTestsView(childView1, childView2)
-
-        view.removeDetachedView(childView1, false)
-
-        assertThat(view.childCount).isEqualTo(2)
-        assertThat(view.getChildAt(1)).isEqualTo(childView2)
     }
 
     private fun setupRemoveTestsView(
@@ -717,7 +687,7 @@ class FragmentContainerViewTest {
             R.id.fragment_container_view
         )
 
-        assertThat(fragmentContainerView.getFragment<StrictViewFragment>()).isNull()
+        assertThat(fragmentContainerView.getFragment<StrictViewFragment?>()).isNull()
     }
 
     @Test

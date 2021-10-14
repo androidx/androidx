@@ -36,6 +36,7 @@ import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.T
 import androidx.room.ext.implementsEqualsAndHashcode
+import androidx.room.ext.typeName
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.Context
 import androidx.room.processor.CustomConverterProcessor
@@ -58,10 +59,14 @@ import androidx.room.solver.types.CompositeAdapter
 import androidx.room.solver.types.CustomTypeConverterWrapper
 import androidx.room.solver.types.EnumColumnTypeAdapter
 import androidx.room.solver.types.PrimitiveColumnTypeAdapter
+import androidx.room.solver.types.SingleStatementTypeConverter
 import androidx.room.solver.types.TypeConverter
+import androidx.room.solver.types.UuidColumnTypeAdapter
 import androidx.room.testing.context
+import androidx.room.vo.BuiltInConverterFlags
 import androidx.room.vo.ReadQueryMethod
 import com.google.common.truth.Truth.assertThat
+import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
@@ -72,6 +77,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import testCodeGenScope
+import java.util.UUID
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
@@ -138,12 +144,15 @@ class TypeAdapterStoreTest {
     @Test
     fun testDirect() {
         runProcessorTest { invocation ->
-            val store = TypeAdapterStore.create(Context(invocation.processingEnv))
+            val store = TypeAdapterStore.create(
+                Context(invocation.processingEnv),
+                BuiltInConverterFlags.DEFAULT
+            )
             val primitiveType = invocation.processingEnv.requireType(TypeName.INT)
             val adapter = store.findColumnTypeAdapter(
                 primitiveType,
                 null,
-                skipEnumConverter = false
+                skipDefaultConverter = false
             )
             assertThat(adapter, notNullValue())
         }
@@ -153,7 +162,8 @@ class TypeAdapterStoreTest {
     fun testJavaLangBoolean() {
         runProcessorTest { invocation ->
             val store = TypeAdapterStore.create(
-                Context(invocation.processingEnv)
+                Context(invocation.processingEnv),
+                BuiltInConverterFlags.DEFAULT
             )
             val boolean = invocation
                 .processingEnv
@@ -162,7 +172,7 @@ class TypeAdapterStoreTest {
             val adapter = store.findColumnTypeAdapter(
                 boolean,
                 null,
-                skipEnumConverter = false
+                skipDefaultConverter = false
             )
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
@@ -193,25 +203,52 @@ class TypeAdapterStoreTest {
         runProcessorTest(
             sources = listOf(enumSrc)
         ) { invocation ->
-            val store = TypeAdapterStore.create(Context(invocation.processingEnv))
+            val store = TypeAdapterStore.create(
+                Context(invocation.processingEnv),
+                BuiltInConverterFlags.DEFAULT
+            )
             val enum = invocation
                 .processingEnv
                 .requireType("foo.bar.Fruit")
-            val adapter = store.findColumnTypeAdapter(enum, null, skipEnumConverter = false)
+            val adapter = store.findColumnTypeAdapter(enum, null, skipDefaultConverter = false)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(EnumColumnTypeAdapter::class.java))
         }
     }
 
     @Test
+    fun testJavaUtilUUIDCompilesWithoutError() {
+        runProcessorTest { invocation ->
+            val store = TypeAdapterStore.create(
+                Context(invocation.processingEnv),
+                BuiltInConverterFlags.DEFAULT
+            )
+            val uuid = invocation
+                .processingEnv
+                .requireType(UUID::class.typeName)
+            val adapter = store.findColumnTypeAdapter(
+                out = uuid,
+                affinity = null,
+                skipDefaultConverter = false
+            )
+
+            assertThat(adapter).isNotNull()
+            assertThat(adapter).isInstanceOf(UuidColumnTypeAdapter::class.java)
+        }
+    }
+
+    @Test
     fun testVia1TypeAdapter() {
         runProcessorTest { invocation ->
-            val store = TypeAdapterStore.create(Context(invocation.processingEnv))
+            val store = TypeAdapterStore.create(
+                Context(invocation.processingEnv),
+                BuiltInConverterFlags.DEFAULT
+            )
             val booleanType = invocation.processingEnv.requireType(TypeName.BOOLEAN)
             val adapter = store.findColumnTypeAdapter(
                 booleanType,
                 null,
-                skipEnumConverter = false
+                skipDefaultConverter = false
             )
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
@@ -221,8 +258,7 @@ class TypeAdapterStoreTest {
                 bindScope.generate().toString().trim(),
                 `is`(
                     """
-                    final int ${tmp(0)};
-                    ${tmp(0)} = fooVar ? 1 : 0;
+                    final int ${tmp(0)} = fooVar ? 1 : 0;
                     stmt.bindLong(41, ${tmp(0)});
                     """.trimIndent()
                 )
@@ -257,9 +293,11 @@ class TypeAdapterStoreTest {
                     this.x = x;
                     this.y = y;
                 }
+                @TypeConverter
                 public static Point fromBoolean(boolean val) {
                     return val ? new Point(1, 1) : new Point(0, 0);
                 }
+                @TypeConverter
                 public static boolean toBoolean(Point point) {
                     return point.x > 0;
                 }
@@ -269,15 +307,22 @@ class TypeAdapterStoreTest {
         runProcessorTest(
             sources = listOf(point)
         ) { invocation ->
+
+            val context = Context(invocation.processingEnv)
+            val converters = CustomConverterProcessor(
+                context = context,
+                element = invocation.processingEnv.requireTypeElement("foo.bar.Point")
+            ).process().map(::CustomTypeConverterWrapper)
             val store = TypeAdapterStore.create(
-                Context(invocation.processingEnv),
-                pointTypeConverters(invocation.processingEnv)
+                context,
+                BuiltInConverterFlags.DEFAULT,
+                converters
             )
             val pointType = invocation.processingEnv.requireType("foo.bar.Point")
             val adapter = store.findColumnTypeAdapter(
                 pointType,
                 null,
-                skipEnumConverter = false
+                skipDefaultConverter = false
             )
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
@@ -288,11 +333,9 @@ class TypeAdapterStoreTest {
                 bindScope.generate().toString().trim(),
                 `is`(
                     """
-                    final int ${tmp(0)};
-                    final boolean ${tmp(1)};
-                    ${tmp(1)} = foo.bar.Point.toBoolean(fooVar);
-                    ${tmp(0)} = ${tmp(1)} ? 1 : 0;
-                    stmt.bindLong(41, ${tmp(0)});
+                    final boolean ${tmp(0)} = foo.bar.Point.toBoolean(fooVar);
+                    final int ${tmp(1)} = ${tmp(0)} ? 1 : 0;
+                    stmt.bindLong(41, ${tmp(1)});
                     """.trimIndent()
                 )
             )
@@ -305,8 +348,7 @@ class TypeAdapterStoreTest {
                     """
                     final int ${tmp(0)};
                     ${tmp(0)} = curs.getInt(11);
-                    final boolean ${tmp(1)};
-                    ${tmp(1)} = ${tmp(0)} != 0;
+                    final boolean ${tmp(1)} = ${tmp(0)} != 0;
                     res = foo.bar.Point.fromBoolean(${tmp(1)});
                     """.trimIndent()
                 )
@@ -319,6 +361,7 @@ class TypeAdapterStoreTest {
         runProcessorTest { invocation ->
             val store = TypeAdapterStore.create(
                 invocation.context,
+                BuiltInConverterFlags.DEFAULT,
                 dateTypeConverters(invocation.processingEnv)
             )
             val tDate = invocation.processingEnv.requireType("java.util.Date").makeNullable()
@@ -337,7 +380,7 @@ class TypeAdapterStoreTest {
                 } else {
                   _tmp = curs.getLong(0);
                 }
-                // convert Long to Date;
+                outDate = new java.util.Date(_tmp);
                     """.trimIndent()
                 )
             )
@@ -349,14 +392,16 @@ class TypeAdapterStoreTest {
         runProcessorTest { invocation ->
             val binders = createIntListToStringBinders(invocation)
             val store = TypeAdapterStore.create(
-                Context(invocation.processingEnv), binders[0],
+                Context(invocation.processingEnv),
+                BuiltInConverterFlags.DEFAULT,
+                binders[0],
                 binders[1]
             )
 
             val adapter = store.findColumnTypeAdapter(
                 binders[0].from,
                 null,
-                skipEnumConverter = false
+                skipDefaultConverter = false
             )
             assertThat(adapter, notNullValue())
 
@@ -366,8 +411,7 @@ class TypeAdapterStoreTest {
                 bindScope.generate().toString().trim(),
                 `is`(
                     """
-                final java.lang.String ${tmp(0)};
-                ${tmp(0)} = androidx.room.util.StringUtil.joinIntoString(fooVar);
+                final java.lang.String ${tmp(0)} = androidx.room.util.StringUtil.joinIntoString(fooVar);
                 if (${tmp(0)} == null) {
                   stmt.bindNull(41);
                 } else {
@@ -377,12 +421,12 @@ class TypeAdapterStoreTest {
                 )
             )
 
-            val converter = store.findTypeConverter(
+            val converter = store.typeConverterStore.findTypeConverter(
                 binders[0].from,
                 invocation.context.COMMON_TYPES.STRING
             )
             assertThat(converter, notNullValue())
-            assertThat(store.reverse(converter!!), `is`(binders[1]))
+            assertThat(store.typeConverterStore.reverse(converter!!), `is`(binders[1]))
         }
     }
 
@@ -390,23 +434,27 @@ class TypeAdapterStoreTest {
     fun testOneWayConversion() {
         runProcessorTest { invocation ->
             val binders = createIntListToStringBinders(invocation)
-            val store = TypeAdapterStore.create(Context(invocation.processingEnv), binders[0])
+            val store = TypeAdapterStore.create(
+                Context(invocation.processingEnv),
+                BuiltInConverterFlags.DEFAULT,
+                binders[0]
+            )
             val adapter = store.findColumnTypeAdapter(
                 binders[0].from,
                 null,
-                skipEnumConverter = false
+                skipDefaultConverter = false
             )
             assertThat(adapter, nullValue())
 
             val stmtBinder = store.findStatementValueBinder(binders[0].from, null)
             assertThat(stmtBinder, notNullValue())
 
-            val converter = store.findTypeConverter(
+            val converter = store.typeConverterStore.findTypeConverter(
                 binders[0].from,
                 invocation.context.COMMON_TYPES.STRING
             )
             assertThat(converter, notNullValue())
-            assertThat(store.reverse(converter!!), nullValue())
+            assertThat(store.typeConverterStore.reverse(converter!!), nullValue())
         }
     }
 
@@ -908,7 +956,8 @@ class TypeAdapterStoreTest {
     fun findQueryParameterAdapter_collections() {
         runProcessorTest { invocation ->
             val store = TypeAdapterStore.create(
-                context = invocation.context
+                context = invocation.context,
+                builtInConverterFlags = BuiltInConverterFlags.DEFAULT
             )
             val javacCollectionTypes = listOf(
                 "java.util.Set",
@@ -981,6 +1030,7 @@ class TypeAdapterStoreTest {
             ).process().map(::CustomTypeConverterWrapper)
             val typeAdapterStore = TypeAdapterStore.create(
                 context = invocation.context,
+                builtInConverterFlags = BuiltInConverterFlags.DEFAULT,
                 extras = converters.toTypedArray()
             )
             val subject = invocation.processingEnv.requireTypeElement("Subject")
@@ -1177,102 +1227,42 @@ class TypeAdapterStoreTest {
         val intType = invocation.processingEnv.requireType(Integer::class)
         val listElement = invocation.processingEnv.requireTypeElement(java.util.List::class)
         val listOfInts = invocation.processingEnv.getDeclaredType(listElement, intType)
-        val intListConverter = object : TypeConverter(
+        val intListConverter = object : SingleStatementTypeConverter(
             listOfInts,
             invocation.context.COMMON_TYPES.STRING
         ) {
-            override fun convert(
-                inputVarName: String,
-                outputVarName: String,
-                scope: CodeGenScope
-            ) {
-                scope.builder().apply {
-                    addStatement(
-                        "$L = $T.joinIntoString($L)", outputVarName, STRING_UTIL,
-                        inputVarName
-                    )
-                }
+            override fun buildStatement(inputVarName: String, scope: CodeGenScope): CodeBlock {
+                return CodeBlock.of(
+                    "$T.joinIntoString($L)", STRING_UTIL, inputVarName
+                )
             }
         }
 
-        val stringToIntListConverter = object : TypeConverter(
+        val stringToIntListConverter = object : SingleStatementTypeConverter(
             invocation.context.COMMON_TYPES.STRING, listOfInts
         ) {
-            override fun convert(
-                inputVarName: String,
-                outputVarName: String,
-                scope: CodeGenScope
-            ) {
-                scope.builder().apply {
-                    addStatement(
-                        "$L = $T.splitToIntList($L)", outputVarName, STRING_UTIL,
-                        inputVarName
-                    )
-                }
+            override fun buildStatement(inputVarName: String, scope: CodeGenScope): CodeBlock {
+                return CodeBlock.of(
+                    "$T.splitToIntList($L)", STRING_UTIL,
+                    inputVarName
+                )
             }
         }
         return listOf(intListConverter, stringToIntListConverter)
     }
 
-    fun pointTypeConverters(env: XProcessingEnv): List<TypeConverter> {
-        val tPoint = env.requireType("foo.bar.Point")
-        val tBoolean = env.requireType(TypeName.BOOLEAN)
-        return listOf(
-            object : TypeConverter(tPoint, tBoolean) {
-                override fun convert(
-                    inputVarName: String,
-                    outputVarName: String,
-                    scope: CodeGenScope
-                ) {
-                    scope.builder().apply {
-                        addStatement(
-                            "$L = $T.toBoolean($L)", outputVarName, from.typeName,
-                            inputVarName
-                        )
-                    }
-                }
-            },
-            object : TypeConverter(tBoolean, tPoint) {
-                override fun convert(
-                    inputVarName: String,
-                    outputVarName: String,
-                    scope: CodeGenScope
-                ) {
-                    scope.builder().apply {
-                        addStatement(
-                            "$L = $T.fromBoolean($L)", outputVarName, tPoint.typeName,
-                            inputVarName
-                        )
-                    }
-                }
-            }
-        )
-    }
-
-    fun dateTypeConverters(env: XProcessingEnv): List<TypeConverter> {
+    private fun dateTypeConverters(env: XProcessingEnv): List<TypeConverter> {
         val tDate = env.requireType("java.util.Date").makeNullable()
         val tLong = env.requireType("java.lang.Long").makeNullable()
         return listOf(
-            object : TypeConverter(tDate, tLong) {
-                override fun convert(
-                    inputVarName: String,
-                    outputVarName: String,
-                    scope: CodeGenScope
-                ) {
-                    scope.builder().apply {
-                        addStatement("// convert Date to Long")
-                    }
+            object : SingleStatementTypeConverter(tDate, tLong) {
+                override fun buildStatement(inputVarName: String, scope: CodeGenScope): CodeBlock {
+                    return CodeBlock.of("$L.time", inputVarName)
                 }
             },
-            object : TypeConverter(tLong, tDate) {
-                override fun convert(
-                    inputVarName: String,
-                    outputVarName: String,
-                    scope: CodeGenScope
-                ) {
-                    scope.builder().apply {
-                        addStatement("// convert Long to Date")
-                    }
+            object : SingleStatementTypeConverter(tLong, tDate) {
+                override fun buildStatement(inputVarName: String, scope: CodeGenScope): CodeBlock {
+                    return CodeBlock.of("new $T($L)", tDate.typeName, inputVarName)
                 }
             }
         )

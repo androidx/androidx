@@ -70,7 +70,8 @@ fun SwipeToDismissDemo(
 
     SwipeToDismissBox(
         state = swipeDismissState,
-        background = {
+    ) { isBackground ->
+        if (isBackground) {
             // What to show behind the content whilst swiping.
             when (demoState.value) {
                 SwipeDismissDemoState.List -> {
@@ -80,11 +81,11 @@ fun SwipeToDismissDemo(
                     SwipeToDismissOptionsList()
                 }
             }
-        }
-    ) {
-        when (demoState.value) {
-            SwipeDismissDemoState.List -> SwipeToDismissOptionsList(demoState)
-            SwipeDismissDemoState.Detail -> SwipeToDismissDetail()
+        } else {
+            when (demoState.value) {
+                SwipeDismissDemoState.List -> SwipeToDismissOptionsList(demoState)
+                SwipeDismissDemoState.Detail -> SwipeToDismissDetail()
+            }
         }
     }
 }

@@ -20,7 +20,6 @@ import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.XVariableElement
 import androidx.room.compiler.processing.javac.kotlin.KmFunction
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -28,6 +27,7 @@ import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.TypeVariable
 
 internal class JavacMethodElement(
     env: JavacProcessingEnv,
@@ -103,7 +103,8 @@ internal class JavacMethodElement(
     override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
         check(other is JavacMethodElement)
         check(owner is JavacTypeElement)
-        return env.elementUtils.overrides(element, other.element, owner.element)
+        // Use auto-common's overrides, which provides consistency across javac and ejc (Eclipse).
+        return MoreElements.overrides(element, other.element, owner.element, env.typeUtils)
     }
 
     override fun copyTo(newContainer: XTypeElement): XMethodElement {
@@ -117,22 +118,32 @@ internal class JavacMethodElement(
 
     override fun hasKotlinDefaultImpl(): Boolean {
         fun paramsMatch(
-            ourParams: List<XVariableElement>,
-            theirParams: List<XVariableElement>
+            ourParams: List<JavacMethodParameter>,
+            theirParams: List<JavacMethodParameter>
         ): Boolean {
             if (ourParams.size != theirParams.size - 1) {
                 return false
             }
-            ourParams.forEachIndexed { i, variableElement ->
+            return (ourParams.indices).all { paramIndex ->
                 // Plus 1 to their index because their first param is a self object.
-                if (!theirParams[i + 1].type.isSameType(
-                        variableElement.type
-                    )
-                ) {
-                    return false
+                // We specifically use `asType` here instead of XVariableElement.type because
+                // we want to ignore the containing type (so that generics etc are NOT resolved to
+                // the containing type)
+                val theirParamType = theirParams[paramIndex + 1].element.asType()
+                val ourParamType = ourParams[paramIndex].element.asType()
+                if (env.typeUtils.isSameType(ourParamType, theirParamType)) {
+                    true
+                } else {
+                    // if isSameType returns false, check for generics. b/199888180
+                    val ourTypeVar = ourParamType as? TypeVariable
+                    val theirTypeVar = theirParamType as? TypeVariable
+                    ourTypeVar != null && theirTypeVar != null &&
+                        env.typeUtils.isSameType(
+                            ourTypeVar.lowerBound,
+                            theirTypeVar.lowerBound
+                        )
                 }
             }
-            return true
         }
         return kotlinDefaultImplClass?.getDeclaredMethods()?.any {
             it.name == this.name && paramsMatch(parameters, it.parameters)

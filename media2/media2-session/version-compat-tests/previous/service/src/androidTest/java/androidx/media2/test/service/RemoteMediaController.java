@@ -26,6 +26,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -169,6 +170,14 @@ public class RemoteMediaController {
         }
     }
 
+    public void setMediaUri(@NonNull Uri uri, @Nullable Bundle extras) {
+        try {
+            mBinder.setMediaUri(mControllerId, uri, extras);
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to call setMediaUri()");
+        }
+    }
+
     public void updatePlaylistMetadata(@Nullable MediaMetadata metadata) {
         try {
             mBinder.updatePlaylistMetadata(mControllerId, MediaParcelUtils.toParcelable(metadata));
@@ -198,6 +207,14 @@ public class RemoteMediaController {
             mBinder.replacePlaylistItem(mControllerId, index, media);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call replacePlaylistItem()");
+        }
+    }
+
+    public void movePlaylistItem(int fromIdx, int toIdx) {
+        try {
+            mBinder.movePlaylistItem(mControllerId, fromIdx, toIdx);
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to call movePlaylistItem()");
         }
     }
 

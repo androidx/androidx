@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XProcessingConfig
+import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.Origin
 import java.lang.reflect.InvocationHandler
@@ -111,7 +112,13 @@ internal object KspClassFileUtility {
             val binarySource = typeReferences.binaryClassMethod.invoke(descriptorSrc)
                 ?: return null
 
-            val fieldNameComparator = MemberNameComparator(getName)
+            val fieldNameComparator = MemberNameComparator(
+                getName = getName,
+                // we can do strict mode only in classes. For Interfaces, private methods won't
+                // show up in the binary.
+                strictMode = XProcessingConfig.STRICT_MODE &&
+                    ksClassDeclaration.classKind != ClassKind.INTERFACE
+            )
             val invocationHandler = InvocationHandler { _, method, args ->
                 if (method.name == type.visitorName) {
                     val nameAsString = typeReferences.asStringMethod.invoke(args[0])
@@ -206,7 +213,8 @@ internal object KspClassFileUtility {
     }
 
     private class MemberNameComparator<T>(
-        val getName: T.() -> String
+        val getName: T.() -> String,
+        val strictMode: Boolean
     ) : Comparator<T> {
         private var nextOrder: Int = 0
         private var sealed: Boolean = false
@@ -233,8 +241,8 @@ internal object KspClassFileUtility {
          * new ID.
          */
         private fun getOrder(name: String) = orders.getOrPut(name) {
-            if (sealed && XProcessingConfig.STRICT_MODE) {
-                error("expected to find field $name but it is non-existent")
+            if (sealed && strictMode) {
+                error("expected to find field/method $name but it is non-existent")
             }
             nextOrder++
         }

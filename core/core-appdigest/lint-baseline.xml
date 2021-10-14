@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha03" type="baseline" client="gradle" name="AGP (7.1.0-alpha03)" variant="all" version="7.1.0-alpha03">
+<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
 
     <issue
         id="NewApi"
@@ -8,7 +8,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/appdigest/ChecksumsTest.java"
-            line="621"
+            line="1032"
             column="31"/>
     </issue>
 
@@ -19,216 +19,63 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/appdigest/ChecksumsTest.java"
-            line="637"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one or more of: Checksum.TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, Checksum.TYPE_WHOLE_MD5, Checksum.TYPE_WHOLE_SHA1, Checksum.TYPE_WHOLE_SHA256, Checksum.TYPE_WHOLE_SHA512, Checksum.TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, Checksum.TYPE_PARTIAL_MERKLE_ROOT_1M_SHA512"
-        errorLine1="                                            apkChecksum.getType(), apkChecksum.getValue(),"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/appdigest/Checksums.java"
-            line="204"
-            column="45"/>
-    </issue>
-        <issue
-        id="NewApi"
-        message="Field requires API level S (current min is 14): `android.content.pm.PackageManager#TRUST_ALL`"
-        errorLine1="                trustedInstallers = PackageManager.TRUST_ALL;"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/appdigest/Checksums.java"
-            line="180"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level S (current min is 14): `android.content.pm.PackageManager#TRUST_NONE`"
-        errorLine1="                trustedInstallers = PackageManager.TRUST_NONE;"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/appdigest/Checksums.java"
-            line="182"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level S (current min is 14): `android.content.pm.PackageManager#requestChecksums`"
-        errorLine1="            context.getPackageManager().requestChecksums(packageName, includeSplits, required,"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/appdigest/Checksums.java"
-            line="189"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Cast to `OnChecksumsReadyListener` requires API level 31 (current min is 14)"
-        errorLine1="                    trustedInstallers, new PackageManager.OnChecksumsReadyListener() {"
-        errorLine2="                                       ^">
-        <location
-            file="src/main/java/androidx/core/appdigest/Checksums.java"
-            line="190"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level S (current min is 14): `android.content.pm.PackageManager.OnChecksumsReadyListener`"
-        errorLine1="                    trustedInstallers, new PackageManager.OnChecksumsReadyListener() {"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/appdigest/Checksums.java"
-            line="190"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level S (current min is 14): `android.content.pm.ApkChecksum#getSplitName`"
-        errorLine1="                                    checksums[i] = new Checksum(apkChecksum.getSplitName(),"
-        errorLine2="                                                                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/appdigest/Checksums.java"
-            line="203"
-            column="77"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level S (current min is 14): `android.content.pm.ApkChecksum#getType`"
-        errorLine1="                                            apkChecksum.getType(), apkChecksum.getValue(),"
-        errorLine2="                                                        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/appdigest/Checksums.java"
-            line="204"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level S (current min is 14): `android.content.pm.ApkChecksum#getValue`"
-        errorLine1="                                            apkChecksum.getType(), apkChecksum.getValue(),"
-        errorLine2="                                                                               ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/appdigest/Checksums.java"
-            line="204"
-            column="80"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level S (current min is 14): `android.content.pm.ApkChecksum#getInstallerPackageName`"
-        errorLine1="                                            apkChecksum.getInstallerPackageName(),"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/appdigest/Checksums.java"
-            line="205"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level S (current min is 14): `android.content.pm.ApkChecksum#getInstallerCertificate`"
-        errorLine1="                                            apkChecksum.getInstallerCertificate());"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/appdigest/Checksums.java"
-            line="206"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#adoptShellPermissionIdentity`"
-        errorLine1="            getUiAutomation().adoptShellPermissionIdentity(Manifest.permission.INSTALL_PACKAGES);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/appdigest/ChecksumsTest.java"
-            line="621"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 24): `android.app.UiAutomation#dropShellPermissionIdentity`"
-        errorLine1="                getUiAutomation().dropShellPermissionIdentity();"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/appdigest/ChecksumsTest.java"
-            line="637"
+            line="1048"
             column="35"/>
     </issue>
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 31; however, the containing class androidx.core.appdigest.Checksums.ApiSImpl is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            context.getPackageManager().requestChecksums(packageName, includeSplits, required,"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~">
+        message="This call references a method added in API level 31; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                                checksums[i] = new Checksum(apkChecksum.getSplitName(),"
+        errorLine2="                                                                        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/appdigest/Checksums.java"
-            line="189"
-            column="41"/>
+            file="src/main/java/androidx/core/appdigest/ChecksumsApiSImpl.java"
+            line="121"
+            column="73"/>
     </issue>
 
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 31; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                    checksums[i] = new Checksum(apkChecksum.getSplitName(),"
-        errorLine2="                                                                            ~~~~~~~~~~~~">
+        errorLine1="                                        apkChecksum.getType(), apkChecksum.getValue(),"
+        errorLine2="                                                    ~~~~~~~">
         <location
-            file="src/main/java/androidx/core/appdigest/Checksums.java"
-            line="203"
-            column="77"/>
+            file="src/main/java/androidx/core/appdigest/ChecksumsApiSImpl.java"
+            line="122"
+            column="53"/>
     </issue>
 
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 31; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                            apkChecksum.getType(), apkChecksum.getValue(),"
-        errorLine2="                                                        ~~~~~~~">
+        errorLine1="                                        apkChecksum.getType(), apkChecksum.getValue(),"
+        errorLine2="                                                                           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/appdigest/Checksums.java"
-            line="204"
-            column="57"/>
+            file="src/main/java/androidx/core/appdigest/ChecksumsApiSImpl.java"
+            line="122"
+            column="76"/>
     </issue>
 
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 31; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                            apkChecksum.getType(), apkChecksum.getValue(),"
-        errorLine2="                                                                               ~~~~~~~~">
+        errorLine1="                                        apkChecksum.getInstallerPackageName(),"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/appdigest/Checksums.java"
-            line="204"
-            column="80"/>
+            file="src/main/java/androidx/core/appdigest/ChecksumsApiSImpl.java"
+            line="123"
+            column="53"/>
     </issue>
 
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 31; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                            apkChecksum.getInstallerPackageName(),"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                                        apkChecksum.getInstallerCertificate());"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/appdigest/Checksums.java"
-            line="205"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 31; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                            apkChecksum.getInstallerCertificate());"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/appdigest/Checksums.java"
-            line="206"
-            column="57"/>
+            file="src/main/java/androidx/core/appdigest/ChecksumsApiSImpl.java"
+            line="124"
+            column="53"/>
     </issue>
 
 </issues>

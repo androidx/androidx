@@ -98,7 +98,7 @@ class CurvedRowTest {
                 repeat(3) { ix ->
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(30.dp)
                             .onGloballyPositioned { coords[ix] = it }
                     )
                 }
@@ -142,13 +142,13 @@ class CurvedRowTest {
             ) {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(30.dp)
                         .onGloballyPositioned { smallBoxCoords = it }
                         .radialAlignment(radialAlignment)
                 )
                 Box(
                     modifier = Modifier
-                        .size(60.dp)
+                        .size(45.dp)
                         .onGloballyPositioned { bigBoxCoords = it }
                 )
             }

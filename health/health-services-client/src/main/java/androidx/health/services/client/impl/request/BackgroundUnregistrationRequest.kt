@@ -16,34 +16,29 @@
 
 package androidx.health.services.client.impl.request
 
-import android.os.Parcel
 import android.os.Parcelable
+import androidx.health.services.client.data.ProtoParcelable
+import androidx.health.services.client.proto.RequestsProto
 
 /**
  * Request for background unregistration.
  *
  * @hide
  */
-public data class BackgroundUnregistrationRequest(val packageName: String) : Parcelable {
+public class BackgroundUnregistrationRequest(public val packageName: String) :
+    ProtoParcelable<RequestsProto.PassiveMonitoringUnregistrationRequest>() {
 
-    override fun describeContents(): Int = 0
-
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeString(packageName)
+    override val proto: RequestsProto.PassiveMonitoringUnregistrationRequest by lazy {
+        RequestsProto.PassiveMonitoringUnregistrationRequest.newBuilder()
+            .setPackageName(packageName)
+            .build()
     }
 
     public companion object {
         @JvmField
-        public val CREATOR: Parcelable.Creator<BackgroundUnregistrationRequest> =
-            object : Parcelable.Creator<BackgroundUnregistrationRequest> {
-                override fun createFromParcel(source: Parcel): BackgroundUnregistrationRequest? {
-                    val packageName = source.readString() ?: return null
-                    return BackgroundUnregistrationRequest(packageName)
-                }
-
-                override fun newArray(size: Int): Array<BackgroundUnregistrationRequest?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        public val CREATOR: Parcelable.Creator<BackgroundUnregistrationRequest> = newCreator {
+            val request = RequestsProto.PassiveMonitoringUnregistrationRequest.parseFrom(it)
+            BackgroundUnregistrationRequest(request.packageName)
+        }
     }
 }

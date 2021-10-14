@@ -26,6 +26,7 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.SynchronizedCaptureSessionOpener.SynchronizedSessionFeature;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
@@ -61,6 +62,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * <p>b/146773463: It needs to check all the releasing capture sessions are ready for opening
  * next capture session.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl {
 
     private static final String TAG = "SyncCaptureSessionImpl";

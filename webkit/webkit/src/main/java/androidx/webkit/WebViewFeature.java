@@ -16,6 +16,7 @@
 
 package androidx.webkit;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
@@ -131,6 +132,7 @@ public class WebViewFeature {
      * {@link androidx.webkit.WebSettingsCompat#getDisabledActionModeMenuItems(WebSettings)}, and
      * {@link androidx.webkit.WebSettingsCompat#setDisabledActionModeMenuItems(WebSettings, int)}.
      */
+    @SuppressLint("IntentName") // False positive: this constant is not to be used for Intents.
     public static final String DISABLED_ACTION_MODE_MENU_ITEMS =
             "DISABLED_ACTION_MODE_MENU_ITEMS";
 

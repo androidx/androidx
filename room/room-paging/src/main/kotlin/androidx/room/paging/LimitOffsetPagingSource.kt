@@ -21,15 +21,14 @@ import androidx.annotation.NonNull
 import androidx.annotation.RestrictTo
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import androidx.room.withTransaction
 import androidx.room.InvalidationTracker
 import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
+import androidx.room.getQueryDispatcher
 import androidx.room.util.CursorUtil
+import androidx.room.withTransaction
 import androidx.sqlite.db.SupportSQLiteQuery
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.lang.IllegalArgumentException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -70,7 +69,7 @@ abstract class LimitOffsetPagingSource<Value : Any>(
     private val registeredObserver: AtomicBoolean = AtomicBoolean(false)
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Value> {
-        return withContext(Dispatchers.IO) {
+        return withContext(db.getQueryDispatcher()) {
             registerObserverIfNecessary()
             val tempCount = itemCount.get()
             // if itemCount is < 0, then it is initial load

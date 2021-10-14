@@ -23,6 +23,8 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.camera.video.internal.DebugUtils;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.ExcludeKeyFrameRateInFindEncoderQuirk;
 import androidx.camera.video.internal.compat.quirk.MediaCodecInfoReportIncorrectInfoQuirk;
@@ -38,6 +40,7 @@ import java.io.IOException;
  * @see ExcludeKeyFrameRateInFindEncoderQuirk
  * @see MediaCodecInfoReportIncorrectInfoQuirk
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class EncoderFinder {
     private final boolean mShouldRemoveKeyFrameRate;
 
@@ -76,6 +79,7 @@ public class EncoderFinder {
             try {
                 codec = MediaCodec.createByCodecName(encoderName);
             } catch (IOException | NullPointerException | IllegalArgumentException e) {
+                DebugUtils.dumpMediaCodecListForFormat(mediaCodecList, mediaFormat);
                 throw new InvalidConfigException("Encoder cannot created: " + encoderName, e);
             }
         }

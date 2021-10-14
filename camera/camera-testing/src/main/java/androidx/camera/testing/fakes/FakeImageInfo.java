@@ -17,6 +17,7 @@
 package androidx.camera.testing.fakes;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.impl.MutableTagBundle;
 import androidx.camera.core.impl.TagBundle;
@@ -25,6 +26,7 @@ import androidx.camera.core.impl.utils.ExifData;
 /**
  * A fake implementation of {@link ImageInfo} where the values are settable.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FakeImageInfo implements ImageInfo {
     private MutableTagBundle mTagBundle = MutableTagBundle.create();
     private long mTimestamp;
