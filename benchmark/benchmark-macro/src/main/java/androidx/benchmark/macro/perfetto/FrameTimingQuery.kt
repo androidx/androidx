@@ -57,10 +57,10 @@ internal object FrameTimingQuery {
     enum class SubMetric {
         FrameCpuTime,
         FrameUiTime,
-        FrameNegativeSlackTime;
+        FrameOverrunTime;
 
         fun supportedOnApiLevel(apiLevel: Int): Boolean {
-            return apiLevel >= 31 || this != FrameNegativeSlackTime
+            return apiLevel >= 31 || this != FrameOverrunTime
         }
     }
 
@@ -86,7 +86,7 @@ internal object FrameTimingQuery {
             return when (subMetric) {
                 SubMetric.FrameCpuTime -> rtSlice.endTs - uiSlice.ts
                 SubMetric.FrameUiTime -> uiSlice.dur
-                SubMetric.FrameNegativeSlackTime -> actualSlice!!.endTs - expectedSlice!!.endTs
+                SubMetric.FrameOverrunTime -> actualSlice!!.endTs - expectedSlice!!.endTs
             }
         }
         companion object {
