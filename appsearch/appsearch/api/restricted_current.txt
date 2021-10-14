@@ -178,6 +178,7 @@ package androidx.appsearch.app {
   public interface AppSearchSession extends java.io.Closeable {
     method public void close();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getByDocumentId(androidx.appsearch.app.GetByDocumentIdRequest);
+    method public androidx.appsearch.app.Capabilities getCapabilities();
     method public com.google.common.util.concurrent.ListenableFuture<java.util.Set<java.lang.String!>!> getNamespaces();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GetSchemaResponse!> getSchema();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.StorageInfo!> getStorageInfo();
@@ -188,6 +189,10 @@ package androidx.appsearch.app {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> requestFlush();
     method public androidx.appsearch.app.SearchResults search(String, androidx.appsearch.app.SearchSpec);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.SetSchemaResponse!> setSchema(androidx.appsearch.app.SetSchemaRequest);
+  }
+
+  public interface Capabilities {
+    method public boolean isSubmatchSupported();
   }
 
   public interface DocumentClassFactory<T> {
@@ -272,6 +277,7 @@ package androidx.appsearch.app {
 
   public interface GlobalSearchSession extends java.io.Closeable {
     method public void close();
+    method public androidx.appsearch.app.Capabilities getCapabilities();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> reportSystemUsage(androidx.appsearch.app.ReportSystemUsageRequest);
     method public androidx.appsearch.app.SearchResults search(String, androidx.appsearch.app.SearchSpec);
   }

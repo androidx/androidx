@@ -67,12 +67,6 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
                         .setWorkerExecutor(executor).build());
     }
 
-    @Override
-    protected int getAppSearchApiTarget() {
-        // Any feature available in AppSearchSession is always available in the local backend.
-        return Integer.MAX_VALUE;
-    }
-
     // TODO(b/194207451) This test can be moved to CtsTestBase if customized logger is
     //  supported for platform backend.
     @Test
@@ -492,5 +486,14 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
         assertThat(result.getFailures()).containsKey("id1");
         assertThat(result.getFailures().get("id1").getErrorMessage())
                 .contains("was too large to write. Max is 16777215");
+    }
+
+    @Test
+    public void testCapabilities() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        AppSearchSession db2 = LocalStorage.createSearchSession(
+                new LocalStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();
+
+        assertThat(db2.getCapabilities().isSubmatchSupported()).isTrue();
     }
 }

@@ -423,9 +423,16 @@ public final class SearchResult {
          * <p>Class example 1: this returns [29, 32].
          * <p>Class example 2: for the first {@link MatchInfo}, this returns [0, 4] and, for the
          * second {@link MatchInfo}, this returns [0, 4].
+         *
+         * <p>This information may not be available depending on the backend and Android API
+         * level. To ensure it is available, call {@link Capabilities#isSubmatchSupported}.
+         *
+         * @throws UnsupportedOperationException if {@link Capabilities#isSubmatchSupported} is
+         * false.
          */
         @NonNull
         public MatchRange getSubmatchRange() {
+            checkSubmatchSupported();
             if (mSubmatchRange == null) {
                 mSubmatchRange = new MatchRange(
                         mBundle.getInt(SUBMATCH_RANGE_LOWER_FIELD),
@@ -439,9 +446,16 @@ public final class SearchResult {
          * <p>Class example 1: this returns "foo".
          * <p>Class example 2: for the first {@link MatchInfo}, this returns "Test" and, for the
          * second {@link MatchInfo}, this returns "Test".
+         *
+         * This information may not be available depending on the backend and Android API level. To
+         * ensure it is available, call {@link Capabilities#isSubmatchSupported}.
+         *
+         * @throws UnsupportedOperationException if {@link Capabilities#isSubmatchSupported} is
+         * false.
          */
         @NonNull
         public CharSequence getSubmatch() {
+            checkSubmatchSupported();
             return getSubstring(getSubmatchRange());
         }
 
@@ -482,6 +496,14 @@ public final class SearchResult {
             return getFullText().substring(range.getStart(), range.getEnd());
         }
 
+        private void checkSubmatchSupported() {
+            if (!mBundle.containsKey(SUBMATCH_RANGE_LOWER_FIELD)) {
+                throw new UnsupportedOperationException(
+                        "Submatch is not supported with this backend/Android API level "
+                                + "combination");
+            }
+        }
+
         /** Extracts the matching string from the document. */
         private static String getPropertyValues(GenericDocument document, String propertyName) {
             // In IcingLib snippeting is available for only 3 data types i.e String, double and
@@ -499,7 +521,7 @@ public final class SearchResult {
         public static final class Builder {
             private final String mPropertyPath;
             private MatchRange mExactMatchRange = new MatchRange(0, 0);
-            private MatchRange mSubmatchRange = new MatchRange(0, 0);
+            @Nullable private MatchRange mSubmatchRange;
             private MatchRange mSnippetRange = new MatchRange(0, 0);
 
             /**
@@ -548,8 +570,11 @@ public final class SearchResult {
                 bundle.putString(SearchResult.MatchInfo.PROPERTY_PATH_FIELD, mPropertyPath);
                 bundle.putInt(MatchInfo.EXACT_MATCH_RANGE_LOWER_FIELD, mExactMatchRange.getStart());
                 bundle.putInt(MatchInfo.EXACT_MATCH_RANGE_UPPER_FIELD, mExactMatchRange.getEnd());
-                bundle.putInt(MatchInfo.SUBMATCH_RANGE_LOWER_FIELD, mSubmatchRange.getStart());
-                bundle.putInt(MatchInfo.SUBMATCH_RANGE_UPPER_FIELD, mSubmatchRange.getEnd());
+                if (mSubmatchRange != null) {
+                    // Only populate the submatch fields if it was actually set.
+                    bundle.putInt(MatchInfo.SUBMATCH_RANGE_LOWER_FIELD, mSubmatchRange.getStart());
+                    bundle.putInt(MatchInfo.SUBMATCH_RANGE_UPPER_FIELD, mSubmatchRange.getEnd());
+                }
                 bundle.putInt(MatchInfo.SNIPPET_RANGE_LOWER_FIELD, mSnippetRange.getStart());
                 bundle.putInt(MatchInfo.SNIPPET_RANGE_UPPER_FIELD, mSnippetRange.getEnd());
                 return new MatchInfo(bundle, /*document=*/ null);

@@ -77,6 +77,12 @@ public interface GlobalSearchSession extends Closeable {
     @NonNull
     ListenableFuture<Void> reportSystemUsage(@NonNull ReportSystemUsageRequest request);
 
+    /**
+     * Returns the {@link Capabilities} to check for the availability of certain features
+     * for this session.
+     */
+    @NonNull Capabilities getCapabilities();
+
     /** Closes the {@link GlobalSearchSession}. */
     @Override
     void close();
