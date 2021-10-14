@@ -850,32 +850,38 @@ public abstract class WatchFaceService : WallpaperService() {
             if (pendingWallpaperInstance != null) {
                 val asyncTraceEvent =
                     AsyncTraceEvent("Create PendingWallpaperInteractiveWatchFaceInstance")
-                try {
-                    pendingWallpaperInstance.callback.onInteractiveWatchFaceCreated(
-                        createInteractiveInstance(
-                            pendingWallpaperInstance.params,
-                            "Boot with pendingWallpaperInstance"
-                        )
+                val instance: InteractiveWatchFaceImpl? = try {
+                    val instance = createInteractiveInstance(
+                        pendingWallpaperInstance.params,
+                        "Boot with pendingWallpaperInstance"
                     )
+                    pendingWallpaperInstance.callback.onInteractiveWatchFaceCreated(instance)
+                    instance
                 } catch (e: Exception) {
                     pendingWallpaperInstance.callback.onInteractiveWatchFaceCrashed(
                         CrashInfoParcel(e)
                     )
+                    null
                 }
                 asyncTraceEvent.close()
                 val params = pendingWallpaperInstance.params
                 directBootParams = params
-                // We don't want to display complications in direct boot mode so replace with an
-                // empty list. NB we can't actually serialise complications anyway so that's just as
-                // well...
-                params.idAndComplicationDataWireFormats = emptyList()
 
                 // Writing even small amounts of data to storage is quite slow and if we did
                 // that immediately, we'd delay the first frame which is rendered via
                 // onSurfaceRedrawNeeded. By posting this task we expedite first frame
                 // rendering. There is a small window where the direct boot could be stale if
                 // the watchface crashed but this seems unlikely in practice.
-                backgroundThreadHandler.post {
+                backgroundThreadCoroutineScope.launch {
+                    // Wait for init to complete before writing the direct boot prefs, or we might
+                    // sneak in before higher priority init tasks.
+                    instance?.engine?.deferredWatchFaceImpl?.await()
+
+                    // We don't want to display complications in direct boot mode so replace with an
+                    // empty list. NB we can't actually serialise complications anyway so that's
+                    // just as well...
+                    params.idAndComplicationDataWireFormats = emptyList()
+
                     writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, params)
                 }
             }
@@ -935,7 +941,7 @@ public abstract class WatchFaceService : WallpaperService() {
             // list. NB we can't actually serialise complications anyway so that's just as well...
             params.idAndComplicationDataWireFormats = emptyList()
 
-            backgroundThreadHandler.post {
+            backgroundThreadCoroutineScope.launch {
                 writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, params)
             }
         }
