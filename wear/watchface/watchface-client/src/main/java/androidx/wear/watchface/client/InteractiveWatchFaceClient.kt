@@ -257,6 +257,7 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     private val readyListeners =
         HashMap<InteractiveWatchFaceClient.OnWatchFaceReadyListener, Executor>()
     private var watchfaceReadyListenerRegistered = false
+    private var closed = false
 
     init {
         iInteractiveWatchFace.asBinder().linkToDeath(
@@ -347,6 +348,9 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
 
     override fun close() = TraceEvent("InteractiveWatchFaceClientImpl.close").use {
         iInteractiveWatchFace.release()
+        synchronized(lock) {
+            closed = true
+        }
     }
 
     override fun sendTouchEvent(
@@ -405,7 +409,8 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
         }
     }
 
-    override fun isConnectionAlive() = iInteractiveWatchFace.asBinder().isBinderAlive
+    override fun isConnectionAlive() =
+        iInteractiveWatchFace.asBinder().isBinderAlive && synchronized(lock) { !closed }
 
     private fun registerWatchfaceReadyListener() {
         if (watchfaceReadyListenerRegistered) {
