@@ -101,7 +101,7 @@ public class UiStateTest {
 
     @Test
     public fun actualTraceAppend() {
-        val traceFile = createTempFileFromAsset("WarmStartup", ".trace")
+        val traceFile = createTempFileFromAsset("api31_startup_warm", ".perfetto-trace")
         val initialSize = traceFile.readBytes().size
         traceFile.appendUiState(
             UiState(

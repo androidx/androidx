@@ -57,7 +57,7 @@ class StartupTimingQueryTest {
         StartupTimingQuery.SubMetrics(
             timeToInitialDisplayNs = 358237760,
             timeToFullDisplayNs = 784769167,
-            timelineRange = 269543917431669..269544702200836
+            timelineRangeNs = 269543917431669..269544702200836
         )
     )
 
@@ -68,7 +68,7 @@ class StartupTimingQueryTest {
         StartupTimingQuery.SubMetrics(
             timeToInitialDisplayNs = 135008333,
             timeToFullDisplayNs = 598500833,
-            timelineRange = 268757401479247..268757999980080
+            timelineRangeNs = 268757401479247..268757999980080
         )
     )
 
@@ -79,7 +79,7 @@ class StartupTimingQueryTest {
         StartupTimingQuery.SubMetrics(
             timeToInitialDisplayNs = 54248802,
             timeToFullDisplayNs = 529336511,
-            timelineRange = 268727533977218..268728063313729
+            timelineRangeNs = 268727533977218..268728063313729
         )
     )
 
@@ -88,9 +88,9 @@ class StartupTimingQueryTest {
         api = 31,
         startupMode = StartupMode.COLD,
         StartupTimingQuery.SubMetrics(
-            timeToInitialDisplayNs = 137401159,
-            timeToFullDisplayNs = 612424592,
-            timelineRange = 186974946587883..186975559012475
+            timeToInitialDisplayNs = 145792410,
+            timeToFullDisplayNs = 620815843,
+            timelineRangeNs = 186974938196632..186975559012475
         )
     )
 
@@ -99,9 +99,9 @@ class StartupTimingQueryTest {
         api = 31,
         startupMode = StartupMode.WARM,
         StartupTimingQuery.SubMetrics(
-            timeToInitialDisplayNs = 55378859,
-            timeToFullDisplayNs = 546599533,
-            timelineRange = 186982060149946..186982606749479
+            timeToInitialDisplayNs = 64748027,
+            timeToFullDisplayNs = 555968701,
+            timelineRangeNs = 186982050780778..186982606749479
         )
     )
 
@@ -110,9 +110,9 @@ class StartupTimingQueryTest {
         api = 31,
         startupMode = StartupMode.HOT,
         StartupTimingQuery.SubMetrics(
-            timeToInitialDisplayNs = 42757609,
-            timeToFullDisplayNs = 537651148,
-            timelineRange = 186969446545095..186969984196243
+            timeToInitialDisplayNs = 47329015,
+            timeToFullDisplayNs = 542222554,
+            timelineRangeNs = 186969441973689..186969984196243
         )
     )
 }
