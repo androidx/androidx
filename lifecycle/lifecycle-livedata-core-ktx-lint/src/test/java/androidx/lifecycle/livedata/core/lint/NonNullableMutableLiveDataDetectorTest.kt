@@ -23,6 +23,7 @@ import androidx.lifecycle.livedata.core.lint.stubs.STUBS
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestLintResult
+import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import org.junit.Ignore
@@ -39,6 +40,7 @@ class NonNullableMutableLiveDataDetectorTest : LintDetectorTest() {
 
     private fun check(vararg files: TestFile): TestLintResult {
         return lint().files(*files, *STUBS)
+            .skipTestModes(TestMode.WHITESPACE) // b/203246682
             .run()
     }
 
