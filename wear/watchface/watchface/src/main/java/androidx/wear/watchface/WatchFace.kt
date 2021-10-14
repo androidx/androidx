@@ -21,11 +21,9 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
-import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -57,7 +55,6 @@ import androidx.wear.watchface.style.WatchFaceLayer
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -417,7 +414,7 @@ public class WatchFaceImpl @UiThread constructor(
     @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     public var complicationSlotsManager: ComplicationSlotsManager,
 
-    private val broadcastsObserver: BroadcastsObserver,
+    internal val broadcastsObserver: BroadcastsObserver,
     internal var broadcastsReceiver: BroadcastsReceiver?
 ) {
     internal companion object {
@@ -445,12 +442,6 @@ public class WatchFaceImpl @UiThread constructor(
         // there's a gap of 10% battery (Intent.ACTION_BATTERY_LOW gets sent when < 15%) where we
         // clamp the framerate to a maximum of 10fps to conserve power.
         internal const val MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS = 100L
-
-        // The threshold used to judge whether the battery is low during initialization.  Ideally
-        // we would use the threshold for Intent.ACTION_BATTERY_LOW but it's not documented or
-        // available programmatically. The value below is the default but it could be overridden
-        // by OEMs.
-        internal const val INITIAL_LOW_BATTERY_THRESHOLD = 15.0f
 
         // Number of milliseconds before the target draw time for the delayed task to run and post a
         // choreographer frame. This is necessary when rendering at less than 60 fps to make sure we
@@ -616,12 +607,6 @@ public class WatchFaceImpl @UiThread constructor(
             watchFaceHostApi.updateContentDescriptionLabels()
         }
 
-        setIsBatteryLowAndNotChargingFromBatteryStatus(
-            IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { iFilter ->
-                watchFaceHostApi.getContext().registerReceiver(null, iFilter)
-            }
-        )
-
         if (!watchState.isHeadless) {
             WatchFace.registerEditorDelegate(componentName, WFEditorDelegate())
         }
@@ -733,20 +718,6 @@ public class WatchFaceImpl @UiThread constructor(
                 this@WatchFaceImpl.onDestroy()
             }
         }
-    }
-
-    internal fun setIsBatteryLowAndNotChargingFromBatteryStatus(batteryStatus: Intent?) {
-        val status = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
-        val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-            status == BatteryManager.BATTERY_STATUS_FULL
-        val batteryPercent: Float = batteryStatus?.let { intent ->
-            val level: Int = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
-            val scale: Int = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
-            level * 100 / scale.toFloat()
-        } ?: 100.0f
-        val isBatteryLowAndNotCharging = watchState.isBatteryLowAndNotCharging as MutableStateFlow
-        isBatteryLowAndNotCharging.value =
-            (batteryPercent < INITIAL_LOW_BATTERY_THRESHOLD) && !isCharging
     }
 
     /** Called by the system in response to remote configuration. */

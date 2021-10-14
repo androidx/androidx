@@ -32,8 +32,8 @@ import kotlin.concurrent.withLock
 public abstract class NavigatorState {
     private val backStackLock = ReentrantLock(true)
     private val _backStack: MutableStateFlow<List<NavBackStackEntry>> = MutableStateFlow(listOf())
-    private val _transitionsInProgress: MutableStateFlow<List<NavBackStackEntry>> =
-        MutableStateFlow(listOf())
+    private val _transitionsInProgress: MutableStateFlow<Set<NavBackStackEntry>> =
+        MutableStateFlow(setOf())
 
     /**
      * @hide
@@ -54,7 +54,7 @@ public abstract class NavigatorState {
      * This is the set of currently running transitions. Use this set to retrieve the entry and call
      * [markTransitionComplete] once the transition is complete.
      */
-    public val transitionsInProgress: StateFlow<List<NavBackStackEntry>> =
+    public val transitionsInProgress: StateFlow<Set<NavBackStackEntry>> =
         _transitionsInProgress.asStateFlow()
 
     /**

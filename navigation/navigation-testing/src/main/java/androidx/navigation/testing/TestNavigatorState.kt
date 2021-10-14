@@ -145,6 +145,7 @@ public class TestNavigatorState @JvmOverloads constructor(
                         entry.maxLifecycle = Lifecycle.State.DESTROYED
                         if (!saveState) {
                             savedStates.remove(entry.id)
+                            viewModelStoreProvider.getViewModelStore(entry.id).clear()
                         }
                     } else {
                         entry.maxLifecycle = Lifecycle.State.CREATED
