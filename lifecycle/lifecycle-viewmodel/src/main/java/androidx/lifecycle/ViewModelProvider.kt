@@ -27,8 +27,8 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
-import java.lang.UnsupportedOperationException
 import java.lang.reflect.InvocationTargetException
+import kotlin.UnsupportedOperationException
 
 /**
  * An utility class that provides `ViewModels` for a scope.
@@ -229,14 +229,61 @@ constructor(
      *
      * @param application an application to pass in [AndroidViewModel]
      */
-    public open class AndroidViewModelFactory(
-        private val application: Application
+    public open class AndroidViewModelFactory
+    private constructor(
+        private val application: Application?,
+        // parameter to avoid clash between constructors with nullable and non-nullable
+        // Application
+        @Suppress("UNUSED_PARAMETER") unused: Int,
     ) : NewInstanceFactory() {
+
+        /**
+         * Constructs this factory.
+         * When a factory is constructed this way, a component for which [ViewModel] is created
+         * must provide an [Application] by [APPLICATION_KEY] in [CreationExtras], otherwise
+         *  [IllegalArgumentException] will be thrown from [create] method.
+         */
+        @Suppress("SingletonConstructor")
+        public constructor() : this(null, 0)
+
+        /**
+         * Constructs this factory.
+         *
+         * @param application an application to pass in [AndroidViewModel]
+         */
+        @Suppress("SingletonConstructor")
+        public constructor(application: Application) : this(application, 0)
+
+        @Suppress("DocumentExceptions")
+        override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+            return if (application != null) {
+                create(modelClass, application)
+            } else {
+                val application = extras[APPLICATION_KEY] ?: throw IllegalArgumentException(
+                    "CreationExtras mush have an application by `APPLICATION_KEY`"
+                )
+                create(modelClass, application)
+            }
+        }
+
         @Suppress("DocumentExceptions")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return if (application == null) {
+                throw UnsupportedOperationException(
+                    "AndroidViewModelFactory constructed " +
+                        "with empty constructor works only with " +
+                        "create(modelClass: Class<T>, extras: CreationExtras)."
+                )
+            } else {
+                create(modelClass, application)
+            }
+        }
+
+        @Suppress("DocumentExceptions")
+        private fun <T : ViewModel> create(modelClass: Class<T>, app: Application): T {
             return if (AndroidViewModel::class.java.isAssignableFrom(modelClass)) {
                 try {
-                    modelClass.getConstructor(Application::class.java).newInstance(application)
+                    modelClass.getConstructor(Application::class.java).newInstance(app)
                 } catch (e: NoSuchMethodException) {
                     throw RuntimeException("Cannot create an instance of $modelClass", e)
                 } catch (e: IllegalAccessException) {
@@ -271,6 +318,14 @@ constructor(
                 }
                 return sInstance!!
             }
+
+            private object ApplicationKeyImpl : Key<Application>
+
+            /**
+             * A [CreationExtras.Key] to query an application in which ViewModel is being created.
+             */
+            @JvmField
+            val APPLICATION_KEY: Key<Application> = ApplicationKeyImpl
         }
     }
 }

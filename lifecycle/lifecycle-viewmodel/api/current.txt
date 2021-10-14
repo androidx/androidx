@@ -33,8 +33,10 @@ package androidx.lifecycle {
   }
 
   public static class ViewModelProvider.AndroidViewModelFactory extends androidx.lifecycle.ViewModelProvider.NewInstanceFactory {
+    ctor public ViewModelProvider.AndroidViewModelFactory();
     ctor public ViewModelProvider.AndroidViewModelFactory(android.app.Application application);
     method public static final androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory getInstance(android.app.Application application);
+    field public static final androidx.lifecycle.viewmodel.CreationExtras.Key<android.app.Application> APPLICATION_KEY;
     field public static final androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion Companion;
   }
 
