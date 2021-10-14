@@ -497,7 +497,7 @@ package androidx.navigation {
     ctor public NavigatorState();
     method public abstract androidx.navigation.NavBackStackEntry createBackStackEntry(androidx.navigation.NavDestination destination, android.os.Bundle? arguments);
     method public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> getBackStack();
-    method public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> getTransitionsInProgress();
+    method public final kotlinx.coroutines.flow.StateFlow<java.util.Set<androidx.navigation.NavBackStackEntry>> getTransitionsInProgress();
     method public void markTransitionComplete(androidx.navigation.NavBackStackEntry entry);
     method @CallSuper public void onLaunchSingleTop(androidx.navigation.NavBackStackEntry backStackEntry);
     method public void pop(androidx.navigation.NavBackStackEntry popUpTo, boolean saveState);
@@ -505,7 +505,7 @@ package androidx.navigation {
     method public void push(androidx.navigation.NavBackStackEntry backStackEntry);
     method public void pushWithTransition(androidx.navigation.NavBackStackEntry backStackEntry);
     property public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> backStack;
-    property public final kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.navigation.NavBackStackEntry>> transitionsInProgress;
+    property public final kotlinx.coroutines.flow.StateFlow<java.util.Set<androidx.navigation.NavBackStackEntry>> transitionsInProgress;
   }
 
   @androidx.navigation.NavOptionsDsl public final class PopUpToBuilder {
