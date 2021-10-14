@@ -78,6 +78,7 @@ import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.android.asCoroutineDispatcher
@@ -3303,6 +3304,83 @@ public class WatchFaceServiceTest {
         assertThat(unparceled.complicationBoundsType.size)
             .isEqualTo(metadata[0].complicationBounds.size)
         assertThat(unparceled.isInitiallyEnabled).isTrue()
+    }
+
+    @Test
+    public fun renderer_onDestroy_called_even_if_init_not_complete() {
+        val initDeferred = CompletableDeferred<Unit>()
+        var onDestroyCalled = false
+        testWatchFaceService = TestWatchFaceService(
+            WatchFaceType.DIGITAL,
+            emptyList(),
+            { _, currentUserStyleRepository, watchState ->
+                renderer = object : TestRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    INTERACTIVE_UPDATE_RATE_MS
+                ) {
+                    // Prevent initialization until initDeferred completes.
+                    override suspend fun init() {
+                        super.init()
+                        initDeferred.await()
+                    }
+
+                    override fun onDestroy() {
+                        super.onDestroy()
+                        onDestroyCalled = true
+                    }
+                }
+                renderer
+            },
+            UserStyleSchema(emptyList()),
+            watchState,
+            handler,
+            null,
+            false,
+            null,
+            choreographer
+        )
+
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    WallpaperInteractiveWatchFaceInstanceParams(
+                        "TestID",
+                        DeviceConfig(
+                            false,
+                            false,
+                            0,
+                            0
+                        ),
+                        WatchUiState(false, 0),
+                        UserStyle(emptyMap()).toWireFormat(),
+                        emptyList()
+                    ),
+                    object : IPendingInteractiveWatchFace.Stub() {
+                        override fun getApiVersion() =
+                            IPendingInteractiveWatchFace.API_VERSION
+
+                        override fun onInteractiveWatchFaceCreated(
+                            iInteractiveWatchFace: IInteractiveWatchFace
+                        ) {
+                            interactiveWatchFaceInstance = iInteractiveWatchFace
+                        }
+
+                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                            fail("WatchFace crashed: $exception")
+                        }
+                    }
+                )
+            )
+
+        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onCreate(surfaceHolder)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+        assertThat(engineWrapper.deferredWatchFaceImpl.isCompleted).isFalse()
+
+        engineWrapper.onDestroy()
+        assertThat(onDestroyCalled).isTrue()
     }
 
     @SuppressLint("NewApi")

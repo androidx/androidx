@@ -1100,6 +1100,8 @@ public abstract class WatchFaceService : WallpaperService() {
 
         @UiThread
         override fun onDestroy(): Unit = TraceEvent("EngineWrapper.onDestroy").use {
+            super.onDestroy()
+
             destroyed = true
             backgroundThreadCoroutineScope.cancel()
             quitBackgroundThreadIfCreated()
@@ -1107,14 +1109,31 @@ public abstract class WatchFaceService : WallpaperService() {
             if (this::choreographer.isInitialized) {
                 choreographer.removeFrameCallback(frameCallback)
             }
-            // The WatchFaceImpl is created on the UiThread so if we get here and it's not crated we
-            // can be sure it'll never be created hence we don't need to destroy.
-            getWatchFaceImplOrNull()?.onDestroy()
             if (this::interactiveInstanceId.isInitialized) {
                 InteractiveInstanceManager.deleteInstance(interactiveInstanceId)
             }
 
-            super.onDestroy()
+            // NB user code could throw an exception so do this last.
+            runBlocking {
+                try {
+                    // The WatchFaceImpl is created on the UiThread so if we get here and it's not
+                    // created we can be sure it'll never be created hence we don't need to destroy
+                    // it.
+                    if (deferredWatchFaceImpl.isCompleted) {
+                        deferredWatchFaceImpl.await().onDestroy()
+                    } else if (deferredRendererAndComplicationManager.isCompleted) {
+                        // However we should destroy the renderer if its been created.
+                        deferredRendererAndComplicationManager.await().renderer.onDestroy()
+                    }
+                } catch (e: Exception) {
+                    // Throwing an exception here leads to a cascade of errors, log instead.
+                    Log.e(
+                        TAG,
+                        "WatchFace exception observed in onDestroy (may have occurred during init)",
+                        e
+                    )
+                }
+            }
         }
 
         override fun onSurfaceDestroyed(holder: SurfaceHolder) {
