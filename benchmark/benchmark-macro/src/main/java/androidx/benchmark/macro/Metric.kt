@@ -158,6 +158,15 @@ public class FrameTimingGfxInfoMetric : Metric() {
 /**
  * Metric which captures timing information from frames produced by a benchmark, such as
  * a scrolling or animation benchmark.
+ *
+ * This outputs the following measurements:
+ *
+ * * `frameOverrunMs` (Requires API 29) - How much time a given frame missed its deadline by.
+ * Positive numbers indicate a dropped frame and visible jank / stutter, negative numbers indicate
+ * how much faster than the deadline a frame was.
+ *
+ * * `frameCpuTimeMs` - How much time the frame took to be produced on the CPU - on both the UI
+ * Thread, and RenderThread.
  */
 @Suppress("CanSealedSubClassBeObject")
 public class FrameTimingMetric : Metric() {
@@ -172,9 +181,9 @@ public class FrameTimingMetric : Metric() {
             captureApiLevel = Build.VERSION.SDK_INT,
             packageName = captureInfo.targetPackageName
         )
-            .filterKeys { it == SubMetric.FrameCpuTime || it == SubMetric.FrameNegativeSlackTime }
+            .filterKeys { it == SubMetric.FrameCpuTime || it == SubMetric.FrameOverrunTime }
             .mapKeys {
-                if (it.key == SubMetric.FrameCpuTime) "frameCpuTimeMs" else "frameNegativeSlackMs"
+                if (it.key == SubMetric.FrameCpuTime) "frameCpuTimeMs" else "frameOverrunMs"
             }
             .mapValues { entry ->
                 entry.value.map { timeNs -> timeNs.nsToDoubleMs() }
@@ -189,6 +198,16 @@ public class FrameTimingMetric : Metric() {
 
 /**
  * Captures app startup timing metrics.
+ *
+ * This outputs the following measurements:
+ *
+ * * `timeToInitialDisplayMs` - Time from the system receiving a launch intent to rendering the
+ * first frame of the destination Activity.
+ *
+ * * `timeToFullDisplayMs` - Time from the system receiving a launch intent until the application
+ * reports fully drawn via [android.app.Activity.reportFullyDrawn]. The measurement stops at the
+ * completion of rendering the first frame after (or containing) the `reportFullyDrawn()` call. This
+ * measurement may not be available prior to API 29.
  */
 @Suppress("CanSealedSubClassBeObject")
 @RequiresApi(23)
