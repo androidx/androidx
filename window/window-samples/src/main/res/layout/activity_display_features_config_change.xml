@@ -22,7 +22,7 @@
     android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="androidx.window.sample.DisplayFeaturesActivity">
+    tools:context="androidx.window.sample.DisplayFeaturesConfigChangeActivity">
 
     <FrameLayout
         android:id="@+id/featureContainerLayout"

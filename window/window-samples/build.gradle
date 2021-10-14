@@ -42,6 +42,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0-alpha02")
 
     implementation(project(":window:window"))
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
 }
 
 androidx {

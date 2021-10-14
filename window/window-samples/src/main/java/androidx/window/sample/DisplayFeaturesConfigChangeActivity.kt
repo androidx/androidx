@@ -36,14 +36,14 @@ import java.util.Date
 import java.util.Locale
 
 /** Demo activity that shows all display features and current device state on the screen. */
-class DisplayFeaturesActivity : AppCompatActivity() {
+class DisplayFeaturesConfigChangeActivity : AppCompatActivity() {
 
     private val infoLogAdapter = InfoLogAdapter()
     private val displayFeatureViews = ArrayList<View>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_display_features)
+        setContentView(R.layout.activity_display_features_config_change)
         val recyclerView = findViewById<RecyclerView>(R.id.infoLogRecyclerView)
         recyclerView.adapter = infoLogAdapter
 
