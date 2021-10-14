@@ -13,51 +13,63 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.annotation;
 
-import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PACKAGE;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.CLASS;
+package androidx.annotation
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import androidx.annotation.RestrictTo.Scope
+import java.lang.annotation.ElementType.ANNOTATION_TYPE
+import java.lang.annotation.ElementType.CONSTRUCTOR
+import java.lang.annotation.ElementType.FIELD
+import java.lang.annotation.ElementType.METHOD
+import java.lang.annotation.ElementType.PACKAGE
+import java.lang.annotation.ElementType.TYPE
 
 /**
  * Denotes that the annotated element should only be accessed from within a
- * specific scope (as defined by {@link Scope}).
- * <p>
+ * specific scope (as defined by [Scope]).
+ *
+ *
  * Example of restricting usage within a library (based on gradle group ID):
- * <pre><code>
- *   &#64;RestrictTo(GROUP_ID)
- *   public void resetPaddingToInitialValues() { ...
- * </code></pre>
+ * ```
+ * @RestrictTo(GROUP_ID)
+ * public void resetPaddingToInitialValues() { ...
+ * ```
  * Example of restricting usage to tests:
- * <pre><code>
- *   &#64;RestrictScope(TESTS)
- *   public abstract int getUserId();
- * </code></pre>
+ * ```
+ * @RestrictTo(Scope.TESTS)
+ * public abstract int getUserId();
+ * ```
  * Example of restricting usage to subclasses:
- * <pre><code>
- *   &#64;RestrictScope(SUBCLASSES)
- *   public void onDrawForeground(Canvas canvas) { ...
- * </code></pre>
+ * ```
+ * @RestrictTo(Scope.SUBCLASSES)
+ * public void onDrawForeground(Canvas canvas) { ...
+ * ```
  */
-@Documented
-@Retention(CLASS)
-@Target({ANNOTATION_TYPE, TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE})
-public @interface RestrictTo {
-
+@MustBeDocumented
+@kotlin.annotation.Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.ANNOTATION_CLASS,
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.FILE
+)
+// Needed due to Kotlin's lack of PACKAGE annotation target
+// https://youtrack.jetbrains.com/issue/KT-45921
+@Suppress("DEPRECATED_JAVA_ANNOTATION")
+@java.lang.annotation.Target(
+    ANNOTATION_TYPE, TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE
+)
+public annotation class RestrictTo(
     /**
      * The scope to which usage should be restricted.
      */
-    Scope[] value();
-
-    enum Scope {
+    vararg val value: Scope
+) {
+    public enum class Scope {
         /**
          * Restrict usage to code within the same library (e.g. the same
          * gradle group ID and artifact ID).
@@ -86,11 +98,11 @@ public @interface RestrictTo {
 
         /**
          * Restrict usage to code within the same group ID (based on gradle
-         * group ID). This is an alias for {@link #LIBRARY_GROUP_PREFIX}.
+         * group ID). This is an alias for [LIBRARY_GROUP_PREFIX].
          *
-         * @deprecated Use {@link #LIBRARY_GROUP_PREFIX} instead
+         * @deprecated Use [LIBRARY_GROUP_PREFIX] instead
          */
-        @Deprecated
+        @Deprecated("Use LIBRARY_GROUP_PREFIX instead.")
         GROUP_ID,
 
         /**
@@ -100,8 +112,8 @@ public @interface RestrictTo {
 
         /**
          * Restrict usage to subclasses of the enclosing class.
-         * <p>
-         * <strong>Note:</strong> This scope should not be used to annotate
+         *
+         * **Note:** This scope should not be used to annotate
          * packages.
          */
         SUBCLASSES,
