@@ -19,6 +19,7 @@ package androidx.glance.appwidget
 import android.content.Context
 import android.os.Build
 import android.view.ViewGroup
+import androidx.annotation.LayoutRes
 import androidx.glance.Modifier
 import androidx.glance.findModifier
 import androidx.glance.layout.Dimension
@@ -27,16 +28,16 @@ import androidx.glance.layout.WidthModifier
 import androidx.glance.unit.dp
 
 /**
- * Set of ids defining a layout.
- *
- * It contains the id of the layout itself, and the ids of the elements within the layout that
- * the code may need to access.
+ * Information about a generated layout, including the layout id, ids of elements within, and other
+ * details about the layout contents.
  */
-internal data class LayoutIds(
-    val layoutId: Int,
+internal data class LayoutInfo(
+    @LayoutRes val layoutId: Int,
     val mainViewId: Int = R.id.glanceView,
-    val sizeViewId: Int? = null,
+    val isComplex: Boolean,
 )
+
+internal val LayoutInfo.isSimple get() = !isComplex
 
 /**
  * The total number of generated layouts.
@@ -92,7 +93,7 @@ internal fun selectLayout(
     translationContext: TranslationContext,
     type: LayoutSelector.Type,
     modifier: Modifier
-): LayoutIds {
+): LayoutInfo {
     val context = translationContext.context
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         return selectApi31Layout(type, modifier)
@@ -119,14 +120,13 @@ internal fun selectLayout(
 
 private fun Dimension.toSpecSize(): LayoutSelector.Size =
     when (this) {
-        is Dimension.Dp -> LayoutSelector.Size.Fixed
         is Dimension.Wrap -> LayoutSelector.Size.Wrap
         is Dimension.Expand -> LayoutSelector.Size.Expand
         is Dimension.Fill -> LayoutSelector.Size.MatchParent
-        else -> LayoutSelector.Size.Fixed
+        is Dimension.Dp, is Dimension.Resource -> LayoutSelector.Size.Fixed
     }
 
-private fun Dimension.resolveDimension(context: Context): Dimension {
+internal fun Dimension.resolveDimension(context: Context): Dimension {
     if (this !is Dimension.Resource) return this
     val sizePx = context.resources.getDimension(res)
     return when (sizePx.toInt()) {
@@ -143,7 +143,7 @@ private fun Dimension.resolveDimension(context: Context): Dimension {
 private fun selectApi31Layout(
     type: LayoutSelector.Type,
     modifier: Modifier
-): LayoutIds {
+): LayoutInfo {
     val widthMod = modifier.findModifier<WidthModifier>()?.width ?: Dimension.Wrap
     val heightMod = modifier.findModifier<HeightModifier>()?.height ?: Dimension.Wrap
     val width = widthMod.toSpecSize()

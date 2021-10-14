@@ -78,7 +78,25 @@ internal class LayoutGenerator {
     fun generateAllFiles(files: List<File>, outputResourcesDir: File): Map<File, LayoutProperties> {
         val outputLayoutDir = outputResourcesDir.resolve("layout")
         outputLayoutDir.mkdirs()
+        generateSizeLayouts(outputLayoutDir)
         return files.associateWith { generateForFile(it, outputLayoutDir) }
+    }
+
+    private fun generateSizeLayouts(outputLayoutDir: File) {
+        val stubSizes = listOf(ValidSize.Wrap, ValidSize.Match)
+        forEachInCrossProduct(stubSizes, stubSizes) { width, height ->
+            val generated = documentBuilder.newDocument()
+            val root = generated.createElement("TextView")
+            generated.appendChild(root)
+            root.attributes.apply {
+                setNamedItemNS(generated.androidWidth(width))
+                setNamedItemNS(generated.androidHeight(height))
+            }
+            writeGeneratedLayout(
+                generated,
+                outputLayoutDir.resolve("size_${width.resourceName}_${height.resourceName}.xml")
+            )
+        }
     }
 
     private fun generateForFile(file: File, outputLayoutDir: File): LayoutProperties {
@@ -134,7 +152,7 @@ internal class LayoutGenerator {
             setNamedItemNS(generated.androidWidth(width))
             setNamedItemNS(generated.androidHeight(height))
             if (width == ValidSize.Expand || height == ValidSize.Expand) {
-                setNamedItemNS(generated.androidWeight("1"))
+                setNamedItemNS(generated.androidWeight(1))
             }
             setNamedItemNS(generated.androidLayoutDirection("locale"))
         }
@@ -200,16 +218,28 @@ internal class LayoutGenerator {
             setNamedItemNS(generated.androidWidth(width))
             setNamedItemNS(generated.androidHeight(height))
             if (width == ValidSize.Expand || height == ValidSize.Expand) {
-                setNamedItemNS(generated.androidWeight("1"))
+                setNamedItemNS(generated.androidWeight(1))
             }
         }
-        val sizeView = generated.createElement("TextView")
-        root.appendChild(sizeView)
-        sizeView.attributes.apply {
-            setNamedItemNS(generated.androidId("@id/sizeView"))
-            setNamedItemNS(generated.androidWidth(width.toSizeViewDimension()))
-            setNamedItemNS(generated.androidHeight(height.toSizeViewDimension()))
+
+        if (width == ValidSize.Fixed || height == ValidSize.Fixed) {
+            // A sizing view is only required if the width or height are fixed.
+            val sizeView = generated.createElement("FrameLayout")
+            root.appendChild(sizeView)
+            sizeView.attributes.apply {
+                setNamedItemNS(generated.androidId("@id/sizeView"))
+                setNamedItemNS(generated.androidWidth(ValidSize.Wrap))
+                setNamedItemNS(generated.androidHeight(ValidSize.Wrap))
+            }
+            val sizeViewStub = generated.createElement("ViewStub")
+            sizeView.appendChild(sizeViewStub)
+            sizeViewStub.attributes.apply {
+                setNamedItemNS(generated.androidId("@id/sizeViewStub"))
+                setNamedItemNS(generated.androidWidth(ValidSize.Wrap))
+                setNamedItemNS(generated.androidHeight(ValidSize.Wrap))
+            }
         }
+
         val mainNode = generated.importNode(document.documentElement, true)
         root.appendChild(mainNode)
         mainNode.attributes.apply {
@@ -217,25 +247,34 @@ internal class LayoutGenerator {
                 setNamedItemNS(generated.androidId("@id/glanceView"))
             }
 
-            if (width == ValidSize.Wrap) {
-                setNamedItemNS(generated.androidWidth(ValidSize.Wrap))
-            } else {
-                // If the view's width isn't wrap_content, its width is determined by sizeView. Use
-                // 0dp width for efficiency.
-                setNamedItemNS(generated.androidWidth(ValidSize.Expand))
-                setNamedItemNS(generated.androidAttr("layout_alignLeft", "@id/sizeView"))
-                setNamedItemNS(generated.androidAttr("layout_alignRight", "@id/sizeView"))
-            }
+            when (width) {
+                ValidSize.Wrap -> setNamedItemNS(generated.androidWidth(ValidSize.Wrap))
+                ValidSize.Match, ValidSize.Expand -> {
+                    setNamedItemNS(generated.androidWidth(ValidSize.Match))
+                }
+                ValidSize.Fixed -> {
+                    // If the view's height is fixed, its height is determined by sizeView.
+                    // Use 0dp width for efficiency.
+                    setNamedItemNS(generated.androidWidth(ValidSize.Expand))
+                    setNamedItemNS(generated.androidAttr("layout_alignLeft", "@id/sizeView"))
+                    setNamedItemNS(generated.androidAttr("layout_alignRight", "@id/sizeView"))
+                }
+            }.let {}
 
-            if (height == ValidSize.Wrap) {
-                setNamedItemNS(generated.androidHeight(ValidSize.Wrap))
-            } else {
-                // If the view's height isn't wrap_content, its height is determined by sizeView.
-                // Use 0dp height for efficiency.
-                setNamedItemNS(generated.androidHeight(ValidSize.Expand))
-                setNamedItemNS(generated.androidAttr("layout_alignTop", "@id/sizeView"))
-                setNamedItemNS(generated.androidAttr("layout_alignBottom", "@id/sizeView"))
-            }
+            when (height) {
+                ValidSize.Wrap -> setNamedItemNS(generated.androidHeight(ValidSize.Wrap))
+                ValidSize.Match, ValidSize.Expand -> {
+                    setNamedItemNS(generated.androidHeight(ValidSize.Match))
+                }
+                ValidSize.Fixed -> {
+                    // If the view's height is fixed, its height is determined by sizeView.
+                    // Use 0dp width for efficiency.
+                    setNamedItemNS(generated.androidHeight(ValidSize.Expand))
+                    setNamedItemNS(generated.androidAttr("layout_alignTop", "@id/sizeView"))
+                    setNamedItemNS(generated.androidAttr("layout_alignBottom", "@id/sizeView"))
+                }
+            }.let {}
+
             setNamedItemNS(generated.androidLayoutDirection("locale"))
         }
         generated.appendViewStubs(mainNode, childCount)
@@ -289,7 +328,7 @@ internal fun Document.androidWidth(value: ValidSize) =
 internal fun Document.androidHeight(value: ValidSize) =
     androidAttr("layout_height", value.androidValue)
 
-internal fun Document.androidWeight(value: String) = androidAttr("layout_weight", value)
+internal fun Document.androidWeight(value: Int) = androidAttr("layout_weight", value.toString())
 
 internal fun Document.androidLayoutDirection(value: String) =
     androidAttr("layoutDirection", value)
@@ -298,15 +337,6 @@ internal val Document.androidNamespace
     get() = createAttribute("xmlns:android").apply {
         textContent = AndroidNS
     }
-
-/**
- * Returns the [ValidSize] to be used for the sizing TextView given the [ValidSize] for the main
- * view.
- */
-internal fun ValidSize.toSizeViewDimension() = when (this) {
-    ValidSize.Wrap, ValidSize.Fixed -> ValidSize.Wrap
-    ValidSize.Match, ValidSize.Expand -> ValidSize.Match
-}
 
 internal inline fun forEachConfiguration(
     file: File,
