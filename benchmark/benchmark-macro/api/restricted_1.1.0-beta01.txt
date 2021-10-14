@@ -58,7 +58,9 @@ package androidx.benchmark.macro {
     method public void dropKernelPageCache();
     method public void killProcess();
     method public void pressHome(optional long delayDurationMs);
+    method public void pressHome();
     method public void startActivityAndWait(optional kotlin.jvm.functions.Function1<? super android.content.Intent,kotlin.Unit> block);
+    method public void startActivityAndWait();
     method public void startActivityAndWait(android.content.Intent intent);
   }
 
