@@ -20,7 +20,6 @@
     android:minResizeWidth="40dp"
     android:minResizeHeight="40dp"
     android:initialLayout="@layout/empty_layout"
-    android:previewLayout="@layout/responsive_preview_layout"
     android:previewImage="@drawable/responsive_preview_image"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen">
