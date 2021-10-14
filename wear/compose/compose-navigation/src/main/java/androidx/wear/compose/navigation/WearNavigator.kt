@@ -30,6 +30,11 @@ import androidx.navigation.Navigator
 @Navigator.Name("wear-navigator")
 public class WearNavigator : Navigator<WearNavigator.Destination>() {
     /**
+     * Get the map of transitions currently in progress from the [state].
+     */
+    internal val transitionsInProgress get() = state.transitionsInProgress
+
+    /**
      * Get the back stack from the [state].
      */
     internal val backStack get() = state.backStack
@@ -40,7 +45,7 @@ public class WearNavigator : Navigator<WearNavigator.Destination>() {
         navigatorExtras: Extras?
     ) {
         entries.forEach { entry ->
-            state.pushWithTransition(entry)
+            state.push(entry)
         }
     }
 
@@ -48,6 +53,18 @@ public class WearNavigator : Navigator<WearNavigator.Destination>() {
 
     override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
         state.popWithTransition(popUpTo, savedState)
+    }
+
+    /**
+     * Callback that removes the given [NavBackStackEntry] from the [map of the transitions in
+     * progress][transitionsInProgress]. This should be called in conjunction with [navigate] and
+     * [popBackStack] as those call are responsible for adding entries to [transitionsInProgress].
+     *
+     * Failing to call this method could result in entries being prevented from reaching their
+     * final Lifecycle.State.
+     */
+    internal fun onTransitionComplete(entry: NavBackStackEntry) {
+        state.markTransitionComplete(entry)
     }
 
     /**
