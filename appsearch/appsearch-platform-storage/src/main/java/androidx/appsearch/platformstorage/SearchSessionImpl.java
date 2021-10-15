@@ -48,6 +48,7 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -211,12 +212,50 @@ class SearchSessionImpl implements AppSearchSession {
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
         ResolvableFuture<Void> future = ResolvableFuture.create();
-        mPlatformSession.remove(
-                queryExpression,
-                SearchSpecToPlatformConverter.toPlatformSearchSpec(searchSpec),
-                mExecutor,
-                result -> AppSearchResultToPlatformConverter.platformAppSearchResultToFuture(
-                        result, future));
+
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.S
+                && !searchSpec.getFilterNamespaces().isEmpty()) {
+            // This is a patch for b/197361770, framework-appsearch in Android S will
+            // disable the given namespace filter if it is not empty and none of given namespaces
+            // exist.
+            // And that will result in Icing remove documents under all namespaces if it matches
+            // query express and schema filter.
+            mPlatformSession.getNamespaces(
+                    mExecutor,
+                    namespaceResult -> {
+                        if (namespaceResult.isSuccess()) {
+                            Set<String> existingNamespaces = namespaceResult.getResultValue();
+                            List<String> filterNamespaces = searchSpec.getFilterNamespaces();
+                            for (int i = 0; i < filterNamespaces.size(); i++) {
+                                if (existingNamespaces.contains(filterNamespaces.get(i))) {
+                                    // There is a given namespace exist in AppSearch, we are fine.
+                                    mPlatformSession.remove(
+                                            queryExpression,
+                                            SearchSpecToPlatformConverter
+                                                    .toPlatformSearchSpec(searchSpec),
+                                            mExecutor,
+                                            removeResult -> AppSearchResultToPlatformConverter
+                                                    .platformAppSearchResultToFuture(removeResult,
+                                                            future));
+                                    return;
+                                }
+                            }
+                            // None of the namespace in the given namespace filter exists. Return
+                            // early.
+                            future.set(null);
+                        } else {
+                            handleFailedPlatformResult(namespaceResult, future);
+                        }
+                    });
+        } else {
+            // Handle normally for Android T and above.
+            mPlatformSession.remove(
+                    queryExpression,
+                    SearchSpecToPlatformConverter.toPlatformSearchSpec(searchSpec),
+                    mExecutor,
+                    removeResult -> AppSearchResultToPlatformConverter
+                            .platformAppSearchResultToFuture(removeResult, future));
+        }
         return future;
     }
 
