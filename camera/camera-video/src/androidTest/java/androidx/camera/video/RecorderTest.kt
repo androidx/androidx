@@ -63,6 +63,7 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestName
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -88,6 +89,9 @@ class RecorderTest {
 
     @get:Rule
     var cameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+
+    @get:Rule
+    var testName: TestName = TestName()
 
     @get:Rule
     val permissionRule: GrantPermissionRule =
@@ -125,16 +129,26 @@ class RecorderTest {
 
         // Using Preview so that the surface provider could be set to control when to issue the
         // surface request.
-        val resolution = QualitySelector.getResolution(
-            cameraUseCaseAdapter.cameraInfo,
-            QualitySelector.QUALITY_LOWEST
-        )
-        assumeTrue(resolution != null)
+        val cameraInfo = cameraUseCaseAdapter.cameraInfo
+        val candidates = mutableSetOf<Size>().apply {
+            if (testName.methodName == "setFileSizeLimit") {
+                QualitySelector.getResolution(cameraInfo, QualitySelector.QUALITY_FHD)
+                    ?.let { add(it) }
+                QualitySelector.getResolution(cameraInfo, QualitySelector.QUALITY_HD)
+                    ?.let { add(it) }
+                QualitySelector.getResolution(cameraInfo, QualitySelector.QUALITY_SD)
+                    ?.let { add(it) }
+            }
+            QualitySelector.getResolution(cameraInfo, QualitySelector.QUALITY_LOWEST)
+                ?.let { add(it) }
+        }
+        assumeTrue(candidates.isNotEmpty())
+
         val resolutions: List<android.util.Pair<Int, Array<Size>>> =
             listOf<android.util.Pair<Int, Array<Size>>>(
                 android.util.Pair.create(
                     ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
-                    arrayOf(resolution!!)
+                    candidates.toTypedArray()
                 )
             )
         preview = Preview.Builder().setSupportedResolutions(resolutions).build()
@@ -1107,6 +1121,10 @@ class RecorderTest {
     }
 
     private fun runFileSizeLimitTest(fileSizeLimit: Long) {
+        // For the file size is small, the final file length possibly exceeds the file size limit
+        // after adding the file header. We still add the buffer for the tolerance of comparing the
+        // file length and file size limit.
+        val sizeLimitBuffer = 50 * 1024 // 50k threshold buffer
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         val outputOptions = FileOutputOptions.Builder(file)
@@ -1115,6 +1133,7 @@ class RecorderTest {
 
         val activeRecording = recorder
             .prepareRecording(context, outputOptions)
+            .withAudioEnabled()
             .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
             .start()
 
@@ -1129,7 +1148,7 @@ class RecorderTest {
         assertThat(captor.value).isInstanceOf(VideoRecordEvent.Finalize::class.java)
         val finalize = captor.value as VideoRecordEvent.Finalize
         assertThat(finalize.error).isEqualTo(ERROR_FILE_SIZE_LIMIT_REACHED)
-        assertThat(file.length()).isLessThan(fileSizeLimit)
+        assertThat(file.length()).isLessThan(fileSizeLimit + sizeLimitBuffer)
 
         activeRecording.close()
         file.delete()
