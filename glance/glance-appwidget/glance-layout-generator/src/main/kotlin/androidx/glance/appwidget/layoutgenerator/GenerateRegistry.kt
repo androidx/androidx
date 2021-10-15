@@ -79,7 +79,6 @@ private fun createFileInitializer(layout: File, mainViewId: String): CodeBlock =
             height = height,
             canResize = false,
             mainViewId = "R.id.$mainViewId",
-            sizeViewId = null,
             childCount = childCount
         )
         addLayout(
@@ -89,7 +88,6 @@ private fun createFileInitializer(layout: File, mainViewId: String): CodeBlock =
             height = height,
             canResize = true,
             mainViewId = "R.id.$mainViewId",
-            sizeViewId = "R.id.sizeView",
             childCount = childCount
         )
     }
@@ -102,7 +100,6 @@ private fun CodeBlock.Builder.addLayout(
     height: ValidSize,
     canResize: Boolean,
     mainViewId: String,
-    sizeViewId: String?,
     childCount: Int
 ) {
     addStatement(
@@ -114,19 +111,19 @@ private fun CodeBlock.Builder.addLayout(
         childCount
     )
     withIndent {
-        addStatement("%T(", LayoutIds)
+        addStatement("%T(", LayoutInfo)
         withIndent {
             addStatement("layoutId = R.layout.$resourceName,")
             addStatement("mainViewId = $mainViewId,")
-            addStatement("sizeViewId = $sizeViewId,")
+            addStatement("isComplex = $canResize,")
         }
         addStatement("),")
     }
 }
 
 private val LayoutSelector = ClassName("androidx.glance.appwidget", "LayoutSelector")
-private val LayoutIds = ClassName("androidx.glance.appwidget", "LayoutIds")
-private val LayoutsMap = Map::class.asTypeName().parameterizedBy(LayoutSelector, LayoutIds)
+private val LayoutInfo = ClassName("androidx.glance.appwidget", "LayoutInfo")
+private val LayoutsMap = Map::class.asTypeName().parameterizedBy(LayoutSelector, LayoutInfo)
 private const val LayoutSpecSize = "androidx.glance.appwidget.LayoutSelector.Size"
 private val WrapValue = MemberName("$LayoutSpecSize", "Wrap")
 private val FixedValue = MemberName("$LayoutSpecSize", "Fixed")
@@ -136,7 +133,7 @@ private val ExpandValue = MemberName("$LayoutSpecSize", "Expand")
 private fun makeViewType(name: String) =
     MemberName("androidx.glance.appwidget.LayoutSelector.Type", name)
 
-private fun String.toLayoutType() =
+private fun String.toLayoutType(): String =
     snakeRegex.replace(this) {
         it.value.replace("_", "").uppercase()
     }.replaceFirstChar { it.uppercaseChar() }
@@ -209,3 +206,15 @@ internal fun File.allChildCounts(): List<Int> {
 
 /** The maximum number of direct children that a collection layout can have. */
 internal const val MaxChildren = 10
+
+internal inline fun <A, B> forEachInCrossProduct(
+    first: Iterable<A>,
+    second: Iterable<B>,
+    consumer: (A, B) -> Unit
+) {
+    first.forEach { a ->
+        second.forEach { b ->
+            consumer(a, b)
+        }
+    }
+}

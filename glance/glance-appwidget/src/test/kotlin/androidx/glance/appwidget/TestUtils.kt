@@ -25,6 +25,8 @@ import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.RemoteViews
 import androidx.compose.runtime.BroadcastFrameClock
@@ -64,7 +66,9 @@ internal fun Context.applyRemoteViews(rv: RemoteViews): View {
         rv.writeToParcel(p, 0)
         p.setDataPosition(0)
         val parceled = RemoteViews(p)
-        parceled.apply(this, FrameLayout(this))
+        val parent = FrameLayout(this)
+        parent.layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+        parceled.apply(this, parent)
     } finally {
         p.recycle()
     }
