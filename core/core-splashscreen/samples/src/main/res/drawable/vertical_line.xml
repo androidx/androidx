@@ -1,4 +1,4 @@
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright 2021 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,12 +13,12 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
-<androidx.core.splashscreen.test.TestView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#FEDEDE">
-
-</androidx.core.splashscreen.test.TestView>
+<!-- Debug drawable to identify the top and bottom of the content view without coloring
+the whole background -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="40dp"
+        android:left="40dp">
+        <color android:color="#0000FF" />
+    </item>
+</layer-list>

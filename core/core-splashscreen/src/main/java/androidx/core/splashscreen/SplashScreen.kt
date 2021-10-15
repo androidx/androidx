@@ -16,6 +16,7 @@
 
 package androidx.core.splashscreen
 
+import android.R.attr
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.res.Resources
@@ -29,10 +30,12 @@ import android.view.View.OnLayoutChangeListener
 import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnPreDrawListener
 import android.view.WindowInsets
+import android.view.WindowManager.LayoutParams
 import android.widget.ImageView
 import android.window.SplashScreenView
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.splashscreen.SplashScreen.KeepOnScreenCondition
 
 /**
@@ -456,11 +459,51 @@ class SplashScreen private constructor(activity: Activity) {
             }
         }
 
+        /**
+         * Apply the system ui related theme attribute defined in the application to override the
+         * ones set on the [SplashScreenView]
+         *
+         * On API 31, if an OnExitAnimationListener is set, the Window layout params are only
+         * applied only when the [SplashScreenView] is removed. This lead to some
+         * flickers.
+         *
+         * To fix this, we apply these attributes as soon as the [SplashScreenView]
+         * is visible.
+         */
         private fun applyAppSystemUiTheme() {
+            val tv = TypedValue()
+            val theme = activity.theme
             val window = activity.window
 
+            if (theme.resolveAttribute(attr.statusBarColor, tv, true)) {
+                window.statusBarColor = tv.data
+            }
+
+            if (theme.resolveAttribute(attr.navigationBarColor, tv, true)) {
+                window.navigationBarColor = tv.data
+            }
+
+            if (theme.resolveAttribute(attr.windowDrawsSystemBarBackgrounds, tv, true)) {
+                if (tv.data != 0) {
+                    window.addFlags(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                } else {
+                    window.clearFlags(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                }
+            }
+
+            if (theme.resolveAttribute(attr.enforceNavigationBarContrast, tv, true)) {
+                window.isNavigationBarContrastEnforced = tv.data != 0
+            }
+
+            if (theme.resolveAttribute(attr.enforceStatusBarContrast, tv, true)) {
+                window.isStatusBarContrastEnforced = tv.data != 0
+            }
+
+            val decorView = window.decorView as ViewGroup
+            ThemeUtils.Api31.applyThemesSystemBarAppearance(theme, decorView, tv)
+
             // Fix setDecorFitsSystemWindows being overridden by the SplashScreenView
-            (activity.window.decorView as ViewGroup).setOnHierarchyChangeListener(null)
+            decorView.setOnHierarchyChangeListener(null)
             window.setDecorFitsSystemWindows(mDecorFitWindowInsets)
         }
     }
