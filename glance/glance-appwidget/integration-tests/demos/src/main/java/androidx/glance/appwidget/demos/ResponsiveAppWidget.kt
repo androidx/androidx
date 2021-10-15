@@ -30,7 +30,6 @@ import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.background
 import androidx.glance.layout.Button
 import androidx.glance.layout.Column
 import androidx.glance.layout.Text
@@ -55,16 +54,13 @@ class ResponsiveAppWidget : GlanceAppWidget() {
         val size = LocalSize.current
         val context = LocalContext.current
         val parameters = actionParametersOf(MessageKey to "Button clicked")
-        Column(
-            modifier = GlanceModifier
-                .padding(8.dp)
-                .background(R.color.responsive_widget_background)
-        ) {
+        Column(modifier = GlanceModifier.padding(8.dp)) {
             val content = if (size.width < 100.dp) {
                 "${size.width.value}dp x ${size.height.value}dp"
             } else {
                 "Current layout: ${size.width.value}dp x ${size.height.value}dp"
             }
+
             if (size.height >= 100.dp) {
                 Text(
                     context.getString(R.string.responsive_widget_title),

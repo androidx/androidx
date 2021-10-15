@@ -20,7 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="8dp"
-    android:background="@color/exact_widget_background"
+    android:background="@color/default_widget_background"
     android:gravity="center_vertical">
     <TextView
         android:layout_width="wrap_content"

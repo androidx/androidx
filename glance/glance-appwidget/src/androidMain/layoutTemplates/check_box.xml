@@ -16,4 +16,5 @@
 
 <CheckBox xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@id/glanceView"
-    android:textDirection="locale" />
+    android:textDirection="locale"
+    style="@style/Glance.AppWidget.CheckBox"/>

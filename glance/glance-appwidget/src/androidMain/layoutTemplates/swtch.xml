@@ -15,4 +15,5 @@
   -->
 
 <Switch xmlns:android="http://schemas.android.com/apk/res/android"
-    android:textDirection="locale" />
+    android:textDirection="locale"
+    style="@style/Glance.AppWidget.Switch"/>
