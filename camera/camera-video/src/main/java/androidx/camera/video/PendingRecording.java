@@ -133,8 +133,8 @@ public final class PendingRecording {
      * @return this pending recording
      * @throws IllegalStateException if the {@link Recorder} this recording is associated to
      * doesn't support audio.
-     * @throws SecurityException if the current application does not have the
-     * {@link Manifest.permission#RECORD_AUDIO} granted.
+     * @throws SecurityException if the {@link Manifest.permission#RECORD_AUDIO} permission
+     * is denied for the current application.
      */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @NonNull
@@ -176,8 +176,7 @@ public final class PendingRecording {
      * the recording needs to be active.
      *
      * @throws IllegalStateException if the associated Recorder currently has an unfinished
-     * active recording, or if the recording has {@link #withAudioEnabled()} audio} but
-     * {@link android.Manifest.permission#RECORD_AUDIO} is not granted.
+     * active recording.
      */
     @NonNull
     @CheckResult
