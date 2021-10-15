@@ -86,8 +86,8 @@ public class SplashScreen private constructor(activity: Activity) {
      * @param condition The condition evaluated to decide whether to keep the splash screen on
      * screen
      */
-    public fun setKeepVisibleCondition(condition: KeepOnScreenCondition) {
-        impl.setKeepVisibleCondition(condition)
+    public fun setKeepOnScreenCondition(condition: KeepOnScreenCondition) {
+        impl.setKeepOnScreenCondition(condition)
     }
 
     /**
@@ -104,7 +104,7 @@ public class SplashScreen private constructor(activity: Activity) {
      * @param listener The [OnExitAnimationListener] that will be called when the splash screen
      * is ready to be dismissed.
      *
-     * @see setKeepVisibleCondition
+     * @see setKeepOnScreenCondition
      * @see OnExitAnimationListener
      * @see SplashScreenViewProvider
      */
@@ -211,7 +211,7 @@ public class SplashScreen private constructor(activity: Activity) {
             }
         }
 
-        open fun setKeepVisibleCondition(keepOnScreenCondition: KeepOnScreenCondition) {
+        open fun setKeepOnScreenCondition(keepOnScreenCondition: KeepOnScreenCondition) {
             splashScreenWaitPredicate = keepOnScreenCondition
             val contentView = activity.findViewById<View>(android.R.id.content)
             val observer = contentView.viewTreeObserver
@@ -314,7 +314,7 @@ public class SplashScreen private constructor(activity: Activity) {
             setPostSplashScreenTheme(activity.theme, TypedValue())
         }
 
-        override fun setKeepVisibleCondition(keepOnScreenCondition: KeepOnScreenCondition) {
+        override fun setKeepOnScreenCondition(keepOnScreenCondition: KeepOnScreenCondition) {
             splashScreenWaitPredicate = keepOnScreenCondition
             val contentView = activity.findViewById<View>(android.R.id.content)
             val observer = contentView.viewTreeObserver
