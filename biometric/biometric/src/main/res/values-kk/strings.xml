@@ -30,4 +30,18 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Ешқандай PIN коды, өрнек немесе құпия сөз орнатылмаған."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Бұл құрылғы PIN кодын, өрнекті не құпия сөзді қолдамайды."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Саусақ ізі белгішесі"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"Саусақ ізін пайдалану"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"Бетті анықтау функциясын пайдалану"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"Биометриканы пайдалану"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"Экран құлпын пайдалану"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Саусақ ізін немесе экран құлпын пайдалану"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Бетті анықтау функциясын немесе экран құлпын пайдалану"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Биометриканы немесе экран құлпын пайдалану"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Жалғастыру үшін саусақ ізін пайдаланыңыз."</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"Жалғастыру үшін бетті анықтау функциясын пайдаланыңыз."</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"Жалғастыру үшін биометрикаңызды пайдаланыңыз."</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"Жалғастыру үшін экран құлпын енгізіңіз."</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"Жалғастыру үшін саусақ ізін немесе экран құлпын пайдаланыңыз."</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"Жалғастыру үшін бетті анықтау функциясын немесе экран құлпын пайдаланыңыз."</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"Жалғастыру үшін биометриканы немесе экран құлпын пайдаланыңыз."</string>
 </resources>
