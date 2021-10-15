@@ -20,11 +20,16 @@ import android.app.Application
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SAVED_STATE_REGISTRY_OWNER_KEY
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.SavedStateViewModelFactory
+import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.installSavedStateHandleSupport
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -44,26 +49,39 @@ class SavedStateFactoryTest {
 
     @UiThreadTest
     @Test
-    fun testCreateAndroidVM() {
+    fun testLegacyCreateAndroidVM() {
         val savedStateVMFactory = SavedStateViewModelFactory(
             activityRule.activity.application,
             activityRule.activity
         )
         val vm = ViewModelProvider(ViewModelStore(), savedStateVMFactory)
-        assertThat(vm.get(MyAndroidViewModel::class.java).handle).isNotNull()
-        assertThat(vm.get(MyViewModel::class.java).handle).isNotNull()
+        assertThat(vm[MyAndroidViewModel::class.java].handle).isNotNull()
+        assertThat(vm[MyViewModel::class.java].handle).isNotNull()
     }
 
     @UiThreadTest
     @Test
-    fun testCreateFailAndroidVM() {
+    fun testCreateAndroidVM() {
+        val savedStateVMFactory = SavedStateViewModelFactory()
+        val component = TestComponent()
+        component.installSavedStateHandleSupport()
+        val extras = component.extras
+        extras[APPLICATION_KEY] = activityRule.activity.application
+        val vm = ViewModelProvider(component.viewModelStore, savedStateVMFactory, extras)
+        assertThat(vm[MyAndroidViewModel::class.java].handle).isNotNull()
+        assertThat(vm[MyViewModel::class.java].handle).isNotNull()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testLegacyCreateFailAndroidVM() {
         val savedStateVMFactory = SavedStateViewModelFactory(
             null,
             activityRule.activity
         )
         val vm = ViewModelProvider(ViewModelStore(), savedStateVMFactory)
         try {
-            vm.get(MyAndroidViewModel::class.java)
+            vm[MyAndroidViewModel::class.java]
             fail("Creating an AndroidViewModel should fail when no Application is provided")
         } catch (e: RuntimeException) {
             assertThat(e).hasMessageThat().isEqualTo(
@@ -71,12 +89,27 @@ class SavedStateFactoryTest {
                     MyAndroidViewModel::class.java
             )
         }
-        assertThat(vm.get(MyViewModel::class.java).handle).isNotNull()
+        assertThat(vm[MyViewModel::class.java].handle).isNotNull()
     }
 
     @UiThreadTest
     @Test
-    fun testCreateAndroidAbstractVM() {
+    fun testCreateFailAndroidVM() {
+        val savedStateVMFactory = SavedStateViewModelFactory()
+        val component = TestComponent()
+        component.installSavedStateHandleSupport()
+        val vm = ViewModelProvider(component.viewModelStore, savedStateVMFactory, component.extras)
+        try {
+            vm[MyAndroidViewModel::class.java]
+            fail("Creating an AndroidViewModel should fail when no Application extras is provided")
+        } catch (e: RuntimeException) {
+        }
+        assertThat(vm[MyViewModel::class.java].handle).isNotNull()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testLegacyCreateAndroidAbstractVM() {
         val activity = activityRule.activity
         val app = activity.application
         val savedStateVMFactory = object : AbstractSavedStateViewModelFactory(
@@ -91,7 +124,37 @@ class SavedStateFactoryTest {
             }
         }
         val vm = ViewModelProvider(ViewModelStore(), savedStateVMFactory)
-        assertThat(vm.get(MyAndroidViewModel::class.java).handle).isNotNull()
+        assertThat(vm[MyAndroidViewModel::class.java].handle).isNotNull()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testLegacyMethodsWithEmptyConstructor() {
+        val factory = SavedStateViewModelFactory()
+        try {
+            factory.create(MyViewModel::class.java)
+            fail()
+        } catch (e: UnsupportedOperationException) {
+        }
+
+        try {
+            factory.create("a", MyViewModel::class.java)
+            fail()
+        } catch (e: UnsupportedOperationException) {
+        }
+
+        val absFactory = object : AbstractSavedStateViewModelFactory() {
+            override fun <T : ViewModel?> create(
+                key: String,
+                modelClass: Class<T>,
+                handle: SavedStateHandle
+            ): T = create(modelClass)
+        }
+        try {
+            absFactory.create(MyViewModel::class.java)
+            fail()
+        } catch (e: UnsupportedOperationException) {
+        }
     }
 
     internal class MyAndroidViewModel(app: Application, val handle: SavedStateHandle) :
@@ -100,4 +163,12 @@ class SavedStateFactoryTest {
     internal class MyViewModel(val handle: SavedStateHandle) : ViewModel()
 
     class MyActivity : FragmentActivity()
+
+    val TestComponent.extras: MutableCreationExtras
+        get() {
+            val extras = MutableCreationExtras()
+            extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
+            extras[VIEW_MODEL_STORE_OWNER_KEY] = this
+            return extras
+        }
 }
