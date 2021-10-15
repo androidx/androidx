@@ -19,7 +19,7 @@ package androidx.glance.appwidget.translators
 import android.widget.RemoteViews
 import androidx.core.widget.RemoteViewsCompat
 import androidx.glance.appwidget.GeneratedLayoutCount
-import androidx.glance.appwidget.LayoutIds
+import androidx.glance.appwidget.LayoutInfo
 import androidx.glance.appwidget.LayoutSelector
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
@@ -56,7 +56,7 @@ internal fun translateEmittableLazyColumn(
 private fun translateEmittableLazyList(
     translationContext: TranslationContext,
     element: EmittableLazyList,
-    layoutDef: LayoutIds,
+    layoutDef: LayoutInfo,
 ): RemoteViews =
     remoteViews(translationContext, layoutDef.layoutId)
         .also { rv ->

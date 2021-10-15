@@ -16,11 +16,19 @@
 
 package androidx.glance.appwidget
 
+import android.content.Context
 import android.util.DisplayMetrics
 import android.util.TypedValue
+import android.view.View
 import android.widget.RemoteViews
+import androidx.annotation.IdRes
+import androidx.annotation.LayoutRes
+import androidx.core.widget.setViewStubInflatedId
+import androidx.core.widget.setViewStubLayoutResource
 import androidx.glance.unit.Dp
 import androidx.glance.unit.dp
+
+internal fun Dp.toPixels(context: Context) = toPixels(context.resources.displayMetrics)
 
 internal fun Dp.toPixels(displayMetrics: DisplayMetrics) =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, displayMetrics).toInt()
@@ -34,6 +42,23 @@ internal fun Int.pixelsToDp(displayMetrics: DisplayMetrics) =
  */
 internal fun RemoteViews.setViewEnabled(viewId: Int, enabled: Boolean) {
     setBoolean(viewId, "setEnabled", enabled)
+}
+
+/**
+ * Inflates a ViewStub with [viewStubId] using [layoutId] and returns the new view id. [inflatedId]
+ * is used for the inflated view, if unspecified a new view id will be generated.
+ */
+@IdRes
+internal fun RemoteViews.inflateViewStub(
+    @IdRes viewStubId: Int,
+    @LayoutRes layoutId: Int,
+    @IdRes inflatedId: Int? = null
+): Int {
+    val viewId = inflatedId ?: View.generateViewId()
+    setViewStubInflatedId(viewStubId, viewId)
+    setViewStubLayoutResource(viewStubId, layoutId)
+    setViewVisibility(viewStubId, View.VISIBLE)
+    return viewId
 }
 
 internal const val GlanceAppWidgetTag = "GlanceAppWidget"

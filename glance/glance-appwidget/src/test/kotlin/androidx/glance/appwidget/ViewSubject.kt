@@ -19,9 +19,12 @@ package androidx.glance.appwidget
 import android.graphics.drawable.ColorDrawable
 import android.view.View
 import androidx.annotation.ColorInt
+import androidx.annotation.Px
+import androidx.glance.unit.Dp
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertAbout
+import kotlin.test.assertNotNull
 
 internal class ViewSubject<V : View>(
     metaData: FailureMetadata,
@@ -41,6 +44,24 @@ internal class ViewSubject<V : View>(
 
     fun hasBackgroundColor(hexString: String) =
         hasBackgroundColor(android.graphics.Color.parseColor(hexString))
+
+    fun hasLayoutParamsWidth(@Px px: Int) {
+        check("getLayoutParams().width").that(actual?.layoutParams?.width).isEqualTo(px)
+    }
+
+    fun hasLayoutParamsWidth(dp: Dp) {
+        assertNotNull(actual)
+        hasLayoutParamsWidth(dp.toPixels(actual.context))
+    }
+
+    fun hasLayoutParamsHeight(@Px px: Int) {
+        check("getLayoutParams().height").that(actual?.layoutParams?.height).isEqualTo(px)
+    }
+
+    fun hasLayoutParamsHeight(dp: Dp) {
+        assertNotNull(actual)
+        hasLayoutParamsHeight(dp.toPixels(actual.context))
+    }
 
     companion object {
         internal fun <V : View> views(): Factory<ViewSubject<V>, V> {
