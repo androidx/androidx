@@ -18,7 +18,6 @@ package androidx.wear.compose.material
 
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ScrollState
@@ -96,7 +95,6 @@ interface PositionIndicatorState {
  * @param scrollState the scrollState to use as the basis for the PositionIndicatorState.
  * @param modifier The modifier to be applied to the component
  */
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 public fun PositionIndicator(
     scrollState: ScrollState,
@@ -123,7 +121,6 @@ public fun PositionIndicator(
  * PositionIndicatorState.
  * @param modifier The modifier to be applied to the component
  */
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 public fun PositionIndicator(
     scalingLazyListState: ScalingLazyListState,
@@ -152,7 +149,6 @@ public fun PositionIndicator(
  * PositionIndicatorState.
  * @param modifier The modifier to be applied to the component
  */
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 public fun PositionIndicator(
     lazyListState: LazyListState,
@@ -182,7 +178,6 @@ public fun PositionIndicator(
  * @param modifier The modifier to be applied to the component
  * @param color the color to draw the indicator on.
  */
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 public fun PositionIndicator(
     rsbRatio: Float,
@@ -229,7 +224,6 @@ public fun PositionIndicator(
  * @param background the color to draw the non-active part of the position indicator.
  * @param autoHide whether the indicator should be automatically hidden after showing the change in
  */
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 public fun PositionIndicator(
     state: PositionIndicatorState,
