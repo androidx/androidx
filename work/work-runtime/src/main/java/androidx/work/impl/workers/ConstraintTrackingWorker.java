@@ -123,7 +123,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
         workConstraintsTracker.replace(Collections.singletonList(workSpec));
 
         if (workConstraintsTracker.areAllConstraintsMet(getId().toString())) {
-            Logger.get().debug(TAG, String.format("Constraints met for delegate %s", className));
+            Logger.get().debug(TAG, "Constraints met for delegate " + className);
 
             // Wrapping the call to mDelegate#doWork() in a try catch, because
             // changes in constraints can cause the worker to throw RuntimeExceptions, and
@@ -230,7 +230,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
     @Override
     public void onAllConstraintsNotMet(@NonNull List<String> workSpecIds) {
         // If at any point, constraints are not met mark it so we can retry the work.
-        Logger.get().debug(TAG, String.format("Constraints changed for %s", workSpecIds));
+        Logger.get().debug(TAG, "Constraints changed for " + workSpecIds);
         synchronized (mLock) {
             mAreConstraintsUnmet = true;
         }

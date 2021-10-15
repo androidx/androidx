@@ -937,7 +937,7 @@ public final class Data {
                     mValues.put(key, convertPrimitiveDoubleArray((double[]) value));
                 } else {
                     throw new IllegalArgumentException(
-                            String.format("Key %s has invalid type %s", key, valueType));
+                            "Key " + key + "has invalid type " + valueType);
                 }
             }
             return this;

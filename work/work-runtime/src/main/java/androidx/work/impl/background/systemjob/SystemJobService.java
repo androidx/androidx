@@ -106,8 +106,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
             if (mJobParameters.containsKey(workSpecId)) {
                 // This condition may happen due to our workaround for an undesired behavior in API
                 // 23.  See the documentation in {@link SystemJobScheduler#schedule}.
-                Logger.get().debug(TAG, String.format(
-                        "Job is already being executed by SystemJobService: %s", workSpecId));
+                Logger.get().debug(TAG, "Job is already being executed by SystemJobService: " + workSpecId);
                 return false;
             }
 
@@ -115,7 +114,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
             // returns true. This is because JobScheduler ensures that for PeriodicWork, constraints
             // are actually met irrespective.
 
-            Logger.get().debug(TAG, String.format("onStartJob for %s", workSpecId));
+            Logger.get().debug(TAG, "onStartJob for " + workSpecId);
             mJobParameters.put(workSpecId, params);
         }
 
@@ -159,7 +158,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
             return false;
         }
 
-        Logger.get().debug(TAG, String.format("onStopJob for %s", workSpecId));
+        Logger.get().debug(TAG, "onStopJob for " + workSpecId);
 
         synchronized (mJobParameters) {
             mJobParameters.remove(workSpecId);
@@ -170,7 +169,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
 
     @Override
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
-        Logger.get().debug(TAG, String.format("%s executed on JobScheduler", workSpecId));
+        Logger.get().debug(TAG, workSpecId + " executed on JobScheduler");
         JobParameters parameters;
         synchronized (mJobParameters) {
             parameters = mJobParameters.remove(workSpecId);

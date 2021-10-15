@@ -82,7 +82,7 @@ public class ConstraintProxyUpdateReceiver extends BroadcastReceiver {
     public void onReceive(@NonNull final Context context, @Nullable final Intent intent) {
         String action = intent != null ? intent.getAction() : null;
         if (!ACTION.equals(action)) {
-            Logger.get().debug(TAG, String.format("Ignoring unknown action %s", action));
+            Logger.get().debug(TAG, "Ignoring unknown action " + action);
         } else {
             final PendingResult pendingResult = goAsync();
             WorkManagerImpl workManager = WorkManagerImpl.getInstance(context);
@@ -103,17 +103,13 @@ public class ConstraintProxyUpdateReceiver extends BroadcastReceiver {
                         boolean networkStateProxyEnabled = intent.getBooleanExtra(
                                 KEY_NETWORK_STATE_PROXY_ENABLED, false);
 
-                        Logger.get().debug(
-                                TAG,
-                                String.format("Updating proxies: BatteryNotLowProxy enabled (%s), "
-                                                + "BatteryChargingProxy enabled (%s), "
-                                                + "StorageNotLowProxy (%s), "
-                                                + "NetworkStateProxy enabled (%s)",
-                                        batteryNotLowProxyEnabled,
-                                        batteryChargingProxyEnabled,
-                                        storageNotLowProxyEnabled,
-                                        networkStateProxyEnabled));
+                        String message = "Updating proxies: ("
+                                + "BatteryNotLowProxy (" + batteryNotLowProxyEnabled + "), "
+                                + "BatteryChargingProxy (" + batteryChargingProxyEnabled + "), "
+                                + "StorageNotLowProxy (" + storageNotLowProxyEnabled + "), "
+                                + "NetworkStateProxy (" + networkStateProxyEnabled + "), ";
 
+                        Logger.get().debug(TAG, message);
                         PackageManagerHelper.setComponentEnabled(context, BatteryNotLowProxy.class,
                                 batteryNotLowProxyEnabled);
                         PackageManagerHelper.setComponentEnabled(context,

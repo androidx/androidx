@@ -148,7 +148,7 @@ public class WorkerWrapper implements Runnable {
             if (mWorkSpec == null) {
                 Logger.get().error(
                         TAG,
-                        String.format("Didn't find WorkSpec for id %s", mWorkSpecId));
+                        "Didn't find WorkSpec for id " + mWorkSpecId);
                 resolve(false);
                 mWorkDatabase.setTransactionSuccessful();
                 return;
@@ -160,8 +160,8 @@ public class WorkerWrapper implements Runnable {
                 resolveIncorrectStatus();
                 mWorkDatabase.setTransactionSuccessful();
                 Logger.get().debug(TAG,
-                        String.format("%s is not in ENQUEUED state. Nothing more to do.",
-                                mWorkSpec.workerClassName));
+                        mWorkSpec.workerClassName
+                                + " is not in ENQUEUED state. Nothing more to do");
                 return;
             }
 
@@ -216,8 +216,7 @@ public class WorkerWrapper implements Runnable {
             InputMerger inputMerger =
                     inputMergerFactory.createInputMergerWithDefaultFallback(inputMergerClassName);
             if (inputMerger == null) {
-                Logger.get().error(TAG, String.format("Could not create Input Merger %s",
-                        mWorkSpec.inputMergerClassName));
+                Logger.get().error(TAG, "Could not create Input Merger " + mWorkSpec.inputMergerClassName);
                 setFailedAndResolve();
                 return;
             }
@@ -250,16 +249,14 @@ public class WorkerWrapper implements Runnable {
 
         if (mWorker == null) {
             Logger.get().error(TAG,
-                    String.format("Could not create Worker %s", mWorkSpec.workerClassName));
+                    "Could not create Worker " + mWorkSpec.workerClassName);
             setFailedAndResolve();
             return;
         }
 
         if (mWorker.isUsed()) {
-            Logger.get().error(TAG,
-                    String.format("Received an already-used Worker %s; WorkerFactory should return "
-                            + "new instances",
-                            mWorkSpec.workerClassName));
+            Logger.get().error(TAG, "Received an already-used Worker " + mWorkSpec.workerClassName
+                    + "; Worker Factory should return new instances");
             setFailedAndResolve();
             return;
         }
@@ -290,7 +287,7 @@ public class WorkerWrapper implements Runnable {
                     try {
                         runExpedited.get();
                         Logger.get().debug(TAG,
-                                String.format("Starting work for %s", mWorkSpec.workerClassName));
+                                "Starting work for " + mWorkSpec.workerClassName);
                         // Call mWorker.startWork() on the main thread.
                         mInnerFuture = mWorker.startWork();
                         future.setFuture(mInnerFuture);
@@ -310,23 +307,20 @@ public class WorkerWrapper implements Runnable {
                         // If the ListenableWorker returns a null result treat it as a failure.
                         ListenableWorker.Result result = future.get();
                         if (result == null) {
-                            Logger.get().error(TAG, String.format(
-                                    "%s returned a null result. Treating it as a failure.",
-                                    mWorkSpec.workerClassName));
+                            Logger.get().error(TAG, mWorkSpec.workerClassName
+                                    + " returned a null result. Treating it as a failure.");
                         } else {
-                            Logger.get().debug(TAG, String.format("%s returned a %s result.",
-                                    mWorkSpec.workerClassName, result));
+                            Logger.get().debug(TAG,
+                                    mWorkSpec.workerClassName + " returned a " + result + ".");
                             mResult = result;
                         }
                     } catch (CancellationException exception) {
                         // Cancellations need to be treated with care here because innerFuture
                         // cancellations will bubble up, and we need to gracefully handle that.
-                        Logger.get().info(TAG, String.format("%s was cancelled", workDescription),
-                                exception);
+                        Logger.get().info(TAG, workDescription + " was cancelled", exception);
                     } catch (InterruptedException | ExecutionException exception) {
                         Logger.get().error(TAG,
-                                String.format("%s failed because it threw an exception/error",
-                                        workDescription), exception);
+                                workDescription + " failed because it threw an exception/error");
                     } finally {
                         onWorkFinished();
                     }
@@ -396,8 +390,7 @@ public class WorkerWrapper implements Runnable {
         if (mWorker != null && !isDone) {
             mWorker.stop();
         } else {
-            String message =
-                    String.format("WorkSpec %s is already done. Not interrupting.", mWorkSpec);
+            String message = "WorkSpec " + mWorkSpec + " is already done. Not interrupting.";
             Logger.get().debug(TAG, message);
         }
     }
@@ -405,12 +398,12 @@ public class WorkerWrapper implements Runnable {
     private void resolveIncorrectStatus() {
         WorkInfo.State status = mWorkSpecDao.getState(mWorkSpecId);
         if (status == RUNNING) {
-            Logger.get().debug(TAG, String.format("Status for %s is RUNNING;"
-                    + "not doing any work and rescheduling for later execution", mWorkSpecId));
+            Logger.get().debug(TAG, "Status for " + mWorkSpecId
+                    + " is RUNNING; not doing any work and rescheduling for later execution");
             resolve(true);
         } else {
             Logger.get().debug(TAG,
-                    String.format("Status for %s is %s; not doing any work", mWorkSpecId, status));
+                    "Status for " + mWorkSpecId + " is " + status + " ; not doing any work");
             resolve(false);
         }
     }
@@ -422,7 +415,7 @@ public class WorkerWrapper implements Runnable {
         // Worker exceeding a 10 min execution window.
         // One scheduler completing a Worker, and telling other Schedulers to cleanup.
         if (mInterrupted) {
-            Logger.get().debug(TAG, String.format("Work interrupted for %s", mWorkDescription));
+            Logger.get().debug(TAG, "Work interrupted for " + mWorkDescription);
             WorkInfo.State currentState = mWorkSpecDao.getState(mWorkSpecId);
             if (currentState == null) {
                 // This can happen because of a beginUniqueWork(..., REPLACE, ...).  Notify the
@@ -470,7 +463,7 @@ public class WorkerWrapper implements Runnable {
         if (result instanceof ListenableWorker.Result.Success) {
             Logger.get().info(
                     TAG,
-                    String.format("Worker result SUCCESS for %s", mWorkDescription));
+                    "Worker result SUCCESS for " + mWorkDescription);
             if (mWorkSpec.isPeriodic()) {
                 resetPeriodicAndResolve();
             } else {
@@ -480,12 +473,12 @@ public class WorkerWrapper implements Runnable {
         } else if (result instanceof ListenableWorker.Result.Retry) {
             Logger.get().info(
                     TAG,
-                    String.format("Worker result RETRY for %s", mWorkDescription));
+                    "Worker result RETRY for " + mWorkDescription);
             rescheduleAndResolve();
         } else {
             Logger.get().info(
                     TAG,
-                    String.format("Worker result FAILURE for %s", mWorkDescription));
+                    "Worker result FAILURE for " + mWorkDescription);
             if (mWorkSpec.isPeriodic()) {
                 resetPeriodicAndResolve();
             } else {
@@ -588,7 +581,7 @@ public class WorkerWrapper implements Runnable {
                 if (mWorkSpecDao.getState(dependentWorkId) == BLOCKED
                         && mDependencyDao.hasCompletedAllPrerequisites(dependentWorkId)) {
                     Logger.get().info(TAG,
-                            String.format("Setting status to enqueued for %s", dependentWorkId));
+                            "Setting status to enqueued for " + dependentWorkId);
                     mWorkSpecDao.setState(ENQUEUED, dependentWorkId);
                     mWorkSpecDao.setPeriodStartTime(dependentWorkId, currentTimeMillis);
                 }

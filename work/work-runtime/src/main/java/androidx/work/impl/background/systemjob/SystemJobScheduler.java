@@ -182,12 +182,12 @@ public class SystemJobScheduler implements Scheduler {
         JobInfo jobInfo = mSystemJobInfoConverter.convert(workSpec, jobId);
         Logger.get().debug(
                 TAG,
-                String.format("Scheduling work ID %s Job ID %s", workSpec.id, jobId));
+                "Scheduling work ID " + workSpec.id + "Job ID " + jobId);
         try {
             int result = mJobScheduler.schedule(jobInfo);
             if (result == JobScheduler.RESULT_FAILURE) {
                 Logger.get()
-                        .warning(TAG, String.format("Unable to schedule work ID %s", workSpec.id));
+                        .warning(TAG, "Unable to schedule work ID " + workSpec.id);
                 if (workSpec.expedited
                         && workSpec.outOfQuotaPolicy == RUN_AS_NON_EXPEDITED_WORK_REQUEST) {
                     // Falling back to a non-expedited job.
@@ -218,7 +218,7 @@ public class SystemJobScheduler implements Scheduler {
             throw new IllegalStateException(message, e);
         } catch (Throwable throwable) {
             // OEM implementation bugs in JobScheduler cause the app to crash. Avoid crashing.
-            Logger.get().error(TAG, String.format("Unable to schedule %s", workSpec), throwable);
+            Logger.get().error(TAG, "Unable to schedule " + workSpec, throwable);
         }
     }
 

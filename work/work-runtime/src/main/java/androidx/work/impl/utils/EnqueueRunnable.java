@@ -84,7 +84,7 @@ public class EnqueueRunnable implements Runnable {
         try {
             if (mWorkContinuation.hasCycles()) {
                 throw new IllegalStateException(
-                        String.format("WorkContinuation has cycles (%s)", mWorkContinuation));
+                        "WorkContinuation has cycles (" + mWorkContinuation + ")");
             }
             boolean needsScheduling = addToDatabase();
             if (needsScheduling) {
@@ -148,8 +148,9 @@ public class EnqueueRunnable implements Runnable {
                 if (!parent.isEnqueued()) {
                     needsScheduling |= processContinuation(parent);
                 } else {
-                    Logger.get().warning(TAG, String.format("Already enqueued work ids (%s).",
-                            TextUtils.join(", ", parent.getIds())));
+                    Logger.get().warning(TAG,
+                            "Already enqueued work ids (" +
+                                    TextUtils.join(", ", parent.getIds()) + ")");
                 }
             }
         }
@@ -200,8 +201,7 @@ public class EnqueueRunnable implements Runnable {
             for (String id : prerequisiteIds) {
                 WorkSpec prerequisiteWorkSpec = workDatabase.workSpecDao().getWorkSpec(id);
                 if (prerequisiteWorkSpec == null) {
-                    Logger.get().error(TAG,
-                            String.format("Prerequisite %s doesn't exist; not enqueuing", id));
+                    Logger.get().error(TAG, "Prerequisite " + id + " doesn't exist; not enqueuing");
                     return false;
                 }
 
