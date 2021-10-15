@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-RemovedDeprecatedMethod: androidx.collection.LongSparseArrayKt#remove(androidx.collection.LongSparseArray<T>, long, T):
-    Removed deprecated method androidx.collection.LongSparseArrayKt.remove(androidx.collection.LongSparseArray<T>,long,T)
-RemovedDeprecatedMethod: androidx.collection.SparseArrayKt#remove(androidx.collection.SparseArrayCompat<T>, int, T):
-    Removed deprecated method androidx.collection.SparseArrayKt.remove(androidx.collection.SparseArrayCompat<T>,int,T)
