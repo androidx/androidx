@@ -125,12 +125,12 @@ DIST_DIR=\$DIST_DIR
 CHECKOUT=\$CHECKOUT
 GRADLE_USER_HOME=\$GRADLE_USER_HOME
 Downloading file\:\$SUPPORT\/gradle\/wrapper\/.*
-\.\.\.\.\.\.\.\.\.\.10%\.\.\.\.\.\.\.\.\.\.\.20%\.\.\.\.\.\.\.\.\.\.\.30%\.\.\.\.\.\.\.\.\.\.\.40%\.\.\.\.\.\.\.\.\.\.\.50%\.\.\.\.\.\.\.\.\.\.\.60%\.\.\.\.\.\.\.\.\.\.\.70%\.\.\.\.\.\.\.\.\.\.\.80%\.\.\.\.\.\.\.\.\.\.\.90%\.\.\.\.\.\.\.\.\.\.\.100%
+[.]+10%[.]+20%[.]+30%[.]+40%[.]+50%[.]+60%[.]+70%[.]+80%[.]+90%[.]+100%
 Welcome to Gradle .*
 Here are the highlights of this release:
-\- Toolchain support for Scala
-\- More cache hits when Java source files have platform-specific line endings
-\- More resilient remote HTTP build cache behavior
+\- Easily declare new test suites in Java projects
+\- Support for Java 17
+\- Support for Scala 3
 For more details see .*
 Daemon will be stopped at the end of the build
 # > Task :buildSrc:build
@@ -230,7 +230,7 @@ location\: class PendingIntent
 \- Task `:docs\-tip\-of\-tree:unzipSampleSources` of type `org\.gradle\.api\.tasks\.Sync`: cannot deserialize object of type 'org\.gradle\.api\.Project' as these are not supported with the configuration cache\.
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ up\-to\-date
 Configuration cache entry reused with [0-9]+ problems\.
-See the profiling report at: file://\$GRADLE_USER_HOME/daemon/[0-9]+\.[0-9]+/reports/profile/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
+See the profiling report at: file://\$GRADLE_USER_HOME/daemon/.*/reports/profile/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 Configuration cache entry reused\.
 Configuration cache entry stored with [0-9]+ problems\.
 Configuration cache entry stored with [0-9] problem\.
@@ -324,14 +324,14 @@ See https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/configuration_cache\.html
 \- Task `:listTaskOutputs` of type `androidx\.build\.ListTaskOutputsTask`: invocation of 'Task\.project' at execution time is unsupported\.
 \- Task `[^ ]*checkExternalLicenses` of type `[^ ]*CheckExternalDependencyLicensesTask`: invocation of 'Task\.project' at execution time is unsupported\.
 \- Plugin class 'androidx\.build\.AndroidXImplPlugin': read system property 'user\.dir'
-See https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/configuration_cache\.html\#config_cache:requirements:undeclared_sys_prop_read
+See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.html\#config_cache:requirements:undeclared_sys_prop_read
 \- Task `[^ ]*generateInspectionPlatformVersionRelease` of type `androidx\.inspection\.gradle\.GenerateInspectionPlatformVersionTask`: invocation of 'Task\.project' at execution time is unsupported\.
-See https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/configuration_cache\.html\#config_cache:requirements:use_project_during_execution
+See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.html\#config_cache:requirements:use_project_during_execution
 \- Task `[^ ]*validateProperties` of type `[^ ]*ValidatePropertiesTask`: invocation of 'Task\.project' at execution time is unsupported\.
 \- Task `[^ ]*verifyDependencyVersions` of type `[^ ]*VerifyDependencyVersionsTask`: invocation of 'Task\.project' at execution time is unsupported\.
 \- Task `[^ ]*createLibraryBuildInfoFiles` of type `[^ ]*CreateLibraryBuildInfoFileTask`: invocation of 'Task\.project' at execution time is unsupported\.
 \- Task `[^ ]* of type `org\.gradle\.api\.tasks\.testing\.Test`: cannot serialize object of type 'org\.gradle\.api\.tasks\.bundling\.Zip', a subtype of 'org\.gradle\.api\.Task', as these are not supported with the configuration cache\.
-See https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/configuration_cache\.html\#config_cache:requirements:task_access
+See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.html\#config_cache:requirements:task_access
 \- Task [^ ]* of type `com\.android\.build\.gradle\.tasks\.factory\.AndroidUnitTest`: cannot serialize object of type 'org\.gradle\.api\.tasks\.bundling\.Zip', a subtype of 'org\.gradle\.api\.Task', as these are not supported with the configuration cache\.
 plus [0-9]+ more problems\. Please see the report for details\.
 See the complete report at file://\$SUPPORT/build/reports/configuration\-cache/[^/]*/[^/]*/configuration\-cache\-report\.html
@@ -349,6 +349,7 @@ Set 'kapt\.includeCompileClasspath = false' to disable discovery\.
 Run the build with '\-\-info' for more details\.
 # > Task :room:room-compiler:test
 WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/(classes/kotlin/main/|libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+(\-(alpha|beta|rc)[0-9]+)?\.jar)\) to field com\.sun\.tools\.javac\.code\.Symbol\$ClassSymbol\.classfile
+WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/(classes/kotlin/main/|libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+(\-(alpha|beta|rc)[0-9]+)?\.jar)\) to field com\.sun\.tools\.javac\.code\.Symbol\.owner
 WARNING: Please consider reporting this to the maintainers of androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion
 # > Task :docs-runner:dokkaJavaTipOfTreeDocs
 \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+-?[A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[A-Z0-9]*\)
