@@ -19,9 +19,11 @@ package androidx.wear.compose.navigation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -129,7 +131,7 @@ public fun SwipeDismissableNavHost(
     ) as? WearNavigator ?: return
     val backStack by wearNavigator.backStack.collectAsState()
     val transitionsInProgress by wearNavigator.transitionsInProgress.collectAsState()
-    val initialContent = remember { mutableStateOf(true) }
+    var initialContent by remember { mutableStateOf(true) }
 
     val previous = if (backStack.size <= 1) null else backStack[backStack.lastIndex - 1]
     val current = if (backStack.isNotEmpty()) backStack.last() else throw IllegalArgumentException(
@@ -168,13 +170,15 @@ public fun SwipeDismissableNavHost(
         }
     )
 
-    if (initialContent.value) {
-        // There are no animations for showing the initial content, so mark transitions complete,
-        // allowing the navigation backstack entry to go to Lifecycle.State.RESUMED.
-        transitionsInProgress.forEach { entry ->
-            wearNavigator.onTransitionComplete(entry)
+    SideEffect {
+        if (initialContent) {
+            // There are no animations for showing the initial content, so mark transitions complete,
+            // allowing the navigation backstack entry to go to Lifecycle.State.RESUMED.
+            transitionsInProgress.forEach { entry ->
+                wearNavigator.onTransitionComplete(entry)
+            }
+            initialContent = false
         }
-        initialContent.value = false
     }
 }
 
