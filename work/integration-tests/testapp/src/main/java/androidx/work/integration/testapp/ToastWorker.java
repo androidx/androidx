@@ -59,7 +59,7 @@ public class ToastWorker extends Worker {
             message = "completed!";
         }
         final Date now = new Date(System.currentTimeMillis());
-        Log.i(TAG, String.format("Run time [%s]: %s", message, now));
+        Log.i(TAG, "Run time [" + message + "]: " + now);
         final String displayMessage = message;
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override

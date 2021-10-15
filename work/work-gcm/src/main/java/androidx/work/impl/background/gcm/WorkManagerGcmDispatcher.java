@@ -89,7 +89,7 @@ public class WorkManagerGcmDispatcher {
         // per tag, which in our case is a workSpecId. Therefore its safe to block here with
         // a latch because there is 1 thread per workSpecId.
 
-        Logger.get().debug(TAG, String.format("Handling task %s", taskParams));
+        Logger.get().debug(TAG, "Handling task " + taskParams);
 
         String workSpecId = taskParams.getTag();
         if (workSpecId == null || workSpecId.isEmpty()) {
@@ -103,7 +103,7 @@ public class WorkManagerGcmDispatcher {
                 new WorkSpecTimeLimitExceededListener(mWorkManagerImpl);
         Processor processor = mWorkManagerImpl.getProcessor();
         processor.addExecutionListener(listener);
-        String wakeLockTag = String.format("WorkGcm-onRunTask (%s)", workSpecId);
+        String wakeLockTag = "WorkGcm-onRunTask (" + workSpecId + ")";
         PowerManager.WakeLock wakeLock = WakeLocks.newWakeLock(mContext, wakeLockTag);
         mWorkManagerImpl.startWork(workSpecId);
         mWorkTimer.startTimer(workSpecId, AWAIT_TIME_IN_MILLISECONDS, timeLimitExceededListener);
@@ -112,7 +112,7 @@ public class WorkManagerGcmDispatcher {
             wakeLock.acquire();
             listener.getLatch().await(AWAIT_TIME_IN_MINUTES, TimeUnit.MINUTES);
         } catch (InterruptedException exception) {
-            Logger.get().debug(TAG, String.format("Rescheduling WorkSpec %s", workSpecId));
+            Logger.get().debug(TAG, "Rescheduling WorkSpec" + workSpecId);
             return reschedule(workSpecId);
         } finally {
             processor.removeExecutionListener(listener);
@@ -121,7 +121,7 @@ public class WorkManagerGcmDispatcher {
         }
 
         if (listener.needsReschedule()) {
-            Logger.get().debug(TAG, String.format("Rescheduling WorkSpec %s", workSpecId));
+            Logger.get().debug(TAG, "Rescheduling WorkSpec" + workSpecId);
             return reschedule(workSpecId);
         }
 
@@ -130,18 +130,16 @@ public class WorkManagerGcmDispatcher {
         WorkInfo.State state = workSpec != null ? workSpec.state : null;
 
         if (state == null) {
-            Logger.get().debug(TAG, String.format("WorkSpec %s does not exist", workSpecId));
+            Logger.get().debug(TAG, "WorkSpec %s does not exist" + workSpecId);
             return GcmNetworkManager.RESULT_FAILURE;
         } else {
             switch (state) {
                 case SUCCEEDED:
                 case CANCELLED:
-                    Logger.get().debug(TAG,
-                            String.format("Returning RESULT_SUCCESS for WorkSpec %s", workSpecId));
+                    Logger.get().debug(TAG, "Returning RESULT_SUCCESS for WorkSpec " + workSpecId);
                     return GcmNetworkManager.RESULT_SUCCESS;
                 case FAILED:
-                    Logger.get().debug(TAG,
-                            String.format("Returning RESULT_FAILURE for WorkSpec %s", workSpecId));
+                    Logger.get().debug(TAG, "Returning RESULT_FAILURE for WorkSpec " +  workSpecId);
                     return GcmNetworkManager.RESULT_FAILURE;
                 default:
                     Logger.get().debug(TAG, "Rescheduling eligible work.");
@@ -175,8 +173,7 @@ public class WorkManagerGcmDispatcher {
             }
         });
 
-        Logger.get().debug(TAG,
-                String.format("Returning RESULT_SUCCESS for WorkSpec %s", workSpecId));
+        Logger.get().debug(TAG, "Returning RESULT_SUCCESS for WorkSpec " + workSpecId);
         return GcmNetworkManager.RESULT_SUCCESS;
     }
 
@@ -191,7 +188,7 @@ public class WorkManagerGcmDispatcher {
 
         @Override
         public void onTimeLimitExceeded(@NonNull String workSpecId) {
-            Logger.get().debug(TAG, String.format("WorkSpec time limit exceeded %s", workSpecId));
+            Logger.get().debug(TAG, "WorkSpec time limit exceeded " + workSpecId);
             mWorkManager.stopWork(workSpecId);
         }
     }
@@ -220,8 +217,7 @@ public class WorkManagerGcmDispatcher {
         public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
             if (!mWorkSpecId.equals(workSpecId)) {
                 Logger.get().warning(TAG,
-                        String.format("Notified for %s, but was looking for %s", workSpecId,
-                                mWorkSpecId));
+                        "Notified for " + workSpecId + ", but was looking for " + mWorkSpecId);
             } else {
                 mNeedsReschedule = needsReschedule;
                 mLatch.countDown();

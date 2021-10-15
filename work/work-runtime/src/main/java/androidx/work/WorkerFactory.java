@@ -104,12 +104,10 @@ public abstract class WorkerFactory {
 
         if (worker != null && worker.isUsed()) {
             String factoryName = this.getClass().getName();
-            String message = String.format("WorkerFactory (%s) returned an instance of a "
-                            + "ListenableWorker (%s) which has already been invoked. "
-                            + "createWorker() must always return a new instance of a "
-                            + "ListenableWorker.",
-                    factoryName, workerClassName);
-
+            String message = "WorkerFactory (" + factoryName + ") returned an instance of a "
+                    + "ListenableWorker (" + workerClassName + ") which has already been invoked. "
+                    + "createWorker() must always return a new instance of a "
+                    + "ListenableWorker.";
             throw new IllegalStateException(message);
         }
 

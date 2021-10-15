@@ -358,8 +358,7 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
 
         if (worker == null) {
             throw new IllegalStateException(
-                    String.format("Could not create an instance of ListenableWorker %s",
-                            getWorkerName()));
+                    "Could not create an instance of ListenableWorker " + getWorkerName());
         }
 
         // This won't do much for the case of the from(Context, WorkRequest) as we lose the
@@ -367,8 +366,7 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
         // also carry over to Kotlin extensions.
         if (!getWorkerClass().isAssignableFrom(worker.getClass())) {
             throw new IllegalStateException(
-                    String.format("Unexpected worker type %s (expected %s)", worker.getClass(),
-                            getWorkerClass()));
+                    "Unexpected worker type " + worker.getClass() + " (expected " + getWorkerClass() + " )");
         }
         return (W) worker;
     }
