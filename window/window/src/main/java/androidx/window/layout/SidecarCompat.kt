@@ -60,7 +60,7 @@ internal class SidecarCompat @VisibleForTesting constructor(
     private var extensionCallback: ExtensionCallbackInterface? = null
 
     constructor(context: Context) : this(
-        SidecarProvider.getSidecarImpl(context),
+        SidecarProvider.getSidecarImpl(context.applicationContext),
         SidecarAdapter()
     )
 
