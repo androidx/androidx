@@ -39,14 +39,14 @@ public class DefaultTaskExecutor extends TaskExecutor {
     private final Object mLock = new Object();
 
     private final ExecutorService mDiskIO = Executors.newFixedThreadPool(4, new ThreadFactory() {
-        private static final String THREAD_NAME_STEM = "arch_disk_io_%d";
+        private static final String THREAD_NAME_STEM = "arch_disk_io_";
 
         private final AtomicInteger mThreadId = new AtomicInteger(0);
 
         @Override
         public Thread newThread(Runnable r) {
             Thread t = new Thread(r);
-            t.setName(String.format(THREAD_NAME_STEM, mThreadId.getAndIncrement()));
+            t.setName(THREAD_NAME_STEM + mThreadId.getAndIncrement());
             return t;
         }
     });
