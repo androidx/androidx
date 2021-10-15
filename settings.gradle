@@ -15,6 +15,20 @@ pluginManagement {
     }
 }
 
+buildscript {
+    repositories {
+        maven {
+            url = new File(buildscript.sourceFile.parent + "/../../prebuilts/androidx/external").getCanonicalFile()
+        }
+    }
+
+    dependencies {
+        classpath("com.gradle:gradle-enterprise-gradle-plugin:3.6.3")
+    }
+}
+
+apply(plugin: "com.gradle.enterprise")
+
 rootProject.name = "androidx"
 
 enableFeaturePreview("VERSION_CATALOGS")

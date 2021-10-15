@@ -235,6 +235,7 @@ Configuration cache entry reused\.
 Configuration cache entry stored with [0-9]+ problems\.
 Configuration cache entry stored with [0-9] problem\.
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ from cache
+A build scan will not be published due to this build running offline\.
 Configuration cache entry stored\.
 See the profiling report at\: file\:\/\/\$OUT_DIR\/androidx\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 See the profiling report at\: file\:\/\/\$OUT_DIR\/gradle\/external\/doclava\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
