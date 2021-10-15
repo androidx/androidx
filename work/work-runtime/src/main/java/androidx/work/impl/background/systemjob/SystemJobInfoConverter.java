@@ -187,8 +187,7 @@ class SystemJobInfoConverter {
                 }
                 break;
         }
-        Logger.get().debug(TAG, String.format(
-                "API version too low. Cannot convert network type value %s", networkType));
+        Logger.get().debug(TAG, "API version too low. Cannot convert network type value " + networkType);
         return JobInfo.NETWORK_TYPE_ANY;
     }
 }

@@ -75,8 +75,7 @@ public class DelegatingWorkerFactory extends WorkerFactory {
                 }
             } catch (Throwable throwable) {
                 String message =
-                        String.format("Unable to instantiate a ListenableWorker (%s)",
-                                workerClassName);
+                        "Unable to instantiate a ListenableWorker (" + workerClassName + ")";
                 Logger.get().error(TAG, message, throwable);
                 throw throwable;
             }

@@ -170,7 +170,7 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
             // The Network parameter is unreliable when a VPN app is running - use active network.
             Logger.get().debug(
                     TAG,
-                    String.format("Network capabilities changed: %s", capabilities));
+                    "Network capabilities changed: " + capabilities);
             setState(getActiveNetworkState());
         }
 

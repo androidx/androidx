@@ -77,7 +77,7 @@ public class BatteryChargingTracker extends BroadcastReceiverConstraintTracker<B
             return;
         }
 
-        Logger.get().debug(TAG, String.format("Received %s", action));
+        Logger.get().debug(TAG, "Received " + action);
         switch (action) {
             case BatteryManager.ACTION_CHARGING:
                 setState(true);

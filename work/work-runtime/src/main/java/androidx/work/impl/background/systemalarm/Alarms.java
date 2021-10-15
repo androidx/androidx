@@ -90,7 +90,7 @@ class Alarms {
         if (systemIdInfo != null) {
             cancelExactAlarm(context, workSpecId, systemIdInfo.systemId);
             Logger.get().debug(TAG,
-                    String.format("Removing SystemIdInfo for workSpecId (%s)", workSpecId));
+                    "Removing SystemIdInfo for workSpecId (" + workSpecId + ")");
             systemIdInfoDao.removeSystemIdInfo(workSpecId);
         }
     }
@@ -108,10 +108,7 @@ class Alarms {
         }
         PendingIntent pendingIntent = PendingIntent.getService(context, alarmId, delayMet, flags);
         if (pendingIntent != null && alarmManager != null) {
-            Logger.get().debug(TAG, String.format(
-                    "Cancelling existing alarm with (workSpecId, systemId) (%s, %s)",
-                    workSpecId,
-                    alarmId));
+            Logger.get().debug(TAG, "Cancelling existing alarm with (workSpecId, systemId) (" + workSpecId + ", " + alarmId + ")");
             alarmManager.cancel(pendingIntent);
         }
     }

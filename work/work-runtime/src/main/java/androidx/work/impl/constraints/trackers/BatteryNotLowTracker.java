@@ -88,7 +88,7 @@ public class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boo
             return;
         }
 
-        Logger.get().debug(TAG, String.format("Received %s", intent.getAction()));
+        Logger.get().debug(TAG, "Received " + intent.getAction());
 
         switch (intent.getAction()) {
             case Intent.ACTION_BATTERY_OKAY:

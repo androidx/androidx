@@ -188,7 +188,7 @@ public class WorkContinuationImpl extends WorkContinuation {
             mOperation = runnable.getOperation();
         } else {
             Logger.get().warning(TAG,
-                    String.format("Already enqueued work ids (%s)", TextUtils.join(", ", mIds)));
+                    "Already enqueued work ids (" + TextUtils.join(", ", mIds) + ")");
         }
         return mOperation;
     }
