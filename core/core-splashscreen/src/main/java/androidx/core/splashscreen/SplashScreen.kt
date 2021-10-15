@@ -19,14 +19,18 @@ package androidx.core.splashscreen
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.res.Resources
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.util.TypedValue
 import android.view.View
 import android.view.View.OnLayoutChangeListener
+import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnPreDrawListener
+import android.view.WindowInsets
 import android.widget.ImageView
+import android.window.SplashScreenView
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.core.splashscreen.SplashScreen.KeepOnScreenCondition
@@ -106,7 +110,7 @@ import androidx.core.splashscreen.SplashScreen.KeepOnScreenCondition
  *  - Without icon background  (`Theme.SplashScreen`)
  *     + Image size: 288x288 dp
  *     + Inner circle diameter: 192 dp
-  *
+ *
  *  _Example:_ if the full size of the image is 300dp*300dp, the icon needs to fit within a
  *  circle with a diameter of 200dp. Everything outside the circle will be invisible (masked).
  *
@@ -374,9 +378,52 @@ class SplashScreen private constructor(activity: Activity) {
     @RequiresApi(Build.VERSION_CODES.S)
     private class Impl31(activity: Activity) : Impl(activity) {
         var preDrawListener: OnPreDrawListener? = null
+        var mDecorFitWindowInsets = true
+
+        val hierarchyListener = object : ViewGroup.OnHierarchyChangeListener {
+            override fun onChildViewAdded(parent: View?, child: View?) {
+
+                if (child is SplashScreenView) {
+                    /*
+                     * On API 31, the SplashScreenView sets window.setDecorFitsSystemWindows(false)
+                     * when an OnExitAnimationListener is used. This also affects the application
+                     * content that will be pushed up under the status bar even though it didn't
+                     * requested it. And once the SplashScreenView is removed, the whole layout
+                     * jumps back below the status bar. Fortunately, this happens only after the
+                     * view is attached, so we have time to record the value of
+                     * window.setDecorFitsSystemWindows() before the splash screen modifies it and
+                     * reapply the correct value to the window.
+                     */
+                    mDecorFitWindowInsets = computeDecorFitsWindow(child)
+                    (activity.window.decorView as ViewGroup).setOnHierarchyChangeListener(null)
+                }
+            }
+
+            override fun onChildViewRemoved(parent: View?, child: View?) {
+                // no-op
+            }
+        }
+
+        fun computeDecorFitsWindow(child: SplashScreenView): Boolean {
+            val inWindowInsets = WindowInsets.Builder().build()
+            val outLocalInsets = Rect(
+                Int.MIN_VALUE, Int.MIN_VALUE, Int.MAX_VALUE,
+                Int.MAX_VALUE
+            )
+
+            // If setDecorFitWindowInsets is set to false, computeSystemWindowInsets
+            // will return the same instance of WindowInsets passed in its parameter and
+            // will set outLocalInsets to empty, so we check that both conditions are
+            // filled to extrapolate the value of setDecorFitWindowInsets
+            return !(inWindowInsets === child.rootView.computeSystemWindowInsets
+                (inWindowInsets, outLocalInsets) && outLocalInsets.isEmpty)
+        }
 
         override fun install() {
             setPostSplashScreenTheme(activity.theme, TypedValue())
+            (activity.window.decorView as ViewGroup).setOnHierarchyChangeListener(
+                hierarchyListener
+            )
         }
 
         override fun setKeepOnScreenCondition(keepOnScreenCondition: KeepOnScreenCondition) {
@@ -402,10 +449,19 @@ class SplashScreen private constructor(activity: Activity) {
         override fun setOnExitAnimationListener(
             exitAnimationListener: OnExitAnimationListener
         ) {
-            activity.splashScreen.setOnExitAnimationListener {
-                val splashScreenViewProvider = SplashScreenViewProvider(it, activity)
+            activity.splashScreen.setOnExitAnimationListener { splashScreenView ->
+                applyAppSystemUiTheme()
+                val splashScreenViewProvider = SplashScreenViewProvider(splashScreenView, activity)
                 exitAnimationListener.onSplashScreenExit(splashScreenViewProvider)
             }
+        }
+
+        private fun applyAppSystemUiTheme() {
+            val window = activity.window
+
+            // Fix setDecorFitsSystemWindows being overridden by the SplashScreenView
+            (activity.window.decorView as ViewGroup).setOnHierarchyChangeListener(null)
+            window.setDecorFitsSystemWindows(mDecorFitWindowInsets)
         }
     }
 }
