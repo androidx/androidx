@@ -21,7 +21,6 @@ import android.app.Activity
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.os.Build
-import android.os.Build.VERSION.PREVIEW_SDK_INT
 import android.os.Build.VERSION.SDK_INT
 import android.util.TypedValue
 import android.view.View
@@ -33,24 +32,90 @@ import androidx.annotation.RequiresApi
 import androidx.core.splashscreen.SplashScreen.KeepOnScreenCondition
 
 /**
- * Compatibly class for the SplashScreen API introduced in API 31.
+ * Provides control over the splash screen once the application is started.
  *
  * On API 31+ (Android 12+) this class calls the platform methods.
  *
  * Prior API 31, the platform behavior is replicated with the exception of the Animated Vector
  * Drawable support on the launch screen.
  *
- * To use this class, the theme of the starting Activity needs set [R.style.Theme_SplashScreen] as
- * its parent and the [R.attr.windowSplashScreenAnimatedIcon] and [R.attr.postSplashScreenTheme]`
- * attribute need to be set.
+ * # Usage of the `core-splashscreen` library:
+ *
+ * To replicate the splash screen behavior from Android 12 on older APIs the following steps need to
+ * be taken:
+ *  1. Create a new Theme (e.g `Theme.App.Starting`) and set its parent to `Theme.SplashScreen` or
+ *  `Theme.SplashScreen.IconBackground`
+ *
+ *  2. In your manifest, set the `theme` attribute of the whole `<application>` or just the
+ *  starting `<activity>` to `Theme.App.Starting`
+ *
+ *  3. In the `onCreate` method the starting activity, call [installSplashScreen] just before
+ *  `super.onCreate()`. You also need to make sure that `postSplashScreenTheme` is set
+ *  to the application's theme. Alternatively, this call can be replaced by [Activity#setTheme]
+ *  if a [SplashScreen] instance isn't needed.
+ *
+ *  ## Themes
+ *
+ *  The library provides two themes: [R.style.Theme_SplashScreen] and
+ *  [R.style.Theme_SplashScreen_IconBackground]. If you wish to display a background right under
+ *  your icon, the later needs to be used. This ensure that the scale and masking of the icon are
+ *  similar to the Android 12 Splash Screen.
+ *
+ *  `windowSplashScreenAnimatedIcon`: The splash screen icon. On API 31+ it can be an animated
+ *  vector drawable.
+ *
+ *  `windowSplashScreenAnimationDuration`: Duration of the Animated Icon Animation. The value
+ *  needs to be > 0 if the icon is animated.
+ *
+ *  **Note:** This has no impact on the time during which the splash screen is displayed and is
+ *  only used in [SplashScreenViewProvider.iconAnimationDurationMillis]. If you need to display the
+ *  splash screen for a longer time, you can use [SplashScreen.setKeepOnScreenCondition]
+ *
+ *  `windowSplashScreenIconBackgroundColor`: _To be used in with
+ *  `Theme.SplashScreen.IconBackground`_. Sets a background color under the splash screen icon.
+ *
+ *  `windowSplashScreenBackground`: Background color of the splash screen. Defaults to the theme's
+ *  `?attr/colorBackground`.
+ *
+ *  `postSplashScreenTheme`*  Theme to apply to the Activity when [installSplashScreen] is called.
+ *
+ *  **Known incompatibilities:**
+ *  - On API < 31, `windowSplashScreenAnimatedIcon` cannot be animated. If you want to provide an
+ *  animated icon for API 31+ and a still icon for API <31, you can do so by overriding the still
+ *  icon with an animated vector drawable in `res/drawable-v31`.
+ *
+ *  - On API < 31, if the value of `windowSplashScreenAnimatedIcon` is an
+ *  [adaptive icon](http://developer.android.com/guide/practices/ui_guidelines/icon_design_adaptive)
+ *  , it will be cropped and scaled. The workaround is to respectively assign
+ *  `windowSplashScreenAnimatedIcon` and `windowSplashScreenIconBackgroundColor` to the values of
+ *  the adaptive icon `foreground` and `background`.
+ *
+ *  - On API 21-22, The icon isn't displayed until the application starts, only the background is
+ *  visible.
+ *
+ *  # Design
+ *  The splash screen icon uses the same specifications as
+ *  [Adaptive Icons](https://developer.android.com/guide/practices/ui_guidelines/icon_design_adaptive)
+ *  . This means that the icon needs to fit within a circle whose diameter is 2/3 the size of the
+ *  icon. The actual values don't really matter if you use a vector icon.
+ *
+ *  ## Specs
+ *  - With icon background (`Theme.SplashScreen.IconBackground`)
+ *    + Image Size: 240x240 dp
+ *    + Inner Circle diameter: 160 dp
+ *  - Without icon background  (`Theme.SplashScreen`)
+ *     + Image size: 288x288 dp
+ *     + Inner circle diameter: 192 dp
+  *
+ *  _Example:_ if the full size of the image is 300dp*300dp, the icon needs to fit within a
+ *  circle with a diameter of 200dp. Everything outside the circle will be invisible (masked).
+ *
  */
 @SuppressLint("CustomSplashScreen")
-public class SplashScreen private constructor(activity: Activity) {
+class SplashScreen private constructor(activity: Activity) {
 
-    @SuppressLint("NewApi") // TODO(188897399) Remove once "S" is finalized
     private val impl = when {
         SDK_INT >= 31 -> Impl31(activity)
-        SDK_INT == 30 && PREVIEW_SDK_INT > 0 -> Impl31(activity)
         else -> Impl(activity)
     }
 
@@ -62,10 +127,10 @@ public class SplashScreen private constructor(activity: Activity) {
          * Creates a [SplashScreen] instance associated with this [Activity] and handles
          * setting the theme to [R.attr.postSplashScreenTheme].
          *
-         * This needs to be called before [Activity.setContentView] or other view operation on
+         * This needs to be called before [Activity.setContentView] or other view operations on
          * the root view (e.g setting flags).
          *
-         * Alternatively, if a [SplashScreen] instance is not required, the them can manually be
+         * Alternatively, if a [SplashScreen] instance is not required, the theme can manually be
          * set using [Activity.setTheme].
          */
         @JvmStatic
