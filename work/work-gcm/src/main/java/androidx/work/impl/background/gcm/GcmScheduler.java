@@ -54,14 +54,14 @@ public class GcmScheduler implements Scheduler {
     public void schedule(@NonNull WorkSpec... workSpecs) {
         for (WorkSpec workSpec : workSpecs) {
             Task task = mTaskConverter.convert(workSpec);
-            Logger.get().debug(TAG, String.format("Scheduling %s with %s", workSpec, task));
+            Logger.get().debug(TAG, "Scheduling " + workSpec + "with " + task);
             mNetworkManager.schedule(task);
         }
     }
 
     @Override
     public void cancel(@NonNull String workSpecId) {
-        Logger.get().debug(TAG, String.format("Cancelling %s", workSpecId));
+        Logger.get().debug(TAG, "Cancelling " + workSpecId);
         mNetworkManager.cancelTask(workSpecId, WorkManagerGcmService.class);
     }
 

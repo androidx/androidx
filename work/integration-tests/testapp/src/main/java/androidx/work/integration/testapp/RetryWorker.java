@@ -54,7 +54,7 @@ public class RetryWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        Log.e(TAG, String.format("Requesting retry (%s)", getRunAttemptCount()));
+        Log.e(TAG, "Requesting retry (" + getRunAttemptCount() + ")");
         return Result.retry();
     }
 }

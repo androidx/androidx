@@ -87,7 +87,7 @@ public class WakeLocks {
 
         for (PowerManager.WakeLock wakeLock : wakeLocksCopy.keySet()) {
             if (wakeLock != null && wakeLock.isHeld()) {
-                String message = String.format("WakeLock held for %s", wakeLocksCopy.get(wakeLock));
+                String message = "WakeLock held for " + wakeLocksCopy.get(wakeLock);
                 Logger.get().warning(TAG, message);
             }
         }

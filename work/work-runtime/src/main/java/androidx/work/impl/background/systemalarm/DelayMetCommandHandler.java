@@ -123,7 +123,7 @@ public class DelayMetCommandHandler implements
             if (mCurrentState == STATE_INITIAL) {
                 mCurrentState = STATE_START_REQUESTED;
 
-                Logger.get().debug(TAG, String.format("onAllConstraintsMet for %s", mWorkSpecId));
+                Logger.get().debug(TAG, "onAllConstraintsMet for " + mWorkSpecId);
                 // Constraints met, schedule execution
                 // Not using WorkManagerImpl#startWork() here because we need to know if the
                 // processor actually enqueued the work here.
@@ -140,14 +140,14 @@ public class DelayMetCommandHandler implements
                     cleanUp();
                 }
             } else {
-                Logger.get().debug(TAG, String.format("Already started work for %s", mWorkSpecId));
+                Logger.get().debug(TAG, "Already started work for " + mWorkSpecId);
             }
         }
     }
 
     @Override
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
-        Logger.get().debug(TAG, String.format("onExecuted %s, %s", workSpecId, needsReschedule));
+        Logger.get().debug(TAG, "onExecuted " + workSpecId + ", " + needsReschedule);
         cleanUp();
 
         if (needsReschedule) {
@@ -172,7 +172,7 @@ public class DelayMetCommandHandler implements
     public void onTimeLimitExceeded(@NonNull String workSpecId) {
         Logger.get().debug(
                 TAG,
-                String.format("Exceeded time limits on execution for %s", workSpecId));
+                "Exceeded time limits on execution for " + workSpecId);
         stopWork();
     }
 
@@ -183,11 +183,9 @@ public class DelayMetCommandHandler implements
 
     @WorkerThread
     void handleProcessWork() {
-        mWakeLock = WakeLocks.newWakeLock(
-                mContext,
-                String.format("%s (%s)", mWorkSpecId, mStartId));
+        mWakeLock = WakeLocks.newWakeLock(mContext, mWorkSpecId + " (" + mStartId + ")");
         Logger.get().debug(TAG,
-                String.format("Acquiring wakelock %s for WorkSpec %s", mWakeLock, mWorkSpecId));
+                "Acquiring wakelock " + mWakeLock + "for WorkSpec " + mWorkSpecId);
         mWakeLock.acquire();
 
         WorkSpec workSpec = mDispatcher.getWorkManager()
@@ -208,7 +206,7 @@ public class DelayMetCommandHandler implements
         mHasConstraints = workSpec.hasConstraints();
 
         if (!mHasConstraints) {
-            Logger.get().debug(TAG, String.format("No constraints for %s", mWorkSpecId));
+            Logger.get().debug(TAG, "No constraints for " + mWorkSpecId);
             onAllConstraintsMet(Collections.singletonList(mWorkSpecId));
         } else {
             // Allow tracker to report constraint changes
@@ -228,7 +226,7 @@ public class DelayMetCommandHandler implements
                 mCurrentState = STATE_STOP_REQUESTED;
                 Logger.get().debug(
                         TAG,
-                        String.format("Stopping work for WorkSpec %s", mWorkSpecId));
+                        "Stopping work for WorkSpec " + mWorkSpecId);
                 Intent stopWork = CommandHandler.createStopWorkIntent(mContext, mWorkSpecId);
                 mDispatcher.postOnMainThread(
                         new SystemAlarmDispatcher.AddRunnable(mDispatcher, stopWork, mStartId));
@@ -237,20 +235,18 @@ public class DelayMetCommandHandler implements
                 // reschedule should not happen. For e.g. DELAY_MET when constraints are not met,
                 // should not result in a reschedule.
                 if (mDispatcher.getProcessor().isEnqueued(mWorkSpecId)) {
-                    Logger.get().debug(TAG,
-                            String.format("WorkSpec %s needs to be rescheduled", mWorkSpecId));
+                    Logger.get().debug(TAG, "WorkSpec " + mWorkSpecId + " needs to be rescheduled");
                     Intent reschedule = CommandHandler.createScheduleWorkIntent(mContext,
                             mWorkSpecId);
                     mDispatcher.postOnMainThread(
                             new SystemAlarmDispatcher.AddRunnable(mDispatcher, reschedule,
                                     mStartId));
                 } else {
-                    Logger.get().debug(TAG, String.format(
-                            "Processor does not have WorkSpec %s. No need to reschedule ",
-                            mWorkSpecId));
+                    Logger.get().debug(TAG, "Processor does not have WorkSpec " + mWorkSpecId
+                            + ". No need to reschedule");
                 }
             } else {
-                Logger.get().debug(TAG, String.format("Already stopped work for %s", mWorkSpecId));
+                Logger.get().debug(TAG, "Already stopped work for " + mWorkSpecId);
             }
         }
     }
@@ -270,8 +266,7 @@ public class DelayMetCommandHandler implements
 
             // release wake locks
             if (mWakeLock != null && mWakeLock.isHeld()) {
-                Logger.get().debug(TAG, String.format(
-                        "Releasing wakelock %s for WorkSpec %s", mWakeLock, mWorkSpecId));
+                Logger.get().debug(TAG, "Releasing wakelock " + mWakeLock + "for WorkSpec " + mWorkSpecId);
                 mWakeLock.release();
             }
         }

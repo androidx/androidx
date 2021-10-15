@@ -64,7 +64,7 @@ public class SystemAlarmScheduler implements Scheduler {
      * times to drift to guarantee that the interval duration always elapses between alarms.
      */
     private void scheduleWorkSpec(@NonNull WorkSpec workSpec) {
-        Logger.get().debug(TAG, String.format("Scheduling work with workSpecId %s", workSpec.id));
+        Logger.get().debug(TAG, "Scheduling work with workSpecId " + workSpec.id);
         Intent scheduleIntent = CommandHandler.createScheduleWorkIntent(mContext, workSpec.id);
         mContext.startService(scheduleIntent);
     }

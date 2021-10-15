@@ -100,7 +100,9 @@ public class NetworkState {
     @NonNull
     @Override
     public String toString() {
-        return String.format("[ Connected=%b Validated=%b Metered=%b NotRoaming=%b ]",
-                mIsConnected, mIsValidated, mIsMetered, mIsNotRoaming);
+        return "Connected : " + mIsConnected
+                + " Validated : " + mIsValidated
+                + " Metered : " + mIsMetered
+                + " NotRoaming : " + mIsNotRoaming;
     }
 }

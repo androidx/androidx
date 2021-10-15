@@ -133,7 +133,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
      */
     @MainThread
     public boolean add(@NonNull final Intent intent, final int startId) {
-        Logger.get().debug(TAG, String.format("Adding command %s (%s)", intent, startId));
+        Logger.get().debug(TAG, "Adding command " + intent + " (" + startId + ")");
         assertMainThread();
         String action = intent.getAction();
         if (TextUtils.isEmpty(action)) {
@@ -217,7 +217,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
             // ReentrantLock, and lock the queue while command processor processes
             // an intent. Synchronized to prevent ConcurrentModificationExceptions.
             if (mCurrentIntent != null) {
-                Logger.get().debug(TAG, String.format("Removing command %s", mCurrentIntent));
+                Logger.get().debug(TAG, "Removing command " + mCurrentIntent);
                 if (!mIntents.remove(0).equals(mCurrentIntent)) {
                     throw new IllegalStateException("Dequeue-d command is not the first.");
                 }
@@ -262,17 +262,13 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                         final int startId = mCurrentIntent.getIntExtra(KEY_START_ID,
                                 DEFAULT_START_ID);
                         Logger.get().debug(TAG,
-                                String.format("Processing command %s, %s", mCurrentIntent,
-                                        startId));
+                                "Processing command " + mCurrentIntent + ", " + startId);
                         final PowerManager.WakeLock wakeLock = WakeLocks.newWakeLock(
                                 mContext,
-                                String.format("%s (%s)", action, startId));
+                                action + " (" + startId + ")");
                         try {
-                            Logger.get().debug(TAG, String.format(
-                                    "Acquiring operation wake lock (%s) %s",
-                                    action,
-                                    wakeLock));
-
+                            Logger.get().debug(TAG,
+                                    "Acquiring operation wake lock (" + action + ") " + wakeLock);
                             wakeLock.acquire();
                             mCommandHandler.onHandleIntent(mCurrentIntent, startId,
                                     SystemAlarmDispatcher.this);
@@ -284,10 +280,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                         }  finally {
                             Logger.get().debug(
                                     TAG,
-                                    String.format(
-                                            "Releasing operation wake lock (%s) %s",
-                                            action,
-                                            wakeLock));
+                                    "Releasing operation wake lock (" + action + ") " + wakeLock);
                             wakeLock.release();
                             // Check if we have processed all commands
                             postOnMainThread(

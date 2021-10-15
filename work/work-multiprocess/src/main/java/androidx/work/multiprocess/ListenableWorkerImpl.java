@@ -93,7 +93,7 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
             final String workerClassName = parcelableRemoteWorkRequest.getWorkerClassName();
 
             Logger.get().debug(TAG,
-                    String.format("Executing work request (%s, %s)", id, workerClassName));
+                    "Executing work request (" + id + ", " + workerClassName + ")");
 
             final ListenableFuture<ListenableWorker.Result> futureResult =
                     executeWorkRequest(id, workerClassName, workerParameters);
@@ -109,7 +109,7 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
                     } catch (ExecutionException | InterruptedException exception) {
                         reportFailure(callback, exception);
                     } catch (CancellationException cancellationException) {
-                        Logger.get().debug(TAG, String.format("Worker (%s) was cancelled", id));
+                        Logger.get().debug(TAG, "Worker (" + id + ") was cancelled");
                         reportFailure(callback, cancellationException);
                     } finally {
                         synchronized (sLock) {
@@ -131,7 +131,7 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
             ParcelableWorkerParameters parcelableWorkerParameters =
                     ParcelConverters.unmarshall(request, ParcelableWorkerParameters.CREATOR);
             final String id = parcelableWorkerParameters.getId().toString();
-            Logger.get().debug(TAG, String.format("Interrupting work with id (%s)", id));
+            Logger.get().debug(TAG, "Interrupting work with id (" + id + ")");
 
             final ListenableFuture<ListenableWorker.Result> future;
             synchronized (sLock) {
@@ -162,9 +162,7 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
             @NonNull WorkerParameters workerParameters) {
 
         final SettableFuture<ListenableWorker.Result> future = SettableFuture.create();
-
-        Logger.get().debug(TAG,
-                String.format("Tracking execution of %s (%s)", id, workerClassName));
+        Logger.get().debug(TAG, "Tracking execution of "  + id + " (" + workerClassName + ")");
 
         synchronized (sLock) {
             mFutureMap.put(id, future);
@@ -174,19 +172,15 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
                 .createWorkerWithDefaultFallback(mContext, workerClassName, workerParameters);
 
         if (worker == null) {
-            String message = String.format(
-                    "Unable to create an instance of %s", workerClassName);
+            String message = "Unable to create an instance of " + workerClassName;
             Logger.get().error(TAG, message);
             future.setException(new IllegalStateException(message));
             return future;
         }
 
         if (!(worker instanceof RemoteListenableWorker)) {
-            String message = String.format(
-                    "%s does not extend %s",
-                    workerClassName,
-                    RemoteListenableWorker.class.getName()
-            );
+            String message =
+                    workerClassName + " does not extend " + RemoteListenableWorker.class.getName();
             Logger.get().error(TAG, message);
             future.setException(new IllegalStateException(message));
             return future;

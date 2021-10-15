@@ -77,8 +77,7 @@ public class ListenableWorkerImplClient {
         synchronized (mLock) {
             if (mConnection == null) {
                 Logger.get().debug(TAG,
-                        String.format("Binding to %s, %s", component.getPackageName(),
-                                component.getClassName()));
+                        "Binding to " + component.getPackageName() + ", " + component.getClassName());
 
                 mConnection = new Connection();
                 try {
@@ -210,7 +209,7 @@ public class ListenableWorkerImplClient {
         public void onNullBinding(@NonNull ComponentName name) {
             Logger.get().error(TAG, "Unable to bind to service");
             mFuture.setException(
-                    new RuntimeException(String.format("Cannot bind to service %s", name)));
+                    new RuntimeException("Cannot bind to service " + name));
         }
     }
 

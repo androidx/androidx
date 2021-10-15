@@ -91,7 +91,7 @@ public class ParcelableResult implements Parcelable {
             return 3;
         } else {
             // Exhaustive check
-            throw new IllegalStateException(String.format("Unknown Result %s", result));
+            throw new IllegalStateException("Unknown Result " + result);
         }
     }
 
@@ -106,7 +106,7 @@ public class ParcelableResult implements Parcelable {
             result = ListenableWorker.Result.failure(data);
         } else {
             // Exhaustive check
-            throw new IllegalStateException(String.format("Unknown result type %s", resultType));
+            throw new IllegalStateException("Unknown result type " + resultType);
         }
         return result;
     }
