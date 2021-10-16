@@ -43,6 +43,7 @@ import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.GarbageCollectionUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INVALID_OUTPUT_OPTIONS
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
@@ -286,29 +287,55 @@ class RecorderTest {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        ParcelFileDescriptor.open(
+        val pfd = ParcelFileDescriptor.open(
             file,
             ParcelFileDescriptor.MODE_READ_WRITE
-        ).use { pfd ->
-            val activeRecording = recorder
-                .prepareRecording(context, FileDescriptorOutputOptions.Builder(pfd).build())
-                .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
-                .withAudioEnabled()
-                .start()
+        )
+        val activeRecording = recorder
+            .prepareRecording(context, FileDescriptorOutputOptions.Builder(pfd).build())
+            .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
+            .withAudioEnabled()
+            .start()
 
-            val inOrder = inOrder(videoRecordEventListener)
-            inOrder.verify(videoRecordEventListener, timeout(1000L))
-                .accept(any(VideoRecordEvent.Start::class.java))
-            inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-                .accept(any(VideoRecordEvent.Status::class.java))
+        // ParcelFileDescriptor should be safe to close after PendingRecording#start.
+        pfd.close()
 
-            activeRecording.stopSafely()
+        val inOrder = inOrder(videoRecordEventListener)
+        inOrder.verify(videoRecordEventListener, timeout(1000L))
+            .accept(any(VideoRecordEvent.Start::class.java))
+        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
+            .accept(any(VideoRecordEvent.Status::class.java))
 
-            inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
-                .accept(any(VideoRecordEvent.Finalize::class.java))
+        activeRecording.stopSafely()
 
-            checkFileHasAudioAndVideo(Uri.fromFile(file))
-        }
+        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
+            .accept(any(VideoRecordEvent.Finalize::class.java))
+
+        checkFileHasAudioAndVideo(Uri.fromFile(file))
+
+        file.delete()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun recordToFileDescriptor_withClosedFileDescriptor_receiveError() {
+        clearInvocations(videoRecordEventListener)
+        invokeSurfaceRequest()
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE)
+
+        pfd.close()
+
+        recorder.prepareRecording(context, FileDescriptorOutputOptions
+            .Builder(pfd).build())
+            .withEventListener(CameraXExecutors.directExecutor(), videoRecordEventListener)
+            .withAudioEnabled()
+            .start()
+
+        val captor = ArgumentCaptor.forClass(VideoRecordEvent::class.java)
+        verify(videoRecordEventListener).accept(captor.capture())
+        val finalize = captor.value as VideoRecordEvent.Finalize
+        assertThat(finalize.error).isEqualTo(ERROR_INVALID_OUTPUT_OPTIONS)
 
         file.delete()
     }
