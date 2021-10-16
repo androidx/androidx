@@ -30,4 +30,18 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"未設定 PIN 碼、解鎖圖案或密碼。"</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"這部裝置不支援 PIN 碼、解鎖圖案或密碼。"</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"指紋圖示"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"使用指紋解鎖功能"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"使用人臉解鎖功能"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"使用生物特徵辨識功能"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"使用螢幕鎖定功能"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"使用指紋解鎖或螢幕鎖定功能"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"使用人臉解鎖或螢幕鎖定功能"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"使用生物特徵辨識或螢幕鎖定功能"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"請使用指紋驗證身分，才能繼續操作"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"請使用你的臉驗證身分，才能繼續操作"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"請使用生物特徵辨識功能驗證身分，才能繼續操作"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"請解除螢幕鎖定，才能繼續操作"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"請使用螢幕鎖定功能或指紋驗證身分，才能繼續操作"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"請使用螢幕鎖定功能或你的臉驗證身分，才能繼續操作"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"請使用生物特徵辨識或螢幕鎖定功能驗證身分，才能繼續操作"</string>
 </resources>

@@ -30,4 +30,18 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Nie je nastavený kód PIN, vzor ani heslo."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Toto zariadenie nepodporuje PIN, vzor ani heslo."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Ikona odtlačku prsta"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"Použiť odtlačok prsta"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"Použiť tvár"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"Použiť biometrické údaje"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"Použiť zámku obrazovky"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Použiť odtlačok prsta alebo zámku obrazovky"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Použiť tvár alebo zámku obrazovky"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Použiť biometrické údaje alebo zámku obrazovky"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Pokračujte nasnímaním odtlačku prsta"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"Pokračujte pomocou tváre"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"Ak chcete pokračovať, použite biometrický údaj"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"Pokračujte zadaním zámky obrazovky"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"Pokračujte použitím odtlačku prsta alebo zámky obrazovky"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"Pokračujte použitím tváre alebo zámky obrazovky"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"Pokračujte použitím biometrie alebo zámky obrazovky"</string>
 </resources>
