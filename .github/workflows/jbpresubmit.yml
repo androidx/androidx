@@ -169,7 +169,7 @@ jobs:
           fi
           git clone -n https://github.com/JetBrains/compose-jb
           cd compose-jb
-          git checkout origin/master
+          git checkout origin/mpp
           git submodule update --init --recursive
 
           pushd compose/frameworks/support
