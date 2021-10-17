@@ -21,13 +21,19 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.SAVED_STATE_REGISTRY_OWNER_KEY
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.SavedStateViewModelFactory
+import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.Factory
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.installSavedStateHandleSupport
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.MediumTest
@@ -40,8 +46,9 @@ import org.junit.runners.Parameterized
 internal const val FRAGMENT_MODE = "fragment"
 internal const val ACTIVITY_MODE = "activity"
 
-internal const val ABSTRACT_FACTORY_MODE = "abstract"
+internal const val LEGACY_ABSTRACT_FACTORY_MODE = "legacy_abstract"
 internal const val SAVEDSTATE_FACTORY_MODE = "non_abstract"
+internal const val ABSTRACT_FACTORY_MODE = "abstract"
 
 @RunWith(Parameterized::class)
 @MediumTest
@@ -54,9 +61,11 @@ class ViewModelsWithStateTest(private val mode: Mode) {
         @Parameterized.Parameters(name = "{0}")
         fun initParameters(): Array<Any> = arrayOf(
             Mode(FRAGMENT_MODE, SAVEDSTATE_FACTORY_MODE),
+            Mode(FRAGMENT_MODE, LEGACY_ABSTRACT_FACTORY_MODE),
             Mode(FRAGMENT_MODE, ABSTRACT_FACTORY_MODE),
             Mode(ACTIVITY_MODE, SAVEDSTATE_FACTORY_MODE),
-            Mode(ACTIVITY_MODE, ABSTRACT_FACTORY_MODE)
+            Mode(ACTIVITY_MODE, LEGACY_ABSTRACT_FACTORY_MODE),
+            Mode(ACTIVITY_MODE, ABSTRACT_FACTORY_MODE),
         )
     }
 
@@ -147,22 +156,38 @@ class ViewModelsWithStateTest(private val mode: Mode) {
 
         val savedStateOwner = owner as SavedStateRegistryOwner
 
-        val factory = if (mode.factoryMode == SAVEDSTATE_FACTORY_MODE) {
-            // otherwise common type of factory is package private KeyedFactory
-            @Suppress("USELESS_CAST")
-            SavedStateViewModelFactory(activity.application, savedStateOwner) as Factory
-        } else {
-            object : AbstractSavedStateViewModelFactory(savedStateOwner, null) {
-                override fun <T : ViewModel> create(
-                    key: String,
-                    modelClass: Class<T>,
-                    handle: SavedStateHandle
-                ): T {
-                    return modelClass.cast(VM(handle))!!
+        val factory = when (mode.factoryMode) {
+            SAVEDSTATE_FACTORY_MODE -> {
+                // otherwise common type of factory is package private KeyedFactory
+                @Suppress("USELESS_CAST")
+                SavedStateViewModelFactory(activity.application, savedStateOwner) as Factory
+            }
+            LEGACY_ABSTRACT_FACTORY_MODE -> {
+                object : AbstractSavedStateViewModelFactory(savedStateOwner, null) {
+                    override fun <T : ViewModel> create(
+                        key: String,
+                        modelClass: Class<T>,
+                        handle: SavedStateHandle
+                    ): T {
+                        return modelClass.cast(VM(handle))!!
+                    }
+                }
+            }
+            else -> {
+                object : AbstractSavedStateViewModelFactory() {
+                    override fun <T : ViewModel> create(
+                        key: String,
+                        modelClass: Class<T>,
+                        handle: SavedStateHandle
+                    ): T {
+                        return modelClass.cast(VM(handle))!!
+                    }
                 }
             }
         }
-        return ViewModelProvider(owner, factory)
+        return if (mode.factoryMode == ABSTRACT_FACTORY_MODE)
+            ViewModelProvider(DecorateWithCreationExtras(savedStateOwner, owner), factory)
+        else ViewModelProvider(owner, factory)
     }
 
     class VM(handle: SavedStateHandle) : ViewModel() {
@@ -194,13 +219,41 @@ class FakingSavedStateActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val alternativeState = savedInstanceState ?: fakeSavedState()
         super.onCreate(alternativeState)
+        installSavedStateHandleSupport()
         if (alternativeState == null) {
-            supportFragmentManager.beginTransaction().add(Fragment(), FRAGMENT_TAG).commitNow()
+            supportFragmentManager.beginTransaction()
+                .add(FragmentWithSavedStateHandleSupport(), FRAGMENT_TAG).commitNow()
         }
     }
 
     public override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         savedState = outState
+    }
+}
+
+class FragmentWithSavedStateHandleSupport : Fragment() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        installSavedStateHandleSupport()
+    }
+}
+
+class DecorateWithCreationExtras(
+    val ssrOwner: SavedStateRegistryOwner,
+    val vmOwner: ViewModelStoreOwner
+) : ViewModelStoreOwner by vmOwner,
+    SavedStateRegistryOwner by ssrOwner,
+    HasDefaultViewModelProviderFactory {
+
+    override fun getDefaultViewModelProviderFactory(): Factory {
+        throw UnsupportedOperationException()
+    }
+
+    override fun getDefaultViewModelCreationExtras(): CreationExtras {
+        val extras = MutableCreationExtras()
+        extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
+        extras[VIEW_MODEL_STORE_OWNER_KEY] = this
+        return extras
     }
 }
