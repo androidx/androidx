@@ -16,9 +16,10 @@
 
 package androidx.lifecycle;
 
-import static androidx.lifecycle.SavedStateHandleController.attachHandleIfNeeded;
+import static androidx.lifecycle.LegacySavedStateHandleController.attachHandleIfNeeded;
 import static androidx.lifecycle.ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -38,9 +39,21 @@ public abstract class AbstractSavedStateViewModelFactory extends ViewModelProvid
         implements ViewModelProvider.Factory {
     static final String TAG_SAVED_STATE_HANDLE_CONTROLLER = "androidx.lifecycle.savedstate.vm.tag";
 
-    private final SavedStateRegistry mSavedStateRegistry;
-    private final Lifecycle mLifecycle;
-    private final Bundle mDefaultArgs;
+    private SavedStateRegistry mSavedStateRegistry;
+    private Lifecycle mLifecycle;
+    private Bundle mDefaultArgs;
+
+    /**
+     * Constructs this factory.
+     * <p>
+     * When a factory is constructed this way, a component for which {@link SavedStateHandle} is
+     * scoped must have called
+     * {@link SavedStateHandleSupport#installSavedStateHandleSupport(SavedStateRegistryOwner)}.
+     * See {@link SavedStateHandleSupport#createSavedStateHandle(CreationExtras)} docs for more
+     * details.
+     */
+    public AbstractSavedStateViewModelFactory() {
+    }
 
     /**
      * Constructs this factory.
@@ -52,6 +65,7 @@ public abstract class AbstractSavedStateViewModelFactory extends ViewModelProvid
      *                    if there is no previously saved state
      *                    or previously saved state misses a value by such key
      */
+    @SuppressLint("LambdaLast")
     public AbstractSavedStateViewModelFactory(@NonNull SavedStateRegistryOwner owner,
             @Nullable Bundle defaultArgs) {
         mSavedStateRegistry = owner.getSavedStateRegistry();
@@ -68,13 +82,18 @@ public abstract class AbstractSavedStateViewModelFactory extends ViewModelProvid
             throw new IllegalStateException(
                     "VIEW_MODEL_KEY must always be provided by ViewModelProvider");
         }
-        return create(key, modelClass);
+        // if a factory constructed in the old way use the old infra to create SavedStateHandle
+        if (mSavedStateRegistry != null) {
+            return create(key, modelClass);
+        } else {
+            return create(key, modelClass, SavedStateHandleSupport.createSavedStateHandle(extras));
+        }
     }
 
     @NonNull
     private <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass) {
-        SavedStateHandleController controller = SavedStateHandleController.create(
-                mSavedStateRegistry, mLifecycle, key, mDefaultArgs);
+        SavedStateHandleController controller = LegacySavedStateHandleController
+                .create(mSavedStateRegistry, mLifecycle, key, mDefaultArgs);
         T viewmodel = create(key, modelClass, controller.getHandle());
         viewmodel.setTagIfAbsent(TAG_SAVED_STATE_HANDLE_CONTROLLER, controller);
         return viewmodel;
@@ -89,6 +108,13 @@ public abstract class AbstractSavedStateViewModelFactory extends ViewModelProvid
         String canonicalName = modelClass.getCanonicalName();
         if (canonicalName == null) {
             throw new IllegalArgumentException("Local and anonymous classes can not be ViewModels");
+        }
+        if (mLifecycle == null) {
+            throw new UnsupportedOperationException(
+                    "AbstractSavedStateViewModelFactory constructed "
+                            + "with empty constructor supports only calls to "
+                            +   "create(modelClass: Class<T>, extras: CreationExtras)."
+            );
         }
         return create(canonicalName, modelClass);
     }
@@ -113,7 +139,10 @@ public abstract class AbstractSavedStateViewModelFactory extends ViewModelProvid
     @Override
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void onRequery(@NonNull ViewModel viewModel) {
-        attachHandleIfNeeded(viewModel, mSavedStateRegistry, mLifecycle);
+        // is need only for legacy path
+        if (mSavedStateRegistry != null) {
+            attachHandleIfNeeded(viewModel, mSavedStateRegistry, mLifecycle);
+        }
     }
 }
 

@@ -17,7 +17,7 @@
 package androidx.lifecycle;
 
 import static androidx.lifecycle.AbstractSavedStateViewModelFactory.TAG_SAVED_STATE_HANDLE_CONTROLLER;
-import static androidx.lifecycle.SavedStateHandleController.attachHandleIfNeeded;
+import static androidx.lifecycle.LegacySavedStateHandleController.attachHandleIfNeeded;
 import static androidx.lifecycle.ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY;
 
 import android.annotation.SuppressLint;
@@ -133,7 +133,7 @@ public final class SavedStateViewModelFactory extends ViewModelProvider.OnRequer
             return mFactory.create(modelClass);
         }
 
-        SavedStateHandleController controller = SavedStateHandleController.create(
+        SavedStateHandleController controller = LegacySavedStateHandleController.create(
                 mSavedStateRegistry, mLifecycle, key, mDefaultArgs);
         try {
             T viewmodel;

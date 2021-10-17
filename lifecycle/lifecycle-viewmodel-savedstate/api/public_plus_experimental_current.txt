@@ -2,6 +2,7 @@
 package androidx.lifecycle {
 
   public abstract class AbstractSavedStateViewModelFactory implements androidx.lifecycle.ViewModelProvider.Factory {
+    ctor public AbstractSavedStateViewModelFactory();
     ctor public AbstractSavedStateViewModelFactory(androidx.savedstate.SavedStateRegistryOwner, android.os.Bundle?);
     method public final <T extends androidx.lifecycle.ViewModel> T create(Class<T!>, androidx.lifecycle.viewmodel.CreationExtras);
     method public final <T extends androidx.lifecycle.ViewModel> T create(Class<T!>);
@@ -20,6 +21,14 @@ package androidx.lifecycle {
     method @MainThread public <T> T? remove(String);
     method @MainThread public <T> void set(String, T?);
     method @MainThread public void setSavedStateProvider(String, androidx.savedstate.SavedStateRegistry.SavedStateProvider);
+  }
+
+  public final class SavedStateHandleSupport {
+    method @MainThread public static androidx.lifecycle.SavedStateHandle createSavedStateHandle(androidx.lifecycle.viewmodel.CreationExtras);
+    method @MainThread public static <T extends androidx.savedstate.SavedStateRegistryOwner & androidx.lifecycle.ViewModelStoreOwner> void installSavedStateHandleSupport(T);
+    field public static final androidx.lifecycle.viewmodel.CreationExtras.Key<android.os.Bundle> DEFAULT_ARGS_KEY;
+    field public static final androidx.lifecycle.viewmodel.CreationExtras.Key<androidx.savedstate.SavedStateRegistryOwner> SAVED_STATE_REGISTRY_OWNER_KEY;
+    field public static final androidx.lifecycle.viewmodel.CreationExtras.Key<androidx.lifecycle.ViewModelStoreOwner> VIEW_MODEL_STORE_OWNER_KEY;
   }
 
   public final class SavedStateViewModelFactory implements androidx.lifecycle.ViewModelProvider.Factory {
