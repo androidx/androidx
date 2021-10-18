@@ -210,7 +210,6 @@ public class FrameTimingMetric : Metric() {
  * measurement may not be available prior to API 29.
  */
 @Suppress("CanSealedSubClassBeObject")
-@RequiresApi(23)
 public class StartupTimingMetric : Metric() {
     internal override fun configure(packageName: String) {
     }

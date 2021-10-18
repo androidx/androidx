@@ -70,7 +70,7 @@ package androidx.benchmark.macro {
     enum_constant public static final androidx.benchmark.macro.StartupMode WARM;
   }
 
-  @RequiresApi(23) public final class StartupTimingMetric extends androidx.benchmark.macro.Metric {
+  public final class StartupTimingMetric extends androidx.benchmark.macro.Metric {
     ctor public StartupTimingMetric();
   }
 
