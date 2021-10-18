@@ -270,10 +270,28 @@ class NullAwareTypeConverterStore(
     }
 
     override fun findTypeConverter(input: XType, output: XType): TypeConverter? {
-        return findConverterIntoStatementInternal(
+        findConverterIntoStatementInternal(
             input = input,
             columnTypes = listOf(output)
-        )?.getOrCreateConverter()
+        )?.let {
+            return it.getOrCreateConverter()
+        }
+        // if output is non-null, see if we can find a converter to nullable version and add a
+        // null check
+        return if (output.nullability == NONNULL) {
+            findConverterIntoStatementInternal(
+                input = input,
+                columnTypes = listOf(output.makeNullable())
+            )?.let { converterEntry ->
+                return converterEntry.appendConverter(
+                    RequireNotNullTypeConverter(
+                        from = output.makeNullable()
+                    )
+                )
+            }
+        } else {
+            null
+        }
     }
 
     /**
