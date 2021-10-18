@@ -327,8 +327,24 @@ public abstract class WatchFaceService : WallpaperService() {
      */
     internal open fun expectPreRInitFlow() = Build.VERSION.SDK_INT < Build.VERSION_CODES.R
 
+    /** [Choreographer] isn't supposed to be mocked, so we use a thin wrapper. */
+    internal interface ChoreographerWrapper {
+        fun postFrameCallback(callback: Choreographer.FrameCallback)
+        fun removeFrameCallback(callback: Choreographer.FrameCallback)
+    }
+
     /** This is open to allow mocking. */
-    internal open fun getChoreographer(): Choreographer = Choreographer.getInstance()
+    internal open fun getChoreographer(): ChoreographerWrapper = object : ChoreographerWrapper {
+        private val choreographer = Choreographer.getInstance()
+
+        override fun postFrameCallback(callback: Choreographer.FrameCallback) {
+            choreographer.postFrameCallback(callback)
+        }
+
+        override fun removeFrameCallback(callback: Choreographer.FrameCallback) {
+            choreographer.removeFrameCallback(callback)
+        }
+    }
 
     /**
      * This is open for use by tests, it allows them to inject a custom [SurfaceHolder].
@@ -712,7 +728,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         internal lateinit var ambientUpdateWakelock: PowerManager.WakeLock
 
-        private lateinit var choreographer: Choreographer
+        private lateinit var choreographer: ChoreographerWrapper
 
         /**
          * Whether we already have a [frameCallback] posted and waiting in the [Choreographer]
