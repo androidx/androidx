@@ -65,7 +65,8 @@ internal fun applyModifiers(
     var heightModifier: HeightModifier? = null
     modifiers.foldIn(Unit) { _, modifier ->
         when (modifier) {
-            is ActionModifier -> applyAction(rv, modifier.action, context, layoutDef.mainViewId)
+            is ActionModifier ->
+                applyAction(rv, modifier.action, translationContext, layoutDef.mainViewId)
             is WidthModifier -> widthModifier = modifier
             is HeightModifier -> heightModifier = modifier
             is BackgroundModifier -> applyBackgroundModifier(
@@ -99,21 +100,22 @@ internal fun applyModifiers(
 private fun applyAction(
     rv: RemoteViews,
     action: Action,
-    context: Context,
+    translationContext: TranslationContext,
     @IdRes viewId: Int
 ) {
     when (action) {
         is LaunchActivityAction -> {
             val intent = when (action) {
                 is LaunchActivityComponentAction -> Intent().setComponent(action.componentName)
-                is LaunchActivityClassAction -> Intent(context, action.activityClass)
+                is LaunchActivityClassAction ->
+                    Intent(translationContext.context, action.activityClass)
                 is LaunchActivityIntentAction -> action.intent
                 else -> error("Action type not defined in app widget package: $action")
             }
 
             val pendingIntent: PendingIntent =
                 PendingIntent.getActivity(
-                    context,
+                    translationContext.context,
                     0,
                     intent,
                     PendingIntent.FLAG_MUTABLE
@@ -123,8 +125,10 @@ private fun applyAction(
         is UpdateContentAction -> {
             val pendingIntent =
                 ActionRunnableBroadcastReceiver.createPendingIntent(
-                    context,
+                    translationContext.context,
                     action.runnableClass,
+                    translationContext.appWidgetClass,
+                    translationContext.appWidgetId,
                     action.parameters
                 )
             rv.setOnClickPendingIntent(viewId, pendingIntent)
