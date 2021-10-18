@@ -20,7 +20,6 @@ package androidx.collection {
     method public static inline <T> boolean isNotEmpty(androidx.collection.LongSparseArray<T>);
     method public static <T> kotlin.collections.LongIterator keyIterator(androidx.collection.LongSparseArray<T>);
     method public static operator <T> androidx.collection.LongSparseArray<T> plus(androidx.collection.LongSparseArray<T>, androidx.collection.LongSparseArray<T> other);
-    method @Deprecated public static <T> boolean remove(androidx.collection.LongSparseArray<T>, long key, T? value);
     method public static inline operator <T> void set(androidx.collection.LongSparseArray<T>, long key, T? value);
     method public static <T> java.util.Iterator<T> valueIterator(androidx.collection.LongSparseArray<T>);
   }
@@ -38,7 +37,6 @@ package androidx.collection {
     method public static inline <T> boolean isNotEmpty(androidx.collection.SparseArrayCompat<T>);
     method public static <T> kotlin.collections.IntIterator keyIterator(androidx.collection.SparseArrayCompat<T>);
     method public static operator <T> androidx.collection.SparseArrayCompat<T> plus(androidx.collection.SparseArrayCompat<T>, androidx.collection.SparseArrayCompat<T> other);
-    method @Deprecated public static <T> boolean remove(androidx.collection.SparseArrayCompat<T>, int key, T? value);
     method public static inline operator <T> void set(androidx.collection.SparseArrayCompat<T>, int key, T? value);
     method public static <T> java.util.Iterator<T> valueIterator(androidx.collection.SparseArrayCompat<T>);
   }
