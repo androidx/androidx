@@ -275,7 +275,6 @@ printf "=================================================================== \n"
 
 # Construct the devsite command and parameters
 devsiteCmd="/google/data/ro/projects/devsite/devsite2 stage"
-devsiteCmd+=" --parallelize_build"
 devsiteCmd+=" --use_large_thread_pools"
 devsiteCmd+=" --upload_safety_check_mode=ignore"
 
