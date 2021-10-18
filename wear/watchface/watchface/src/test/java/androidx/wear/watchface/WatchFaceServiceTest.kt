@@ -131,7 +131,6 @@ public class WatchFaceServiceTest {
     private val iWatchFaceService = mock<IWatchFaceService>()
     private val surfaceHolder = mock<SurfaceHolder>()
     private val tapListener = mock<WatchFace.TapListener>()
-    private val choreographer = mock<Choreographer>()
     private val watchState = MutableWatchState()
 
     init {
@@ -350,6 +349,29 @@ public class WatchFaceServiceTest {
 
     private var looperTimeMillis = 0L
     private val pendingTasks = PriorityQueue<Task>()
+    private val choreographer = object : WatchFaceService.ChoreographerWrapper {
+        override fun postFrameCallback(callback: Choreographer.FrameCallback) {
+            // Simulate waiting for the next frame.
+            val nextFrameTimeMillis = looperTimeMillis + (16 - looperTimeMillis % 16)
+            pendingTasks.add(Task(nextFrameTimeMillis) { callback.doFrame(0) })
+        }
+
+        override fun removeFrameCallback(callback: Choreographer.FrameCallback) {
+            // Remove task from the priority queue.  There's no good way of doing this quickly.
+            val queue = ArrayDeque<Task>()
+            while (pendingTasks.isNotEmpty()) {
+                val task = pendingTasks.remove()
+                if (task.runnable != callback) {
+                    queue.add(task)
+                }
+            }
+
+            // Push filtered tasks back on the queue.
+            while (queue.isNotEmpty()) {
+                pendingTasks.add(queue.remove())
+            }
+        }
+    }
 
     private fun runPostedTasksFor(durationMillis: Long) {
         val stopTime = looperTimeMillis + durationMillis
@@ -588,29 +610,6 @@ public class WatchFaceServiceTest {
                 Task(looperTimeMillis + it.arguments[1] as Long, it.arguments[0] as Runnable)
             )
         }.`when`(handler).postDelayed(any(), anyLong())
-
-        doAnswer {
-            // Simulate waiting for the next frame.
-            val nextFrameTimeMillis = looperTimeMillis + (16 - looperTimeMillis % 16)
-            val callback = it.arguments[0] as Choreographer.FrameCallback
-            pendingTasks.add(Task(nextFrameTimeMillis, { callback.doFrame(0) }))
-        }.`when`(choreographer).postFrameCallback(any())
-
-        doAnswer {
-            // Remove task from the priority queue.  There's no good way of doing this quickly.
-            val queue = ArrayDeque<Task>()
-            while (pendingTasks.isNotEmpty()) {
-                val task = pendingTasks.remove()
-                if (task.runnable != it.arguments[0]) {
-                    queue.add(task)
-                }
-            }
-
-            // Push filtered tasks back on the queue.
-            while (queue.isNotEmpty()) {
-                pendingTasks.add(queue.remove())
-            }
-        }.`when`(handler).removeCallbacks(any())
     }
 
     @After
