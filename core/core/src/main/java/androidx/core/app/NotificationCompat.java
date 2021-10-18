@@ -4599,6 +4599,8 @@ public class NotificationCompat {
          */
         public PendingIntent actionIntent;
 
+        private boolean mAuthenticationRequired;
+
         public Action(int icon, @Nullable CharSequence title, @Nullable PendingIntent intent) {
             this(icon == 0 ? null : IconCompat.createWithResource(null, "", icon), title, intent);
         }
@@ -4610,17 +4612,17 @@ public class NotificationCompat {
         public Action(@Nullable IconCompat icon, @Nullable CharSequence title,
                 @Nullable PendingIntent intent) {
             this(icon, title, intent, new Bundle(), null, null, true, SEMANTIC_ACTION_NONE, true,
-                    false /* isContextual */);
+                    false /* isContextual */, false /* authRequired */);
         }
 
         Action(int icon, @Nullable CharSequence title, @Nullable PendingIntent intent,
                 @Nullable Bundle extras,
                 @Nullable RemoteInput[] remoteInputs, @Nullable RemoteInput[] dataOnlyRemoteInputs,
                 boolean allowGeneratedReplies, @SemanticAction int semanticAction,
-                boolean showsUserInterface, boolean isContextual) {
+                boolean showsUserInterface, boolean isContextual, boolean requireAuth) {
             this(icon == 0 ? null : IconCompat.createWithResource(null, "", icon), title,
                     intent, extras, remoteInputs, dataOnlyRemoteInputs, allowGeneratedReplies,
-                    semanticAction, showsUserInterface, isContextual);
+                    semanticAction, showsUserInterface, isContextual, requireAuth);
         }
 
         // Package private access to avoid adding a SyntheticAccessor for the Action.Builder class.
@@ -4629,7 +4631,7 @@ public class NotificationCompat {
                 @Nullable PendingIntent intent, @Nullable Bundle extras,
                 @Nullable RemoteInput[] remoteInputs, @Nullable RemoteInput[] dataOnlyRemoteInputs,
                 boolean allowGeneratedReplies, @SemanticAction int semanticAction,
-                boolean showsUserInterface, boolean isContextual) {
+                boolean showsUserInterface, boolean isContextual, boolean requireAuth) {
             this.mIcon = icon;
             if (icon != null && icon.getType() == IconCompat.TYPE_RESOURCE) {
                 this.icon = icon.getResId();
@@ -4643,6 +4645,7 @@ public class NotificationCompat {
             this.mSemanticAction = semanticAction;
             this.mShowsUserInterface = showsUserInterface;
             this.mIsContextual = isContextual;
+            this.mAuthenticationRequired = requireAuth;
         }
 
         /**
@@ -4686,6 +4689,17 @@ public class NotificationCompat {
          */
         public boolean getAllowGeneratedReplies() {
             return mAllowGeneratedReplies;
+        }
+
+        /**
+         * Returns whether the OS should only send this action's {@link PendingIntent} on an
+         * unlocked device.
+         *
+         * If the device is locked when the action is invoked, the OS should show the keyguard and
+         * require successful authentication before invoking the intent.
+         */
+        public boolean isAuthenticationRequired() {
+            return mAuthenticationRequired;
         }
 
         /**
@@ -4752,6 +4766,7 @@ public class NotificationCompat {
             private @SemanticAction int mSemanticAction;
             private boolean mShowsUserInterface = true;
             private boolean mIsContextual;
+            private boolean mAuthenticationRequired;
 
             /**
              * Creates a {@link Builder} from an {@link android.app.Notification.Action}.
@@ -4788,6 +4803,9 @@ public class NotificationCompat {
                 if (Build.VERSION.SDK_INT >= 29) {
                     builder.setContextual(action.isContextual());
                 }
+                if (Build.VERSION.SDK_INT >= 31) {
+                    builder.setAuthenticationRequired(action.isAuthenticationRequired());
+                }
                 return builder;
             }
 
@@ -4803,7 +4821,7 @@ public class NotificationCompat {
             public Builder(@Nullable IconCompat icon, @Nullable CharSequence title,
                     @Nullable PendingIntent intent) {
                 this(icon, title, intent, new Bundle(), null, true, SEMANTIC_ACTION_NONE, true,
-                        false /* isContextual */);
+                        false /* isContextual */, false /* authRequiored */);
             }
 
             /**
@@ -4820,7 +4838,7 @@ public class NotificationCompat {
                         true,
                         SEMANTIC_ACTION_NONE,
                         true,
-                        false /* isContextual */);
+                        false /* isContextual */, false /* authRequired */);
             }
 
             /**
@@ -4833,14 +4851,14 @@ public class NotificationCompat {
                         new Bundle(action.mExtras),
                         action.getRemoteInputs(), action.getAllowGeneratedReplies(),
                         action.getSemanticAction(), action.mShowsUserInterface,
-                        action.isContextual());
+                        action.isContextual(), action.isAuthenticationRequired());
             }
 
             private Builder(@Nullable IconCompat icon, @Nullable CharSequence title,
                     @Nullable PendingIntent intent, @NonNull Bundle extras,
                     @Nullable RemoteInput[] remoteInputs, boolean allowGeneratedReplies,
                     @SemanticAction int semanticAction, boolean showsUserInterface,
-                    boolean isContextual) {
+                    boolean isContextual, boolean authRequired) {
                 mIcon = icon;
                 mTitle = NotificationCompat.Builder.limitCharSequenceLength(title);
                 mIntent = intent;
@@ -4851,6 +4869,7 @@ public class NotificationCompat {
                 mSemanticAction = semanticAction;
                 mShowsUserInterface = showsUserInterface;
                 mIsContextual = isContextual;
+                mAuthenticationRequired = authRequired;
             }
 
             /**
@@ -4931,6 +4950,21 @@ public class NotificationCompat {
             }
 
             /**
+             * From API 31, sets whether the OS should only send this action's {@link PendingIntent}
+             * on an unlocked device.
+             *
+             * If this is true and the device is locked when the action is invoked, the OS will
+             * show the keyguard and require successful authentication before invoking the intent.
+             * If this is false and the device is locked, the OS will decide whether authentication
+             * should be required.
+             */
+            @NonNull
+            public Builder setAuthenticationRequired(boolean authenticationRequired) {
+                mAuthenticationRequired = authenticationRequired;
+                return this;
+            }
+
+            /**
              * Set whether or not this {@link Action}'s {@link PendingIntent} will open a user
              * interface.
              * @param showsUserInterface {@code true} if this {@link Action}'s {@link PendingIntent}
@@ -4992,7 +5026,7 @@ public class NotificationCompat {
                         ? null : textInputs.toArray(new RemoteInput[textInputs.size()]);
                 return new Action(mIcon, mTitle, mIntent, mExtras, textInputsArr,
                         dataOnlyInputsArr, mAllowGeneratedReplies, mSemanticAction,
-                        mShowsUserInterface, mIsContextual);
+                        mShowsUserInterface, mIsContextual, mAuthenticationRequired);
             }
         }
 
@@ -5643,6 +5677,9 @@ public class NotificationCompat {
                     actionCompat.getAllowGeneratedReplies());
             if (Build.VERSION.SDK_INT >= 24) {
                 actionBuilder.setAllowGeneratedReplies(actionCompat.getAllowGeneratedReplies());
+            }
+            if (Build.VERSION.SDK_INT >= 31) {
+                actionBuilder.setAuthenticationRequired(actionCompat.isAuthenticationRequired());
             }
             actionBuilder.addExtras(actionExtras);
             RemoteInput[] remoteInputCompats = actionCompat.getRemoteInputs();
@@ -7466,21 +7503,24 @@ public class NotificationCompat {
 
         final boolean isContextual = Build.VERSION.SDK_INT >= 29 ? action.isContextual() : false;
 
+        final boolean authRequired =
+                Build.VERSION.SDK_INT >= 31 ? action.isAuthenticationRequired() : false;
+
         if (Build.VERSION.SDK_INT >= 23) {
             if (action.getIcon() == null && action.icon != 0) {
                 return new Action(action.icon, action.title, action.actionIntent,
                         action.getExtras(), remoteInputs, null, allowGeneratedReplies,
-                        semanticAction, showsUserInterface, isContextual);
+                        semanticAction, showsUserInterface, isContextual, authRequired);
             }
             IconCompat icon = action.getIcon() == null
                     ? null : IconCompat.createFromIconOrNullIfZeroResId(action.getIcon());
             return new Action(icon, action.title, action.actionIntent, action.getExtras(),
                     remoteInputs, null, allowGeneratedReplies, semanticAction, showsUserInterface,
-                    isContextual);
+                    isContextual, authRequired);
         } else {
             return new Action(action.icon, action.title, action.actionIntent, action.getExtras(),
                     remoteInputs, null, allowGeneratedReplies, semanticAction, showsUserInterface,
-                    isContextual);
+                    isContextual, authRequired);
         }
     }
 
