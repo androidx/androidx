@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.work.ListenableWorker.Result#getOutputData():
+    Added method androidx.work.ListenableWorker.Result.getOutputData()

@@ -26,7 +26,6 @@ package androidx.wear.phone.interactions.authentication {
 
   @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CodeVerifier {
     ctor public CodeVerifier(optional int byteLength);
-    ctor public CodeVerifier();
     ctor public CodeVerifier(String value);
     method public String getValue();
     property public final String value;

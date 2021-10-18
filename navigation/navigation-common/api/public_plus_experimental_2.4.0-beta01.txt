@@ -235,6 +235,7 @@ package androidx.navigation {
   public static final class NavDestination.Companion {
     method public kotlin.sequences.Sequence<androidx.navigation.NavDestination> getHierarchy(androidx.navigation.NavDestination);
     method protected <C> Class<? extends C> parseClassFromName(android.content.Context context, String name, Class<? extends C> expectedClassType);
+    property public final kotlin.sequences.Sequence<androidx.navigation.NavDestination> hierarchy;
   }
 
   @androidx.navigation.NavDestinationDsl public class NavDestinationBuilder<D extends androidx.navigation.NavDestination> {
