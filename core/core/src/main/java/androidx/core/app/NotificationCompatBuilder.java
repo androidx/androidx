@@ -394,6 +394,10 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                 actionBuilder.setContextual(action.isContextual());
             }
 
+            if (Build.VERSION.SDK_INT >= 31) {
+                actionBuilder.setAuthenticationRequired(action.isAuthenticationRequired());
+            }
+
             actionExtras.putBoolean(NotificationCompat.Action.EXTRA_SHOWS_USER_INTERFACE,
                     action.getShowsUserInterface());
             actionBuilder.addExtras(actionExtras);

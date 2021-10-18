@@ -2017,6 +2017,39 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    public void action_builder_defaultNoAuthRequired() {
+        NotificationCompat.Action action = newActionBuilder().build();
+        assertFalse(action.isAuthenticationRequired());
+    }
+
+    @Test
+    public void action_builder_setAuthRequired() {
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
+        NotificationCompat.Action action =
+                new NotificationCompat.Action.Builder(0, "Test Title", pendingIntent)
+                        .setAuthenticationRequired(true)
+                        .build();
+        assertTrue(action.isAuthenticationRequired());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    public void action_authRequired_toAndFromNotification() {
+        if (Build.VERSION.SDK_INT < 31) return;
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
+        NotificationCompat.Action action = new NotificationCompat.Action.Builder(
+                R.drawable.notification_bg, "Test Title", pendingIntent)
+                .setAuthenticationRequired(true)
+                .build();
+        Notification notification = newNotificationBuilder().addAction(action).build();
+        NotificationCompat.Action result = NotificationCompat.getAction(notification, 0);
+
+        assertTrue(result.isAuthenticationRequired());
+    }
+
+    @Test
     public void setBubbleMetadataIntent() {
         IconCompat icon = IconCompat.createWithAdaptiveBitmap(BitmapFactory.decodeResource(
                 mContext.getResources(),
