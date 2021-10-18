@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedType: androidx.car.app.CarContext#getCarService(Class<T>):
+    Method androidx.car.app.CarContext.getCarService has changed return type from T (extends java.lang.Object) to T (extends androidx.car.app.managers.Manager)

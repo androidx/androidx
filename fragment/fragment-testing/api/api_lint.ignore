@@ -1,9 +1,17 @@
 // Baseline format: 1.0
+MissingNullability: androidx.fragment.app.testing.FragmentScenarioKt#launchFragment(android.os.Bundle, int, androidx.fragment.app.FragmentFactory):
+    Missing nullability on method `launchFragment` return
 MissingNullability: androidx.fragment.app.testing.FragmentScenarioKt#launchFragment(android.os.Bundle, int, androidx.lifecycle.Lifecycle.State, androidx.fragment.app.FragmentFactory):
     Missing nullability on method `launchFragment` return
 MissingNullability: androidx.fragment.app.testing.FragmentScenarioKt#launchFragment(android.os.Bundle, int, androidx.lifecycle.Lifecycle.State, kotlin.jvm.functions.Function0<? extends F>):
     Missing nullability on method `launchFragment` return
+MissingNullability: androidx.fragment.app.testing.FragmentScenarioKt#launchFragment(android.os.Bundle, int, kotlin.jvm.functions.Function0<? extends F>):
+    Missing nullability on method `launchFragment` return
+MissingNullability: androidx.fragment.app.testing.FragmentScenarioKt#launchFragmentInContainer(android.os.Bundle, int, androidx.fragment.app.FragmentFactory):
+    Missing nullability on method `launchFragmentInContainer` return
 MissingNullability: androidx.fragment.app.testing.FragmentScenarioKt#launchFragmentInContainer(android.os.Bundle, int, androidx.lifecycle.Lifecycle.State, androidx.fragment.app.FragmentFactory):
     Missing nullability on method `launchFragmentInContainer` return
 MissingNullability: androidx.fragment.app.testing.FragmentScenarioKt#launchFragmentInContainer(android.os.Bundle, int, androidx.lifecycle.Lifecycle.State, kotlin.jvm.functions.Function0<? extends F>):
+    Missing nullability on method `launchFragmentInContainer` return
+MissingNullability: androidx.fragment.app.testing.FragmentScenarioKt#launchFragmentInContainer(android.os.Bundle, int, kotlin.jvm.functions.Function0<? extends F>):
     Missing nullability on method `launchFragmentInContainer` return

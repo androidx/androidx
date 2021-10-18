@@ -13,7 +13,6 @@ package androidx.benchmark.macro.junit4 {
     method public void measureRepeated(String packageName, java.util.List<? extends androidx.benchmark.macro.Metric> metrics, optional androidx.benchmark.macro.CompilationMode compilationMode, optional androidx.benchmark.macro.StartupMode? startupMode, @IntRange(from=1) int iterations, androidx.core.util.Consumer<androidx.benchmark.macro.MacrobenchmarkScope> measureFn);
     method public void measureRepeated(String packageName, java.util.List<? extends androidx.benchmark.macro.Metric> metrics, optional androidx.benchmark.macro.CompilationMode compilationMode, @IntRange(from=1) int iterations, androidx.core.util.Consumer<androidx.benchmark.macro.MacrobenchmarkScope> measureFn);
     method public void measureRepeated(String packageName, java.util.List<? extends androidx.benchmark.macro.Metric> metrics, @IntRange(from=1) int iterations, androidx.core.util.Consumer<androidx.benchmark.macro.MacrobenchmarkScope> measureFn);
-    method @kotlin.jvm.JvmSynthetic public void measureRepeated(String packageName, java.util.List<? extends androidx.benchmark.macro.Metric> metrics, optional androidx.benchmark.macro.CompilationMode compilationMode, optional androidx.benchmark.macro.StartupMode? startupMode, @IntRange(from=1) int iterations, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,? extends kotlin.Unit> setupBlock, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,? extends kotlin.Unit> measureBlock);
   }
 
 }
