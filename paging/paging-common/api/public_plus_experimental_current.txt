@@ -27,7 +27,9 @@ package androidx.paging {
     method @AnyThread public void invalidate();
     method @WorkerThread public boolean isInvalid();
     method public <ToValue> androidx.paging.DataSource<Key,ToValue> map(androidx.arch.core.util.Function<Value,ToValue> function);
+    method @kotlin.jvm.JvmSynthetic public <ToValue> androidx.paging.DataSource<Key,ToValue>! map(kotlin.jvm.functions.Function1<? super Value,? extends ToValue> function);
     method public <ToValue> androidx.paging.DataSource<Key,ToValue> mapByPage(androidx.arch.core.util.Function<java.util.List<Value>,java.util.List<ToValue>> function);
+    method @kotlin.jvm.JvmSynthetic public <ToValue> androidx.paging.DataSource<Key,ToValue>! mapByPage(kotlin.jvm.functions.Function1<? super java.util.List<? extends Value>,? extends java.util.List<? extends ToValue>> function);
     method @AnyThread public void removeInvalidatedCallback(androidx.paging.DataSource.InvalidatedCallback onInvalidatedCallback);
     property @WorkerThread public boolean isInvalid;
   }
@@ -38,7 +40,9 @@ package androidx.paging {
     method public final kotlin.jvm.functions.Function0<androidx.paging.PagingSource<Key,Value>> asPagingSourceFactory();
     method public abstract androidx.paging.DataSource<Key,Value> create();
     method public <ToValue> androidx.paging.DataSource.Factory<Key,ToValue> map(androidx.arch.core.util.Function<Value,ToValue> function);
+    method @kotlin.jvm.JvmSynthetic public <ToValue> androidx.paging.DataSource.Factory<Key,ToValue>! map(kotlin.jvm.functions.Function1<? super Value,? extends ToValue> function);
     method public <ToValue> androidx.paging.DataSource.Factory<Key,ToValue> mapByPage(androidx.arch.core.util.Function<java.util.List<Value>,java.util.List<ToValue>> function);
+    method @kotlin.jvm.JvmSynthetic public <ToValue> androidx.paging.DataSource.Factory<Key,ToValue>! mapByPage(kotlin.jvm.functions.Function1<? super java.util.List<? extends Value>,? extends java.util.List<? extends ToValue>> function);
   }
 
   public static fun interface DataSource.InvalidatedCallback {
@@ -262,9 +266,11 @@ package androidx.paging {
   }
 
   public final class PagedListConfigKt {
+    method @kotlin.jvm.JvmSynthetic public static androidx.paging.PagedList.Config! Config(int pageSize, optional int prefetchDistance, optional boolean enablePlaceholders, optional int initialLoadSizeHint, optional int maxSize);
   }
 
   public final class PagedListKt {
+    method @Deprecated @kotlin.jvm.JvmSynthetic public static <Key extends java.lang.Object, Value> androidx.paging.PagedList<Value>! PagedList(androidx.paging.DataSource<Key,Value> dataSource, androidx.paging.PagedList.Config config, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, optional androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback, optional Key? initialKey);
   }
 
   public final class Pager<Key, Value> {
@@ -308,14 +314,18 @@ package androidx.paging {
 
   public final class PagingDataTransforms {
     method @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
+    method @CheckResult @kotlin.jvm.JvmSynthetic public static <T> androidx.paging.PagingData<T>! filter(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super java.lang.Boolean>,?> predicate);
     method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function1<? super T,? extends java.lang.Iterable<? extends R>> transform);
+    method @CheckResult @kotlin.jvm.JvmSynthetic public static <T extends java.lang.Object, R> androidx.paging.PagingData<R>! flatMap(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super java.lang.Iterable<? extends R>>,?> transform);
     method @CheckResult public static <T> androidx.paging.PagingData<T> insertFooterItem(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, T item);
     method @CheckResult public static <T> androidx.paging.PagingData<T> insertFooterItem(androidx.paging.PagingData<T>, T item);
     method @CheckResult public static <T> androidx.paging.PagingData<T> insertHeaderItem(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, T item);
     method @CheckResult public static <T> androidx.paging.PagingData<T> insertHeaderItem(androidx.paging.PagingData<T>, T item);
     method @CheckResult public static <R, T extends R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
     method @CheckResult public static <R, T extends R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
+    method @CheckResult @kotlin.jvm.JvmSynthetic public static <T extends R, R> androidx.paging.PagingData<R>! insertSeparators(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, kotlin.jvm.functions.Function3<? super T,? super T,? super kotlin.coroutines.Continuation<? super R>,?> generator);
     method @CheckResult public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function1<? super T,? extends R> transform);
+    method @CheckResult @kotlin.jvm.JvmSynthetic public static <T extends java.lang.Object, R> androidx.paging.PagingData<R>! map(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super R>,?> transform);
   }
 
   public abstract class PagingSource<Key, Value> {
