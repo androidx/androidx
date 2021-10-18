@@ -15,9 +15,10 @@
  */
 
 /**
- * WorkManager is a library used to enqueue deferrable work that is guaranteed to execute sometime
- * after its {@link androidx.work.Constraints} are met.  WorkManager allows observation of work
- * status and the ability to create complex chains of work.
+ * WorkManager the recommended library for persistent work.
+ * Scheduled work is guaranteed to execute sometime after its {@link androidx.work.Constraints}
+ * are met.
+ * WorkManager allows observation of work status and the ability to create complex chains of work.
  * <p>
  * WorkManager uses an underlying job dispatching service when available based on the following
  * criteria:
