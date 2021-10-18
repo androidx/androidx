@@ -16,12 +16,17 @@
 
 package androidx.glance.appwidget.demos
 
-import android.app.Activity
+import android.content.Context
+import android.os.Handler
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.Modifier
-import androidx.glance.action.actionLaunchActivity
+import androidx.glance.action.ActionRunnable
+import androidx.glance.action.ActionParameters
+import androidx.glance.action.actionUpdateContent
+import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
@@ -49,6 +54,7 @@ class ResponsiveAppWidget : GlanceAppWidget() {
     override fun Content() {
         val size = LocalSize.current
         val context = LocalContext.current
+        val parameters = actionParametersOf(MessageKey to "Button clicked")
         Column(
             modifier = Modifier
                 .padding(8.dp)
@@ -69,11 +75,21 @@ class ResponsiveAppWidget : GlanceAppWidget() {
                 )
             }
             Text(content)
-            Button("Button", onClick = actionLaunchActivity<Activity>())
+            Button("Button", onClick = actionUpdateContent<TestAction>(parameters))
         }
     }
 }
 
 class ResponsiveAppWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = ResponsiveAppWidget()
+}
+
+val MessageKey = ActionParameters.Key<String>("key_name")
+
+class TestAction : ActionRunnable {
+    override suspend fun run(context: Context, parameters: ActionParameters) {
+        Handler(context.mainLooper).post {
+            Toast.makeText(context, parameters[MessageKey], Toast.LENGTH_SHORT).show()
+        }
+    }
 }

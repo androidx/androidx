@@ -122,7 +122,11 @@ private fun applyAction(
         }
         is UpdateContentAction -> {
             val pendingIntent =
-                ActionRunnableBroadcastReceiver.createPendingIntent(context, action.runnableClass)
+                ActionRunnableBroadcastReceiver.createPendingIntent(
+                    context,
+                    action.runnableClass,
+                    action.parameters
+                )
             rv.setOnClickPendingIntent(viewId, pendingIntent)
         }
         else -> throw IllegalArgumentException("Unrecognized action type.")
