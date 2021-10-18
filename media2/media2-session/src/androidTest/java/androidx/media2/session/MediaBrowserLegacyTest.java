@@ -62,7 +62,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaBrowserLegacyTest extends MediaSessionTestBase {
-    private static final String TAG = "MediaBrowserLegacyTest";
 
     @Override
     MediaController onCreateController(@NonNull final SessionToken token,
