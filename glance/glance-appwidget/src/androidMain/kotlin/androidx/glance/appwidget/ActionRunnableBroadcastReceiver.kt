@@ -21,8 +21,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.core.os.bundleOf
 import androidx.glance.action.ActionRunnable
+import androidx.glance.action.ActionParameters
 import androidx.glance.action.UpdateContentAction
+import androidx.glance.action.mutableActionParametersOf
 
 /**
  * Responds to broadcasts from [UpdateContentAction] clicks by executing the associated action.
@@ -35,33 +38,56 @@ internal class ActionRunnableBroadcastReceiver : BroadcastReceiver() {
         }
 
         goAsync {
-            val className = requireNotNull(intent.getStringExtra(ExtraClassName)) {
+            val extras = requireNotNull(intent.extras) {
+                "Intent must have action parameters extras."
+            }
+            val className = requireNotNull(extras.getString(ExtraClassName)) {
                 "The custom work intent must contain a work class name string using extra: " +
                     ExtraClassName
             }
-            UpdateContentAction.run(context, className)
+            val paramsBundle = requireNotNull(extras.getBundle(ExtraParameters)) {
+                "The intent must contain a parameters bundle using extra: $ExtraParameters"
+            }
+
+            val parameters = mutableActionParametersOf().apply {
+                paramsBundle.keySet().forEach { key ->
+                    set(ActionParameters.Key(key), paramsBundle[key])
+                }
+            }
+            UpdateContentAction.run(context, className, parameters)
         }
     }
 
     companion object {
-        private const val ExtraClassName = "CustomWorkBroadcastReceiver:className"
+        private const val ExtraClassName = "ActionRunnableBroadcastReceiver:className"
+        private const val ExtraParameters = "ActionRunnableBroadcastReceiver:parameters"
 
         fun createPendingIntent(
             context: Context,
-            runnableClass: Class<out ActionRunnable>
-        ): PendingIntent {
-            return PendingIntent.getBroadcast(
+            runnableClass: Class<out ActionRunnable>,
+            parameters: ActionParameters
+        ): PendingIntent =
+            PendingIntent.getBroadcast(
                 context,
                 0,
                 Intent(context, ActionRunnableBroadcastReceiver::class.java)
                     .setPackage(context.packageName)
                     .putExtra(ExtraClassName, runnableClass.canonicalName)
-                    .setData(Uri.Builder()
-                        .scheme("remoteAction")
-                        .appendQueryParameter("className", runnableClass.canonicalName)
-                        .build()),
+                    .putParameterExtras(parameters).apply {
+                        setData(Uri.parse(toUri(0))
+                            .buildUpon()
+                            .scheme("remoteAction")
+                            .build())
+                    },
                 PendingIntent.FLAG_MUTABLE
             )
+
+        private fun Intent.putParameterExtras(parameters: ActionParameters): Intent {
+            val parametersPairs = parameters.asMap().map { (key, value) ->
+                key.name to value
+            }.toTypedArray()
+            putExtra(ExtraParameters, bundleOf(*parametersPairs))
+            return this
         }
     }
 }

@@ -71,7 +71,7 @@ package androidx.glance.appwidget {
 package androidx.glance.appwidget.action {
 
   public final class LaunchActivityIntentActionKt {
-    method public static androidx.glance.action.Action launchActivityAction(android.content.Intent intent);
+    method public static androidx.glance.action.Action actionLaunchActivity(android.content.Intent intent);
   }
 
 }

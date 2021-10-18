@@ -84,5 +84,5 @@ class ActionTest {
 }
 
 class TestRunnable : ActionRunnable {
-    override suspend fun run(context: Context) { }
+    override suspend fun run(context: Context, parameters: ActionParameters) { }
 }
