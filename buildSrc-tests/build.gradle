@@ -32,7 +32,7 @@ dependencies {
 
 // Also do style checking of the buildSrc project from within this project too
 // We run that from this project so that it doesn't block other projects while it runs
-def ktlintDir = "../buildSrc/"
+def ktlintDir = "../buildSrc"
 def subdirs = ["plugins", "private", "public"]
 for (d : subdirs) {
   def f = file("$ktlintDir/$d")
@@ -42,12 +42,12 @@ for (d : subdirs) {
 }
 def ktlintInputs = project.fileTree(ktlintDir) {
     for (d : subdirs) {
-        include("$ktlintDir/$d/src/**/*.kt")
+        include("$d/src/**/*.kt")
     }
 }
 def sourceArgs = []
 for (d : subdirs) {
-    sourceArgs = sourceArgs + "$ktlintDir/$d/src/**/*.kt"
+    sourceArgs = sourceArgs + "$d/src/**/*.kt"
 }
 
 tasks["ktlint"].configure({ t ->
