@@ -343,37 +343,33 @@ public class ConfirmationOverlay {
         TextView messageView =
                 overlayView.findViewById(R.id.wearable_support_confirmation_overlay_message);
 
-        if (!mMessage.toString().isEmpty()) {
-            int screenWidthPx = ResourcesUtil.getScreenWidthPx(context);
-            int screenHeightPx = ResourcesUtil.getScreenHeightPx(context);
-            int topMarginPx = ResourcesUtil.getFractionOfScreenPx(
-                    context, screenWidthPx, R.fraction.confirmation_overlay_margin_above_text);
-            int insetMarginPx = ResourcesUtil.getFractionOfScreenPx(
-                    context, screenWidthPx, R.fraction.confirmation_overlay_text_inset_margin);
+        int screenWidthPx = ResourcesUtil.getScreenWidthPx(context);
+        int screenHeightPx = ResourcesUtil.getScreenHeightPx(context);
+        int topMarginPx = ResourcesUtil.getFractionOfScreenPx(
+                context, screenWidthPx, R.fraction.confirmation_overlay_margin_above_text);
+        int insetMarginPx = ResourcesUtil.getFractionOfScreenPx(
+                context, screenWidthPx, R.fraction.confirmation_overlay_text_inset_margin);
 
-            MarginLayoutParams layoutParams = (MarginLayoutParams) messageView.getLayoutParams();
-            layoutParams.topMargin = topMarginPx;
-            layoutParams.leftMargin = insetMarginPx;
-            layoutParams.rightMargin = insetMarginPx;
-            layoutParams.bottomMargin = insetMarginPx;
+        MarginLayoutParams layoutParams = (MarginLayoutParams) messageView.getLayoutParams();
+        layoutParams.topMargin = topMarginPx;
+        layoutParams.leftMargin = insetMarginPx;
+        layoutParams.rightMargin = insetMarginPx;
+        layoutParams.bottomMargin = insetMarginPx;
 
-            messageView.setLayoutParams(layoutParams);
-            messageView.setText(mMessage);
-            messageView.setVisibility(View.VISIBLE);
+        messageView.setLayoutParams(layoutParams);
+        messageView.setText(mMessage);
+        messageView.setVisibility(View.VISIBLE);
 
-            // The icon should be centered in the screen where possible. If there's too much text
-            // though (which would overflow off the screen), it should push the icon up to make
-            // more space. We can do this by setting the minHeight of the text element such that it
-            // places the icon in the correct location. Since the LinearLayout has the gravity set
-            // to "bottom", this will cause the TextView to push the icon up to the correct place on
-            // screen.
-            int iconHeightPx = context.getResources().getDimensionPixelSize(
-                    R.dimen.confirmation_overlay_image_size);
-            messageView.setMinHeight(
-                    screenHeightPx / 2 - (iconHeightPx / 2) - insetMarginPx - topMarginPx);
-        } else {
-            messageView.setVisibility(View.GONE);
-        }
+        // The icon should be centered in the screen where possible. If there's too much text
+        // though (which would overflow off the screen), it should push the icon up to make
+        // more space. We can do this by setting the minHeight of the text element such that it
+        // places the icon in the correct location. Since the LinearLayout has the gravity set
+        // to "bottom", this will cause the TextView to push the icon up to the correct place on
+        // screen.
+        int iconHeightPx = context.getResources().getDimensionPixelSize(
+                R.dimen.confirmation_overlay_image_size);
+        messageView.setMinHeight(
+                screenHeightPx / 2 - (iconHeightPx / 2) - insetMarginPx - topMarginPx);
     }
 
     @MainThread
