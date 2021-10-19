@@ -47,6 +47,7 @@ internal const val FRAGMENT_MODE = "fragment"
 internal const val ACTIVITY_MODE = "activity"
 
 internal const val LEGACY_ABSTRACT_FACTORY_MODE = "legacy_abstract"
+internal const val LEGACY_SAVEDSTATE_FACTORY_MODE = "legacy_non_abstract"
 internal const val SAVEDSTATE_FACTORY_MODE = "non_abstract"
 internal const val ABSTRACT_FACTORY_MODE = "abstract"
 
@@ -60,9 +61,11 @@ class ViewModelsWithStateTest(private val mode: Mode) {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun initParameters(): Array<Any> = arrayOf(
+            Mode(FRAGMENT_MODE, LEGACY_SAVEDSTATE_FACTORY_MODE),
             Mode(FRAGMENT_MODE, SAVEDSTATE_FACTORY_MODE),
             Mode(FRAGMENT_MODE, LEGACY_ABSTRACT_FACTORY_MODE),
             Mode(FRAGMENT_MODE, ABSTRACT_FACTORY_MODE),
+            Mode(ACTIVITY_MODE, LEGACY_SAVEDSTATE_FACTORY_MODE),
             Mode(ACTIVITY_MODE, SAVEDSTATE_FACTORY_MODE),
             Mode(ACTIVITY_MODE, LEGACY_ABSTRACT_FACTORY_MODE),
             Mode(ACTIVITY_MODE, ABSTRACT_FACTORY_MODE),
@@ -156,11 +159,13 @@ class ViewModelsWithStateTest(private val mode: Mode) {
 
         val savedStateOwner = owner as SavedStateRegistryOwner
 
-        val factory = when (mode.factoryMode) {
-            SAVEDSTATE_FACTORY_MODE -> {
+        val factory: Factory = when (mode.factoryMode) {
+            LEGACY_SAVEDSTATE_FACTORY_MODE -> {
                 // otherwise common type of factory is package private KeyedFactory
-                @Suppress("USELESS_CAST")
-                SavedStateViewModelFactory(activity.application, savedStateOwner) as Factory
+                SavedStateViewModelFactory(activity.application, savedStateOwner)
+            }
+            SAVEDSTATE_FACTORY_MODE -> {
+                SavedStateViewModelFactory()
             }
             LEGACY_ABSTRACT_FACTORY_MODE -> {
                 object : AbstractSavedStateViewModelFactory(savedStateOwner, null) {
@@ -185,7 +190,7 @@ class ViewModelsWithStateTest(private val mode: Mode) {
                 }
             }
         }
-        return if (mode.factoryMode == ABSTRACT_FACTORY_MODE)
+        return if (mode.factoryMode in setOf(ABSTRACT_FACTORY_MODE, SAVEDSTATE_FACTORY_MODE))
             ViewModelProvider(DecorateWithCreationExtras(savedStateOwner, owner), factory)
         else ViewModelProvider(owner, factory)
     }

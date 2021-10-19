@@ -18,6 +18,7 @@ package androidx.lifecycle;
 
 import static androidx.lifecycle.AbstractSavedStateViewModelFactory.TAG_SAVED_STATE_HANDLE_CONTROLLER;
 import static androidx.lifecycle.LegacySavedStateHandleController.attachHandleIfNeeded;
+import static androidx.lifecycle.SavedStateHandleSupport.createSavedStateHandle;
 import static androidx.lifecycle.ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY;
 
 import android.annotation.SuppressLint;
@@ -27,6 +28,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory;
 import androidx.lifecycle.viewmodel.CreationExtras;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryOwner;
@@ -48,11 +50,24 @@ import java.util.Arrays;
  */
 public final class SavedStateViewModelFactory extends ViewModelProvider.OnRequeryFactory
         implements ViewModelProvider.Factory {
-    private final Application mApplication;
+    private Application mApplication;
     private final ViewModelProvider.Factory mFactory;
-    private final Bundle mDefaultArgs;
-    private final Lifecycle mLifecycle;
-    private final SavedStateRegistry mSavedStateRegistry;
+    private Bundle mDefaultArgs;
+    private Lifecycle mLifecycle;
+    private SavedStateRegistry mSavedStateRegistry;
+
+    /**
+     * Constructs this factory.
+     * <p>
+     * When a factory is constructed this way, a component for which {@link SavedStateHandle} is
+     * scoped must have called
+     * {@link SavedStateHandleSupport#installSavedStateHandleSupport(SavedStateRegistryOwner)}.
+     * See {@link SavedStateHandleSupport#createSavedStateHandle(CreationExtras)} docs for more
+     * details.
+     */
+    public SavedStateViewModelFactory() {
+        mFactory = new AndroidViewModelFactory();
+    }
 
     /**
      * Creates {@link SavedStateViewModelFactory}.
@@ -66,7 +81,7 @@ public final class SavedStateViewModelFactory extends ViewModelProvider.OnRequer
      *                                                   created
      *                    {@link androidx.lifecycle.ViewModel ViewModels}
      */
-    public SavedStateViewModelFactory(@Nullable  Application application,
+    public SavedStateViewModelFactory(@Nullable Application application,
             @NonNull SavedStateRegistryOwner owner) {
         this(application, owner, null);
     }
@@ -96,7 +111,7 @@ public final class SavedStateViewModelFactory extends ViewModelProvider.OnRequer
         mDefaultArgs = defaultArgs;
         mApplication = application;
         mFactory = application != null
-                ? ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+                ? AndroidViewModelFactory.getInstance(application)
                 : ViewModelProvider.NewInstanceFactory.getInstance();
     }
 
@@ -109,7 +124,31 @@ public final class SavedStateViewModelFactory extends ViewModelProvider.OnRequer
             throw new IllegalStateException(
                     "VIEW_MODEL_KEY must always be provided by ViewModelProvider");
         }
-        return create(key, modelClass);
+        // legacy constructor was called
+        if (mLifecycle != null) {
+            return create(key, modelClass);
+        }
+        Application application = extras.get(AndroidViewModelFactory.APPLICATION_KEY);
+        Constructor<T> constructor;
+        boolean isAndroidViewModel = AndroidViewModel.class.isAssignableFrom(modelClass);
+        if (isAndroidViewModel && application != null) {
+            constructor = findMatchingConstructor(modelClass, ANDROID_VIEWMODEL_SIGNATURE);
+        } else {
+            constructor = findMatchingConstructor(modelClass, VIEWMODEL_SIGNATURE);
+        }
+        // doesn't need SavedStateHandle
+        if (constructor == null) {
+            return mFactory.create(modelClass, extras);
+        }
+
+        T viewmodel;
+        if (isAndroidViewModel && application != null) {
+            viewmodel = newInstance(modelClass, constructor, application,
+                    createSavedStateHandle(extras));
+        } else {
+            viewmodel = newInstance(modelClass, constructor, createSavedStateHandle(extras));
+        }
+        return viewmodel;
     }
 
     /**
@@ -121,6 +160,15 @@ public final class SavedStateViewModelFactory extends ViewModelProvider.OnRequer
      */
     @NonNull
     public <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass) {
+        // empty constructor was called.
+        if (mLifecycle == null) {
+            throw new UnsupportedOperationException(
+                    "SavedStateViewModelFactory constructed "
+                            + "with empty constructor supports only calls to "
+                            + "create(modelClass: Class<T>, extras: CreationExtras)."
+            );
+        }
+
         boolean isAndroidViewModel = AndroidViewModel.class.isAssignableFrom(modelClass);
         Constructor<T> constructor;
         if (isAndroidViewModel && mApplication != null) {
@@ -135,15 +183,20 @@ public final class SavedStateViewModelFactory extends ViewModelProvider.OnRequer
 
         SavedStateHandleController controller = LegacySavedStateHandleController.create(
                 mSavedStateRegistry, mLifecycle, key, mDefaultArgs);
+        T viewmodel;
+        if (isAndroidViewModel && mApplication != null) {
+            viewmodel = newInstance(modelClass, constructor, mApplication, controller.getHandle());
+        } else {
+            viewmodel = newInstance(modelClass, constructor, controller.getHandle());
+        }
+        viewmodel.setTagIfAbsent(TAG_SAVED_STATE_HANDLE_CONTROLLER, controller);
+        return viewmodel;
+    }
+
+    private static <T extends ViewModel> T newInstance(@NonNull Class<T> modelClass,
+            Constructor<T> constructor, Object... params) {
         try {
-            T viewmodel;
-            if (isAndroidViewModel && mApplication != null) {
-                viewmodel = constructor.newInstance(mApplication, controller.getHandle());
-            } else {
-                viewmodel = constructor.newInstance(controller.getHandle());
-            }
-            viewmodel.setTagIfAbsent(TAG_SAVED_STATE_HANDLE_CONTROLLER, controller);
-            return viewmodel;
+            return constructor.newInstance(params);
         } catch (IllegalAccessException e) {
             throw new RuntimeException("Failed to access " + modelClass, e);
         } catch (InstantiationException e) {
@@ -171,6 +224,8 @@ public final class SavedStateViewModelFactory extends ViewModelProvider.OnRequer
             SavedStateHandle.class};
     private static final Class<?>[] VIEWMODEL_SIGNATURE = new Class[]{SavedStateHandle.class};
 
+    // it is done instead of getConstructor(), because getConstructor() throws an exception
+    // if there is no such constructor, which is expensive
     @SuppressWarnings("unchecked")
     private static <T> Constructor<T> findMatchingConstructor(Class<T> modelClass,
             Class<?>[] signature) {
@@ -189,6 +244,9 @@ public final class SavedStateViewModelFactory extends ViewModelProvider.OnRequer
     @Override
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void onRequery(@NonNull ViewModel viewModel) {
-        attachHandleIfNeeded(viewModel, mSavedStateRegistry, mLifecycle);
+        // needed only for legacy path
+        if (mLifecycle != null) {
+            attachHandleIfNeeded(viewModel, mSavedStateRegistry, mLifecycle);
+        }
     }
 }

@@ -17,22 +17,7 @@
 package androidx.lifecycle.viewmodel.savedstate
 
 import android.os.Bundle
-import androidx.lifecycle.DEFAULT_ARGS_KEY
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.SAVED_STATE_REGISTRY_OWNER_KEY
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
-import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.installSavedStateHandleSupport
-import androidx.lifecycle.viewmodel.MutableCreationExtras
-import androidx.savedstate.SavedStateRegistry
-import androidx.savedstate.SavedStateRegistryController
-import androidx.savedstate.SavedStateRegistryOwner
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -48,7 +33,7 @@ class SavedStateHandleSupportTest {
     @UiThreadTest
     @Test
     fun testSavedStateHandleSupport() {
-        val component = Component()
+        val component = TestComponent()
         component.installSavedStateHandleSupport()
         val handle = component.createSavedStateHandle("test")
         component.resume()
@@ -64,7 +49,7 @@ class SavedStateHandleSupportTest {
     @UiThreadTest
     @Test
     fun testSavedStateHandleSupportWithConfigChange() {
-        val component = Component()
+        val component = TestComponent()
         component.installSavedStateHandleSupport()
         val handle = component.createSavedStateHandle("test")
         component.resume()
@@ -84,7 +69,7 @@ class SavedStateHandleSupportTest {
     @UiThreadTest
     @Test
     fun failWithNoInstallation() {
-        val component = Component()
+        val component = TestComponent()
         try {
             component.createSavedStateHandle("key")
             Assert.fail("createSavedStateHandle should fail when install() wasn't called")
@@ -95,52 +80,11 @@ class SavedStateHandleSupportTest {
     @UiThreadTest
     @Test
     fun defaultArgs() {
-        val component = Component()
+        val component = TestComponent()
         component.installSavedStateHandleSupport()
         val bundle = Bundle()
         bundle.putString("key", "value")
         val handle = component.createSavedStateHandle("test", bundle)
         assertThat(handle.get<String>("key")).isEqualTo("value")
-    }
-}
-
-private class Component(
-    val vmStore: ViewModelStore = ViewModelStore(),
-    bundle: Bundle? = null,
-) : SavedStateRegistryOwner, LifecycleOwner, ViewModelStoreOwner {
-
-    private val lifecycleRegistry = LifecycleRegistry(this)
-    private val savedStateController = SavedStateRegistryController.create(this)
-
-    init {
-        savedStateController.performRestore(bundle)
-    }
-
-    override fun getLifecycle(): Lifecycle = lifecycleRegistry
-    override fun getSavedStateRegistry(): SavedStateRegistry =
-        savedStateController.savedStateRegistry
-
-    override fun getViewModelStore(): ViewModelStore = vmStore
-
-    fun resume() {
-        lifecycleRegistry.currentState = Lifecycle.State.RESUMED
-    }
-
-    fun recreate(keepingViewModels: Boolean): Component {
-        val bundle = Bundle()
-        lifecycleRegistry.currentState = Lifecycle.State.CREATED
-        savedStateController.performSave(bundle)
-        lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
-        if (!keepingViewModels) vmStore.clear()
-        return Component(vmStore.takeIf { keepingViewModels } ?: ViewModelStore(), bundle)
-    }
-
-    fun createSavedStateHandle(key: String, bundle: Bundle? = null): SavedStateHandle {
-        val extras = MutableCreationExtras()
-        extras[VIEW_MODEL_STORE_OWNER_KEY] = this
-        extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
-        extras[ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY] = key
-        if (bundle != null) extras[DEFAULT_ARGS_KEY] = bundle
-        return extras.createSavedStateHandle()
     }
 }
