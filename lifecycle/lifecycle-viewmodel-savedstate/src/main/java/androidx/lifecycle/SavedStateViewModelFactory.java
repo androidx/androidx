@@ -61,7 +61,7 @@ public final class SavedStateViewModelFactory extends ViewModelProvider.OnRequer
      * <p>
      * When a factory is constructed this way, a component for which {@link SavedStateHandle} is
      * scoped must have called
-     * {@link SavedStateHandleSupport#installSavedStateHandleSupport(SavedStateRegistryOwner)}.
+     * {@link SavedStateHandleSupport#enableSavedStateHandles(SavedStateRegistryOwner)}.
      * See {@link SavedStateHandleSupport#createSavedStateHandle(CreationExtras)} docs for more
      * details.
      */

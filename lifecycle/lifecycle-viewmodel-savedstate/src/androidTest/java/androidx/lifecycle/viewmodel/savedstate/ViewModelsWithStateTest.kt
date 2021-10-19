@@ -31,7 +31,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.Factory
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.installSavedStateHandleSupport
+import androidx.lifecycle.enableSavedStateHandles
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.savedstate.SavedStateRegistryOwner
@@ -224,7 +224,7 @@ class FakingSavedStateActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val alternativeState = savedInstanceState ?: fakeSavedState()
         super.onCreate(alternativeState)
-        installSavedStateHandleSupport()
+        enableSavedStateHandles()
         if (alternativeState == null) {
             supportFragmentManager.beginTransaction()
                 .add(FragmentWithSavedStateHandleSupport(), FRAGMENT_TAG).commitNow()
@@ -240,7 +240,7 @@ class FakingSavedStateActivity : FragmentActivity() {
 class FragmentWithSavedStateHandleSupport : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        installSavedStateHandleSupport()
+        enableSavedStateHandles()
     }
 }
 

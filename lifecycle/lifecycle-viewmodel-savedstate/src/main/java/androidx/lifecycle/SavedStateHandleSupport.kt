@@ -28,13 +28,16 @@ import androidx.savedstate.SavedStateRegistryOwner
 private const val VIEWMODEL_KEY = "androidx.lifecycle.internal.SavedStateHandlesVM"
 
 /**
- * Enables support of the SavedStateHandles in a component.
+ * Enables the support of [SavedStateHandle] in a component.
+ *
+ * After this method, [createSavedStateHandle] can be called on [CreationExtras] containing this
+ * [SavedStateRegistryOwner] / [ViewModelStoreOwner].
  *
  * Must be called while component is in `INITIALIZED` or `CREATED` state and before
  * a [ViewModel] with [SavedStateHandle] is requested.
  */
 @MainThread
-fun <T> T.installSavedStateHandleSupport()
+fun <T> T.enableSavedStateHandles()
     where T : SavedStateRegistryOwner, T : ViewModelStoreOwner {
     val currentState = lifecycle.currentState
     require(
@@ -76,6 +79,9 @@ private fun createSavedStateHandle(
  * This function requires `this.installSavedStateHandleSupport()` call during the component
  * initialization. Latest versions of androidx components like `ComponentActivity`, `Fragment`,
  * `NavBackStackEntry` makes this call automatically.
+ *
+ * This [CreationExtras] must contain [SAVED_STATE_REGISTRY_OWNER_KEY],
+ * [VIEW_MODEL_STORE_OWNER_KEY] and [VIEW_MODEL_KEY].
  *
  * @throws IllegalArgumentException if this `CreationExtras` are missing required keys:
  * `ViewModelStoreOwnerKey`, `SavedStateRegistryOwnerKey`, `VIEW_MODEL_KEY`
