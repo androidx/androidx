@@ -28,7 +28,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.installSavedStateHandleSupport
+import androidx.lifecycle.enableSavedStateHandles
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -64,7 +64,7 @@ class SavedStateFactoryTest {
     fun testCreateAndroidVM() {
         val savedStateVMFactory = SavedStateViewModelFactory()
         val component = TestComponent()
-        component.installSavedStateHandleSupport()
+        component.enableSavedStateHandles()
         val extras = component.extras
         extras[APPLICATION_KEY] = activityRule.activity.application
         val vm = ViewModelProvider(component.viewModelStore, savedStateVMFactory, extras)
@@ -97,7 +97,7 @@ class SavedStateFactoryTest {
     fun testCreateFailAndroidVM() {
         val savedStateVMFactory = SavedStateViewModelFactory()
         val component = TestComponent()
-        component.installSavedStateHandleSupport()
+        component.enableSavedStateHandles()
         val vm = ViewModelProvider(component.viewModelStore, savedStateVMFactory, component.extras)
         try {
             vm[MyAndroidViewModel::class.java]

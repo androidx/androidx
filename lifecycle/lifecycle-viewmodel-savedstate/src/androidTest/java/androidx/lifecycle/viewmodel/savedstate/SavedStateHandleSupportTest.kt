@@ -17,7 +17,7 @@
 package androidx.lifecycle.viewmodel.savedstate
 
 import android.os.Bundle
-import androidx.lifecycle.installSavedStateHandleSupport
+import androidx.lifecycle.enableSavedStateHandles
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -34,13 +34,13 @@ class SavedStateHandleSupportTest {
     @Test
     fun testSavedStateHandleSupport() {
         val component = TestComponent()
-        component.installSavedStateHandleSupport()
+        component.enableSavedStateHandles()
         val handle = component.createSavedStateHandle("test")
         component.resume()
         handle.set("a", "1")
 
         val recreated = component.recreate(keepingViewModels = false)
-        recreated.installSavedStateHandleSupport()
+        recreated.enableSavedStateHandles()
         val restoredHandle = recreated.createSavedStateHandle("test")
 
         assertThat(restoredHandle.get<String>("a")).isEqualTo("1")
@@ -50,7 +50,7 @@ class SavedStateHandleSupportTest {
     @Test
     fun testSavedStateHandleSupportWithConfigChange() {
         val component = TestComponent()
-        component.installSavedStateHandleSupport()
+        component.enableSavedStateHandles()
         val handle = component.createSavedStateHandle("test")
         component.resume()
         handle.set("a", "1")
@@ -59,7 +59,7 @@ class SavedStateHandleSupportTest {
         interim.resume()
 
         val recreated = interim.recreate(keepingViewModels = false)
-        recreated.installSavedStateHandleSupport()
+        recreated.enableSavedStateHandles()
         val restoredHandle = recreated.createSavedStateHandle("test")
 
         assertThat(restoredHandle.get<String>("a")).isEqualTo("1")
@@ -81,7 +81,7 @@ class SavedStateHandleSupportTest {
     @Test
     fun defaultArgs() {
         val component = TestComponent()
-        component.installSavedStateHandleSupport()
+        component.enableSavedStateHandles()
         val bundle = Bundle()
         bundle.putString("key", "value")
         val handle = component.createSavedStateHandle("test", bundle)
