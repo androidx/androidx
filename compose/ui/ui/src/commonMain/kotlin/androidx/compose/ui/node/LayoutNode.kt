@@ -17,7 +17,6 @@ package androidx.compose.ui.node
 
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.focus.FocusEventModifier
@@ -46,8 +45,6 @@ import androidx.compose.ui.layout.OnGloballyPositionedModifier
 import androidx.compose.ui.layout.OnRemeasuredModifier
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.layout.RelocationModifier
-import androidx.compose.ui.layout.RelocationRequesterModifier
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.modifier.ModifierLocalConsumer
@@ -680,10 +677,15 @@ internal class LayoutNode : Measurable, Remeasurement, OwnerScope, LayoutInfo, C
                     // it's draw bounds reflect the dimensions defined by the LayoutModifier.
                     // Please ensure that ModifierLocalProvider is the first item here so that
                     // other layoutNodeWrappers don't accidentally use values that they provided.
-                    // Also ensure that ModifierLocalConsumer is the last item here, so that the
-                    // other modifiers can access ModifierLocals read by the ModifierLocalConsumer.
+                    // Also ensure that ModifierLocalConsumer is the next item here, so that it is
+                    // created after all the other LayoutNodeWrappers are created, (So that the
+                    // other layoutNodeWrappers are initialized by the time
+                    // onModifierLocalsUpdated() is called.
                     if (mod is ModifierLocalProvider<*>) {
                         wrapper = ModifierLocalProviderNode(wrapper, mod).assignChained(toWrap)
+                    }
+                    if (mod is ModifierLocalConsumer) {
+                        wrapper = ModifierLocalConsumerNode(wrapper, mod).assignChained(toWrap)
                     }
                     if (mod is DrawModifier) {
                         wrapper = ModifiedDrawNode(wrapper, mod)
@@ -709,14 +711,6 @@ internal class LayoutNode : Measurable, Remeasurement, OwnerScope, LayoutInfo, C
                     if (mod is NestedScrollModifier) {
                         wrapper = NestedScrollDelegatingWrapper(wrapper, mod).assignChained(toWrap)
                     }
-                    @OptIn(ExperimentalComposeUiApi::class)
-                    if (mod is RelocationModifier) {
-                        wrapper = ModifiedRelocationNode(wrapper, mod).assignChained(toWrap)
-                    }
-                    if (mod is RelocationRequesterModifier) {
-                        wrapper = ModifiedRelocationRequesterNode(wrapper, mod)
-                            .assignChained(toWrap)
-                    }
                     if (mod is LayoutModifier) {
                         wrapper = ModifiedLayoutNode(wrapper, mod).assignChained(toWrap)
                     }
@@ -733,9 +727,6 @@ internal class LayoutNode : Measurable, Remeasurement, OwnerScope, LayoutInfo, C
                         wrapper =
                             OnGloballyPositionedModifierWrapper(wrapper, mod).assignChained(toWrap)
                         getOrCreateOnPositionedCallbacks() += wrapper
-                    }
-                    if (mod is ModifierLocalConsumer) {
-                        wrapper = ModifierLocalConsumerNode(wrapper, mod).assignChained(toWrap)
                     }
                 }
                 wrapper
