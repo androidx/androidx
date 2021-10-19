@@ -26,7 +26,8 @@
         <!-- Activity used to block background content while benchmarks are running -->
         <activity
             android:name="androidx.benchmark.IsolationActivity"
-            android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen">
+            android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen"
+            android:exported="true" >
         </activity>
     </application>
 </manifest>

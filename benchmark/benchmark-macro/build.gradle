@@ -26,8 +26,7 @@ plugins {
 
 android {
     defaultConfig {
-        // 21 is perfetto min API, and required for shell commands
-        minSdkVersion 21
+        minSdkVersion 23
     }
     sourceSets {
         main.assets.srcDirs += new File(
