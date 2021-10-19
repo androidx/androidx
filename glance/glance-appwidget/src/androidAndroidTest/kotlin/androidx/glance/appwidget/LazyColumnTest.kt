@@ -28,8 +28,8 @@ import androidx.glance.appwidget.layout.ReservedItemIdRangeEnd
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Text
 import androidx.glance.layout.padding
-import androidx.glance.unit.Dp
-import androidx.glance.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat

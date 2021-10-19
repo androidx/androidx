@@ -105,6 +105,8 @@ internal fun appWidgetProviderInfo(
 internal fun Sp.toPixels(displayMetrics: DisplayMetrics) =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, displayMetrics).toInt()
 
+internal inline fun <reified T> Collection<T>.toArrayList() = ArrayList<T>(this)
+
 inline fun <reified T : View> View.findView(noinline pred: (T) -> Boolean) =
     findView(pred, T::class.java)
 

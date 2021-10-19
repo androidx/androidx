@@ -25,8 +25,8 @@ import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.core.widget.setViewStubInflatedId
 import androidx.core.widget.setViewStubLayoutResource
-import androidx.glance.unit.Dp
-import androidx.glance.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 internal fun Dp.toPixels(context: Context) = toPixels(context.resources.displayMetrics)
 

@@ -23,10 +23,9 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
-import androidx.glance.unit.DpSize
-import androidx.glance.unit.max
-import androidx.glance.unit.min
-import androidx.glance.unit.toSizeF
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.max
+import androidx.compose.ui.unit.min
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.FileInputStream
@@ -36,6 +35,8 @@ inline fun <reified T : View> View.findChild(noinline pred: (T) -> Boolean) =
 
 inline fun <reified T : View> View.findChildByType() =
     findChild({ true }, T::class.java)
+
+internal inline fun <reified T> Collection<T>.toArrayList() = ArrayList<T>(this)
 
 fun <T : View> View.findChild(predicate: (T) -> Boolean, klass: Class<T>): T? {
     try {
@@ -51,10 +52,6 @@ fun <T : View> View.findChild(predicate: (T) -> Boolean, klass: Class<T>): T? {
     }
     return children.mapNotNull { it.findChild(predicate, klass) }.firstOrNull()
 }
-
-internal inline fun <reified T> Collection<T>.toArrayList() = ArrayList<T>(this)
-
-internal fun optionsBundleOf(vararg sizes: DpSize) = optionsBundleOf(sizes.toList())
 
 internal fun optionsBundleOf(sizes: List<DpSize>): Bundle {
     require(sizes.isNotEmpty()) { "There must be at least one size" }

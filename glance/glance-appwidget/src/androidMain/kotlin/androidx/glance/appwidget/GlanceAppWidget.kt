@@ -35,9 +35,8 @@ import androidx.compose.runtime.Recomposer
 import androidx.glance.Applier
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
-import androidx.glance.unit.DpSize
-import androidx.glance.unit.dp
-import androidx.glance.unit.toSizeF
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -357,6 +356,8 @@ private fun Bundle.extractOrientationSizes() =
 private infix fun DpSize.fitsIn(other: DpSize) =
     (ceil(other.width.value) + 1 > width.value) &&
         (ceil(other.height.value) + 1 > height.value)
+
+@VisibleForTesting internal fun DpSize.toSizeF(): SizeF = SizeF(width.value, height.value)
 
 private fun squareDistance(widgetSize: DpSize, layoutSize: DpSize): Float {
     val dw = widgetSize.width.value - layoutSize.width.value

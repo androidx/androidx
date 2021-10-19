@@ -43,7 +43,7 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.Color
-import androidx.glance.unit.dp
+import androidx.compose.ui.unit.dp
 import androidx.glance.unit.sp
 import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.CurvedRow

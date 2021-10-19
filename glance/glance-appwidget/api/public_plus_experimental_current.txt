@@ -55,10 +55,9 @@ package androidx.glance.appwidget {
   }
 
   public static final class SizeMode.Responsive implements androidx.glance.appwidget.SizeMode {
-    ctor public SizeMode.Responsive(java.util.Set<androidx.glance.unit.DpSize> sizes);
-    ctor public SizeMode.Responsive(androidx.glance.unit.DpSize... sizes);
-    method public java.util.Set<androidx.glance.unit.DpSize> getSizes();
-    property public final java.util.Set<androidx.glance.unit.DpSize> sizes;
+    ctor public SizeMode.Responsive(java.util.Set<androidx.compose.ui.unit.DpSize> sizes);
+    method public java.util.Set<androidx.compose.ui.unit.DpSize> getSizes();
+    property public final java.util.Set<androidx.compose.ui.unit.DpSize> sizes;
   }
 
   public static final class SizeMode.Single implements androidx.glance.appwidget.SizeMode {

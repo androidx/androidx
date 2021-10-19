@@ -33,7 +33,7 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.Color
-import androidx.glance.unit.dp
+import androidx.compose.ui.unit.dp
 
 class ResizingAppWidget : GlanceAppWidget() {
 

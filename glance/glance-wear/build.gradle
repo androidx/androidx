@@ -33,7 +33,7 @@ dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
     api(project(":glance:glance"))
-    api("androidx.compose.runtime:runtime:1.0.1")
+    api("androidx.compose.runtime:runtime:1.1.0-beta01")
     api("androidx.wear.tiles:tiles:1.0.0-alpha12")
 
     implementation(libs.kotlinStdlib)

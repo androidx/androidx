@@ -47,7 +47,7 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
-import androidx.glance.unit.dp
+import androidx.compose.ui.unit.dp
 import androidx.glance.unit.resolve
 import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.CurvedTextStyle
