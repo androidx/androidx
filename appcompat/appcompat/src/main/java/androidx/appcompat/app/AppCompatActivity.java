@@ -45,6 +45,7 @@ import androidx.appcompat.widget.VectorEnabledTintResources;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
+import androidx.core.os.LocaleListCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewTreeLifecycleOwner;
 import androidx.lifecycle.ViewTreeViewModelStoreOwner;
@@ -661,5 +662,14 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      * @param mode the night mode which has been applied
      */
     protected void onNightModeChanged(@NightMode int mode) {
+    }
+
+    /**
+     * Called when the locales have been changed. See {@link AppCompatDelegate#applyAppLocales()}
+     * for more information.
+     *
+     * @param locales the localeListCompat which has been applied
+     */
+    protected void onLocalesChanged(@NonNull LocaleListCompat locales) {
     }
 }
