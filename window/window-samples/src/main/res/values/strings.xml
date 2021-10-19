@@ -24,7 +24,8 @@
     <string name="legend">Legend:</string>
     <string name="content_title">Content title</string>
     <string name="green_droid">Green droid</string>
-    <string name="display_features">Display features</string>
+    <string name="display_features_config_change">Display features handle config change</string>
+    <string name="display_features_no_config_change">Display features no config change</string>
     <string name="split_layout">Split layout</string>
     <string name="presentation">Presentation</string>
     <string name="start_presentation">Start presentation</string>
@@ -39,7 +40,8 @@
     <string name="long_dimension_fold">Fold in the middle of the window along long
         dimension</string>
     <string name="test_activity">Test activity</string>
-    <string name="show_all_display_features_description">Show all display features of the device on the screen</string>
+    <string name="show_all_display_features_config_change_description">Show all display features of the device on the screen and handle config changes</string>
+    <string name="show_all_display_features_no_config_change_description">Show all display features of the device on the screen and do not handle config changes.  The activity is recreated instead on rotation or resize</string>
     <string name="split_layout_demo_description">Demo of a layout that splits the content to sides of a fold or a hinge. If not present or minimal size requirements are not meant, it behave like a FrameLayout.</string>
     <string name="presentation_demo_description">Demo of using Presentation API to show content on secondary display.</string>
     <string name="window_metrics">Window metrics</string>
