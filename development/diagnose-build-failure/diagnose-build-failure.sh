@@ -75,13 +75,13 @@ for arg in $gradleArgs; do
 done
 
 if [ "$#" -gt 0 ]; then
-  echo "Unrecognized argument: $1"
+  echo "Unrecognized argument: $1" >&2
   exit 1
 fi
 
 workingDir="$(pwd)"
 if [ ! -e "$workingDir/gradlew" ]; then
-  echo "Error; ./gradlew does not exist. Must cd to a dir containing a ./gradlew first"
+  echo "Error; ./gradlew does not exist. Must cd to a dir containing a ./gradlew first" >&2
   # so that this script knows which gradlew to use (in frameworks/support or frameworks/support/ui)
   exit 1
 fi
@@ -113,12 +113,12 @@ COLOR_WHITE="\e[97m"
 COLOR_GREEN="\e[32m"
 
 function checkStatusRepo() {
-  repo status
+  repo status >&2
 }
 
 function checkStatusGit() {
-  git status
-  git log -1
+  git status >&2
+  git log -1 >&2
 }
 
 function checkStatus() {
@@ -133,7 +133,7 @@ function checkStatus() {
 # echos a shell command for running the build in the current directory
 function getBuildCommand() {
   if [ "$expectedMessage" == "" ]; then
-    testCommand="$*"
+    testCommand="$* 2>&1"
   else
     testCommand="$* >log 2>&1; $vgrep '$expectedMessage' log"
   fi
@@ -205,11 +205,11 @@ function clearState() {
   restoreState /dev/null
 }
 
-echo
-echo "Making sure that we can reproduce the build failure"
+echo >&2
+echo "diagnose-build-failure making sure that we can reproduce the build failure" >&2
 if runBuild ./gradlew -Pandroidx.summarizeStderr $gradleArgs; then
-  echo
-  echo "This script failed to reproduce the build failure."
+  echo >&2
+  echo "This script failed to reproduce the build failure." >&2
   echo "If the build failure you were observing was in Android Studio, then:"
   echo '  Were you launching Android Studio by running `./studiow`?'
   echo "  Try asking a team member why Android Studio is failing but gradlew is succeeding"
@@ -220,8 +220,8 @@ if runBuild ./gradlew -Pandroidx.summarizeStderr $gradleArgs; then
   echo "    If this seems likely to you, then please open a bug."
   exit 1
 else
-  echo
-  echo "Reproduced build failure"
+  echo >&2
+  echo "Reproduced build failure" >&2
 fi
 
 if [ "$expectedMessage" == "" ]; then
@@ -245,77 +245,77 @@ if [ "$expectedMessage" == "" ]; then
 fi
 
 echo
-echo "Stopping the Gradle Daemon and rebuilding"
+echo "diagnose-build-failure stopping the Gradle Daemon and rebuilding" >&2
 cd "$supportRoot"
 ./gradlew --stop || true
 if runBuild ./gradlew --no-daemon $gradleArgs; then
-  echo
-  echo "The build passed when disabling the Gradle Daemon"
-  echo "This suggests that there is some state saved in the Gradle Daemon that is causing a failure."
-  echo "Unfortunately, this script does not know how to diagnose this further."
-  echo "You could ask a team member if they've seen this error."
+  echo >&2
+  echo "The build passed when disabling the Gradle Daemon" >&2
+  echo "This suggests that there is some state saved in the Gradle Daemon that is causing a failure." >&2
+  echo "Unfortunately, this script does not know how to diagnose this further." >&2
+  echo "You could ask a team member if they've seen this error." >&2
   exit 1
 else
-  echo
-  echo "The build failed even with the Gradle Daemon disabled."
-  echo "This may mean that there is state stored in a file somewhere, triggering the build to fail."
-  echo "We will investigate the possibility of saved state next."
-  echo
+  echo >&2
+  echo "The build failed even with the Gradle Daemon disabled." >&2
+  echo "This may mean that there is state stored in a file somewhere, triggering the build to fail." >&2
+  echo "We will investigate the possibility of saved state next." >&2
+  echo >&2
   # We're going to immediately overwrite the user's current state,
   # so we can simply move the current state into $tempDir/prev rather than copying it
   backupState "$tempDir/prev" --move
 fi
 
-echo
-echo "Checking whether a clean build passes"
+echo >&2
+echo "Checking whether a clean build passes" >&2
 clearState
 backupState "$tempDir/empty"
 successState="$tempDir/empty"
 if runBuild ./gradlew --no-daemon $gradleArgs; then
-  echo
-  echo "The clean build passed, so we can now investigate what cached state is triggering this build to fail."
+  echo >&2
+  echo "The clean build passed, so we can now investigate what cached state is triggering this build to fail." >&2
   backupState "$tempDir/clean"
 else
-  echo
-  echo "The clean build also reproduced the issue."
-  echo "This may mean that everyone is observing this issue"
-  echo "This may mean that something about your checkout is different from others'"
-  echo "You may be interested in running development/simplify-build-failure/simplify-build-failure.sh to identify the minimal set of source files required to reproduce this error"
-  echo "Checking the status of your checkout:"
+  echo >&2
+  echo "The clean build also reproduced the issue." >&2
+  echo "This may mean that everyone is observing this issue" >&2
+  echo "This may mean that something about this checkout is different from others'" >&2
+  echo "You may be interested in running development/simplify-build-failure/simplify-build-failure.sh to identify the minimal set of source files required to reproduce this error" >&2
+  echo "Checking the status of the checkout:" >&2
   checkStatus
   exit 1
 fi
 
-echo
-echo "Checking whether a second build passes when starting from the output of the first clean build"
+echo >&2
+echo "Checking whether a second build passes when starting from the output of the first clean build" >&2
 if runBuild ./gradlew --no-daemon $gradleArgs; then
-  echo
-  echo "The next build after the clean build passed, so we can use the output of the first clean build as the successful state to compare against"
+  echo >&2
+  echo "The next build after the clean build passed, so we can use the output of the first clean build as the successful state to compare against" >&2
   successState="$tempDir/clean"
 else
-  echo
-  echo "The next build after the clean build failed."
-  echo "Although this is unexpected, we should still be able to diagnose it."
-  echo "This might be slower than normal, though, because it may require us to rebuild more things more often"
+  echo >&2
+  echo "The next build after the clean build failed." >&2
+  echo "Although this is unexpected, we should still be able to diagnose it." >&2
+  echo "This might be slower than normal, though, because it may require us to rebuild more things more often" >&2
 fi
 
-echo
-echo "Next we'll double-check that after restoring the failing state, the build fails"
+echo >&2
+echo "Next we'll double-check that after restoring the failing state, the build fails" >&2
 restoreState "$tempDir/prev"
 if runBuild ./gradlew --no-daemon $gradleArgs; then
-  echo
-  echo "After restoring the saved state, the build passed."
-  echo "This might mean that there is additional state being saved somewhere else that this script does not know about"
-  echo "This might mean that the success or failure status of the build is dependent on timestamps."
-  echo "This might mean that the build is nondeterministic."
-  echo "Unfortunately, this script does not know how to diagnose this further."
-  echo "You could:"
-  echo "  Ask a team member if they know where the state may be stored"
-  echo "  Ask a team member if they recognize the build error"
+  echo >&2
+  echo "After restoring the saved state, the build passed." >&2
+  echo "This might mean that there is additional state being saved somewhere else that this script does not know about" >&2
+  echo "This might mean that the success or failure status of the build is dependent on timestamps." >&2
+  echo "This might mean that the build is nondeterministic." >&2
+  echo "Unfortunately, this script does not know how to diagnose this further." >&2
+  echo "You could:" >&2
+  echo "  Ask a team member if they know where the state may be stored" >&2
+  echo "  Ask a team member if they recognize the build error" >&2
   exit 1
 else
-  echo
-  echo "After restoring the saved state, the build failed. This confirms that this script is successfully saving and restoring the relevant state"
+  echo >&2
+  echo "After restoring the saved state, the build failed. This confirms that this script is successfully saving and restoring the relevant state" >&2
 fi
 
 # Ask diff-filterer.py to run a binary search to determine the minimum set of tasks that must be passed to reproduce this error
@@ -349,10 +349,10 @@ function determineMinimalSetOfRequiredTasks() {
   fullFiltererCommand="$(getTestStateCommand --invert $buildCommand)"
 
   if $supportRoot/development/file-utils/diff-filterer.py $timeoutArg --work-path "$tempDir" "$requiredTasksWork" "$tempDir/prev"  "$fullFiltererCommand"; then
-    echo diff-filterer successfully identified a minimal set of required tasks. Saving into $requiredTasksDir
+    echo diff-filterer successfully identified a minimal set of required tasks. Saving into $requiredTasksDir >&2
     cp -r "$tempDir/bestResults/tasks" "$requiredTasksDir"
   else
-    echo diff-filterer was unable to identify a minimal set of tasks required to reproduce the error
+    echo diff-filterer was unable to identify a minimal set of tasks required to reproduce the error >&2
     exit 1
   fi
 }
@@ -362,10 +362,10 @@ gradleTasks="$(cat $requiredTasksDir/*)"
 gradleArgs="$gradleOptions $gradleTasks"
 
 # Now ask diff-filterer.py to run a binary search to determine what the relevant differences are between "$tempDir/prev" and "$tempDir/clean"
-echo
-echo "Binary-searching the contents of the two output directories until the relevant differences are identified."
+echo >&2
+echo "Binary-searching the contents of the two output directories until the relevant differences are identified." >&2
 echo "This may take a while."
-echo
+echo >&2
 
 # command for running a build
 buildCommand="$(getBuildCommand "./gradlew --no-daemon $gradleArgs")"
@@ -373,13 +373,13 @@ buildCommand="$(getBuildCommand "./gradlew --no-daemon $gradleArgs")"
 fullFiltererCommand="$(getTestStateCommand $buildCommand)"
 
 if $supportRoot/development/file-utils/diff-filterer.py $timeoutArg --assume-input-states-are-correct --work-path $tempDir $successState $tempDir/prev "$fullFiltererCommand"; then
-  echo
-  echo "There should be something wrong with the above file state"
-  echo "Hopefully the output from diff-filterer.py above is enough information for you to figure out what is wrong"
-  echo "If not, you could ask a team member about your original error message and see if they have any ideas"
+  echo >&2
+  echo "There should be something wrong with the above file state" >&2
+  echo "Hopefully the output from diff-filterer.py above is enough information for you to figure out what is wrong" >&2
+  echo "If not, you could ask a team member about your original error message and see if they have any ideas" >&2
 else
-  echo
-  echo "Something went wrong running diff-filterer.py"
-  echo "Maybe that means the build is nondeterministic"
-  echo "Maybe that means that there's something wrong with this script ($0)"
+  echo >&2
+  echo "Something went wrong running diff-filterer.py" >&2
+  echo "Maybe that means the build is nondeterministic" >&2
+  echo "Maybe that means that there's something wrong with this script ($0)" >&2
 fi
