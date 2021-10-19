@@ -72,7 +72,8 @@ public class RendererTest {
         mContext = mInstrumentation.getContext();
         mLinearLayout = mActivityTestRule.getActivity().findViewById(
                 androidx.autofill.test.R.id.linear_layout);
-        mAttributionIntent = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+        mAttributionIntent = PendingIntent.getActivity(
+                mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
     }
 
     @Test
