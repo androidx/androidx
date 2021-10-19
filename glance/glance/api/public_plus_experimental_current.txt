@@ -18,6 +18,8 @@ package androidx.glance {
   public final class CompositionLocalsKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> getLocalContext();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.unit.DpSize> getLocalSize();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> LocalContext;
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.unit.DpSize> LocalSize;
   }
 
   @androidx.compose.runtime.Stable public interface Modifier {
@@ -283,6 +285,8 @@ package androidx.glance.text {
 
   public final inline class TextDecoration {
     ctor public TextDecoration();
+    method @androidx.compose.runtime.Stable public operator boolean contains(int other);
+    method @androidx.compose.runtime.Stable public operator int plus(int decoration);
   }
 
   public static final class TextDecoration.Companion {
@@ -315,6 +319,7 @@ package androidx.glance.unit {
 
   public final inline class Color {
     ctor public Color();
+    method public int Color(long value);
     method public int getValue();
     property public final int value;
   }
@@ -361,7 +366,15 @@ package androidx.glance.unit {
   public final inline class Dp implements java.lang.Comparable<androidx.glance.unit.Dp> {
     ctor public Dp();
     method public operator int compareTo(float other);
+    method public operator float div(float other);
+    method public operator float div(int other);
+    method public operator float div(float other);
     method public float getValue();
+    method public operator float minus(float other);
+    method public operator float plus(float other);
+    method public operator float times(float other);
+    method public operator float times(int other);
+    method public operator float unaryMinus();
     property public final float value;
   }
 
@@ -408,7 +421,15 @@ package androidx.glance.unit {
   public final inline class Sp implements java.lang.Comparable<androidx.glance.unit.Sp> {
     ctor public Sp();
     method public operator int compareTo(float other);
+    method public operator float div(float other);
+    method public operator float div(int other);
+    method public operator float div(float other);
     method public float getValue();
+    method public operator float minus(float other);
+    method public operator float plus(float other);
+    method public operator float times(float other);
+    method public operator float times(int other);
+    method public operator float unaryMinus();
     property public final float value;
   }
 
