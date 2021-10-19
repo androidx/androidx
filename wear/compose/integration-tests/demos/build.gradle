@@ -44,22 +44,24 @@ android {
     }
 }
 
+def compose_version = '1.1.0-beta01'
+
 dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
-    implementation 'androidx.wear:wear:1.1.0'
-    implementation(project(":compose:ui:ui"))
+    implementation("androidx.wear:wear:1.1.0")
+    implementation("androidx.compose.ui:ui:$compose_version")
     implementation(project(':compose:integration-tests:demos:common'))
-    implementation(project(":compose:foundation:foundation"))
-    implementation(project(":compose:foundation:foundation-layout"))
+    implementation("androidx.compose.foundation:foundation:$compose_version")
+    implementation("androidx.compose.foundation:foundation-layout:$compose_version")
 
-    implementation(project(":compose:runtime:runtime"))
+    implementation("androidx.compose.runtime:runtime:$compose_version")
     implementation(project(':wear:compose:compose-material'))
     implementation(project(':wear:compose:compose-foundation'))
     implementation(project(":wear:compose:compose-foundation-samples"))
     implementation(project(":wear:compose:compose-material-samples"))
 
-    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:$compose_version")
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)

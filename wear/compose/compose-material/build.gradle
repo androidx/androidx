@@ -25,27 +25,29 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
+def compose_version = '1.1.0-beta01'
+
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
 dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
     if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-        api(project(":compose:foundation:foundation"))
-        api(project(":compose:ui:ui"))
-        api(project(":compose:ui:ui-text"))
-        api(project(":compose:runtime:runtime"))
+        api("androidx.compose.foundation:foundation:$compose_version")
+        api("androidx.compose.ui:ui:$compose_version")
+        api("androidx.compose.ui:ui-text:$compose_version")
+        api("androidx.compose.runtime:runtime:$compose_version")
 
         implementation(libs.kotlinStdlib)
-        implementation(project(":compose:animation:animation"))
-        implementation(project(":compose:material:material"))
-        implementation(project(":compose:material:material-ripple"))
-        implementation(project(":compose:ui:ui-util"))
+        implementation("androidx.compose.animation:animation:$compose_version")
+        implementation("androidx.compose.material:material:$compose_version")
+        implementation("androidx.compose.material:material-ripple:$compose_version")
+        implementation("androidx.compose.ui:ui-util:$compose_version")
         implementation(project(":wear:compose:compose-foundation"))
 
-        androidTestImplementation project(path: ':compose:ui:ui-test')
-        androidTestImplementation project(path: ':compose:ui:ui-test-junit4')
-        androidTestImplementation project(path: ':compose:test-utils')
+        androidTestImplementation("androidx.compose.ui:ui-test:$compose_version")
+        androidTestImplementation("androidx.compose.ui:ui-test-junit4:$compose_version")
+        androidTestImplementation(project(":compose:test-utils"))
         androidTestImplementation project(":test:screenshot:screenshot")
         androidTestImplementation(libs.testRunner)
         androidTestImplementation(libs.truth)
