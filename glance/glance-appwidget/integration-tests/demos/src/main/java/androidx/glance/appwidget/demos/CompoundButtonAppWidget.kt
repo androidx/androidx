@@ -17,6 +17,8 @@
 package androidx.glance.appwidget.demos
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.glance.LocalSize
 import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.GlanceAppWidget
@@ -34,8 +36,6 @@ import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.Color
-import androidx.compose.ui.unit.dp
-import androidx.glance.unit.sp
 
 class CompoundButtonAppWidget : GlanceAppWidget() {
 

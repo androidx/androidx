@@ -33,9 +33,9 @@ import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
+import androidx.compose.ui.unit.TextUnit
 import androidx.core.view.children
 import androidx.glance.Applier
-import androidx.glance.unit.Sp
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
@@ -102,7 +102,7 @@ internal fun appWidgetProviderInfo(
 ): AppWidgetProviderInfo =
     AppWidgetProviderInfo().apply(builder)
 
-internal fun Sp.toPixels(displayMetrics: DisplayMetrics) =
+internal fun TextUnit.toPixels(displayMetrics: DisplayMetrics) =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, displayMetrics).toInt()
 
 internal inline fun <reified T> Collection<T>.toArrayList() = ArrayList<T>(this)

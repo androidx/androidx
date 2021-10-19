@@ -20,6 +20,8 @@ import android.content.Context
 import android.os.Handler
 import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalSize
 import androidx.glance.action.ActionParameters
@@ -41,8 +43,6 @@ import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
 import androidx.glance.unit.Color
 
 /**

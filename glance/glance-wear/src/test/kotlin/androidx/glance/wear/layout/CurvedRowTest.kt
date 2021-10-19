@@ -21,7 +21,7 @@ import androidx.glance.findModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.padding
 import androidx.compose.ui.unit.dp
-import androidx.glance.unit.sp
+import androidx.compose.ui.unit.sp
 import androidx.glance.wear.runTestingComposition
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi

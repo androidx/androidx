@@ -281,7 +281,12 @@ private fun translateEmittableColumn(
 private fun translateTextStyle(style: TextStyle): LayoutElementBuilders.FontStyle {
     val fontStyleBuilder = LayoutElementBuilders.FontStyle.Builder()
 
-    style.fontSize?.let { fontStyleBuilder.setSize(sp(it.value)) }
+    // TODO(b/203656358): Can we support Em here too?
+    style.fontSize?.let {
+        if (!it.isSp) {
+            throw IllegalArgumentException("Only Sp is supported for font size")
+        }
+        fontStyleBuilder.setSize(sp(it.value)) }
     style.fontStyle?.let { fontStyleBuilder.setItalic(it == FontStyle.Italic) }
     style.fontWeight?.let {
         fontStyleBuilder.setWeight(

@@ -19,6 +19,7 @@ package androidx.glance.wear.layout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.unit.TextUnit
 import androidx.glance.Applier
 import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
@@ -26,7 +27,6 @@ import androidx.glance.GlanceModifier
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.Sp
 
 /**
  * The alignment of a [CurvedRow]'s elements, with respect to its anchor angle. This specifies how
@@ -161,7 +161,7 @@ public fun CurvedRow(
  */
 @Immutable
 public class CurvedTextStyle(
-    public val fontSize: Sp? = null,
+    public val fontSize: TextUnit? = null,
     public val fontWeight: FontWeight? = null,
     public val fontStyle: FontStyle? = null
 ) {

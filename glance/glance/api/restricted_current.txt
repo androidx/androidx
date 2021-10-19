@@ -321,13 +321,13 @@ package androidx.glance.text {
   }
 
   @androidx.compose.runtime.Immutable public final class TextStyle {
-    ctor public TextStyle(optional androidx.glance.unit.Sp? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration);
-    method public androidx.glance.unit.Sp? getFontSize();
+    ctor public TextStyle(optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration);
+    method public androidx.compose.ui.unit.TextUnit? getFontSize();
     method public androidx.glance.text.FontStyle? getFontStyle();
     method public androidx.glance.text.FontWeight? getFontWeight();
     method public androidx.glance.text.TextAlign? getTextAlign();
     method public androidx.glance.text.TextDecoration? getTextDecoration();
-    property public final androidx.glance.unit.Sp? fontSize;
+    property public final androidx.compose.ui.unit.TextUnit? fontSize;
     property public final androidx.glance.text.FontStyle? fontStyle;
     property public final androidx.glance.text.FontWeight? fontWeight;
     property public final androidx.glance.text.TextAlign? textAlign;
@@ -382,32 +382,6 @@ package androidx.glance.unit {
   public final class ColorProviderKt {
     method public static androidx.glance.unit.ColorProvider ColorProvider(int color);
     method public static androidx.glance.unit.ColorProvider ColorProvider(@ColorRes int resId);
-  }
-
-  public final inline class Sp implements java.lang.Comparable<androidx.glance.unit.Sp> {
-    ctor public Sp();
-    method public operator int compareTo(float other);
-    method public operator float div(float other);
-    method public operator float div(int other);
-    method public operator float div(float other);
-    method public float getValue();
-    method public operator float minus(float other);
-    method public operator float plus(float other);
-    method public operator float times(float other);
-    method public operator float times(int other);
-    method public operator float unaryMinus();
-    property public final float value;
-  }
-
-  public final class SpKt {
-    method public static inline float getSp(int);
-    method public static inline float getSp(double);
-    method public static inline float getSp(float);
-    method public static float max(float a, float b);
-    method public static float min(float a, float b);
-    method public static operator float times(float, float other);
-    method public static operator float times(double, float other);
-    method public static operator float times(int, float other);
   }
 
 }
