@@ -81,6 +81,9 @@ import androidx.compose.ui.input.key.Key.Companion.DirectionDown
 import androidx.compose.ui.input.key.Key.Companion.DirectionLeft
 import androidx.compose.ui.input.key.Key.Companion.DirectionRight
 import androidx.compose.ui.input.key.Key.Companion.DirectionUp
+import androidx.compose.ui.input.key.Key.Companion.Enter
+import androidx.compose.ui.input.key.Key.Companion.Escape
+import androidx.compose.ui.input.key.Key.Companion.NumPadEnter
 import androidx.compose.ui.input.key.Key.Companion.Tab
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
@@ -93,7 +96,6 @@ import androidx.compose.ui.input.pointer.PointerInputEventProcessor
 import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.input.pointer.ProcessResult
 import androidx.compose.ui.layout.RootMeasurePolicy
-import androidx.compose.ui.layout.onRelocationRequest
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNode.UsageByParent
@@ -129,7 +131,6 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 import java.lang.reflect.Method
 import android.view.KeyEvent as AndroidKeyEvent
-import androidx.compose.ui.geometry.Rect as ComposeRect
 
 @SuppressLint("ViewConstructor", "VisibleForTests")
 @OptIn(ExperimentalComposeUiApi::class)
@@ -189,17 +190,11 @@ internal class AndroidComposeView(context: Context) :
         onPreviewKeyEvent = null
     )
 
-    private val relocationModifier = Modifier.onRelocationRequest(
-        onProvideDestination = { _, _ -> ComposeRect.Zero },
-        onPerformRelocation = { rect, _ -> requestRectangleOnScreen(rect.toRect(), false) }
-    )
-
     private val canvasHolder = CanvasHolder()
 
     override val root = LayoutNode().also {
         it.measurePolicy = RootMeasurePolicy
         it.modifier = Modifier
-            .then(relocationModifier)
             .then(semanticsModifier)
             .then(_focusManager.modifier)
             .then(keyInputModifier)
@@ -741,8 +736,8 @@ internal class AndroidComposeView(context: Context) :
             DirectionLeft -> Left
             DirectionUp -> Up
             DirectionDown -> Down
-            DirectionCenter -> In
-            Back -> Out
+            DirectionCenter, Enter, NumPadEnter -> In
+            Back, Escape -> Out
             else -> null
         }
     }
@@ -1362,8 +1357,4 @@ private fun dot(m1: Matrix, row: Int, m2: Matrix, column: Int): Float {
         m1[row, 1] * m2[1, column] +
         m1[row, 2] * m2[2, column] +
         m1[row, 3] * m2[3, column]
-}
-
-private fun ComposeRect.toRect(): Rect {
-    return Rect(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
 }
