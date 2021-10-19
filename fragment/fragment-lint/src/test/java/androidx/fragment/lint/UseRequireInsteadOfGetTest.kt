@@ -20,7 +20,6 @@ import com.android.tools.lint.checks.infrastructure.LintDetectorTest.java
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintTask
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
-import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -141,7 +140,6 @@ class UseRequireInsteadOfGetTest {
                 ).indented()
             )
             .allowCompilationErrors(false)
-            .skipTestModes(TestMode.WHITESPACE) // b/203246909
             .run()
             .expect(
                 """
@@ -258,7 +256,6 @@ class UseRequireInsteadOfGetTest {
                 ).indented()
             )
             .allowCompilationErrors(false)
-            .skipTestModes(TestMode.WHITESPACE) // b/203246909
             .run()
             .expect(
                 """
@@ -342,7 +339,6 @@ class UseRequireInsteadOfGetTest {
                 ).indented()
             )
             .allowCompilationErrors(false)
-            .skipTestModes(TestMode.WHITESPACE) // b/203246909
             .run()
             .expect(
                 """
@@ -454,7 +450,6 @@ class UseRequireInsteadOfGetTest {
                 ).indented()
             )
             .allowCompilationErrors(false)
-            .skipTestModes(TestMode.WHITESPACE) // b/203246909
             .run()
             .expect(
                 """
@@ -684,7 +679,6 @@ class UseRequireInsteadOfGetTest {
                 ).indented()
             )
             .allowCompilationErrors(false)
-            .skipTestModes(TestMode.WHITESPACE) // b/203246909
             .run()
             .expect(
                 """
@@ -725,7 +719,6 @@ class UseRequireInsteadOfGetTest {
                 ).indented()
             )
             .allowCompilationErrors(false)
-            .skipTestModes(TestMode.WHITESPACE) // b/203246909
             .run()
             .expect(
                 """
@@ -835,7 +828,6 @@ class UseRequireInsteadOfGetTest {
                 ).indented()
             )
             .allowCompilationErrors(false)
-            .skipTestModes(TestMode.WHITESPACE) // b/203246909
             .run()
             .expect(
                 """
