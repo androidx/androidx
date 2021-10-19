@@ -136,7 +136,7 @@ public final class SavedStateRegistry {
 
     /**
      * Subclasses of this interface will be automatically recreated if they were previously
-     * registered via {{@link #runOnNextRecreation(Class)}}.
+     * registered via {@link #runOnNextRecreation(Class)}.
      * <p>
      * Subclasses must have a default constructor
      */
