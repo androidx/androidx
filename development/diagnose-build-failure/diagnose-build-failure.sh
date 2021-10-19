@@ -35,6 +35,7 @@ function usage() {
 
 expectedMessage=""
 timeoutSeconds=""
+grepOptions=""
 while true; do
   if [ "$#" -lt 1 ]; then
     usage
@@ -135,7 +136,7 @@ function getBuildCommand() {
   if [ "$expectedMessage" == "" ]; then
     testCommand="$* 2>&1"
   else
-    testCommand="$* >log 2>&1; $vgrep '$expectedMessage' log"
+    testCommand="$* >log 2>&1; $vgrep '$expectedMessage' log $grepOptions"
   fi
   echo "$testCommand"
 }
@@ -234,7 +235,8 @@ if [ "$expectedMessage" == "" ]; then
   echo
   echo "$longestLine"
   echo
-  if grep "$longestLine" "$summaryLog" >/dev/null 2>/dev/null; then
+  grepOptions="-F" # interpret grep query as a fixed string, not a regex
+  if grep $grepOptions "$longestLine" "$summaryLog" >/dev/null 2>/dev/null; then
     echo "We will use this as the message to test for"
     echo
     expectedMessage="$longestLine"
