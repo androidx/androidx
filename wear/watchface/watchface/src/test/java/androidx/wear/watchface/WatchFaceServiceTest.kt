@@ -106,6 +106,7 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.validateMockitoUsage
 import org.mockito.Mockito.verify
 import org.robolectric.annotation.Config
+import java.io.StringWriter
 import java.time.Instant
 import java.util.ArrayDeque
 import java.util.PriorityQueue
@@ -504,7 +505,8 @@ public class WatchFaceServiceTest {
             null,
             false,
             null,
-            choreographer
+            choreographer,
+            mockSystemTimeMillis = looperTimeMillis
         )
 
         InteractiveInstanceManager
@@ -3380,6 +3382,58 @@ public class WatchFaceServiceTest {
 
         engineWrapper.onDestroy()
         assertThat(onDestroyCalled).isTrue()
+    }
+
+    @Test
+    public fun dump() {
+        // Advance time a little so timestamps are not zero
+        looperTimeMillis = 1000
+
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "TestID",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                emptyList()
+            )
+        )
+
+        val writer = StringWriter()
+        val indentingPrintWriter = IndentingPrintWriter(writer)
+
+        engineWrapper.dump(indentingPrintWriter)
+
+        val dump = writer.toString()
+        // The full dump contains addresses that change from run to run, however these are a
+        // collection of sub strings we expect.
+        assertThat(dump).contains("Androidx style init flow")
+        assertThat(dump).contains("createdBy=Boot with pendingWallpaperInstanc")
+        assertThat(dump).contains("lastDrawTimeMillis=1000")
+        assertThat(dump).contains("nextDrawTimeMillis=1016")
+        assertThat(dump).contains("isHeadless=false")
+        assertThat(dump).contains(
+            "currentUserStyleRepository.userStyle=UserStyle[color_style_setting -> red_style, " +
+                "hand_style_setting -> classic_style]")
+        assertThat(dump).contains(
+            "currentUserStyleRepository.schema=[{color_style_setting : red_style, green_style, " +
+                "blue_style}, {hand_style_setting : classic_style, modern_style, gothic_style}]")
+        assertThat(dump).contains("ComplicationSlot 1000:")
+        assertThat(dump).contains("ComplicationSlot 1001:")
+        assertThat(dump).contains("screenBounds=Rect(0, 0 - 100, 100)")
+        assertThat(dump).contains("interactiveDrawModeUpdateDelayMillis=16")
+        assertThat(dump).contains("CanvasRenderer:")
+        assertThat(dump).contains("screenBounds=Rect(0, 0 - 100, 100)")
+        assertThat(dump).contains("interactiveDrawModeUpdateDelayMillis=16")
+        assertThat(dump).contains("watchFaceLayers=BASE, COMPLICATIONS, COMPLICATIONS_OVERLAY")
     }
 
     @SuppressLint("NewApi")

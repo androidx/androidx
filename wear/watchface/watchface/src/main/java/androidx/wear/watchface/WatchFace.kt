@@ -493,6 +493,7 @@ public class WatchFaceImpl @UiThread constructor(
 
     // True if 'Do Not Disturb' mode is on.
     private var muteMode = false
+    internal var lastDrawTimeMillis: Long = 0
     internal var nextDrawTimeMillis: Long = 0
 
     private val pendingUpdateTime: CancellableUniqueTask =
@@ -809,6 +810,7 @@ public class WatchFaceImpl @UiThread constructor(
         val startTimeMillis = startTime.toInstant().toEpochMilli()
         maybeUpdateDrawMode()
         renderer.renderInternal(startTime)
+        lastDrawTimeMillis = startTimeMillis
 
         if (renderer.shouldAnimate()) {
             val currentTimeMillis = systemTimeProvider.getSystemTimeMillis()
@@ -1063,12 +1065,13 @@ public class WatchFaceImpl @UiThread constructor(
         writer.println("mockTime.maxTime=${mockTime.maxTime}")
         writer.println("mockTime.minTime=${mockTime.minTime}")
         writer.println("mockTime.speed=${mockTime.speed}")
+        writer.println("lastDrawTimeMillis=$lastDrawTimeMillis")
         writer.println("nextDrawTimeMillis=$nextDrawTimeMillis")
         writer.println("muteMode=$muteMode")
         writer.println("pendingUpdateTime=${pendingUpdateTime.isPending()}")
         writer.println("lastTappedComplicationId=$lastTappedComplicationId")
         writer.println(
-            "currentUserStyleRepository.userStyle=${currentUserStyleRepository.userStyle}"
+            "currentUserStyleRepository.userStyle=${currentUserStyleRepository.userStyle.value}"
         )
         writer.println("currentUserStyleRepository.schema=${currentUserStyleRepository.schema}")
         watchState.dump(writer)
