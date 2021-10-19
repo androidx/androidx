@@ -19,7 +19,7 @@ package androidx.glance.wear
 import android.app.Activity
 import android.content.Context
 import androidx.compose.runtime.Composable
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.background
 import androidx.glance.action.clickable
 import androidx.glance.action.actionLaunchActivity
@@ -129,7 +129,8 @@ class WearCompositionTranslatorTest {
     @Test
     fun canTranslatePaddingModifier() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
-            Box(modifier = Modifier.padding(start = 1.dp, top = 2.dp, end = 3.dp, bottom = 4.dp)) {}
+            Box(modifier =
+                GlanceModifier.padding(start = 1.dp, top = 2.dp, end = 3.dp, bottom = 4.dp)) {}
         }
 
         val innerBox =
@@ -145,7 +146,7 @@ class WearCompositionTranslatorTest {
     @Test
     fun canTranslateBackgroundModifier() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
-            Box(modifier = Modifier.background(Color(0x11223344))) {}
+            Box(modifier = GlanceModifier.background(Color(0x11223344))) {}
         }
 
         val innerBox =
@@ -158,14 +159,15 @@ class WearCompositionTranslatorTest {
     @Test
     fun canTranslateBackgroundModifier_resId() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
-            Box(modifier = Modifier.background(R.color.color1)) {}
+            Box(modifier = GlanceModifier.background(R.color.color1)) {}
         }
 
         val innerBox =
             (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Box
         val background = requireNotNull(innerBox.modifiers!!.background)
 
-        assertThat(background.color!!.argb).isEqualTo(android.graphics.Color.rgb(0xC0, 0xFF, 0xEE))
+        assertThat(background.color!!.argb)
+            .isEqualTo(android.graphics.Color.rgb(0xC0, 0xFF, 0xEE))
     }
 
     @Test
@@ -198,7 +200,10 @@ class WearCompositionTranslatorTest {
             Row(
                 verticalAlignment = Alignment.Vertical.CenterVertically,
                 horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth().height(100.dp).background(Color(0x11223344))
+                modifier = GlanceModifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .background(Color(0x11223344))
             ) {}
         }
 
@@ -256,7 +261,10 @@ class WearCompositionTranslatorTest {
             Column(
                 verticalAlignment = Alignment.Vertical.CenterVertically,
                 horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
-                modifier = Modifier.fillMaxHeight().width(100.dp).background(Color(0x11223344))
+                modifier = GlanceModifier
+                    .fillMaxHeight()
+                    .width(100.dp)
+                    .background(Color(0x11223344))
             ) {}
         }
 
@@ -293,7 +301,7 @@ class WearCompositionTranslatorTest {
                 fontStyle = FontStyle.Italic,
                 textDecoration = TextDecoration.Underline
             )
-            Text("Hello World", modifier = Modifier.padding(1.dp), style = style)
+            Text("Hello World", modifier = GlanceModifier.padding(1.dp), style = style)
         }
 
         val innerText = (content as LayoutElementBuilders.Box).contents[0]
@@ -309,7 +317,7 @@ class WearCompositionTranslatorTest {
     @Test
     fun textWithSizeInflatesInBox() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
-            Text("Hello World", modifier = Modifier.size(100.dp).padding(10.dp))
+            Text("Hello World", modifier = GlanceModifier.size(100.dp).padding(10.dp))
         }
 
         val innerBox = (content as LayoutElementBuilders.Box).contents[0] as
@@ -335,7 +343,7 @@ class WearCompositionTranslatorTest {
                 anchorDegrees = 20f,
                 radialAlignment = RadialAlignment.Inner,
                 anchorType = AnchorType.End,
-                modifier = Modifier.padding(20.dp)
+                modifier = GlanceModifier.padding(20.dp)
             ) {}
         }
 
@@ -356,7 +364,7 @@ class WearCompositionTranslatorTest {
                 anchorDegrees = 20f,
                 radialAlignment = RadialAlignment.Inner,
                 anchorType = AnchorType.End,
-                modifier = Modifier.padding(20.dp).size(10.dp)
+                modifier = GlanceModifier.padding(20.dp).size(10.dp)
             ) {}
         }
 
@@ -432,7 +440,7 @@ class WearCompositionTranslatorTest {
     fun canInflateLaunchAction() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             Text(
-                modifier = Modifier.clickable(actionLaunchActivity(TestActivity::class.java)),
+                modifier = GlanceModifier.clickable(actionLaunchActivity(TestActivity::class.java)),
                 text = "Hello World"
             )
         }
@@ -465,7 +473,7 @@ class WearCompositionTranslatorTest {
             Button(
                 "Hello World",
                 onClick = actionLaunchActivity(TestActivity::class.java),
-                modifier = Modifier.padding(1.dp),
+                modifier = GlanceModifier.padding(1.dp),
                 style = style
             )
         }
@@ -489,7 +497,7 @@ class WearCompositionTranslatorTest {
     fun setSizeFromResource() = fakeCoroutineScope.runBlockingTest {
         val content = runAndTranslate {
             Column(
-                modifier = Modifier.width(R.dimen.dimension1)
+                modifier = GlanceModifier.width(R.dimen.dimension1)
                     .height(R.dimen.dimension2)
             ) {}
         }

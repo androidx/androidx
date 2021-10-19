@@ -16,7 +16,7 @@
 
 package androidx.glance.wear.layout
 
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.padding
@@ -44,7 +44,7 @@ class CurvedRowTest {
     fun createComposableArc() = fakeCoroutineScope.runBlockingTest {
         val root = runTestingComposition {
             CurvedRow(
-                modifier = Modifier.padding(1.dp),
+                modifier = GlanceModifier.padding(1.dp),
                 anchorDegrees = 5f,
                 anchorType = AnchorType.End,
                 radialAlignment = RadialAlignment.Center
@@ -67,7 +67,7 @@ class CurvedRowTest {
             CurvedRow {
                 CurvedText(
                     text = "Hello World",
-                    modifier = Modifier.padding(5.dp),
+                    modifier = GlanceModifier.padding(5.dp),
                     textStyle = CurvedTextStyle(fontSize = 24.sp)
                 )
             }

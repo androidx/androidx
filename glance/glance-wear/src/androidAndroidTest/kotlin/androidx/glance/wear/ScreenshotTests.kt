@@ -27,7 +27,7 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
 import androidx.core.content.ContextCompat
 import androidx.glance.Applier
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -79,19 +79,19 @@ class ScreenshotTests {
 
     @Test
     fun basicBoxTest() = runSingleGoldenTest("basic-box") {
-        Box(modifier = Modifier.size(100.dp).background(Color.Green)) { }
+        Box(modifier = GlanceModifier.size(100.dp).background(Color.Green)) { }
     }
 
     @Test
     fun rowColumnGrid() = runSingleGoldenTest("row-column-grid") {
         Row {
             Column {
-                Box(modifier = Modifier.size(20.dp).background(Color.Red)) {}
-                Box(modifier = Modifier.size(20.dp).background(Color.Green)) {}
+                Box(modifier = GlanceModifier.size(20.dp).background(Color.Red)) {}
+                Box(modifier = GlanceModifier.size(20.dp).background(Color.Green)) {}
             }
             Column {
-                Box(modifier = Modifier.size(20.dp).background(Color.Blue)) {}
-                Box(modifier = Modifier.size(20.dp).background(Color.Cyan)) {}
+                Box(modifier = GlanceModifier.size(20.dp).background(Color.Blue)) {}
+                Box(modifier = GlanceModifier.size(20.dp).background(Color.Cyan)) {}
             }
         }
     }
@@ -118,14 +118,14 @@ class ScreenshotTests {
     fun textWithSize() = runSingleGoldenTest("text-with-size") {
         Text(
             text = "Hello World! This is a test",
-            modifier = Modifier.size(200.dp).background(Color.Red)
+            modifier = GlanceModifier.size(200.dp).background(Color.Red)
         )
     }
 
     @Test
     fun curvedText() = runSingleGoldenTest("curved-text") {
         CurvedRow(
-            modifier = Modifier.background(Color.Blue),
+            modifier = GlanceModifier.background(Color.Blue),
             radialAlignment = RadialAlignment.Center,
             anchorDegrees = -90f,
             anchorType = AnchorType.Center
@@ -138,17 +138,17 @@ class ScreenshotTests {
     @Test
     fun curvedRowWithNormalElements() = runSingleGoldenTest("curved-row-with-normal-elements") {
         CurvedRow {
-            Box(modifier = Modifier.size(30.dp).background(Color.Red)) {}
-            Box(modifier = Modifier.size(30.dp).background(Color.Green)) {}
-            Box(modifier = Modifier.size(30.dp).background(Color.Blue)) {}
-            Box(modifier = Modifier.size(30.dp).background(Color.Cyan)) {}
-            Box(modifier = Modifier.size(30.dp).background(Color.Magenta)) {}
+            Box(modifier = GlanceModifier.size(30.dp).background(Color.Red)) {}
+            Box(modifier = GlanceModifier.size(30.dp).background(Color.Green)) {}
+            Box(modifier = GlanceModifier.size(30.dp).background(Color.Blue)) {}
+            Box(modifier = GlanceModifier.size(30.dp).background(Color.Cyan)) {}
+            Box(modifier = GlanceModifier.size(30.dp).background(Color.Magenta)) {}
         }
     }
 
     private suspend fun runComposition(content: @Composable () -> Unit) = coroutineScope {
         val root = EmittableBox()
-        root.modifier = Modifier.fillMaxWidth().fillMaxHeight()
+        root.modifier = GlanceModifier.fillMaxWidth().fillMaxHeight()
         root.contentAlignment = Alignment.Center
 
         val applier = Applier(root)

@@ -21,7 +21,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.compose.runtime.Composable
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.layout.CheckBox
 import androidx.glance.layout.Box
 import androidx.glance.layout.padding
@@ -129,7 +129,7 @@ class CheckBoxTest {
     fun check_box_modifiers() {
         TestGlanceAppWidget.uiDefinition = {
             Box {
-                CheckBox(checked = true, modifier = Modifier.padding(5.dp, 6.dp, 7.dp, 8.dp))
+                CheckBox(checked = true, modifier = GlanceModifier.padding(5.dp, 6.dp, 7.dp, 8.dp))
             }
         }
 

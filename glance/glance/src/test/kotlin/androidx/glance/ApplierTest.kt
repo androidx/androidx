@@ -141,17 +141,17 @@ class ApplierTest {
 }
 
 private class RootEmittable(maxDepth: Int = Int.MAX_VALUE) : EmittableWithChildren(maxDepth) {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
 }
 
 private class MiddleEmittable : EmittableWithChildren() {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
 }
 
 private class LeafEmittable : Emittable {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
 }
 
 private class ResetsDepthEmittable : EmittableWithChildren(resetsDepthForChildren = true) {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
 }

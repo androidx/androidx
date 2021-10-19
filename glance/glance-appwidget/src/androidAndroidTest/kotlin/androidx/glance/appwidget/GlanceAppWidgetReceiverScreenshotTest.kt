@@ -17,7 +17,7 @@
 package androidx.glance.appwidget
 
 import androidx.compose.runtime.Composable
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.background
 import androidx.glance.appwidget.layout.CheckBox
 import androidx.glance.appwidget.layout.Switch
@@ -194,85 +194,87 @@ class GlanceAppWidgetReceiverScreenshotTest {
 
 @Composable
 private fun TextAlignmentTest() {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = GlanceModifier.fillMaxWidth()) {
         Text(
             "Center",
             style = TextStyle(textAlign = TextAlign.Center),
-            modifier = Modifier.fillMaxWidth()
+            modifier = GlanceModifier.fillMaxWidth()
         )
         Text(
             "Left",
             style = TextStyle(textAlign = TextAlign.Left),
-            modifier = Modifier.fillMaxWidth()
+            modifier = GlanceModifier.fillMaxWidth()
         )
         Text(
             "Right",
             style = TextStyle(textAlign = TextAlign.Right),
-            modifier = Modifier.fillMaxWidth()
+            modifier = GlanceModifier.fillMaxWidth()
         )
         Text(
             "Start",
             style = TextStyle(textAlign = TextAlign.Start),
-            modifier = Modifier.fillMaxWidth()
+            modifier = GlanceModifier.fillMaxWidth()
         )
         Text(
             "End",
             style = TextStyle(textAlign = TextAlign.End),
-            modifier = Modifier.fillMaxWidth()
+            modifier = GlanceModifier.fillMaxWidth()
         )
     }
 }
 
 @Composable
 private fun RowTest() {
-    Row(modifier = Modifier.fillMaxWidth()) {
+    Row(modifier = GlanceModifier.fillMaxWidth()) {
         Text(
             "Start",
             style = TextStyle(textAlign = TextAlign.Start),
-            modifier = Modifier.defaultWeight()
+            modifier = GlanceModifier.defaultWeight()
         )
         Text(
             "Center",
             style = TextStyle(textAlign = TextAlign.Center),
-            modifier = Modifier.defaultWeight()
+            modifier = GlanceModifier.defaultWeight()
         )
         Text(
             "End",
             style = TextStyle(textAlign = TextAlign.End),
-            modifier = Modifier.defaultWeight()
+            modifier = GlanceModifier.defaultWeight()
         )
     }
 }
 
 @Composable
 private fun BackgroundTest() {
-    Column(modifier = Modifier.background(R.color.background_color)) {
+    Column(modifier = GlanceModifier.background(R.color.background_color)) {
         Text(
             "100x50 and cyan",
-            modifier = Modifier.width(100.dp).height(50.dp).background(Color.Cyan)
+            modifier = GlanceModifier.width(100.dp).height(50.dp).background(Color.Cyan)
         )
         Text(
             "Transparent background",
-            modifier = Modifier.height(50.dp).background(Color.Transparent)
+            modifier = GlanceModifier.height(50.dp).background(Color.Transparent)
         )
         Text(
             "wrapx30 and red (light), yellow (dark)",
-            modifier = Modifier.height(30.dp).background(day = Color.Red, night = Color.Yellow)
+            modifier = GlanceModifier
+                .height(30.dp)
+                .background(day = Color.Red, night = Color.Yellow)
         )
         Text("Below this should be 4 color boxes")
-        Row(modifier = Modifier.padding(8.dp)) {
+        Row(modifier = GlanceModifier.padding(8.dp)) {
             Box(
                 modifier =
-                Modifier
+                GlanceModifier
                     .width(32.dp)
                     .height(32.dp)
                     .background(day = Color.Black, night = Color.White)
             ) {}
             val colors = listOf(Color.Red, Color.Green, Color.Blue)
             repeat(3) {
-                Box(modifier = Modifier.width(8.dp).height(1.dp)) {}
+                Box(modifier = GlanceModifier.width(8.dp).height(1.dp)) {}
                 Box(
-                    modifier = Modifier.width(32.dp).height(32.dp).background(colors[it])
+                    modifier = GlanceModifier.width(32.dp).height(32.dp).background(colors[it])
                 ) {}
             }
         }

@@ -21,12 +21,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class EmittableBox : EmittableWithChildren() {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
     public var contentAlignment: Alignment = Alignment.TopStart
 
     override fun toString(): String {
@@ -48,7 +48,7 @@ public class EmittableBox : EmittableWithChildren() {
  */
 @Composable
 public fun Box(
-    modifier: Modifier = Modifier,
+    modifier: GlanceModifier = GlanceModifier,
     contentAlignment: Alignment = Alignment.TopStart,
     content: @Composable() () -> Unit
 ) {

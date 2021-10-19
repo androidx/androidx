@@ -18,7 +18,7 @@ package androidx.glance.action
 
 import android.app.Activity
 import androidx.annotation.RestrictTo
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 
 /**
  * An Action defines the actions a user can take. Implementations specify what operation will be
@@ -30,12 +30,12 @@ public interface Action
 /**
  * Apply an [Action], to be executed in response to a user click.
  */
-public fun Modifier.clickable(onClick: Action): Modifier =
+public fun GlanceModifier.clickable(onClick: Action): GlanceModifier =
     this.then(ActionModifier(onClick))
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class ActionModifier(public val action: Action) : Modifier.Element {
+class ActionModifier(public val action: Action) : GlanceModifier.Element {
     override fun toString(): String {
         return "ActionModifier(action=$action)"
     }

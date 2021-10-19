@@ -18,7 +18,7 @@ package androidx.glance.appwidget.demos
 
 import androidx.compose.runtime.Composable
 import androidx.glance.LocalSize
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
@@ -46,7 +46,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
         val size = LocalSize.current
         val toggled = size.width >= 100.dp
         Column(
-            modifier = Modifier.fillMaxSize().background(Color.LightGray).padding(8.dp),
+            modifier = GlanceModifier.fillMaxSize().background(Color.LightGray).padding(8.dp),
             verticalAlignment = Alignment.Vertical.CenterVertically,
             horizontalAlignment = Alignment.Horizontal.CenterHorizontally
         ) {
@@ -55,7 +55,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic
             )
-            val fillModifier = Modifier.fillMaxWidth()
+            val fillModifier = GlanceModifier.fillMaxWidth()
 
             CheckBox(checked = toggled, text = "Checkbox 1")
             CheckBox(

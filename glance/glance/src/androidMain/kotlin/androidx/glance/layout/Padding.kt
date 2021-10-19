@@ -18,7 +18,7 @@ package androidx.glance.layout
 import android.content.res.Resources
 import androidx.annotation.DimenRes
 import androidx.annotation.RestrictTo
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.unit.Dp
 import androidx.glance.unit.dp
 
@@ -31,12 +31,12 @@ import androidx.glance.unit.dp
  * If any value is not defined, it will be [0.dp] or whatever value was defined by an earlier
  * modifier.
  */
-public fun Modifier.padding(
+public fun GlanceModifier.padding(
     start: Dp = 0.dp,
     top: Dp = 0.dp,
     end: Dp = 0.dp,
     bottom: Dp = 0.dp,
-): Modifier = this.then(
+): GlanceModifier = this.then(
     PaddingModifier(
         start = start.toPadding(),
         top = top.toPadding(),
@@ -54,12 +54,12 @@ public fun Modifier.padding(
  * If any value is not defined, it will be [0.dp] or whatever value was defined by an earlier
  * modifier.
  */
-public fun Modifier.padding(
+public fun GlanceModifier.padding(
     @DimenRes start: Int = 0,
     @DimenRes top: Int = 0,
     @DimenRes end: Int = 0,
     @DimenRes bottom: Int = 0
-): Modifier = this.then(
+): GlanceModifier = this.then(
     PaddingModifier(
         start = start.toPadding(),
         top = top.toPadding(),
@@ -75,10 +75,10 @@ public fun Modifier.padding(
  * If any value is not defined, it will be [0.dp] or whatever value was defined by an earlier
  * modifier.
  */
-public fun Modifier.padding(
+public fun GlanceModifier.padding(
     horizontal: Dp = 0.dp,
     vertical: Dp = 0.dp,
-): Modifier = this.then(
+): GlanceModifier = this.then(
     PaddingModifier(
         start = horizontal.toPadding(),
         top = vertical.toPadding(),
@@ -94,10 +94,10 @@ public fun Modifier.padding(
  * If any value is not defined, it will be [0.dp] or whatever value was defined by an earlier
  * modifier.
  */
-public fun Modifier.padding(
+public fun GlanceModifier.padding(
     @DimenRes horizontal: Int = 0,
     @DimenRes vertical: Int = 0
-): Modifier = this.then(
+): GlanceModifier = this.then(
     PaddingModifier(
         start = horizontal.toPadding(),
         top = vertical.toPadding(),
@@ -109,7 +109,7 @@ public fun Modifier.padding(
 /**
  * Apply [all] dp of additional space along each edge of the content, left, top, right and bottom.
  */
-public fun Modifier.padding(all: Dp): Modifier {
+public fun GlanceModifier.padding(all: Dp): GlanceModifier {
     val allDp = all.toPadding()
     return this.then(
         PaddingModifier(
@@ -124,7 +124,7 @@ public fun Modifier.padding(all: Dp): Modifier {
 /**
  * Apply [all] dp of additional space along each edge of the content, left, top, right and bottom.
  */
-public fun Modifier.padding(@DimenRes all: Int): Modifier {
+public fun GlanceModifier.padding(@DimenRes all: Int): GlanceModifier {
     val allDp = all.toPadding()
     return this.then(
         PaddingModifier(
@@ -140,12 +140,12 @@ public fun Modifier.padding(@DimenRes all: Int): Modifier {
  *  Apply additional space along each edge of the content in [Dp]: [left], [top], [right] and
  * [bottom], ignoring the current locale's layout direction.
  */
-public fun Modifier.absolutePadding(
+public fun GlanceModifier.absolutePadding(
     left: Dp = 0.dp,
     top: Dp = 0.dp,
     right: Dp = 0.dp,
     bottom: Dp = 0.dp,
-): Modifier = this.then(
+): GlanceModifier = this.then(
     PaddingModifier(
         left = left.toPadding(),
         top = top.toPadding(),
@@ -158,12 +158,12 @@ public fun Modifier.absolutePadding(
  *  Apply additional space along each edge of the content in [Dp]: [left], [top], [right] and
  * [bottom], ignoring the current locale's layout direction.
  */
-public fun Modifier.absolutePadding(
+public fun GlanceModifier.absolutePadding(
     @DimenRes left: Int = 0,
     @DimenRes top: Int = 0,
     @DimenRes right: Int = 0,
     @DimenRes bottom: Int = 0
-): Modifier = this.then(
+): GlanceModifier = this.then(
     PaddingModifier(
         left = left.toPadding(),
         top = top.toPadding(),
@@ -180,7 +180,7 @@ private fun Int.toPadding() =
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun Modifier.collectPadding(): PaddingModifier? =
+public fun GlanceModifier.collectPadding(): PaddingModifier? =
     foldIn<PaddingModifier?>(null) { acc, modifier ->
         if (modifier is PaddingModifier) {
             (acc ?: PaddingModifier()) + modifier
@@ -191,7 +191,7 @@ public fun Modifier.collectPadding(): PaddingModifier? =
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun Modifier.collectPaddingInDp(resources: Resources) =
+public fun GlanceModifier.collectPaddingInDp(resources: Resources) =
     collectPadding()?.let { padding ->
         PaddingInDp(
             left = padding.left.dp + padding.left.resources.toDp(resources),
@@ -217,7 +217,7 @@ public data class PaddingModifier(
     public val right: PaddingDimension = PaddingDimension(),
     public val end: PaddingDimension = PaddingDimension(),
     public val bottom: PaddingDimension = PaddingDimension(),
-) : Modifier.Element {
+) : GlanceModifier.Element {
 
     public operator fun plus(other: PaddingModifier) =
         PaddingModifier(
