@@ -1,0 +1,10 @@
+// Signature format: 4.0
+package androidx.window.rxjava3.layout {
+
+  public final class WindowInfoRepositoryRx {
+    method public static io.reactivex.rxjava3.core.Flowable<androidx.window.layout.WindowLayoutInfo> windowLayoutInfoFlowable(androidx.window.layout.WindowInfoRepository);
+    method public static io.reactivex.rxjava3.core.Observable<androidx.window.layout.WindowLayoutInfo> windowLayoutInfoObservable(androidx.window.layout.WindowInfoRepository);
+  }
+
+}
+
