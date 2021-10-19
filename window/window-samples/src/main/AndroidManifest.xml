@@ -35,11 +35,15 @@
             android:exported="false"
             android:label="@string/presentation" />
         <activity
-            android:name=".DisplayFeaturesActivity"
+            android:name=".DisplayFeaturesConfigChangeActivity"
             android:exported="false"
             android:configChanges=
                 "orientation|screenSize|screenLayout|screenSize|layoutDirection|smallestScreenSize"
-            android:label="@string/display_features" />
+            android:label="@string/display_features_config_change" />
+        <activity
+            android:name=".DisplayFeaturesNoConfigChangeActivity"
+            android:exported="false"
+            android:label="@string/display_features_no_config_change" />
         <activity
             android:name=".SplitLayoutActivity"
             android:exported="false"
