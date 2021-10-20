@@ -467,6 +467,17 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
             handled = ((OnPreferenceStartScreenCallback) getCallbackFragment())
                     .onPreferenceStartScreen(this, preferenceScreen);
         }
+        //  If the callback fragment doesn't handle OnPreferenceStartScreenCallback, looks up
+        //  its parent fragment in the hierarchy that implements the callback until the first
+        //  one that returns true
+        Fragment callbackFragment = this;
+        while (!handled && callbackFragment != null) {
+            if (callbackFragment instanceof OnPreferenceStartScreenCallback) {
+                handled = ((OnPreferenceStartScreenCallback) callbackFragment)
+                        .onPreferenceStartScreen(this, preferenceScreen);
+            }
+            callbackFragment = callbackFragment.getParentFragment();
+        }
         if (!handled && getContext() instanceof OnPreferenceStartScreenCallback) {
             handled = ((OnPreferenceStartScreenCallback) getContext())
                     .onPreferenceStartScreen(this, preferenceScreen);
@@ -607,6 +618,17 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
         if (getCallbackFragment() instanceof OnPreferenceDisplayDialogCallback) {
             handled = ((OnPreferenceDisplayDialogCallback) getCallbackFragment())
                     .onPreferenceDisplayDialog(this, preference);
+        }
+        //  If the callback fragment doesn't handle OnPreferenceDisplayDialogCallback, looks up
+        //  its parent fragment in the hierarchy that implements the callback until the first
+        //  one that returns true
+        Fragment callbackFragment = this;
+        while (!handled && callbackFragment != null) {
+            if (callbackFragment instanceof OnPreferenceDisplayDialogCallback) {
+                handled = ((OnPreferenceDisplayDialogCallback) callbackFragment)
+                        .onPreferenceDisplayDialog(this, preference);
+            }
+            callbackFragment = callbackFragment.getParentFragment();
         }
         if (!handled && getContext() instanceof OnPreferenceDisplayDialogCallback) {
             handled = ((OnPreferenceDisplayDialogCallback) getContext())
