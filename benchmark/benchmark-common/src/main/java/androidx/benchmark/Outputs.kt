@@ -16,6 +16,7 @@
 
 package androidx.benchmark
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RestrictTo
@@ -49,9 +50,10 @@ public object Outputs {
         formatter.timeZone = TimeZone.getTimeZone("UTC")
 
         @Suppress("DEPRECATION")
+        @SuppressLint("NewApi")
         dirUsableByAppAndShell = when {
-            Build.VERSION.SDK_INT == 30 -> {
-                // On Android R, we are using the media directory because that is the directory
+            Build.VERSION.SDK_INT in 30..31 -> {
+                // On Android R, S we are using the media directory because that is the directory
                 // that the shell has access to. Context: b/181601156
                 InstrumentationRegistry.getInstrumentation().context.getFirstMountedMediaDir()
             }
