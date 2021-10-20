@@ -19,7 +19,7 @@ package androidx.glance.action
 import android.content.Context
 import com.google.common.truth.Truth.assertThat
 import android.content.ComponentName
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -46,14 +46,14 @@ class ActionTest {
 
     @Test
     fun testLaunchActivity() {
-        val modifiers = Modifier.clickable(actionLaunchActivity(TestActivity::class.java))
+        val modifiers = GlanceModifier.clickable(actionLaunchActivity(TestActivity::class.java))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
         assertIs<LaunchActivityClassAction>(modifier.action)
     }
 
     @Test
     fun testUpdate() {
-        val modifiers = Modifier.clickable(actionUpdateContent<TestRunnable>())
+        val modifiers = GlanceModifier.clickable(actionUpdateContent<TestRunnable>())
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
         assertIs<UpdateContentAction>(modifier.action)
     }
@@ -62,7 +62,7 @@ class ActionTest {
     fun testLaunchFromComponent() = fakeCoroutineScope.runBlockingTest {
         val c = ComponentName("androidx.glance.action", "androidx.glance.action.TestActivity")
 
-        val modifiers = Modifier.clickable(actionLaunchActivity(c))
+        val modifiers = GlanceModifier.clickable(actionLaunchActivity(c))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
         val action = assertIs<LaunchActivityComponentAction>(modifier.action)
         val component = assertNotNull(action.componentName)
@@ -74,7 +74,7 @@ class ActionTest {
     fun testLaunchFromComponentWithContext() = fakeCoroutineScope.runBlockingTest {
         val c = ComponentName(context, "androidx.glance.action.TestActivity")
 
-        val modifiers = Modifier.clickable(actionLaunchActivity(c))
+        val modifiers = GlanceModifier.clickable(actionLaunchActivity(c))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
         val action = assertIs<LaunchActivityComponentAction>(modifier.action)
         val component = assertNotNull(action.componentName)

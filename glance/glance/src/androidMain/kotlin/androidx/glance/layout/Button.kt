@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.glance.Applier
 import androidx.glance.Emittable
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.action.Action
 import androidx.glance.action.clickable
 import androidx.glance.text.TextStyle
@@ -39,7 +39,7 @@ import androidx.glance.text.TextStyle
 fun Button(
     text: String,
     onClick: Action,
-    modifier: Modifier = Modifier,
+    modifier: GlanceModifier = GlanceModifier,
     enabled: Boolean = true,
     style: TextStyle? = null
 ) {
@@ -58,7 +58,7 @@ fun Button(
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class EmittableButton : Emittable {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
     var text: String = ""
     var style: TextStyle? = null
     var enabled: Boolean = true

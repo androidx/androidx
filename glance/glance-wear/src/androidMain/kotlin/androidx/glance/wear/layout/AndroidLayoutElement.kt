@@ -20,7 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.glance.Applier
 import androidx.glance.Emittable
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.wear.tiles.LayoutElementBuilders
 
 /**
@@ -39,7 +39,7 @@ fun AndroidLayoutElement(layoutElement: LayoutElementBuilders.LayoutElement) {
 }
 
 internal class EmittableAndroidLayoutElement : Emittable {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
     lateinit var layoutElement: LayoutElementBuilders.LayoutElement
 
     override fun toString() = "EmittableAndroidLayoutElement()"

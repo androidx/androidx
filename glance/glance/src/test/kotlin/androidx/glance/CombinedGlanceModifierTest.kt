@@ -18,7 +18,7 @@ package androidx.glance
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
-class CombinedModifierTest {
+class CombinedGlanceModifierTest {
     @Test
     fun foldIn() {
         assertThat(
@@ -53,18 +53,18 @@ class CombinedModifierTest {
 
     @Test
     fun equals() {
-        assertThat(testModifier).isEqualTo(Modifier.element(1).element(2).element(3))
-        assertThat(testModifier).isNotEqualTo(Modifier.element(1).element(2).element(4))
-        assertThat(testModifier).isNotEqualTo(Modifier.element(1).element(2))
-        assertThat(testModifier).isNotEqualTo(Modifier)
+        assertThat(testModifier).isEqualTo(GlanceModifier.element(1).element(2).element(3))
+        assertThat(testModifier).isNotEqualTo(GlanceModifier.element(1).element(2).element(4))
+        assertThat(testModifier).isNotEqualTo(GlanceModifier.element(1).element(2))
+        assertThat(testModifier).isNotEqualTo(GlanceModifier)
     }
 
     private companion object {
-        val testModifier = Modifier.element(1).element(2).element(3)
+        val testModifier = GlanceModifier.element(1).element(2).element(3)
     }
 }
 
-private data class Element(val value: Int) : Modifier.Element
+private data class Element(val value: Int) : GlanceModifier.Element
 
-private fun Modifier.element(value: Int) =
+private fun GlanceModifier.element(value: Int) =
     this.then(Element(value))

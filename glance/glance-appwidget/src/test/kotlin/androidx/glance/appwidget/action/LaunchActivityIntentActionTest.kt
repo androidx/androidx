@@ -19,7 +19,7 @@ package androidx.glance.appwidget.action
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.clickable
 import androidx.glance.findModifier
@@ -41,7 +41,7 @@ class AppWidgetLaunchActionTest {
     fun testLaunchIntent() {
         val intentActionString = "test_action"
         val intent = Intent(context, TestActivity::class.java).setAction(intentActionString)
-        val modifiers = Modifier.clickable(actionLaunchActivity(intent))
+        val modifiers = GlanceModifier.clickable(actionLaunchActivity(intent))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
         val action = assertIs<LaunchActivityIntentAction>(modifier.action)
         assertThat(action.intent).isEqualTo(intent)

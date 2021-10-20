@@ -20,7 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.glance.Applier
 import androidx.glance.Emittable
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.text.TextStyle
 
 /**
@@ -34,7 +34,7 @@ import androidx.glance.text.TextStyle
 @Composable
 fun Switch(
     checked: Boolean,
-    modifier: Modifier = Modifier,
+    modifier: GlanceModifier = GlanceModifier,
     text: String = "",
     textStyle: TextStyle? = null
 ) {
@@ -50,7 +50,7 @@ fun Switch(
 }
 
 internal class EmittableSwitch : Emittable {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
     var checked: Boolean = false
     var text: String = ""
     var textStyle: TextStyle? = null

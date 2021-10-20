@@ -16,7 +16,7 @@
 
 package androidx.glance.layout
 
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.glance.unit.dp
 import com.google.common.truth.Truth.assertThat
@@ -51,7 +51,7 @@ class RowTest {
     fun createComposableRowWithParams() = fakeCoroutineScope.runBlockingTest {
         val root = runTestingComposition {
             Row(
-                modifier = Modifier.padding(2.dp),
+                modifier = GlanceModifier.padding(2.dp),
                 verticalAlignment = Alignment.Bottom,
                 horizontalAlignment = Alignment.End
             ) {}
@@ -85,7 +85,7 @@ class RowTest {
     fun createComposableRowWithWeightChildren() = fakeCoroutineScope.runBlockingTest {
         val root = runTestingComposition {
             Row {
-                Box(modifier = Modifier.defaultWeight()) { }
+                Box(modifier = GlanceModifier.defaultWeight()) { }
             }
         }
 

@@ -17,7 +17,7 @@
 package androidx.glance.appwidget
 
 import android.widget.TextView
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.test.R
 import androidx.glance.layout.Column
 import androidx.glance.layout.Text
@@ -42,10 +42,10 @@ class ResourceResolutionTest {
     @Test
     fun resolveFromResources() {
         TestGlanceAppWidget.uiDefinition = {
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = GlanceModifier.fillMaxSize()) {
                 Text(
                     "dimension",
-                    modifier = Modifier.width(R.dimen.testDimension)
+                    modifier = GlanceModifier.width(R.dimen.testDimension)
                 )
             }
         }
@@ -66,10 +66,10 @@ class ResourceResolutionTest {
     @Test
     fun resolvePadding() {
         TestGlanceAppWidget.uiDefinition = {
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = GlanceModifier.fillMaxSize()) {
                 Text(
                     "dimension",
-                    modifier = Modifier.fillMaxSize()
+                    modifier = GlanceModifier.fillMaxSize()
                         .padding(horizontal = 15.dp)
                         .padding(vertical = R.dimen.testDimension)
                 )

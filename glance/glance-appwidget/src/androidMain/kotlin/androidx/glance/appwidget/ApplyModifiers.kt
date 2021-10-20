@@ -35,7 +35,7 @@ import androidx.core.widget.setTextViewWidth
 import androidx.core.widget.setViewBackgroundColor
 import androidx.core.widget.setViewBackgroundColorResource
 import androidx.glance.BackgroundModifier
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LaunchActivityAction
@@ -57,7 +57,7 @@ import kotlin.math.roundToInt
 internal fun applyModifiers(
     translationContext: TranslationContext,
     rv: RemoteViews,
-    modifiers: Modifier,
+    modifiers: GlanceModifier,
     layoutDef: LayoutInfo
 ) {
     val context = translationContext.context

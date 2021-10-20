@@ -17,7 +17,7 @@
 package androidx.glance.wear.layout
 
 import androidx.glance.BackgroundModifier
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.background
 import androidx.glance.findModifier
 import androidx.glance.unit.Color
@@ -31,7 +31,7 @@ import kotlin.test.assertIs
 class BackgroundTest {
     @Test
     fun canUseBackgroundModifier() {
-        val modifier = Modifier.background(color = Color(0xFF223344u))
+        val modifier = GlanceModifier.background(color = Color(0xFF223344u))
 
         val addedModifier = requireNotNull(modifier.findModifier<BackgroundModifier>())
 
@@ -42,7 +42,7 @@ class BackgroundTest {
 
     @Test
     fun canUseBackgroundModifier_resId() {
-        val modifier = Modifier.background(color = R.color.color1)
+        val modifier = GlanceModifier.background(color = R.color.color1)
 
         val addedModifier = requireNotNull(modifier.findModifier<BackgroundModifier>())
 

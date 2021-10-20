@@ -29,7 +29,7 @@ import android.text.style.UnderlineSpan
 import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.applyRemoteViews
 import androidx.glance.appwidget.runAndTranslate
 import androidx.glance.appwidget.runAndTranslateInRtl
@@ -184,7 +184,7 @@ class TextTranslatorTest {
     @Test
     fun canTranslateText_withAlignments() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
-            Column(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = GlanceModifier.fillMaxWidth()) {
                 Text("Center", style = TextStyle(textAlign = TextAlign.Center))
                 Text("Left", style = TextStyle(textAlign = TextAlign.Left))
                 Text("Right", style = TextStyle(textAlign = TextAlign.Right))
@@ -230,7 +230,7 @@ class TextTranslatorTest {
     @Test
     fun canTranslateText_withAlignmentsInRtl() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslateInRtl {
-            Column(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = GlanceModifier.fillMaxWidth()) {
                 Text("Center", style = TextStyle(textAlign = TextAlign.Center))
                 Text("Left", style = TextStyle(textAlign = TextAlign.Left))
                 Text("Right", style = TextStyle(textAlign = TextAlign.Right))

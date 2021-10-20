@@ -16,7 +16,7 @@
 
 package androidx.glance.layout
 
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.glance.unit.dp
 import com.google.common.truth.Truth.assertThat
@@ -26,7 +26,7 @@ import kotlin.test.assertIs
 class DimensionTest {
     @Test
     fun absoluteWidthModifier() {
-        val modifier = Modifier.width(5.dp)
+        val modifier = GlanceModifier.width(5.dp)
 
         val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
 
@@ -36,7 +36,7 @@ class DimensionTest {
 
     @Test
     fun wrapWidthModifier() {
-        val modifier = Modifier.wrapContentWidth()
+        val modifier = GlanceModifier.wrapContentWidth()
 
         val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
         assertThat(widthModifier.width).isSameInstanceAs(Dimension.Wrap)
@@ -44,7 +44,7 @@ class DimensionTest {
 
     @Test
     fun fillMaxWidthModifier() {
-        val modifier = Modifier.fillMaxWidth()
+        val modifier = GlanceModifier.fillMaxWidth()
 
         val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
         assertThat(widthModifier.width).isSameInstanceAs(Dimension.Fill)
@@ -52,7 +52,7 @@ class DimensionTest {
 
     @Test
     fun absoluteHeightModifier() {
-        val modifier = Modifier.height(5.dp)
+        val modifier = GlanceModifier.height(5.dp)
 
         val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
 
@@ -62,7 +62,7 @@ class DimensionTest {
 
     @Test
     fun wrapHeightModifier() {
-        val modifier = Modifier.wrapContentHeight()
+        val modifier = GlanceModifier.wrapContentHeight()
 
         val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
         assertThat(heightModifier.height).isInstanceOf(Dimension.Wrap::class.java)
@@ -70,7 +70,7 @@ class DimensionTest {
 
     @Test
     fun fillMaxHeightModifier() {
-        val modifier = Modifier.fillMaxHeight()
+        val modifier = GlanceModifier.fillMaxHeight()
 
         val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
         assertThat(heightModifier.height).isSameInstanceAs(Dimension.Fill)
@@ -78,7 +78,7 @@ class DimensionTest {
 
     @Test
     fun sizeModifier() {
-        val modifier = Modifier.size(1.dp, 2.dp)
+        val modifier = GlanceModifier.size(1.dp, 2.dp)
 
         val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
         val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
@@ -92,7 +92,7 @@ class DimensionTest {
 
     @Test
     fun sizeModifierWithResources() {
-        val modifier = Modifier.size(123, 234)
+        val modifier = GlanceModifier.size(123, 234)
 
         val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
         val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
@@ -106,7 +106,7 @@ class DimensionTest {
 
     @Test
     fun combinedSizeModifier() {
-        val modifier = Modifier.size(10.dp)
+        val modifier = GlanceModifier.size(10.dp)
 
         val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
         val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
@@ -120,7 +120,7 @@ class DimensionTest {
 
     @Test
     fun combinedSizeModifierWithResources() {
-        val modifier = Modifier.size(123)
+        val modifier = GlanceModifier.size(123)
 
         val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
         val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
@@ -134,7 +134,7 @@ class DimensionTest {
 
     @Test
     fun fillMaxSizeModifier() {
-        val modifier = Modifier.fillMaxSize()
+        val modifier = GlanceModifier.fillMaxSize()
 
         val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
         val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
@@ -145,7 +145,7 @@ class DimensionTest {
 
     @Test
     fun wrapContentSizeModifier() {
-        val modifier = Modifier.wrapContentSize()
+        val modifier = GlanceModifier.wrapContentSize()
 
         val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
         val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
@@ -156,7 +156,7 @@ class DimensionTest {
 
     @Test
     fun resourceWidthModifier() {
-        val modifier = Modifier.width(123)
+        val modifier = GlanceModifier.width(123)
 
         val widthModifier = checkNotNull(modifier.findModifier<WidthModifier>())
 
@@ -166,7 +166,7 @@ class DimensionTest {
 
     @Test
     fun resourceHeightModifier() {
-        val modifier = Modifier.height(123)
+        val modifier = GlanceModifier.height(123)
 
         val heightModifier = checkNotNull(modifier.findModifier<HeightModifier>())
 

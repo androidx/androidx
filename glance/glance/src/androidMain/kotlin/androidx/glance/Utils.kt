@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-inline fun <reified T> Modifier.findModifier(): T? = this.foldIn<T?>(null) { acc, cur ->
+inline fun <reified T> GlanceModifier.findModifier(): T? = this.foldIn<T?>(null) { acc, cur ->
     if (cur is T) {
         cur
     } else {
