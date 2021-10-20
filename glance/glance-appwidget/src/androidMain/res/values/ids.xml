@@ -18,9 +18,6 @@
     <id name="checkBoxIcon"/>
     <id name="checkBoxText"/>
     <id name="glanceView"/>
-    <id name="glanceListView1"/>
-    <id name="glanceListView2"/>
-    <id name="glanceListView3"/>
     <id name="relativeLayout"/>
     <id name="sizeView"/>
     <id name="sizeViewStub"/>

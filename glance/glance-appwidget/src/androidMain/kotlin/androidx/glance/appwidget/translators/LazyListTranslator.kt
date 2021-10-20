@@ -38,14 +38,7 @@ internal fun translateEmittableLazyColumn(
     translationContext: TranslationContext,
     element: EmittableLazyColumn,
 ): RemoteViews {
-    val listLayoutType =
-        requireNotNull(listLayouts.getOrNull(translationContext.listCount.getAndIncrement())) {
-            """
-            Glance widgets only support ${listLayouts.size} lazy lists per widget. If you need more
-            lists provide a non-composable [RemoteViews].
-            """.trimIndent()
-        }
-    val listLayout = selectLayout(translationContext, listLayoutType, element.modifier)
+    val listLayout = selectLayout(translationContext, LayoutSelector.Type.List, element.modifier)
     return translateEmittableLazyList(
         translationContext,
         element,
@@ -104,9 +97,3 @@ internal fun translateEmittableLazyListItem(
     }
     return translateChild(translationContext, child)
 }
-
-private val listLayouts: List<LayoutSelector.Type> = listOf(
-    LayoutSelector.Type.List1,
-    LayoutSelector.Type.List2,
-    LayoutSelector.Type.List3,
-)
