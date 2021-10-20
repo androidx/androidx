@@ -24,6 +24,7 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
+import androidx.test.filters.FlakyTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -193,6 +194,7 @@ public class CameraGraphSimulatorTest {
         assertThat(lossEvent.streamId).isEqualTo(stream.id)
     }
 
+    @FlakyTest(bugId = 188446185)
     @Test
     fun simulatorCanIssueMultipleFrames() = runBlocking {
         val listener = FakeRequestListener()
