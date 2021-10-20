@@ -47,6 +47,7 @@ class ListenableFutureTest {
             job.join()
         }
     }
+
     @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testFutureWithException() {
@@ -65,6 +66,7 @@ class ListenableFutureTest {
             job.join()
         }
     }
+
     @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testFutureCancellation() {
@@ -76,6 +78,20 @@ class ListenableFutureTest {
         runBlocking {
             job.join()
             assertThat(job.isCancelled, `is`(true))
+        }
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    @Test
+    fun testCoroutineScopeCancellation() {
+        val future: ResolvableFuture<Int> = ResolvableFuture.create()
+        val job = GlobalScope.launch {
+            future.await()
+        }
+        job.cancel()
+        runBlocking {
+            job.join()
+            assertThat(future.isCancelled, `is`(true))
         }
     }
 }
