@@ -513,11 +513,15 @@ class WithInterfaceParentFragment(
     private val childTestCallback: () -> Boolean
 ) :
     Fragment(),
-    PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
+    PreferenceFragmentCompat.OnPreferenceStartFragmentCallback,
+    PreferenceFragmentCompat.OnPreferenceStartScreenCallback,
+    PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback {
 
     class ChildFragment(private val callback: () -> Boolean) :
         Fragment(),
-        PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
+        PreferenceFragmentCompat.OnPreferenceStartFragmentCallback,
+        PreferenceFragmentCompat.OnPreferenceStartScreenCallback,
+        PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback {
 
         override fun onCreateView(
             inflater: LayoutInflater,
@@ -551,6 +555,16 @@ class WithInterfaceParentFragment(
             caller: PreferenceFragmentCompat?,
             pref: Preference?
         ) = callback()
+
+        override fun onPreferenceStartScreen(
+            caller: PreferenceFragmentCompat?,
+            pref: PreferenceScreen?
+        ) = callback()
+
+        override fun onPreferenceDisplayDialog(
+            caller: PreferenceFragmentCompat,
+            pref: Preference?
+        ) = callback()
     }
 
     override fun onCreateView(
@@ -575,6 +589,16 @@ class WithInterfaceParentFragment(
 
     override fun onPreferenceStartFragment(
         caller: PreferenceFragmentCompat?,
+        pref: Preference?
+    ) = parentTestCallback()
+
+    override fun onPreferenceStartScreen(
+        caller: PreferenceFragmentCompat?,
+        pref: PreferenceScreen?
+    ) = parentTestCallback()
+
+    override fun onPreferenceDisplayDialog(
+        caller: PreferenceFragmentCompat,
         pref: Preference?
     ) = parentTestCallback()
 }
