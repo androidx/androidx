@@ -31,3 +31,29 @@ MissingGetterMatchingBuilder: androidx.paging.PagedList.Config.Builder#setPageSi
     androidx.paging.PagedList.Config does not declare a `getPageSize()` method matching method androidx.paging.PagedList.Config.Builder.setPageSize(int)
 MissingGetterMatchingBuilder: androidx.paging.PagedList.Config.Builder#setPrefetchDistance(int):
     androidx.paging.PagedList.Config does not declare a `getPrefetchDistance()` method matching method androidx.paging.PagedList.Config.Builder.setPrefetchDistance(int)
+
+
+MissingJvmstatic: androidx.paging.PagedListConfigKt#Config(int, int, boolean, int, int):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+MissingJvmstatic: androidx.paging.PagedListKt#PagedList(androidx.paging.DataSource<Key,Value>, androidx.paging.PagedList.Config, java.util.concurrent.Executor, java.util.concurrent.Executor, androidx.paging.PagedList.BoundaryCallback<Value>, Key):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+
+
+MissingNullability: androidx.paging.DataSource#map(kotlin.jvm.functions.Function1<? super Value,? extends ToValue>):
+    Missing nullability on method `map` return
+MissingNullability: androidx.paging.DataSource#mapByPage(kotlin.jvm.functions.Function1<? super java.util.List<? extends Value>,? extends java.util.List<? extends ToValue>>):
+    Missing nullability on method `mapByPage` return
+MissingNullability: androidx.paging.DataSource.Factory#map(kotlin.jvm.functions.Function1<? super Value,? extends ToValue>):
+    Missing nullability on method `map` return
+MissingNullability: androidx.paging.DataSource.Factory#mapByPage(kotlin.jvm.functions.Function1<? super java.util.List<? extends Value>,? extends java.util.List<? extends ToValue>>):
+    Missing nullability on method `mapByPage` return
+MissingNullability: androidx.paging.PagedListConfigKt#Config(int, int, boolean, int, int):
+    Missing nullability on method `Config` return
+MissingNullability: androidx.paging.PagingDataTransforms#filter(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super java.lang.Boolean>,?>):
+    Missing nullability on method `filter` return
+MissingNullability: androidx.paging.PagingDataTransforms#flatMap(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super java.lang.Iterable<? extends R>>,?>):
+    Missing nullability on method `flatMap` return
+MissingNullability: androidx.paging.PagingDataTransforms#insertSeparators(androidx.paging.PagingData<T>, androidx.paging.TerminalSeparatorType, kotlin.jvm.functions.Function3<? super T,? super T,? super kotlin.coroutines.Continuation<? super R>,?>):
+    Missing nullability on method `insertSeparators` return
+MissingNullability: androidx.paging.PagingDataTransforms#map(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super R>,?>):
+    Missing nullability on method `map` return
