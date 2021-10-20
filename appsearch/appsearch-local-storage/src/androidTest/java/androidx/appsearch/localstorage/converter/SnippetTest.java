@@ -35,21 +35,21 @@ import java.util.Collections;
 import java.util.Map;
 
 public class SnippetTest {
-    private static final String SCHEMA_TYPE = "schema1";
     private static final String PACKAGE_NAME = "packageName";
     private static final String DATABASE_NAME = "databaseName";
     private static final String PREFIX = PrefixUtil.createPrefix(PACKAGE_NAME, DATABASE_NAME);
+    private static final String PREFIXED_SCHEMA_TYPE = PREFIX + "schema1";
+    private static final String PREFIXED_NAMESPACE = PREFIX + "";
     private static final SchemaTypeConfigProto SCHEMA_TYPE_CONFIG_PROTO =
             SchemaTypeConfigProto.newBuilder()
-                    .setSchemaType(PREFIX + SCHEMA_TYPE)
+                    .setSchemaType(PREFIXED_SCHEMA_TYPE)
                     .build();
     private static final Map<String, Map<String, SchemaTypeConfigProto>> SCHEMA_MAP =
             Collections.singletonMap(PREFIX,
-                    Collections.singletonMap(PREFIX + SCHEMA_TYPE,
-                            SCHEMA_TYPE_CONFIG_PROTO));
+                    Collections.singletonMap(PREFIXED_SCHEMA_TYPE, SCHEMA_TYPE_CONFIG_PROTO));
 
     @Test
-    public void testSingleStringSnippet() {
+    public void testSingleStringSnippet() throws Exception {
         final String propertyKeyString = "content";
         final String propertyValueString = "A commonly used fake word is foo.\n"
                 + "   Another nonsense word that’s used a lot\n"
@@ -61,7 +61,8 @@ public class SnippetTest {
         // Building the SearchResult received from query.
         DocumentProto documentProto = DocumentProto.newBuilder()
                 .setUri(id)
-                .setSchema(SCHEMA_TYPE)
+                .setNamespace(PREFIXED_NAMESPACE)
+                .setSchema(PREFIXED_SCHEMA_TYPE)
                 .addProperties(PropertyProto.newBuilder()
                         .setName(propertyKeyString)
                         .addStringValues(propertyValueString))
@@ -90,8 +91,6 @@ public class SnippetTest {
         // Making ResultReader and getting Snippet values.
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
-                Collections.singletonList(PACKAGE_NAME),
-                Collections.singletonList(DATABASE_NAME),
                 SCHEMA_MAP);
         assertThat(searchResultPage.getResults()).hasSize(1);
         SearchResult.MatchInfo match = searchResultPage.getResults().get(0).getMatchInfos().get(0);
@@ -110,7 +109,7 @@ public class SnippetTest {
     }
 
     @Test
-    public void testNoSnippets() {
+    public void testNoSnippets() throws Exception {
         final String propertyKeyString = "content";
         final String propertyValueString = "A commonly used fake word is foo.\n"
                 + "   Another nonsense word that’s used a lot\n"
@@ -120,7 +119,8 @@ public class SnippetTest {
         // Building the SearchResult received from query.
         DocumentProto documentProto = DocumentProto.newBuilder()
                 .setUri(id)
-                .setSchema(SCHEMA_TYPE)
+                .setNamespace(PREFIXED_NAMESPACE)
+                .setSchema(PREFIXED_SCHEMA_TYPE)
                 .addProperties(PropertyProto.newBuilder()
                         .setName(propertyKeyString)
                         .addStringValues(propertyValueString))
@@ -131,19 +131,18 @@ public class SnippetTest {
 
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
-                Collections.singletonList(PACKAGE_NAME),
-                Collections.singletonList(DATABASE_NAME),
                 SCHEMA_MAP);
         assertThat(searchResultPage.getResults()).hasSize(1);
         assertThat(searchResultPage.getResults().get(0).getMatchInfos()).isEmpty();
     }
 
     @Test
-    public void testMultipleStringSnippet() {
+    public void testMultipleStringSnippet() throws Exception {
         // Building the SearchResult received from query.
         DocumentProto documentProto = DocumentProto.newBuilder()
                 .setUri("uri1")
-                .setSchema(SCHEMA_TYPE)
+                .setNamespace(PREFIXED_NAMESPACE)
+                .setSchema(PREFIXED_SCHEMA_TYPE)
                 .addProperties(PropertyProto.newBuilder()
                         .setName("senderName")
                         .addStringValues("Test Name Jr."))
@@ -188,8 +187,6 @@ public class SnippetTest {
         // Making ResultReader and getting Snippet values.
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
-                Collections.singletonList(PACKAGE_NAME),
-                Collections.singletonList(DATABASE_NAME),
                 SCHEMA_MAP);
         assertThat(searchResultPage.getResults()).hasSize(1);
         SearchResult.MatchInfo match1 = searchResultPage.getResults().get(0).getMatchInfos().get(0);
@@ -220,14 +217,17 @@ public class SnippetTest {
     }
 
     @Test
-    public void testNestedDocumentSnippet() {
+    public void testNestedDocumentSnippet() throws Exception {
         // Building the SearchResult received from query.
         DocumentProto documentProto = DocumentProto.newBuilder()
                 .setUri("id1")
-                .setSchema(SCHEMA_TYPE)
+                .setNamespace(PREFIXED_NAMESPACE)
+                .setSchema(PREFIXED_SCHEMA_TYPE)
                 .addProperties(PropertyProto.newBuilder()
                         .setName("sender")
                         .addDocumentValues(DocumentProto.newBuilder()
+                                .setNamespace(PREFIXED_NAMESPACE)
+                                .setSchema(PREFIXED_SCHEMA_TYPE)
                                 .addProperties(PropertyProto.newBuilder()
                                         .setName("name")
                                         .addStringValues("Test Name Jr."))
@@ -273,8 +273,6 @@ public class SnippetTest {
         // Making ResultReader and getting Snippet values.
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
-                Collections.singletonList(PACKAGE_NAME),
-                Collections.singletonList(DATABASE_NAME),
                 SCHEMA_MAP);
         assertThat(searchResultPage.getResults()).hasSize(1);
         SearchResult.MatchInfo match1 = searchResultPage.getResults().get(0).getMatchInfos().get(0);
