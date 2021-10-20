@@ -2186,7 +2186,7 @@ public class Preference implements Comparable<Preference> {
          * @param preference This preference
          * @return A CharSequence that will be displayed as the summary for this preference
          */
-        CharSequence provideSummary(T preference);
+        CharSequence provideSummary(@NonNull T preference);
     }
 
     /**

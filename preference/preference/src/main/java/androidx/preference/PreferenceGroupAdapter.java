@@ -21,12 +21,14 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.view.ViewCompat;
@@ -53,7 +55,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
      * The {@link PreferenceGroup} that we build a list of preferences from. This should
      * typically be the root {@link PreferenceScreen} managed by a {@link PreferenceFragmentCompat}.
      */
-    private PreferenceGroup mPreferenceGroup;
+    private final PreferenceGroup mPreferenceGroup;
 
     /**
      * Contains a sorted list of all {@link Preference}s in this adapter regardless of visibility.
@@ -74,21 +76,20 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
      * List of unique {@link PreferenceResourceDescriptor}s, used to cache item view types for
      * {@link RecyclerView}.
      */
-    private List<PreferenceResourceDescriptor> mPreferenceResourceDescriptors;
+    private final List<PreferenceResourceDescriptor> mPreferenceResourceDescriptors;
 
-    private Handler mHandler;
+    private final Handler mHandler;
 
-    private Runnable mSyncRunnable = new Runnable() {
+    private final Runnable mSyncRunnable = new Runnable() {
         @Override
         public void run() {
             updatePreferences();
         }
     };
 
-    @SuppressWarnings("deprecation")
-    public PreferenceGroupAdapter(PreferenceGroup preferenceGroup) {
+    public PreferenceGroupAdapter(@NonNull PreferenceGroup preferenceGroup) {
         mPreferenceGroup = preferenceGroup;
-        mHandler = new Handler();
+        mHandler = new Handler(Looper.getMainLooper());
 
         // This adapter should be notified when preferences are added or removed from the group
         mPreferenceGroup.setOnPreferenceChangeInternalListener(this);
@@ -325,6 +326,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
      * @return The corresponding {@link Preference}, or {@code null} if the given position is out
      * of bounds
      */
+    @Nullable
     public Preference getItem(int position) {
         if (position < 0 || position >= getItemCount()) return null;
         return mVisiblePreferences.get(position);

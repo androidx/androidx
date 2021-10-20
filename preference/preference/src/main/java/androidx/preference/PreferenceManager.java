@@ -46,7 +46,7 @@ public class PreferenceManager {
     /**
      * The context to use. This should always be set.
      */
-    private Context mContext;
+    private final Context mContext;
     /**
      * The counter for unique IDs.
      */
@@ -101,7 +101,7 @@ public class PreferenceManager {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public PreferenceManager(Context context) {
+    public PreferenceManager(@NonNull Context context) {
         mContext = context;
 
         setSharedPreferencesName(getDefaultSharedPreferencesName(context));
@@ -511,21 +511,23 @@ public class PreferenceManager {
         return mContext;
     }
 
+    @Nullable
     public PreferenceComparisonCallback getPreferenceComparisonCallback() {
         return mPreferenceComparisonCallback;
     }
 
     public void setPreferenceComparisonCallback(
-            PreferenceComparisonCallback preferenceComparisonCallback) {
+            @Nullable PreferenceComparisonCallback preferenceComparisonCallback) {
         mPreferenceComparisonCallback = preferenceComparisonCallback;
     }
 
+    @Nullable
     public OnDisplayPreferenceDialogListener getOnDisplayPreferenceDialogListener() {
         return mOnDisplayPreferenceDialogListener;
     }
 
     public void setOnDisplayPreferenceDialogListener(
-            OnDisplayPreferenceDialogListener onDisplayPreferenceDialogListener) {
+            @Nullable OnDisplayPreferenceDialogListener onDisplayPreferenceDialogListener) {
         mOnDisplayPreferenceDialogListener = onDisplayPreferenceDialogListener;
     }
 
@@ -546,10 +548,12 @@ public class PreferenceManager {
      *
      * @param listener The callback to be invoked
      */
-    public void setOnPreferenceTreeClickListener(OnPreferenceTreeClickListener listener) {
+    public void setOnPreferenceTreeClickListener(
+            @Nullable OnPreferenceTreeClickListener listener) {
         mOnPreferenceTreeClickListener = listener;
     }
 
+    @Nullable
     public OnPreferenceTreeClickListener getOnPreferenceTreeClickListener() {
         return mOnPreferenceTreeClickListener;
     }
@@ -560,13 +564,14 @@ public class PreferenceManager {
      *
      * @param listener The callback to be invoked
      */
-    public void setOnNavigateToScreenListener(OnNavigateToScreenListener listener) {
+    public void setOnNavigateToScreenListener(@Nullable OnNavigateToScreenListener listener) {
         mOnNavigateToScreenListener = listener;
     }
 
     /**
      * Returns the {@link PreferenceManager.OnNavigateToScreenListener}, if one has been set.
      */
+    @Nullable
     public OnNavigateToScreenListener getOnNavigateToScreenListener() {
         return mOnNavigateToScreenListener;
     }
@@ -583,7 +588,7 @@ public class PreferenceManager {
          * @param preference The preference that was clicked
          * @return Whether the click was handled
          */
-        boolean onPreferenceTreeClick(Preference preference);
+        boolean onPreferenceTreeClick(@NonNull Preference preference);
     }
 
     /**
@@ -597,7 +602,7 @@ public class PreferenceManager {
          *
          * @param preference The Preference object requesting the dialog
          */
-        void onDisplayPreferenceDialog(Preference preference);
+        void onDisplayPreferenceDialog(@NonNull Preference preference);
     }
 
     /**
@@ -611,7 +616,7 @@ public class PreferenceManager {
          *
          * @param preferenceScreen The PreferenceScreen requesting navigation
          */
-        void onNavigateToScreen(PreferenceScreen preferenceScreen);
+        void onNavigateToScreen(@NonNull PreferenceScreen preferenceScreen);
     }
 
     /**
@@ -628,7 +633,8 @@ public class PreferenceManager {
          * @param p2 {@link Preference} object to compare
          * @return {@code true} if the objects represent the same item
          */
-        public abstract boolean arePreferenceItemsTheSame(Preference p1, Preference p2);
+        public abstract boolean arePreferenceItemsTheSame(@NonNull Preference p1,
+                @NonNull Preference p2);
 
         /**
          * Called to determine if two {@link Preference} objects will display the same data
@@ -637,7 +643,8 @@ public class PreferenceManager {
          * @param p2 {@link Preference} object to compare
          * @return {@code true} if the objects are visually identical
          */
-        public abstract boolean arePreferenceContentsTheSame(Preference p1, Preference p2);
+        public abstract boolean arePreferenceContentsTheSame(@NonNull Preference p1,
+                @NonNull Preference p2);
     }
 
     /**
@@ -656,7 +663,7 @@ public class PreferenceManager {
          * @see Preference#setKey(String)
          */
         @Override
-        public boolean arePreferenceItemsTheSame(Preference p1, Preference p2) {
+        public boolean arePreferenceItemsTheSame(@NonNull Preference p1, @NonNull Preference p2) {
             return p1.getId() == p2.getId();
         }
 
@@ -670,7 +677,8 @@ public class PreferenceManager {
          * not modified after being removed from its containing {@link PreferenceGroup}.
          */
         @Override
-        public boolean arePreferenceContentsTheSame(Preference p1, Preference p2) {
+        public boolean arePreferenceContentsTheSame(@NonNull Preference p1,
+                @NonNull Preference p2) {
             if (p1.getClass() != p2.getClass()) {
                 return false;
             }

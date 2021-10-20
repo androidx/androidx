@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -57,13 +58,12 @@ public abstract class PreferenceGroup extends Preference {
     private static final String TAG = "PreferenceGroup";
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final SimpleArrayMap<String, Long> mIdRecycleCache = new SimpleArrayMap<>();
-    @SuppressWarnings("deprecation")
-    private final Handler mHandler = new Handler();
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
     /**
      * The container for child {@link Preference}s. This is sorted based on the ordering, please
      * use {@link #addPreference(Preference)} instead of adding to this directly.
      */
-    private List<Preference> mPreferences;
+    private final List<Preference> mPreferences;
     private boolean mOrderingAsAdded = true;
     private int mCurrentPreferenceOrder = 0;
     private boolean mAttachedToHierarchy = false;
@@ -167,7 +167,7 @@ public abstract class PreferenceGroup extends Preference {
     /**
      * Called by the inflater to add an item to this group.
      */
-    public void addItemFromInflater(Preference preference) {
+    public void addItemFromInflater(@NonNull Preference preference) {
         addPreference(preference);
     }
 
@@ -186,6 +186,7 @@ public abstract class PreferenceGroup extends Preference {
      * @param index The index of the {@link Preference} to retrieve
      * @return The {@link Preference}
      */
+    @NonNull
     public Preference getPreference(int index) {
         return mPreferences.get(index);
     }
@@ -196,7 +197,7 @@ public abstract class PreferenceGroup extends Preference {
      * @param preference The preference to add
      * @return Whether the preference is now in this group
      */
-    public boolean addPreference(Preference preference) {
+    public boolean addPreference(@NonNull Preference preference) {
         if (mPreferences.contains(preference)) {
             return true;
         }
@@ -271,7 +272,7 @@ public abstract class PreferenceGroup extends Preference {
      * @return Whether the preference was found and removed
      * @see #removePreferenceRecursively(CharSequence)
      */
-    public boolean removePreference(Preference preference) {
+    public boolean removePreference(@NonNull Preference preference) {
         final boolean returnValue = removePreferenceInt(preference);
         notifyHierarchyChanged();
         return returnValue;
@@ -294,7 +295,7 @@ public abstract class PreferenceGroup extends Preference {
         return preference.getParent().removePreference(preference);
     }
 
-    private boolean removePreferenceInt(Preference preference) {
+    private boolean removePreferenceInt(@NonNull Preference preference) {
         synchronized (this) {
             preference.onPrepareForRemoval();
             if (preference.getParent() == this) {
@@ -509,6 +510,7 @@ public abstract class PreferenceGroup extends Preference {
         }
     }
 
+    @NonNull
     @Override
     protected Parcelable onSaveInstanceState() {
         final Parcelable superState = super.onSaveInstanceState();
@@ -516,7 +518,7 @@ public abstract class PreferenceGroup extends Preference {
     }
 
     @Override
-    protected void onRestoreInstanceState(Parcelable state) {
+    protected void onRestoreInstanceState(@Nullable Parcelable state) {
         if (state == null || !state.getClass().equals(SavedState.class)) {
             // Didn't save state for us in saveInstanceState
             super.onRestoreInstanceState(state);
