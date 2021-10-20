@@ -11,6 +11,8 @@ package androidx.glance.appwidget {
   public final class CompositionLocalsKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.os.Bundle> getLocalAppWidgetOptions();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.appwidget.GlanceId> getLocalGlanceId();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<android.os.Bundle> LocalAppWidgetOptions;
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.appwidget.GlanceId> LocalGlanceId;
   }
 
   public final class CoroutineBroadcastReceiverKt {

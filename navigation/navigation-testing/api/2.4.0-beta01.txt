@@ -14,6 +14,7 @@ package androidx.navigation.testing {
   public final class TestNavigatorState extends androidx.navigation.NavigatorState {
     ctor public TestNavigatorState(optional android.content.Context? context, optional kotlinx.coroutines.CoroutineDispatcher coroutineDispatcher);
     ctor public TestNavigatorState(optional android.content.Context? context);
+    ctor public TestNavigatorState();
     method public androidx.navigation.NavBackStackEntry createBackStackEntry(androidx.navigation.NavDestination destination, android.os.Bundle? arguments);
     method public androidx.navigation.NavBackStackEntry restoreBackStackEntry(androidx.navigation.NavBackStackEntry previouslySavedEntry);
   }
