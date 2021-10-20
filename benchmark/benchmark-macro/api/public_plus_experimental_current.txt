@@ -31,6 +31,9 @@ package androidx.benchmark.macro {
   public final class CompilationModeKt {
   }
 
+  @kotlin.RequiresOptIn(message="The Baseline profile generation API is experimental.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public @interface ExperimentalBaselineProfilesApi {
+  }
+
   public final class FrameTimingMetric extends androidx.benchmark.macro.Metric {
     ctor public FrameTimingMetric();
   }

@@ -17,6 +17,7 @@
 package androidx.benchmark.integration.macrobenchmark
 
 import android.graphics.Point
+import androidx.benchmark.macro.ExperimentalBaselineProfilesApi
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -31,6 +32,7 @@ import org.junit.Test
 
 @LargeTest
 @SdkSuppress(minSdkVersion = 29)
+@OptIn(ExperimentalBaselineProfilesApi::class)
 @Ignore
 class GithubBrowserBaselineProfile {
 
