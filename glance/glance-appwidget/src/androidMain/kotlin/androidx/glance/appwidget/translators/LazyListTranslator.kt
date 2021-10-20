@@ -19,16 +19,15 @@ package androidx.glance.appwidget.translators
 import android.widget.RemoteViews
 import androidx.core.widget.RemoteViewsCompat
 import androidx.glance.appwidget.GeneratedLayoutCount
-import androidx.glance.appwidget.LayoutInfo
 import androidx.glance.appwidget.LayoutSelector
+import androidx.glance.appwidget.RemoteViewsInfo
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
+import androidx.glance.appwidget.createRemoteViews
 import androidx.glance.appwidget.layout.EmittableLazyColumn
 import androidx.glance.appwidget.layout.EmittableLazyList
 import androidx.glance.appwidget.layout.EmittableLazyListItem
 import androidx.glance.appwidget.layout.ReservedItemIdRangeEnd
-import androidx.glance.appwidget.remoteViews
-import androidx.glance.appwidget.selectLayout
 import androidx.glance.appwidget.translateChild
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
@@ -38,43 +37,44 @@ internal fun translateEmittableLazyColumn(
     translationContext: TranslationContext,
     element: EmittableLazyColumn,
 ): RemoteViews {
-    val listLayout = selectLayout(translationContext, LayoutSelector.Type.List, element.modifier)
+    val layoutDef =
+        createRemoteViews(translationContext, LayoutSelector.Type.List, element.modifier)
     return translateEmittableLazyList(
         translationContext,
         element,
-        listLayout,
+        layoutDef,
     )
 }
 
 private fun translateEmittableLazyList(
     translationContext: TranslationContext,
     element: EmittableLazyList,
-    layoutDef: LayoutInfo,
-): RemoteViews =
-    remoteViews(translationContext, layoutDef.layoutId)
-        .also { rv ->
-            check(translationContext.areLazyCollectionsAllowed) {
-                "Glance does not support nested list views."
-            }
-            val items = RemoteViewsCompat.RemoteCollectionItems.Builder().apply {
-                val childContext = translationContext.copy(areLazyCollectionsAllowed = false)
-                element.children.fold(false) { previous, itemEmittable ->
-                    val itemId = (itemEmittable as EmittableLazyListItem).itemId
-                    addItem(itemId, translateChild(childContext, itemEmittable))
-                    // If the user specifies any explicit ids, we assume the list to be stable
-                    previous || (itemId > ReservedItemIdRangeEnd)
-                }.let { setHasStableIds(it) }
-                setViewTypeCount(GeneratedLayoutCount)
-            }.build()
-            RemoteViewsCompat.setRemoteAdapter(
-                translationContext.context,
-                rv,
-                translationContext.appWidgetId,
-                layoutDef.mainViewId,
-                items
-            )
-            applyModifiers(translationContext, rv, element.modifier, layoutDef)
-        }
+    layoutDef: RemoteViewsInfo,
+): RemoteViews {
+    val rv = layoutDef.remoteViews
+    check(translationContext.areLazyCollectionsAllowed) {
+        "Glance does not support nested list views."
+    }
+    val items = RemoteViewsCompat.RemoteCollectionItems.Builder().apply {
+        val childContext = translationContext.copy(areLazyCollectionsAllowed = false)
+        element.children.fold(false) { previous, itemEmittable ->
+            val itemId = (itemEmittable as EmittableLazyListItem).itemId
+            addItem(itemId, translateChild(childContext, itemEmittable))
+            // If the user specifies any explicit ids, we assume the list to be stable
+            previous || (itemId > ReservedItemIdRangeEnd)
+        }.let { setHasStableIds(it) }
+        setViewTypeCount(GeneratedLayoutCount)
+    }.build()
+    RemoteViewsCompat.setRemoteAdapter(
+        translationContext.context,
+        rv,
+        translationContext.appWidgetId,
+        layoutDef.mainViewId,
+        items
+    )
+    applyModifiers(translationContext, rv, element.modifier, layoutDef)
+    return rv
+}
 
 /**
  * Translates a list item either to its immediate only child, or a column layout wrapping all its

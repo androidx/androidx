@@ -22,9 +22,8 @@ import androidx.glance.appwidget.LayoutSelector
 import androidx.glance.appwidget.R
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
+import androidx.glance.appwidget.createRemoteViews
 import androidx.glance.appwidget.layout.EmittableSwitch
-import androidx.glance.appwidget.remoteViews
-import androidx.glance.appwidget.selectLayout
 import androidx.glance.appwidget.setViewEnabled
 
 internal fun translateEmittableSwitch(
@@ -38,8 +37,8 @@ internal fun translateEmittableSwitch(
         LayoutSelector.Type.SwtchBackport
     }
 
-    val layoutDef = selectLayout(translationContext, layoutType, element.modifier)
-    val rv = remoteViews(translationContext, layoutDef.layoutId)
+    val layoutDef = createRemoteViews(translationContext, layoutType, element.modifier)
+    val rv = layoutDef.remoteViews
     val textViewId: Int
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

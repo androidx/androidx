@@ -232,7 +232,7 @@ class GlanceAppWidgetReceiverTest {
             assertThat(hostView.childCount).isEqualTo(1)
             val child = assertNotNull(
                 hostView.findChild<RelativeLayout> {
-                    it.id == R.id.glanceView
+                    it.id != R.id.relativeLayout
                 }
             )
             assertViewSize(child, DpSize(150.dp, 180.dp))

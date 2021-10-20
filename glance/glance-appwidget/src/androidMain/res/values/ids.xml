@@ -15,13 +15,14 @@
   -->
 
 <resources>
-    <id name="checkBoxIcon"/>
-    <id name="checkBoxText"/>
-    <id name="glanceView"/>
-    <id name="relativeLayout"/>
-    <id name="sizeView"/>
-    <id name="sizeViewStub"/>
-    <id name="switchText"/>
-    <id name="switchTrack"/>
-    <id name="switchThumb"/>
+    <id name="checkBoxIcon" />
+    <id name="checkBoxText" />
+    <id name="glanceView" />
+    <id name="glanceViewStub" />
+    <id name="relativeLayout" />
+    <id name="sizeView" />
+    <id name="sizeViewStub" />
+    <id name="switchText" />
+    <id name="switchTrack" />
+    <id name="switchThumb" />
 </resources>
