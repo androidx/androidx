@@ -22,14 +22,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.glance.Applier
 import androidx.glance.Emittable
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.text.TextStyle
 
 /**
  * Adds a text view to the glance view.
  */
 @Composable
-public fun Text(text: String, modifier: Modifier = Modifier, style: TextStyle? = null) {
+public fun Text(text: String, modifier: GlanceModifier = GlanceModifier, style: TextStyle? = null) {
     ComposeNode<EmittableText, Applier>(
         factory = ::EmittableText,
         update = {
@@ -43,7 +43,7 @@ public fun Text(text: String, modifier: Modifier = Modifier, style: TextStyle? =
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class EmittableText : Emittable {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
     public var text: String = ""
     public var style: TextStyle? = null
 

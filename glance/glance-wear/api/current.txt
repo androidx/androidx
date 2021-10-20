@@ -34,12 +34,12 @@ package androidx.glance.wear.layout {
   }
 
   public final class CurvedRowKt {
-    method @androidx.compose.runtime.Composable public static void CurvedRow(optional androidx.glance.Modifier modifier, optional float anchorDegrees, optional int anchorType, optional int radialAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.wear.layout.CurvedRowScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void CurvedRow(optional androidx.glance.GlanceModifier modifier, optional float anchorDegrees, optional int anchorType, optional int radialAlignment, kotlin.jvm.functions.Function1<? super androidx.glance.wear.layout.CurvedRowScope,kotlin.Unit> content);
   }
 
   public final class CurvedRowScope {
     ctor public CurvedRowScope();
-    method @androidx.compose.runtime.Composable public void CurvedText(String text, optional androidx.glance.Modifier modifier, optional androidx.glance.wear.layout.CurvedTextStyle? textStyle);
+    method @androidx.compose.runtime.Composable public void CurvedText(String text, optional androidx.glance.GlanceModifier modifier, optional androidx.glance.wear.layout.CurvedTextStyle? textStyle);
   }
 
   @androidx.compose.runtime.Immutable public final class CurvedTextStyle {

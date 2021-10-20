@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.layout.Alignment
 
 /**
@@ -36,7 +36,7 @@ import androidx.glance.layout.Alignment
 // TODO(b/198618359): interaction handling
 @Composable
 public fun LazyColumn(
-    modifier: Modifier = Modifier,
+    modifier: GlanceModifier = GlanceModifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     content: LazyListScope.() -> Unit
 ) {
@@ -235,7 +235,7 @@ inline fun <T> LazyListScope.itemsIndexed(
 }
 
 internal abstract class EmittableLazyList : EmittableWithChildren(resetsDepthForChildren = true) {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
     public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
 
     override fun toString() =
@@ -244,7 +244,7 @@ internal abstract class EmittableLazyList : EmittableWithChildren(resetsDepthFor
 }
 
 internal class EmittableLazyListItem : EmittableWithChildren() {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
     var itemId: Long = 0
     var alignment: Alignment = Alignment.CenterStart
 

@@ -21,12 +21,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class EmittableRow : EmittableWithChildren() {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
     public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
     public var verticalAlignment: Alignment.Vertical = Alignment.Top
 }
@@ -39,11 +39,11 @@ public interface RowScope {
      * unweighted child elements and distribute it according to the weights, the default weight
      * being 1.
      */
-    fun Modifier.defaultWeight(): Modifier
+    fun GlanceModifier.defaultWeight(): GlanceModifier
 }
 
 private object RowScopeImplInstance : RowScope {
-    override fun Modifier.defaultWeight(): Modifier {
+    override fun GlanceModifier.defaultWeight(): GlanceModifier {
         return this.then(WidthModifier(Dimension.Expand))
     }
 }
@@ -65,7 +65,7 @@ private object RowScopeImplInstance : RowScope {
  */
 @Composable
 public fun Row(
-    modifier: Modifier = Modifier,
+    modifier: GlanceModifier = GlanceModifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     content: @Composable RowScope.() -> Unit

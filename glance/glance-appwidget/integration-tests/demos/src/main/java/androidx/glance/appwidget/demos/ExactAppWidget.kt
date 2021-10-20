@@ -19,7 +19,7 @@ package androidx.glance.appwidget.demos
 import androidx.compose.runtime.Composable
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
@@ -42,7 +42,7 @@ class ExactAppWidget : GlanceAppWidget() {
     override fun Content() {
         val context = LocalContext.current
         Column(
-            modifier = Modifier
+            modifier = GlanceModifier
                 .fillMaxSize()
                 .background(day = Color.LightGray, night = Color.DarkGray)
                 .padding(8.dp)

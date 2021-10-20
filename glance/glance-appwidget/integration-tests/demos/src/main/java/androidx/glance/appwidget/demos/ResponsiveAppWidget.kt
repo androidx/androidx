@@ -22,7 +22,7 @@ import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.action.ActionRunnable
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionUpdateContent
@@ -56,7 +56,7 @@ class ResponsiveAppWidget : GlanceAppWidget() {
         val context = LocalContext.current
         val parameters = actionParametersOf(MessageKey to "Button clicked")
         Column(
-            modifier = Modifier
+            modifier = GlanceModifier
                 .padding(8.dp)
                 .background(R.color.responsive_widget_background)
         ) {

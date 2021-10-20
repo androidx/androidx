@@ -22,7 +22,7 @@ import androidx.compose.runtime.Immutable
 import androidx.glance.Applier
 import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextStyle
@@ -101,7 +101,7 @@ public inline class RadialAlignment private constructor(private val value: Int) 
 }
 
 internal class EmittableCurvedRow : EmittableWithChildren() {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
 
     var anchorDegrees: Float = 270f
     var anchorType: AnchorType = AnchorType.Center
@@ -109,7 +109,7 @@ internal class EmittableCurvedRow : EmittableWithChildren() {
 }
 
 internal class EmittableCurvedText : Emittable {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
     var text: String = ""
     var textStyle: CurvedTextStyle? = null
 }
@@ -138,7 +138,7 @@ internal class EmittableCurvedText : Emittable {
  */
 @Composable
 public fun CurvedRow(
-    modifier: Modifier = Modifier,
+    modifier: GlanceModifier = GlanceModifier,
     anchorDegrees: Float = 270f,
     anchorType: AnchorType = AnchorType.Center,
     radialAlignment: RadialAlignment = RadialAlignment.Center,
@@ -201,7 +201,7 @@ class CurvedRowScope {
     @Composable
     public fun CurvedText(
         text: String,
-        modifier: Modifier = Modifier,
+        modifier: GlanceModifier = GlanceModifier,
         textStyle: CurvedTextStyle? = null
     ) {
         ComposeNode<EmittableCurvedText, Applier>(

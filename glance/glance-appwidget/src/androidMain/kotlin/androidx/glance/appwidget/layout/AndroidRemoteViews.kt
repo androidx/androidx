@@ -23,7 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 
 /**
  * Add [RemoteViews] into a glance composition.
@@ -61,7 +61,7 @@ fun AndroidRemoteViews(
 }
 
 internal class EmittableAndroidRemoteViews : EmittableWithChildren() {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
 
     lateinit var remoteViews: RemoteViews
 

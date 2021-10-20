@@ -21,7 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.glance.BackgroundModifier
 import androidx.glance.Emittable
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LaunchActivityAction
 import androidx.glance.action.LaunchActivityClassAction
@@ -190,12 +190,12 @@ private fun Dimension.resolve(context: Context): Dimension {
     }
 }
 
-private fun Modifier.getWidth(
+private fun GlanceModifier.getWidth(
     context: Context,
     default: Dimension = Dimension.Wrap
 ): Dimension = findModifier<WidthModifier>()?.width?.resolve(context) ?: default
 
-private fun Modifier.getHeight(
+private fun GlanceModifier.getHeight(
     context: Context,
     default: Dimension = Dimension.Wrap
 ): Dimension = findModifier<HeightModifier>()?.height?.resolve(context) ?: default
@@ -398,7 +398,7 @@ private fun translateEmittableElementInArc(
 
 private fun translateModifiers(
     context: Context,
-    modifier: Modifier
+    modifier: GlanceModifier
 ): ModifiersBuilders.Modifiers =
     modifier.foldIn(ModifiersBuilders.Modifiers.Builder()) { builder, element ->
         when (element) {

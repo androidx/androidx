@@ -20,7 +20,7 @@ import android.content.Context
 import android.os.Build
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.glance.layout.Dimension
 import androidx.glance.layout.HeightModifier
@@ -92,7 +92,7 @@ internal data class LayoutSelector(
 internal fun selectLayout(
     translationContext: TranslationContext,
     type: LayoutSelector.Type,
-    modifier: Modifier
+    modifier: GlanceModifier
 ): LayoutInfo {
     val context = translationContext.context
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -142,7 +142,7 @@ internal fun Dimension.resolveDimension(context: Context): Dimension {
  */
 private fun selectApi31Layout(
     type: LayoutSelector.Type,
-    modifier: Modifier
+    modifier: GlanceModifier
 ): LayoutInfo {
     val widthMod = modifier.findModifier<WidthModifier>()?.width ?: Dimension.Wrap
     val heightMod = modifier.findModifier<HeightModifier>()?.height ?: Dimension.Wrap

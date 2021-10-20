@@ -16,7 +16,7 @@
 
 package androidx.glance.layout
 
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.glance.unit.dp
 import com.google.common.truth.Truth.assertThat
@@ -53,7 +53,7 @@ class BoxTest {
     @Test
     fun createComposableBoxWithModifier() = fakeCoroutineScope.runBlockingTest {
         val root = runTestingComposition {
-            Box(modifier = Modifier.padding(1.dp)) {}
+            Box(modifier = GlanceModifier.padding(1.dp)) {}
         }
 
         val innerBox = assertIs<EmittableBox>(root.children[0])

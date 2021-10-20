@@ -35,7 +35,7 @@ import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.core.view.children
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.action.actionLaunchActivity
 import androidx.glance.appwidget.ViewSubject.Companion.assertThat
 import androidx.glance.appwidget.layout.AndroidRemoteViews
@@ -182,7 +182,7 @@ class RemoteViewsTranslatorKtTest {
     fun canTranslatePaddingModifier() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
             Box(
-                modifier = Modifier.padding(
+                modifier = GlanceModifier.padding(
                     start = 4.dp,
                     end = 5.dp,
                     top = 6.dp,
@@ -203,7 +203,7 @@ class RemoteViewsTranslatorKtTest {
     fun canTranslatePaddingRTL() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslateInRtl {
             Box(
-                modifier = Modifier.padding(
+                modifier = GlanceModifier.padding(
                     start = 4.dp,
                     end = 5.dp,
                     top = 6.dp,
@@ -224,7 +224,7 @@ class RemoteViewsTranslatorKtTest {
     fun canTranslateAbsolutePaddingRTL() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslateInRtl {
             Box(
-                modifier = Modifier.absolutePadding(
+                modifier = GlanceModifier.absolutePadding(
                     left = 4.dp,
                     right = 5.dp,
                     top = 6.dp,
@@ -361,7 +361,7 @@ class RemoteViewsTranslatorKtTest {
     fun canTranslateRowPaddingModifier() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
             Row(
-                modifier = Modifier.padding(
+                modifier = GlanceModifier.padding(
                     start = 17.dp,
                     end = 16.dp,
                     top = 15.dp,
@@ -382,7 +382,7 @@ class RemoteViewsTranslatorKtTest {
     fun canTranslateColumnPaddingModifier() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
             Column(
-                modifier = Modifier.padding(
+                modifier = GlanceModifier.padding(
                     start = 13.dp,
                     end = 12.dp,
                     top = 11.dp,
@@ -403,7 +403,7 @@ class RemoteViewsTranslatorKtTest {
     fun canTranslateRowPaddingRTL() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslateInRtl {
             Row(
-                modifier = Modifier.padding(
+                modifier = GlanceModifier.padding(
                     start = 4.dp,
                     end = 5.dp,
                     top = 6.dp,
@@ -424,7 +424,7 @@ class RemoteViewsTranslatorKtTest {
     fun canTranslateColumnPaddingRTL() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslateInRtl {
             Column(
-                modifier = Modifier.padding(
+                modifier = GlanceModifier.padding(
                     start = 8.dp,
                     end = 9.dp,
                     top = 10.dp,
@@ -445,7 +445,7 @@ class RemoteViewsTranslatorKtTest {
     fun canTranslateRowAbsolutePaddingRTL() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslateInRtl {
             Row(
-                modifier = Modifier.absolutePadding(
+                modifier = GlanceModifier.absolutePadding(
                     left = 12.dp,
                     right = 13.dp,
                     top = 14.dp,
@@ -466,7 +466,7 @@ class RemoteViewsTranslatorKtTest {
     fun canTranslateColumnAbsolutePaddingRTL() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslateInRtl {
             Column(
-                modifier = Modifier.absolutePadding(
+                modifier = GlanceModifier.absolutePadding(
                     left = 16.dp,
                     right = 17.dp,
                     top = 18.dp,
@@ -717,7 +717,7 @@ class RemoteViewsTranslatorKtTest {
     @Test
     fun canTranslateBackground_red() = fakeCoroutineScope.runBlockingTest {
         val rv = runAndTranslate {
-            Box(modifier = Modifier.background(Color.Red)) {}
+            Box(modifier = GlanceModifier.background(Color.Red)) {}
         }
 
         val view = context.applyRemoteViews(rv)
@@ -728,7 +728,9 @@ class RemoteViewsTranslatorKtTest {
     @Test
     fun canTranslateBackground_partialColor() = fakeCoroutineScope.runBlockingTest {
         val rv = runAndTranslate {
-            Box(modifier = Modifier.background(Color(red = 0.4f, green = 0.5f, blue = 0.6f))) {}
+            Box(
+                modifier = GlanceModifier.background(Color(red = 0.4f, green = 0.5f, blue = 0.6f))
+            ) {}
         }
 
         val view = context.applyRemoteViews(rv)
@@ -739,7 +741,7 @@ class RemoteViewsTranslatorKtTest {
     @Test
     fun canTranslateBackground_transparent() = fakeCoroutineScope.runBlockingTest {
         val rv = runAndTranslate {
-            Box(modifier = Modifier.background(Color.Transparent)) {}
+            Box(modifier = GlanceModifier.background(Color.Transparent)) {}
         }
 
         val view = context.applyRemoteViews(rv)
@@ -751,7 +753,7 @@ class RemoteViewsTranslatorKtTest {
     @Test
     fun canTranslateBackground_resId() = fakeCoroutineScope.runBlockingTest {
         val rv = runAndTranslate {
-            Box(modifier = Modifier.background(R.color.my_color)) {}
+            Box(modifier = GlanceModifier.background(R.color.my_color)) {}
         }
 
         assertThat(lightContext.applyRemoteViews(rv)).hasBackgroundColor("#EEEEEE")
@@ -762,7 +764,7 @@ class RemoteViewsTranslatorKtTest {
     @Test
     fun canTranslateBackground_dayNight_light() = fakeCoroutineScope.runBlockingTest {
         val rv = runAndTranslate(context = lightContext) {
-            Box(modifier = Modifier.background(day = Color.Red, night = Color.Blue)) {}
+            Box(modifier = GlanceModifier.background(day = Color.Red, night = Color.Blue)) {}
         }
 
         val view = lightContext.applyRemoteViews(rv)
@@ -774,7 +776,7 @@ class RemoteViewsTranslatorKtTest {
     @Test
     fun canTranslateBackground_dayNight_dark() = fakeCoroutineScope.runBlockingTest {
         val rv = runAndTranslate(context = darkContext) {
-            Box(modifier = Modifier.background(day = Color.Red, night = Color.Blue)) {}
+            Box(modifier = GlanceModifier.background(day = Color.Red, night = Color.Blue)) {}
         }
 
         val view = darkContext.applyRemoteViews(rv)

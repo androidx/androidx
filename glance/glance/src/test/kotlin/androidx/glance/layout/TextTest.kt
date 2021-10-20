@@ -16,7 +16,7 @@
 
 package androidx.glance.layout
 
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
@@ -81,7 +81,7 @@ class TextTest {
     @Test
     fun createComposableTextWithModifiers() = fakeCoroutineScope.runBlockingTest {
         val root = runTestingComposition {
-            Text("text", modifier = Modifier.fillMaxWidth())
+            Text("text", modifier = GlanceModifier.fillMaxWidth())
         }
 
         assertThat(root.children).hasSize(1)

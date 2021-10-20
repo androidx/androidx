@@ -22,7 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.ViewSubject.Companion.assertThat
 import androidx.glance.appwidget.test.R
 import androidx.glance.layout.Column
@@ -64,7 +64,7 @@ class ApplyDimensionModifierTest {
         val rv = context.runAndTranslate {
             Text(
                 "content",
-                modifier = Modifier.width(R.dimen.standard_dimension)
+                modifier = GlanceModifier.width(R.dimen.standard_dimension)
             )
         }
         val view = context.applyRemoteViews(rv)
@@ -86,7 +86,7 @@ class ApplyDimensionModifierTest {
     @Test
     fun fillWidth() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
-            Text("content", modifier = Modifier.fillMaxWidth())
+            Text("content", modifier = GlanceModifier.fillMaxWidth())
         }
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
@@ -96,7 +96,7 @@ class ApplyDimensionModifierTest {
     @Test
     fun wrapWidth() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
-            Text("content", modifier = Modifier.wrapContentWidth())
+            Text("content", modifier = GlanceModifier.wrapContentWidth())
         }
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
@@ -107,7 +107,7 @@ class ApplyDimensionModifierTest {
     fun expandWidth() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
             Row {
-                Text("content", modifier = Modifier.defaultWeight())
+                Text("content", modifier = GlanceModifier.defaultWeight())
             }
         }
         val view = context.applyRemoteViews(rv)
@@ -121,7 +121,7 @@ class ApplyDimensionModifierTest {
     @Test
     fun fillResourceWidth() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
-            Text("content", modifier = Modifier.width(R.dimen.fill_dimension))
+            Text("content", modifier = GlanceModifier.width(R.dimen.fill_dimension))
         }
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
@@ -131,7 +131,7 @@ class ApplyDimensionModifierTest {
     @Test
     fun wrapResourceWidth() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
-            Text("content", modifier = Modifier.width(R.dimen.wrap_dimension))
+            Text("content", modifier = GlanceModifier.width(R.dimen.wrap_dimension))
         }
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
@@ -143,7 +143,7 @@ class ApplyDimensionModifierTest {
         val rv = context.runAndTranslate {
             Text(
                 "content",
-                modifier = Modifier.height(R.dimen.standard_dimension)
+                modifier = GlanceModifier.height(R.dimen.standard_dimension)
             )
         }
         val view = context.applyRemoteViews(rv)
@@ -165,7 +165,7 @@ class ApplyDimensionModifierTest {
     @Test
     fun fillHeight() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
-            Text("content", modifier = Modifier.fillMaxHeight())
+            Text("content", modifier = GlanceModifier.fillMaxHeight())
         }
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
@@ -175,7 +175,7 @@ class ApplyDimensionModifierTest {
     @Test
     fun wrapHeight() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
-            Text("content", modifier = Modifier.wrapContentHeight())
+            Text("content", modifier = GlanceModifier.wrapContentHeight())
         }
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
@@ -186,7 +186,7 @@ class ApplyDimensionModifierTest {
     fun expandHeight() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
             Column {
-                Text("content", modifier = Modifier.defaultWeight())
+                Text("content", modifier = GlanceModifier.defaultWeight())
             }
         }
         val view = context.applyRemoteViews(rv)
@@ -200,7 +200,7 @@ class ApplyDimensionModifierTest {
     @Test
     fun fillResourceHeight() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
-            Text("content", modifier = Modifier.height(R.dimen.fill_dimension))
+            Text("content", modifier = GlanceModifier.height(R.dimen.fill_dimension))
         }
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
@@ -210,7 +210,7 @@ class ApplyDimensionModifierTest {
     @Test
     fun wrapResourceHeight() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
-            Text("content", modifier = Modifier.height(R.dimen.wrap_dimension))
+            Text("content", modifier = GlanceModifier.height(R.dimen.wrap_dimension))
         }
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
@@ -220,7 +220,7 @@ class ApplyDimensionModifierTest {
     @Test
     fun wrapWidth_fillHeight() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
-            Text("content", modifier = Modifier.wrapContentWidth().fillMaxHeight())
+            Text("content", modifier = GlanceModifier.wrapContentWidth().fillMaxHeight())
         }
 
         val view = context.applyRemoteViews(rv)
@@ -232,7 +232,7 @@ class ApplyDimensionModifierTest {
     @Test
     fun fillWidth_wrapHeight() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
-            Text("content", modifier = Modifier.fillMaxWidth().wrapContentHeight())
+            Text("content", modifier = GlanceModifier.fillMaxWidth().wrapContentHeight())
         }
 
         val view = context.applyRemoteViews(rv)
@@ -244,7 +244,7 @@ class ApplyDimensionModifierTest {
     @Test
     fun fillWidth_fixedHeight() = fakeCoroutineScope.runBlockingTest {
         val rv = context.runAndTranslate {
-            Text("content", modifier = Modifier.fillMaxWidth().height(50.dp))
+            Text("content", modifier = GlanceModifier.fillMaxWidth().height(50.dp))
         }
 
         val view = context.applyRemoteViews(rv)
