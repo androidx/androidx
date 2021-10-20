@@ -35,6 +35,7 @@ dependencies {
     api("androidx.compose.runtime:runtime:1.1.0-beta01")
     api("androidx.compose.ui:ui-graphics:1.1.0-beta01")
     api("androidx.compose.ui:ui-unit:1.1.0-beta01")
+    api("androidx.datastore:datastore-core:1.0.0")
 
     implementation("androidx.annotation:annotation:1.1.0")
     implementation(libs.kotlinStdlib)
@@ -50,6 +51,9 @@ dependencies {
     testImplementation(libs.kotlinReflect)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.mockitoKotlin)
+    testImplementation("androidx.datastore:datastore-core:1.0.0")
+    testImplementation("androidx.datastore:datastore-preferences-core:1.0.0")
+    testImplementation("androidx.datastore:datastore-preferences:1.0.0-rc02")
 }
 
 android {

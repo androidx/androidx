@@ -84,6 +84,13 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
         }
     }
 
+    override fun onDeleted(context: Context?, appWidgetIds: IntArray?) {
+        // TODO: When a widget is deleted, delete the datastore
+        appWidgetIds?.forEach {
+            createUniqueRemoteUiName(it)
+        }
+    }
+
     override fun onReceive(context: Context, intent: Intent) {
         try {
             if (intent.action == Intent.ACTION_LOCALE_CHANGED) {

@@ -17,6 +17,7 @@
 package androidx.glance
 
 import android.content.Context
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.DpSize
 
@@ -32,3 +33,17 @@ public val LocalSize = staticCompositionLocalOf<DpSize> { error("No default size
  * Context of application when generating the glance view.
  */
 public val LocalContext = staticCompositionLocalOf<Context> { error("No default context") }
+
+/**
+ * Local view state, defined in surface implementation. A customizable store for view specific state
+ * data.
+ */
+public val LocalState =
+    staticCompositionLocalOf<Any?> { null }
+
+/**
+ * Local view state, defined in surface implementation. A customizable store for view specific state
+ * data.
+ */
+@Composable
+public inline fun <reified T> currentState(): T = LocalState.current as T
