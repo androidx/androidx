@@ -791,12 +791,17 @@ buffers in your library.
 Developers **may** use `Bundle` in simple cases that require sending `Binder`s
 or `FileDescriptor`s across IPC. Note that `Bundle` has several caveats:
 
--   Accessing *any* entry in a `Bundle` will result in the platform attempting
-    to load *every* entry. If a single entry cannot be loaded -- for example if
-    a developer added a custom `Parcelable` that doesn't exist in the receiver's
-    classpath -- an exception will be thrown when accessing *any* entry. Library
-    code that accesses `Bundle`s received from outside the process **must** do
-    so defensively. Library code that sends `Bundle`s outside the process
+-   When running on Android S and below, accessing *any* entry in a `Bundle`
+    will result in the platform attempting to deserialize *every* entry. This
+    has been fixed in Android T and later with "lazy" bundles, but developers
+    should be careful when accessing `Bundle` on earlier platforms. If a single
+    entry cannot be loaded -- for example if a developer added a custom
+    `Parcelable` that doesn't exist in the receiver's classpath -- an exception
+    will be thrown when accessing *any* entry.
+-   On all platforms, library code that receives `Bundle`s data from outside the
+    process **must** read the data defensively. See previous note regarding
+    additional concerns for Android S and below.
+-   On all platforms, library code that sends `Bundle`s outside the process
     *should* discourage clients from passing custom `Parcelable`s.
 -   `Bundle` provides no versioning and Jetpack provides no affordances for
     tracking the keys or value types associated with a `Bundle`. Library owners
@@ -1340,19 +1345,26 @@ Gradle's
 [Incremental annotation processing](https://docs.gradle.org/current/userguide/java_plugin.html#sec:incremental_annotation_processing)
 documentation for information on how to opt-in.
 
-### Experimental `@RequiresOptIn` APIs {#experimental-api}
+### `@RequiresOptIn` APIs {#experimental-api}
 
 Jetpack libraries may choose to annotate API surfaces as unstable using either
 Kotlin's
-[`@RequiresOptIn` annotation](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-requires-opt-in/)
+[`@RequiresOptIn` meta-annotation](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-requires-opt-in/)
 for APIs written in Kotlin or Jetpack's
-[`@RequiresOptIn` annotation](https://developer.android.com/reference/kotlin/androidx/annotation/RequiresOptIn)
+[`@RequiresOptIn` meta-annotation](https://developer.android.com/reference/kotlin/androidx/annotation/RequiresOptIn)
 for APIs written in Java.
 
-In both cases, API surfaces marked as experimental are considered alpha and will
-be excluded from API compatibility guarantees. Due to the lack of compatibility
-guarantees, stable libraries *must never* call experimental APIs exposed by
-other libraries outside of their
+> `@RequiresOptIn` at-a-glance:
+>
+> *   Use for unstable API surfaces
+> *   Can be called by anyone
+> *   Documented in public documentation
+> *   Does not maintain compatibility
+
+For either annotation, API surfaces marked as opt-in are considered alpha and
+will be excluded from API compatibility guarantees. Due to the lack of
+compatibility guarantees, stable libraries *must never* call experimental APIs
+exposed by other libraries outside of their
 [same-version group](#same-version-atomic-groups) and *may not* use the `@OptIn`
 annotation except in the following cases:
 
@@ -1374,6 +1386,27 @@ and avoid using them outside of `alpha`; however, teams are welcome to obtain
 written assurance from JetBrains regarding binary stability of specific APIs.
 `@RequiresOptIn` APIs that are guaranteed to remain binary compatible *may* be
 used in `beta`, but usages must be removed when the library moves to `rc`.
+
+#### When to mark an API surface as experimental
+
+*Do not* use `@RequiresOptIn` for a stable API surface that is difficult to use.
+It is not a substitute for a properly-designed API surface.
+
+*Do not* use `@RequiresOptIn` for an API surface that is unreliable or unstable
+because it is missing tests. It is not a substitute for a properly-tested API
+surface, and all APIs -- including those in `alpha` -- are expected to be
+functionally stable.
+
+*Do not* use `@RequiresOptIn` for an internal-facing API surface. Use either the
+appropriate language visibility (ex. `private` or `internal`) or `@RestrictTo`.
+
+*Do not* use `@RequiresOptIn` for an API that you expect library developers to
+call. Experimental APIs do not maintain binary compatibility guarantees, and you
+will put external clients in a difficult situation.
+
+*Do* use `@RequiresOptIn` for API surfaces that must be publicly available and
+documented but need the flexibility to stay in `alpha` (and break compatibility)
+during the rest of the library's `beta`, `rc`, or stable cycles.
 
 #### How to mark an API surface as experimental
 
@@ -1402,30 +1435,33 @@ rather than the Kotlin compiler's annotation.
 #### How to transition an API out of experimental
 
 When an API surface is ready to transition out of experimental, the annotation
-may only be removed during an alpha pre-release stage since removing the
-experimental marker from an API is equivalent to adding the API to the current
-API surface.
+may only be removed during an alpha pre-release stage. Removing the experimental
+marker from an API is equivalent to adding the API to the current API surface.
 
 When transitioning an entire feature surface out of experimental, you *should*
-remove the associated annotations.
+remove the definition for the associated annotation.
 
 When making any change to the experimental API surface, you *must* run
 `./gradlew updateApi` prior to uploading your change.
 
-### Restricted APIs {#restricted-api}
+### `@RestrictTo` APIs {#restricted-api}
 
 Jetpack's library tooling supports hiding Java-visible (ex. `public` and
 `protected`) APIs from developers using a combination of the `@RestrictTo`
 source annotation, and the `@hide` docs annotation (`@suppress` in Kotlin).
 These annotations **must** be paired together when used, and are validated as
-part of presubmit checks for Java code (Kotlin not yet supported by Checkstyle).
+part of presubmit checks for Java code.
 
-The effects of hiding an API are as follows:
+> `@RestrictTo` at-a-glance:
+>
+> *   Use for internal-facing API surfaces
+> *   Can be called within the specified `Scope`
+> *   Does not appear in public documentation
+> *   Does not maintain compatibility in most scopes
 
-*   The API will not appear in documentation
-*   Android Studio will warn the developer not to use the API
-
-Hiding an API does *not* provide strong guarantees about usage:
+While restricted APIs do not appear in documentation and Android Studio will
+warn against calling them, hiding an API does *not* provide strong guarantees
+about usage:
 
 *   There are no runtime restrictions on calling hidden APIs
 *   Android Studio will not warn if hidden APIs are called using reflection
@@ -1476,21 +1512,31 @@ scopes:
         <td><code>RestrictTo.Scope</code></td>
         <td>Visibility by Maven coordinate</td>
         <td>Versioning</td>
+        <td>Note</td>
     </tr>
     <tr>
         <td><code>LIBRARY</code></td>
         <td><code>androidx.concurrent:concurrent</code></td>
-        <td>No compatibility gurantees (same as private)</td>
+        <td>No compatibility guarantees (same as private)</td>
+        <td></td>
     </tr>
     <tr>
         <td><code>LIBRARY_GROUP</code></td>
         <td><code>androidx.concurrent:*</code></td>
         <td>Semantic versioning (including deprecation)</td>
+        <td></td>
     </tr>
     <tr>
         <td><code>LIBRARY_GROUP_PREFIX</code></td>
         <td><code>androidx.*:*</code></td>
         <td>Semantic versioning (including deprecation)</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>TEST</code></td>
+        <td><code>*</code></td>
+        <td>No compatibility guarantees (same as private)</td>
+        <td>Not recommended. Prefer language visibility, e.g. `internal` or package-private.</td>
     </tr>
 </table>
 
@@ -1963,7 +2009,7 @@ you can suppress Metalava API lint issues using `@SuppressLint` (for Java) or
 baseline with the `updateApiLintBaseline` task.
 
 ```shell
-./gradlew core:updateApiLintBaseline
+./gradlew :core:core:updateApiLintBaseline
 ```
 
 This will create/amend the `api_lint.ignore` file that lives in a library's
