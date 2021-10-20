@@ -17,6 +17,9 @@ package androidx.graphics.opengl.egl {
     method public static int[] getEglConfigAttributes1010102();
     method public static int[] getEglConfigAttributes8888();
     method public static int[] getEglConfigAttributesF16();
+    property public static final int[] EglConfigAttributes1010102;
+    property public static final int[] EglConfigAttributes8888;
+    property public static final int[] EglConfigAttributesF16;
     field public static final int EglColorComponentTypeExt = 13113; // 0x3339
     field public static final int EglColorComponentTypeFixedExt = 13114; // 0x333a
     field public static final int EglColorComponentTypeFloatExt = 13115; // 0x333b
