@@ -40,12 +40,27 @@ internal class EmbeddingAdapter {
     }
 
     private fun translate(splitInfo: androidx.window.extensions.embedding.SplitInfo): SplitInfo {
-        val primaryFragment = ActivityStack(
-            splitInfo.primaryActivityStack.activities
-        )
+        val primaryActivityStack = splitInfo.primaryActivityStack
+        val isPrimaryStackEmpty = try {
+            primaryActivityStack.isEmpty
+        } catch (e: NoSuchMethodError) {
+            // Users may use older library which #isEmpty hasn't existed. Provide a fallback value
+            // for this case to avoid crash.
+            false
+        }
+        val primaryFragment = ActivityStack(primaryActivityStack.activities, isPrimaryStackEmpty)
+
+        val secondaryActivityStack = splitInfo.secondaryActivityStack
+        val isSecondaryStackEmpty = try {
+            secondaryActivityStack.isEmpty
+        } catch (e: NoSuchMethodError) {
+            // Users may use older library which #isEmpty hasn't existed. Provide a fallback value
+            // for this case to avoid crash.
+            false
+        }
         val secondaryFragment = ActivityStack(
-            splitInfo.secondaryActivityStack.activities
-        )
+            secondaryActivityStack.activities,
+            isSecondaryStackEmpty)
         return SplitInfo(primaryFragment, secondaryFragment, splitInfo.splitRatio)
     }
 

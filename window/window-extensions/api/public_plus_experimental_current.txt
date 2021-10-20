@@ -36,8 +36,9 @@ package androidx.window.extensions.embedding {
   }
 
   @androidx.window.extensions.ExperimentalWindowExtensionsApi public class ActivityStack {
-    ctor public ActivityStack(java.util.List<android.app.Activity!>);
+    ctor public ActivityStack(java.util.List<android.app.Activity!>, boolean);
     method public java.util.List<android.app.Activity!> getActivities();
+    method public boolean isEmpty();
   }
 
   @androidx.window.extensions.ExperimentalWindowExtensionsApi public abstract class EmbeddingRule {
