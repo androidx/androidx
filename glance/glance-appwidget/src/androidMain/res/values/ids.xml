@@ -27,15 +27,4 @@
     <id name="switchText"/>
     <id name="switchTrack"/>
     <id name="switchThumb"/>
-
-    <id name="stub0"/>
-    <id name="stub1"/>
-    <id name="stub2"/>
-    <id name="stub3"/>
-    <id name="stub4"/>
-    <id name="stub5"/>
-    <id name="stub6"/>
-    <id name="stub7"/>
-    <id name="stub8"/>
-    <id name="stub9"/>
 </resources>

@@ -54,7 +54,6 @@ internal data class LayoutSelector(
     val width: Size,
     val height: Size,
     val canResize: Boolean,
-    val childCount: Int
 ) {
 
     internal enum class Size {
@@ -104,14 +103,12 @@ internal fun selectLayout(
     val height = heightMod.resolveDimension(context).toSpecSize()
     val needResize = width == LayoutSelector.Size.Fixed || height == LayoutSelector.Size.Fixed
     // TODO(b/202868171): Add the real child count.
-    return generatedLayouts[LayoutSelector(type, width, height, needResize, childCount = 0)]
+    return generatedLayouts[LayoutSelector(type, width, height, needResize)]
         ?: (if (!needResize) generatedLayouts[LayoutSelector(
             type,
             width,
             height,
             true,
-            // TODO(b/202868171): Add the real child count.
-            childCount = 0
         )] else null)
         ?: throw IllegalArgumentException(
             "Could not find layout for $type, width=$width, height=$height, canResize=$needResize"
@@ -153,8 +150,6 @@ private fun selectApi31Layout(
         width,
         height,
         canResize = false,
-        // TODO(b/202868171): Add the real child count.
-        childCount = 0
     )]
         ?: throw IllegalArgumentException(
             "Could not find layout for $type, width=$width, height=$height, canResize=false"

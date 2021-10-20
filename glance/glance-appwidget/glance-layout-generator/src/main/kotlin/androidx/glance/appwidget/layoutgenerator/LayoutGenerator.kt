@@ -75,17 +75,19 @@ internal class LayoutGenerator {
      * Generate files and return a mapping from File object to a structure defining useful
      * information extracted from the input.
      */
-    fun generateAllFiles(files: List<File>, outputResourcesDir: File): Map<File, LayoutProperties> {
+    fun generateAllFiles(files: List<File>, outputResourcesDir: File): GeneratedFiles {
         val outputLayoutDir = outputResourcesDir.resolve("layout")
         outputLayoutDir.mkdirs()
-        generateSizeLayouts(outputLayoutDir)
-        generateChildLayouts(outputLayoutDir)
-        return files.associateWith { generateForFile(it, outputLayoutDir) }
+        val generatedFiles = generateSizeLayouts(outputLayoutDir)
+        return GeneratedFiles(
+            generatedLayouts = files.associateWith { generateForFile(it, outputLayoutDir) },
+            extraFiles = generatedFiles,
+        )
     }
 
-    private fun generateSizeLayouts(outputLayoutDir: File) {
+    private fun generateSizeLayouts(outputLayoutDir: File): Set<File> {
         val stubSizes = listOf(ValidSize.Wrap, ValidSize.Match)
-        forEachInCrossProduct(stubSizes, stubSizes) { width, height ->
+        return mapInCrossProduct(stubSizes, stubSizes) { width, height ->
             val fileName = "size_${width.resourceName}_${height.resourceName}.xml"
             generateFile(outputLayoutDir, fileName) {
                 val root = createElement("TextView")
@@ -96,57 +98,39 @@ internal class LayoutGenerator {
                     setNamedItemNS(androidHeight(height))
                 }
             }
-        }
-    }
-
-    private fun generateChildLayouts(outputLayoutDir: File) {
-        for (childCount in 1..MaxChildren) {
-            generateFile(outputLayoutDir, getChildMergeFilename(childCount)) {
-                val root = createElement("merge")
-                appendChild(root)
-                root.attributes.apply { setNamedItem(androidNamespace) }
-
-                repeat(childCount) { index ->
-                    val stub = createElement("ViewStub")
-                    root.appendChild(stub)
-                    stub.attributes.apply {
-                        setNamedItemNS(androidId("@id/stub$index"))
-                        setNamedItemNS(androidWidth(ValidSize.Wrap))
-                        setNamedItemNS(androidHeight(ValidSize.Wrap))
-                    }
-                }
-            }
-        }
+        }.toSet()
     }
 
     private fun generateForFile(file: File, outputLayoutDir: File): LayoutProperties {
         val document = parseLayoutTemplate(file)
-        forEachConfiguration(file) { width, height, childCount ->
+        val generatedFiles = mutableListOf<File>()
+        forEachConfiguration { width, height ->
             writeGeneratedLayout(
-                generateSimpleLayout(document, width, height, childCount),
+                generateSimpleLayout(document, width, height),
                 outputLayoutDir.resolve(
                     makeSimpleResourceName(
                         file,
                         width,
-                        height,
-                        childCount
+                        height
                     ) + ".xml"
-                )
+                ).also { generatedFiles += it }
             )
             writeGeneratedLayout(
-                generateComplexLayout(document, width, height, childCount),
+                generateComplexLayout(document, width, height),
                 outputLayoutDir.resolve(
                     makeComplexResourceName(
                         file,
                         width,
-                        height,
-                        childCount
+                        height
                     ) + ".xml"
 
-                )
+                ).also { generatedFiles += it }
             )
         }
-        return LayoutProperties(mainViewId = extractMainViewId(document))
+        return LayoutProperties(
+            mainViewId = extractMainViewId(document),
+            generatedFiles = generatedFiles
+        )
     }
 
     /**
@@ -159,7 +143,6 @@ internal class LayoutGenerator {
         document: Document,
         width: ValidSize,
         height: ValidSize,
-        childCount: Int
     ): Document {
         val generated = documentBuilder.newDocument()
         val root = generated.importNode(document.documentElement, true)
@@ -176,7 +159,6 @@ internal class LayoutGenerator {
             }
             setNamedItemNS(generated.androidLayoutDirection("locale"))
         }
-        appendViewStubs(root, childCount)
         return generated
     }
 
@@ -228,7 +210,6 @@ internal class LayoutGenerator {
         document: Document,
         width: ValidSize,
         height: ValidSize,
-        childCount: Int
     ): Document {
         val generated = documentBuilder.newDocument()
         val root = generated.createElement("RelativeLayout")
@@ -297,7 +278,6 @@ internal class LayoutGenerator {
 
             setNamedItemNS(generated.androidLayoutDirection("locale"))
         }
-        appendViewStubs(mainNode, childCount)
         return generated
     }
 
@@ -305,29 +285,23 @@ internal class LayoutGenerator {
         outputLayoutDir: File,
         filename: String,
         builder: Document.() -> Unit
-    ) {
+    ): File {
         val document = documentBuilder.newDocument()
+        val file = outputLayoutDir.resolve(filename)
         builder(document)
-        writeGeneratedLayout(document, outputLayoutDir.resolve(filename))
+        writeGeneratedLayout(document, file)
+        return file
     }
 }
 
-internal fun appendViewStubs(node: Node, childCount: Int) {
-    if (childCount > 0) {
-        val include = node.ownerDocument.createElement("include")
-        node.appendChild(include)
-        include.attributes.apply {
-            setNamedItem(
-                node.ownerDocument.include(
-                    "@layout/" + getChildMergeFilenameWithoutExtension(childCount)
-                )
-            )
-        }
-    }
-}
+internal data class GeneratedFiles(
+    val generatedLayouts: Map<File, LayoutProperties>,
+    val extraFiles: Set<File>
+)
 
 internal data class LayoutProperties(
-    val mainViewId: String
+    val mainViewId: String,
+    val generatedFiles: List<File>
 )
 
 internal enum class ValidSize(val androidValue: String, val resourceName: String) {
@@ -337,8 +311,6 @@ internal enum class ValidSize(val androidValue: String, val resourceName: String
     Expand("0dp", "expand")
 }
 
-internal fun getChildMergeFilename(childCount: Int) =
-    getChildMergeFilenameWithoutExtension(childCount) + ".xml"
 internal fun getChildMergeFilenameWithoutExtension(childCount: Int) = "merge_${childCount}child"
 
 private val AndroidNS = "http://schemas.android.com/apk/res/android"
@@ -376,16 +348,3 @@ internal val Document.androidNamespace
     get() = createAttribute("xmlns:android").apply {
         textContent = AndroidNS
     }
-
-internal inline fun forEachConfiguration(
-    file: File,
-    function: (width: ValidSize, height: ValidSize, childCount: Int) -> Unit
-) {
-    ValidSize.values().forEach { width ->
-        ValidSize.values().forEach { height ->
-            file.allChildCounts().forEach { childCount ->
-                function(width, height, childCount)
-            }
-        }
-    }
-}
