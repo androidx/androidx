@@ -25,6 +25,7 @@ import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
 import org.junit.After;
@@ -146,6 +147,7 @@ public class ServiceWorkerClientCompatTest {
      * http://go/modifying-webview-cts.
      */
     // Test correct invocation of shouldInterceptRequest for Service Workers.
+    @FlakyTest(bugId = 203702777)
     @Test
     public void testServiceWorkerClientInterceptCallback() throws Exception {
         WebkitUtils.checkFeature(WebViewFeature.SERVICE_WORKER_BASIC_USAGE);
