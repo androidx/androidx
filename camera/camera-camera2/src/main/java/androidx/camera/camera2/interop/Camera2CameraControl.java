@@ -323,7 +323,6 @@ public final class Camera2CameraControl {
                 updateSession();
             }
         } else {
-            clearCaptureRequestOptionsInternal();
             if (mCompleter != null) {
                 mCompleter.setException(new CameraControl.OperationCanceledException(
                         "The camera control has became inactive."));
