@@ -91,6 +91,34 @@ class DialogFragmentNavigatorTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithImmediatePop() {
+        lateinit var dialogFragment: DialogFragment
+        fragmentManager.fragmentFactory = object : FragmentFactory() {
+            override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
+                return super.instantiate(classLoader, className).also { fragment ->
+                    if (fragment is DialogFragment) {
+                        dialogFragment = fragment
+                    }
+                }
+            }
+        }
+        val entry = createBackStackEntry()
+
+        dialogNavigator.navigate(listOf(entry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
+        dialogNavigator.popBackStack(entry, false)
+        assertThat(navigatorState.backStack.value)
+            .isEmpty()
+
+        fragmentManager.executePendingTransactions()
+        assertWithMessage("Dialog should not be shown")
+            .that(dialogFragment.dialog)
+            .isNull()
+    }
+
+    @UiThreadTest
+    @Test
     fun testFindNavController() {
         val dialogFragment = EmptyDialogFragment()
         // Fake using a NavHostFragment and instead just manually show the DialogFragment
