@@ -37,8 +37,7 @@ import androidx.glance.appwidget.LayoutSelector
 import androidx.glance.appwidget.R
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
-import androidx.glance.appwidget.remoteViews
-import androidx.glance.appwidget.selectLayout
+import androidx.glance.appwidget.createRemoteViews
 import androidx.glance.layout.EmittableText
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
@@ -50,23 +49,23 @@ internal fun translateEmittableText(
     translationContext: TranslationContext,
     element: EmittableText
 ): RemoteViews {
-    val layoutDef = selectLayout(translationContext, LayoutSelector.Type.Text, element.modifier)
-    return remoteViews(translationContext, layoutDef.layoutId)
-        .also { rv ->
-            rv.setText(
-                translationContext,
-                layoutDef.mainViewId,
-                element.text,
-                element.style
-            )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                element.style?.textAlign?.let { align ->
-                    TextTranslatorApi31Impl
-                        .setTextViewGravity(rv, layoutDef.mainViewId, align.toGravity())
-                }
-            }
-            applyModifiers(translationContext, rv, element.modifier, layoutDef)
+    val layoutDef =
+        createRemoteViews(translationContext, LayoutSelector.Type.Text, element.modifier)
+    val rv = layoutDef.remoteViews
+    rv.setText(
+        translationContext,
+        layoutDef.mainViewId,
+        element.text,
+        element.style
+    )
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        element.style?.textAlign?.let { align ->
+            TextTranslatorApi31Impl
+                .setTextViewGravity(rv, layoutDef.mainViewId, align.toGravity())
         }
+    }
+    applyModifiers(translationContext, rv, element.modifier, layoutDef)
+    return rv
 }
 
 internal fun RemoteViews.setText(

@@ -44,11 +44,21 @@ internal fun generateRegistry(
     val generatedLayouts = PropertySpec.builder(
         "generatedLayouts",
         LayoutsMap,
-        KModifier.INTERNAL
+        KModifier.INTERNAL,
     ).apply {
         initializer(buildInitializer(layouts))
     }.build()
     file.addProperty(generatedLayouts)
+
+    val generatedComplexLayouts = PropertySpec.builder(
+        "generatedComplexLayouts",
+        ComplexLayoutsMap,
+        KModifier.INTERNAL,
+    ).apply {
+        initializer(buildComplexInitializer())
+    }.build()
+    file.addProperty(generatedComplexLayouts)
+
     file.build().writeTo(outputSourceDir)
 }
 
@@ -69,26 +79,36 @@ private fun buildInitializer(layouts: Map<File, LayoutProperties>): CodeBlock {
     }
 }
 
+private fun buildComplexInitializer(): CodeBlock {
+    return buildCodeBlock {
+        addStatement("mapOf(")
+        withIndent {
+            forEachConfiguration { width, height ->
+                addStatement(
+                    "%T(width = %M, height = %M) to ",
+                    ComplexSelector,
+                    width.toValue(),
+                    height.toValue(),
+                )
+                withIndent {
+                    val resId = makeComplexResourceName(width, height)
+                    addStatement("%T(layoutId = R.layout.$resId),", LayoutInfo)
+                }
+            }
+        }
+        addStatement(")")
+    }
+}
+
 private fun createFileInitializer(layout: File, mainViewId: String): CodeBlock = buildCodeBlock {
     val viewType = layout.nameWithoutExtension.toLayoutType()
-    forEachConfiguration(layout) { width, height, childCount ->
+    forEachConfiguration { width, height ->
         addLayout(
-            resourceName = makeSimpleResourceName(layout, width, height, childCount),
+            resourceName = makeSimpleResourceName(layout, width, height),
             viewType = viewType,
             width = width,
             height = height,
-            canResize = false,
             mainViewId = "R.id.$mainViewId",
-            childCount = childCount
-        )
-        addLayout(
-            resourceName = makeComplexResourceName(layout, width, height, childCount),
-            viewType = viewType,
-            width = width,
-            height = height,
-            canResize = true,
-            mainViewId = "R.id.$mainViewId",
-            childCount = childCount
         )
     }
 }
@@ -98,30 +118,27 @@ private fun CodeBlock.Builder.addLayout(
     viewType: String,
     width: ValidSize,
     height: ValidSize,
-    canResize: Boolean,
     mainViewId: String,
-    childCount: Int
 ) {
     addStatement(
-        "%T(type = %M, width = %M, height = %M, canResize = $canResize, childCount = %L) to ",
+        "%T(type = %M, width = %M, height = %M) to ",
         LayoutSelector,
         makeViewType(viewType),
         width.toValue(),
         height.toValue(),
-        childCount
     )
     withIndent {
         addStatement("%T(", LayoutInfo)
         withIndent {
             addStatement("layoutId = R.layout.$resourceName,")
             addStatement("mainViewId = $mainViewId,")
-            addStatement("isComplex = $canResize,")
         }
         addStatement("),")
     }
 }
 
 private val LayoutSelector = ClassName("androidx.glance.appwidget", "LayoutSelector")
+private val ComplexSelector = ClassName("androidx.glance.appwidget", "ComplexSelector")
 private val LayoutInfo = ClassName("androidx.glance.appwidget", "LayoutInfo")
 private val LayoutsMap = Map::class.asTypeName().parameterizedBy(LayoutSelector, LayoutInfo)
 private const val LayoutSpecSize = "androidx.glance.appwidget.LayoutSelector.Size"
@@ -129,6 +146,7 @@ private val WrapValue = MemberName("$LayoutSpecSize", "Wrap")
 private val FixedValue = MemberName("$LayoutSpecSize", "Fixed")
 private val MatchValue = MemberName("$LayoutSpecSize", "MatchParent")
 private val ExpandValue = MemberName("$LayoutSpecSize", "Expand")
+private val ComplexLayoutsMap = Map::class.asTypeName().parameterizedBy(ComplexSelector, LayoutInfo)
 
 private fun makeViewType(name: String) =
     MemberName("androidx.glance.appwidget.LayoutSelector.Type", name)
@@ -147,36 +165,19 @@ private fun ValidSize.toValue() = when (this) {
     ValidSize.Match -> MatchValue
 }
 
-internal fun makeSimpleResourceName(
-    file: File,
-    width: ValidSize,
-    height: ValidSize,
-    childCount: Int
-) = makeResourceName(file, width, height, childCount, isSimple = true)
-
-internal fun makeComplexResourceName(
-    file: File,
-    width: ValidSize,
-    height: ValidSize,
-    childCount: Int
-) = makeResourceName(file, width, height, childCount, isSimple = false)
-
-private fun makeResourceName(
-    file: File,
-    width: ValidSize,
-    height: ValidSize,
-    childCount: Int,
-    isSimple: Boolean,
-): String {
-    return listOfNotNull(
+internal fun makeSimpleResourceName(file: File, width: ValidSize, height: ValidSize) =
+    listOf(
         file.nameWithoutExtension,
-        if (isSimple) "simple" else "complex",
         width.resourceName,
         height.resourceName,
-        if (childCount > 0) "${childCount}child" else null
-    )
-        .joinToString(separator = "_")
-}
+    ).joinToString(separator = "_")
+
+internal fun makeComplexResourceName(width: ValidSize, height: ValidSize) =
+    listOf(
+        "complex",
+        width.resourceName,
+        height.resourceName,
+    ).joinToString(separator = "_")
 
 fun CodeBlock.Builder.withIndent(builderAction: CodeBlock.Builder.() -> Unit): CodeBlock.Builder {
     indent()
@@ -185,36 +186,29 @@ fun CodeBlock.Builder.withIndent(builderAction: CodeBlock.Builder.() -> Unit): C
     return this
 }
 
-/**
- * The list of layout templates corresponding to collections that should have view stub children.
- */
-private val CollectionFiles = listOf("box", "column", "row")
-
-/**
- * Returns whether the [File] is for a collection layout that should have generated view stub
- * children.
- */
-internal fun File.isCollectionLayout() = nameWithoutExtension in CollectionFiles
-
-internal fun File.allChildCounts(): List<Int> {
-    return if (isCollectionLayout()) {
-        (0..MaxChildren).toList()
-    } else {
-        listOf(0)
+private val listConfigurations =
+    ValidSize.values().flatMap { width ->
+        ValidSize.values().map { height ->
+            width to height
+        }
     }
+
+internal inline fun mapConfiguration(
+    function: (width: ValidSize, height: ValidSize) -> File
+): List<File> =
+    listConfigurations.map { (a, b) -> function(a, b) }
+
+internal inline fun forEachConfiguration(function: (width: ValidSize, height: ValidSize) -> Unit) {
+    listConfigurations.forEach { (a, b) -> function(a, b) }
 }
 
-/** The maximum number of direct children that a collection layout can have. */
-internal const val MaxChildren = 10
-
-internal inline fun <A, B> forEachInCrossProduct(
+internal inline fun <A, B, T> mapInCrossProduct(
     first: Iterable<A>,
     second: Iterable<B>,
-    consumer: (A, B) -> Unit
-) {
-    first.forEach { a ->
-        second.forEach { b ->
+    consumer: (A, B) -> T
+): List<T> =
+    first.flatMap { a ->
+        second.map { b ->
             consumer(a, b)
         }
     }
-}

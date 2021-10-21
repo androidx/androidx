@@ -538,6 +538,7 @@ class RemoteViewsTranslatorKtTest {
         }
     }
 
+    /* TODO(b/202868171): Restore after viewStub are implemented
     @Test
     fun canTranslateLazyColumn_maximumLists() = fakeCoroutineScope.runBlockingTest {
         val rv = runAndTranslate {
@@ -564,6 +565,7 @@ class RemoteViewsTranslatorKtTest {
             }
         }
     }
+     */
 
     @Test
     fun cannotTranslateNestedLists() = fakeCoroutineScope.runBlockingTest {

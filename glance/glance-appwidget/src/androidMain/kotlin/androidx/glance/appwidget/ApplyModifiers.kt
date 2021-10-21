@@ -58,7 +58,7 @@ internal fun applyModifiers(
     translationContext: TranslationContext,
     rv: RemoteViews,
     modifiers: GlanceModifier,
-    layoutDef: LayoutInfo
+    layoutDef: RemoteViewsInfo
 ) {
     val context = translationContext.context
     var widthModifier: WidthModifier? = null
@@ -81,7 +81,7 @@ internal fun applyModifiers(
             }
         }
     }
-    applySizeModifiers(rv, widthModifier, heightModifier, context, layoutDef)
+    applySizeModifiers(rv, widthModifier, heightModifier, translationContext, layoutDef)
     modifiers.collectPaddingInDp(context.resources)
         ?.toAbsolute(translationContext.isRtl)
         ?.let {
@@ -137,9 +137,10 @@ private fun applySizeModifiers(
     rv: RemoteViews,
     widthModifier: WidthModifier?,
     heightModifier: HeightModifier?,
-    context: Context,
-    layoutDef: LayoutInfo
+    translationContext: TranslationContext,
+    layoutDef: RemoteViewsInfo
 ) {
+    val context = translationContext.context
     if (layoutDef.isSimple) {
         widthModifier?.let { applySimpleWidthModifier(rv, it, context, layoutDef) }
         heightModifier?.let { applySimpleHeightModifier(rv, it, context, layoutDef) }
@@ -163,7 +164,7 @@ private fun applySizeModifiers(
         else -> R.layout.size_wrap_wrap
     }
 
-    val sizeTargetViewId = rv.inflateViewStub(R.id.sizeViewStub, sizeViewLayout)
+    val sizeTargetViewId = rv.inflateViewStub(translationContext, R.id.sizeViewStub, sizeViewLayout)
 
     fun Dimension.Dp.toPixels() = dp.toPixels(context)
     fun Dimension.Resource.toPixels() = context.resources.getDimensionPixelSize(res)
@@ -183,7 +184,7 @@ private fun applySimpleWidthModifier(
     rv: RemoteViews,
     modifier: WidthModifier,
     context: Context,
-    layoutDef: LayoutInfo,
+    layoutDef: RemoteViewsInfo,
 ) {
     // These layouts already have the appropriate attribute in the xml, so no action is needed.
     val width = modifier.width
@@ -206,7 +207,7 @@ private fun applySimpleHeightModifier(
     rv: RemoteViews,
     modifier: HeightModifier,
     context: Context,
-    layoutDef: LayoutInfo,
+    layoutDef: RemoteViewsInfo,
 ) {
     // These layouts already have the appropriate attribute in the xml, so no action is needed.
     val height = modifier.height
@@ -229,7 +230,7 @@ private fun applyBackgroundModifier(
     rv: RemoteViews,
     modifier: BackgroundModifier,
     context: Context,
-    layoutDef: LayoutInfo
+    layoutDef: RemoteViewsInfo
 ) {
     val viewId = layoutDef.mainViewId
     when (val colorProvider = modifier.colorProvider) {

@@ -19,6 +19,7 @@ package androidx.glance.appwidget
 import android.content.Context
 import android.os.Build
 import android.view.ViewGroup
+import android.widget.RemoteViews
 import androidx.annotation.LayoutRes
 import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
@@ -34,10 +35,19 @@ import androidx.glance.unit.dp
 internal data class LayoutInfo(
     @LayoutRes val layoutId: Int,
     val mainViewId: Int = R.id.glanceView,
-    val isComplex: Boolean,
 )
 
-internal val LayoutInfo.isSimple get() = !isComplex
+/**
+ * Information about a [RemoteViews] created from generated layouts, including the layout id, ids
+ * of elements within, and other details about the layout contents.
+ */
+internal data class RemoteViewsInfo(
+    val remoteViews: RemoteViews,
+    val mainViewId: Int = R.id.glanceView,
+    val isComplex: Boolean
+)
+
+internal val RemoteViewsInfo.isSimple get() = !isComplex
 
 /**
  * The total number of generated layouts.
@@ -53,8 +63,6 @@ internal data class LayoutSelector(
     val type: Type,
     val width: Size,
     val height: Size,
-    val canResize: Boolean,
-    val childCount: Int
 ) {
 
     internal enum class Size {
@@ -69,53 +77,73 @@ internal data class LayoutSelector(
         Column,
         Box,
         Text,
-        List1,
-        List2,
-        List3,
+        List,
         ListItem,
         CheckBox,
         CheckBoxBackport,
         Button,
+
         // Note: Java keywords, such as 'switch', can't be used for layout ids.
         Swtch,
         SwtchBackport
     }
 }
 
-/**
- * Select the layout based on the specification.
- *
- * @param type Type of layout
- * @param modifier Modifier applied to the layout. Modifiers of interest will be extracted to get
- * the layout they can be applied on.
- */
-internal fun selectLayout(
+internal data class ComplexSelector(
+    val width: LayoutSelector.Size,
+    val height: LayoutSelector.Size,
+)
+
+internal fun createRemoteViews(
     translationContext: TranslationContext,
     type: LayoutSelector.Type,
     modifier: GlanceModifier
-): LayoutInfo {
-    val context = translationContext.context
+): RemoteViewsInfo {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        return selectApi31Layout(type, modifier)
+        val layout = selectApi31Layout(type, modifier)
+        return RemoteViewsInfo(
+            remoteViews(translationContext, layout.layoutId),
+            mainViewId = layout.mainViewId,
+            isComplex = false,
+        )
     }
+    val context = translationContext.context
     val widthMod = modifier.findModifier<WidthModifier>()?.width ?: Dimension.Wrap
     val heightMod = modifier.findModifier<HeightModifier>()?.height ?: Dimension.Wrap
     val width = widthMod.resolveDimension(context).toSpecSize()
     val height = heightMod.resolveDimension(context).toSpecSize()
     val needResize = width == LayoutSelector.Size.Fixed || height == LayoutSelector.Size.Fixed
-    // TODO(b/202868171): Add the real child count.
-    return generatedLayouts[LayoutSelector(type, width, height, needResize, childCount = 0)]
-        ?: (if (!needResize) generatedLayouts[LayoutSelector(
+    if (needResize) {
+        val complexLayout = generatedComplexLayouts[ComplexSelector(width, height)]
+            ?: throw IllegalArgumentException(
+                "Could not find complex layout for width=$width, height=$height"
+            )
+        val childLayout = generatedLayouts[LayoutSelector(
             type,
-            width,
-            height,
-            true,
-            // TODO(b/202868171): Add the real child count.
-            childCount = 0
-        )] else null)
-        ?: throw IllegalArgumentException(
-            "Could not find layout for $type, width=$width, height=$height, canResize=$needResize"
+            LayoutSelector.Size.MatchParent,
+            LayoutSelector.Size.MatchParent
+        )]
+            ?: throw IllegalArgumentException(
+                "Could not find layout for $type, width=${LayoutSelector.Size.MatchParent}, " +
+                    "height=${LayoutSelector.Size.MatchParent}"
+            )
+        val rv = remoteViews(translationContext, complexLayout.layoutId)
+        val viewId = rv.inflateViewStub(
+            translationContext,
+            R.id.glanceViewStub,
+            childLayout.layoutId
         )
+
+        fun layoutName(id: Int) =
+            context.resources.getResourceEntryName(id)!!
+        return RemoteViewsInfo(rv, mainViewId = viewId, isComplex = true)
+    }
+    val layout = generatedLayouts[LayoutSelector(type, width, height)]
+        ?: throw IllegalArgumentException(
+            "Could not find layout for $type, width=$width, height=$height"
+        )
+    val rv = remoteViews(translationContext, layout.layoutId)
+    return RemoteViewsInfo(rv, mainViewId = layout.mainViewId, isComplex = false)
 }
 
 private fun Dimension.toSpecSize(): LayoutSelector.Size =
@@ -152,9 +180,6 @@ private fun selectApi31Layout(
         type,
         width,
         height,
-        canResize = false,
-        // TODO(b/202868171): Add the real child count.
-        childCount = 0
     )]
         ?: throw IllegalArgumentException(
             "Could not find layout for $type, width=$width, height=$height, canResize=false"

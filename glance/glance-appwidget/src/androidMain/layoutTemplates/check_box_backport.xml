@@ -15,7 +15,6 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@id/glanceView"
     android:orientation="horizontal"
     android:gravity="center_vertical"
     style="@style/Glance.AppWidget.CheckBoxBackport">
