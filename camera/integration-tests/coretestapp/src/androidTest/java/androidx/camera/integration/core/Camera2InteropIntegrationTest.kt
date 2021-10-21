@@ -19,7 +19,10 @@
 package androidx.camera.integration.core
 
 import android.content.Context
+import android.content.Context.CAMERA_SERVICE
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraManager
+import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
@@ -103,6 +106,46 @@ class Camera2InteropIntegrationTest {
 
         assertThat(unbindAllCalled).isTrue()
         assertThat(lastState).isEqualTo(DeviceState.Closed)
+    }
+
+    @Test
+    fun canUseCameraSelector_fromCamera2CameraIdAndCameraFilter(): Unit = runBlocking {
+        val camera2CameraManager = ApplicationProvider.getApplicationContext<Context>()
+            .getSystemService(CAMERA_SERVICE) as CameraManager
+        camera2CameraManager.cameraIdList.forEach { id ->
+            val cameraSelector = CameraSelector.Builder()
+                .addCameraFilter {
+                    it.filter { Camera2CameraInfo.from(it).cameraId == id }
+                }.build()
+
+            withContext(Dispatchers.Main) {
+                val camera = processCameraProvider!!.bindToLifecycle(
+                    TestLifecycleOwner(Lifecycle.State.CREATED),
+                    cameraSelector
+                )
+                assertThat(Camera2CameraInfo.from(camera.cameraInfo).cameraId).isEqualTo(id)
+            }
+        }
+    }
+
+    @Test
+    fun canUseCameraSelector_fromCamera2CameraIdAndAvailableCameraInfos(): Unit = runBlocking {
+        val camera2CameraManager = ApplicationProvider.getApplicationContext<Context>()
+            .getSystemService(CAMERA_SERVICE) as CameraManager
+        camera2CameraManager.cameraIdList.forEach { id ->
+            withContext(Dispatchers.Main) {
+                val cameraSelector =
+                    processCameraProvider!!.availableCameraInfos.find {
+                        Camera2CameraInfo.from(it).cameraId == id
+                    }?.cameraSelector
+
+                val camera = processCameraProvider!!.bindToLifecycle(
+                    TestLifecycleOwner(Lifecycle.State.CREATED),
+                    cameraSelector!!
+                )
+                assertThat(Camera2CameraInfo.from(camera.cameraInfo).cameraId).isEqualTo(id)
+            }
+        }
     }
 
     // Sealed class for converting CameraDevice.StateCallback into a StateFlow
