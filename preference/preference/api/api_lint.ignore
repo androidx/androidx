@@ -63,196 +63,32 @@ InternalField: androidx.preference.TwoStatePreference#mChecked:
     Internal field mChecked must not be exposed
 
 
-MissingNullability: androidx.preference.CheckBoxPreference#CheckBoxPreference(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `CheckBoxPreference`
-MissingNullability: androidx.preference.CheckBoxPreference#CheckBoxPreference(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `CheckBoxPreference`
-MissingNullability: androidx.preference.CheckBoxPreference#CheckBoxPreference(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `CheckBoxPreference`
-MissingNullability: androidx.preference.CheckBoxPreference#CheckBoxPreference(android.content.Context, android.util.AttributeSet, int) parameter #0:
-    Missing nullability on parameter `context` in method `CheckBoxPreference`
-MissingNullability: androidx.preference.CheckBoxPreference#CheckBoxPreference(android.content.Context, android.util.AttributeSet, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `CheckBoxPreference`
-MissingNullability: androidx.preference.CheckBoxPreference#CheckBoxPreference(android.content.Context, android.util.AttributeSet, int, int) parameter #0:
-    Missing nullability on parameter `context` in method `CheckBoxPreference`
-MissingNullability: androidx.preference.CheckBoxPreference#CheckBoxPreference(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `CheckBoxPreference`
-MissingNullability: androidx.preference.CheckBoxPreference#onBindViewHolder(androidx.preference.PreferenceViewHolder) parameter #0:
-    Missing nullability on parameter `holder` in method `onBindViewHolder`
-MissingNullability: androidx.preference.DialogPreference#DialogPreference(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `DialogPreference`
-MissingNullability: androidx.preference.DialogPreference#DialogPreference(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `DialogPreference`
-MissingNullability: androidx.preference.DialogPreference#DialogPreference(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `DialogPreference`
-MissingNullability: androidx.preference.DialogPreference#DialogPreference(android.content.Context, android.util.AttributeSet, int) parameter #0:
-    Missing nullability on parameter `context` in method `DialogPreference`
-MissingNullability: androidx.preference.DialogPreference#DialogPreference(android.content.Context, android.util.AttributeSet, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `DialogPreference`
-MissingNullability: androidx.preference.DialogPreference#DialogPreference(android.content.Context, android.util.AttributeSet, int, int) parameter #0:
-    Missing nullability on parameter `context` in method `DialogPreference`
-MissingNullability: androidx.preference.DialogPreference#DialogPreference(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `DialogPreference`
-MissingNullability: androidx.preference.DialogPreference#getDialogIcon():
-    Missing nullability on method `getDialogIcon` return
-MissingNullability: androidx.preference.DialogPreference#getDialogMessage():
-    Missing nullability on method `getDialogMessage` return
-MissingNullability: androidx.preference.DialogPreference#getDialogTitle():
-    Missing nullability on method `getDialogTitle` return
-MissingNullability: androidx.preference.DialogPreference#getNegativeButtonText():
-    Missing nullability on method `getNegativeButtonText` return
-MissingNullability: androidx.preference.DialogPreference#getPositiveButtonText():
-    Missing nullability on method `getPositiveButtonText` return
-MissingNullability: androidx.preference.DialogPreference#setDialogIcon(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `dialogIcon` in method `setDialogIcon`
-MissingNullability: androidx.preference.DialogPreference#setDialogMessage(CharSequence) parameter #0:
-    Missing nullability on parameter `dialogMessage` in method `setDialogMessage`
-MissingNullability: androidx.preference.DialogPreference#setDialogTitle(CharSequence) parameter #0:
-    Missing nullability on parameter `dialogTitle` in method `setDialogTitle`
-MissingNullability: androidx.preference.DialogPreference#setNegativeButtonText(CharSequence) parameter #0:
-    Missing nullability on parameter `negativeButtonText` in method `setNegativeButtonText`
-MissingNullability: androidx.preference.DialogPreference#setPositiveButtonText(CharSequence) parameter #0:
-    Missing nullability on parameter `positiveButtonText` in method `setPositiveButtonText`
-MissingNullability: androidx.preference.DropDownPreference#DropDownPreference(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `DropDownPreference`
-MissingNullability: androidx.preference.DropDownPreference#DropDownPreference(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `DropDownPreference`
-MissingNullability: androidx.preference.DropDownPreference#DropDownPreference(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `DropDownPreference`
-MissingNullability: androidx.preference.DropDownPreference#DropDownPreference(android.content.Context, android.util.AttributeSet, int) parameter #0:
-    Missing nullability on parameter `context` in method `DropDownPreference`
-MissingNullability: androidx.preference.DropDownPreference#DropDownPreference(android.content.Context, android.util.AttributeSet, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `DropDownPreference`
-MissingNullability: androidx.preference.DropDownPreference#DropDownPreference(android.content.Context, android.util.AttributeSet, int, int) parameter #0:
-    Missing nullability on parameter `context` in method `DropDownPreference`
-MissingNullability: androidx.preference.DropDownPreference#DropDownPreference(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `DropDownPreference`
-MissingNullability: androidx.preference.DropDownPreference#createAdapter():
-    Missing nullability on method `createAdapter` return
-MissingNullability: androidx.preference.DropDownPreference#onBindViewHolder(androidx.preference.PreferenceViewHolder) parameter #0:
-    Missing nullability on parameter `holder` in method `onBindViewHolder`
-MissingNullability: androidx.preference.EditTextPreference#EditTextPreference(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `EditTextPreference`
-MissingNullability: androidx.preference.EditTextPreference#EditTextPreference(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `EditTextPreference`
-MissingNullability: androidx.preference.EditTextPreference#EditTextPreference(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `EditTextPreference`
-MissingNullability: androidx.preference.EditTextPreference#EditTextPreference(android.content.Context, android.util.AttributeSet, int) parameter #0:
-    Missing nullability on parameter `context` in method `EditTextPreference`
-MissingNullability: androidx.preference.EditTextPreference#EditTextPreference(android.content.Context, android.util.AttributeSet, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `EditTextPreference`
-MissingNullability: androidx.preference.EditTextPreference#EditTextPreference(android.content.Context, android.util.AttributeSet, int, int) parameter #0:
-    Missing nullability on parameter `context` in method `EditTextPreference`
-MissingNullability: androidx.preference.EditTextPreference#EditTextPreference(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `EditTextPreference`
-MissingNullability: androidx.preference.EditTextPreference#getText():
-    Missing nullability on method `getText` return
 MissingNullability: androidx.preference.EditTextPreference#onGetDefaultValue(android.content.res.TypedArray, int):
     Missing nullability on method `onGetDefaultValue` return
-MissingNullability: androidx.preference.EditTextPreference#onGetDefaultValue(android.content.res.TypedArray, int) parameter #0:
-    Missing nullability on parameter `a` in method `onGetDefaultValue`
-MissingNullability: androidx.preference.EditTextPreference#onRestoreInstanceState(android.os.Parcelable) parameter #0:
-    Missing nullability on parameter `state` in method `onRestoreInstanceState`
-MissingNullability: androidx.preference.EditTextPreference#onSaveInstanceState():
-    Missing nullability on method `onSaveInstanceState` return
 MissingNullability: androidx.preference.EditTextPreference#onSetInitialValue(Object) parameter #0:
     Missing nullability on parameter `defaultValue` in method `onSetInitialValue`
-MissingNullability: androidx.preference.EditTextPreference#setText(String) parameter #0:
-    Missing nullability on parameter `text` in method `setText`
-MissingNullability: androidx.preference.EditTextPreference.SimpleSummaryProvider#getInstance():
-    Missing nullability on method `getInstance` return
-MissingNullability: androidx.preference.EditTextPreference.SimpleSummaryProvider#provideSummary(androidx.preference.EditTextPreference):
-    Missing nullability on method `provideSummary` return
-MissingNullability: androidx.preference.EditTextPreference.SimpleSummaryProvider#provideSummary(androidx.preference.EditTextPreference) parameter #0:
-    Missing nullability on parameter `preference` in method `provideSummary`
-MissingNullability: androidx.preference.EditTextPreferenceDialogFragment#onBindDialogView(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `onBindDialogView`
-MissingNullability: androidx.preference.EditTextPreferenceDialogFragment#onCreate(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.preference.EditTextPreferenceDialogFragmentCompat#newInstance(String):
-    Missing nullability on method `newInstance` return
 MissingNullability: androidx.preference.EditTextPreferenceDialogFragmentCompat#newInstance(String) parameter #0:
     Missing nullability on parameter `key` in method `newInstance`
-MissingNullability: androidx.preference.EditTextPreferenceDialogFragmentCompat#onBindDialogView(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `onBindDialogView`
-MissingNullability: androidx.preference.EditTextPreferenceDialogFragmentCompat#onCreate(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.preference.ListPreference#ListPreference(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `ListPreference`
-MissingNullability: androidx.preference.ListPreference#ListPreference(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `ListPreference`
-MissingNullability: androidx.preference.ListPreference#ListPreference(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `ListPreference`
-MissingNullability: androidx.preference.ListPreference#ListPreference(android.content.Context, android.util.AttributeSet, int) parameter #0:
-    Missing nullability on parameter `context` in method `ListPreference`
-MissingNullability: androidx.preference.ListPreference#ListPreference(android.content.Context, android.util.AttributeSet, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `ListPreference`
-MissingNullability: androidx.preference.ListPreference#ListPreference(android.content.Context, android.util.AttributeSet, int, int) parameter #0:
-    Missing nullability on parameter `context` in method `ListPreference`
-MissingNullability: androidx.preference.ListPreference#ListPreference(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `ListPreference`
 MissingNullability: androidx.preference.ListPreference#findIndexOfValue(String) parameter #0:
     Missing nullability on parameter `value` in method `findIndexOfValue`
 MissingNullability: androidx.preference.ListPreference#getEntries():
     Missing nullability on method `getEntries` return
-MissingNullability: androidx.preference.ListPreference#getEntry():
-    Missing nullability on method `getEntry` return
 MissingNullability: androidx.preference.ListPreference#getEntryValues():
     Missing nullability on method `getEntryValues` return
-MissingNullability: androidx.preference.ListPreference#getSummary():
-    Missing nullability on method `getSummary` return
 MissingNullability: androidx.preference.ListPreference#getValue():
     Missing nullability on method `getValue` return
 MissingNullability: androidx.preference.ListPreference#onGetDefaultValue(android.content.res.TypedArray, int):
     Missing nullability on method `onGetDefaultValue` return
-MissingNullability: androidx.preference.ListPreference#onGetDefaultValue(android.content.res.TypedArray, int) parameter #0:
-    Missing nullability on parameter `a` in method `onGetDefaultValue`
-MissingNullability: androidx.preference.ListPreference#onRestoreInstanceState(android.os.Parcelable) parameter #0:
-    Missing nullability on parameter `state` in method `onRestoreInstanceState`
-MissingNullability: androidx.preference.ListPreference#onSaveInstanceState():
-    Missing nullability on method `onSaveInstanceState` return
 MissingNullability: androidx.preference.ListPreference#onSetInitialValue(Object) parameter #0:
     Missing nullability on parameter `defaultValue` in method `onSetInitialValue`
 MissingNullability: androidx.preference.ListPreference#setEntries(CharSequence[]) parameter #0:
     Missing nullability on parameter `entries` in method `setEntries`
 MissingNullability: androidx.preference.ListPreference#setEntryValues(CharSequence[]) parameter #0:
     Missing nullability on parameter `entryValues` in method `setEntryValues`
-MissingNullability: androidx.preference.ListPreference#setSummary(CharSequence) parameter #0:
-    Missing nullability on parameter `summary` in method `setSummary`
 MissingNullability: androidx.preference.ListPreference#setValue(String) parameter #0:
     Missing nullability on parameter `value` in method `setValue`
-MissingNullability: androidx.preference.ListPreference.SimpleSummaryProvider#getInstance():
-    Missing nullability on method `getInstance` return
-MissingNullability: androidx.preference.ListPreference.SimpleSummaryProvider#provideSummary(androidx.preference.ListPreference):
-    Missing nullability on method `provideSummary` return
-MissingNullability: androidx.preference.ListPreference.SimpleSummaryProvider#provideSummary(androidx.preference.ListPreference) parameter #0:
-    Missing nullability on parameter `preference` in method `provideSummary`
-MissingNullability: androidx.preference.ListPreferenceDialogFragment#onCreate(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.preference.ListPreferenceDialogFragment#onPrepareDialogBuilder(android.app.AlertDialog.Builder) parameter #0:
-    Missing nullability on parameter `builder` in method `onPrepareDialogBuilder`
-MissingNullability: androidx.preference.ListPreferenceDialogFragmentCompat#newInstance(String):
-    Missing nullability on method `newInstance` return
 MissingNullability: androidx.preference.ListPreferenceDialogFragmentCompat#newInstance(String) parameter #0:
     Missing nullability on parameter `key` in method `newInstance`
-MissingNullability: androidx.preference.ListPreferenceDialogFragmentCompat#onCreate(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.preference.ListPreferenceDialogFragmentCompat#onPrepareDialogBuilder(androidx.appcompat.app.AlertDialog.Builder) parameter #0:
-    Missing nullability on parameter `builder` in method `onPrepareDialogBuilder`
-MissingNullability: androidx.preference.MultiSelectListPreference#MultiSelectListPreference(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `MultiSelectListPreference`
-MissingNullability: androidx.preference.MultiSelectListPreference#MultiSelectListPreference(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `MultiSelectListPreference`
-MissingNullability: androidx.preference.MultiSelectListPreference#MultiSelectListPreference(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `MultiSelectListPreference`
-MissingNullability: androidx.preference.MultiSelectListPreference#MultiSelectListPreference(android.content.Context, android.util.AttributeSet, int) parameter #0:
-    Missing nullability on parameter `context` in method `MultiSelectListPreference`
-MissingNullability: androidx.preference.MultiSelectListPreference#MultiSelectListPreference(android.content.Context, android.util.AttributeSet, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `MultiSelectListPreference`
-MissingNullability: androidx.preference.MultiSelectListPreference#MultiSelectListPreference(android.content.Context, android.util.AttributeSet, int, int) parameter #0:
-    Missing nullability on parameter `context` in method `MultiSelectListPreference`
-MissingNullability: androidx.preference.MultiSelectListPreference#MultiSelectListPreference(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `MultiSelectListPreference`
 MissingNullability: androidx.preference.MultiSelectListPreference#findIndexOfValue(String) parameter #0:
     Missing nullability on parameter `value` in method `findIndexOfValue`
 MissingNullability: androidx.preference.MultiSelectListPreference#getEntries():
@@ -263,14 +99,6 @@ MissingNullability: androidx.preference.MultiSelectListPreference#getSelectedIte
     Missing nullability on method `getSelectedItems` return
 MissingNullability: androidx.preference.MultiSelectListPreference#getValues():
     Missing nullability on method `getValues` return
-MissingNullability: androidx.preference.MultiSelectListPreference#onGetDefaultValue(android.content.res.TypedArray, int):
-    Missing nullability on method `onGetDefaultValue` return
-MissingNullability: androidx.preference.MultiSelectListPreference#onGetDefaultValue(android.content.res.TypedArray, int) parameter #0:
-    Missing nullability on parameter `a` in method `onGetDefaultValue`
-MissingNullability: androidx.preference.MultiSelectListPreference#onRestoreInstanceState(android.os.Parcelable) parameter #0:
-    Missing nullability on parameter `state` in method `onRestoreInstanceState`
-MissingNullability: androidx.preference.MultiSelectListPreference#onSaveInstanceState():
-    Missing nullability on method `onSaveInstanceState` return
 MissingNullability: androidx.preference.MultiSelectListPreference#onSetInitialValue(Object) parameter #0:
     Missing nullability on parameter `defaultValue` in method `onSetInitialValue`
 MissingNullability: androidx.preference.MultiSelectListPreference#setEntries(CharSequence[]) parameter #0:
@@ -281,50 +109,12 @@ MissingNullability: androidx.preference.MultiSelectListPreference#setValues(java
     Missing nullability on parameter `values` in method `setValues`
 MissingNullability: androidx.preference.MultiSelectListPreferenceDialogFragment#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.preference.MultiSelectListPreferenceDialogFragment#onPrepareDialogBuilder(android.app.AlertDialog.Builder) parameter #0:
-    Missing nullability on parameter `builder` in method `onPrepareDialogBuilder`
-MissingNullability: androidx.preference.MultiSelectListPreferenceDialogFragmentCompat#newInstance(String):
-    Missing nullability on method `newInstance` return
 MissingNullability: androidx.preference.MultiSelectListPreferenceDialogFragmentCompat#newInstance(String) parameter #0:
     Missing nullability on parameter `key` in method `newInstance`
-MissingNullability: androidx.preference.MultiSelectListPreferenceDialogFragmentCompat#onCreate(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.preference.MultiSelectListPreferenceDialogFragmentCompat#onPrepareDialogBuilder(androidx.appcompat.app.AlertDialog.Builder) parameter #0:
-    Missing nullability on parameter `builder` in method `onPrepareDialogBuilder`
-MissingNullability: androidx.preference.Preference#Preference(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `Preference`
-MissingNullability: androidx.preference.Preference#Preference(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `Preference`
-MissingNullability: androidx.preference.Preference#Preference(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `Preference`
-MissingNullability: androidx.preference.Preference#Preference(android.content.Context, android.util.AttributeSet, int) parameter #0:
-    Missing nullability on parameter `context` in method `Preference`
-MissingNullability: androidx.preference.Preference#Preference(android.content.Context, android.util.AttributeSet, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `Preference`
-MissingNullability: androidx.preference.Preference#Preference(android.content.Context, android.util.AttributeSet, int, int) parameter #0:
-    Missing nullability on parameter `context` in method `Preference`
-MissingNullability: androidx.preference.Preference#Preference(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `Preference`
 MissingNullability: androidx.preference.Preference#callChangeListener(Object) parameter #0:
     Missing nullability on parameter `newValue` in method `callChangeListener`
-MissingNullability: androidx.preference.Preference#getContext():
-    Missing nullability on method `getContext` return
-MissingNullability: androidx.preference.Preference#getDependency():
-    Missing nullability on method `getDependency` return
-MissingNullability: androidx.preference.Preference#getExtras():
-    Missing nullability on method `getExtras` return
-MissingNullability: androidx.preference.Preference#getFragment():
-    Missing nullability on method `getFragment` return
-MissingNullability: androidx.preference.Preference#getIcon():
-    Missing nullability on method `getIcon` return
-MissingNullability: androidx.preference.Preference#getIntent():
-    Missing nullability on method `getIntent` return
 MissingNullability: androidx.preference.Preference#getKey():
     Missing nullability on method `getKey` return
-MissingNullability: androidx.preference.Preference#getOnPreferenceChangeListener():
-    Missing nullability on method `getOnPreferenceChangeListener` return
-MissingNullability: androidx.preference.Preference#getOnPreferenceClickListener():
-    Missing nullability on method `getOnPreferenceClickListener` return
 MissingNullability: androidx.preference.Preference#getPersistedString(String):
     Missing nullability on method `getPersistedString` return
 MissingNullability: androidx.preference.Preference#getPersistedString(String) parameter #0:
@@ -335,90 +125,20 @@ MissingNullability: androidx.preference.Preference#getPersistedStringSet(java.ut
     Missing nullability on parameter `defaultReturnValue` in method `getPersistedStringSet`
 MissingNullability: androidx.preference.Preference#getPreferenceManager():
     Missing nullability on method `getPreferenceManager` return
-MissingNullability: androidx.preference.Preference#getSharedPreferences():
-    Missing nullability on method `getSharedPreferences` return
-MissingNullability: androidx.preference.Preference#getSummary():
-    Missing nullability on method `getSummary` return
-MissingNullability: androidx.preference.Preference#getTitle():
-    Missing nullability on method `getTitle` return
-MissingNullability: androidx.preference.Preference#onAttachedToHierarchy(androidx.preference.PreferenceManager) parameter #0:
-    Missing nullability on parameter `preferenceManager` in method `onAttachedToHierarchy`
-MissingNullability: androidx.preference.Preference#onBindViewHolder(androidx.preference.PreferenceViewHolder) parameter #0:
-    Missing nullability on parameter `holder` in method `onBindViewHolder`
-MissingNullability: androidx.preference.Preference#onDependencyChanged(androidx.preference.Preference, boolean) parameter #0:
-    Missing nullability on parameter `dependency` in method `onDependencyChanged`
-MissingNullability: androidx.preference.Preference#onGetDefaultValue(android.content.res.TypedArray, int):
-    Missing nullability on method `onGetDefaultValue` return
-MissingNullability: androidx.preference.Preference#onGetDefaultValue(android.content.res.TypedArray, int) parameter #0:
-    Missing nullability on parameter `a` in method `onGetDefaultValue`
-MissingNullability: androidx.preference.Preference#onParentChanged(androidx.preference.Preference, boolean) parameter #0:
-    Missing nullability on parameter `parent` in method `onParentChanged`
-MissingNullability: androidx.preference.Preference#onRestoreInstanceState(android.os.Parcelable) parameter #0:
-    Missing nullability on parameter `state` in method `onRestoreInstanceState`
-MissingNullability: androidx.preference.Preference#onSaveInstanceState():
-    Missing nullability on method `onSaveInstanceState` return
-MissingNullability: androidx.preference.Preference#peekExtras():
-    Missing nullability on method `peekExtras` return
 MissingNullability: androidx.preference.Preference#persistString(String) parameter #0:
     Missing nullability on parameter `value` in method `persistString`
 MissingNullability: androidx.preference.Preference#persistStringSet(java.util.Set<java.lang.String>) parameter #0:
     Missing nullability on parameter `values` in method `persistStringSet`
-MissingNullability: androidx.preference.Preference#restoreHierarchyState(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `container` in method `restoreHierarchyState`
-MissingNullability: androidx.preference.Preference#saveHierarchyState(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `container` in method `saveHierarchyState`
 MissingNullability: androidx.preference.Preference#setDefaultValue(Object) parameter #0:
     Missing nullability on parameter `defaultValue` in method `setDefaultValue`
-MissingNullability: androidx.preference.Preference#setDependency(String) parameter #0:
-    Missing nullability on parameter `dependencyKey` in method `setDependency`
-MissingNullability: androidx.preference.Preference#setFragment(String) parameter #0:
-    Missing nullability on parameter `fragment` in method `setFragment`
-MissingNullability: androidx.preference.Preference#setIcon(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `icon` in method `setIcon`
-MissingNullability: androidx.preference.Preference#setIntent(android.content.Intent) parameter #0:
-    Missing nullability on parameter `intent` in method `setIntent`
 MissingNullability: androidx.preference.Preference#setKey(String) parameter #0:
     Missing nullability on parameter `key` in method `setKey`
-MissingNullability: androidx.preference.Preference#setOnPreferenceChangeListener(androidx.preference.Preference.OnPreferenceChangeListener) parameter #0:
-    Missing nullability on parameter `onPreferenceChangeListener` in method `setOnPreferenceChangeListener`
-MissingNullability: androidx.preference.Preference#setOnPreferenceClickListener(androidx.preference.Preference.OnPreferenceClickListener) parameter #0:
-    Missing nullability on parameter `onPreferenceClickListener` in method `setOnPreferenceClickListener`
-MissingNullability: androidx.preference.Preference#setPreferenceDataStore(androidx.preference.PreferenceDataStore) parameter #0:
-    Missing nullability on parameter `dataStore` in method `setPreferenceDataStore`
-MissingNullability: androidx.preference.Preference#setSummary(CharSequence) parameter #0:
-    Missing nullability on parameter `summary` in method `setSummary`
-MissingNullability: androidx.preference.Preference#setTitle(CharSequence) parameter #0:
-    Missing nullability on parameter `title` in method `setTitle`
 MissingNullability: androidx.preference.Preference.BaseSavedState#BaseSavedState(android.os.Parcel) parameter #0:
     Missing nullability on parameter `source` in method `BaseSavedState`
 MissingNullability: androidx.preference.Preference.BaseSavedState#BaseSavedState(android.os.Parcelable) parameter #0:
     Missing nullability on parameter `superState` in method `BaseSavedState`
-MissingNullability: androidx.preference.Preference.BaseSavedState#CREATOR:
-    Missing nullability on field `CREATOR` in class `class androidx.preference.Preference.BaseSavedState`
-MissingNullability: androidx.preference.Preference.OnPreferenceChangeListener#onPreferenceChange(androidx.preference.Preference, Object) parameter #0:
-    Missing nullability on parameter `preference` in method `onPreferenceChange`
 MissingNullability: androidx.preference.Preference.OnPreferenceChangeListener#onPreferenceChange(androidx.preference.Preference, Object) parameter #1:
     Missing nullability on parameter `newValue` in method `onPreferenceChange`
-MissingNullability: androidx.preference.Preference.OnPreferenceClickListener#onPreferenceClick(androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `preference` in method `onPreferenceClick`
-MissingNullability: androidx.preference.Preference.SummaryProvider#provideSummary(T):
-    Missing nullability on method `provideSummary` return
-MissingNullability: androidx.preference.PreferenceCategory#PreferenceCategory(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `PreferenceCategory`
-MissingNullability: androidx.preference.PreferenceCategory#PreferenceCategory(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `PreferenceCategory`
-MissingNullability: androidx.preference.PreferenceCategory#PreferenceCategory(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `PreferenceCategory`
-MissingNullability: androidx.preference.PreferenceCategory#PreferenceCategory(android.content.Context, android.util.AttributeSet, int) parameter #0:
-    Missing nullability on parameter `context` in method `PreferenceCategory`
-MissingNullability: androidx.preference.PreferenceCategory#PreferenceCategory(android.content.Context, android.util.AttributeSet, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `PreferenceCategory`
-MissingNullability: androidx.preference.PreferenceCategory#PreferenceCategory(android.content.Context, android.util.AttributeSet, int, int) parameter #0:
-    Missing nullability on parameter `context` in method `PreferenceCategory`
-MissingNullability: androidx.preference.PreferenceCategory#PreferenceCategory(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `PreferenceCategory`
-MissingNullability: androidx.preference.PreferenceCategory#onBindViewHolder(androidx.preference.PreferenceViewHolder) parameter #0:
-    Missing nullability on parameter `holder` in method `onBindViewHolder`
 MissingNullability: androidx.preference.PreferenceDataStore#getBoolean(String, boolean) parameter #0:
     Missing nullability on parameter `key` in method `getBoolean`
 MissingNullability: androidx.preference.PreferenceDataStore#getFloat(String, float) parameter #0:
@@ -443,314 +163,34 @@ MissingNullability: androidx.preference.PreferenceDataStore#putString(String, St
     Missing nullability on parameter `key` in method `putString`
 MissingNullability: androidx.preference.PreferenceDataStore#putStringSet(String, java.util.Set<java.lang.String>) parameter #0:
     Missing nullability on parameter `key` in method `putStringSet`
-MissingNullability: androidx.preference.PreferenceDialogFragment#onCreate(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.preference.PreferenceDialogFragment#onCreateDialog(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `savedInstanceState` in method `onCreateDialog`
-MissingNullability: androidx.preference.PreferenceDialogFragment#onDismiss(android.content.DialogInterface) parameter #0:
-    Missing nullability on parameter `dialog` in method `onDismiss`
 MissingNullability: androidx.preference.PreferenceDialogFragmentCompat#getPreference():
     Missing nullability on method `getPreference` return
-MissingNullability: androidx.preference.PreferenceDialogFragmentCompat#onBindDialogView(android.view.View) parameter #0:
-    Missing nullability on parameter `view` in method `onBindDialogView`
-MissingNullability: androidx.preference.PreferenceDialogFragmentCompat#onClick(android.content.DialogInterface, int) parameter #0:
-    Missing nullability on parameter `dialog` in method `onClick`
-MissingNullability: androidx.preference.PreferenceDialogFragmentCompat#onCreate(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.preference.PreferenceDialogFragmentCompat#onCreateDialog(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `savedInstanceState` in method `onCreateDialog`
-MissingNullability: androidx.preference.PreferenceDialogFragmentCompat#onCreateDialogView(android.content.Context):
-    Missing nullability on method `onCreateDialogView` return
-MissingNullability: androidx.preference.PreferenceDialogFragmentCompat#onCreateDialogView(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `onCreateDialogView`
-MissingNullability: androidx.preference.PreferenceDialogFragmentCompat#onPrepareDialogBuilder(androidx.appcompat.app.AlertDialog.Builder) parameter #0:
-    Missing nullability on parameter `builder` in method `onPrepareDialogBuilder`
-MissingNullability: androidx.preference.PreferenceFragment#onCreate(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.preference.PreferenceFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateView` return
-MissingNullability: androidx.preference.PreferenceFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `inflater` in method `onCreateView`
-MissingNullability: androidx.preference.PreferenceFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `container` in method `onCreateView`
-MissingNullability: androidx.preference.PreferenceFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `savedInstanceState` in method `onCreateView`
-MissingNullability: androidx.preference.PreferenceFragment#onSaveInstanceState(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `outState` in method `onSaveInstanceState`
-MissingNullability: androidx.preference.PreferenceFragment#onViewCreated(android.view.View, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `view` in method `onViewCreated`
-MissingNullability: androidx.preference.PreferenceFragment#onViewCreated(android.view.View, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `savedInstanceState` in method `onViewCreated`
-MissingNullability: androidx.preference.PreferenceFragment.OnPreferenceDisplayDialogCallback#onPreferenceDisplayDialog(androidx.preference.PreferenceFragment, androidx.preference.Preference) parameter #1:
-    Missing nullability on parameter `pref` in method `onPreferenceDisplayDialog`
-MissingNullability: androidx.preference.PreferenceFragment.OnPreferenceStartFragmentCallback#onPreferenceStartFragment(androidx.preference.PreferenceFragment, androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `caller` in method `onPreferenceStartFragment`
-MissingNullability: androidx.preference.PreferenceFragment.OnPreferenceStartFragmentCallback#onPreferenceStartFragment(androidx.preference.PreferenceFragment, androidx.preference.Preference) parameter #1:
-    Missing nullability on parameter `pref` in method `onPreferenceStartFragment`
-MissingNullability: androidx.preference.PreferenceFragment.OnPreferenceStartScreenCallback#onPreferenceStartScreen(androidx.preference.PreferenceFragment, androidx.preference.PreferenceScreen) parameter #0:
-    Missing nullability on parameter `caller` in method `onPreferenceStartScreen`
-MissingNullability: androidx.preference.PreferenceFragment.OnPreferenceStartScreenCallback#onPreferenceStartScreen(androidx.preference.PreferenceFragment, androidx.preference.PreferenceScreen) parameter #1:
-    Missing nullability on parameter `pref` in method `onPreferenceStartScreen`
 MissingNullability: androidx.preference.PreferenceFragmentCompat#getListView():
     Missing nullability on method `getListView` return
 MissingNullability: androidx.preference.PreferenceFragmentCompat#getPreferenceManager():
     Missing nullability on method `getPreferenceManager` return
 MissingNullability: androidx.preference.PreferenceFragmentCompat#getPreferenceScreen():
     Missing nullability on method `getPreferenceScreen` return
-MissingNullability: androidx.preference.PreferenceFragmentCompat#onCreateAdapter(androidx.preference.PreferenceScreen):
-    Missing nullability on method `onCreateAdapter` return
-MissingNullability: androidx.preference.PreferenceFragmentCompat#onCreateAdapter(androidx.preference.PreferenceScreen) parameter #0:
-    Missing nullability on parameter `preferenceScreen` in method `onCreateAdapter`
-MissingNullability: androidx.preference.PreferenceFragmentCompat#onCreateLayoutManager():
-    Missing nullability on method `onCreateLayoutManager` return
-MissingNullability: androidx.preference.PreferenceFragmentCompat#onCreatePreferences(android.os.Bundle, String) parameter #0:
-    Missing nullability on parameter `savedInstanceState` in method `onCreatePreferences`
-MissingNullability: androidx.preference.PreferenceFragmentCompat#onCreatePreferences(android.os.Bundle, String) parameter #1:
-    Missing nullability on parameter `rootKey` in method `onCreatePreferences`
-MissingNullability: androidx.preference.PreferenceFragmentCompat#onCreateRecyclerView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateRecyclerView` return
-MissingNullability: androidx.preference.PreferenceFragmentCompat#onCreateRecyclerView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `inflater` in method `onCreateRecyclerView`
-MissingNullability: androidx.preference.PreferenceFragmentCompat#onCreateRecyclerView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `parent` in method `onCreateRecyclerView`
-MissingNullability: androidx.preference.PreferenceFragmentCompat#onCreateRecyclerView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #2:
-    Missing nullability on parameter `savedInstanceState` in method `onCreateRecyclerView`
-MissingNullability: androidx.preference.PreferenceFragmentCompat#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateView` return
-MissingNullability: androidx.preference.PreferenceFragmentCompat#onDisplayPreferenceDialog(androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `preference` in method `onDisplayPreferenceDialog`
-MissingNullability: androidx.preference.PreferenceFragmentCompat#onNavigateToScreen(androidx.preference.PreferenceScreen) parameter #0:
-    Missing nullability on parameter `preferenceScreen` in method `onNavigateToScreen`
-MissingNullability: androidx.preference.PreferenceFragmentCompat#onPreferenceTreeClick(androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `preference` in method `onPreferenceTreeClick`
-MissingNullability: androidx.preference.PreferenceFragmentCompat#scrollToPreference(String) parameter #0:
-    Missing nullability on parameter `key` in method `scrollToPreference`
-MissingNullability: androidx.preference.PreferenceFragmentCompat#scrollToPreference(androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `preference` in method `scrollToPreference`
-MissingNullability: androidx.preference.PreferenceFragmentCompat#setDivider(android.graphics.drawable.Drawable) parameter #0:
-    Missing nullability on parameter `divider` in method `setDivider`
 MissingNullability: androidx.preference.PreferenceFragmentCompat#setPreferenceScreen(androidx.preference.PreferenceScreen) parameter #0:
     Missing nullability on parameter `preferenceScreen` in method `setPreferenceScreen`
-MissingNullability: androidx.preference.PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback#onPreferenceDisplayDialog(androidx.preference.PreferenceFragmentCompat, androidx.preference.Preference) parameter #1:
-    Missing nullability on parameter `pref` in method `onPreferenceDisplayDialog`
-MissingNullability: androidx.preference.PreferenceFragmentCompat.OnPreferenceStartFragmentCallback#onPreferenceStartFragment(androidx.preference.PreferenceFragmentCompat, androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `caller` in method `onPreferenceStartFragment`
-MissingNullability: androidx.preference.PreferenceFragmentCompat.OnPreferenceStartFragmentCallback#onPreferenceStartFragment(androidx.preference.PreferenceFragmentCompat, androidx.preference.Preference) parameter #1:
-    Missing nullability on parameter `pref` in method `onPreferenceStartFragment`
-MissingNullability: androidx.preference.PreferenceFragmentCompat.OnPreferenceStartScreenCallback#onPreferenceStartScreen(androidx.preference.PreferenceFragmentCompat, androidx.preference.PreferenceScreen) parameter #0:
-    Missing nullability on parameter `caller` in method `onPreferenceStartScreen`
-MissingNullability: androidx.preference.PreferenceFragmentCompat.OnPreferenceStartScreenCallback#onPreferenceStartScreen(androidx.preference.PreferenceFragmentCompat, androidx.preference.PreferenceScreen) parameter #1:
-    Missing nullability on parameter `pref` in method `onPreferenceStartScreen`
-MissingNullability: androidx.preference.PreferenceGroup#PreferenceGroup(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `PreferenceGroup`
-MissingNullability: androidx.preference.PreferenceGroup#PreferenceGroup(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `PreferenceGroup`
-MissingNullability: androidx.preference.PreferenceGroup#PreferenceGroup(android.content.Context, android.util.AttributeSet, int) parameter #0:
-    Missing nullability on parameter `context` in method `PreferenceGroup`
-MissingNullability: androidx.preference.PreferenceGroup#PreferenceGroup(android.content.Context, android.util.AttributeSet, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `PreferenceGroup`
-MissingNullability: androidx.preference.PreferenceGroup#PreferenceGroup(android.content.Context, android.util.AttributeSet, int, int) parameter #0:
-    Missing nullability on parameter `context` in method `PreferenceGroup`
-MissingNullability: androidx.preference.PreferenceGroup#PreferenceGroup(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `PreferenceGroup`
-MissingNullability: androidx.preference.PreferenceGroup#addItemFromInflater(androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `preference` in method `addItemFromInflater`
-MissingNullability: androidx.preference.PreferenceGroup#addPreference(androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `preference` in method `addPreference`
-MissingNullability: androidx.preference.PreferenceGroup#dispatchRestoreInstanceState(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `container` in method `dispatchRestoreInstanceState`
-MissingNullability: androidx.preference.PreferenceGroup#dispatchSaveInstanceState(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `container` in method `dispatchSaveInstanceState`
-MissingNullability: androidx.preference.PreferenceGroup#getPreference(int):
-    Missing nullability on method `getPreference` return
-MissingNullability: androidx.preference.PreferenceGroup#onPrepareAddPreference(androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `preference` in method `onPrepareAddPreference`
-MissingNullability: androidx.preference.PreferenceGroup#onRestoreInstanceState(android.os.Parcelable) parameter #0:
-    Missing nullability on parameter `state` in method `onRestoreInstanceState`
-MissingNullability: androidx.preference.PreferenceGroup#onSaveInstanceState():
-    Missing nullability on method `onSaveInstanceState` return
-MissingNullability: androidx.preference.PreferenceGroup#removePreference(androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `preference` in method `removePreference`
-MissingNullability: androidx.preference.PreferenceGroup.PreferencePositionCallback#getPreferenceAdapterPosition(String) parameter #0:
-    Missing nullability on parameter `key` in method `getPreferenceAdapterPosition`
-MissingNullability: androidx.preference.PreferenceGroup.PreferencePositionCallback#getPreferenceAdapterPosition(androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `preference` in method `getPreferenceAdapterPosition`
-MissingNullability: androidx.preference.PreferenceManager#createPreferenceScreen(android.content.Context):
-    Missing nullability on method `createPreferenceScreen` return
-MissingNullability: androidx.preference.PreferenceManager#createPreferenceScreen(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `createPreferenceScreen`
-MissingNullability: androidx.preference.PreferenceManager#getContext():
-    Missing nullability on method `getContext` return
 MissingNullability: androidx.preference.PreferenceManager#getDefaultSharedPreferences(android.content.Context):
     Missing nullability on method `getDefaultSharedPreferences` return
-MissingNullability: androidx.preference.PreferenceManager#getDefaultSharedPreferences(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `getDefaultSharedPreferences`
-MissingNullability: androidx.preference.PreferenceManager#getOnDisplayPreferenceDialogListener():
-    Missing nullability on method `getOnDisplayPreferenceDialogListener` return
-MissingNullability: androidx.preference.PreferenceManager#getOnNavigateToScreenListener():
-    Missing nullability on method `getOnNavigateToScreenListener` return
-MissingNullability: androidx.preference.PreferenceManager#getOnPreferenceTreeClickListener():
-    Missing nullability on method `getOnPreferenceTreeClickListener` return
-MissingNullability: androidx.preference.PreferenceManager#getPreferenceComparisonCallback():
-    Missing nullability on method `getPreferenceComparisonCallback` return
 MissingNullability: androidx.preference.PreferenceManager#getPreferenceScreen():
     Missing nullability on method `getPreferenceScreen` return
 MissingNullability: androidx.preference.PreferenceManager#getSharedPreferencesName():
     Missing nullability on method `getSharedPreferencesName` return
-MissingNullability: androidx.preference.PreferenceManager#setDefaultValues(android.content.Context, String, int, int, boolean) parameter #0:
-    Missing nullability on parameter `context` in method `setDefaultValues`
 MissingNullability: androidx.preference.PreferenceManager#setDefaultValues(android.content.Context, String, int, int, boolean) parameter #1:
     Missing nullability on parameter `sharedPreferencesName` in method `setDefaultValues`
-MissingNullability: androidx.preference.PreferenceManager#setDefaultValues(android.content.Context, int, boolean) parameter #0:
-    Missing nullability on parameter `context` in method `setDefaultValues`
-MissingNullability: androidx.preference.PreferenceManager#setOnDisplayPreferenceDialogListener(androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener) parameter #0:
-    Missing nullability on parameter `onDisplayPreferenceDialogListener` in method `setOnDisplayPreferenceDialogListener`
-MissingNullability: androidx.preference.PreferenceManager#setOnNavigateToScreenListener(androidx.preference.PreferenceManager.OnNavigateToScreenListener) parameter #0:
-    Missing nullability on parameter `listener` in method `setOnNavigateToScreenListener`
-MissingNullability: androidx.preference.PreferenceManager#setOnPreferenceTreeClickListener(androidx.preference.PreferenceManager.OnPreferenceTreeClickListener) parameter #0:
-    Missing nullability on parameter `listener` in method `setOnPreferenceTreeClickListener`
-MissingNullability: androidx.preference.PreferenceManager#setPreferenceComparisonCallback(androidx.preference.PreferenceManager.PreferenceComparisonCallback) parameter #0:
-    Missing nullability on parameter `preferenceComparisonCallback` in method `setPreferenceComparisonCallback`
-MissingNullability: androidx.preference.PreferenceManager#setPreferenceDataStore(androidx.preference.PreferenceDataStore) parameter #0:
-    Missing nullability on parameter `dataStore` in method `setPreferenceDataStore`
 MissingNullability: androidx.preference.PreferenceManager#setPreferences(androidx.preference.PreferenceScreen) parameter #0:
     Missing nullability on parameter `preferenceScreen` in method `setPreferences`
 MissingNullability: androidx.preference.PreferenceManager#setSharedPreferencesName(String) parameter #0:
     Missing nullability on parameter `sharedPreferencesName` in method `setSharedPreferencesName`
-MissingNullability: androidx.preference.PreferenceManager#showDialog(androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `preference` in method `showDialog`
-MissingNullability: androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener#onDisplayPreferenceDialog(androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `preference` in method `onDisplayPreferenceDialog`
-MissingNullability: androidx.preference.PreferenceManager.OnNavigateToScreenListener#onNavigateToScreen(androidx.preference.PreferenceScreen) parameter #0:
-    Missing nullability on parameter `preferenceScreen` in method `onNavigateToScreen`
-MissingNullability: androidx.preference.PreferenceManager.OnPreferenceTreeClickListener#onPreferenceTreeClick(androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `preference` in method `onPreferenceTreeClick`
-MissingNullability: androidx.preference.PreferenceManager.PreferenceComparisonCallback#arePreferenceContentsTheSame(androidx.preference.Preference, androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `p1` in method `arePreferenceContentsTheSame`
-MissingNullability: androidx.preference.PreferenceManager.PreferenceComparisonCallback#arePreferenceContentsTheSame(androidx.preference.Preference, androidx.preference.Preference) parameter #1:
-    Missing nullability on parameter `p2` in method `arePreferenceContentsTheSame`
-MissingNullability: androidx.preference.PreferenceManager.PreferenceComparisonCallback#arePreferenceItemsTheSame(androidx.preference.Preference, androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `p1` in method `arePreferenceItemsTheSame`
-MissingNullability: androidx.preference.PreferenceManager.PreferenceComparisonCallback#arePreferenceItemsTheSame(androidx.preference.Preference, androidx.preference.Preference) parameter #1:
-    Missing nullability on parameter `p2` in method `arePreferenceItemsTheSame`
-MissingNullability: androidx.preference.PreferenceManager.SimplePreferenceComparisonCallback#arePreferenceContentsTheSame(androidx.preference.Preference, androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `p1` in method `arePreferenceContentsTheSame`
-MissingNullability: androidx.preference.PreferenceManager.SimplePreferenceComparisonCallback#arePreferenceContentsTheSame(androidx.preference.Preference, androidx.preference.Preference) parameter #1:
-    Missing nullability on parameter `p2` in method `arePreferenceContentsTheSame`
-MissingNullability: androidx.preference.PreferenceManager.SimplePreferenceComparisonCallback#arePreferenceItemsTheSame(androidx.preference.Preference, androidx.preference.Preference) parameter #0:
-    Missing nullability on parameter `p1` in method `arePreferenceItemsTheSame`
-MissingNullability: androidx.preference.PreferenceManager.SimplePreferenceComparisonCallback#arePreferenceItemsTheSame(androidx.preference.Preference, androidx.preference.Preference) parameter #1:
-    Missing nullability on parameter `p2` in method `arePreferenceItemsTheSame`
 MissingNullability: androidx.preference.PreferenceViewHolder#findViewById(int):
     Missing nullability on method `findViewById` return
-MissingNullability: androidx.preference.SeekBarPreference#SeekBarPreference(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `SeekBarPreference`
-MissingNullability: androidx.preference.SeekBarPreference#SeekBarPreference(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `SeekBarPreference`
-MissingNullability: androidx.preference.SeekBarPreference#SeekBarPreference(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `SeekBarPreference`
-MissingNullability: androidx.preference.SeekBarPreference#SeekBarPreference(android.content.Context, android.util.AttributeSet, int) parameter #0:
-    Missing nullability on parameter `context` in method `SeekBarPreference`
-MissingNullability: androidx.preference.SeekBarPreference#SeekBarPreference(android.content.Context, android.util.AttributeSet, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `SeekBarPreference`
-MissingNullability: androidx.preference.SeekBarPreference#SeekBarPreference(android.content.Context, android.util.AttributeSet, int, int) parameter #0:
-    Missing nullability on parameter `context` in method `SeekBarPreference`
-MissingNullability: androidx.preference.SeekBarPreference#SeekBarPreference(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `SeekBarPreference`
-MissingNullability: androidx.preference.SeekBarPreference#onBindViewHolder(androidx.preference.PreferenceViewHolder) parameter #0:
-    Missing nullability on parameter `holder` in method `onBindViewHolder`
-MissingNullability: androidx.preference.SeekBarPreference#onGetDefaultValue(android.content.res.TypedArray, int):
-    Missing nullability on method `onGetDefaultValue` return
-MissingNullability: androidx.preference.SeekBarPreference#onGetDefaultValue(android.content.res.TypedArray, int) parameter #0:
-    Missing nullability on parameter `a` in method `onGetDefaultValue`
-MissingNullability: androidx.preference.SeekBarPreference#onRestoreInstanceState(android.os.Parcelable) parameter #0:
-    Missing nullability on parameter `state` in method `onRestoreInstanceState`
-MissingNullability: androidx.preference.SeekBarPreference#onSaveInstanceState():
-    Missing nullability on method `onSaveInstanceState` return
 MissingNullability: androidx.preference.SeekBarPreference#onSetInitialValue(Object) parameter #0:
     Missing nullability on parameter `defaultValue` in method `onSetInitialValue`
-MissingNullability: androidx.preference.SwitchPreference#SwitchPreference(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `SwitchPreference`
-MissingNullability: androidx.preference.SwitchPreference#SwitchPreference(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `SwitchPreference`
-MissingNullability: androidx.preference.SwitchPreference#SwitchPreference(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `SwitchPreference`
-MissingNullability: androidx.preference.SwitchPreference#SwitchPreference(android.content.Context, android.util.AttributeSet, int) parameter #0:
-    Missing nullability on parameter `context` in method `SwitchPreference`
-MissingNullability: androidx.preference.SwitchPreference#SwitchPreference(android.content.Context, android.util.AttributeSet, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `SwitchPreference`
-MissingNullability: androidx.preference.SwitchPreference#SwitchPreference(android.content.Context, android.util.AttributeSet, int, int) parameter #0:
-    Missing nullability on parameter `context` in method `SwitchPreference`
-MissingNullability: androidx.preference.SwitchPreference#SwitchPreference(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `SwitchPreference`
-MissingNullability: androidx.preference.SwitchPreference#getSwitchTextOff():
-    Missing nullability on method `getSwitchTextOff` return
-MissingNullability: androidx.preference.SwitchPreference#getSwitchTextOn():
-    Missing nullability on method `getSwitchTextOn` return
-MissingNullability: androidx.preference.SwitchPreference#onBindViewHolder(androidx.preference.PreferenceViewHolder) parameter #0:
-    Missing nullability on parameter `holder` in method `onBindViewHolder`
-MissingNullability: androidx.preference.SwitchPreference#setSwitchTextOff(CharSequence) parameter #0:
-    Missing nullability on parameter `offText` in method `setSwitchTextOff`
-MissingNullability: androidx.preference.SwitchPreference#setSwitchTextOn(CharSequence) parameter #0:
-    Missing nullability on parameter `onText` in method `setSwitchTextOn`
-MissingNullability: androidx.preference.SwitchPreferenceCompat#SwitchPreferenceCompat(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `SwitchPreferenceCompat`
-MissingNullability: androidx.preference.SwitchPreferenceCompat#SwitchPreferenceCompat(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `SwitchPreferenceCompat`
-MissingNullability: androidx.preference.SwitchPreferenceCompat#SwitchPreferenceCompat(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `SwitchPreferenceCompat`
-MissingNullability: androidx.preference.SwitchPreferenceCompat#SwitchPreferenceCompat(android.content.Context, android.util.AttributeSet, int) parameter #0:
-    Missing nullability on parameter `context` in method `SwitchPreferenceCompat`
-MissingNullability: androidx.preference.SwitchPreferenceCompat#SwitchPreferenceCompat(android.content.Context, android.util.AttributeSet, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `SwitchPreferenceCompat`
-MissingNullability: androidx.preference.SwitchPreferenceCompat#SwitchPreferenceCompat(android.content.Context, android.util.AttributeSet, int, int) parameter #0:
-    Missing nullability on parameter `context` in method `SwitchPreferenceCompat`
-MissingNullability: androidx.preference.SwitchPreferenceCompat#SwitchPreferenceCompat(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `SwitchPreferenceCompat`
-MissingNullability: androidx.preference.SwitchPreferenceCompat#getSwitchTextOff():
-    Missing nullability on method `getSwitchTextOff` return
-MissingNullability: androidx.preference.SwitchPreferenceCompat#getSwitchTextOn():
-    Missing nullability on method `getSwitchTextOn` return
-MissingNullability: androidx.preference.SwitchPreferenceCompat#onBindViewHolder(androidx.preference.PreferenceViewHolder) parameter #0:
-    Missing nullability on parameter `holder` in method `onBindViewHolder`
-MissingNullability: androidx.preference.SwitchPreferenceCompat#setSwitchTextOff(CharSequence) parameter #0:
-    Missing nullability on parameter `offText` in method `setSwitchTextOff`
-MissingNullability: androidx.preference.SwitchPreferenceCompat#setSwitchTextOn(CharSequence) parameter #0:
-    Missing nullability on parameter `onText` in method `setSwitchTextOn`
-MissingNullability: androidx.preference.TwoStatePreference#TwoStatePreference(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `TwoStatePreference`
-MissingNullability: androidx.preference.TwoStatePreference#TwoStatePreference(android.content.Context, android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `context` in method `TwoStatePreference`
-MissingNullability: androidx.preference.TwoStatePreference#TwoStatePreference(android.content.Context, android.util.AttributeSet) parameter #1:
-    Missing nullability on parameter `attrs` in method `TwoStatePreference`
-MissingNullability: androidx.preference.TwoStatePreference#TwoStatePreference(android.content.Context, android.util.AttributeSet, int) parameter #0:
-    Missing nullability on parameter `context` in method `TwoStatePreference`
-MissingNullability: androidx.preference.TwoStatePreference#TwoStatePreference(android.content.Context, android.util.AttributeSet, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `TwoStatePreference`
-MissingNullability: androidx.preference.TwoStatePreference#TwoStatePreference(android.content.Context, android.util.AttributeSet, int, int) parameter #0:
-    Missing nullability on parameter `context` in method `TwoStatePreference`
-MissingNullability: androidx.preference.TwoStatePreference#TwoStatePreference(android.content.Context, android.util.AttributeSet, int, int) parameter #1:
-    Missing nullability on parameter `attrs` in method `TwoStatePreference`
-MissingNullability: androidx.preference.TwoStatePreference#getSummaryOff():
-    Missing nullability on method `getSummaryOff` return
-MissingNullability: androidx.preference.TwoStatePreference#getSummaryOn():
-    Missing nullability on method `getSummaryOn` return
-MissingNullability: androidx.preference.TwoStatePreference#onGetDefaultValue(android.content.res.TypedArray, int):
-    Missing nullability on method `onGetDefaultValue` return
-MissingNullability: androidx.preference.TwoStatePreference#onGetDefaultValue(android.content.res.TypedArray, int) parameter #0:
-    Missing nullability on parameter `a` in method `onGetDefaultValue`
-MissingNullability: androidx.preference.TwoStatePreference#onRestoreInstanceState(android.os.Parcelable) parameter #0:
-    Missing nullability on parameter `state` in method `onRestoreInstanceState`
-MissingNullability: androidx.preference.TwoStatePreference#onSaveInstanceState():
-    Missing nullability on method `onSaveInstanceState` return
 MissingNullability: androidx.preference.TwoStatePreference#onSetInitialValue(Object) parameter #0:
     Missing nullability on parameter `defaultValue` in method `onSetInitialValue`
-MissingNullability: androidx.preference.TwoStatePreference#setSummaryOff(CharSequence) parameter #0:
-    Missing nullability on parameter `summary` in method `setSummaryOff`
-MissingNullability: androidx.preference.TwoStatePreference#setSummaryOn(CharSequence) parameter #0:
-    Missing nullability on parameter `summary` in method `setSummaryOn`
-MissingNullability: androidx.preference.TwoStatePreference#syncSummaryView(androidx.preference.PreferenceViewHolder) parameter #0:
-    Missing nullability on parameter `holder` in method `syncSummaryView`
 
 
 MutableBareField: androidx.preference.TwoStatePreference#mChecked:

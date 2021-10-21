@@ -25,6 +25,7 @@ import android.util.AttributeSet;
 
 import androidx.annotation.ArrayRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.TypedArrayUtils;
 
 import java.util.Collections;
@@ -46,7 +47,8 @@ public class MultiSelectListPreference extends DialogPreference {
     private Set<String> mValues = new HashSet<>();
 
     public MultiSelectListPreference(
-            Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         final TypedArray a = context.obtainStyledAttributes(attrs,
@@ -64,17 +66,18 @@ public class MultiSelectListPreference extends DialogPreference {
         a.recycle();
     }
 
-    public MultiSelectListPreference(Context context, AttributeSet attrs, int defStyleAttr) {
+    public MultiSelectListPreference(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
-    public MultiSelectListPreference(Context context, AttributeSet attrs) {
+    public MultiSelectListPreference(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, TypedArrayUtils.getAttr(context,
                 R.attr.dialogPreferenceStyle,
                 android.R.attr.dialogPreferenceStyle));
     }
 
-    public MultiSelectListPreference(Context context) {
+    public MultiSelectListPreference(@NonNull Context context) {
         this(context, null);
     }
 
@@ -189,7 +192,7 @@ public class MultiSelectListPreference extends DialogPreference {
     }
 
     @Override
-    protected Object onGetDefaultValue(TypedArray a, int index) {
+    protected @Nullable Object onGetDefaultValue(@NonNull TypedArray a, int index) {
         final CharSequence[] defaultValues = a.getTextArray(index);
         final Set<String> result = new HashSet<>();
 
@@ -206,6 +209,7 @@ public class MultiSelectListPreference extends DialogPreference {
         setValues(getPersistedStringSet((Set<String>) defaultValue));
     }
 
+    @Nullable
     @Override
     protected Parcelable onSaveInstanceState() {
         final Parcelable superState = super.onSaveInstanceState();
@@ -220,7 +224,7 @@ public class MultiSelectListPreference extends DialogPreference {
     }
 
     @Override
-    protected void onRestoreInstanceState(Parcelable state) {
+    protected void onRestoreInstanceState(@Nullable Parcelable state) {
         if (state == null || !state.getClass().equals(SavedState.class)) {
             // Didn't save state for us in onSaveInstanceState
             super.onRestoreInstanceState(state);

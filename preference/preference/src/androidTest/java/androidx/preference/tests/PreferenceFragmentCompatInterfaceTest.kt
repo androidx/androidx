@@ -78,7 +78,7 @@ class PreferenceFragmentCompatInterfaceTest {
     @Test
     fun onPreferenceStartFragmentTest_contextCallback() {
         verifyCallsWithContext {
-            Preference(context).apply {
+            Preference(requireContext()).apply {
                 fragment = "dummy.fragment"
             }
         }
@@ -87,7 +87,7 @@ class PreferenceFragmentCompatInterfaceTest {
     @Test
     fun onPreferenceStartFragmentTest_activityCallback() {
         verifyCallsWithActivity {
-            Preference(context).apply {
+            Preference(requireContext()).apply {
                 fragment = "dummy.fragment"
             }
         }
@@ -96,7 +96,7 @@ class PreferenceFragmentCompatInterfaceTest {
     @Test
     fun onPreferenceStartFragmentTest_contextAndActivityCallback_contextHandlesCall() {
         verifyCallsWithContextAndActivity(contextHandlesCall = true) {
-            Preference(context).apply {
+            Preference(requireContext()).apply {
                 fragment = "dummy.fragment"
             }
         }
@@ -105,7 +105,7 @@ class PreferenceFragmentCompatInterfaceTest {
     @Test
     fun onPreferenceStartFragmentTest_contextAndActivityCallback_contextDoesNotHandleCall() {
         verifyCallsWithContextAndActivity(contextHandlesCall = false) {
-            Preference(context).apply {
+            Preference(requireContext()).apply {
                 fragment = "dummy.fragment"
             }
         }
@@ -124,7 +124,7 @@ class PreferenceFragmentCompatInterfaceTest {
     @Test
     fun onPreferenceStartScreenTest_contextCallback() {
         verifyCallsWithContext {
-            preferenceManager.createPreferenceScreen(context).apply {
+            preferenceManager.createPreferenceScreen(requireContext()).apply {
                 // Add a preference as PreferenceScreen will only dispatch
                 // onPreferenceStartScreen if its count != 0
                 addPreference(Preference(context))
@@ -135,7 +135,7 @@ class PreferenceFragmentCompatInterfaceTest {
     @Test
     fun onPreferenceStartScreenTest_activityCallback() {
         verifyCallsWithActivity {
-            preferenceManager.createPreferenceScreen(context).apply {
+            preferenceManager.createPreferenceScreen(requireContext()).apply {
                 // Add a preference as PreferenceScreen will only dispatch
                 // onPreferenceStartScreen if its count != 0
                 addPreference(Preference(context))
@@ -146,7 +146,7 @@ class PreferenceFragmentCompatInterfaceTest {
     @Test
     fun onPreferenceStartScreenTest_contextAndActivityCallback_contextHandlesCall() {
         verifyCallsWithContextAndActivity(contextHandlesCall = true) {
-            preferenceManager.createPreferenceScreen(context).apply {
+            preferenceManager.createPreferenceScreen(requireContext()).apply {
                 // Add a preference as PreferenceScreen will only dispatch
                 // onPreferenceStartScreen if its count != 0
                 addPreference(Preference(context))
@@ -157,7 +157,7 @@ class PreferenceFragmentCompatInterfaceTest {
     @Test
     fun onPreferenceStartScreenTest_contextAndActivityCallback_contextDoesNotHandleCall() {
         verifyCallsWithContextAndActivity(contextHandlesCall = false) {
-            preferenceManager.createPreferenceScreen(context).apply {
+            preferenceManager.createPreferenceScreen(requireContext()).apply {
                 // Add a preference as PreferenceScreen will only dispatch
                 // onPreferenceStartScreen if its count != 0
                 addPreference(Preference(context))
@@ -168,28 +168,28 @@ class PreferenceFragmentCompatInterfaceTest {
     @Test
     fun onPreferenceDisplayDialogTest_contextCallback() {
         verifyCallsWithContext {
-            EditTextPreference(context)
+            EditTextPreference(requireContext())
         }
     }
 
     @Test
     fun onPreferenceDisplayDialogTest_activityCallback() {
         verifyCallsWithActivity {
-            EditTextPreference(context)
+            EditTextPreference(requireContext())
         }
     }
 
     @Test
     fun onPreferenceDisplayDialogTest_contextAndActivityCallback_contextHandlesCall() {
         verifyCallsWithContextAndActivity(contextHandlesCall = true) {
-            EditTextPreference(context)
+            EditTextPreference(requireContext())
         }
     }
 
     @Test
     fun onPreferenceDisplayDialogTest_contextAndActivityCallback_contextDoesNotHandleCall() {
         verifyCallsWithContextAndActivity(contextHandlesCall = false) {
-            EditTextPreference(context)
+            EditTextPreference(requireContext())
         }
     }
 
@@ -467,7 +467,7 @@ class TestFragment(
     private val contextCallback: (() -> Boolean)? = null
 ) : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        preferenceScreen = preferenceManager.createPreferenceScreen(context)
+        preferenceScreen = preferenceManager.createPreferenceScreen(requireContext())
         val testPreference = testPreferenceFactory()
         testPreference.title = preferenceTitle
         preferenceScreen.addPreference(testPreference)
@@ -542,7 +542,11 @@ class WithInterfaceParentFragment(
                     add(
                         R.id.child_fragment,
                         TestFragment(
-                            { Preference(context).apply { fragment = "preference.fragment" } },
+                            {
+                                Preference(requireContext()).apply {
+                                    fragment = "preference.fragment"
+                                }
+                            },
                             { false }
                         )
                     )

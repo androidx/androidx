@@ -294,7 +294,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
         );
         preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
-            public boolean onPreferenceClick(Preference preference) {
+            public boolean onPreferenceClick(@NonNull Preference preference) {
                 group.setInitialExpandedChildrenCount(Integer.MAX_VALUE);
                 onPreferenceHierarchyChange(preference);
                 final PreferenceGroup.OnExpandButtonClickListener listener =
@@ -346,7 +346,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     }
 
     @Override
-    public void onPreferenceChange(Preference preference) {
+    public void onPreferenceChange(@NonNull Preference preference) {
         final int index = mVisiblePreferences.indexOf(preference);
         // If we don't find the preference, we don't need to notify anyone
         if (index != -1) {
@@ -356,13 +356,13 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     }
 
     @Override
-    public void onPreferenceHierarchyChange(Preference preference) {
+    public void onPreferenceHierarchyChange(@NonNull Preference preference) {
         mHandler.removeCallbacks(mSyncRunnable);
         mHandler.post(mSyncRunnable);
     }
 
     @Override
-    public void onPreferenceVisibilityChange(Preference preference) {
+    public void onPreferenceVisibilityChange(@NonNull Preference preference) {
         onPreferenceHierarchyChange(preference);
     }
 
@@ -423,7 +423,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     }
 
     @Override
-    public int getPreferenceAdapterPosition(String key) {
+    public int getPreferenceAdapterPosition(@NonNull String key) {
         final int size = mVisiblePreferences.size();
         for (int i = 0; i < size; i++) {
             final Preference candidate = mVisiblePreferences.get(i);
@@ -435,7 +435,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
     }
 
     @Override
-    public int getPreferenceAdapterPosition(Preference preference) {
+    public int getPreferenceAdapterPosition(@NonNull Preference preference) {
         final int size = mVisiblePreferences.size();
         for (int i = 0; i < size; i++) {
             final Preference candidate = mVisiblePreferences.get(i);
@@ -458,7 +458,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
         int mWidgetLayoutResId;
         String mClassName;
 
-        PreferenceResourceDescriptor(Preference preference) {
+        PreferenceResourceDescriptor(@NonNull Preference preference) {
             mClassName = preference.getClass().getName();
             mLayoutResId = preference.getLayoutResource();
             mWidgetLayoutResId = preference.getWidgetLayoutResource();

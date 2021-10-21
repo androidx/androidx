@@ -26,6 +26,8 @@ import android.view.accessibility.AccessibilityManager;
 import android.widget.Checkable;
 import android.widget.CompoundButton;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.res.TypedArrayUtils;
 
@@ -41,11 +43,13 @@ import androidx.core.content.res.TypedArrayUtils;
 public class CheckBoxPreference extends TwoStatePreference {
     private final Listener mListener = new Listener();
 
-    public CheckBoxPreference(Context context, AttributeSet attrs, int defStyleAttr) {
+    public CheckBoxPreference(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
     public CheckBoxPreference(
-            Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         final TypedArray a = context.obtainStyledAttributes(attrs,
@@ -63,17 +67,17 @@ public class CheckBoxPreference extends TwoStatePreference {
 
         a.recycle();
     }
-    public CheckBoxPreference(Context context, AttributeSet attrs) {
+    public CheckBoxPreference(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.checkBoxPreferenceStyle,
                 android.R.attr.checkBoxPreferenceStyle));
     }
 
-    public CheckBoxPreference(Context context) {
+    public CheckBoxPreference(@NonNull Context context) {
         this(context, null);
     }
 
     @Override
-    public void onBindViewHolder(PreferenceViewHolder holder) {
+    public void onBindViewHolder(@NonNull PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
 
         syncCheckboxView(holder.findViewById(android.R.id.checkbox));
@@ -86,12 +90,12 @@ public class CheckBoxPreference extends TwoStatePreference {
      */
     @RestrictTo(LIBRARY)
     @Override
-    protected void performClick(View view) {
+    protected void performClick(@NonNull View view) {
         super.performClick(view);
         syncViewIfAccessibilityEnabled(view);
     }
 
-    private void syncViewIfAccessibilityEnabled(View view) {
+    private void syncViewIfAccessibilityEnabled(@NonNull View view) {
         AccessibilityManager accessibilityManager = (AccessibilityManager)
                 getContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
         if (!accessibilityManager.isEnabled()) {
