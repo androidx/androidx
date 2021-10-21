@@ -31,6 +31,7 @@ AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformE
 dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
+    api("androidx.annotation:annotation:1.2.0")
     api("androidx.compose.runtime:runtime:1.0.1")
     api("androidx.annotation:annotation:1.2.0")
 

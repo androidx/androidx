@@ -194,6 +194,19 @@ package androidx.glance.layout {
     method public androidx.glance.GlanceModifier defaultWeight(androidx.glance.GlanceModifier);
   }
 
+  public final inline class ContentScale {
+    ctor public ContentScale();
+  }
+
+  public static final class ContentScale.Companion {
+    method public int getCrop();
+    method public int getFillBounds();
+    method public int getFit();
+    property public final int Crop;
+    property public final int FillBounds;
+    property public final int Fit;
+  }
+
   public final class DimensionKt {
     method public static androidx.glance.GlanceModifier fillMaxHeight(androidx.glance.GlanceModifier);
     method public static androidx.glance.GlanceModifier fillMaxSize(androidx.glance.GlanceModifier);
@@ -209,6 +222,14 @@ package androidx.glance.layout {
     method public static androidx.glance.GlanceModifier wrapContentHeight(androidx.glance.GlanceModifier);
     method public static androidx.glance.GlanceModifier wrapContentSize(androidx.glance.GlanceModifier);
     method public static androidx.glance.GlanceModifier wrapContentWidth(androidx.glance.GlanceModifier);
+  }
+
+  public final class ImageKt {
+    method @androidx.compose.runtime.Composable public static void Image(androidx.glance.layout.ImageProvider provider, String? contentDescription, optional androidx.glance.GlanceModifier modifier, optional int contentScale);
+    method public static androidx.glance.layout.ImageProvider ImageProvider(@DrawableRes int resId);
+  }
+
+  public interface ImageProvider {
   }
 
   public final class PaddingKt {
