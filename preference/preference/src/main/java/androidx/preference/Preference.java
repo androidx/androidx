@@ -96,7 +96,8 @@ public class Preference implements Comparable<Preference> {
 
     private static final String CLIPBOARD_ID = "Preference";
 
-    private Context mContext;
+    @NonNull
+    private final Context mContext;
 
     @Nullable
     private PreferenceManager mPreferenceManager;
@@ -201,7 +202,8 @@ public class Preference implements Comparable<Preference> {
      *                     theme. Can be 0 to not look for defaults.
      * @see #Preference(Context, android.util.AttributeSet)
      */
-    public Preference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public Preference(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
         mContext = context;
 
         final TypedArray a = context.obtainStyledAttributes(
@@ -293,7 +295,7 @@ public class Preference implements Comparable<Preference> {
      *                     look for defaults.
      * @see #Preference(Context, AttributeSet)
      */
-    public Preference(Context context, AttributeSet attrs, int defStyleAttr) {
+    public Preference(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
@@ -308,7 +310,7 @@ public class Preference implements Comparable<Preference> {
      * @param attrs   The attributes of the XML tag that is inflating the preference
      * @see #Preference(Context, AttributeSet, int)
      */
-    public Preference(Context context, AttributeSet attrs) {
+    public Preference(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.preferenceStyle,
                 android.R.attr.preferenceStyle));
     }
@@ -319,7 +321,7 @@ public class Preference implements Comparable<Preference> {
      * @param context The Context this is associated with, through which it can access the
      *                current theme, resources, {@link SharedPreferences}, etc.
      */
-    public Preference(Context context) {
+    public Preference(@NonNull Context context) {
         this(context, null);
     }
 
@@ -335,7 +337,8 @@ public class Preference implements Comparable<Preference> {
      * @param index The index of the default value attribute
      * @return The default value of this preference type
      */
-    protected Object onGetDefaultValue(TypedArray a, int index) {
+    @Nullable
+    protected Object onGetDefaultValue(@NonNull TypedArray a, int index) {
         return null;
     }
 
@@ -345,7 +348,7 @@ public class Preference implements Comparable<Preference> {
      *
      * @param intent The intent associated with this preference
      */
-    public void setIntent(Intent intent) {
+    public void setIntent(@Nullable Intent intent) {
         mIntent = intent;
     }
 
@@ -354,6 +357,7 @@ public class Preference implements Comparable<Preference> {
      *
      * @return The {@link Intent} last set via {@link #setIntent(Intent)} or XML
      */
+    @Nullable
     public Intent getIntent() {
         return mIntent;
     }
@@ -363,7 +367,7 @@ public class Preference implements Comparable<Preference> {
      *
      * @param fragment The class name of the fragment associated with this preference
      */
-    public void setFragment(String fragment) {
+    public void setFragment(@Nullable String fragment) {
         mFragment = fragment;
     }
 
@@ -372,6 +376,7 @@ public class Preference implements Comparable<Preference> {
      *
      * @return The fragment class name last set via {@link #setFragment} or XML
      */
+    @Nullable
     public String getFragment() {
         return mFragment;
     }
@@ -387,7 +392,7 @@ public class Preference implements Comparable<Preference> {
      * @param dataStore The {@link PreferenceDataStore} to be used by this preference
      * @see PreferenceManager#setPreferenceDataStore(PreferenceDataStore)
      */
-    public void setPreferenceDataStore(PreferenceDataStore dataStore) {
+    public void setPreferenceDataStore(@Nullable PreferenceDataStore dataStore) {
         mPreferenceDataStore = dataStore;
     }
 
@@ -418,6 +423,7 @@ public class Preference implements Comparable<Preference> {
      * Return the extras Bundle object associated with this preference, creating a new Bundle if
      * there currently isn't one. You can use this to get and set individual extra key/value pairs.
      */
+    @NonNull
     public Bundle getExtras() {
         if (mExtras == null) {
             mExtras = new Bundle();
@@ -429,6 +435,8 @@ public class Preference implements Comparable<Preference> {
      * Return the extras Bundle object associated with this preference, returning {@code null} if
      * there is not currently one.
      */
+    @SuppressWarnings("NullableCollection")
+    @Nullable
     public Bundle peekExtras() {
         return mExtras;
     }
@@ -498,7 +506,7 @@ public class Preference implements Comparable<Preference> {
      *               will be recycled, so you should not hold a reference to them after this method
      *               returns.
      */
-    public void onBindViewHolder(PreferenceViewHolder holder) {
+    public void onBindViewHolder(@NonNull PreferenceViewHolder holder) {
         View itemView = holder.itemView;
         Integer summaryTextColor = null;
 
@@ -597,7 +605,7 @@ public class Preference implements Comparable<Preference> {
     /**
      * Makes sure the view (and any children) get the enabled state changed.
      */
-    private void setEnabledStateOnViews(View v, boolean enabled) {
+    private void setEnabledStateOnViews(@NonNull View v, boolean enabled) {
         v.setEnabled(enabled);
 
         if (v instanceof ViewGroup) {
@@ -655,7 +663,7 @@ public class Preference implements Comparable<Preference> {
      *
      * @param title The title for this preference
      */
-    public void setTitle(CharSequence title) {
+    public void setTitle(@Nullable CharSequence title) {
         if (!TextUtils.equals(title, mTitle)) {
             mTitle = title;
             notifyChanged();
@@ -678,6 +686,7 @@ public class Preference implements Comparable<Preference> {
      * @return The title
      * @see #setTitle(CharSequence)
      */
+    @Nullable
     public CharSequence getTitle() {
         return mTitle;
     }
@@ -689,7 +698,7 @@ public class Preference implements Comparable<Preference> {
      *
      * @param icon The optional icon for this preference
      */
-    public void setIcon(Drawable icon) {
+    public void setIcon(@Nullable Drawable icon) {
         if (mIcon != icon) {
             mIcon = icon;
             mIconResId = 0;
@@ -714,6 +723,7 @@ public class Preference implements Comparable<Preference> {
      * @return The icon
      * @see #setIcon(Drawable)
      */
+    @Nullable
     public Drawable getIcon() {
         if (mIcon == null && mIconResId != 0) {
             mIcon = AppCompatResources.getDrawable(mContext, mIconResId);
@@ -729,6 +739,7 @@ public class Preference implements Comparable<Preference> {
      * @see #setSummary(CharSequence)
      * @see #setSummaryProvider(SummaryProvider)
      */
+    @Nullable
     @SuppressWarnings("unchecked")
     public CharSequence getSummary() {
         if (getSummaryProvider() != null) {
@@ -747,7 +758,7 @@ public class Preference implements Comparable<Preference> {
      * @throws IllegalStateException If a {@link SummaryProvider} has already been set.
      * @see #setSummaryProvider(SummaryProvider)
      */
-    public void setSummary(CharSequence summary) {
+    public void setSummary(@Nullable CharSequence summary) {
         if (getSummaryProvider() != null) {
             throw new IllegalStateException("Preference already has a SummaryProvider set.");
         }
@@ -1127,7 +1138,7 @@ public class Preference implements Comparable<Preference> {
      * @param onPreferenceChangeListener The callback to be invoked
      */
     public void setOnPreferenceChangeListener(
-            OnPreferenceChangeListener onPreferenceChangeListener) {
+            @Nullable OnPreferenceChangeListener onPreferenceChangeListener) {
         mOnChangeListener = onPreferenceChangeListener;
     }
 
@@ -1137,6 +1148,7 @@ public class Preference implements Comparable<Preference> {
      *
      * @return The callback to be invoked
      */
+    @Nullable
     public OnPreferenceChangeListener getOnPreferenceChangeListener() {
         return mOnChangeListener;
     }
@@ -1146,7 +1158,8 @@ public class Preference implements Comparable<Preference> {
      *
      * @param onPreferenceClickListener The callback to be invoked
      */
-    public void setOnPreferenceClickListener(OnPreferenceClickListener onPreferenceClickListener) {
+    public void setOnPreferenceClickListener(
+            @Nullable OnPreferenceClickListener onPreferenceClickListener) {
         mOnClickListener = onPreferenceClickListener;
     }
 
@@ -1155,6 +1168,7 @@ public class Preference implements Comparable<Preference> {
      *
      * @return The callback to be invoked
      */
+    @Nullable
     public OnPreferenceClickListener getOnPreferenceClickListener() {
         return mOnClickListener;
     }
@@ -1164,7 +1178,7 @@ public class Preference implements Comparable<Preference> {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    protected void performClick(View view) {
+    protected void performClick(@NonNull View view) {
         performClick();
     }
 
@@ -1210,6 +1224,7 @@ public class Preference implements Comparable<Preference> {
      *
      * @return The Context of this preference
      */
+    @NonNull
     public Context getContext() {
         return mContext;
     }
@@ -1226,6 +1241,7 @@ public class Preference implements Comparable<Preference> {
      * {@link PreferenceDataStore} has been set, this method returns {@code null}.
      * @see #setPreferenceDataStore(PreferenceDataStore)
      */
+    @Nullable
     public SharedPreferences getSharedPreferences() {
         if (mPreferenceManager == null || getPreferenceDataStore() != null) {
             return null;
@@ -1265,7 +1281,8 @@ public class Preference implements Comparable<Preference> {
      * @param listener The listener
      * @see #notifyChanged()
      */
-    final void setOnPreferenceChangeInternalListener(OnPreferenceChangeInternalListener listener) {
+    final void setOnPreferenceChangeInternalListener(
+            @Nullable OnPreferenceChangeInternalListener listener) {
         mListener = listener;
     }
 
@@ -1303,7 +1320,7 @@ public class Preference implements Comparable<Preference> {
      *
      * @param preferenceManager The PreferenceManager of the hierarchy
      */
-    protected void onAttachedToHierarchy(PreferenceManager preferenceManager) {
+    protected void onAttachedToHierarchy(@NonNull PreferenceManager preferenceManager) {
         mPreferenceManager = preferenceManager;
 
         if (!mHasId) {
@@ -1321,7 +1338,7 @@ public class Preference implements Comparable<Preference> {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    protected void onAttachedToHierarchy(PreferenceManager preferenceManager, long id) {
+    protected void onAttachedToHierarchy(@NonNull PreferenceManager preferenceManager, long id) {
         mId = id;
         mHasId = true;
         try {
@@ -1481,7 +1498,7 @@ public class Preference implements Comparable<Preference> {
      * @param dependency       The preference that this preference depends on
      * @param disableDependent Set true to disable this preference
      */
-    public void onDependencyChanged(Preference dependency, boolean disableDependent) {
+    public void onDependencyChanged(@NonNull Preference dependency, boolean disableDependent) {
         if (mDependencyMet == disableDependent) {
             mDependencyMet = !disableDependent;
 
@@ -1498,7 +1515,7 @@ public class Preference implements Comparable<Preference> {
      * @param parent       The preference that this preference depends on
      * @param disableChild Set true to disable this preference
      */
-    public void onParentChanged(Preference parent, boolean disableChild) {
+    public void onParentChanged(@NonNull Preference parent, boolean disableChild) {
         if (mParentDependencyMet == disableChild) {
             mParentDependencyMet = !disableChild;
 
@@ -1524,7 +1541,7 @@ public class Preference implements Comparable<Preference> {
      *
      * @param dependencyKey The key of the preference that this depends on
      */
-    public void setDependency(String dependencyKey) {
+    public void setDependency(@Nullable String dependencyKey) {
         // Unregister the old dependency, if we had one
         unregisterDependency();
 
@@ -1539,6 +1556,7 @@ public class Preference implements Comparable<Preference> {
      * @return The key of the dependency
      * @see #setDependency(String)
      */
+    @Nullable
     public String getDependency() {
         return mDependencyKey;
     }
@@ -1957,6 +1975,7 @@ public class Preference implements Comparable<Preference> {
         return mPreferenceManager.getSharedPreferences().getBoolean(mKey, defaultReturnValue);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return getFilterableStringBuilder().toString();
@@ -1971,6 +1990,7 @@ public class Preference implements Comparable<Preference> {
      * @return Text as a {@link StringBuilder} that will be used to filter this preference. By
      * default, this is the title and summary (concatenated with a space).
      */
+    @NonNull
     StringBuilder getFilterableStringBuilder() {
         StringBuilder sb = new StringBuilder();
         CharSequence title = getTitle();
@@ -1995,7 +2015,7 @@ public class Preference implements Comparable<Preference> {
      * @see #restoreHierarchyState
      * @see #onSaveInstanceState
      */
-    public void saveHierarchyState(Bundle container) {
+    public void saveHierarchyState(@NonNull Bundle container) {
         dispatchSaveInstanceState(container);
     }
 
@@ -2008,7 +2028,7 @@ public class Preference implements Comparable<Preference> {
      * @see #saveHierarchyState
      * @see #onSaveInstanceState
      */
-    void dispatchSaveInstanceState(Bundle container) {
+    void dispatchSaveInstanceState(@NonNull Bundle container) {
         if (hasKey()) {
             mBaseMethodCalled = false;
             Parcelable state = onSaveInstanceState();
@@ -2033,6 +2053,7 @@ public class Preference implements Comparable<Preference> {
      * @see #onRestoreInstanceState
      * @see #saveHierarchyState
      */
+    @Nullable
     protected Parcelable onSaveInstanceState() {
         mBaseMethodCalled = true;
         return BaseSavedState.EMPTY_STATE;
@@ -2045,7 +2066,7 @@ public class Preference implements Comparable<Preference> {
      * @see #saveHierarchyState
      * @see #onRestoreInstanceState
      */
-    public void restoreHierarchyState(Bundle container) {
+    public void restoreHierarchyState(@NonNull Bundle container) {
         dispatchRestoreInstanceState(container);
     }
 
@@ -2059,7 +2080,7 @@ public class Preference implements Comparable<Preference> {
      * @see #restoreHierarchyState
      * @see #onRestoreInstanceState
      */
-    void dispatchRestoreInstanceState(Bundle container) {
+    void dispatchRestoreInstanceState(@NonNull Bundle container) {
         if (hasKey()) {
             Parcelable state = container.getParcelable(mKey);
             if (state != null) {
@@ -2083,7 +2104,7 @@ public class Preference implements Comparable<Preference> {
      * @see #onSaveInstanceState
      * @see #restoreHierarchyState
      */
-    protected void onRestoreInstanceState(Parcelable state) {
+    protected void onRestoreInstanceState(@Nullable Parcelable state) {
         mBaseMethodCalled = true;
         if (state != BaseSavedState.EMPTY_STATE && state != null) {
             throw new IllegalArgumentException("Wrong state class -- expecting Preference State");
@@ -2116,7 +2137,7 @@ public class Preference implements Comparable<Preference> {
          * @param newValue   The new value of the preference
          * @return {@code true} to update the state of the preference with the new value
          */
-        boolean onPreferenceChange(Preference preference, Object newValue);
+        boolean onPreferenceChange(@NonNull Preference preference, Object newValue);
     }
 
     /**
@@ -2129,7 +2150,7 @@ public class Preference implements Comparable<Preference> {
          * @param preference The preference that was clicked
          * @return {@code true} if the click was handled
          */
-        boolean onPreferenceClick(Preference preference);
+        boolean onPreferenceClick(@NonNull Preference preference);
     }
 
     /**
@@ -2143,21 +2164,21 @@ public class Preference implements Comparable<Preference> {
          *
          * @param preference This preference
          */
-        void onPreferenceChange(Preference preference);
+        void onPreferenceChange(@NonNull Preference preference);
 
         /**
          * Called when this group has added/removed {@link Preference}(s).
          *
          * @param preference This preference
          */
-        void onPreferenceHierarchyChange(Preference preference);
+        void onPreferenceHierarchyChange(@NonNull Preference preference);
 
         /**
          * Called when this preference has changed its visibility.
          *
          * @param preference This preference
          */
-        void onPreferenceVisibilityChange(Preference preference);
+        void onPreferenceVisibilityChange(@NonNull Preference preference);
     }
 
     /**
@@ -2186,6 +2207,7 @@ public class Preference implements Comparable<Preference> {
          * @param preference This preference
          * @return A CharSequence that will be displayed as the summary for this preference
          */
+        @Nullable
         CharSequence provideSummary(@NonNull T preference);
     }
 
@@ -2193,6 +2215,7 @@ public class Preference implements Comparable<Preference> {
      * A base class for managing the instance state of a {@link Preference}.
      */
     public static class BaseSavedState extends AbsSavedState {
+        @NonNull
         public static final Parcelable.Creator<BaseSavedState> CREATOR =
                 new Parcelable.Creator<BaseSavedState>() {
                     @Override
@@ -2226,7 +2249,7 @@ public class Preference implements Comparable<Preference> {
 
         private final Preference mPreference;
 
-        OnPreferenceCopyListener(Preference preference) {
+        OnPreferenceCopyListener(@NonNull Preference preference) {
             mPreference = preference;
         }
 

@@ -43,12 +43,13 @@ class PreferenceInflater {
     private static final HashMap<String, Constructor<?>> CONSTRUCTOR_MAP = new HashMap<>();
     private static final String INTENT_TAG_NAME = "intent";
     private static final String EXTRA_TAG_NAME = "extra";
+    @NonNull
     private final Context mContext;
     private final Object[] mConstructorArgs = new Object[2];
     private PreferenceManager mPreferenceManager;
     private String[] mDefaultPackages;
 
-    public PreferenceInflater(Context context, PreferenceManager preferenceManager) {
+    PreferenceInflater(@NonNull Context context, PreferenceManager preferenceManager) {
         mContext = context;
         init(preferenceManager);
     }
@@ -90,6 +91,7 @@ class PreferenceInflater {
     /**
      * Return the context we are running in, for access to resources, class loader, etc.
      */
+    @NonNull
     public Context getContext() {
         return mContext;
     }
@@ -103,6 +105,7 @@ class PreferenceInflater {
      * @return The root of the inflated hierarchy. If root was supplied, this is the root item;
      * otherwise it is the root of the inflated XML file.
      */
+    @NonNull
     public Preference inflate(int resource, @Nullable PreferenceGroup root) {
         XmlResourceParser parser = getContext().getResources().getXml(resource);
         try {
@@ -129,6 +132,7 @@ class PreferenceInflater {
      * @return The root of the inflated hierarchy. If root was supplied, this is root; otherwise
      * it is the root of the inflated XML file.
      */
+    @NonNull
     public Preference inflate(XmlPullParser parser, @Nullable PreferenceGroup root) {
         synchronized (mConstructorArgs) {
             final AttributeSet attrs = Xml.asAttributeSet(parser);
@@ -302,7 +306,8 @@ class PreferenceInflater {
      * Recursive method used to descend down the xml hierarchy and instantiate items, instantiate
      * their children, and then call onFinishInflate().
      */
-    private void rInflate(XmlPullParser parser, Preference parent, final AttributeSet attrs)
+    private void rInflate(@NonNull XmlPullParser parser, Preference parent,
+            final AttributeSet attrs)
             throws XmlPullParserException, IOException {
         final int depth = parser.getDepth();
 
@@ -349,7 +354,7 @@ class PreferenceInflater {
 
     }
 
-    private static void skipCurrentTag(XmlPullParser parser)
+    private static void skipCurrentTag(@NonNull XmlPullParser parser)
             throws XmlPullParserException, IOException {
         int outerDepth = parser.getDepth();
         int type;

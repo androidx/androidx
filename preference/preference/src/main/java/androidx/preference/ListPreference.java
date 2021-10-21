@@ -26,6 +26,7 @@ import android.util.Log;
 
 import androidx.annotation.ArrayRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.TypedArrayUtils;
 
 /**
@@ -45,7 +46,8 @@ public class ListPreference extends DialogPreference {
     private String mSummary;
     private boolean mValueSet;
 
-    public ListPreference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ListPreference(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         TypedArray a = context.obtainStyledAttributes(
@@ -74,16 +76,17 @@ public class ListPreference extends DialogPreference {
         a.recycle();
     }
 
-    public ListPreference(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ListPreference(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
-    public ListPreference(Context context, AttributeSet attrs) {
+    public ListPreference(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.dialogPreferenceStyle,
                 android.R.attr.dialogPreferenceStyle));
     }
 
-    public ListPreference(Context context) {
+    public ListPreference(@NonNull Context context) {
         this(context, null);
     }
 
@@ -146,7 +149,7 @@ public class ListPreference extends DialogPreference {
     }
 
     @Override
-    public void setSummary(CharSequence summary) {
+    public void setSummary(@Nullable CharSequence summary) {
         super.setSummary(summary);
         if (summary == null) {
             mSummary = null;
@@ -156,6 +159,7 @@ public class ListPreference extends DialogPreference {
     }
 
     @SuppressWarnings("unchecked")
+    @Nullable
     @Override
     public CharSequence getSummary() {
         if (getSummaryProvider() != null) {
@@ -208,6 +212,7 @@ public class ListPreference extends DialogPreference {
      *
      * @return The entry corresponding to the current value, or {@code null}
      */
+    @Nullable
     public CharSequence getEntry() {
         int index = getValueIndex();
         return index >= 0 && mEntries != null ? mEntries[index] : null;
@@ -246,7 +251,7 @@ public class ListPreference extends DialogPreference {
     }
 
     @Override
-    protected Object onGetDefaultValue(TypedArray a, int index) {
+    protected Object onGetDefaultValue(@NonNull TypedArray a, int index) {
         return a.getString(index);
     }
 
@@ -255,6 +260,7 @@ public class ListPreference extends DialogPreference {
         setValue(getPersistedString((String) defaultValue));
     }
 
+    @Nullable
     @Override
     protected Parcelable onSaveInstanceState() {
         final Parcelable superState = super.onSaveInstanceState();
@@ -269,7 +275,7 @@ public class ListPreference extends DialogPreference {
     }
 
     @Override
-    protected void onRestoreInstanceState(Parcelable state) {
+    protected void onRestoreInstanceState(@Nullable Parcelable state) {
         if (state == null || !state.getClass().equals(SavedState.class)) {
             // Didn't save state for us in onSaveInstanceState
             super.onRestoreInstanceState(state);
@@ -339,6 +345,7 @@ public class ListPreference extends DialogPreference {
             return sSimpleSummaryProvider;
         }
 
+        @Nullable
         @Override
         public CharSequence provideSummary(@NonNull ListPreference preference) {
             if (TextUtils.isEmpty(preference.getEntry())) {

@@ -86,7 +86,7 @@ abstract class PreferenceHeaderFragmentCompat :
             // Opens an preference in detail pane.
             val frag = childFragmentManager.fragmentFactory.instantiate(
                 requireContext().classLoader,
-                pref.fragment
+                pref.fragment!!
             )
             frag.arguments = pref.extras
 
