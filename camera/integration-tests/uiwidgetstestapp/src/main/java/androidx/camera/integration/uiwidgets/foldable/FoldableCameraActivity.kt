@@ -149,8 +149,24 @@ class FoldableCameraActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        menu.findItem(R.id.implementationMode)
+            ?.setTitle("Current impl: ${binding.previewView.implementationMode}")
+        return super.onPrepareOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.implementationMode -> {
+                binding.previewView.implementationMode =
+                    when (binding.previewView.implementationMode) {
+                        PreviewView.ImplementationMode.PERFORMANCE ->
+                            PreviewView.ImplementationMode.COMPATIBLE
+                        else -> PreviewView.ImplementationMode.PERFORMANCE
+                    }
+                cameraProvider.unbindAll()
+                bindUseCases(cameraProvider)
+            }
             R.id.fitCenter -> binding.previewView.scaleType = PreviewView.ScaleType.FIT_CENTER
             R.id.fillCenter -> binding.previewView.scaleType = PreviewView.ScaleType.FILL_CENTER
             R.id.fitStart -> binding.previewView.scaleType = PreviewView.ScaleType.FIT_START
