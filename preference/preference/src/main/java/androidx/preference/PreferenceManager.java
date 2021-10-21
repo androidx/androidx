@@ -115,7 +115,7 @@ public class PreferenceManager {
      * @return A {@link SharedPreferences} instance that can be used to retrieve and listen to
      * values of the preferences
      */
-    public static SharedPreferences getDefaultSharedPreferences(Context context) {
+    public static SharedPreferences getDefaultSharedPreferences(@NonNull Context context) {
         return context.getSharedPreferences(getDefaultSharedPreferencesName(context),
                 getDefaultSharedPreferencesMode());
     }
@@ -145,7 +145,7 @@ public class PreferenceManager {
      *                  {@link PreferenceManager#getDefaultSharedPreferences(Context)} and clear
      *                  it followed by a call to this method with this parameter set to true.
      */
-    public static void setDefaultValues(Context context, int resId, boolean readAgain) {
+    public static void setDefaultValues(@NonNull Context context, int resId, boolean readAgain) {
         // Use the default shared preferences name and mode
         setDefaultValues(context, getDefaultSharedPreferencesName(context),
                 getDefaultSharedPreferencesMode(), resId, readAgain);
@@ -176,7 +176,7 @@ public class PreferenceManager {
      * @see #setSharedPreferencesName(String)
      * @see #setSharedPreferencesMode(int)
      */
-    public static void setDefaultValues(Context context, String sharedPreferencesName,
+    public static void setDefaultValues(@NonNull Context context, String sharedPreferencesName,
             int sharedPreferencesMode, int resId, boolean readAgain) {
         final SharedPreferences defaultValueSp = context.getSharedPreferences(
                 KEY_HAS_SET_DEFAULT_VALUES, Context.MODE_PRIVATE);
@@ -207,8 +207,9 @@ public class PreferenceManager {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public PreferenceScreen inflateFromResource(Context context, int resId,
-            PreferenceScreen rootPreferences) {
+    @NonNull
+    public PreferenceScreen inflateFromResource(@NonNull Context context, int resId,
+            @Nullable PreferenceScreen rootPreferences) {
         // Block commits
         setNoCommit(true);
 
@@ -222,7 +223,8 @@ public class PreferenceManager {
         return rootPreferences;
     }
 
-    public PreferenceScreen createPreferenceScreen(Context context) {
+    @NonNull
+    public PreferenceScreen createPreferenceScreen(@NonNull Context context) {
         final PreferenceScreen preferenceScreen = new PreferenceScreen(context, null);
         preferenceScreen.onAttachedToHierarchy(this);
         return preferenceScreen;
@@ -364,7 +366,7 @@ public class PreferenceManager {
      * @param dataStore The {@link PreferenceDataStore} to be used by this manager
      * @see Preference#setPreferenceDataStore(PreferenceDataStore)
      */
-    public void setPreferenceDataStore(PreferenceDataStore dataStore) {
+    public void setPreferenceDataStore(@Nullable PreferenceDataStore dataStore) {
         mPreferenceDataStore = dataStore;
     }
 
@@ -507,6 +509,7 @@ public class PreferenceManager {
      *
      * @return The {@link Context}
      */
+    @NonNull
     public Context getContext() {
         return mContext;
     }
@@ -536,7 +539,7 @@ public class PreferenceManager {
      *
      * @param preference The preference requesting the dialog
      */
-    public void showDialog(Preference preference) {
+    public void showDialog(@NonNull Preference preference) {
         if (mOnDisplayPreferenceDialogListener != null) {
             mOnDisplayPreferenceDialogListener.onDisplayPreferenceDialog(preference);
         }

@@ -564,6 +564,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      * @return A new {@link RecyclerView} object to be placed into the view hierarchy
      */
     @SuppressWarnings("deprecation")
+    @NonNull
     public RecyclerView onCreateRecyclerView(@NonNull LayoutInflater inflater,
             @NonNull ViewGroup parent, @Nullable Bundle savedInstanceState) {
         // If device detected is Auto, use Auto's custom layout that contains a custom ViewGroup
@@ -591,6 +592,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      *
      * @return A new {@link RecyclerView.LayoutManager} instance
      */
+    @NonNull
     public RecyclerView.LayoutManager onCreateLayoutManager() {
         return new LinearLayoutManager(requireContext());
     }
@@ -601,6 +603,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      * @param preferenceScreen The {@link PreferenceScreen} object to create the adapter for
      * @return An adapter that contains the preferences contained in this {@link PreferenceScreen}
      */
+    @NonNull
     protected RecyclerView.Adapter onCreateAdapter(@NonNull PreferenceScreen preferenceScreen) {
         return new PreferenceGroupAdapter(preferenceScreen);
     }
@@ -682,11 +685,11 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
         return null;
     }
 
-    public void scrollToPreference(final String key) {
+    public void scrollToPreference(@NonNull String key) {
         scrollToPreferenceInternal(null, key);
     }
 
-    public void scrollToPreference(final Preference preference) {
+    public void scrollToPreference(@NonNull Preference preference) {
         scrollToPreferenceInternal(preference, null);
     }
 

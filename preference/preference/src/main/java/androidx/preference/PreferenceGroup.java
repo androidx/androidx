@@ -79,7 +79,8 @@ public abstract class PreferenceGroup extends Preference {
         }
     };
 
-    public PreferenceGroup(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public PreferenceGroup(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         mPreferences = new ArrayList<>();
@@ -99,11 +100,12 @@ public abstract class PreferenceGroup extends Preference {
         a.recycle();
     }
 
-    public PreferenceGroup(Context context, AttributeSet attrs, int defStyleAttr) {
+    public PreferenceGroup(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
-    public PreferenceGroup(Context context, AttributeSet attrs) {
+    public PreferenceGroup(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
@@ -348,7 +350,7 @@ public abstract class PreferenceGroup extends Preference {
      * @param preference The preference to add
      * @return Whether to allow adding the preference ({@code true}), or not ({@code false})
      */
-    protected boolean onPrepareAddPreference(Preference preference) {
+    protected boolean onPrepareAddPreference(@NonNull Preference preference) {
         preference.onParentChanged(this, shouldDisableDependents());
         return true;
     }
@@ -489,7 +491,7 @@ public abstract class PreferenceGroup extends Preference {
     }
 
     @Override
-    protected void dispatchSaveInstanceState(Bundle container) {
+    protected void dispatchSaveInstanceState(@NonNull Bundle container) {
         super.dispatchSaveInstanceState(container);
 
         // Dispatch to all contained preferences
@@ -500,7 +502,7 @@ public abstract class PreferenceGroup extends Preference {
     }
 
     @Override
-    protected void dispatchRestoreInstanceState(Bundle container) {
+    protected void dispatchRestoreInstanceState(@NonNull Bundle container) {
         super.dispatchRestoreInstanceState(container);
 
         // Dispatch to all contained preferences
@@ -544,7 +546,7 @@ public abstract class PreferenceGroup extends Preference {
          * @return Adapter position of the {@link Preference} or {@link RecyclerView#NO_POSITION}
          * if not found
          */
-        int getPreferenceAdapterPosition(String key);
+        int getPreferenceAdapterPosition(@NonNull String key);
 
         /**
          * Returns the adapter position of the specified {@link Preference} object
@@ -553,7 +555,7 @@ public abstract class PreferenceGroup extends Preference {
          * @return Adapter position of the {@link Preference} or {@link RecyclerView#NO_POSITION}
          * if not found
          */
-        int getPreferenceAdapterPosition(Preference preference);
+        int getPreferenceAdapterPosition(@NonNull Preference preference);
     }
 
     /**
