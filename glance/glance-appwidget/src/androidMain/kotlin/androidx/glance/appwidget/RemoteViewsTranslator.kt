@@ -77,9 +77,11 @@ internal data class TranslationContext(
     val context: Context,
     val appWidgetId: Int,
     val isRtl: Boolean,
-    val listCount: AtomicInteger = AtomicInteger(0),
-    val areLazyCollectionsAllowed: Boolean = true
-)
+    val areLazyCollectionsAllowed: Boolean = true,
+    val lastViewId: AtomicInteger = AtomicInteger(0),
+) {
+    fun nextViewId() = lastViewId.incrementAndGet()
+}
 
 internal fun translateChild(
     translationContext: TranslationContext,
@@ -127,72 +129,71 @@ private fun translateEmittableBox(
     translationContext: TranslationContext,
     element: EmittableBox
 ): RemoteViews {
-    val layoutDef = selectLayout(translationContext, LayoutSelector.Type.Box, element.modifier)
-    return remoteViews(translationContext, layoutDef.layoutId)
-        .also { rv ->
-            rv.setRelativeLayoutGravity(layoutDef.mainViewId, element.contentAlignment.toGravity())
-            applyModifiers(
-                translationContext,
-                rv,
-                element.modifier,
-                layoutDef
-            )
-            rv.setChildren(
-                translationContext,
-                layoutDef.mainViewId,
-                element.children
-            )
-        }
+    val layoutDef = createRemoteViews(translationContext, LayoutSelector.Type.Box, element.modifier)
+    val rv = layoutDef.remoteViews
+    rv.setRelativeLayoutGravity(layoutDef.mainViewId, element.contentAlignment.toGravity())
+    applyModifiers(
+        translationContext,
+        rv,
+        element.modifier,
+        layoutDef
+    )
+    rv.setChildren(
+        translationContext,
+        layoutDef.mainViewId,
+        element.children
+    )
+    return rv
 }
 
 private fun translateEmittableRow(
     translationContext: TranslationContext,
     element: EmittableRow
 ): RemoteViews {
-    val layoutDef = selectLayout(translationContext, LayoutSelector.Type.Row, element.modifier)
-    return remoteViews(translationContext, layoutDef.layoutId)
-        .also { rv ->
-            rv.setLinearLayoutGravity(
-                layoutDef.mainViewId,
-                element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
-            )
-            applyModifiers(
-                translationContext,
-                rv,
-                element.modifier,
-                layoutDef
-            )
-            rv.setChildren(
-                translationContext,
-                layoutDef.mainViewId,
-                element.children
-            )
-        }
+    val layoutDef =
+        createRemoteViews(translationContext, LayoutSelector.Type.Row, element.modifier)
+    val rv = layoutDef.remoteViews
+    rv.setLinearLayoutGravity(
+        layoutDef.mainViewId,
+        element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
+    )
+    applyModifiers(
+        translationContext,
+        rv,
+        element.modifier,
+        layoutDef
+    )
+    rv.setChildren(
+        translationContext,
+        layoutDef.mainViewId,
+        element.children
+    )
+    return rv
 }
 
 private fun translateEmittableColumn(
     translationContext: TranslationContext,
     element: EmittableColumn
 ): RemoteViews {
-    val layoutDef = selectLayout(translationContext, LayoutSelector.Type.Column, element.modifier)
-    return remoteViews(translationContext, layoutDef.layoutId)
-        .also { rv ->
-            rv.setLinearLayoutGravity(
-                layoutDef.mainViewId,
-                element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
-            )
-            applyModifiers(
-                translationContext,
-                rv,
-                element.modifier,
-                layoutDef
-            )
-            rv.setChildren(
-                translationContext,
-                layoutDef.mainViewId,
-                element.children
-            )
-        }
+    val layoutDef =
+        createRemoteViews(translationContext, LayoutSelector.Type.Column, element.modifier)
+    val rv = layoutDef.remoteViews
+    rv.setLinearLayoutGravity(
+        layoutDef.mainViewId,
+        element.horizontalAlignment.toGravity() or element.verticalAlignment.toGravity()
+    )
+    applyModifiers(
+        translationContext,
+        rv,
+        element.modifier,
+        layoutDef
+    )
+    rv.setChildren(
+        translationContext,
+        layoutDef.mainViewId,
+        element.children
+    )
+    return rv
 }
 
 private fun translateEmittableAndroidRemoteViews(
@@ -219,18 +220,17 @@ private fun translateEmittableButton(
     element: EmittableButton
 ): RemoteViews {
     val layoutDef =
-        selectLayout(translationContext, LayoutSelector.Type.Button, element.modifier)
-    return remoteViews(translationContext, layoutDef.layoutId)
-        .also { rv ->
-            rv.setText(
-                translationContext,
-                layoutDef.mainViewId,
-                element.text,
-                element.style
-            )
-            rv.setBoolean(layoutDef.mainViewId, "setEnabled", element.enabled)
-            applyModifiers(translationContext, rv, element.modifier, layoutDef)
-        }
+        createRemoteViews(translationContext, LayoutSelector.Type.Button, element.modifier)
+    val rv = layoutDef.remoteViews
+    rv.setText(
+        translationContext,
+        layoutDef.mainViewId,
+        element.text,
+        element.style
+    )
+    rv.setBoolean(layoutDef.mainViewId, "setEnabled", element.enabled)
+    applyModifiers(translationContext, rv, element.modifier, layoutDef)
+    return rv
 }
 
 // Sets the emittables as children to the view. This first remove any previously added view, the

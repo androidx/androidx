@@ -54,8 +54,16 @@ abstract class LayoutGeneratorTask : DefaultTask() {
             checkNotNull(layoutDirectory.get().asFile.listFiles()).asList(),
             outputResourcesDir.get().asFile
         )
-        generateRegistry(outputModule, generatedFiles, outputSourceDir.get().asFile)
-        cleanResources(outputResourcesDir.get().asFile, generatedFiles.keys)
+        generateRegistry(
+            outputModule,
+            generatedFiles.generatedLayouts,
+            outputSourceDir.get().asFile
+        )
+        cleanResources(
+            outputResourcesDir.get().asFile,
+            generatedFiles.generatedLayouts.values.flatMap { it.generatedFiles }
+                .toSet() + generatedFiles.extraFiles
+        )
     }
 
     companion object {
