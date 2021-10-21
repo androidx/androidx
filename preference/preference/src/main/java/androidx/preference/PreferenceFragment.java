@@ -426,7 +426,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
      */
     @Deprecated
     @Override
-    public boolean onPreferenceTreeClick(Preference preference) {
+    public boolean onPreferenceTreeClick(@NonNull Preference preference) {
         if (preference.getFragment() != null) {
             boolean handled = false;
             if (getCallbackFragment() instanceof OnPreferenceStartFragmentCallback) {
@@ -455,7 +455,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
      */
     @Deprecated
     @Override
-    public void onNavigateToScreen(PreferenceScreen preferenceScreen) {
+    public void onNavigateToScreen(@NonNull PreferenceScreen preferenceScreen) {
         boolean handled = false;
         if (getCallbackFragment() instanceof OnPreferenceStartScreenCallback) {
             handled = ((OnPreferenceStartScreenCallback) getCallbackFragment())
@@ -479,7 +479,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
     @Deprecated
     @Override
     @SuppressWarnings("TypeParameterUnusedInFormals")
-    public <T extends Preference> T findPreference(CharSequence key) {
+    public <T extends Preference> T findPreference(@NonNull CharSequence key) {
         if (mPreferenceManager == null) {
             return null;
         }
@@ -604,7 +604,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
      */
     @Deprecated
     @Override
-    public void onDisplayPreferenceDialog(Preference preference) {
+    public void onDisplayPreferenceDialog(@NonNull Preference preference) {
 
         boolean handled = false;
         if (getCallbackFragment() instanceof OnPreferenceDisplayDialogCallback) {
@@ -671,7 +671,7 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
         final Runnable r = new Runnable() {
             @Override
             public void run() {
-                final RecyclerView.Adapter adapter = mList.getAdapter();
+                final RecyclerView.Adapter<?> adapter = mList.getAdapter();
                 if (!(adapter instanceof PreferenceGroup.PreferencePositionCallback)) {
                     if (adapter != null) {
                         throw new IllegalStateException("Adapter must implement "
@@ -752,12 +752,12 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
     }
 
     private static class ScrollToPreferenceObserver extends RecyclerView.AdapterDataObserver {
-        private final RecyclerView.Adapter mAdapter;
+        private final RecyclerView.Adapter<?> mAdapter;
         private final RecyclerView mList;
         private final Preference mPreference;
         private final String mKey;
 
-        ScrollToPreferenceObserver(RecyclerView.Adapter adapter, RecyclerView list,
+        ScrollToPreferenceObserver(RecyclerView.Adapter<?> adapter, RecyclerView list,
                 Preference preference, String key) {
             mAdapter = adapter;
             mList = list;
@@ -820,7 +820,8 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
         DividerDecoration() {}
 
         @Override
-        public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+        public void onDrawOver(@NonNull Canvas c, @NonNull RecyclerView parent,
+                @NonNull RecyclerView.State state) {
             if (mDivider == null) {
                 return;
             }
@@ -837,8 +838,8 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
         }
 
         @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                RecyclerView.State state) {
+        public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
+                @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
             if (shouldDrawDividerBelow(view, parent)) {
                 outRect.bottom = mDividerHeight;
             }
