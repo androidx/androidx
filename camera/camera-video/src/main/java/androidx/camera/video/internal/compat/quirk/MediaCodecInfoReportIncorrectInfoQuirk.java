@@ -41,23 +41,44 @@ import androidx.camera.core.impl.Quirk;
  * "video/mp4v-es" with 1280x720 or 640x480 can be used to record video. So the maximum supported
  * resolution 174x174 is probably incorrect for "video/mp4v-es" and doesn't make sense.
  * See b/192431846#comment3.
+ *
+ * <p>On Huawei Mate9, {@link CamcorderProfile} indicates it can support resolutions 3840x2160 for
+ *  video codec type {@link android.media.MediaRecorder.VideoEncoder#HEVC}, but the current video
+ *  codec type is default {@link android.media.MediaRecorder.VideoEncoder#H264}.
+ *  Even, change video codec type to {@link android.media.MediaRecorder.VideoEncoder#HEVC}, it
+ *  still meet unsupported resolution for 3840x2160, it only support 3840x2112. By experimental
+ *  result, H.264 + 3840x2160 can be used to record video on this device. Hence use quirk to
+ *  workaround this case. See b/203481899#comment2.
+ *
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
 
-    private static final String BUILD_BRAND = "Nokia";
-
-    private static final String BUILD_MODEL = "Nokia 1";
-
-    private static final String MIME_TYPE = MediaFormat.MIMETYPE_VIDEO_MPEG4;
-
     static boolean load() {
-        return BUILD_BRAND.equalsIgnoreCase(Build.BRAND)
-                && BUILD_MODEL.equalsIgnoreCase(Build.MODEL);
+        return isNokia1() || isHuaweiMate9();
     }
 
-    /** Checks if the given mime type is a problematic mime type. */
-    public static boolean isProblematicMimeType(@NonNull String mimeType) {
-        return MIME_TYPE.equals(mimeType);
+    private static boolean isNokia1() {
+        return "Nokia".equalsIgnoreCase(Build.BRAND) && "Nokia 1".equalsIgnoreCase(Build.MODEL);
     }
+
+    private static boolean isHuaweiMate9() {
+        return "Huawei".equalsIgnoreCase(Build.BRAND) && "mha-l29".equalsIgnoreCase(Build.MODEL);
+    }
+
+    /** Check if problematic MediaFormat info for these candidate devices. */
+    public boolean isUnSupportMediaCodecInfo(@NonNull MediaFormat mediaFormat) {
+        if (isNokia1()) {
+            /** Checks if the given mime type is a problematic mime type. */
+            String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
+            return MediaFormat.MIMETYPE_VIDEO_MPEG4.equals(mimeType);
+        } else if (isHuaweiMate9()) {
+            /** Checks if this is an unsupported resolution for avc. */
+            int width = mediaFormat.getInteger(MediaFormat.KEY_WIDTH);
+            int height = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
+            return (width == 3840 && height == 2160);
+        }
+        return false;
+    }
+
 }
