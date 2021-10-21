@@ -29,7 +29,6 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
-import androidx.glance.layout.width
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
@@ -55,13 +54,12 @@ class ResizingAppWidget : GlanceAppWidget() {
                 )
                 Text("third")
             }
-            Text("middle", modifier = GlanceModifier.defaultWeight().width(50.dp))
-            Row(modifier = GlanceModifier.fillMaxWidth()) {
-                Text("", modifier = GlanceModifier.defaultWeight())
-                Text("bottom center")
-                Text("", modifier = GlanceModifier.defaultWeight())
-            }
-            Column(modifier = GlanceModifier.fillMaxWidth()) {
+            Text(
+                "middle",
+                modifier = GlanceModifier.defaultWeight().fillMaxWidth(),
+                style = TextStyle(textAlign = TextAlign.Center)
+            )
+            Column(modifier = GlanceModifier.fillMaxWidth().background(Color.LightGray)) {
                 Text(
                     "left",
                     style = TextStyle(textAlign = TextAlign.Left),
@@ -82,6 +80,11 @@ class ResizingAppWidget : GlanceAppWidget() {
                     style = TextStyle(textAlign = TextAlign.End),
                     modifier = GlanceModifier.fillMaxWidth()
                 )
+            }
+            Row(modifier = GlanceModifier.fillMaxWidth()) {
+                Text("", modifier = GlanceModifier.defaultWeight())
+                Text("bottom center")
+                Text("", modifier = GlanceModifier.defaultWeight())
             }
         }
     }
