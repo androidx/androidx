@@ -409,18 +409,18 @@ class WithInterfaceTestActivity :
     }
 
     override fun onPreferenceStartFragment(
-        caller: PreferenceFragmentCompat?,
-        pref: Preference?
+        caller: PreferenceFragmentCompat,
+        pref: Preference
     ) = testCallback()
 
     override fun onPreferenceStartScreen(
-        caller: PreferenceFragmentCompat?,
-        pref: PreferenceScreen?
+        caller: PreferenceFragmentCompat,
+        pref: PreferenceScreen
     ) = testCallback()
 
     override fun onPreferenceDisplayDialog(
         caller: PreferenceFragmentCompat,
-        pref: Preference?
+        pref: Preference
     ) = testCallback()
 }
 
@@ -437,18 +437,18 @@ private class TestContext(baseContext: Context, private val testCallback: () -> 
     PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback {
 
     override fun onPreferenceStartFragment(
-        caller: PreferenceFragmentCompat?,
-        pref: Preference?
+        caller: PreferenceFragmentCompat,
+        pref: Preference
     ) = testCallback()
 
     override fun onPreferenceStartScreen(
-        caller: PreferenceFragmentCompat?,
-        pref: PreferenceScreen?
+        caller: PreferenceFragmentCompat,
+        pref: PreferenceScreen
     ) = testCallback()
 
     override fun onPreferenceDisplayDialog(
         caller: PreferenceFragmentCompat,
-        pref: Preference?
+        pref: Preference
     ) = testCallback()
 }
 
@@ -552,18 +552,18 @@ class WithInterfaceParentFragment(
         }
 
         override fun onPreferenceStartFragment(
-            caller: PreferenceFragmentCompat?,
-            pref: Preference?
+            caller: PreferenceFragmentCompat,
+            pref: Preference
         ) = callback()
 
         override fun onPreferenceStartScreen(
-            caller: PreferenceFragmentCompat?,
-            pref: PreferenceScreen?
+            caller: PreferenceFragmentCompat,
+            pref: PreferenceScreen
         ) = callback()
 
         override fun onPreferenceDisplayDialog(
             caller: PreferenceFragmentCompat,
-            pref: Preference?
+            pref: Preference
         ) = callback()
     }
 
@@ -588,17 +588,17 @@ class WithInterfaceParentFragment(
     }
 
     override fun onPreferenceStartFragment(
-        caller: PreferenceFragmentCompat?,
-        pref: Preference?
+        caller: PreferenceFragmentCompat,
+        pref: Preference
     ) = parentTestCallback()
 
     override fun onPreferenceStartScreen(
-        caller: PreferenceFragmentCompat?,
-        pref: PreferenceScreen?
+        caller: PreferenceFragmentCompat,
+        pref: PreferenceScreen
     ) = parentTestCallback()
 
     override fun onPreferenceDisplayDialog(
         caller: PreferenceFragmentCompat,
-        pref: Preference?
+        pref: Preference
     ) = parentTestCallback()
 }

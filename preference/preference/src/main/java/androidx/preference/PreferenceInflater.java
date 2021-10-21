@@ -40,7 +40,7 @@ class PreferenceInflater {
     private static final Class<?>[] CONSTRUCTOR_SIGNATURE = new Class<?>[]{
             Context.class, AttributeSet.class};
 
-    private static final HashMap<String, Constructor> CONSTRUCTOR_MAP = new HashMap<>();
+    private static final HashMap<String, Constructor<?>> CONSTRUCTOR_MAP = new HashMap<>();
     private static final String INTENT_TAG_NAME = "intent";
     private static final String EXTRA_TAG_NAME = "extra";
     private final Context mContext;
@@ -202,7 +202,7 @@ class PreferenceInflater {
     private Preference createItem(@NonNull String name, @Nullable String[] prefixes,
             AttributeSet attrs)
             throws ClassNotFoundException, InflateException {
-        Constructor constructor = CONSTRUCTOR_MAP.get(name);
+        Constructor<?> constructor = CONSTRUCTOR_MAP.get(name);
 
         try {
             if (constructor == null) {

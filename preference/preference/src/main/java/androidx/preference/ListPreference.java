@@ -331,6 +331,7 @@ public class ListPreference extends DialogPreference {
          * @return a singleton instance of this simple
          * {@link androidx.preference.Preference.SummaryProvider} implementation
          */
+        @NonNull
         public static SimpleSummaryProvider getInstance() {
             if (sSimpleSummaryProvider == null) {
                 sSimpleSummaryProvider = new SimpleSummaryProvider();
@@ -339,7 +340,7 @@ public class ListPreference extends DialogPreference {
         }
 
         @Override
-        public CharSequence provideSummary(ListPreference preference) {
+        public CharSequence provideSummary(@NonNull ListPreference preference) {
             if (TextUtils.isEmpty(preference.getEntry())) {
                 return (preference.getContext().getString(R.string.not_set));
             } else {

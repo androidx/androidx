@@ -227,6 +227,7 @@ public class EditTextPreference extends DialogPreference {
          * @return a singleton instance of this simple
          * {@link androidx.preference.Preference.SummaryProvider} implementation
          */
+        @NonNull
         public static SimpleSummaryProvider getInstance() {
             if (sSimpleSummaryProvider == null) {
                 sSimpleSummaryProvider = new SimpleSummaryProvider();
@@ -235,7 +236,7 @@ public class EditTextPreference extends DialogPreference {
         }
 
         @Override
-        public CharSequence provideSummary(EditTextPreference preference) {
+        public CharSequence provideSummary(@NonNull EditTextPreference preference) {
             if (TextUtils.isEmpty(preference.getText())) {
                 return (preference.getContext().getString(R.string.not_set));
             } else {
