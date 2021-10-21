@@ -429,6 +429,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
         ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
         ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), this);
+        ViewTreeOnBackPressedDispatcherOwner.set(getWindow().getDecorView(), this);
     }
 
     @Nullable

@@ -52,6 +52,11 @@ package androidx.activity {
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
   }
 
+  public final class ViewTreeOnBackPressedDispatcherOwner {
+    method public static androidx.activity.OnBackPressedDispatcherOwner? get(android.view.View);
+    method public static void set(android.view.View, androidx.activity.OnBackPressedDispatcherOwner onBackPressedDispatcherOwner);
+  }
+
 }
 
 package androidx.activity.contextaware {
