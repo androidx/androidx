@@ -85,12 +85,9 @@ class ActivityFilter(
     }
 
     fun matchesActivity(activity: Activity): Boolean {
-        // Check if the activity component names match
-        var match = MatcherUtils.areComponentsMatching(activity.componentName, componentName)
-        // If the intent is not empty - check that the rest of the filter fields match
-        if (activity.intent != null) {
-            match = match && matchesIntent(activity.intent)
-        }
+        val match =
+            MatcherUtils.areActivityOrIntentComponentsMatching(activity, componentName) &&
+                (intentAction == null || intentAction == activity.intent?.action)
         if (sDebugMatchers) {
             val matchString = if (match) "MATCH" else "NO MATCH"
             Log.w(
