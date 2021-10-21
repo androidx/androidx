@@ -16,21 +16,25 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
-    android:gravity="center">
+    android:gravity="center"
+    style="@style/Glance.AppWidget.SwitchBackport">
     <TextView
         android:id="@id/switchText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textDirection="locale"/>
+        android:textDirection="locale"
+        style="@style/Glance.AppWidget.SwitchText"/>
     <FrameLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        style="@style/Glance.AppWidget.SwitchBackport">
         <ImageView
             android:id="@id/switchTrack"
             android:layout_width="42dp"
             android:layout_height="28dp"
-            android:src="@drawable/switch_track_material"/>
+            android:src="@drawable/switch_track_material"
+            style="@style/Glance.AppWidget.SwitchTrack"/>
 
         <ImageView
             android:id="@id/switchThumb"
@@ -38,6 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
             android:src="@drawable/switch_thumb_material"
-            android:tint="@color/switch_thumb_material"/>
+            android:tint="@color/switch_thumb_material"
+            style="@style/Glance.AppWidget.SwitchThumb"/>
     </FrameLayout>
 </LinearLayout>
