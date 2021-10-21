@@ -55,7 +55,13 @@ internal class TestWatchFaceService(
     private val preAndroidR: Boolean,
     private val directBootParams: WallpaperInteractiveWatchFaceInstanceParams?,
     private val choreographer: ChoreographerWrapper,
-    var mockSystemTimeMillis: Long = 0L
+    var mockSystemTimeMillis: Long = 0L,
+    private val mainThreadPriorityDelegate: MainThreadPriorityDelegate =
+        object : MainThreadPriorityDelegate {
+            override fun setNormalPriority() {}
+
+            override fun setInteractivePriority() {}
+        }
 ) : WatchFaceService() {
     /** The ids of the [ComplicationSlot]s that have been tapped. */
     val tappedComplicationSlotIds: List<Int>
@@ -98,6 +104,8 @@ internal class TestWatchFaceService(
         )
         return complicationSlotsManager
     }
+
+    override fun getMainThreadPriorityDelegate() = mainThreadPriorityDelegate
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,

@@ -294,6 +294,24 @@ public abstract class WatchFaceService : WallpaperService() {
     /** This is open for testing. */
     internal open fun getUiThreadHandlerImpl(): Handler = Handler(Looper.getMainLooper())
 
+    /* Interface for setting the main thread priority. This exists for testing. */
+    internal interface MainThreadPriorityDelegate {
+        fun setNormalPriority()
+
+        fun setInteractivePriority()
+    }
+
+    internal open fun getMainThreadPriorityDelegate() = object : MainThreadPriorityDelegate {
+        override fun setNormalPriority() {
+            // NB pID is the same as the main thread tID.
+            Process.setThreadPriority(Process.myPid(), Process.THREAD_PRIORITY_DEFAULT)
+        }
+
+        override fun setInteractivePriority() {
+            Process.setThreadPriority(Process.myPid(), Process.THREAD_PRIORITY_DISPLAY)
+        }
+    }
+
     /**
      * Returns the lazily constructed background thread [Handler]. During initialization
      * [createUserStyleSchema], [createComplicationSlotsManager] and [createWatchFace] are posted on
@@ -793,6 +811,8 @@ public abstract class WatchFaceService : WallpaperService() {
 
         private var createdBy = "?"
 
+        private val mainThreadPriorityDelegate = getMainThreadPriorityDelegate()
+
         /**
          * Returns the [WatchFaceImpl] if [deferredWatchFaceImpl] has completed successfully or
          * `null` otherwise.
@@ -1118,6 +1138,9 @@ public abstract class WatchFaceService : WallpaperService() {
         @UiThread
         override fun onDestroy(): Unit = TraceEvent("EngineWrapper.onDestroy").use {
             super.onDestroy()
+            if (!mutableWatchState.isHeadless) {
+                mainThreadPriorityDelegate.setNormalPriority()
+            }
 
             destroyed = true
             backgroundThreadCoroutineScope.cancel()
@@ -1371,6 +1394,8 @@ public abstract class WatchFaceService : WallpaperService() {
         ): InteractiveWatchFaceImpl = TraceEvent(
             "EngineWrapper.createInteractiveInstance"
         ).use {
+            mainThreadPriorityDelegate.setInteractivePriority()
+
             require(!watchFaceCreatedOrPending()) {
                 "WatchFace already exists! Created by $createdBy"
             }
@@ -1682,6 +1707,17 @@ public abstract class WatchFaceService : WallpaperService() {
                 if (!watchFaceCreated()) {
                     wslFlow.pendingVisibilityChanged = visible
                     return
+                }
+            }
+
+            // During WF init the watch face is initially not visible but we want to keep UI thread
+            // priority high.  Once init has completed we only want the WF UI thread to have high
+            // priority when visible.
+            if (deferredWatchFaceImpl.isCompleted && !mutableWatchState.isHeadless) {
+                if (visible) {
+                    mainThreadPriorityDelegate.setInteractivePriority()
+                } else {
+                    mainThreadPriorityDelegate.setNormalPriority()
                 }
             }
 
