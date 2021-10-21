@@ -18,6 +18,7 @@ package androidx.appsearch.app;
 /**
  * A class that encapsulates all features that are only supported with certain combinations of
  * backend and Android API Level.
+ * <!--@exportToFramework:hide-->
  */
 public interface Capabilities {
 
