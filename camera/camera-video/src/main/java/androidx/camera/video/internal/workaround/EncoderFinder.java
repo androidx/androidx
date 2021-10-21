@@ -125,9 +125,11 @@ public class EncoderFinder {
     }
 
     private boolean shouldCreateCodecByType(@NonNull MediaFormat mediaFormat) {
-        String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
-
-        return DeviceQuirks.get(MediaCodecInfoReportIncorrectInfoQuirk.class) != null
-                && MediaCodecInfoReportIncorrectInfoQuirk.isProblematicMimeType(mimeType);
+        MediaCodecInfoReportIncorrectInfoQuirk quirk =
+                DeviceQuirks.get(MediaCodecInfoReportIncorrectInfoQuirk.class);
+        if (quirk == null) {
+            return false;
+        }
+        return quirk.isUnSupportMediaCodecInfo(mediaFormat);
     }
 }
