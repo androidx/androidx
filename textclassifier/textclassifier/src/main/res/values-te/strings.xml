@@ -16,8 +16,8 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="email" msgid="6099716515489216517">"ఇమెయిల్ పంపు"</string>
-    <string name="email_desc" msgid="2189760120923982860">"ఎంచుకున్న అడ్రస్‌కు ఇమెయిల్‌ను పంపుతుంది"</string>
+    <string name="email" msgid="6099716515489216517">"ఈమెయిల్‌ పంపు"</string>
+    <string name="email_desc" msgid="2189760120923982860">"ఎంచుకున్న అడ్రస్‌కు ఈమెయిల్‌ను పంపుతుంది"</string>
     <string name="dial" msgid="2101464860090311277">"కాల్ చేయి"</string>
     <string name="dial_desc" msgid="1195407206406821463">"ఎంచుకున్న ఫోన్ నంబర్‌కు కాల్ చేస్తుంది"</string>
     <string name="browse" msgid="4753676368851695348">"తెరువు"</string>
