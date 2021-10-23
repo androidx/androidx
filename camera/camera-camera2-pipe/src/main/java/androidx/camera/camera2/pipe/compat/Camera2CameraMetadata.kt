@@ -40,6 +40,7 @@ internal class Camera2CameraMetadata constructor(
     private val characteristics: CameraCharacteristics,
     private val metadataProvider: CameraMetadataProvider,
     private val metadata: Map<Metadata.Key<*>, Any?>,
+    private val cacheBlocklist: Set<CameraCharacteristics.Key<*>>,
 ) : CameraMetadata {
     @GuardedBy("values")
     private val values = ArrayMap<CameraCharacteristics.Key<*>, Any?>()
@@ -52,6 +53,10 @@ internal class Camera2CameraMetadata constructor(
         metadata[key] as T? ?: default
 
     override fun <T> get(key: CameraCharacteristics.Key<T>): T? {
+        if (cacheBlocklist.contains(key)) {
+            return characteristics.get(key)
+        }
+
         // Cache the return value of calls to characteristics as the implementation performs a
         // blocking jni binder call which can be expensive when invoked frequently (see b/144028609
         // for more details).
