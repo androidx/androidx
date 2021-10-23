@@ -84,27 +84,57 @@ public abstract class Logger {
     /**
      * Equivalent to Log.v.
      */
-    public abstract void verbose(String tag, String message, Throwable... throwables);
+    public abstract void verbose(@NonNull String tag, @NonNull String message);
+
+    /**
+     * Equivalent to Log.v.
+     */
+    public abstract void verbose(@NonNull String tag, @NonNull String message,
+            @NonNull Throwable throwable);
 
     /**
      * Equivalent to Log.d.
      */
-    public abstract void debug(String tag, String message, Throwable... throwables);
+    public abstract void debug(@NonNull String tag, @NonNull String message);
+
+    /**
+     * Equivalent to Log.d.
+     */
+    public abstract void debug(@NonNull String tag, @NonNull String message,
+            @NonNull Throwable throwable);
 
     /**
      * Equivalent to Log.i.
      */
-    public abstract void info(String tag, String message, Throwable... throwables);
+    public abstract void info(@NonNull String tag, @NonNull String message);
+
+    /**
+     * Equivalent to Log.i.
+     */
+    public abstract void info(@NonNull String tag, @NonNull String message,
+            @NonNull Throwable throwable);
 
     /**
      * Equivalent to Log.w.
      */
-    public abstract void warning(String tag, String message, Throwable... throwables);
+    public abstract void warning(@NonNull String tag, @NonNull String message);
+
+    /**
+     * Equivalent to Log.w.
+     */
+    public abstract void warning(@NonNull String tag, @NonNull String message,
+            @NonNull Throwable throwable);
 
     /**
      * Equivalent to Log.e.
      */
-    public abstract void error(String tag, String message, Throwable... throwables);
+    public abstract void error(@NonNull String tag, @NonNull String message);
+
+    /**
+     * Equivalent to Log.e.
+     */
+    public abstract void error(@NonNull String tag, @NonNull String message,
+            @NonNull Throwable throwable);
 
     /**
      * The default {@link Logger} implementation that writes to logcat when the requests meet or
@@ -121,57 +151,77 @@ public abstract class Logger {
         }
 
         @Override
-        public void verbose(String tag, String message, Throwable... throwables) {
+        public void verbose(@NonNull String tag, @NonNull String message) {
             if (mLoggingLevel <= Log.VERBOSE) {
-                if (throwables != null && throwables.length >= 1) {
-                    Log.v(tag, message, throwables[0]);
-                } else {
-                    Log.v(tag, message);
-                }
+                Log.v(tag, message);
             }
         }
 
         @Override
-        public void debug(String tag, String message, Throwable... throwables) {
+        public void verbose(@NonNull String tag, @NonNull String message,
+                @NonNull Throwable throwable) {
+            if (mLoggingLevel <= Log.VERBOSE) {
+                Log.v(tag, message, throwable);
+            }
+        }
+
+        @Override
+        public void debug(@NonNull String tag, @NonNull String message) {
             if (mLoggingLevel <= Log.DEBUG) {
-                if (throwables != null && throwables.length >= 1) {
-                    Log.d(tag, message, throwables[0]);
-                } else {
-                    Log.d(tag, message);
-                }
+                Log.d(tag, message);
             }
         }
 
         @Override
-        public void info(String tag, String message, Throwable... throwables) {
+        public void debug(@NonNull String tag, @NonNull String message,
+                @NonNull Throwable throwable) {
+            if (mLoggingLevel <= Log.DEBUG) {
+                Log.d(tag, message, throwable);
+            }
+        }
+
+        @Override
+        public void info(@NonNull String tag, @NonNull String message) {
             if (mLoggingLevel <= Log.INFO) {
-                if (throwables != null && throwables.length >= 1) {
-                    Log.i(tag, message, throwables[0]);
-                } else {
-                    Log.i(tag, message);
-                }
+                Log.i(tag, message);
             }
         }
 
         @Override
-        public void warning(String tag, String message, Throwable... throwables) {
+        public void info(@NonNull String tag, @NonNull String message,
+                @NonNull Throwable throwable) {
+            if (mLoggingLevel <= Log.INFO) {
+                Log.i(tag, message, throwable);
+            }
+        }
+
+        @Override
+        public void warning(@NonNull String tag, @NonNull String message) {
             if (mLoggingLevel <= Log.WARN) {
-                if (throwables != null && throwables.length >= 1) {
-                    Log.w(tag, message, throwables[0]);
-                } else {
-                    Log.w(tag, message);
-                }
+                Log.w(tag, message);
             }
         }
 
         @Override
-        public void error(String tag, String message, Throwable... throwables) {
+        public void warning(@NonNull String tag, @NonNull String message,
+                @NonNull Throwable throwable) {
+            if (mLoggingLevel <= Log.WARN) {
+                Log.w(tag, message, throwable);
+            }
+        }
+
+        @Override
+        public void error(@NonNull String tag, @NonNull String message) {
             if (mLoggingLevel <= Log.ERROR) {
-                if (throwables != null && throwables.length >= 1) {
-                    Log.e(tag, message, throwables[0]);
-                } else {
-                    Log.e(tag, message);
-                }
+                Log.e(tag, message);
+            }
+        }
+
+        @Override
+        public void error(@NonNull String tag, @NonNull String message,
+                @NonNull Throwable throwable) {
+            if (mLoggingLevel <= Log.ERROR) {
+                Log.e(tag, message, throwable);
             }
         }
     }
