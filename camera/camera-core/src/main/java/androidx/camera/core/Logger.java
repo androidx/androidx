@@ -21,7 +21,6 @@ import android.util.Log;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
@@ -70,6 +69,14 @@ public final class Logger {
     }
 
     /**
+     * Returns {@code true} if logging with the truncated tag {@code truncatedTag} is
+     * enabled at the {@code logLevel} level.
+     */
+    private static boolean isLogLevelEnabled(@NonNull String truncatedTag, int logLevel) {
+        return sMinLogLevel <= logLevel || Log.isLoggable(truncatedTag, logLevel);
+    }
+
+    /**
      * Sets the minimum logging level to use in {@link Logger}. After calling this method, only logs
      * at the level {@code logLevel} and above are output.
      */
@@ -92,7 +99,7 @@ public final class Logger {
      * {@link Log#DEBUG} at least.
      */
     public static boolean isDebugEnabled(@NonNull String tag) {
-        return sMinLogLevel <= Log.DEBUG || Log.isLoggable(truncateTag(tag), Log.DEBUG);
+        return isLogLevelEnabled(truncateTag(tag), Log.DEBUG);
     }
 
     /**
@@ -102,7 +109,7 @@ public final class Logger {
      * {@link Log#INFO} at least.
      */
     public static boolean isInfoEnabled(@NonNull String tag) {
-        return sMinLogLevel <= Log.INFO || Log.isLoggable(truncateTag(tag), Log.INFO);
+        return isLogLevelEnabled(truncateTag(tag), Log.INFO);
     }
 
     /**
@@ -112,7 +119,7 @@ public final class Logger {
      * {@link Log#WARN} at least.
      */
     public static boolean isWarnEnabled(@NonNull String tag) {
-        return sMinLogLevel <= Log.WARN || Log.isLoggable(truncateTag(tag), Log.WARN);
+        return isLogLevelEnabled(truncateTag(tag), Log.WARN);
     }
 
     /**
@@ -122,7 +129,7 @@ public final class Logger {
      * {@link Log#ERROR} at least.
      */
     public static boolean isErrorEnabled(@NonNull String tag) {
-        return sMinLogLevel <= Log.ERROR || Log.isLoggable(truncateTag(tag), Log.ERROR);
+        return isLogLevelEnabled(truncateTag(tag), Log.ERROR);
     }
 
     /**
@@ -130,7 +137,10 @@ public final class Logger {
      * {@linkplain #isDebugEnabled(String) loggable}.
      */
     public static void d(@NonNull String tag, @NonNull String message) {
-        d(tag, message, null);
+        final String truncatedTag = truncateTag(tag);
+        if (isLogLevelEnabled(truncatedTag, Log.DEBUG)) {
+            Log.d(truncatedTag, message);
+        }
     }
 
     /**
@@ -138,9 +148,10 @@ public final class Logger {
      * {@linkplain #isDebugEnabled(String) loggable}.
      */
     public static void d(@NonNull String tag, @NonNull String message,
-            @Nullable final Throwable throwable) {
-        if (isDebugEnabled(tag)) {
-            Log.d(truncateTag(tag), message, throwable);
+            @NonNull final Throwable throwable) {
+        final String truncatedTag = truncateTag(tag);
+        if (isLogLevelEnabled(truncatedTag, Log.DEBUG)) {
+            Log.d(truncatedTag, message, throwable);
         }
     }
 
@@ -149,7 +160,10 @@ public final class Logger {
      * {@linkplain #isInfoEnabled(String) loggable}.
      */
     public static void i(@NonNull String tag, @NonNull String message) {
-        i(tag, message, null);
+        final String truncatedTag = truncateTag(tag);
+        if (isLogLevelEnabled(truncatedTag, Log.INFO)) {
+            Log.i(truncatedTag, message);
+        }
     }
 
     /**
@@ -157,9 +171,10 @@ public final class Logger {
      * {@linkplain #isInfoEnabled(String) loggable}.
      */
     public static void i(@NonNull String tag, @NonNull String message,
-            @Nullable final Throwable throwable) {
-        if (isInfoEnabled(tag)) {
-            Log.i(truncateTag(tag), message, throwable);
+            @NonNull final Throwable throwable) {
+        final String truncatedTag = truncateTag(tag);
+        if (isLogLevelEnabled(truncatedTag, Log.INFO)) {
+            Log.i(truncatedTag, message, throwable);
         }
     }
 
@@ -168,7 +183,10 @@ public final class Logger {
      * {@linkplain #isWarnEnabled(String) loggable}.
      */
     public static void w(@NonNull String tag, @NonNull String message) {
-        w(tag, message, null);
+        final String truncatedTag = truncateTag(tag);
+        if (isLogLevelEnabled(truncatedTag, Log.WARN)) {
+            Log.w(truncatedTag, message);
+        }
     }
 
     /**
@@ -176,9 +194,10 @@ public final class Logger {
      * {@linkplain #isWarnEnabled(String) loggable}.
      */
     public static void w(@NonNull String tag, @NonNull String message,
-            @Nullable final Throwable throwable) {
-        if (isWarnEnabled(tag)) {
-            Log.w(truncateTag(tag), message, throwable);
+            @NonNull final Throwable throwable) {
+        final String truncatedTag = truncateTag(tag);
+        if (isLogLevelEnabled(truncatedTag, Log.WARN)) {
+            Log.w(truncatedTag, message, throwable);
         }
     }
 
@@ -187,7 +206,10 @@ public final class Logger {
      * {@linkplain #isErrorEnabled(String) loggable}.
      */
     public static void e(@NonNull String tag, @NonNull String message) {
-        e(tag, message, null);
+        final String truncatedTag = truncateTag(tag);
+        if (isLogLevelEnabled(truncatedTag, Log.ERROR)) {
+            Log.e(truncatedTag, message);
+        }
     }
 
     /**
@@ -195,9 +217,10 @@ public final class Logger {
      * {@linkplain #isErrorEnabled(String) loggable}.
      */
     public static void e(@NonNull String tag, @NonNull String message,
-            @Nullable final Throwable throwable) {
-        if (isErrorEnabled(tag)) {
-            Log.e(truncateTag(tag), message, throwable);
+            @NonNull final Throwable throwable) {
+        final String truncatedTag = truncateTag(tag);
+        if (isLogLevelEnabled(truncatedTag, Log.ERROR)) {
+            Log.e(truncatedTag, message, throwable);
         }
     }
 
@@ -208,7 +231,7 @@ public final class Logger {
      */
     @NonNull
     private static String truncateTag(@NonNull String tag) {
-        if (MAX_TAG_LENGTH < tag.length() && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N && MAX_TAG_LENGTH < tag.length()) {
             return tag.substring(0, MAX_TAG_LENGTH);
         }
         return tag;
