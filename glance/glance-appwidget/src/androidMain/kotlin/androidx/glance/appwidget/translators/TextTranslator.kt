@@ -80,7 +80,12 @@ internal fun RemoteViews.setText(
     }
     val content = SpannableString(text)
     val length = content.length
+
+    // TODO(b/203656358): Can we support Em here too?
     style.fontSize?.let {
+        if (!it.isSp) {
+            throw IllegalArgumentException("Only Sp is currently supported for font sizes")
+        }
         setTextViewTextSize(resId, TypedValue.COMPLEX_UNIT_SP, it.value)
     }
     val spans = mutableListOf<ParcelableSpan>()

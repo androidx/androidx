@@ -43,11 +43,11 @@ package androidx.glance.wear.layout {
   }
 
   @androidx.compose.runtime.Immutable public final class CurvedTextStyle {
-    ctor public CurvedTextStyle(optional androidx.glance.unit.Sp? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle);
-    method public androidx.glance.unit.Sp? getFontSize();
+    ctor public CurvedTextStyle(optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle);
+    method public androidx.compose.ui.unit.TextUnit? getFontSize();
     method public androidx.glance.text.FontStyle? getFontStyle();
     method public androidx.glance.text.FontWeight? getFontWeight();
-    property public final androidx.glance.unit.Sp? fontSize;
+    property public final androidx.compose.ui.unit.TextUnit? fontSize;
     property public final androidx.glance.text.FontStyle? fontStyle;
     property public final androidx.glance.text.FontWeight? fontWeight;
   }

@@ -17,14 +17,14 @@
 package androidx.glance.text
 
 import androidx.compose.runtime.Immutable
-import androidx.glance.unit.Sp
+import androidx.compose.ui.unit.TextUnit
 
 /**
  * Description of a text style for the [androidx.glance.layout.Text] composable.
  */
 @Immutable
 public class TextStyle(
-    public val fontSize: Sp? = null,
+    public val fontSize: TextUnit? = null,
     public val fontWeight: FontWeight? = null,
     public val fontStyle: FontStyle? = null,
     public val textAlign: TextAlign? = null,

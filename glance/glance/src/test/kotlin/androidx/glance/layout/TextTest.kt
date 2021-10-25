@@ -16,14 +16,14 @@
 
 package androidx.glance.layout
 
-import androidx.glance.GlanceModifier
+import androidx.compose.ui.unit.sp
 import androidx.glance.findModifier
+import androidx.glance.GlanceModifier
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.sp
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope

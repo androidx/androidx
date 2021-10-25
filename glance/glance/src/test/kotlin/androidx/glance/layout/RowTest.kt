@@ -18,7 +18,7 @@ package androidx.glance.layout
 
 import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
-import androidx.glance.unit.dp
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope

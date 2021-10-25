@@ -19,7 +19,7 @@ import android.content.res.Resources
 import android.util.DisplayMetrics
 import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
-import androidx.glance.unit.dp
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock

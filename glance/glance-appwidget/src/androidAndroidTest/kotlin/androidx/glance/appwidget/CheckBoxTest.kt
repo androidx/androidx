@@ -25,8 +25,8 @@ import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.layout.CheckBox
 import androidx.glance.layout.Box
 import androidx.glance.layout.padding
-import androidx.glance.unit.Dp
-import androidx.glance.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress

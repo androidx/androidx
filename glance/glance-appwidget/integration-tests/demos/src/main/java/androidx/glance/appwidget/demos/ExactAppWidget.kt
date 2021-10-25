@@ -17,6 +17,7 @@
 package androidx.glance.appwidget.demos
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.GlanceModifier
@@ -32,7 +33,6 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.Color
-import androidx.glance.unit.dp
 import java.text.DecimalFormat
 
 class ExactAppWidget : GlanceAppWidget() {

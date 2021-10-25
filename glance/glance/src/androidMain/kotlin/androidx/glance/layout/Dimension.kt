@@ -18,8 +18,8 @@ package androidx.glance.layout
 
 import androidx.annotation.DimenRes
 import androidx.annotation.RestrictTo
+import androidx.compose.ui.unit.Dp
 import androidx.glance.GlanceModifier
-import androidx.glance.unit.Dp
 
 /**
  * Dimension types. This contains all the dimension types which are supported by androidx.glance.
@@ -31,7 +31,7 @@ import androidx.glance.unit.Dp
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public sealed class Dimension {
-    public class Dp(public val dp: androidx.glance.unit.Dp) : Dimension()
+    public class Dp(public val dp: androidx.compose.ui.unit.Dp) : Dimension()
     public object Wrap : Dimension()
     public object Fill : Dimension()
     public object Expand : Dimension()

@@ -29,6 +29,7 @@ import android.text.style.UnderlineSpan
 import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.applyRemoteViews
 import androidx.glance.appwidget.runAndTranslate
@@ -42,7 +43,6 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.sp
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi

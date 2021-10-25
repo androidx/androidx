@@ -34,7 +34,7 @@ import androidx.glance.layout.height
 import androidx.glance.layout.width
 import androidx.glance.layout.wrapContentHeight
 import androidx.glance.layout.wrapContentWidth
-import androidx.glance.unit.dp
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi

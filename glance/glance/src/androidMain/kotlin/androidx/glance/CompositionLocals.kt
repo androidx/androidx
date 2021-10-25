@@ -18,7 +18,7 @@ package androidx.glance
 
 import android.content.Context
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.glance.unit.DpSize
+import androidx.compose.ui.unit.DpSize
 
 /**
  * Size of the glance view being generated.

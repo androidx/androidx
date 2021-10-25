@@ -35,7 +35,8 @@ dependencies {
 
     api(project(":glance:glance"))
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.compose.runtime:runtime:1.0.1")
+    api("androidx.compose.runtime:runtime:1.1.0-beta01")
+    api("androidx.compose.ui:ui-unit:1.1.0-beta01")
 
     implementation project(path: ':annotation:annotation')
     implementation project(path: ':core:core-remoteviews')

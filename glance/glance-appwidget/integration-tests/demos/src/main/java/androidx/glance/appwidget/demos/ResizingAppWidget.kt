@@ -17,6 +17,7 @@
 package androidx.glance.appwidget.demos
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
@@ -33,7 +34,6 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.Color
-import androidx.glance.unit.dp
 
 class ResizingAppWidget : GlanceAppWidget() {
 
