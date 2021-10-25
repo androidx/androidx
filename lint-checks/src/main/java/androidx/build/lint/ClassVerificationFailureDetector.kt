@@ -501,6 +501,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 classUnderInspection = classUnderInspection.getContainingUClass()
             }
 
+            // call.getContainingUClass()!! refers to the direct parent class of this method
             val containingClassName = call.getContainingUClass()!!.qualifiedName.toString()
             val fix = createLintFix(method, call, api)
 
