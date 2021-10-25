@@ -2,13 +2,13 @@
 # -----------------------------------------------------------------------------
 # All of the following should be updated in sync.
 # -----------------------------------------------------------------------------
-androidGradlePlugin = "7.1.0-alpha08"
+androidGradlePlugin = "7.1.0-beta01"
 # NOTE: When updating the lint version we also need to update the `api` version
 # supported by `IssueRegistry`'s.' For e.g. r.android.com/1331903
-androidLint = "30.1.0-alpha08"
+androidLint = "30.1.0-beta01"
 # Once you have a chosen version of AGP to upgrade to, go to
 # https://developer.android.com/studio/archive and find the matching version of Studio.
-androidStudio = "2021.1.1.8"
+androidStudio = "2021.1.1.14"
 # -----------------------------------------------------------------------------
 
 androidLintMin = "27.2.1"
