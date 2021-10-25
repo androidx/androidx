@@ -5,7 +5,7 @@ package androidx.glance.appwidget {
   }
 
   public final class BackgroundKt {
-    method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, int day, int night);
+    method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, long day, long night);
   }
 
   public final class CompositionLocalsKt {
@@ -138,7 +138,7 @@ package androidx.glance.appwidget.translators {
 package androidx.glance.appwidget.unit {
 
   public final class ColorProviderKt {
-    method public static androidx.glance.unit.ColorProvider ColorProvider(int day, int night);
+    method public static androidx.glance.unit.ColorProvider ColorProvider(long day, long night);
   }
 
 }

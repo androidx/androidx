@@ -19,6 +19,7 @@ package androidx.glance.wear
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.graphics.toArgb
 import androidx.glance.BackgroundModifier
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
@@ -110,12 +111,12 @@ private fun PaddingInDp.toProto(): ModifiersBuilders.Padding =
 
 private fun BackgroundModifier.toProto(context: Context): ModifiersBuilders.Background =
     ModifiersBuilders.Background.Builder()
-        .setColor(argb(this.colorProvider.getColor(context).value.toInt()))
+        .setColor(argb(this.colorProvider.getColor(context)))
         .build()
 
 private fun ColorProvider.getColor(context: Context) = when (this) {
-    is FixedColorProvider -> color
-    is ResourceColorProvider -> resolve(context)
+    is FixedColorProvider -> color.toArgb()
+    is ResourceColorProvider -> resolve(context).toArgb()
     else -> error("Unsupported color provider: $this")
 }
 

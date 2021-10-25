@@ -49,7 +49,7 @@ import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier
 import androidx.glance.layout.collectPaddingInDp
-import androidx.glance.unit.Color
+import androidx.compose.ui.graphics.Color
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
 import kotlin.math.roundToInt

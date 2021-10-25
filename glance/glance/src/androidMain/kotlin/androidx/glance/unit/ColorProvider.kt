@@ -23,6 +23,7 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.compose.ui.graphics.Color
 
 /** Provider of colors for a glance composable's attributes. */
 public interface ColorProvider
