@@ -125,7 +125,8 @@ class SystemJobInfoConverter {
         }
         // Retries cannot be expedited jobs, given they will occur at some point in the future.
         boolean isRetry = workSpec.runAttemptCount > 0;
-        if (BuildCompat.isAtLeastS() && workSpec.expedited && !isRetry) {
+        boolean isDelayed = offset > 0;
+        if (BuildCompat.isAtLeastS() && workSpec.expedited && !isRetry && !isDelayed) {
             //noinspection NewApi
             builder.setExpedited(true);
         }
