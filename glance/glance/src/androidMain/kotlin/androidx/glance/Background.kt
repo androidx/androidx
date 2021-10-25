@@ -18,7 +18,7 @@ package androidx.glance
 
 import androidx.annotation.ColorRes
 import androidx.annotation.RestrictTo
-import androidx.glance.unit.Color
+import androidx.compose.ui.graphics.Color
 import androidx.glance.unit.ColorProvider
 
 /** @suppress */
