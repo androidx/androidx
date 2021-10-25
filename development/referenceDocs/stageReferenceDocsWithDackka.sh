@@ -8,7 +8,8 @@
 #
 #   ./stageReferenceDocsWithDackka.sh --buildId 1234567
 #
-# Stage locally-generated refdocs (to the default staging DB) *:
+# Stage locally-generated refdocs (to the default staging DB) *.
+# The directory path must be absolute (can't contain ~):
 #
 #   /stageReferenceDocsWithDackka.sh --buildId 0
 #   --sourceDir=/dir/to/androidx-main/out/androidx/docs-public/build
@@ -33,7 +34,7 @@ readonly defaultDb=""
 DEFINE_string buildId --required "" "The build ID from the Android build server. This is ignored when specifying the 'sourceDir' flag."
 DEFINE_string dateStr "<insert date here>" "Date string used for CL message. Enclose date in double quotes (ex: \"April 29, 2021\")"
 DEFINE_string db "$defaultDb" "The database used for staging. Omitting this value will stage changes to the staging DB."
-DEFINE_string sourceDir "" "Local directory to fetch doc artifacts from"
+DEFINE_string sourceDir "" "Local directory to fetch doc artifacts from. Directory must be absolute (can't contain ~)."
 DEFINE_bool useToT false "Stage docs from tip-of-tree docs build rather than public docs build"
 
 gbash::init_google "$@"
