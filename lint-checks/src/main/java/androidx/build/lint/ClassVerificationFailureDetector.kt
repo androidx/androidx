@@ -485,28 +485,32 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             location: Location
         ) {
             call ?: return
+            var classUnderInspection: UClass? = call.getContainingUClass() ?: return
 
-            if (call.getContainingUClass() == null) {
-                // Can't verify if containing class is annotated with @RequiresApi
-                return
-            }
-            val potentialRequiresApiVersion = getRequiresApiFromAnnotations(
-                call.getContainingUClass()!!.javaPsi
-            )
-            if (potentialRequiresApiVersion == NO_API_REQUIREMENT ||
-                api > potentialRequiresApiVersion
-            ) {
-                val containingClassName = call.getContainingUClass()!!.qualifiedName.toString()
-                val fix = createLintFix(method, call, api)
-
-                context.report(
-                    ISSUE, reference, location,
-                    "This call references a method added in API level $api; however, the " +
-                        "containing class $containingClassName is reachable from earlier API " +
-                        "levels and will fail run-time class verification.",
-                    fix,
+            // Walk up class hierarchy to find if there is any RequiresApi annotation that fulfills
+            // the API requirements
+            while (classUnderInspection != null) {
+                val potentialRequiresApiVersion = getRequiresApiFromAnnotations(
+                    classUnderInspection.javaPsi
                 )
+
+                if (potentialRequiresApiVersion >= api) {
+                    return
+                }
+
+                classUnderInspection = classUnderInspection.getContainingUClass()
             }
+
+            val containingClassName = call.getContainingUClass()!!.qualifiedName.toString()
+            val fix = createLintFix(method, call, api)
+
+            context.report(
+                ISSUE, reference, location,
+                "This call references a method added in API level $api; however, the " +
+                    "containing class $containingClassName is reachable from earlier API " +
+                    "levels and will fail run-time class verification.",
+                fix,
+            )
         }
 
         /**

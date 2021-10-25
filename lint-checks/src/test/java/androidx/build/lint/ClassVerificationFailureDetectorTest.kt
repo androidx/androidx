@@ -151,6 +151,50 @@ src/androidx/sample/core/widget/ListViewCompatKotlin.kt:58: Error: This call ref
     }
 
     @Test
+    fun `Detection of RequiresApi annotation in outer class in Java source`() {
+        val input = arrayOf(
+            javaSample("androidx.RequiresApiJava"),
+            RequiresApi
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+No warnings.
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
+    @Test
+    fun `Detection of RequiresApi annotation in outer class in Kotlin source`() {
+        val input = arrayOf(
+            ktSample("androidx.RequiresApiKotlin"),
+            RequiresApi
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/RequiresApiKotlinOuter19Passes.kt:67: Error: This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinNoAnnotationFails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+            Character.isSurrogate(c)
+                      ~~~~~~~~~~~
+src/androidx/RequiresApiKotlinOuter19Passes.kt:77: Error: This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinOuter16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+            Character.isSurrogate(c)
+                      ~~~~~~~~~~~
+src/androidx/RequiresApiKotlinOuter19Passes.kt:87: Error: This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinInner16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+            Character.isSurrogate(c)
+                      ~~~~~~~~~~~
+src/androidx/RequiresApiKotlinOuter19Passes.kt:98: Error: This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinInner16Outer16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+            Character.isSurrogate(c)
+                      ~~~~~~~~~~~
+4 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
+    @Test
     fun `Auto-fix unsafe void-type method reference in Java source`() {
         val input = arrayOf(
             javaSample("androidx.AutofixUnsafeVoidMethodReferenceJava"),
