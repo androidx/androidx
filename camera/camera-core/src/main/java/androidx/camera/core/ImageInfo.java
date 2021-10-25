@@ -16,6 +16,9 @@
 
 package androidx.camera.core;
 
+import android.graphics.Matrix;
+import android.hardware.camera2.CameraCharacteristics;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -67,6 +70,28 @@ public interface ImageInfo {
      */
     // TODO(b/122806727) Need to correctly set EXIF in JPEG images
     int getRotationDegrees();
+
+    /**
+     * Returns the sensor to image buffer transform matrix.
+     *
+     * <p>The returned matrix is a mapping from sensor coordinates to buffer coordinates,
+     * which is, from the value of {@link CameraCharacteristics#SENSOR_INFO_ACTIVE_ARRAY_SIZE} to
+     * {@code (0, 0, image.getWidth, image.getHeight)}. The matrix can be used to map the
+     * coordinates from one {@link UseCase} to another. For example, mapping coordinates of the
+     * face detected with {@link ImageAnalysis} to {@link Preview}.
+     *
+     * <pre>
+     *     <code>
+     *         float[] points = new float[] {x0, y0, x1, y1};
+     *         Matrix matrix = getSensorToBufferTransformMatrix();
+     *         matrix.mapPoints(points);
+     *     </code>
+     * </pre>
+     *
+     * @return the transform matrix.
+     */
+    @NonNull
+    Matrix getSensorToBufferTransformMatrix();
 
     /**
      * Adds any stored EXIF information in this ImageInfo into the provided ExifData builder.
