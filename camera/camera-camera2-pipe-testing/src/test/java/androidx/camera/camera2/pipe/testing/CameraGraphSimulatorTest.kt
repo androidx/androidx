@@ -61,6 +61,7 @@ public class CameraGraphSimulatorTest {
     private val simulator = CameraGraphSimulator(graphConfig, metadata)
     private val stream = simulator.cameraGraph.streams[streamConfig]!!
 
+    @Ignore("b/188446185")
     @Test
     fun simulatorCanSimulateRepeatingFrames() = runBlocking {
         val listener = FakeRequestListener()
