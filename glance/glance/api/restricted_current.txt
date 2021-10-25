@@ -2,7 +2,7 @@
 package androidx.glance {
 
   public final class BackgroundKt {
-    method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, int color);
+    method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, long color);
     method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, @ColorRes int color);
     method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, androidx.glance.unit.ColorProvider colorProvider);
   }
@@ -338,49 +338,11 @@ package androidx.glance.text {
 
 package androidx.glance.unit {
 
-  public final inline class Color {
-    ctor public Color();
-    method public int Color(long value);
-    method public int getValue();
-    property public final int value;
-  }
-
-  public static final class Color.Companion {
-    method public int getBlack();
-    method public int getBlue();
-    method public int getCyan();
-    method public int getDarkGray();
-    method public int getGray();
-    method public int getGreen();
-    method public int getLightGray();
-    method public int getMagenta();
-    method public int getRed();
-    method public int getTransparent();
-    method public int getWhite();
-    method public int getYellow();
-    property public final int Black;
-    property public final int Blue;
-    property public final int Cyan;
-    property public final int DarkGray;
-    property public final int Gray;
-    property public final int Green;
-    property public final int LightGray;
-    property public final int Magenta;
-    property public final int Red;
-    property public final int Transparent;
-    property public final int White;
-    property public final int Yellow;
-  }
-
-  public final class ColorKt {
-    method @androidx.compose.runtime.Stable public static int Color(float red, float green, float blue, optional float alpha);
-  }
-
   public interface ColorProvider {
   }
 
   public final class ColorProviderKt {
-    method public static androidx.glance.unit.ColorProvider ColorProvider(int color);
+    method public static androidx.glance.unit.ColorProvider ColorProvider(long color);
     method public static androidx.glance.unit.ColorProvider ColorProvider(@ColorRes int resId);
   }
 

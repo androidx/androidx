@@ -20,7 +20,8 @@ import androidx.glance.BackgroundModifier
 import androidx.glance.GlanceModifier
 import androidx.glance.background
 import androidx.glance.findModifier
-import androidx.glance.unit.Color
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
 import androidx.glance.wear.test.R
@@ -31,13 +32,16 @@ import kotlin.test.assertIs
 class BackgroundTest {
     @Test
     fun canUseBackgroundModifier() {
-        val modifier = GlanceModifier.background(color = Color(0xFF223344u))
+        val modifier = GlanceModifier.background(color = Color(0xFF223344))
 
         val addedModifier = requireNotNull(modifier.findModifier<BackgroundModifier>())
 
         val modifierColors = addedModifier.colorProvider
         assertIs<FixedColorProvider>(modifierColors)
-        assertThat(modifierColors.color.value).isEqualTo(0xFF223344u)
+
+        // Note: 0xFF223344 will coerce to a Long in Kotlin (making the equality test fail).
+        // .toInt() is required here to make the tests work properly.
+        assertThat(modifierColors.color.toArgb()).isEqualTo(0xFF223344.toInt())
     }
 
     @Test

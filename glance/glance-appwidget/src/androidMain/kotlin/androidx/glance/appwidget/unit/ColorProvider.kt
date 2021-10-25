@@ -18,7 +18,7 @@ package androidx.glance.appwidget.unit
 
 import android.content.Context
 import android.content.res.Configuration
-import androidx.glance.unit.Color
+import androidx.compose.ui.graphics.Color
 import androidx.glance.unit.ColorProvider
 
 /**

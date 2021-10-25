@@ -43,7 +43,7 @@ import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.Color
+import androidx.compose.ui.graphics.Color
 
 /**
  * Sample AppWidget that showcase the Responsive SizeMode changing its content to Row, Column or Box
