@@ -21,12 +21,10 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
-import android.graphics.Rect;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Pair;
-import android.util.Rational;
 import android.view.Surface;
 
 import androidx.camera.core.impl.CameraFactory;
@@ -127,31 +125,6 @@ public class ImageAnalysisTest {
         if (mCallbackThread != null) {
             mCallbackThread.quitSafely();
         }
-    }
-
-    @Test
-    public void bindViewPortWithFillStyle_returnsSameViewPortRectAndCropRect()
-            throws InterruptedException, CameraUseCaseAdapter.CameraException {
-        // Arrange.
-        setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST,
-                new ViewPort.Builder(new Rational(1, 1), Surface.ROTATION_0)
-                        .build());
-
-        // Act.
-        mFakeImageReaderProxy.triggerImageAvailable(mTagBundle, TIMESTAMP_1);
-        flushHandler(mBackgroundHandler);
-        flushHandler(mCallbackHandler);
-
-        // Assert: both
-        ImageProxy imageProxyReceived = Iterables.getOnlyElement(mImageProxiesReceived);
-        // The expected value is based on fitting the 1:1 view port into a rect with the size of
-        // the ImageReader.
-        int expectedPadding =
-                (mFakeImageReaderProxy.getWidth() - mFakeImageReaderProxy.getHeight()) / 2;
-        assertThat(imageProxyReceived.getCropRect())
-                .isEqualTo(new Rect(expectedPadding, 0,
-                        mFakeImageReaderProxy.getWidth() - expectedPadding,
-                        mFakeImageReaderProxy.getHeight()));
     }
 
     @Test
@@ -303,6 +276,7 @@ public class ImageAnalysisTest {
                             return mFakeImageReaderProxy;
                         })
                 .setSessionOptionUnpacker((config, builder) -> { })
+                .setOnePixelShiftEnabled(false)
                 .build();
 
         mImageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(mCallbackHandler),
