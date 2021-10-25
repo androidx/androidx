@@ -20,7 +20,7 @@ import android.graphics.drawable.ColorDrawable
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
-import androidx.glance.unit.Dp
+import androidx.compose.ui.unit.Dp
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertAbout

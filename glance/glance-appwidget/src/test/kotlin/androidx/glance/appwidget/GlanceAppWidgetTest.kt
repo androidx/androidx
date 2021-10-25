@@ -28,11 +28,10 @@ import androidx.compose.runtime.Composable
 import androidx.core.os.bundleOf
 import androidx.glance.LocalSize
 import androidx.glance.layout.Text
-import androidx.glance.unit.DpSize
-import androidx.glance.unit.dp
-import androidx.glance.unit.max
-import androidx.glance.unit.min
-import androidx.glance.unit.toSizeF
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
+import androidx.compose.ui.unit.min
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
@@ -149,7 +148,7 @@ class GlanceAppWidgetTest {
             val size = LocalSize.current
             Text("${size.width} x ${size.height}")
         }
-        val options = optionsBundleOf(DpSize(100.dp, 50.dp), DpSize(50.dp, 100.dp))
+        val options = optionsBundleOf(listOf(DpSize(100.dp, 50.dp), DpSize(50.dp, 100.dp)))
         val appWidgetManager = mock<AppWidgetManager> {
             on { getAppWidgetInfo(1) }.thenThrow(RuntimeException("This should not be called"))
         }
@@ -205,7 +204,7 @@ class GlanceAppWidgetTest {
             Text("${size.width} x ${size.height}")
         }
         // Note: Landscape fits the 60x80 and 100x70, portrait doesn't fit anything
-        val options = optionsBundleOf(DpSize(125.dp, 90.dp), DpSize(40.0.dp, 120.dp))
+        val options = optionsBundleOf(listOf(DpSize(125.dp, 90.dp), DpSize(40.0.dp, 120.dp)))
         val appWidgetManager = mock<AppWidgetManager> {
             on { getAppWidgetInfo(1) }.thenThrow(RuntimeException("This should not be called"))
         }
@@ -322,7 +321,7 @@ class GlanceAppWidgetTest {
             .isEqualTo(DpSize(50.dp, 50.dp))
     }
 
-    private fun optionsBundleOf(vararg sizes: DpSize): Bundle {
+    private fun optionsBundleOf(sizes: List<DpSize>): Bundle {
         require(sizes.isNotEmpty()) { "There must be at least one size" }
         val (minSize, maxSize) = sizes.fold(sizes[0] to sizes[0]) { acc, s ->
             DpSize(min(acc.first.width, s.width), min(acc.first.height, s.height)) to
@@ -360,5 +359,3 @@ class GlanceAppWidgetTest {
         }
     }
 }
-
-private inline fun <reified T> Collection<T>.toArrayList() = ArrayList<T>(this)

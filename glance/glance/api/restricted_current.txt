@@ -17,9 +17,9 @@ package androidx.glance {
 
   public final class CompositionLocalsKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> getLocalContext();
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.unit.DpSize> getLocalSize();
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.DpSize> getLocalSize();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> LocalContext;
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.unit.DpSize> LocalSize;
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.DpSize> LocalSize;
   }
 
   @androidx.compose.runtime.Stable public interface GlanceModifier {
@@ -321,13 +321,13 @@ package androidx.glance.text {
   }
 
   @androidx.compose.runtime.Immutable public final class TextStyle {
-    ctor public TextStyle(optional androidx.glance.unit.Sp? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration);
-    method public androidx.glance.unit.Sp? getFontSize();
+    ctor public TextStyle(optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration);
+    method public androidx.compose.ui.unit.TextUnit? getFontSize();
     method public androidx.glance.text.FontStyle? getFontStyle();
     method public androidx.glance.text.FontWeight? getFontWeight();
     method public androidx.glance.text.TextAlign? getTextAlign();
     method public androidx.glance.text.TextDecoration? getTextDecoration();
-    property public final androidx.glance.unit.Sp? fontSize;
+    property public final androidx.compose.ui.unit.TextUnit? fontSize;
     property public final androidx.glance.text.FontStyle? fontStyle;
     property public final androidx.glance.text.FontWeight? fontWeight;
     property public final androidx.glance.text.TextAlign? textAlign;
@@ -382,87 +382,6 @@ package androidx.glance.unit {
   public final class ColorProviderKt {
     method public static androidx.glance.unit.ColorProvider ColorProvider(int color);
     method public static androidx.glance.unit.ColorProvider ColorProvider(@ColorRes int resId);
-  }
-
-  public final inline class Dp implements java.lang.Comparable<androidx.glance.unit.Dp> {
-    ctor public Dp();
-    method public operator int compareTo(float other);
-    method public operator float div(float other);
-    method public operator float div(int other);
-    method public operator float div(float other);
-    method public float getValue();
-    method public operator float minus(float other);
-    method public operator float plus(float other);
-    method public operator float times(float other);
-    method public operator float times(int other);
-    method public operator float unaryMinus();
-    property public final float value;
-  }
-
-  public final class DpKt {
-    method public static inline float getDp(int);
-    method public static inline float getDp(double);
-    method public static inline float getDp(float);
-    method public static float max(float a, float b);
-    method public static float min(float a, float b);
-    method public static operator float times(float, float other);
-    method public static operator float times(double, float other);
-    method public static operator float times(int, float other);
-  }
-
-  @androidx.compose.runtime.Immutable public final class DpSize {
-    ctor public DpSize(float width, float height);
-    method @androidx.compose.runtime.Stable public operator float component1();
-    method @androidx.compose.runtime.Stable public operator float component2();
-    method public androidx.glance.unit.DpSize copy(optional float width, optional float height);
-    method @androidx.compose.runtime.Stable public operator androidx.glance.unit.DpSize div(int other);
-    method @androidx.compose.runtime.Stable public operator androidx.glance.unit.DpSize div(float other);
-    method public float getHeight();
-    method public float getWidth();
-    method @androidx.compose.runtime.Stable public operator androidx.glance.unit.DpSize minus(androidx.glance.unit.DpSize other);
-    method @androidx.compose.runtime.Stable public operator androidx.glance.unit.DpSize plus(androidx.glance.unit.DpSize other);
-    method @androidx.compose.runtime.Stable public operator androidx.glance.unit.DpSize times(int other);
-    method @androidx.compose.runtime.Stable public operator androidx.glance.unit.DpSize times(float other);
-    property public final float height;
-    property public final float width;
-    field public static final androidx.glance.unit.DpSize.Companion Companion;
-  }
-
-  public static final class DpSize.Companion {
-    method public androidx.glance.unit.DpSize getZero();
-    property public final androidx.glance.unit.DpSize Zero;
-  }
-
-  public final class DpSizeKt {
-    method @androidx.compose.runtime.Stable public static operator androidx.glance.unit.DpSize times(int, androidx.glance.unit.DpSize size);
-    method @androidx.compose.runtime.Stable public static operator androidx.glance.unit.DpSize times(float, androidx.glance.unit.DpSize size);
-    method @androidx.compose.runtime.Stable public static android.util.SizeF toSizeF(androidx.glance.unit.DpSize);
-  }
-
-  public final inline class Sp implements java.lang.Comparable<androidx.glance.unit.Sp> {
-    ctor public Sp();
-    method public operator int compareTo(float other);
-    method public operator float div(float other);
-    method public operator float div(int other);
-    method public operator float div(float other);
-    method public float getValue();
-    method public operator float minus(float other);
-    method public operator float plus(float other);
-    method public operator float times(float other);
-    method public operator float times(int other);
-    method public operator float unaryMinus();
-    property public final float value;
-  }
-
-  public final class SpKt {
-    method public static inline float getSp(int);
-    method public static inline float getSp(double);
-    method public static inline float getSp(float);
-    method public static float max(float a, float b);
-    method public static float min(float a, float b);
-    method public static operator float times(float, float other);
-    method public static operator float times(double, float other);
-    method public static operator float times(int, float other);
   }
 
 }

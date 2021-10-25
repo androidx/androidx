@@ -25,8 +25,8 @@ import android.content.pm.ActivityInfo
 import android.os.Build
 import android.view.View
 import android.view.ViewTreeObserver
-import androidx.glance.unit.DpSize
-import androidx.glance.unit.dp
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -153,7 +153,7 @@ class AppWidgetHostRule(
                 mHostView.resetRemoteViewsLatch()
                 AppWidgetManager.getInstance(mContext).updateAppWidgetOptions(
                     mAppWidgetId,
-                    optionsBundleOf(portraitSize, landscapeSize)
+                    optionsBundleOf(listOf(portraitSize, landscapeSize))
                 )
                 mHostView.waitForRemoteViews()
             }

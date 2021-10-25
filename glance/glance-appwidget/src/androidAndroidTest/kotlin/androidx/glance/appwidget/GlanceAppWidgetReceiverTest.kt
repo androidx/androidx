@@ -46,9 +46,9 @@ import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.Dp
-import androidx.glance.unit.DpSize
-import androidx.glance.unit.dp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -131,7 +131,7 @@ class GlanceAppWidgetReceiverTest {
     @Test
     fun createResponsiveAppWidget() {
         TestGlanceAppWidget.sizeMode =
-            SizeMode.Responsive(DpSize(100.dp, 150.dp), DpSize(250.dp, 150.dp))
+            SizeMode.Responsive(setOf(DpSize(100.dp, 150.dp), DpSize(250.dp, 150.dp)))
 
         TestGlanceAppWidget.uiDefinition = {
             val size = LocalSize.current
