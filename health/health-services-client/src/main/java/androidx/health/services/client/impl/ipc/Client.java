@@ -20,7 +20,7 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteException;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.health.services.client.impl.ipc.internal.BaseQueueOperation;
@@ -128,43 +128,55 @@ public abstract class Client<S extends IInterface> {
      */
     protected <R> ListenableFuture<R> executeWithVersionCheck(
             RemoteFutureOperation<S, R> operation, int minApiVersion) {
-        if (mCurrentVersion == UNKNOWN_VERSION) {
-            SettableFuture<R> settableFuture = SettableFuture.create();
-            ListenableFuture<Integer> versionFuture = execute(mRemoteVersionGetter);
-            Futures.addCallback(
-                    versionFuture,
-                    new FutureCallback<Integer>() {
-                        @Override
-                        public void onSuccess(@Nullable Integer remoteVersion) {
-                            mCurrentVersion =
-                                    remoteVersion == null ? UNKNOWN_VERSION : remoteVersion;
-                            if (mCurrentVersion < minApiVersion) {
-                                settableFuture.setException(
-                                        getApiVersionCheckFailureException(
-                                            mCurrentVersion, minApiVersion));
-                            } else {
-                                mConnectionManager.scheduleForExecution(
-                                        createQueueOperation(operation, settableFuture));
-                            }
-                        }
+        SettableFuture<R> settableFuture = SettableFuture.create();
+        ListenableFuture<Integer> versionFuture =
+                getCurrentRemoteVersion(/* forceRefresh= */ false);
+        Futures.addCallback(
+                versionFuture,
+                new FutureCallback<Integer>() {
+                    @Override
+                    public void onSuccess(Integer remoteVersion) {
+                        if (remoteVersion < minApiVersion) {
+                            // This empty operation is executed just to connect to the service.
+                            // If we didn't connect it could happen that we won't detect
+                            // change in the API version.
+                            mConnectionManager.scheduleForExecution(
+                                    new BaseQueueOperation(mConnectionConfiguration));
 
-                        @Override
-                        public void onFailure(Throwable throwable) {
-                            settableFuture.setException(throwable);
+                            settableFuture.setException(
+                                    getApiVersionCheckFailureException(
+                                            remoteVersion, minApiVersion));
+                        } else {
+                            mConnectionManager.scheduleForExecution(
+                                    createQueueOperation(operation, settableFuture));
                         }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        settableFuture.setException(throwable);
+                    }
+                },
+                MoreExecutors.directExecutor());
+        return settableFuture;
+    }
+
+    /**
+     * Return current version of the backing service implementation.
+     *
+     * <p>If current version is available from earlier calls, it would return the value from cache.
+     */
+    protected ListenableFuture<Integer> getCurrentRemoteVersion(boolean forceRefresh) {
+        if (mCurrentVersion == UNKNOWN_VERSION || forceRefresh) {
+            return Futures.transform(
+                    execute(mRemoteVersionGetter),
+                    version -> {
+                        mCurrentVersion = version;
+                        return mCurrentVersion;
                     },
                     MoreExecutors.directExecutor());
-            return settableFuture;
-        } else if (mCurrentVersion >= minApiVersion) {
-            return execute(operation);
         } else {
-            // This empty operation is executed just to connect to the service. If we didn't connect
-            // it
-            // could happen that we won't detect change in the API version.
-            mConnectionManager.scheduleForExecution(
-                    new BaseQueueOperation(mConnectionConfiguration));
-            return Futures.immediateFailedFuture(
-                    getApiVersionCheckFailureException(mCurrentVersion, minApiVersion));
+            return Futures.immediateFuture(mCurrentVersion);
         }
     }
 
@@ -246,7 +258,8 @@ public abstract class Client<S extends IInterface> {
         return settableFuture;
     }
 
-    protected Exception getApiVersionCheckFailureException(int currentVersion, int minApiVersion) {
+    protected @NonNull Exception getApiVersionCheckFailureException(
+            int currentVersion, int minApiVersion) {
         return new ApiVersionException(currentVersion, minApiVersion);
     }
 
