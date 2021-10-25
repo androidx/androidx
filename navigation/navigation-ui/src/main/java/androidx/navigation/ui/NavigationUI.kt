@@ -90,7 +90,8 @@ public object NavigationUI {
         return try {
             // TODO provide proper API instead of using Exceptions as Control-Flow.
             navController.navigate(item.itemId, null, options)
-            true
+            // Return true only if the destination we've navigated to matches the MenuItem
+            navController.currentDestination?.matchDestination(item.itemId) == true
         } catch (e: IllegalArgumentException) {
             false
         }
@@ -153,7 +154,8 @@ public object NavigationUI {
         return try {
             // TODO provide proper API instead of using Exceptions as Control-Flow.
             navController.navigate(item.itemId, null, options)
-            true
+            // Return true only if the destination we've navigated to matches the MenuItem
+            navController.currentDestination?.matchDestination(item.itemId) == true
         } catch (e: IllegalArgumentException) {
             false
         }
