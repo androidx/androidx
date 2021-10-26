@@ -162,6 +162,19 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.painter.Painter painter, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional long tint);
   }
 
+  @androidx.compose.runtime.Stable public interface InlineSliderColors {
+    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> backgroundColor(boolean enabled);
+    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> barColor(boolean enabled, boolean selected);
+    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> spacerColor(boolean enabled);
+  }
+
+  public final class InlineSliderDefaults {
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material.InlineSliderColors colors(optional long backgroundColor, optional long spacerColor, optional long selectedBarColor, optional long unselectedBarColor, optional long disabledBackgroundColor, optional long disabledSpacerColor, optional long disabledSelectedBarColor, optional long disabledUnselectedBarColor);
+    method public androidx.compose.ui.graphics.vector.ImageVector getDecreaseIcon();
+    property public final androidx.compose.ui.graphics.vector.ImageVector DecreaseIcon;
+    field public static final androidx.wear.compose.material.InlineSliderDefaults INSTANCE;
+  }
+
   public final class ListHeaderKt {
     method @androidx.compose.runtime.Composable public static void ListHeader(optional androidx.compose.ui.Modifier modifier, optional long contentColor, optional long backgroundColor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
@@ -308,6 +321,10 @@ package androidx.wear.compose.material {
   }
 
   public final class ShapesKt {
+  }
+
+  public final class SliderKt {
+    method @androidx.compose.runtime.Composable public static void InlineSlider(float value, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange, int steps, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional boolean segmented, optional kotlin.jvm.functions.Function0<kotlin.Unit> decreaseIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit> increaseIcon, optional androidx.wear.compose.material.InlineSliderColors colors);
   }
 
   @androidx.wear.compose.material.ExperimentalWearMaterialApi public enum SwipeDismissTarget {
