@@ -42,6 +42,7 @@ import androidx.glance.text.TextStyle
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.layout.Spacer
 import androidx.glance.wear.layout.AnchorType
 import androidx.glance.wear.layout.AndroidLayoutElement
 import androidx.glance.wear.layout.CurvedRow
@@ -491,6 +492,26 @@ class WearCompositionTranslatorTest {
         assertThat(innerText.modifiers!!.clickable).isNotNull()
         assertThat(innerText.modifiers!!.clickable!!.onClick)
             .isInstanceOf(ActionBuilders.LaunchAction::class.java)
+    }
+
+    @Test
+    fun canTranslateSpacer() = fakeCoroutineScope.runBlockingTest {
+        val content = runAndTranslate {
+            Spacer(GlanceModifier.width(10.dp))
+            Spacer(GlanceModifier.height(15.dp))
+            Spacer(GlanceModifier.size(8.dp, 12.dp))
+        }
+
+        val spacerWithWidth = (content as LayoutElementBuilders.Box).contents[0] as
+            LayoutElementBuilders.Spacer
+        assertThat((spacerWithWidth.width as DimensionBuilders.DpProp).value).isEqualTo(10f)
+
+        val spacerWithHeight = content.contents[1] as LayoutElementBuilders.Spacer
+        assertThat((spacerWithHeight.height as DimensionBuilders.DpProp).value).isEqualTo(15f)
+
+        val spacerWithSize = content.contents[2] as LayoutElementBuilders.Spacer
+        assertThat((spacerWithSize.width as DimensionBuilders.DpProp).value).isEqualTo(8f)
+        assertThat((spacerWithSize.height as DimensionBuilders.DpProp).value).isEqualTo(12f)
     }
 
     @Test

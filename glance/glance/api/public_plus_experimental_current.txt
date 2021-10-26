@@ -255,6 +255,10 @@ package androidx.glance.layout {
     method public androidx.glance.GlanceModifier defaultWeight(androidx.glance.GlanceModifier);
   }
 
+  public final class SpacerKt {
+    method @androidx.compose.runtime.Composable public static void Spacer(optional androidx.glance.GlanceModifier modifier);
+  }
+
   public final class TextKt {
     method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.glance.GlanceModifier modifier, optional androidx.glance.text.TextStyle? style);
   }
