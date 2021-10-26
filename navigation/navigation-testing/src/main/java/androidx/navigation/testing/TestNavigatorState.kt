@@ -19,9 +19,7 @@ package androidx.navigation.testing
 import android.content.Context
 import android.os.Bundle
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.FloatingWindow
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
@@ -50,11 +48,6 @@ public class TestNavigatorState @JvmOverloads constructor(
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.Main.immediate
 ) : NavigatorState() {
 
-    private val lifecycleOwner: LifecycleOwner = TestLifecycleOwner(
-        Lifecycle.State.RESUMED,
-        coroutineDispatcher
-    )
-
     private val viewModelStoreProvider = object : NavViewModelStoreProvider {
         private val viewModelStores = mutableMapOf<String, ViewModelStore>()
         override fun getViewModelStore(
@@ -71,7 +64,7 @@ public class TestNavigatorState @JvmOverloads constructor(
         destination: NavDestination,
         arguments: Bundle?
     ): NavBackStackEntry = NavBackStackEntry.create(
-        context, destination, arguments, lifecycleOwner, viewModelStoreProvider
+        context, destination, arguments, Lifecycle.State.RESUMED, viewModelStoreProvider
     )
 
     /**
@@ -86,7 +79,7 @@ public class TestNavigatorState @JvmOverloads constructor(
         return NavBackStackEntry.create(
             context,
             previouslySavedEntry.destination, previouslySavedEntry.arguments,
-            lifecycleOwner, viewModelStoreProvider,
+            Lifecycle.State.RESUMED, viewModelStoreProvider,
             previouslySavedEntry.id, savedState
         )
     }
