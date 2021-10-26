@@ -26,7 +26,6 @@ import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -35,6 +34,9 @@ import android.widget.RelativeLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.core.view.children
 import androidx.glance.GlanceModifier
 import androidx.glance.action.actionLaunchActivity
@@ -55,9 +57,6 @@ import androidx.glance.layout.absolutePadding
 import androidx.glance.layout.padding
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -68,8 +67,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.lang.IllegalArgumentException
-import java.lang.IllegalStateException
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 
@@ -643,11 +640,11 @@ class RemoteViewsTranslatorKtTest {
         }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<ViewGroup>(view)
-        val iconView = view.findViewById<ImageView>(R.id.checkBoxIcon)
+        assertIs<LinearLayout>(view)
+        val iconView = assertIs<ImageView>(view.getChildAt(0))
         assertThat(iconView.isEnabled).isFalse()
 
-        val textView = view.findViewById<TextView>(R.id.checkBoxText)
+        val textView = assertIs<TextView>(view.getChildAt(1))
         val textContent = assertIs<SpannedString>(textView.text)
         assertThat(textContent.toString()).isEqualTo("test")
         assertThat(textContent.getSpans(0, textContent.length, Any::class.java)).hasLength(1)
@@ -666,11 +663,11 @@ class RemoteViewsTranslatorKtTest {
         }
         val view = context.applyRemoteViews(rv)
 
-        assertIs<ViewGroup>(view)
-        val iconView = view.findViewById<ImageView>(R.id.checkBoxIcon)
+        assertIs<LinearLayout>(view)
+        val iconView = assertIs<ImageView>(view.getChildAt(0))
         assertThat(iconView.isEnabled).isTrue()
 
-        val textView = view.findViewById<TextView>(R.id.checkBoxText)
+        val textView = assertIs<TextView>(view.getChildAt(1))
         val textContent = assertIs<SpannedString>(textView.text)
         assertThat(textContent.toString()).isEqualTo("test checked")
         assertThat(textContent.getSpans(0, textContent.length, Any::class.java)).hasLength(1)

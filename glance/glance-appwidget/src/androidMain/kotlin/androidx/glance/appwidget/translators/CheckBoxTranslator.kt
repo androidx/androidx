@@ -23,6 +23,7 @@ import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.R
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
+import androidx.glance.appwidget.inflateViewStub
 import androidx.glance.appwidget.insertView
 import androidx.glance.appwidget.layout.EmittableCheckBox
 import androidx.glance.appwidget.setViewEnabled
@@ -49,8 +50,9 @@ internal fun RemoteViews.translateEmittableCheckBox(
             element.checked
         )
     } else {
-        textViewId = R.id.checkBoxText
-        setViewEnabled(R.id.checkBoxIcon, element.checked)
+        val iconId = inflateViewStub(translationContext, R.id.checkBoxIcon)
+        textViewId = inflateViewStub(translationContext, R.id.checkBoxText)
+        setViewEnabled(iconId, element.checked)
     }
 
     setText(

@@ -20,31 +20,27 @@
     android:orientation="horizontal"
     android:gravity="center"
     style="@style/Glance.AppWidget.SwitchBackport">
-    <TextView
+    <ViewStub
         android:id="@id/switchText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textDirection="locale"
-        style="@style/Glance.AppWidget.SwitchText"/>
+        android:layout="@layout/swtch_text" />
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/Glance.AppWidget.SwitchBackport">
-        <ImageView
+
+        <ViewStub
             android:id="@id/switchTrack"
             android:layout_width="42dp"
             android:layout_height="28dp"
-            android:src="@drawable/switch_track_material"
-            style="@style/Glance.AppWidget.SwitchTrack"/>
+            android:layout="@layout/swtch_track" />
 
-        <ImageView
+        <ViewStub
             android:id="@id/switchThumb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|start"
-            android:src="@drawable/switch_thumb_material"
-            android:tint="@color/switch_thumb_material"
-            style="@style/Glance.AppWidget.SwitchThumb"/>
+            android:layout="@layout/swtch_thumb" />
     </FrameLayout>
 </LinearLayout>

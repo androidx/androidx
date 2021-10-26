@@ -23,6 +23,7 @@ import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.R
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
+import androidx.glance.appwidget.inflateViewStub
 import androidx.glance.appwidget.insertView
 import androidx.glance.appwidget.layout.EmittableSwitch
 import androidx.glance.appwidget.setViewEnabled
@@ -49,9 +50,11 @@ internal fun RemoteViews.translateEmittableSwitch(
             element.checked
         )
     } else {
-        textViewId = R.id.switchText
-        setViewEnabled(R.id.switchThumb, element.checked)
-        setViewEnabled(R.id.switchTrack, element.checked)
+        textViewId = inflateViewStub(translationContext, R.id.switchText)
+        val thumbId = inflateViewStub(translationContext, R.id.switchThumb)
+        val trackId = inflateViewStub(translationContext, R.id.switchTrack)
+        setViewEnabled(thumbId, element.checked)
+        setViewEnabled(trackId, element.checked)
     }
 
     setText(
