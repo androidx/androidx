@@ -26,6 +26,8 @@ import androidx.wear.compose.material.samples.ChipWithIconAndLabels
 import androidx.wear.compose.material.samples.CompactButtonWithIcon
 import androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
 import androidx.wear.compose.material.samples.CurvedTextDemo
+import androidx.wear.compose.material.samples.InlineSliderSample
+import androidx.wear.compose.material.samples.InlineSliderSegmentedSample
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
 import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeadersReversed
 import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
@@ -76,6 +78,28 @@ internal val SwipeToDismissDemos =
 val WearMaterialDemos = DemoCategory(
     "Material",
     listOf(
+        DemoCategory(
+            "Slider",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Inline slider") { Centralize { InlineSliderSample() } },
+                        ComposableDemo("Segmented inline slider") {
+                            Centralize { InlineSliderSegmentedSample() }
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Inline slider") { InlineSliderDemo() },
+                        ComposableDemo("RTL Inline slider") { InlineSliderRTLDemo() },
+                        ComposableDemo("Inline slider segmented") { InlineSliderSegmented() },
+                    )
+                )
+            )
+        ),
         DemoCategory(
             "TimeText",
             listOf(
