@@ -72,6 +72,7 @@ import androidx.test.espresso.action.EspressoKey;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
 import androidx.viewpager.test.R;
 
@@ -463,6 +464,7 @@ public abstract class BaseViewPagerTest<T extends Activity> {
                 mViewPager.getCurrentItem());
     }
 
+    @SdkSuppress(maxSdkVersion = 30) // b/202408966
     @Test
     @MediumTest
     public void testFlingAfterStretchAtLeft() {
@@ -475,6 +477,7 @@ public abstract class BaseViewPagerTest<T extends Activity> {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 30) // b/202408966
     @Test
     @MediumTest
     public void testFlingAfterStretchAtRight() throws Throwable {
