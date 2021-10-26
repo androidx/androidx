@@ -227,7 +227,7 @@ package androidx.navigation {
     field public static final androidx.navigation.NavDestination.Companion Companion;
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public static @interface NavDestination.ClassType {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.CLASS}) public static @interface NavDestination.ClassType {
     method public abstract kotlin.reflect.KClass<?> value();
     property public abstract kotlin.reflect.KClass<?> value;
   }
@@ -472,7 +472,7 @@ package androidx.navigation {
   public static interface Navigator.Extras {
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public static @interface Navigator.Name {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.CLASS}) public static @interface Navigator.Name {
     method public abstract String value();
     property public abstract String value;
   }
