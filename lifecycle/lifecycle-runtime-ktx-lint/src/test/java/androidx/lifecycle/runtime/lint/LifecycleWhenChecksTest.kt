@@ -24,6 +24,7 @@ import androidx.lifecycle.runtime.lint.stubs.VIEW_STUB
 import com.android.tools.lint.checks.infrastructure.TestFiles.kt
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask
+import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -35,6 +36,7 @@ class LifecycleWhenChecksTest {
         return TestLintTask.lint()
             .files(VIEW_STUB, LIFECYCLE_STUB, COROUTINES_STUB, kt(template(body)))
             .allowCompilationErrors(true) // b/193267317
+            .skipTestModes(TestMode.IF_TO_WHEN) // b/203245752
             .issues(ISSUE)
             .run()
     }
