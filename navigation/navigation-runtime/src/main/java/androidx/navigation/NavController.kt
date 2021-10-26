@@ -40,6 +40,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavDestination.Companion.createRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
@@ -1258,7 +1259,26 @@ public open class NavController(
                 }
                 navigate(
                     node, arguments,
-                    NavOptions.Builder().setEnterAnim(0).setExitAnim(0).build(), null
+                    navOptions {
+                        anim {
+                            enter = 0
+                            exit = 0
+                        }
+                        val changingGraphs = node is NavGraph &&
+                            currentDestination?.hierarchy?.none { it == node } == true
+                        if (changingGraphs && deepLinkSaveState) {
+                            // If we are navigating to a 'sibling' graph (one that isn't part
+                            // of the current destination's hierarchy), then we need to saveState
+                            // to ensure that each graph has its own saved state that users can
+                            // return to
+                            popUpTo(graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            // Note we specifically don't call restoreState = true
+                            // as our deep link should support multiple instances of the
+                            // same graph in a row
+                        }
+                    }, null
                 )
             }
             return true
@@ -2265,6 +2285,22 @@ public open class NavController(
          */
         public const val KEY_DEEP_LINK_INTENT: String =
             "android-support-nav:controller:deepLinkIntent"
+
+        private var deepLinkSaveState = true
+
+        /**
+         * By default, [handleDeepLink] will automatically add calls to
+         * [NavOptions.Builder.setPopUpTo] with a `saveState` of `true` when the deep
+         * link takes you to another graph (e.g., a different navigation graph than the
+         * one your start destination is in).
+         *
+         * You can disable this behavior by passing `false` for [saveState].
+         */
+        @JvmStatic
+        @NavDeepLinkSaveStateControl
+        public fun enableDeepLinkSaveState(saveState: Boolean) {
+            deepLinkSaveState = saveState
+        }
     }
 }
 
